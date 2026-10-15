@@ -7948,3 +7948,42 @@ one child on live.
   GitHub → `live database`). The status first exists on the commit this merges as; Vercel lists only checks it has
   seen. Until then Vercel promotes every build as before.
 - **Not known:** whether this Vercel plan offers Deployment Checks. The connector here cannot read the team.
+
+## SF1 — a kind of question is a row (2026-10-15, ADR 0075)
+
+- **Nimish, 2026-10-15:** approval for "all unique formats of questions", with an engine that "simply checks whether a
+  certain question belongs to a certain format"; "it should be skills * format and 100/200/500 is for a skill and
+  difficulty level combo". Achal's Grade 2 asks are the first examples.
+- **Measured first, on a copy of the bank** (28,031 active questions, 43 skills, 313 skill × kind pairs):
+  - every kind of question was a Python function;
+  - MUL.TENS already has Achal's zeros (Hard and Advance, Grade 4);
+  - multiples had no "nth multiple";
+  - × and ÷ stories mix at every level;
+  - nothing made a sequence or three numbers multiplied.
+- **What a level can make, counted, not 100:**
+  - three numbers of 2 to 5 with a product up to 30: **26**; Medium 172, Hard 197, Advance 111 a kind;
+  - sequences: Easy 80, Medium 200, Hard 408;
+  - multiples: Easy 30, Medium 60, Hard 27.
+- **Built:**
+  - `assess/cards.py` draws, counts and checks a kind that is a row. It lists every set of numbers a level allows, so:
+    - "does this question belong" is a lookup of its printed words;
+    - a level's count is exact;
+    - a fill never repeats.
+  - `question_format` (migration 20261112090000), loaded from `supabase/seed/question_formats.json`.
+  - Three Grade 2 skills as rows:
+    - MUL.THREE (R54), its kinds MUL3.SUM and MUL3.STORY;
+    - NUM.SEQUENCE (R52, NUM.PAT.02), its kinds SEQ.ON and SEQ.BACK;
+    - MUL.NTH (R53, NUM.CNT.08), its kinds MULT.NTH and MULT.FIRST5.
+  - Nine new mistakes, each the formula of the wrong answer it writes.
+  - A level is filled from its whole list, to its target or all it can make (`can_make`). Refill's target is the
+    smaller of the two.
+  - A stored question is checked against its kind and level as they now stand (`cases.holds`).
+  - It prints as the multiples' sentence-and-box or list layout.
+  - A wrong list its key predicted names its mistake.
+- **Checks:**
+  - `tests/test_cards.py`: 30 passed. Every answer is worked from the printed words by the test itself, and counts are
+    brute-forced. Achal's "100, 81, 72, 63" belongs to no level; "90, 81, 72, 63" belongs to Hard.
+  - `tests/test_card_bank.py`: 4 passed.
+  - pyright strict on `cards.py` and `question_formats.py`: 0 errors.
+- **Not live:** `migrate live` makes the table, but the skills, kinds and questions arrive only with `bin/update-live`
+  (load, refill). They appear on a paper only once a Grade 2 class's topic is switched on.

@@ -399,6 +399,35 @@
         "NUM.OPS.03",
         "NUM.OPS.04"
       ]
+    },
+    {
+      "code": "R52",
+      "band": "G2",
+      "ladder_order": null,
+      "descriptor": "Number sequences: counting on and back in equal steps",
+      "skill_codes": [
+        "NUM.PAT.02",
+        "NUM.CNT.06"
+      ]
+    },
+    {
+      "code": "R53",
+      "band": "G2",
+      "ladder_order": null,
+      "descriptor": "Multiples in the tables: the nth multiple and the first multiples",
+      "skill_codes": [
+        "NUM.CNT.08",
+        "NUM.OPS.03"
+      ]
+    },
+    {
+      "code": "R54",
+      "band": "G2",
+      "ladder_order": null,
+      "descriptor": "Three one-digit numbers multiplied, two at a time",
+      "skill_codes": [
+        "NUM.OPS.03"
+      ]
     }
   ]
 }

@@ -15,7 +15,7 @@ distractors include one unnamed code, has not met the goal. The number it report
 
 import re
 
-from engine.assess import bands, tags, taxonomy, verify
+from engine.assess import bands, cards, tags, taxonomy, verify
 from engine.assess import md_tags as MD
 from engine.assess import misconceptions as M
 from engine.assess import operations as O
@@ -24,7 +24,7 @@ from engine.checks import scenarios_week
 from engine.checks import sentences as SN
 from engine.checks import stories as ST
 from engine.core import db
-from engine.w1_bank import bank, cases, refill, spec
+from engine.w1_bank import bank, cases, kinds, refill, spec
 
 CHECKS = ("produced", "answers", "on_rule", "diagnostic", "unique")
 
@@ -299,6 +299,18 @@ def run_one(conn, sc):
     return _run_bank(conn, sc)
 
 
+def _checked(it, check, rule, case_matches):
+    """→ (its answer is right, why it is outside the level's own rule), worked from the question as printed. A kind
+    that is a row is re-read from its words through its kind, at the level's own numbers (ADR 0075); any other is
+    worked by its arithmetic and re-measured by its tags."""
+    if it.fmt != "card":
+        return _answer_is_right(it), verify.dimension_problems(tags.derive(it), check, it.fmt, case_matches)
+    kind, text = next(k for k in rule["kinds"] if k["code"] == it.template), cards.sentence(it)
+    want = cards.answer_for(kind, rule, text)
+    outside = [] if cards.find(kind, rule, text) else [f"{text!r} is not this level's"]
+    return want is not None and want == str(it.responses[0].answer), outside
+
+
 def _run_bank(conn, sc):
     """One scenario → (measurements, failures). Nothing is written to the database."""
     code, difficulty, n = sc["skill_set"], sc["difficulty"], int(sc.get("n", 20))
@@ -324,12 +336,12 @@ def _run_bank(conn, sc):
         )
 
     wrong_answer, off_rule, undiagnosed, worked = [], [], [], []
+    rule = kinds.resolve(conn, check)
     for it in items:
-        ok = _answer_is_right(it)
+        ok, problems = _checked(it, check, rule, case_matches)
         worked.append(ok)
         if ok is False:
             wrong_answer.append(it.item_id)
-        problems = verify.dimension_problems(tags.derive(it), check, it.fmt, case_matches)
         if problems:
             off_rule.append(f"{it.item_id}: {','.join(problems)}")
         named = {c for r in it.responses for c in (r.misconceptions or {}) if c in vocab}

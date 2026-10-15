@@ -7,7 +7,8 @@ questions — one worksheet's worth — thin below that, missing at none.
 
 from collections import Counter, defaultdict
 
-from engine.assess import stale, taxonomy, verify, words
+from engine.assess import cards, stale, taxonomy, verify, words
+from engine.w1_bank import kinds
 
 
 def matches(conn, codes=None):
@@ -123,9 +124,16 @@ def holds(conn):
         for band, spec in s["difficulty"].items()
     }
     case_matches = matches(conn)
+    rows = kinds.of(conn)
 
     def held(r):
         region = regions.get((r["skill_set_code"], r["difficulty"]))
+        if r["fmt"] == "card":
+            # a kind that is a row, read against its kind and its level as they now stand (ADR 0075)
+            kind = rows.get(r["spec"].get("kind"))
+            if kind is None or not region or kind["code"] not in region.get("cards", []):
+                return [f"{r['spec'].get('kind')} is not a kind its level draws"]
+            return cards.belongs(kind, region, r)
         why = verify.dimension_problems(r["tags"], region, r["fmt"], case_matches) if region else []
         return (
             why

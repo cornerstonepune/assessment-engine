@@ -3,6 +3,18 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-15 — SF1: a kind of question is a row (ADR 0075, BUILD-ORDER "a skill from its examples")
+
+- **Built:**
+  - the card engine (`assess/cards.py`);
+  - `question_format`;
+  - Achal's three Grade 2 skills as rows: MUL.THREE, NUM.SEQUENCE, MUL.NTH.
+  - See STATE.md "SF1".
+- **Next is SF2,** approval per skill × kind. Measure on a copy of live first, and name to Nimish what it would close.
+  F1g is superseded.
+- **Waiting on Achal** (WhatsApp sent by Nimish, 2026-10-15): Advance for sequences and multiples; which Grade 2 level
+  takes MUL.TENS's zeros; × and ÷ stories as two kinds; the ranges taken for him (ADR 0075).
+
 ## 2026-10-15 — `item_placement` to the attic; next: a skill from its examples
 
 - **The website waits for the live database** (ADR 0074, same PR): `migrate live` sets a `live database` status on the

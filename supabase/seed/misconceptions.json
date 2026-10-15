@@ -1525,6 +1525,110 @@
       "external_ref": null,
       "skill_from": "row",
       "skill_code": "NUM.PRB.02"
+    },
+    {
+      "code": "M_MUL_ADDS_ALL",
+      "op": "×",
+      "name": "Adds the numbers it should multiply",
+      "description": "Adds where the sign says multiply: 2 × 3 × 4 written as 9.",
+      "repair_hint": "Read the sign aloud first; build 2 groups of 3, then 4 of those.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/sf1-a-kind-of-question-is-a-row.yaml (Achal's Grade 2 asks, 2026-10-15; drafted for Achal to correct)",
+      "external_ref": null
+    },
+    {
+      "code": "M_MUL_TWO_OF_THREE",
+      "op": "×",
+      "name": "Multiplies two of the three numbers and stops",
+      "description": "Works the first product and forgets the third number: 2 × 3 × 4 written as 6.",
+      "repair_hint": "Ring each number as it is used; multiply the first answer by the last number.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/sf1-a-kind-of-question-is-a-row.yaml (Achal's Grade 2 asks, 2026-10-15; drafted for Achal to correct)",
+      "external_ref": null
+    },
+    {
+      "code": "M_SEQ_ONE_ON",
+      "op": "+",
+      "name": "Counts on by one instead of by the step",
+      "description": "Adds one to the last number: 2, 5, 8, 11 continued as 12.",
+      "repair_hint": "Find the step first: how much does each number go up by?",
+      "detectable_by": "answer_lookup",
+      "source": "goals/sf1-a-kind-of-question-is-a-row.yaml (Achal's Grade 2 asks, 2026-10-15; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PAT.02"
+    },
+    {
+      "code": "M_SEQ_ONE_BACK",
+      "op": "-",
+      "name": "Counts back by one instead of by the step",
+      "description": "Takes one from the last number: 90, 81, 72, 63 continued as 62.",
+      "repair_hint": "Find the step first: how much does each number go down by?",
+      "detectable_by": "answer_lookup",
+      "source": "goals/sf1-a-kind-of-question-is-a-row.yaml (Achal's Grade 2 asks, 2026-10-15; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PAT.02"
+    },
+    {
+      "code": "M_SEQ_STEP_OFF",
+      "op": "any",
+      "name": "Counts the step one too many",
+      "description": "Uses a step one more than the sequence's: 9, 16, 23, 30 continued as 38; 90, 81, 72, 63 as 53.",
+      "repair_hint": "Check the step on two pairs before using it.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/sf1-a-kind-of-question-is-a-row.yaml (Achal's Grade 2 asks, 2026-10-15; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.PAT.02"
+    },
+    {
+      "code": "M_MULT_FROM_ZERO",
+      "op": "×",
+      "name": "Counts the multiples from zero",
+      "description": "Counts 0 as the first multiple: the 9th multiple of 3 written as 24.",
+      "repair_hint": "List the multiples on fingers starting at the number itself: 3 is the first.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/sf1-a-kind-of-question-is-a-row.yaml (Achal's Grade 2 asks, 2026-10-15; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.CNT.08"
+    },
+    {
+      "code": "M_MULT_ONE_TOO_MANY",
+      "op": "×",
+      "name": "Counts one multiple too many",
+      "description": "Counts past the one asked for: the 9th multiple of 3 written as 30.",
+      "repair_hint": "Point and count the multiples aloud, stopping at the one asked for.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/sf1-a-kind-of-question-is-a-row.yaml (Achal's Grade 2 asks, 2026-10-15; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.CNT.08"
+    },
+    {
+      "code": "M_MULT_STARTS_AT_ZERO",
+      "op": "×",
+      "name": "Starts the multiples at zero",
+      "description": "Writes 0 as a multiple: the first five multiples of 5 written as 0, 5, 10, 15, 20.",
+      "repair_hint": "The first multiple is the number itself: one group of 5.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/sf1-a-kind-of-question-is-a-row.yaml (Achal's Grade 2 asks, 2026-10-15; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.CNT.08"
+    },
+    {
+      "code": "M_MULT_IN_ONES",
+      "op": "×",
+      "name": "Counts on in ones from the number",
+      "description": "Counts on by one instead of by the number: the first five multiples of 5 written as 5, 6, 7, 8, 9.",
+      "repair_hint": "Skip count on a number line in jumps of the number.",
+      "detectable_by": "answer_lookup",
+      "source": "goals/sf1-a-kind-of-question-is-a-row.yaml (Achal's Grade 2 asks, 2026-10-15; drafted for Achal to correct)",
+      "external_ref": null,
+      "skill_from": "row",
+      "skill_code": "NUM.CNT.08"
     }
   ]
 }

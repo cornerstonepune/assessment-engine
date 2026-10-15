@@ -4505,6 +4505,332 @@
         "Hard": "G3",
         "Advance": "G4"
       }
+    },
+    {
+      "code": "MUL.THREE",
+      "rung_code": "R54",
+      "name": "Multiplying three numbers",
+      "learning_objective": "Multiplies three one-digit numbers, two at a time, and multiplies three numbers met in a story.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "card"
+      ],
+      "misconception_codes": [
+        "M_MUL_ADDS_ALL",
+        "M_MUL_TWO_OF_THREE"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Three numbers from 2 to 5, the product up to 30: 2 × 3 × 2, 5 × 2 × 2.",
+          "check": {
+            "format": "card",
+            "cards": [
+              "MUL3.SUM"
+            ],
+            "numbers": {
+              "a": [
+                2,
+                5
+              ],
+              "b": [
+                2,
+                5
+              ],
+              "c": [
+                2,
+                5
+              ]
+            },
+            "answer_within": [
+              8,
+              30
+            ]
+          },
+          "min_items": 100
+        },
+        "Medium": {
+          "words": "Three one-digit numbers, the product from 31 to 100: 3 × 4 × 5.",
+          "check": {
+            "format": "card",
+            "cards": [
+              "MUL3.SUM"
+            ],
+            "numbers": {
+              "a": [
+                2,
+                9
+              ],
+              "b": [
+                2,
+                9
+              ],
+              "c": [
+                2,
+                9
+              ]
+            },
+            "answer_within": [
+              31,
+              100
+            ]
+          },
+          "min_items": 100
+        },
+        "Hard": {
+          "words": "Three one-digit numbers, the product from 101 to 250: 6 × 5 × 7.",
+          "check": {
+            "format": "card",
+            "cards": [
+              "MUL3.SUM"
+            ],
+            "numbers": {
+              "a": [
+                2,
+                9
+              ],
+              "b": [
+                2,
+                9
+              ],
+              "c": [
+                2,
+                9
+              ]
+            },
+            "answer_within": [
+              101,
+              250
+            ]
+          },
+          "min_items": 100
+        },
+        "Advance": {
+          "words": "Three one-digit numbers, the product from 251 to 729, and stories of three numbers multiplied: 9 × 6 × 9.",
+          "check": {
+            "format": "card",
+            "cards": [
+              "MUL3.SUM",
+              "MUL3.STORY"
+            ],
+            "numbers": {
+              "a": [
+                2,
+                9
+              ],
+              "b": [
+                2,
+                9
+              ],
+              "c": [
+                2,
+                9
+              ]
+            },
+            "answer_within": [
+              251,
+              729
+            ]
+          },
+          "min_items": 100
+        }
+      },
+      "level_band": {
+        "Easy": "G2",
+        "Medium": "G2",
+        "Hard": "G2",
+        "Advance": "G2"
+      }
+    },
+    {
+      "code": "NUM.SEQUENCE",
+      "rung_code": "R52",
+      "name": "Number sequences",
+      "learning_objective": "Finds the step of a sequence that goes up or down in equal steps, and writes the number that comes next.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "card"
+      ],
+      "misconception_codes": [
+        "M_SEQ_ONE_ON",
+        "M_SEQ_ONE_BACK",
+        "M_SEQ_STEP_OFF"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "Counting on in steps of 2 to 5 from a number up to 20, to 50: 2, 5, 8, 11, □.",
+          "check": {
+            "format": "card",
+            "cards": [
+              "SEQ.ON"
+            ],
+            "numbers": {
+              "s": [
+                1,
+                20
+              ],
+              "d": [
+                2,
+                5
+              ]
+            },
+            "answer_within": [
+              0,
+              50
+            ]
+          },
+          "min_items": 100
+        },
+        "Medium": {
+          "words": "Counting on in steps of 6 to 9 from a number up to 50, to 100: 9, 16, 23, 30, □.",
+          "check": {
+            "format": "card",
+            "cards": [
+              "SEQ.ON"
+            ],
+            "numbers": {
+              "s": [
+                1,
+                50
+              ],
+              "d": [
+                6,
+                9
+              ]
+            },
+            "answer_within": [
+              0,
+              100
+            ]
+          },
+          "min_items": 100
+        },
+        "Hard": {
+          "words": "Counting back in steps of 2 to 9 from a number from 50 to 100: 90, 81, 72, 63, □.",
+          "check": {
+            "format": "card",
+            "cards": [
+              "SEQ.BACK"
+            ],
+            "numbers": {
+              "s": [
+                50,
+                100
+              ],
+              "d": [
+                2,
+                9
+              ]
+            },
+            "answer_within": [
+              0,
+              100
+            ]
+          },
+          "min_items": 100
+        }
+      },
+      "level_band": {
+        "Easy": "G2",
+        "Medium": "G2",
+        "Hard": "G2"
+      }
+    },
+    {
+      "code": "MUL.NTH",
+      "rung_code": "R53",
+      "name": "Multiples in the tables",
+      "learning_objective": "Finds the nth multiple of a number in its table, and writes the first five multiples of a number.",
+      "eval_type": "computable",
+      "philosophy": [],
+      "formats": [
+        "card"
+      ],
+      "misconception_codes": [
+        "M_MULT_FROM_ZERO",
+        "M_MULT_ONE_TOO_MANY",
+        "M_MULT_STARTS_AT_ZERO",
+        "M_MULT_IN_ONES"
+      ],
+      "difficulty": {
+        "Easy": {
+          "words": "The 2nd to 10th multiples of 2, 5 and 10, and their first five multiples: the first five multiples of 5.",
+          "check": {
+            "format": "card",
+            "cards": [
+              "MULT.NTH",
+              "MULT.FIRST5"
+            ],
+            "numbers": {
+              "k": {
+                "one_of": [
+                  2,
+                  5,
+                  10
+                ]
+              },
+              "n": [
+                2,
+                10
+              ]
+            }
+          },
+          "min_items": 100
+        },
+        "Medium": {
+          "words": "The 2nd to 10th multiples of 3, 4, 6, 7, 8 and 9, and their first five multiples: the 9th multiple of 3.",
+          "check": {
+            "format": "card",
+            "cards": [
+              "MULT.NTH",
+              "MULT.FIRST5"
+            ],
+            "numbers": {
+              "k": {
+                "one_of": [
+                  3,
+                  4,
+                  6,
+                  7,
+                  8,
+                  9
+                ]
+              },
+              "n": [
+                2,
+                10
+              ]
+            }
+          },
+          "min_items": 100
+        },
+        "Hard": {
+          "words": "The 11th to 13th multiples of 2 to 10: the 12th multiple of 6.",
+          "check": {
+            "format": "card",
+            "cards": [
+              "MULT.NTH"
+            ],
+            "numbers": {
+              "k": [
+                2,
+                10
+              ],
+              "n": [
+                11,
+                13
+              ]
+            }
+          },
+          "min_items": 100
+        }
+      },
+      "level_band": {
+        "Easy": "G2",
+        "Medium": "G2",
+        "Hard": "G2"
+      }
     }
   ]
 }

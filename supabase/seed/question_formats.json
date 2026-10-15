@@ -1,0 +1,149 @@
+{
+  "question_formats": [
+    {
+      "code": "MUL3.SUM",
+      "skill_set": "MUL.THREE",
+      "name": "Three numbers multiplied",
+      "ask": "Work it out.",
+      "text": "{a} × {b} × {c} = □",
+      "answer": "a*b*c",
+      "also": {
+        "M_MUL_ADDS_ALL": "a+b+c",
+        "M_MUL_TWO_OF_THREE": "a*b"
+      },
+      "examples": {
+        "Easy": [
+          "2 × 3 × 2 = □",
+          "5 × 2 × 2 = □"
+        ],
+        "Advance": [
+          "9 × 6 × 9 = □"
+        ]
+      },
+      "source": "Achal, voice note, 2026-10-15: \"Multiplication of Single Digit with Three Numbers\""
+    },
+    {
+      "code": "MUL3.STORY",
+      "skill_set": "MUL.THREE",
+      "name": "Three numbers multiplied, in a story",
+      "text": "{name} has {a} bags. Each bag holds {b} boxes, and each box holds {c} pencils. How many pencils does {name} have?",
+      "box": "□ pencils",
+      "answer": "a*b*c",
+      "also": {
+        "M_MUL_ADDS_ALL": "a+b+c",
+        "M_MUL_TWO_OF_THREE": "a*b"
+      },
+      "working_lines": 3,
+      "examples": {},
+      "source": "Achal, voice note, 2026-10-15: Advance with word problems"
+    },
+    {
+      "code": "SEQ.ON",
+      "skill_set": "NUM.SEQUENCE",
+      "name": "Count on in equal steps",
+      "ask": "The numbers go up in equal steps. Write the next number.",
+      "text": "{t1}, {t2}, {t3}, {t4}, □",
+      "derive": {
+        "t1": "s",
+        "t2": "s+d",
+        "t3": "s+2*d",
+        "t4": "s+3*d"
+      },
+      "answer": "s+4*d",
+      "also": {
+        "M_SEQ_ONE_ON": "s+3*d+1",
+        "M_SEQ_STEP_OFF": "s+4*d+1"
+      },
+      "examples": {
+        "Easy": [
+          "2, 5, 8, 11, □"
+        ],
+        "Medium": [
+          "9, 16, 23, 30, □"
+        ]
+      },
+      "source": "Achal, WhatsApp, 2026-10-15: sequences"
+    },
+    {
+      "code": "SEQ.BACK",
+      "skill_set": "NUM.SEQUENCE",
+      "name": "Count back in equal steps",
+      "ask": "The numbers go down in equal steps. Write the next number.",
+      "text": "{t1}, {t2}, {t3}, {t4}, □",
+      "derive": {
+        "t1": "s",
+        "t2": "s-d",
+        "t3": "s-2*d",
+        "t4": "s-3*d"
+      },
+      "answer": "s-4*d",
+      "also": {
+        "M_SEQ_ONE_BACK": "s-3*d-1",
+        "M_SEQ_STEP_OFF": "s-4*d-1"
+      },
+      "examples": {
+        "Hard": [
+          "90, 81, 72, 63, □"
+        ]
+      },
+      "source": "Achal, WhatsApp, 2026-10-15: sequences, Hard \"100, 81, 72, 63\" read as 90"
+    },
+    {
+      "code": "MULT.NTH",
+      "skill_set": "MUL.NTH",
+      "name": "The nth multiple",
+      "text": "What is the {n:ord} multiple of {k}?",
+      "answer": "n*k",
+      "also": {
+        "M_MULT_FROM_ZERO": "(n-1)*k",
+        "M_MULT_ONE_TOO_MANY": "(n+1)*k"
+      },
+      "examples": {
+        "Medium": [
+          "What is the 9th multiple of 3?",
+          "What is the 7th multiple of 7?"
+        ],
+        "Hard": [
+          "What is the 12th multiple of 6?",
+          "What is the 13th multiple of 7?"
+        ]
+      },
+      "source": "Achal, WhatsApp, 2026-10-15: multiples"
+    },
+    {
+      "code": "MULT.FIRST5",
+      "skill_set": "MUL.NTH",
+      "name": "The first five multiples",
+      "text": "Write the first five multiples of {k}.",
+      "answer": [
+        "k",
+        "2*k",
+        "3*k",
+        "4*k",
+        "5*k"
+      ],
+      "also": {
+        "M_MULT_STARTS_AT_ZERO": [
+          "0",
+          "k",
+          "2*k",
+          "3*k",
+          "4*k"
+        ],
+        "M_MULT_IN_ONES": [
+          "k",
+          "k+1",
+          "k+2",
+          "k+3",
+          "k+4"
+        ]
+      },
+      "examples": {
+        "Easy": [
+          "Write the first five multiples of 5."
+        ]
+      },
+      "source": "Achal, WhatsApp, 2026-10-15: \"first five multiples of 5\""
+    }
+  ]
+}

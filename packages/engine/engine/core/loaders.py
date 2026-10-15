@@ -8,7 +8,7 @@ registry cannot be trusted as the thing every assessment result joins to.
 import json
 from typing import Any, LiteralString
 
-from engine.core import asks, db, settings, topics
+from engine.core import asks, db, question_formats, settings, topics
 
 SEED = settings.SEED
 
@@ -34,6 +34,7 @@ FILLED_TABLES = (
     "skill_set",
     "subject",
     "topic",
+    "question_format",
     "ask",
 )
 
@@ -353,6 +354,7 @@ def load_all() -> dict[str, int]:
         ):
             step(conn, t)
         topics.load(conn, t, settings.seed)
+        question_formats.load(conn, t, settings.seed)
         asks.load(conn, t, settings.seed)
         conn.commit()
         return db.counts(conn, FILLED_TABLES)

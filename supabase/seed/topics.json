@@ -66,7 +66,8 @@
       "taught": false,
       "skill_sets": [
         "MUL.FACTS",
-        "MUL.TENS"
+        "MUL.TENS",
+        "MUL.THREE"
       ]
     },
     {
@@ -151,7 +152,8 @@
       "name": "Multiples and factors",
       "taught": false,
       "skill_sets": [
-        "MD.MULTIPLES"
+        "MD.MULTIPLES",
+        "MUL.NTH"
       ]
     },
     {
@@ -161,6 +163,15 @@
       "taught": false,
       "skill_sets": [
         "MD.WORD"
+      ]
+    },
+    {
+      "code": "SEQUENCE",
+      "subject": "NUM",
+      "name": "Number sequences",
+      "taught": false,
+      "skill_sets": [
+        "NUM.SEQUENCE"
       ]
     }
   ]

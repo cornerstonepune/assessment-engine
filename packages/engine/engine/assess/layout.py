@@ -42,4 +42,5 @@ WORKING_LINES = {
     "chunking": 0,  # division's (ADR 0063)
     "long_division": 0,
     "multiples": 1,  # a list's groups, a yes-or-no, a digit sum (goals/md4c-multiples-and-factors.yaml)
+    "card": 2,  # a kind of question that is a row; its own `working_lines` where it sets one (ADR 0075)
 }

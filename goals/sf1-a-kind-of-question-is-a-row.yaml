@@ -1,0 +1,66 @@
+name: sf1-a-kind-of-question-is-a-row
+goal: >
+  A kind of question is a row, not code: its words with each number named, its answer and each mistake as formulas of
+  those numbers, and the examples it was made from. A level's rule gives each number's range and the answer's bounds,
+  and names the kinds it uses. Code alone says whether a question belongs to a kind at a level, by finding the numbers
+  that print its words: a question just drawn, one in the bank, or an educator's example. Each level is filled to its
+  target or to every different question it can make, says which, and never repeats one. Achal's three new Grade 2
+  skills are made of rows only: three numbers multiplied, sequences counted on and back, and the nth and the first five
+  multiples.
+# Written 2026-10-15, before the code (BUILD-ORDER "Inserted now: a skill from its examples", ADR 0075). Measured first
+# on a copy of the bank: every kind of question is a Python function; nothing makes a sequence or three numbers
+# multiplied, nor the nth multiple; three numbers of 2 to 5 with a product up to 30 make only 26 different questions.
+says:
+  - words: "simply checks whether a certain question belongs to a certain format"
+    proved_by: packages/engine/tests/test_cards.py::test_a_question_belongs_to_a_kind_only_where_its_numbers_print_its_words
+  - words: "simply checks whether a certain question belongs to a certain format"
+    proved_by: packages/engine/tests/test_cards.py::test_every_example_achal_gave_belongs_to_its_level
+  - words: "simply checks whether a certain question belongs to a certain format"
+    proved_by: packages/engine/tests/test_card_bank.py::test_a_question_in_the_bank_is_checked_against_its_kind
+  - words: "it should be skills * format and 100/200/500 is for a skill and difficulty level combo"
+    proved_by: packages/engine/tests/test_cards.py::test_a_level_counts_the_different_questions_it_can_make
+  - words: "it should be skills * format and 100/200/500 is for a skill and difficulty level combo"
+    proved_by: packages/engine/tests/test_card_bank.py::test_a_level_is_filled_to_its_target_or_all_it_can_make_and_says_which
+  - words: "it should be skills * format and 100/200/500 is for a skill and difficulty level combo"
+    proved_by: packages/engine/tests/test_card_bank.py::test_achals_skills_are_grade_2_rows_with_their_kinds
+  - words: "simply checks whether a certain question belongs to a certain format"
+    proved_by: packages/engine/tests/test_card_bank.py::test_a_kinds_question_is_printed_read_and_marked
+manual:
+  - "Achal confirms the ranges taken for him (ADR 0075), and says what Advance is for sequences and for multiples."
+  - "The three skills' topics are switched on for a Grade 2 class before their questions reach a paper."
+scenarios:
+  - name: Three numbers multiplied, Easy — every product up to 30, all 26 it can make
+    skill_set: MUL.THREE
+    difficulty: Easy
+    n: 26
+  - name: Three numbers multiplied, Hard — products from 101 to 250
+    skill_set: MUL.THREE
+    difficulty: Hard
+    n: 100
+  - name: Three numbers multiplied, Advance — the sentence and the story
+    skill_set: MUL.THREE
+    difficulty: Advance
+    n: 100
+  - name: Number sequences, Easy — counting on in steps of 2 to 5
+    skill_set: NUM.SEQUENCE
+    difficulty: Easy
+    n: 80
+  - name: Number sequences, Hard — counting back in steps of 2 to 9
+    skill_set: NUM.SEQUENCE
+    difficulty: Hard
+    n: 100
+  - name: Multiples in the tables, Medium — the nth multiple and the first five, all 60 it can make
+    skill_set: MUL.NTH
+    difficulty: Medium
+    n: 60
+  - name: Multiples in the tables, Hard — the 11th to 13th multiples, all 27 it can make
+    skill_set: MUL.NTH
+    difficulty: Hard
+    n: 27
+criteria:
+  - name: kinds as rows — drawn, counted, checked, filled, printed, read and marked
+    run: cd packages/engine && uv run pytest -q tests/test_cards.py tests/test_card_bank.py tests/test_every_skill.py tests/test_loaders.py tests/test_render.py tests/test_audit.py tests/test_goal.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
