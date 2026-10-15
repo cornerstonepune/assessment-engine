@@ -122,7 +122,8 @@ def test_multiplication_is_five_skills_each_level_its_documents_cases():
         assert all(_check(skill, lv)["within"]["operation"] == "MUL" for lv in levels), skill
         assert [s["level_band"][lv] for lv in levels] == GRADES[skill][: len(levels)], skill
         topic = next(t for t in TOPICS if skill in t["skill_sets"])
-        assert topic["taught"] is False, f"{skill} is taught before an educator said so"
+        assert topic["code"] == "MUL", f"{skill} sits under its operation (ADR 0076)"
+        assert skill not in topic["taught"], f"{skill} is taught before an educator said so"
 
 
 def test_every_case_the_document_places_in_the_five_is_a_level_of_one_of_them():

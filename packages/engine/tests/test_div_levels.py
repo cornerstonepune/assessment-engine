@@ -129,7 +129,8 @@ def test_division_is_four_skills_each_level_its_documents_cases():
         assert all(_check(skill, lv)["within"]["operation"] == "DIV" for lv in LEVELS), skill
         assert [s["level_band"][lv] for lv in LEVELS] == GRADES[skill], skill
         topic = next(t for t in TOPICS if skill in t["skill_sets"])
-        assert topic["taught"] is False, f"{skill} is taught before an educator said so"
+        assert topic["code"] == "DIV", f"{skill} sits under its operation (ADR 0076)"
+        assert skill not in topic["taught"], f"{skill} is taught before an educator said so"
 
 
 def _tz(n):

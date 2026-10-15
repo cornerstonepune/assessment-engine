@@ -234,8 +234,8 @@ def test_whether_a_product_can_be_right_is_judged_by_its_size():
 
 def test_each_level_holds_its_cases_at_grade_4():
     """MD.ESTIMATE is Grade 4's at every level, as the document drafts it: no school objective names estimating a
-    product, so the draft's grade stands (A6). It is on a rung of its own, counts for estimating and reasoning, and is
-    in a topic of its own, untaught until an educator says so."""
+    product, so the draft's grade stands (A6). It is on a rung of its own, counts for estimating and reasoning, and sits
+    under Division (ADR 0076), untaught until an educator says so."""
     s = _estimate()
     assert s["rung_code"] == R and s["level_band"] == dict.fromkeys(LEVELS, "G4"), s["level_band"]
     assert {lv: d["check"]["cases"] for lv, d in s["difficulty"].items()} == LEVELS
@@ -246,7 +246,7 @@ def test_each_level_holds_its_cases_at_grade_4():
         for t in json.loads((SEED / "topics.json").read_text())["topics"]
         if "MD.ESTIMATE" in t["skill_sets"]
     )
-    assert topic["skill_sets"] == ["MD.ESTIMATE"] and topic["taught"] is False, topic
+    assert topic["code"] == "DIV" and "MD.ESTIMATE" not in topic["taught"], topic
     drafted = importlib.import_module("md_taxonomy")
     _, _, grades, levels, _ = next(x for x in drafted.SKILLS if x[0] == "MD.ESTIMATE")
     assert grades == "G4 G4 G4 G4" and levels == LEVELS, (grades, levels)

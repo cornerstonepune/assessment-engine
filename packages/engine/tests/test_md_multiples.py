@@ -222,7 +222,7 @@ def test_divisible_by_three_from_the_sum_of_the_digits():
 
 def test_each_level_holds_its_cases_at_the_grade_the_document_gives():
     """MD.MULTIPLES is Grade 3 at Easy and Medium and Grade 4 at Hard and Advance, as drafted; "Tables, multiples and
-    factors" is the school's objective at both grades, on the skills its rung holds. A topic of its own, untaught."""
+    factors" is the school's objective at both grades, on the skills its rung holds. Under Multiples & factors (ADR 0076), untaught."""
     s = _set()
     assert s["rung_code"] == R and s["level_band"] == GRADES, s["level_band"]
     assert {lv: d["check"]["cases"] for lv, d in s["difficulty"].items()} == LEVELS
@@ -237,7 +237,7 @@ def test_each_level_holds_its_cases_at_the_grade_the_document_gives():
         for t in json.loads((SEED / "topics.json").read_text())["topics"]
         if "MD.MULTIPLES" in t["skill_sets"]
     )
-    assert topic["skill_sets"] == ["MD.MULTIPLES"] and topic["taught"] is False, topic
+    assert topic["code"] == "FACTORS" and "MD.MULTIPLES" not in topic["taught"], topic
     drafted = importlib.import_module("md_taxonomy")
     _, _, grades, levels, _ = next(x for x in drafted.SKILLS if x[0] == "MD.MULTIPLES")
     assert grades == "G3 G3 G4 G4" and levels == LEVELS, (grades, levels)
