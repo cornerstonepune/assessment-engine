@@ -8129,3 +8129,15 @@ one child on live.
   Earlier I put this down to a checkpoint (the `checkpoint` in `bin/testdb`, T1); that was not it.
 - **Fix:** migration 20261116090000 declares `pii.read_child` and `next_difficulty` one row each. The same query: cost
   671, no compiling, 4.5 ms (was 2,081 ms). `tests/test_db_plans.py` holds both the declaration and the plan.
+- **The same cause, a second time, where no declaration can reach it:** PR #213's browser job on `3135c85`. A skill's
+  page (`e2e.spec.ts` "a skill on the map opens its own page") missed its heading's 5 s. Its query counting the
+  mistakes reads `jsonb_array_elements` and `jsonb_object_keys`, Postgres's own functions, each guessed at 100 rows:
+  8,730,000 guessed for 3,530 read, cost 1,723,004. On the CI-built copy it compiled for 366 ms of 406 ms; CI's log
+  shows 4,061 ms. Our functions can say how many rows they return; Postgres's own cannot be told.
+- **Fix at the cause:** migration 20261117090000 turns compiling off for the website's role, `app_web`. Every page
+  query takes milliseconds, so compiling never pays for one. The engine's batch work keeps Postgres's choice. As
+  `app_web` on the copy: `show jit` → off; the same query 8.8 ms (was 406 ms).
+  `test_the_websites_role_never_compiles_a_query` failed before the migration and passes after it.
+- **On live this holds only once the website connects as `app_web`.** That switch is Nimish's (the roles section
+  above: "Live switches by Nimish's hand"). I do not know whether it has been made. Until it is, live's pages run as
+  the owner and may still compile.

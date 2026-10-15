@@ -45,3 +45,17 @@ def test_every_childs_name_is_planned_as_one_row_a_child_and_never_compiled(conn
     assert named["Plan Rows"] == roll["Plan Rows"], "one name a child"
     jit_above = float(conn.execute("select current_setting('jit_above_cost') as v").fetchone()["v"])
     assert named["Total Cost"] < jit_above
+
+
+def test_the_websites_role_never_compiles_a_query(conn):
+    """A page's queries take milliseconds; compiling one to machine code first takes hundreds (JIT, worth it only for
+    long reports). Postgres compiles whatever it guesses is costly, and a function that returns rows is guessed at 100
+    or 1,000 of them — `jsonb_array_elements`, which a migration cannot correct as it corrected `pii.read_child`. A
+    skill's page counted its mistakes in a query guessed at 8,730,000 rows for 3,530: 366 ms of compiling for 40 ms of
+    work on a laptop, 4 s on CI's runner, and the page's heading missed its 5 s (PR #213's browser job on 3135c85).
+    So the website's own role does not compile at all (migration 20261117090000)."""
+    settings = conn.execute(
+        "select coalesce(array_agg(x), '{}') as s from pg_db_role_setting d, unnest(d.setconfig) x"
+        " where d.setrole = 'app_web'::regrole and d.setdatabase = 0"
+    ).fetchone()["s"]
+    assert "jit=off" in settings, settings
