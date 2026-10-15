@@ -33,7 +33,7 @@ manual: []
 scenarios: []
 criteria:
   - name: the pages that show these numbers still hold
-    run: cd apps/web && npx playwright test tests/u33-one-count.spec.ts tests/e2e.spec.ts tests/s3-worksheets.spec.ts tests/workflows.spec.ts tests/u15-menu-and-today.spec.ts tests/u21-papers-by-topic.spec.ts --reporter=line --workers=1
+    run: cd apps/web && npx playwright test tests/u33-one-count.spec.ts tests/e2e.spec.ts tests/s3-worksheets.spec.ts tests/workflows.spec.ts tests/u15-menu-and-today.spec.ts tests/u9-papers.spec.ts tests/u21-class-by-topic.spec.ts tests/u22-assessments-readable.spec.ts tests/u23-approve-filtered.spec.ts --reporter=line --workers=1
     expect: "passed"
   - name: the engine's roster and week
     run: cd packages/engine && uv run pytest -q tests/test_roster.py tests/test_week.py
