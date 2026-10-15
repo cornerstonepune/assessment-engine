@@ -8051,3 +8051,37 @@ one child on live.
   - `rules.json`: the four new rules. tsc and eslint clean.
 - **Left in place on purpose:** `class_topic` and `topic.taught` are read by nothing. They stay so that the old
   website still serving during the deploy finds them; the next migration drops them.
+
+## T1 merged; T1b — the old switch dropped (2026-10-15, ADR 0076 "After")
+
+- **T1 merged** as `271ce9e` (#211) at 11:25 UTC. Its migration and the website go live through main's CI, then
+  `migrate live`, then Vercel; Nimish's `bin/update-live` regroups the topics after that, not before (the old website
+  reads `topic.taught` and `class_topic`, which nothing writes once the topics are regrouped).
+- **T1b, migration 20261114090000:** drops `class_topic`, `topic.taught`, `taught_by`, `taught_at`, the constraint
+  `topic_taught_by_a_person`, and `internal.topic_words_to_skills`. Nothing on main read them (searched the engine,
+  the website, its tests, `bin/`, the seed and every database function).
+- **Tests:**
+  - `test_the_topic_is_no_longer_the_switch` (new) failed first: `{'words': True, 'switch': True, 'move': True}`.
+  - `test_regrouping_the_topics_changes_no_classs_paper` now proves the lasting promise without the old table: a load
+    that moves three skills out of old topics and drops those topics leaves every class's word on them as it was.
+  - `test_a_topic_the_rows_drop_is_gone_after_a_load` (renamed): the dropped topic's skill sits under Division and a
+    class's word on it survives.
+- **Checks:** the migration ran twice on the local copy; `engine live rules --url <copy>`: 0 rules held otherwise;
+  topic, role, loader, card and live-data tests: 72 passed.
+
+## UX1 — an educator is shown only what is theirs (2026-10-15, goals/ux1-who-sees-what.yaml)
+
+- **Measured first** (the audit, signed in as the G2-C educator on a fresh copy):
+  - 48 "Approve…" buttons on Approve the skills and one on every skill page, each landing on "Nothing was changed";
+  - Today listed "46 Skills to approve" and every role's drafted questions, so its badge read 126 where about 50 were
+    theirs;
+  - a worksheet's "Print for children" listed 49 children from 6 classes.
+- **Causes, fixed where they are:**
+  - Today's lines carried no decision: each now names its kind (`people.decides`), and `needsYou(me)` keeps only the
+    person's own, with the questions drafted for their role. The menu counts the same list.
+  - `childrenOnRoll` read the whole roll through `pii.read_child`, logging a name read for every child, for anyone; it
+    now takes the reader's classes. `childHeader` read the whole roll to find one child; it now reads that child alone.
+  - The skill page, Approve the skills and Curriculum's banner offered approval to anyone; they now ask `mayDecide`
+    and tell anyone else the approval is the coordinator's. Changing a skill's words stays the educator's (N1).
+- **u27** still proves the server's refusal: the form the coordinator is offered is sent by hand from the educator's
+  page.

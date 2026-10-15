@@ -1,12 +1,15 @@
+import type { Session } from "./auth";
+import { decidable, type Kind } from "./decides";
 import { gradeWords } from "./queries";
 import { type Waiting, waiting } from "./queries-today";
-import { EVERY_CLASS, type Scope } from "./scope";
+import { scopeOf } from "./scope";
 import { weekWords } from "./week";
 
 // What waits on a person, under the tab where it is done (goals/ui1-menu-and-today.yaml). Today lists these lines and
 // the menu carries each tab's count, from this one list, so the two never disagree. Nimish, 2026-10-11: "I can't seem
 // to actually find where I go and check the papers or questions for which human validation is required." Every line
-// is counted in the classes the signed-in person sees (goals/f1b-my-classes-first.yaml, ADR 0073).
+// is counted in the classes the signed-in person sees (goals/f1b-my-classes-first.yaml, ADR 0073), and a line is theirs
+// only when its decision is (goals/ux1-who-sees-what.yaml): an educator is never counted the coordinator's approvals.
 
 export const TABS = ["Curriculum", "Assessments", "Children"] as const;
 export type Tab = (typeof TABS)[number];
@@ -17,6 +20,8 @@ export const TODAY_ORDER: readonly Tab[] = ["Assessments", "Curriculum", "Childr
 export type Item = { label: string; href: string; n?: number };
 export type Line = {
   title: string;
+  /** The decision it waits for; a person is shown it only when the decision is theirs (`people.decides`). */
+  kind: Kind;
   n: number;
   words: string;
   /** Where it is done, and the button that opens it; a line of several items opens each item instead. */
@@ -35,15 +40,16 @@ const KIND_WORDS: Record<string, string> = { practice: "class practice", assessm
 /** "Grade 2 · 2B": a class as an educator says it. */
 export const classWords = (band: string, section: string) => `${gradeWords(band)} · ${section}`;
 
-export function linesOf(w: Waiting): NeedsYou {
+export function linesOf(w: Waiting, may: (kind: Kind) => boolean = () => true): NeedsYou {
   const asks = w.asks.reduce((n, a) => n + a.n, 0);
   const packs = w.packs.reduce((n, p) => n + p.n, 0);
   const all: Record<Tab, Line[]> = {
     Assessments: [
-      { title: "Answers to check", n: w.answers, words: "the engine was not sure of these; each is shown beside the child's own writing", href: "/capture/check", action: "Check them", waits: true },
-      { title: "Papers to sign off", n: w.papers, words: "papers read whose answers no one has signed off; a child's record grows once they are", href: "/capture", action: "Sign them off", waits: true },
+      { title: "Answers to check", kind: "answers", n: w.answers, words: "the engine was not sure of these; each is shown beside the child's own writing", href: "/capture/check", action: "Check them", waits: true },
+      { title: "Papers to sign off", kind: "papers", n: w.papers, words: "papers read whose answers no one has signed off; a child's record grows once they are", href: "/capture", action: "Sign them off", waits: true },
       {
         title: "Class papers to approve",
+        kind: "class_papers",
         n: packs,
         words: "papers made for a class, waiting for a person before they print",
         items: w.packs.map((p) => ({
@@ -54,17 +60,18 @@ export function linesOf(w: Waiting): NeedsYou {
         more: "/papers/approve",
         waits: true,
       },
-      { title: "Home assessments to approve", n: w.nextPapers, words: "one for each child, made from their own record, not yet approved this week", href: "/make", action: "Approve them", waits: true },
-      { title: "Scans that came back empty", n: w.emptyReads, words: "papers read that gave back no answers at all: photograph or read them again", href: "/capture#nothing-came-back", action: "Look at them", waits: true },
+      { title: "Home assessments to approve", kind: "home_papers", n: w.nextPapers, words: "one for each child, made from their own record, not yet approved this week", href: "/make", action: "Approve them", waits: true },
+      { title: "Scans that came back empty", kind: "papers", n: w.emptyReads, words: "papers read that gave back no answers at all: photograph or read them again", href: "/capture#nothing-came-back", action: "Look at them", waits: true },
     ],
     Curriculum: [
-      { title: "Skills to approve", n: w.skills, words: "skills whose words or levels the engine wrote or changed, each waiting for one approval", href: "/skill-sets/approve", action: "Review and approve", waits: true },
-      { title: "Questions the engine drafted for you", n: asks, words: "the engine's drafts of the taxonomy and its decisions, to agree with or correct", href: "/asks", action: "Answer them", waits: true },
-      { title: "Topics not taught yet", n: w.topics, words: "say a class has been taught a topic once it has; until then its skills are on none of that class's papers", href: "/#not-taught", action: "Say what is taught", waits: false },
+      { title: "Skills to approve", kind: "skills", n: w.skills, words: "skills whose words or levels the engine wrote or changed, each waiting for one approval", href: "/skill-sets/approve", action: "Review and approve", waits: true },
+      { title: "Questions the engine drafted for you", kind: "asks", n: asks, words: "the engine's drafts of the taxonomy and its decisions, to agree with or correct", href: "/asks", action: "Answer them", waits: true },
+      { title: "Topics not taught yet", kind: "topics", n: w.topics, words: "say a class has been taught a topic once it has; until then its skills are on none of that class's papers", href: "/#not-taught", action: "Say what is taught", waits: false },
     ],
     Children: [
       {
         title: "Parent reports to approve",
+        kind: "reports",
         n: w.reports.length,
         words: "written for a parent and waiting for a person to read and approve",
         items: w.reports.map((r) => ({ label: `${classWords(r.band, r.section)} · Roll ${r.roll_no}`, href: `/growth/${r.child_id}/parent` })),
@@ -76,12 +83,15 @@ export function linesOf(w: Waiting): NeedsYou {
       },
     ],
   };
-  // a line with nothing waiting is left out: Today lists what needs a person, not what does not
-  return Object.fromEntries(TABS.map((t) => [t, all[t].filter((l) => l.n > 0)])) as NeedsYou;
+  // a line with nothing waiting is left out, and one whose decision is someone else's: Today lists what needs this person
+  return Object.fromEntries(TABS.map((t) => [t, all[t].filter((l) => l.n > 0 && may(l.kind))])) as NeedsYou;
 }
 
-export async function needsYou(actor: string, scope: Scope = EVERY_CLASS): Promise<NeedsYou> {
-  return linesOf(await waiting(actor, scope));
+/** What waits on this person: in their classes, decisions that are theirs, and the questions drafted for their role. */
+export async function needsYou(me: Session): Promise<NeedsYou> {
+  const [w, may] = await Promise.all([waiting(me.email, scopeOf(me)), decidable(me)]);
+  const asks = me.role === "coordinator" ? w.asks : w.asks.filter((a) => a.for_role === me.role);
+  return linesOf({ ...w, asks }, may);
 }
 
 /** {tab: what waits in it} for the menu, and Today's: every tab's together. */

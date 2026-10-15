@@ -105,6 +105,9 @@ export default async function SkillPage({ params, searchParams }: Props) {
           </Link>
           {s.status === "ratified" ? (
             <Pill tone="neem">Approved · {s.ratified_by?.split(" (")[0]}</Pill>
+          ) : !mayApprove ? (
+            // approving a skill is the coordinator's (people.decides); an educator is not offered it (goals/ux1-who-sees-what.yaml)
+            <Pill tone="bamboo">Waiting for the coordinator&rsquo;s approval</Pill>
           ) : (
             <form
               action={approveSkills}

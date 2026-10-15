@@ -5,6 +5,7 @@ import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { requireStaff } from "@/lib/auth";
 import { childrenOnRoll, gradeWords, type ChildRow } from "@/lib/queries";
+import { scopeOf } from "@/lib/scope";
 import { worksheetCases } from "@/lib/queries-taxonomy";
 import { libraryWorksheet, worksheetItems } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../library";
@@ -19,7 +20,7 @@ const fmtDate = (d: string) =>
 export async function LibraryWorksheetPage({ code }: { code: string }) {
   const me = await requireStaff();
   const [w, questions, cases, kids] = await deadline(
-    Promise.all([libraryWorksheet(code), worksheetItems(code), worksheetCases(code), childrenOnRoll(me.email)]),
+    Promise.all([libraryWorksheet(code), worksheetItems(code), worksheetCases(code), childrenOnRoll(me.email, scopeOf(me))]),
   );
   if (!w) notFound();
   const kinds = questions.reduce<Record<string, number>>((a, q) => ({ ...a, [q.fmt]: (a[q.fmt] ?? 0) + 1 }), {});

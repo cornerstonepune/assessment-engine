@@ -10,11 +10,12 @@ import { weekWords } from "@/lib/week";
 
 // Today — everything that waits on a person, in one list under the tab where it is done (goals/ui1-menu-and-today.yaml,
 // goals/u1-today.yaml), each line opening that place. The menu's counts are this list's (lib/needs-you.ts). Every line
-// is shown to everyone signed in: the school's two educators are its only layer. The engine proposes; a person approves.
+// is the signed-in person's: in their classes, and only where the decision is theirs (goals/ux1-who-sees-what.yaml). The
+// engine proposes; a person approves.
 export default async function Today() {
   const me = await requireStaff();
   const scope = scopeOf(me);
-  const [lines, weeks, trust] = await deadline(Promise.all([needsYou(me.email, scope), queueByWeek(), trustNow()]));
+  const [lines, weeks, trust] = await deadline(Promise.all([needsYou(me), queueByWeek(), trustNow()]));
   return (
     <>
       <PageHeader stage="Today" title="Today" sub="Everything that waits on a person, under the tab where it is done. Each line opens the place to do it." />
