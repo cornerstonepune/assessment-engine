@@ -141,6 +141,10 @@ export function Question({ it }: { it: ItemRow }) {
           <span className="fact">{(s.options ?? []).join(" · ")}</span>
         </Stem>
       );
+    case "card":
+      // a kind that is a row (ADR 0075): its sentence is its numbers ("2 × 3 × 4 = □") under its instruction, or the
+      // stem itself where the stem already says it (a story, a list to write)
+      return s.text && !it.stem.includes(s.text) ? said(<span className="fact">{s.text}</span>) : <span>{it.stem}</span>;
     case "missing_number":
       // a missing row is its sentence above its sum ("Write the missing row."); a number sentence is its own question
       return s.text && s.text !== it.stem ? said(<span className="fact">{s.text}</span>) : <span className="fact">{s.text ?? it.stem}</span>;

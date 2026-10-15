@@ -7944,10 +7944,10 @@ one child on live.
   - It failed first: migrate.yml had no permission to set a status (`KeyError: 'permissions'`).
   - It pins the permission, the step coming after `db push`, its gate on main's newest, the state from the job, and the
     context name Vercel waits on. `test_deploy.py`: 7 passed. actionlint is clean on migrate.yml and ci.yml.
-- **Not live until Nimish sets it in Vercel** (Settings → Build and Deployment → Deployment Checks → Add Checks →
-  GitHub → `live database`). The status first exists on the commit this merges as; Vercel lists only checks it has
-  seen. Until then Vercel promotes every build as before.
-- **Not known:** whether this Vercel plan offers Deployment Checks. The connector here cannot read the team.
+- **Merged as #209 (`04c0d5e`).** `migrate live` applied 20261111090000 and set `live database` on it. Nimish then
+  added the check in Vercel (Settings → Build and Deployment → Deployment Checks → GitHub → `live database`).
+- **Not yet seen working:** the first commit Vercel holds is the next merge to main. Its deployment must stay
+  unpromoted until `live database` turns green on that commit.
 
 ## SF1 — a kind of question is a row (2026-10-15, ADR 0075)
 
@@ -7971,9 +7971,12 @@ one child on live.
     - a fill never repeats.
   - `question_format` (migration 20261112090000), loaded from `supabase/seed/question_formats.json`.
   - Three Grade 2 skills as rows:
-    - MUL.THREE (R54), its kinds MUL3.SUM and MUL3.STORY;
-    - NUM.SEQUENCE (R52, NUM.PAT.02), its kinds SEQ.ON and SEQ.BACK;
-    - MUL.NTH (R53, NUM.CNT.08), its kinds MULT.NTH and MULT.FIRST5.
+    - MUL.THREE (R54, topic MULFACT), its kinds MUL3.SUM and MUL3.STORY;
+    - NUM.SEQUENCE (R52, NUM.PAT.02, a new topic SEQUENCE, not yet taught), its kinds SEQ.ON and SEQ.BACK;
+    - MUL.NTH (R53, NUM.CNT.08, topic MULMODEL), its kinds MULT.NTH and MULT.FIRST5. Not MDMULTIPLES: that topic is
+      the multiples skill's alone (`test_md_multiples`).
+  - A kind that is a row uses its rung's skills as evidence (`skills.used`), so a mark on one names a registry skill.
+  - Its working space is the layout's, one per format (`layout.WORKING_LINES["card"]`), not a row's.
   - Nine new mistakes, each the formula of the wrong answer it writes.
   - A level is filled from its whole list, to its target or all it can make (`can_make`). Refill's target is the
     smaller of the two.

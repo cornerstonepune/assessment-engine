@@ -30,6 +30,7 @@ from typing import Any, cast
 
 from . import words as W
 from .items import Item, Response, cells, item
+from .layout import WORKING_LINES
 from .own_stories import Inexact, value
 
 LIMIT = 50_000
@@ -240,9 +241,7 @@ def make(kind: dict[str, Any], rule: dict[str, Any], nums: Numbers, rung: str, s
         # a story prints whole above its answer's row (`box`: "□ pencils"); a sentence is the row its box stands in
         label, stem = (box, f"{ask} {sentence}".strip()) if box else (sentence, ask)
         r = Response("ans", "digits", str(right), cells=cells(widest), misconceptions=mistakes, label=label)
-    return item(
-        kind["code"], rung, signal, "card", stem, spec, [r], working_lines=int(kind.get("working_lines", 2))
-    )
+    return item(kind["code"], rung, signal, "card", stem, spec, [r], working_lines=WORKING_LINES["card"])
 
 
 def every(kind: dict[str, Any], rule: dict[str, Any], rung: str, signal: str) -> list[Item]:

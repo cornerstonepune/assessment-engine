@@ -10,6 +10,8 @@ is verified. This file only says where the last session stopped.
   - `question_format`;
   - Achal's three Grade 2 skills as rows: MUL.THREE, NUM.SEQUENCE, MUL.NTH.
   - See STATE.md "SF1".
+- **The first deploy Vercel holds is this PR's merge** (Nimish added the `live database` check after #209). Confirm
+  the website went live only after `migrate live` turned `live database` green on the merge commit.
 - **Next is SF2,** approval per skill × kind. Measure on a copy of live first, and name to Nimish what it would close.
   F1g is superseded.
 - **Waiting on Achal** (WhatsApp sent by Nimish, 2026-10-15): Advance for sequences and multiples; which Grade 2 level

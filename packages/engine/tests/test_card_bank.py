@@ -18,7 +18,7 @@ from engine.w3_read import marking
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
 ACHAL = ("MUL.THREE", "NUM.SEQUENCE", "MUL.NTH")
-TOPIC = {"MUL.THREE": "MULFACT", "MUL.NTH": "MDMULTIPLES", "NUM.SEQUENCE": "SEQUENCE"}
+TOPIC = {"MUL.THREE": "MULFACT", "MUL.NTH": "MULMODEL", "NUM.SEQUENCE": "SEQUENCE"}
 
 
 @pytest.fixture

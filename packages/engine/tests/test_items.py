@@ -267,9 +267,15 @@ def test_every_generator_gives_its_kind_the_working_space_the_bank_reads_back():
     rng = random.Random(7)
     made = []
     seed = json.loads((db.REPO_ROOT / "supabase/seed/skill_sets.json").read_text())["skill_sets"]
+    kinds = json.loads((db.REPO_ROOT / "supabase/seed/question_formats.json").read_text())["question_formats"]
+    rows = {k["code"]: k for k in kinds}
     for s in seed:
         for band in s["difficulty"].values():
             check = band.get("check", {})
+            if (
+                check.get("format") == "card"
+            ):  # its kinds' rows, as the bank resolves them (`w1_bank/kinds.py`)
+                check = {**check, "kinds": [rows[c] for c in check["cards"]]}
             if check.get("format") in bands.NATIVE_GENERATORS:
                 try:
                     made.append(bands.native_item(check["format"], check, rng, s["rung_code"], "Conceptual"))
