@@ -8095,3 +8095,37 @@ one child on live.
   - Then u32, u27, u15 and u26: 16 passed. The whole website suite on the migrated copy: 236 of 237, the one u20
     above, then u20 and m5: 4 passed. tsc and eslint clean; `bin/check` passed.
   - The whole engine suite on the migrated copy: 2531 passed, 2 skipped.
+
+## UX2 — one count for one thing (2026-10-15, goals/ux2-one-count-one-thing.yaml)
+
+- **Measured first.** On live (the audit): "Grade 1 · G2-C"; class papers to approve 12 on Today and 18 on
+  Assessments; the bank 21,250, 28,705 and 28,717 on three pages; worksheets 1,872 above the list and 2,738 in the pager.
+  On a fresh copy: the bank 19,638 / 28,696 / 28,746; worksheets 1,710 / 2,736.
+- **Causes, each fixed where it is:**
+  - A class's grade was taken three ways. It is one database function now, `class_band(tenant, section)` (migration
+    20261115090000): the grade most of its active children are in, the lower on a tie. `roster.class_band` asks it;
+    so do Today, Make, the topics, the class page and Assessments.
+  - A spare copy has no child, so it took its worksheet's grade, and its class's group took the lowest. It takes its
+    class's now. A spare not yet written on is counted apart ("and 1 spare"), never as a paper to approve; once read,
+    it counts like any paper.
+  - "The bank" is the questions the engine can draw: made by it, active, of a skill at one of its levels. Curriculum,
+    a skill's page and the workflow map counted the old papers' questions too, which no paper draws. The Question bank
+    page shows the taught part and says the whole: "N questions ready to print for the skills taught, of the bank's M".
+  - The worksheet pager counted worksheets of untaught skills and of replaced skills, which its list never shows. The
+    pager and the list count what the header counts, and the header names the library's whole.
+- **Checks:** UX2's four tests failed first on main's pages, each for its reason ("Grade 1 · U33-CLASS"; "3 to
+  approve" for two children's copies; the map's 28,746; "of 2736" under 1,710), then passed. `class_band` and
+  `roster.class_band` agree in every case (`test_a_class_has_one_grade_and_the_database_says_it`); roster and week
+  tests: 17 passed.
+
+## `/growth` "could not load" on CI: a function's row guess made Postgres compile the query (2026-10-15)
+
+- **Seen:** main's browser job on `3d07f66`, and once on T1's PR: the first load of `/growth` hit the page's 8 s limit.
+  The query ran 3.97 s planning and 4.17 s executing on CI; 25 ms of work.
+- **Cause, reproduced on a copy built as CI builds it:** `pii.read_child` returns one row but was declared with
+  Postgres's default guess of 1,000, so the Children page's query (one name per child) was planned at 24,000 rows for
+  24 children, cost 653,786: above `jit_above_cost`, and above the inlining and optimisation thresholds. Postgres
+  compiled it before running it: 2,057 ms of compiling for 25 ms of work here, past 8 s on CI's slower runner.
+  Earlier I put this down to a checkpoint (the `checkpoint` in `bin/testdb`, T1); that was not it.
+- **Fix:** migration 20261116090000 declares `pii.read_child` and `next_difficulty` one row each. The same query: cost
+  671, no compiling, 4.5 ms (was 2,081 ms). `tests/test_db_plans.py` holds both the declaration and the plan.
