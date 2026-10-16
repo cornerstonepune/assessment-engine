@@ -142,7 +142,7 @@ test("a paper the bank cannot fill says why, and nothing prints", async ({ page 
     where i.status = 'active' and i.skill_set_code = 'SUB.1D1D' and i.difficulty = 'Medium' order by i.item_key offset 3
     on conflict do nothing`;
   await page.goto(`/make/custom?child=${ids.Chetan}&a=SUB.1D1D~Medium~40`);
-  await expect(page.getByRole("status")).toContainText("only 3 questions this child has not seen");
+  await expect(page.getByRole("status")).toContainText(/only 3 questions in .* that this child has not been given in the last \d+ days/);
   await expect(page.getByRole("button", { name: "Approve and print" })).toHaveCount(0);
 });
 

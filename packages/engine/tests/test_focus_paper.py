@@ -200,7 +200,9 @@ def test_a_request_the_bank_cannot_fill_is_refused_in_words_never_padded(conn, c
         " where status = 'active' and skill_set_code = 'SUB.3D3D' and difficulty = 'Easy' order by item_key limit %s",
         (child, left - 3),
     )
-    with pytest.raises(ValueError, match="only 3 questions this child has not seen"):
+    with pytest.raises(
+        ValueError, match="only 3 questions in .* that this child has not been given in the last"
+    ):
         focus_paper.plan(conn, child, WEEK, [{"skill_set": "SUB.3D3D", "level": "Easy", "n": 5}])
 
 

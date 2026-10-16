@@ -4,7 +4,7 @@ Nimish, 2026-09-30: a class practice, a class assessment or a home assessment, f
 made one of three ways:
 
 - `same`, one paper for all ("the same skill paper for multiple children"): the same questions on every child's
-  copy, none that any of them has been given;
+  copy, none that any of them was given in the last `exposure.days` days;
 - `each`, the same skill and level with different questions ("choose the right skill and the grade level, and then
   choose the children and generate different questions"): each child's own draw, no two sharing a question;
 - `own`, each child's own ("individual papers for each child"): the next step their graph shows
@@ -30,9 +30,7 @@ WAYS = ("same", "each", "own")
 # how the page says it was chosen: from the child's own papers, or by the educator
 HOW = {"graph": focus_paper.HOW["focus"], "educator": focus_paper.HOW["custom"]}
 # a child with no next step of their own: too little checked work, or nothing left in their skill they have not seen
-NO_STEP = (
-    "no next step to go on yet: too few checked answers, or no question left they have not seen — choose one"
-)
+NO_STEP = "no next step to go on yet: too few checked answers, or no question left they were not given lately — choose one"
 ROLL = "roll_order(c.roll_no), c.roll_no"
 
 

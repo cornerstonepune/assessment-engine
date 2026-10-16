@@ -10,6 +10,9 @@ is verified. This file only says where the last session stopped.
 - **UX5b built on this branch** (`goals/ux5b-make-and-marking.yaml`): Home assessments open on the educator's class, one
   next step a child, the approved folded; Marking one sentence, each class one line, a next step per child. No migration,
   no engine change.
+- **L5, on the same PR (Nimish asked it fixed now):** Neha could not make a Grade 1 Class assessment, Equal groups at
+  Medium. A paper drawn for a child now holds the 21-day window the week holds (ADR 0079; STATE.md "L5"). Once live,
+  Neha tries again. If it is still refused, the message says how many questions the class was given in the window.
 - **Next, by BUILD-ORDER's order line:** SF2a (restore its goal and failing tests from `docs/drafts/sf2a/`, README there),
   then SF2b, UX6, UX7, SF3, SF4.
 

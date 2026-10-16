@@ -8203,6 +8203,29 @@ one child on live.
   promises on the new one: u9, u16, u22, u24, u26, u33, u36, m4 (it found the maker split), s7 and u27 (the counted
   button; u27's classes now have papers to approve, so the refused approval is a real one).
 
+## L5: a paper drawn for a child holds the 21-day window, as the week does (2026-10-16)
+
+- **Seen on live:** Neha, Grade 1's educator, asked the maker for one Class assessment for her 13 children: Equal groups
+  (repeated addition), Medium, 12 questions, one paper for all. It was refused: "only 4 questions none of these 13
+  children has been given …; ask for 4 or fewer".
+- **Cause:** Medium Equal groups (four or five groups of 2 to 6, as a sum or a picture) can make 20 questions; the bank
+  holds 16 (`min_items`). ADR 0011 allowed so small a level because of the 21-day window (`exposure.days`, a threshold
+  row; SPEC: "exclude any item that child has seen in the last 21 days"). The week's assembly reads it.
+  `focus_paper._draw`, which draws every maker paper and home assessment, refused any question a child had *ever* been
+  given. A small level ran dry for a class for good.
+- **Fix (ADR 0079, `goals/l5-seen-means-the-last-21-days.yaml`):** `settings.exposure_days` is the window's one reader.
+  The week's assembly, `focus_paper._draw` (so the maker and home assessments), and the week's scenario check (which read
+  it from `config`, where no such row is) all use it. The refusal names the window: "only 4 questions in Equal groups
+  (repeated addition) at Medium that none of these 13 children has been given in the last 21 days; ask for 4 or fewer".
+  A child's page says "none Asha has been given in the last 21 days", read from the row.
+- **Not checked from here:** how many of Grade 1's Medium Equal groups questions the class was given in the last 21 days.
+  Live's database does not answer from this container. If fewer than 12 are left inside the window, Neha's paper is
+  still refused, now saying why; then a second line at another level fills it.
+- **Checks:** `test_a_question_given_before_the_window_comes_back_and_one_given_inside_it_does_not` failed first (a
+  question given 22 days ago refused), then passed. Engine: test_maker, test_focus_paper, test_paper_from_library,
+  test_week, test_focus and the scenario tests, 62 passed. Web: m2, m4, u38, s11, u2, 23 passed (m2's refusal words
+  updated). `bin/check` 28 passed.
+
 ## UX5a live; UX5b: Home assessments and Marking open on the educator's class, a next step per child (2026-10-16)
 
 - **UX5a live:** #216 merged as `9a87004` (02:38 UTC). Main's CI passed; `migrate live` (run 38844303957) applied

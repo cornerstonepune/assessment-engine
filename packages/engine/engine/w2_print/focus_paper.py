@@ -5,7 +5,7 @@ engine's (`assess.focus.home`: the weakest skill, or a stretch); a custom paper'
 skills, any levels, any count. One engine makes both.
 
 `plan` draws the paper's questions: at random from the bank's active questions for each area, at the area's level, none the child
-has seen, the ones that can show the child's own repeated mistake first. It writes nothing, and the same
+was given in the last `exposure.days` days, the ones that can show the child's own repeated mistake first. It writes nothing, and the same
 child in the same week always gets the same plan, so what the Growth page shows is what `make` prints.
 
 `make` is a person approving that plan: it prints it as a paper with its QR, exactly as a library worksheet is
@@ -22,7 +22,7 @@ from pathlib import Path
 from engine.assess import focus
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
-from engine.core import db, mistake_names, roster
+from engine.core import db, mistake_names, roster, settings
 from engine.w1_bank.inventory import item_from_row
 from engine.w2_print.assemble import _qr
 from engine.w2_print.shelf import _levels, _once, catalog, home_length, rule
@@ -68,34 +68,37 @@ def _can_show(item, mistake):
     return bool(mistake) and any(mistake in (r.get("misconceptions") or {}) for r in item["responses"])
 
 
-def _draw(conn, whose, area, want, rng, taken=()):
+def _draw(conn, whose, area, want, rng, days, taken=()):
     """`want` active questions for one area at its level that none of `whose` (one child, or every child of a paper
-    for all) has ever been given, and none `taken` for another child's paper: questions of the area's own skill
-    first, those that can show the child's repeated mistake before the rest."""
+    for all) was given in the last `days` days — the window the week's assembly holds to, so a level of few questions
+    comes round again rather than running dry for good — and none `taken` for another child's paper: questions of the
+    area's own skill first, those that can show the child's repeated mistake before the rest."""
     rows = conn.execute(
         "select * from item i where i.status = 'active' and i.skill_set_code = %s and i.difficulty = %s"
-        " and not exists (select 1 from item_exposure x where x.child_id = any(%s::uuid[]) and x.item_id = i.id)"
+        " and not exists (select 1 from item_exposure x where x.child_id = any(%s::uuid[]) and x.item_id = i.id"
+        "                 and x.created_at > now() - make_interval(days => %s))"
         " order by i.item_key",
-        (area.skill_set, area.level, list(whose)),
+        (area.skill_set, area.level, list(whose), days),
     ).fetchall()
     rng.shuffle(rows)
     rows.sort(key=lambda r: (area.skill_code not in r["skill_codes"], not _can_show(r, area.mistake)))
     return [r for r in rows if str(r["id"]) not in taken][:want]
 
 
-def _short(k, whose, taken, name, level, earlier=False) -> str:
-    """Why an area cannot be filled, in words: how many questions are left, and for whom."""
+def _short(k, whose, taken, name, level, days, earlier=False) -> str:
+    """Why an area cannot be filled, in words: how many questions are left, for whom, and over which window."""
     who = (
-        "this child has not seen"
+        "this child has not been given"
         if len(whose) == 1
         else f"none of these {len(whose)} children has been given"
     )
+    who += f" in the last {days} days"
     if taken:
         who += " and no other paper here holds"
     if earlier:
         who += " and no line above on this paper holds"
     then = f"ask for {k} or fewer" if k else "choose another skill or level"
-    return f"only {k} questions {who} in {name} at {level}; {then}"
+    return f"only {k} questions in {name} at {level} that {who}; {then}"
 
 
 def _states(conn, child_id):
@@ -224,7 +227,7 @@ def plan(conn, child_id: str, week: str, ask: list | None = None, taken=()) -> d
 
 
 def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
-    """Each chosen (area, how many) filled with questions none of `whose` has been given, as a paper shows them;
+    """Each chosen (area, how many) filled with questions none of `whose` was given lately, as a paper shows them;
     `strict` refuses an area the bank cannot fill rather than printing it short."""
     names = _once(
         "set names", lambda: {r["code"]: r["name"] for r in conn.execute("select code, name from skill_set")}
@@ -233,16 +236,17 @@ def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
         "skill names", lambda: {r["code"]: r["name"] for r in conn.execute("select code, name from skill")}
     )
     name_of = _once("mistake names", lambda: mistake_names.names(conn))
+    days = _once("exposure days", lambda: settings.exposure_days(conn))
     # what the paper may not use: other papers' questions, and its own lines' too, or two lines alike drew the same
     # questions (code review, 2026-09-30)
     out, on_it = [], set(taken)
     for i, (area, want) in enumerate(chosen):
-        questions = _draw(conn, whose, area, want, rng, on_it)
+        questions = _draw(conn, whose, area, want, rng, days, on_it)
         on_it.update(str(q["id"]) for q in questions)
         if strict and len(questions) < want:
             alike = any((a.skill_set, a.level) == (area.skill_set, area.level) for a, _ in chosen[:i])
             name = names.get(area.skill_set)
-            raise ValueError(_short(len(questions), whose, taken, name, area.level, alike))
+            raise ValueError(_short(len(questions), whose, taken, name, area.level, days, alike))
         why = (
             WHY["asked"]
             if area.state == "asked"
