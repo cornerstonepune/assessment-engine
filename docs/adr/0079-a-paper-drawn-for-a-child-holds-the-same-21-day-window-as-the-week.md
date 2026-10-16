@@ -1,6 +1,6 @@
 # ADR 0079 — A paper drawn for a child holds the same 21-day window as the week
 
-**Status:** accepted (2026-10-16).
+**Status:** accepted (2026-10-16). Its "Consequences" superseded by ADR 0080: a short paper is made, not refused.
 Goal: goals/l5-seen-means-the-last-21-days.yaml
 
 ## What happened

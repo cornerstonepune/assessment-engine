@@ -24,7 +24,7 @@ says:
   - words: "go ahead with phase 1"
     proved_by: "apps/web/tests/screens.spec.ts::a child's page is in words, with the answers behind each skill"
   - words: "go ahead with phase 1"
-    proved_by: "apps/web/tests/m2-make-papers.spec.ts::a paper the bank cannot fill says why, and nothing prints"
+    proved_by: "apps/web/tests/m2-make-papers.spec.ts::a paper asking for more questions than its level holds says so, and nothing prints"
   - words: "go ahead with phase 1"
     proved_by: packages/engine/tests/test_week.py::test_two_classes_assembled_at_the_same_moment_both_finish
 manual:

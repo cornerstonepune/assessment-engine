@@ -3,6 +3,18 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-16 — #217 live; L6 built; Achal's maker next
+
+- **#217 live** (UX5b + L5): merged as `90136d8`; `migrate live` and Vercel 04:37 UTC; the engine restarted 04:38–04:42
+  UTC, and the maker answered "The engine refused (502)" while it did (Nimish saw it).
+- **L6 built on this branch** (ADR 0080; STATE.md "L6"): a paper is always made; short of fresh questions, it repeats
+  those seen longest ago and says how many.
+- **Next: M6** (Achal, by phone): each maker line chooses a topic, then that topic's skills, a level, a number; a paper
+  the educator builds may take any skill of the topic, any grade, taught or not (Nimish chose it, 2026-10-16). Home
+  assessments and the week keep the grade and taught rules.
+- **SF2a is stashed** (`git stash list`: "SF2a work in progress"), to pop after L6 and M6 merge; expect conflicts in
+  `focus_paper.py` and `assemble.py`.
+
 ## 2026-10-16 — UX5a live; UX5b built
 
 - **UX5a live** (STATE.md "UX5a live; UX5b"): #216 merged as `9a87004`, migration 20261118090000 applied on live at

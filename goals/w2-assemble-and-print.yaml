@@ -36,9 +36,9 @@ scenarios:
     section: TESTSEC
     must: spares_are_anonymous
   - kind: week
-    name: a child the engine cannot fill is named, never given a short paper
+    name: a pool too small for one worksheet names every child and prints nothing, never a short paper
     section: TESTSEC
-    must: names_the_child_it_could_not_fill
+    must: gives_every_child_a_whole_paper
   - kind: week
     name: a child without enough evidence gets the band default, not a guess
     section: TESTSEC
@@ -49,12 +49,12 @@ scenarios:
     children: 16                            # the school's actual class size: 16 x 12 + 2 spares = 216
     must: no_two_children_share_a_question
   - kind: week
-    name: a Grade 1 class is told the rung is too small, never handed short papers
+    name: a Grade 1 class on a rung too small for fresh papers each still holds a whole paper, never a short one
     section: TESTSEC
     children: 16
     band: G1
-    skill_set: ADD.1D1D            # 22-24 questions is its whole universe (ADR 0011/0016)
-    must: names_the_child_it_could_not_fill
+    skill_set: ADD.1D1D            # 22-24 questions is its whole universe (ADR 0011/0016); goals/l6 repeats the oldest
+    must: gives_every_child_a_whole_paper
   - kind: week
     name: nothing prints until a person approves, and their name is on every sheet
     section: TESTSEC

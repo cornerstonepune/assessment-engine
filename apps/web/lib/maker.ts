@@ -88,8 +88,23 @@ export type PlannedPaper = {
   roll_no: string;
   chosen: "graph" | "educator";
   n: number;
-  areas: { skill_set: string; name: string; level: string; why: string; questions: { item_key: string; text: string }[] }[];
+  areas: {
+    skill_set: string;
+    name: string;
+    level: string;
+    why: string;
+    /** How many of its questions the children were given lately: taken only when fresh ones ran out (goals/l6). */
+    seen_before: number;
+    questions: { item_key: string; text: string }[];
+  }[];
 };
+
+/** The one line a paper says when it repeats questions (goals/l6-a-paper-is-always-made.yaml); nothing when it does not. */
+export function repeatWords(areas: { seen_before?: number }[]): string | null {
+  const n = areas.reduce((t, a) => t + (a.seen_before ?? 0), 0);
+  if (!n) return null;
+  return `${n} of these ${n === 1 ? "question was" : "questions were"} seen before: the bank had no more fresh ones.`;
+}
 export type MakerPlan = { papers: PlannedPaper[]; refused: { child_id: string; roll_no: string; why: string }[] };
 
 /** What the papers would hold, child by child, and each child whose paper cannot be made with why; or, when the

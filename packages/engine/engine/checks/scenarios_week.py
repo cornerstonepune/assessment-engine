@@ -184,32 +184,26 @@ def spares_are_anonymous(conn, sc):
     return {"spares": len(built["spares"]), "difficulties": len(difficulties)}, fails
 
 
-def names_the_child_it_could_not_fill(conn, sc):
-    """A short pool must produce a named child, never a short paper.
+def gives_every_child_a_whole_paper(conn, sc):
+    """Never a short paper, and a child without one only when the level has no whole worksheet at all.
 
-    Two ways in: a rung whose whole number range is smaller than a class needs (`skill_set` in the
-    scenario — a G1 rung really is that small, ADR 0016), or an artificially emptied pool when the
-    scenario names none.
+    Two ways in: a rung whose whole number range is smaller than a class needs (`skill_set` in the scenario — a G1
+    rung really is that small, ADR 0016): every child still holds a whole worksheet, the fresh ones first, then those
+    seen longest ago (goals/l6-a-paper-is-always-made.yaml). Or a pool emptied below one worksheet when the scenario
+    names none: every child is named, with the reason, and nothing prints.
     """
     if sc.get("skill_set"):
         rx, built = _week(conn, sc)
+        want = int(settings.config(conn, "assemble.items_per_sheet", 12))
         fails = []
-        if not built["short"]:
-            fails.append(f"nothing was reported short, so this unit does hold {len(rx)} papers")
-        if len(built["sheets"]) + len(built["short"]) != len(rx):
-            fails.append(
-                f"{len(rx)} children, {len(built['sheets'])} papers, {len(built['short'])} named"
-                " — someone is unaccounted for"
-            )
-        for s in built["short"]:
-            if "had" not in s or "needed" not in s:
-                fails.append(f"roll {s.get('roll_no')} is named short without saying how many were missing")
-        return {
-            "children": len(rx),
-            "papers": len(built["sheets"]),
-            "named_short": len(built["short"]),
-            "skill_set": sc["skill_set"],
-        }, fails
+        if built["short"]:
+            fails.append(f"{len(built['short'])} children left with no paper by a level that has worksheets")
+        if len(built["sheets"]) != len(rx):
+            fails.append(f"{len(rx)} children, {len(built['sheets'])} papers")
+        thin = [s["qr"] for s in built["sheets"] if len(s["item_rows"]) != want]
+        if thin:
+            fails.append(f"{len(thin)} papers are not {want} questions long: {thin[:3]}")
+        return {"children": len(rx), "papers": len(built["sheets"]), "skill_set": sc["skill_set"]}, fails
     sc = {**sc, "children": 2}
     _children(conn, 2)
     rx = prescribe.for_class(conn, SECTION, WEEK, SET)
@@ -296,7 +290,7 @@ CHECKS = {
         respects_exposure_window,
         sheet_length_matches_config,
         spares_are_anonymous,
-        names_the_child_it_could_not_fill,
+        gives_every_child_a_whole_paper,
         falls_back_to_the_band_default,
         nothing_prints_until_a_person_approves,
         prints_in_roll_order,

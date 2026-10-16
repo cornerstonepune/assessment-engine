@@ -8226,6 +8226,19 @@ one child on live.
   test_week, test_focus and the scenario tests, 62 passed. Web: m2, m4, u38, s11, u2, 23 passed (m2's refusal words
   updated). `bin/check` 28 passed.
 
+## L6: a paper is always made, repeating the questions seen longest ago (2026-10-16)
+
+- **Asked:** after L5, a line the 21-day window could not fill was still refused. Nimish: "I don't want teachers to have
+  this many complications. Can we just make it simplified". He chose: always make the paper, repeating the oldest.
+- **Now (ADR 0080, `goals/l6-a-paper-is-always-made.yaml`):** `focus_paper._draw` (the maker, home assessments) takes
+  the questions fresh to the paper's children in the window, then those they were given longest ago, then those another
+  paper of the batch holds; never one twice on a paper. Each line reports `seen_before`; the maker's preview says it in
+  one line ("5 of these questions were seen before: the bank had no more fresh ones."). `assemble.for_week` gives a child
+  who has sat every worksheet at a level the one sat longest ago (`_seen_longest_ago`). The only refusal left: more
+  questions than the level holds ("… holds 16 questions at Medium; ask for 16 or fewer"), or no worksheet at the level
+  yet. The week's scenario `names_the_child_it_could_not_fill` became `gives_every_child_a_whole_paper`.
+- **Checks:** the new tests failed first on the refusal, then passed. Web m2, m4, u37, u38: 19 passed.
+
 ## UX5a live; UX5b: Home assessments and Marking open on the educator's class, a next step per child (2026-10-16)
 
 - **UX5a live:** #216 merged as `9a87004` (02:38 UTC). Main's CI passed; `migrate live` (run 38844303957) applied

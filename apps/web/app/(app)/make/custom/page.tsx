@@ -7,6 +7,7 @@ import { childSection, isMine, scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { engineSend } from "@/lib/engine";
 import { readArea, seeHref, type Area } from "@/lib/next-paper";
+import { repeatWords } from "@/lib/maker";
 import { skillSets } from "@/lib/queries";
 import { oneChild } from "@/lib/queries-make";
 import { isoWeek } from "@/lib/week";
@@ -14,7 +15,7 @@ import { approveCustom } from "../actions";
 import { SkillLevelSelect } from "../skill-level";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
-type Plan = { areas: { skill_set: string; name: string; level: string; questions: { item_key: string; text: string }[] }[] };
+type Plan = { areas: { skill_set: string; name: string; level: string; seen_before: number; questions: { item_key: string; text: string }[] }[] };
 
 const ROWS = 4; // lines on the form: a paper of up to four skills
 const all = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []);
@@ -105,6 +106,7 @@ export default async function CustomPaper({ searchParams }: Props) {
                       </ol>
                     </div>
                   ))}
+                  {repeatWords(plan.areas) ? <p className="note mb-3">{repeatWords(plan.areas)}</p> : null}
                   <form action={approveCustom}>
                     <input type="hidden" name="child" value={id} />
                     <input type="hidden" name="week" value={week} />

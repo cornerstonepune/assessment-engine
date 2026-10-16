@@ -170,13 +170,54 @@ def test_one_paper_for_all_puts_the_same_questions_on_every_copy_none_seen_by_an
     left = _unseen(conn, picked, "Easy")
     _give(conn, kids["new"], "Easy", 0, None)  # the third child has now been given every Easy question
     assert _unseen(conn, picked, "Easy") == 0 < left
-    with pytest.raises(
-        ValueError, match="only 0 questions in .* at Easy that none of these 3 children has been given"
-    ):
-        maker.plan(conn, SECTION, picked, WEEK, "assessment", "same", ask)
+    # every question a repeat now: the paper is made all the same, saying so (goals/l6-a-paper-is-always-made.yaml)
+    again = maker.plan(conn, SECTION, picked, WEEK, "assessment", "same", ask)
+    assert not again["refused"] and again["papers"][0]["areas"][0]["seen_before"] == 6
 
 
-def test_a_question_given_before_the_window_comes_back_and_one_given_inside_it_does_not(conn, kids):
+def test_a_paper_short_of_fresh_questions_is_made_with_those_seen_longest_ago(conn, kids):
+    """Nimish, 2026-10-16: "I don't want teachers to have this many complications." A paper is never refused for want of
+    fresh questions: those none of its children was given in the window go first, then those they were given longest
+    ago, and the paper says how many it repeats. Only more questions than the level holds at all is refused."""
+    picked = [kids["weak"], kids["strong"], kids["new"]]
+    ids = [
+        str(r["id"])
+        for r in conn.execute(
+            "select id from item where status = 'active' and skill_set_code = 'SUB.3D3D' and difficulty = 'Easy'"
+            " order by item_key"
+        )
+    ]
+    assert len(ids) >= 12, "the level must hold a dozen questions for this to mean anything"
+    _give(
+        conn, kids["weak"], "Easy", 3, None
+    )  # every Easy question but the first three, given to one of the three
+    conn.execute(
+        "update item_exposure set created_at = now() - interval '1 day' where child_id = %s", (kids["weak"],)
+    )
+    conn.execute(
+        "update item_exposure set created_at = now() - interval '10 days' where child_id = %s and item_id = any(%s)",
+        (kids["weak"], ids[3:6]),
+    )
+    ask = [{"skill_set": "SUB.3D3D", "level": "Easy", "n": 6}]
+    for way in ("same", "each"):
+        p = maker.plan(
+            conn, SECTION, picked if way == "same" else [kids["weak"]], WEEK, "assessment", way, ask
+        )
+        assert not p["refused"], p["refused"]
+        (area,) = p["papers"][0]["areas"]
+        got = [q["id"] for q in area["questions"]]
+        assert set(got) == set(ids[:6]), "the three never given first, then the three given longest ago"
+        assert area["seen_before"] == 3, way
+    # a home assessment draws the same way
+    one = focus_paper.plan(conn, kids["weak"], WEEK, ask)
+    assert one["n"] == 6 and one["areas"][0]["seen_before"] == 3
+    # more questions than the level holds at all: refused, saying how many it holds
+    conn.execute("update item set status = 'retired' where id = any(%s::uuid[])", (ids[10:],))
+    with pytest.raises(ValueError, match="holds 10 questions at Easy; ask for 10 or fewer"):
+        maker.plan(conn, SECTION, picked, WEEK, "assessment", "same", [{**ask[0], "n": 12}])
+
+
+def test_a_question_given_before_the_window_is_fresh_again_and_one_given_inside_it_is_a_repeat(conn, kids):
     """SPEC: across weeks, a child is not given a question they saw in the last `exposure.days` days — the threshold row
     the week's assembly reads (ADR 0011 let a level hold fewer than fifty questions on that window). Neha, 2026-10-16:
     Grade 1's 13 children had been given all but 4 of Equal groups at Medium, a level of 20 questions, and one paper for
@@ -192,18 +233,18 @@ def test_a_question_given_before_the_window_comes_back_and_one_given_inside_it_d
             (ago, kids["weak"]),
         )
 
-    given(days + 1)  # longer ago than the window: they may come back
+    given(days + 1)  # longer ago than the window: fresh again
     p = maker.plan(conn, SECTION, picked, WEEK, "assessment", "same", ask)
-    assert not p["refused"] and len(_ids(p["papers"][0])) == 6
+    assert not p["refused"] and p["papers"][0]["areas"][0]["seen_before"] == 0
     one = focus_paper.plan(conn, kids["weak"], WEEK, ask)
-    assert one["n"] == 6, "a child's own paper holds to the same window"
+    assert one["n"] == 6 and one["areas"][0]["seen_before"] == 0, (
+        "a child's own paper holds to the same window"
+    )
 
-    given(days - 1)  # inside it: held back, and the refusal says for how long
-    said = rf"only 0 questions in .* at Easy that none of these 3 children has been given in the last {days} days"
-    with pytest.raises(ValueError, match=said):
-        maker.plan(conn, SECTION, picked, WEEK, "assessment", "same", ask)
-    with pytest.raises(ValueError, match=rf"that this child has not been given in the last {days} days"):
-        focus_paper.plan(conn, kids["weak"], WEEK, ask)
+    given(days - 1)  # inside it: a repeat, taken because no fresh one is left, and counted (goals/l6)
+    p = maker.plan(conn, SECTION, picked, WEEK, "assessment", "same", ask)
+    assert not p["refused"] and p["papers"][0]["areas"][0]["seen_before"] == 6
+    assert focus_paper.plan(conn, kids["weak"], WEEK, ask)["areas"][0]["seen_before"] == 6
 
 
 def test_each_childs_own_is_their_next_step_and_an_educator_can_change_one_child(conn, kids):
@@ -270,23 +311,16 @@ def test_the_same_skill_and_level_gives_each_child_different_questions_none_shar
     _give(conn, kids["new"], "Medium", 0, _unseen(conn, [kids["new"]], "Medium") - 3)
     assert _unseen(conn, [kids["new"]], "Medium") == 3
     q = maker.plan(conn, SECTION, [kids["new"]], WEEK, "practice", "each", ask)
-    assert [r["roll_no"] for r in q["refused"]] == ["10"], "the child the bank cannot fill is named"
-    assert (
-        "only 3 questions in 3-digit − 3-digit at Medium that this child has not been given"
-        in q["refused"][0]["why"]
-    )
-    before = db.counts(conn, ["sheet_instance"])
-    with pytest.raises(ValueError, match="roll 10: only"):
-        maker.make(conn, SECTION, picked, WEEK, "practice", "each", BY, ask)
-    assert db.counts(conn, ["sheet_instance"]) == before, (
-        "one child refused, none printed, never a short paper"
-    )
+    # three fresh, then the nine seen longest ago: made, and saying so (goals/l6-a-paper-is-always-made.yaml)
+    assert not q["refused"] and q["papers"][0]["areas"][0]["seen_before"] == 9
+    assert len(set(_ids(q["papers"][0]))) == 12, "never a short paper"
 
 
 def test_two_lines_alike_on_one_paper_never_repeat_a_question(conn, kids):
     """Two areas alike on one paper could draw the same question twice: what was `taken` held the other children's
     papers, never the paper's own (code review, 2026-09-30; goals/p0-the-maker-makes-what-it-shows.yaml). The child
-    has been given all but six of the area's questions, so two lines share those six, or the second is refused."""
+    has been given all but six of the area's questions, so two lines share those six, and a seventh is one it was
+    given before (goals/l6-a-paper-is-always-made.yaml) — never one of the six again."""
     conn.execute(
         "insert into item_exposure (tenant_id, child_id, item_id, week) select i.tenant_id, %s, i.id, 'seen'"
         " from item i where i.status = 'active' and i.skill_set_code = 'SUB.3D3D' and i.difficulty = 'Easy'"
@@ -298,10 +332,10 @@ def test_two_lines_alike_on_one_paper_never_repeat_a_question(conn, kids):
     for way in ("each", "same"):
         (paper,) = maker.plan(conn, SECTION, [kids["new"]], WEEK, "practice", way, halves)["papers"]
         assert len(_ids(paper)) == len(set(_ids(paper))) == 6, way
-    p = maker.plan(conn, SECTION, [kids["new"]], WEEK, "practice", "each", more)
-    assert p["papers"] == [] and "no line above on this paper holds" in p["refused"][0]["why"]
-    with pytest.raises(ValueError, match="no line above on this paper holds"):
-        maker.plan(conn, SECTION, [kids["new"]], WEEK, "practice", "same", more)
+    for way in ("each", "same"):
+        (paper,) = maker.plan(conn, SECTION, [kids["new"]], WEEK, "practice", way, more)["papers"]
+        assert len(_ids(paper)) == len(set(_ids(paper))) == 7, way
+        assert [a["seen_before"] for a in paper["areas"]] == [0, 1], way
 
 
 def test_a_class_is_planned_on_one_read_of_the_catalogue_not_one_a_child(conn, kids, monkeypatch):

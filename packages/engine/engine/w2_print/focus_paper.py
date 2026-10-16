@@ -17,6 +17,7 @@ import json
 import random
 import tempfile
 from dataclasses import replace
+from datetime import UTC, datetime
 from pathlib import Path
 
 from engine.assess import focus
@@ -68,37 +69,40 @@ def _can_show(item, mistake):
     return bool(mistake) and any(mistake in (r.get("misconceptions") or {}) for r in item["responses"])
 
 
-def _draw(conn, whose, area, want, rng, days, taken=()):
-    """`want` active questions for one area at its level that none of `whose` (one child, or every child of a paper
-    for all) was given in the last `days` days — the window the week's assembly holds to, so a level of few questions
-    comes round again rather than running dry for good — and none `taken` for another child's paper: questions of the
-    area's own skill first, those that can show the child's repeated mistake before the rest."""
+LONG_AGO = datetime.min.replace(tzinfo=UTC)
+
+
+def _draw(conn, whose, area, want, rng, days, taken=(), own=()):
+    """`want` active questions for one area at its level, never one this paper already holds (`own`), in the order a
+    paper takes them (goals/l6-a-paper-is-always-made.yaml): first those none of `whose` (one child, or every child of
+    a paper for all) was given in the last `days` days — the week's window — and no other child's paper of the batch
+    holds (`taken`); then, when those run short, those they were given longest ago; last, those another child's paper
+    holds. So a paper is short only when its level holds fewer questions than it asks. Within each, the area's own
+    skill first, and those that can show the child's repeated mistake before the rest. Each row says whether it is a
+    repeat (`recent`)."""
     rows = conn.execute(
-        "select * from item i where i.status = 'active' and i.skill_set_code = %s and i.difficulty = %s"
-        " and not exists (select 1 from item_exposure x where x.child_id = any(%s::uuid[]) and x.item_id = i.id"
-        "                 and x.created_at > now() - make_interval(days => %s))"
-        " order by i.item_key",
-        (area.skill_set, area.level, list(whose), days),
+        "select i.*, x.last as last_seen, coalesce(x.last > now() - make_interval(days => %s), false) as recent"
+        " from item i left join lateral (select max(e.created_at) as last from item_exposure e"
+        "   where e.child_id = any(%s::uuid[]) and e.item_id = i.id) x on true"
+        " where i.status = 'active' and i.skill_set_code = %s and i.difficulty = %s order by i.item_key",
+        (days, list(whose), area.skill_set, area.level),
     ).fetchall()
     rng.shuffle(rows)
-    rows.sort(key=lambda r: (area.skill_code not in r["skill_codes"], not _can_show(r, area.mistake)))
-    return [r for r in rows if str(r["id"]) not in taken][:want]
+
+    def order(r):
+        tier = 2 if str(r["id"]) in taken else 1 if r["recent"] else 0
+        when = r["last_seen"] if tier == 1 else LONG_AGO
+        return (tier, when, area.skill_code not in r["skill_codes"], not _can_show(r, area.mistake))
+
+    rows.sort(key=order)
+    return [r for r in rows if str(r["id"]) not in own][:want]
 
 
-def _short(k, whose, taken, name, level, days, earlier=False) -> str:
-    """Why an area cannot be filled, in words: how many questions are left, for whom, and over which window."""
-    who = (
-        "this child has not been given"
-        if len(whose) == 1
-        else f"none of these {len(whose)} children has been given"
-    )
-    who += f" in the last {days} days"
-    if taken:
-        who += " and no other paper here holds"
-    if earlier:
-        who += " and no line above on this paper holds"
+def _short(k, name, level, earlier=False) -> str:
+    """Why an area cannot be filled, in words: it asks for more questions than its level holds at all."""
+    besides = " besides those on a line above" if earlier else ""
     then = f"ask for {k} or fewer" if k else "choose another skill or level"
-    return f"only {k} questions in {name} at {level} that {who}; {then}"
+    return f"{name} holds {k} questions at {level}{besides}; {then}"
 
 
 def _states(conn, child_id):
@@ -227,8 +231,9 @@ def plan(conn, child_id: str, week: str, ask: list | None = None, taken=()) -> d
 
 
 def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
-    """Each chosen (area, how many) filled with questions none of `whose` was given lately, as a paper shows them;
-    `strict` refuses an area the bank cannot fill rather than printing it short."""
+    """Each chosen (area, how many) filled as `_draw` orders the level's questions — none of `whose` was given lately
+    first, then the ones given longest ago — as a paper shows them, each area saying how many it repeats
+    (`seen_before`); `strict` refuses an area its level cannot fill at all rather than printing it short."""
     names = _once(
         "set names", lambda: {r["code"]: r["name"] for r in conn.execute("select code, name from skill_set")}
     )
@@ -237,16 +242,15 @@ def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
     )
     name_of = _once("mistake names", lambda: mistake_names.names(conn))
     days = _once("exposure days", lambda: settings.exposure_days(conn))
-    # what the paper may not use: other papers' questions, and its own lines' too, or two lines alike drew the same
-    # questions (code review, 2026-09-30)
-    out, on_it = [], set(taken)
+    # what the paper never repeats: its own lines' questions, or two lines alike drew the same (code review,
+    # 2026-09-30); another child's paper's questions it takes only last
+    out, own = [], set()
     for i, (area, want) in enumerate(chosen):
-        questions = _draw(conn, whose, area, want, rng, days, on_it)
-        on_it.update(str(q["id"]) for q in questions)
+        questions = _draw(conn, whose, area, want, rng, days, set(taken), own)
+        own.update(str(q["id"]) for q in questions)
         if strict and len(questions) < want:
             alike = any((a.skill_set, a.level) == (area.skill_set, area.level) for a, _ in chosen[:i])
-            name = names.get(area.skill_set)
-            raise ValueError(_short(len(questions), whose, taken, name, area.level, days, alike))
+            raise ValueError(_short(len(questions), names.get(area.skill_set), area.level, alike))
         why = (
             WHY["asked"]
             if area.state == "asked"
@@ -264,6 +268,7 @@ def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
                 "answered": area.answered,
                 "mistake": area.mistake,
                 "why": why + ".",
+                "seen_before": sum(1 for q in questions if q["recent"]),
                 "questions": [
                     {
                         "item_key": q["item_key"],

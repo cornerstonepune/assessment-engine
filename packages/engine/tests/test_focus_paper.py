@@ -185,7 +185,7 @@ def test_a_teacher_asks_for_any_skills_at_any_levels_and_how_many_and_the_engine
     assert home["qr"] not in (made["qr"], again["qr"])
 
 
-def test_a_request_the_bank_cannot_fill_is_refused_in_words_never_padded(conn, child):
+def test_a_request_that_cannot_be_made_is_refused_in_words_and_a_short_bank_repeats_the_oldest(conn, child):
     with pytest.raises(ValueError, match="has no level 'Hard'"):
         focus_paper.plan(conn, child, WEEK, [{"skill_set": "SUB.1D1D", "level": "Hard", "n": 5}])
     with pytest.raises(ValueError, match="1 to 40 questions"):
@@ -200,10 +200,9 @@ def test_a_request_the_bank_cannot_fill_is_refused_in_words_never_padded(conn, c
         " where status = 'active' and skill_set_code = 'SUB.3D3D' and difficulty = 'Easy' order by item_key limit %s",
         (child, left - 3),
     )
-    with pytest.raises(
-        ValueError, match="only 3 questions in .* that this child has not been given in the last"
-    ):
-        focus_paper.plan(conn, child, WEEK, [{"skill_set": "SUB.3D3D", "level": "Easy", "n": 5}])
+    # short of fresh questions: made all the same, the two missing taken from those seen longest ago (goals/l6)
+    p = focus_paper.plan(conn, child, WEEK, [{"skill_set": "SUB.3D3D", "level": "Easy", "n": 5}])
+    assert p["n"] == 5 and p["areas"][0]["seen_before"] == 2
 
 
 def test_a_child_who_lags_nowhere_is_stretched_on_their_strongest_skill(conn):
