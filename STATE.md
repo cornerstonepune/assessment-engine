@@ -8258,6 +8258,19 @@ one child on live.
 - **Main's CI red on 9ed8de4:** `test_a_skill_set_is_read_as_itself` called `shelf._catalog(conn, None)` with the old
   two arguments. `every` now defaults to False; that test and its neighbours, 44 passed.
 
+## L9: "not taught yet" is said where it shows (2026-10-16)
+
+- **Seen on live:** Nimish, on Curriculum's table: "while this is showing not taught; on the tip i am not even having an
+  option to mark these as taught". The switch was in a panel above the table for a whole topic, and for one skill three
+  clicks deep in a closed "Taught" fold; the row that said "not taught yet" offered nothing.
+- **Now (`goals/l9-not-taught-is-said-where-it-shows.yaml`):** a topic's or a skill's row that says "not taught yet"
+  carries the switch for a person who may say it (`mayDecide(me, "topics")`): one button when one class of the grade
+  waits ("Mark taught in G2"), else a choice of those classes and "Mark taught". `lib/taught.ts:untaughtByGrade` names
+  them. Said of a topic's row, every skill in it; of a skill's row, that skill alone (`switchTopic`, unchanged).
+- **Since L7 "taught" does not gate a paper an educator builds**; it decides what the engine picks by itself and what a
+  class's pages show.
+- **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
+
 ## UX5a live; UX5b: Home assessments and Marking open on the educator's class, a next step per child (2026-10-16)
 
 - **UX5a live:** #216 merged as `9a87004` (02:38 UTC). Main's CI passed; `migrate live` (run 38844303957) applied

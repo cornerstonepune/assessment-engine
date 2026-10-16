@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "@/components/link";
 import { Pill } from "@/components/shell";
 import type { CurriculumRow } from "@/lib/queries-curriculum";
+import { switchTopic } from "./topic-actions";
 
 // The curriculum as one table (goals/u12-curriculum-table.yaml). Nimish, 2026-09-30: "When I click on grade 1, there
 // is a proper table where, within grade 1, within mathematics, there are addition and subtraction, and then within
@@ -14,7 +15,40 @@ const LEVELS = ["Easy", "Medium", "Hard", "Advance"] as const;
 const n = (x: number) => x.toLocaleString("en-IN");
 const INDENT = ["pl-[14px]", "pl-[34px]", "pl-[54px]", "pl-[74px]"];
 
-export function CurriculumTable({ rows }: { rows: CurriculumRow[] }) {
+/** "Not taught yet", and where the person may say so, the way to say it on the same row (goals/l9-not-taught-is-said-
+ *  where-it-shows.yaml): one button for the one class of the grade not yet taught it, else a choice of those classes.
+ *  Said of a topic's row, every skill in it; of a skill's, that skill alone. */
+function NotTaught({ row, say }: { row: CurriculumRow; say: boolean }) {
+  const classes = say && row.topic ? (row.untaught ?? []) : [];
+  return (
+    <>
+      <Pill tone="monsoon">not taught yet</Pill>
+      {classes.length ? (
+        <form action={switchTopic} className="inline-flex items-center gap-1">
+          <input type="hidden" name="code" value={row.topic} />
+          {row.skill ? <input type="hidden" name="skill" value={row.skill} /> : null}
+          <input type="hidden" name="taught" value="on" />
+          {classes.length === 1 ? (
+            <input type="hidden" name="class" value={classes[0]} />
+          ) : (
+            <select name="class" aria-label="Class" className="select py-0 text-[12px]" defaultValue={classes[0]}>
+              {classes.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          )}
+          <button type="submit" className="chip whitespace-nowrap text-[12px]">
+            {classes.length === 1 ? `Mark taught in ${classes[0]}` : "Mark taught"}
+          </button>
+        </form>
+      ) : null}
+    </>
+  );
+}
+
+export function CurriculumTable({ rows, say = false }: { rows: CurriculumRow[]; say?: boolean }) {
   const [open, setOpen] = useState<Set<string>>(new Set());
   const under = (id: string) => rows.filter((r) => r.parent === id);
   const toggle = (id: string) =>
@@ -86,8 +120,8 @@ export function CurriculumTable({ rows }: { rows: CurriculumRow[] }) {
                     </button>
                   ) : null}
                   {under(r.id).length && r.off ? (
-                    <span className="ml-2 inline-block align-middle">
-                      <Pill tone="monsoon">not taught yet</Pill>
+                    <span className="ml-2 inline-flex flex-wrap items-center gap-2 align-middle">
+                      <NotTaught row={r} say={say} />
                     </span>
                   ) : null}
                   {under(r.id).length ? null : (
@@ -102,7 +136,7 @@ export function CurriculumTable({ rows }: { rows: CurriculumRow[] }) {
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-basalt/62">
                         {r.sub}
                         {r.draft ? <Pill tone="bamboo">waiting for approval</Pill> : null}
-                        {r.off ? <Pill tone="monsoon">not taught yet</Pill> : null}
+                        {r.off ? <NotTaught row={r} say={say} /> : null}
                       </div>
                     </div>
                   )}

@@ -51,3 +51,16 @@ export async function taughtByGrade(scope: Scope): Promise<(band: string, skill:
   const own = new Map(school.map((t) => [t.code, t.taught]));
   return (band, skill) => by.get(`${band}|${skill}`) ?? own.get(skill) ?? false;
 }
+
+/** The classes of a grade the scope shows that have not been taught a skill, in order (goals/l9-not-taught-is-said-
+ *  where-it-shows.yaml): where Curriculum offers to say it, on the row that says "not taught yet". */
+export async function untaughtByGrade(scope: Scope): Promise<(band: string, skill: string) => string[]> {
+  const rows = await sql<{ band: string; skill: string; sections: string[] }[]>`
+    select k.band, s.code as skill, array_agg(k.section order by k.section) as sections
+    from skill_set s
+    cross join (select distinct section, band from child where active and ${inScope(scope, sql`section`)}) k
+    where not skill_taught_in(s.tenant_id, s.code, k.section)
+    group by 1, 2`;
+  const by = new Map(rows.map((r) => [`${r.band}|${r.skill}`, r.sections]));
+  return (band, skill) => by.get(`${band}|${skill}`) ?? [];
+}
