@@ -1,0 +1,24 @@
+name: l9-not-taught-is-said-where-it-shows
+goal: >
+  Where Curriculum marks a skill or a topic "not taught yet", the same row has a button for each class of that grade
+  not yet taught it, for a person who may say so: one click says that class has been taught it, in their name, and no
+  other class changes. A topic's row says it of every skill in the topic, a skill's row of that skill alone.
+# Written 2026-10-16, before the code. Nimish, the same morning, with the Curriculum table's "not taught yet" on
+# Multiplying three numbers, Division and Multiples & factors in front of him: "while this is showing not taught; on
+# the tip i am not even having an option to mark these as taught". Measured first: the switch was in a panel above the
+# table for a whole topic, and for one skill three clicks deep in a closed "Taught" fold; the row that said "not taught
+# yet" offered nothing.
+says:
+  - words: "while this is showing not taught; on the tip i am not even having an option to mark these as taught"
+    proved_by: "apps/web/tests/u40-taught-said-on-its-row.spec.ts::a skill not taught yet is said taught from its own row, for one class"
+  - words: "while this is showing not taught; on the tip i am not even having an option to mark these as taught"
+    proved_by: "apps/web/tests/u40-taught-said-on-its-row.spec.ts::a topic not taught yet is said taught from its own row, every skill in it"
+manual: []
+scenarios: []
+criteria:
+  - name: the rows that say not taught yet, and the pages that read taught
+    run: cd apps/web && npx playwright test tests/u40-taught-said-on-its-row.spec.ts tests/u12-curriculum-table.spec.ts tests/u17-curriculum.spec.ts tests/u19-whole-curriculum.spec.ts tests/u30-taught-per-class.spec.ts tests/u31-topics-are-operations.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

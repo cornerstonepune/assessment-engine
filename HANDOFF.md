@@ -3,6 +3,13 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-16 — L6 + L7 live 06:00 UTC by hand; L9 built
+
+- **#218 (L6 + L7) and #219 (the `_catalog(every=False)` fix for main's red CI) are live:** Vercel 05:56 and the engine
+  06:00 UTC on 2eb105c, deployed by hand at Nimish's word ("deploy and get this live now") before main's CI finished:
+  `deploy engine` dispatched, `migrate live` dispatched for the `live database` status Vercel waits on.
+- **L9 on this branch** (STATE.md "L9"): Curriculum's "not taught yet" rows carry the switch.
+
 ## 2026-10-16 — #217 live; L6 and L7 built
 
 - **#217 live** (UX5b + L5): merged as `90136d8`; `migrate live` and Vercel 04:37 UTC; the engine restarted 04:38–04:42
