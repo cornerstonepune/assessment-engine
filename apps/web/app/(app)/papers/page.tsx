@@ -13,12 +13,13 @@ import {
   STAGES,
   type AssessmentRow,
   type PaperFilter,
+  type PaperListRow,
+  type Stage,
 } from "@/lib/queries-papers";
 import { weekWords } from "@/lib/week";
 import { deadline } from "@/lib/deadline";
 import { ReadScan } from "../capture/read-scan";
-import { AssessmentsTable } from "./assessments-table";
-import { PapersTable } from "./papers-table";
+import { assessmentKey, AssessmentsTable } from "./assessments-table";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -33,12 +34,10 @@ const STARTS: [string, string, string][] = [
 ];
 
 const UUID = /^[0-9a-f-]{36}$/;
-type View = "assessments" | "papers";
 
-// An address for the page: the view first, then every filter, a change laid over them.
-function query(f: PaperFilter, view: View, change: Partial<PaperFilter> = {}) {
+// An address for the page: every filter, a change laid over them; `open`, the one assessment opened to its copies.
+function query(f: PaperFilter, change: Partial<PaperFilter> & { open?: string } = {}) {
   const q = new URLSearchParams();
-  if (view === "papers") q.set("view", "papers");
   for (const [k, value] of Object.entries({ ...f, ...change })) if (value) q.set(k, value);
   const s = q.toString();
   return s ? `/papers?${s}` : "/papers";
@@ -58,13 +57,18 @@ function Select({ name, label, value, all, options }: {
   );
 }
 
-// Assessments (goals/u9-papers.yaml, goals/ui5-assessments-readable.yaml): one row for each assessment, its copies
-// counted by stage, or every paper on its own; filtered by topic, stage, class, child, kind and week; an assessment
-// opens its copies. Reading a scan, the queue of answers to check, and making an assessment start here.
+// What waits in a week, in words: only the stages that wait on a person, and only those that are there.
+const WAITS: [Stage, string][] = [["made", "to approve"], ["scanned", "to check"], ["checked", "to sign off"]];
+
+// Assessments (goals/u9-papers.yaml, goals/ui5-assessments-readable.yaml, goals/ux5-papers-grouped.yaml): its weeks,
+// newest first, the newest open, each one line saying what waits in it; each assessment a line that opens in place to
+// its copies in roll order — one the filters leave alone opens by itself. Filtered by topic and stage at the top, by
+// class, child, kind and week in a fold; a filter chosen opens every week it leaves, and a child chosen shows their copy
+// under each assessment. Reading a scan, the
+// queue of answers to check, and making an assessment start here.
 export default async function PapersPage({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
-  const view: View = q.view === "papers" ? "papers" : "assessments";
   const taught = (await deadline(topics(scopeOf(me)))).filter((t) => t.shown);
   const f: PaperFilter = {
     class: q.class || undefined,
@@ -76,27 +80,41 @@ export default async function PapersPage({ searchParams }: Props) {
     topic: taught.some((t) => t.code === q.topic) ? q.topic : undefined,
     set: q.set || undefined,
   };
-  const [papers, groups, { stages, options }, queue] = await deadline(
-    Promise.all([
-      view === "papers" ? paperList(f, me.email, scopeOf(me)) : null,
-      view === "assessments" ? assessmentList(f, scopeOf(me)) : null,
-      paperFilters(f, me.email, scopeOf(me)),
-      checkQueue(scopeOf(me)),
-    ]),
+  const [groups, { stages, options }, queue] = await deadline(
+    Promise.all([assessmentList(f, scopeOf(me)), paperFilters(f, me.email, scopeOf(me)), checkQueue(scopeOf(me))]),
   );
-  const shown = groups ?? papers;
+  // the one assessment opened, by its key (kind~class~week~set) — or the one the filters leave — its copies with it
+  const asked = q.open && q.open.split("~")[0] in KIND_WORDS ? q.open : null;
+  // `none`: the one left alone, closed by hand, stays closed
+  const opened = asked ?? (q.open !== "none" && groups.rows.length === 1 ? assessmentKey(groups.rows[0]) : null);
+  const [kind, section, week, set] = (opened ?? "").split("~");
+  // a child chosen shows their copy under every assessment; otherwise only the one opened has its copies read
+  const read = await deadline(
+    f.child
+      ? paperList(f, me.email, scopeOf(me), "roll")
+      : opened
+        ? paperList({ ...f, kind, class: section || undefined, week: week || undefined, set: set || undefined }, me.email, scopeOf(me), "roll")
+        : Promise.resolve(null),
+  );
+  const copies = new Map<string, PaperListRow[]>();
+  for (const p of read?.rows ?? []) {
+    const key = assessmentKey(p);
+    if (f.child || key === opened) copies.set(key, [...(copies.get(key) ?? []), p]);
+  }
   const toCheck = queue.filter((e) => !e.spot).length;
   const all = STAGES.reduce((n, s) => n + stages[s], 0);
-  // an assessment opens its copies: its class, week, kind and skill set or worksheet, under the other filters
-  const copies = (a: AssessmentRow) =>
-    query(f, "papers", { class: a.section ?? undefined, week: a.week ?? undefined, kind: a.kind, set: a.set ?? undefined });
+  const folded = !!(f.class || f.child || f.kind || f.week);
+  const chosen = folded || !!(f.stage || f.topic || f.set);
+  // its weeks, newest first; a paper with no week last
+  const weeks = [...new Set(groups.rows.map((a) => a.week ?? ""))].sort((a, b) => (a && b ? b.localeCompare(a) : a ? -1 : 1));
+  const opensWeek = (w: string) => chosen || w === weeks[0] || groups.rows.some((a) => (a.week ?? "") === w && assessmentKey(a) === opened);
 
   return (
     <>
       <PageHeader
         stage="Assessments"
         title="Assessments"
-        sub="Make an assessment, then follow every one from approval to done, by topic or all together. An assessment opens its copies; a paper opens to print it, or to check its answers once it is read."
+        sub="Make an assessment, then follow every one from approval to done, week by week. An assessment opens to its copies; a copy opens to print it, or to check its answers once it is read."
       />
       <Body>
         <section aria-label="Make an assessment" className="mb-[18px]">
@@ -119,27 +137,14 @@ export default async function PapersPage({ searchParams }: Props) {
           </Link>
         </div>
 
-        <nav aria-label="View" className="mb-3 flex flex-wrap gap-2">
-          {(["assessments", "papers"] as const).map((v) => (
-            <Link
-              key={v}
-              href={query({ ...f, set: v === "assessments" ? undefined : f.set }, v)}
-              className={`chip ${view === v ? "on" : ""}`}
-              aria-current={view === v ? "page" : undefined}
-            >
-              {v === "assessments" ? "By assessment" : "Each paper"}
-            </Link>
-          ))}
-        </nav>
-
         <nav aria-label="Topic" className="mb-3 flex flex-wrap gap-2">
-          <Link href={query(f, view, { topic: undefined })} className={`chip ${!f.topic ? "on" : ""}`} aria-current={!f.topic ? "page" : undefined}>
+          <Link href={query(f, { topic: undefined })} className={`chip ${!f.topic ? "on" : ""}`} aria-current={!f.topic ? "page" : undefined}>
             All topics
           </Link>
           {taught.map((t) => (
             <Link
               key={t.code}
-              href={query(f, view, { topic: t.code })}
+              href={query(f, { topic: t.code })}
               className={`chip ${f.topic === t.code ? "on" : ""}`}
               aria-current={f.topic === t.code ? "page" : undefined}
             >
@@ -149,39 +154,57 @@ export default async function PapersPage({ searchParams }: Props) {
         </nav>
 
         <nav aria-label="Papers by stage" className="mb-3 flex flex-wrap gap-2">
-          <Link href={query(f, view, { stage: undefined })} className={`chip ${!f.stage ? "on" : ""}`}
+          <Link href={query(f, { stage: undefined })} className={`chip ${!f.stage ? "on" : ""}`}
             aria-current={!f.stage ? "page" : undefined}>
             Every stage <span className="fact ml-1 opacity-70">{all}</span>
           </Link>
           {STAGES.map((s) => (
-            <Link key={s} href={query(f, view, { stage: s })} className={`chip ${f.stage === s ? "on" : ""}`}
+            <Link key={s} href={query(f, { stage: s })} className={`chip ${f.stage === s ? "on" : ""}`}
               aria-current={f.stage === s ? "page" : undefined}>
               {STAGE_WORDS[s][0].toUpperCase() + STAGE_WORDS[s].slice(1)} <span className="fact ml-1 opacity-70">{stages[s]}</span>
             </Link>
           ))}
         </nav>
 
-        <form action="/papers" className="panel mb-[18px] flex flex-wrap items-end gap-3 p-4">
-          {view === "papers" ? <input type="hidden" name="view" value="papers" /> : null}
-          {f.stage ? <input type="hidden" name="stage" value={f.stage} /> : null}
-          {f.topic ? <input type="hidden" name="topic" value={f.topic} /> : null}
-          <Select name="class" label="Class" value={f.class} all="Every class" options={options.classes.map((c) => [c, c])} />
-          <Select name="child" label="Child" value={f.child} all="Every child" options={options.children.map((c) => [c.id, c.label])} />
-          <Select name="kind" label="Kind" value={f.kind} all="Any kind" options={Object.entries(KIND_WORDS)} />
-          <Select name="week" label="Week" value={f.week} all="Every week" options={options.weeks.map((w) => [w, weekWords(w)])} />
-          <button type="submit" className="btn">Show</button>
-          {f.class || f.child || f.kind || f.week || f.stage || f.topic || f.set ? (
-            <Link href={view === "papers" ? "/papers?view=papers" : "/papers"} className="text-[13px]">Clear</Link>
-          ) : null}
-        </form>
+        <details data-filters open={folded} className="mb-[18px]">
+          <summary className="cursor-pointer text-[13px] text-basalt/75">Class, child, kind and week</summary>
+          <form action="/papers" className="panel mt-2 flex flex-wrap items-end gap-3 p-4">
+            {f.stage ? <input type="hidden" name="stage" value={f.stage} /> : null}
+            {f.topic ? <input type="hidden" name="topic" value={f.topic} /> : null}
+            <Select name="class" label="Class" value={f.class} all="Every class" options={options.classes.map((c) => [c, c])} />
+            <Select name="child" label="Child" value={f.child} all="Every child" options={options.children.map((c) => [c.id, c.label])} />
+            <Select name="kind" label="Kind" value={f.kind} all="Any kind" options={Object.entries(KIND_WORDS)} />
+            <Select name="week" label="Week" value={f.week} all="Every week" options={options.weeks.map((w) => [w, weekWords(w)])} />
+            <button type="submit" className="btn">Show</button>
+            {chosen ? <Link href="/papers" className="text-[13px]">Clear</Link> : null}
+          </form>
+        </details>
 
-        <section className="panel" aria-label="Papers">
-          <div className="overflow-x-auto">
-            {groups ? <AssessmentsTable rows={groups.rows} opens={copies} /> : null}
-            {papers ? <PapersTable rows={papers.rows} /> : null}
-          </div>
-          {shown?.rows.length === 0 ? <p className="note p-4">Nothing matches these filters.</p> : null}
-          {shown?.more ? <p className="note p-4">The newest 300 are shown; narrow the filters to see the rest.</p> : null}
+        <section className="grid gap-[18px]" aria-label="Papers">
+          {weeks.map((w) => {
+            const here = groups.rows.filter((a) => (a.week ?? "") === w);
+            return (
+              <details key={w || "none"} data-week={w} open={opensWeek(w)} className="panel group">
+                <summary className="flex cursor-pointer list-none flex-wrap items-baseline gap-x-2 px-[18px] py-3 text-[13.5px] [&::-webkit-details-marker]:hidden">
+                  <span aria-hidden="true" className="inline-block w-3 text-basalt/50 transition-transform group-open:rotate-90">
+                    ▸
+                  </span>
+                  <span className="font-semibold text-basalt">{w ? weekWords(w) : "No week"}</span>
+                  <span className="text-basalt/70">· {waits(here).join(" · ")}</span>
+                </summary>
+                <div className="overflow-x-auto px-[18px] pb-3">
+                  <AssessmentsTable
+                    label={w ? `${weekWords(w)}: its assessments` : "Papers with no week"}
+                    rows={here}
+                    copies={copies}
+                    href={(a, open) => query(f, { open: open ? "none" : assessmentKey(a) })}
+                  />
+                </div>
+              </details>
+            );
+          })}
+          {groups.rows.length === 0 ? <p className="note">Nothing matches these filters.</p> : null}
+          {groups.more ? <p className="note">The newest 300 assessments are shown; narrow the filters to see the rest.</p> : null}
         </section>
 
         <div className="mt-[18px]">
@@ -190,4 +213,13 @@ export default async function PapersPage({ searchParams }: Props) {
       </Body>
     </>
   );
+}
+
+/** A week's line: how many assessments, and only what waits in them, or that nothing does. */
+function waits(rows: AssessmentRow[]): string[] {
+  const n = rows.length;
+  const said = WAITS.map(([s, words]) => [rows.reduce((k, a) => k + a.by[s], 0), words] as const)
+    .filter(([k]) => k)
+    .map(([k, words]) => `${k} ${words}`);
+  return [`${n} assessment${n === 1 ? "" : "s"}`, ...(said.length ? said : ["nothing waiting"])];
 }

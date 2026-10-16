@@ -40,6 +40,11 @@ export type PaperListRow = {
   band: string | null;
   child_id: string | null;
   child: string | null;
+  roll_no: string | null;
+  /** How hard the copy is: its worksheet's level; none for a paper drawn from several. */
+  level: string | null;
+  /** The assessment it is a copy of (`AssessmentRow.set`). */
+  set: string | null;
   /** A class's spare copy, not yet written on: it goes with its class's pack and waits for no one of its own. */
   spare: boolean;
   week: string | null;
@@ -56,7 +61,7 @@ const LIMIT = 300;
  *  a constant: `sql` is touched only when data is asked for (lib/db.ts), never when the page is imported to build. */
 const papersCte = () => sql`
   papers as (
-    select si.id, si.qr_code as qr, coalesce(si.kind, 'earlier') as kind, si.child_id,
+    select si.id, si.qr_code as qr, coalesce(si.kind, 'earlier') as kind, si.child_id, ch.roll_no, t.difficulty as level,
            -- a child's copy is at the child's grade, a spare at its class's (class_band, the one rule), and only a paper
            -- given to no class at its worksheet's (goals/ux2-one-count-one-thing.yaml)
            coalesce(si.section, ch.section) as section, coalesce(ch.band, cls.band, t.band) as band, cls.band as class_band,
@@ -73,9 +78,12 @@ const papersCte = () => sql`
            -- one assessment (goals/ui5-assessments-readable.yaml): a kind of paper given to a class in a week on one
            -- skill set (each child a worksheet of its own, the same skill) or on one worksheet; a class's home
            -- assessments and chosen papers for a week are one assessment, each child's drawn for them
+           -- a class paper made in the maker is drawn for each child on a worksheet of its own: it is one assessment by
+           -- its skills and levels, which every child's copy names (goals/ux5-papers-grouped.yaml) — it was a row a child
            case when coalesce(si.kind, 'earlier') in ('focus', 'custom') then null
+                when t.skill_set_code is null and si.key ? 'areas' then 'areas:' || (si.key -> 'areas')::text
                 else coalesce(t.skill_set_code, t.id::text) end as set_key,
-           coalesce(ss.name, t.key ->> 'title', t.code, t.batch_id, si.qr_code) as set_name,
+           coalesce(ss.name, t.key ->> 'title', drawn.title, t.code, t.batch_id, si.qr_code) as set_name,
            -- the topics its questions are on: its skill set's, or each of its questions' own
            array(select distinct s.topic_code from skill_set s
                  where s.tenant_id = t.tenant_id and s.topic_code is not null
@@ -121,25 +129,31 @@ const narrowed = (f: PaperFilter, scope: Scope) => sql`
   and (${f.topic ?? null}::text is null or ${f.topic ?? null} = any(topics))
   and (${f.set ?? null}::text is null or set_key = ${f.set ?? null})`;
 
-/** The papers a filter leaves, newest first (at most 300), with each child's name read once, through pii.read_child,
- *  which logs who asked. */
-export async function paperList(f: PaperFilter, actor: string, scope: Scope = EVERY_CLASS): Promise<{ rows: PaperListRow[]; more: boolean }> {
+/** The papers a filter leaves (at most 300) — newest first, or an assessment's copies in roll order, its spares last
+ *  (goals/ux5-papers-grouped.yaml) — with each child's name read once, through pii.read_child, which logs who asked. */
+export async function paperList(
+  f: PaperFilter,
+  actor: string,
+  scope: Scope = EVERY_CLASS,
+  order: "newest" | "roll" = "newest",
+): Promise<{ rows: PaperListRow[]; more: boolean }> {
   const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
+  const by = order === "roll" ? sql`roll_no is null, roll_order(roll_no), roll_no, qr` : sql`day desc nulls last, created_at desc, section, qr`;
   const rows = await sql<(PaperListRow & { name: string | null })[]>`
     with ${papersCte()},
     shown as (
       select * from papers where ${narrowed(f, scope)} and (${stage}::text is null or stage = ${stage})
-      order by day desc nulls last, created_at desc, section, qr
+      order by ${by}
       limit ${LIMIT + 1}
     ),
     names as (
       select c.id, n.first_name from child c, lateral pii.read_child(c.id, ${actor}) n
       where c.id in (select child_id from shown where child_id is not null)
     )
-    select s.id, s.qr, s.kind, s.title, s.section, s.band, s.child_id, names.first_name as child, s.spare, s.week, s.stage,
-           s.waiting, s.right, s.scored
+    select s.id, s.qr, s.kind, s.title, s.section, s.band, s.child_id, names.first_name as child, s.roll_no, s.level,
+           s.set_key as set, s.spare, s.week, s.stage, s.waiting, s.right, s.scored
     from shown s left join names on names.id = s.child_id
-    order by s.day desc nulls last, s.created_at desc, s.section, s.qr`;
+    order by ${order === "roll" ? sql`s.roll_no is null, roll_order(s.roll_no), s.roll_no, s.qr` : sql`s.day desc nulls last, s.created_at desc, s.section, s.qr`}`;
   return { rows: rows.slice(0, LIMIT), more: rows.length > LIMIT };
 }
 

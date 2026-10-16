@@ -133,10 +133,12 @@ test("an educator picks the kind, the children and the way, sees every paper, ma
 
   // and in Assessments, ready to hand out
   await page.getByRole("link", { name: "See them in Assessments" }).click();
-  const list = page.getByRole("table", { name: "Every paper" });
+  // the assessment just made, opened by itself to its copies (goals/ux5-papers-grouped.yaml)
+  await expect(page.locator("tr[data-assessment]")).toHaveCount(1);
+  await expect(page.locator("tr[data-assessment]")).toContainText("Class assessment");
+  const list = page.getByRole("table", { name: /: each copy$/ });
   await expect(list.locator("tbody tr")).toHaveCount(2);
-  await expect(list.locator("tbody tr").first()).toContainText("Class assessment");
-  await expect(list.locator("tbody tr").first()).toContainText("with the children");
+  for (const row of await list.locator("tbody tr").all()) await expect(row).toContainText("with the children");
 });
 
 test("each child's own next step is shown child by child, and a child with nothing to go on can be given a skill", async ({ page }) => {

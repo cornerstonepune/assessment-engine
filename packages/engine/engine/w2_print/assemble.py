@@ -98,6 +98,10 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
             None,
         )
         if w is None:
+            why = _why_short(conn, p, window)
+            # kept on the child's plan, where the class's papers to approve name them and say why
+            # (goals/ux5-papers-grouped.yaml)
+            conn.execute("update prescription set no_paper = %s where id = %s", (why, p["id"]))
             short.append(
                 {
                     "roll_no": p["roll_no"],
@@ -105,7 +109,7 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
                     "difficulty": p["difficulty"],
                     "had": 0,  # worksheets this child could still be given
                     "needed": 1,
-                    "why": _why_short(conn, p, window),
+                    "why": why,
                 }
             )
             continue
@@ -150,7 +154,8 @@ def _hand_out(conn, tenant, into, p, w):
     ).fetchone()
     if p["id"]:
         conn.execute(
-            "update prescription set sheet_instance_id = %s where id = %s", (instance["id"], p["id"])
+            "update prescription set sheet_instance_id = %s, no_paper = null where id = %s",
+            (instance["id"], p["id"]),
         )
     if p["child_id"]:
         # One ordered statement, not a loop: two classes assembled at the same moment insert into the

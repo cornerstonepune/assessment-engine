@@ -216,7 +216,7 @@ test("approving the pack marks the papers printed", async ({ page }) => {
     where section = ${SECTION} and week = ${WEEK} and kind = 'practice'`;
   try {
     await page.goto(LIST);
-    await page.getByRole("button", { name: "Approve and print" }).click();
+    await page.getByRole("button", { name: /^Approve \d+ papers?\b/ }).click();
     await expect(page.getByRole("status")).toContainText("Approved");
 
     const [{ n }] = await sql<{ n: number }[]>`

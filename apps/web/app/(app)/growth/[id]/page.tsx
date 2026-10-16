@@ -88,7 +88,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
     const latest = waits.length ? [] : await deadline(classLatest(child.section));
     const order = (code: string) => (latest.includes(code) ? latest.indexOf(code) : latest.length);
     const first = [...checks].sort((a, b) => order(a.key) - order(b.key)).slice(0, FIRST);
-    const step = firstStep(child.first_name, waits, `/papers?view=papers&child=${id}`, {
+    const step = firstStep(child.first_name, waits, `/papers?child=${id}`, {
       skills: first.map((c) => c.skill),
       n: rules.checkSize,
       href: checkHref(child.section, [id], first.map((c) => ({ skill: c.key, level: c.level, n: c.n }))),

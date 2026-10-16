@@ -64,7 +64,7 @@ test("a child's page shows their newest papers and opens every one of them on As
   const papers = page.getByRole("region", { name: "Their papers", exact: true });
   await expect(papers.getByRole("listitem")).toHaveCount(5);
   const all = papers.getByRole("link", { name: "Every paper of this child, 7 in all →" });
-  await expect(all).toHaveAttribute("href", `/papers?view=papers&child=${kids.Esha}`);
+  await expect(all).toHaveAttribute("href", `/papers?child=${kids.Esha}`);
 });
 
 test("Today names the first five classes waiting and opens the rest", async ({ page }) => {

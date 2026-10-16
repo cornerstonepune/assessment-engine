@@ -15,7 +15,8 @@ They should have the right set of columns which are important. It should be teac
 Topics: six, by operation, with the taught switch per skill (ADR 0076). Pages: the audit of every page as an educator
 and as the coordinator, 172 screenshots (STATE.md "UI audit, 2026-10-15"), cut into slices UX1–UX7.
 
-**Order, until Nimish says otherwise:** T1 → UX1 → UX2 → UX3 → UX4 → UX5 → SF2a → SF2b → UX6 → UX7 → SF3 → SF4.
+**Order, until Nimish says otherwise:** T1 → UX1 → UX2 → UX3 → UX4 → UX5a → UX5b → SF2a → SF2b → UX6 → UX7 → SF3 → SF4.
+UX5 is cut in two (2026-10-15): its four pages ship as two PRs, each small enough to review and merge alone.
 
 | Slice | Goal file | Green means |
 |---|---|---|
@@ -24,7 +25,8 @@ and as the coordinator, 172 screenshots (STATE.md "UI audit, 2026-10-15"), cut i
 | UX2 | `goals/ux2-one-count-one-thing.yaml` | a class paper carries its class's grade; Today's counts equal the counts on the pages they open; the bank's totals agree on every page |
 | UX3 | `goals/ux3-children-grouped.yaml` | Children: an educator sees their class as one open table; the coordinator, each class a collapsed row with its summary; columns Roll · Child · Needs help on · Needs help · Practising · Secure · Waiting on you · Parent report; no constant column; one-line colour key; no sideways scroll at 400 px |
 | UX4 | `goals/ux4-class-and-child.yaml` | the class page shows its standing once and every action without a sideways scroll; a child with no answers gets one sentence and one action |
-| UX5 | `goals/ux5-papers-grouped.yaml` | Assessments grouped by week → assessment → copies in roll order, spares on one line; Approve names the children; Make and Marking open on the educator's class with a next step per child |
+| UX5a | `goals/ux5-papers-grouped.yaml` | Assessments grouped by week → assessment → copies in roll order, spares on one line; topic and stage stay, the class, child, kind and week fold; Approve names the children, names each child with no paper and why, and its button says how many papers it approves |
+| UX5b | `goals/ux5b-make-and-marking.yaml` | Make and Marking open on the educator's class with a next step per child |
 | UX6 | `goals/ux6-curriculum-for-the-educator.yaml` | Curriculum, the question bank and worksheets open on the person's grade with their class's counts; the bank's stock columns are the coordinator's |
 | UX7 | `goals/ux7-phone-and-words.yaml` | on a phone the heading is in the top 120 px and no action is off-screen; one word and one format for dates, weeks, grades and states |
 
