@@ -126,8 +126,9 @@ for (const { name, width, height } of SIZES) {
         errors.push(`${m.text()} ${m.location().url}`),
     );
     await page.setViewportSize({ width, height });
-    await page.goto("/capture", { waitUntil: "networkidle" });
-    // Capture & Mark lists students; a student lists their papers (Nimish, 2026-09-22).
+    await page.goto("/capture?class=SCREENS-TEST", { waitUntil: "networkidle" });
+    // Capture & Mark lists students, each class a line the coordinator opens; a student lists their papers (Nimish,
+    // 2026-09-22; goals/ux5b-make-and-marking.yaml).
     await page.locator(`a[href="/capture?child=${kavya}"]`).first().click();
     await expect(page).toHaveURL(/child=/); // the student's own papers, not the list still on screen
     await page.getByRole("table").first().getByRole("link").first().click();

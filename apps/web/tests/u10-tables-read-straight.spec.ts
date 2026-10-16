@@ -61,7 +61,8 @@ test.afterAll(async () => sql.end());
 /** Each heading whose alignment is not its column's: a heading on the left over numbers in the middle reads as
  *  another column. Compared as the browser draws them, for every table on the page with a body row. */
 async function offColumn(page: Page): Promise<string[]> {
-  await expect(page.locator("table.grid tbody tr").first()).toBeVisible();
+  // a table inside a closed line (a coordinator's class on Marking) is read too: its alignment is computed all the same
+  await expect(page.locator("table.grid tbody tr").first()).toBeAttached();
   return page.locator("table.grid").evaluateAll((tables) => {
     const side = (el: Element) => ({ start: "left", end: "right" })[getComputedStyle(el).textAlign] ?? getComputedStyle(el).textAlign;
     return tables.flatMap((t, n) => {

@@ -72,7 +72,7 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
     """
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     spares_each = int(settings.config(conn, "assemble.spares_per_difficulty", 2))
-    window = settings.threshold(conn, "exposure.days", 21)
+    window = settings.exposure_days(conn)
 
     rx = conn.execute(
         "select p.id, p.child_id, p.skill_set_code, p.difficulty, p.rule_fired, c.roll_no, c.band"

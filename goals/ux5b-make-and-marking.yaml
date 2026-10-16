@@ -1,0 +1,36 @@
+name: ux5b-make-and-marking
+goal: >
+  Home assessments open on the educator's own class. Each child still waiting is one line — Roll, Child, Works on, Why,
+  Next step — the why in at most two lines at a laptop's width, and one next step: approve the paper proposed, or choose
+  one where the engine has nothing to go on; the paper is seen from what it works on, and the children already approved
+  fold under one line. Marking says in one sentence what is in and what waits, the queue one tap away; each class is one
+  line saying what waits in it, open for the educator who teaches it and closed for the coordinator, and opens to its
+  children — Roll, Child, Paper, Waiting, Next step — each child's next step the one their papers need: check the answers
+  waiting, sign the paper off, or nothing, signed off.
+# Written 2026-10-16, before the code: slice UX5b of BUILD-ORDER. Measured first on the audit's screenshots (scratchpad
+# ui-audit, edu-laptop-make, edu-laptop-make-class, edu-laptop-capture, coord-laptop-capture): an educator with one
+# class met a table of one class and an "Open" link; the class's why ran 7 to 9 lines in a column squeezed by three
+# action links a row and a "12 questions" every row repeats; Marking stacked a banner over five tiles, and its children
+# sat in eight bookkeeping columns, the coordinator's every class open. The audit asked for the why on one line; the
+# copy says it cannot be: a why is the score, the rule and the mistake's name, and mistake names run to 84 characters
+# (M_SMALL_FROM_LARGE), so the longest why is about 130. Two lines at 1280 px, never cut short: the mistake is the reason.
+says:
+  - words: "It should be teacher-specific."
+    proved_by: "apps/web/tests/u38-make-and-marking.spec.ts::Home assessments and Marking open on the educator's own class"
+  - words: "They should have the right set of columns which are important."
+    proved_by: "apps/web/tests/u38-make-and-marking.spec.ts::each child waiting for a home assessment is one line with one next step, the why in two lines at most"
+  - words: "Most of the pages just have a long list for no reason."
+    proved_by: "apps/web/tests/u38-make-and-marking.spec.ts::the children already approved fold under one line"
+  - words: "They should have the right set of columns which are important."
+    proved_by: "apps/web/tests/u38-make-and-marking.spec.ts::Marking says in one sentence what waits, and each child is one line with the next step their papers need"
+  - words: "All these things should be expandable and collapsible."
+    proved_by: "apps/web/tests/u38-make-and-marking.spec.ts::the coordinator sees each class as one closed line saying what waits in it"
+manual: []
+scenarios: []
+criteria:
+  - name: the pages that make and mark papers still hold
+    run: cd apps/web && npx playwright test tests/u38-make-and-marking.spec.ts tests/m2-make-papers.spec.ts tests/u3-marking.spec.ts tests/m4-the-maker.spec.ts tests/u1-today.spec.ts tests/u33-one-count.spec.ts tests/u26-my-classes-first.spec.ts tests/u27-who-decides-what.spec.ts tests/s4-validation-queue.spec.ts tests/u10-tables-read-straight.spec.ts tests/u14-the-queue-shrinks.spec.ts tests/u9-papers.spec.ts tests/u17-curriculum.spec.ts tests/u24-no-long-lists.spec.ts tests/u36-class-and-child.spec.ts tests/screens.spec.ts tests/e2e.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

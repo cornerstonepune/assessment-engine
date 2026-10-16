@@ -4,6 +4,7 @@ import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { childTable, type ChildRow } from "@/lib/queries-children";
 import { gradeWords } from "@/lib/queries";
+import { many } from "@/lib/needs-you";
 import { deadline } from "@/lib/deadline";
 import { ColourKeyLine } from "@/components/colour-key";
 import { colourRules } from "@/lib/colours";
@@ -33,8 +34,6 @@ const COLUMNS: Column[] = [
   { key: "report", label: "Parent report", wide: true, dir: "other", by: (a, b) => reportRank(a.report) - reportRank(b.report) },
 ];
 const FOLD = "max-sm:hidden";
-
-const many = (n: number, one: string, more = `${one}s`) => `${n} ${n === 1 ? one : more}`;
 
 // A parent report only when it waits on someone — to approve, or out of date (`reportWaits`); an approved report, or none
 // written yet, is no one's work here.

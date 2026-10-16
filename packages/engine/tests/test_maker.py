@@ -170,8 +170,40 @@ def test_one_paper_for_all_puts_the_same_questions_on_every_copy_none_seen_by_an
     left = _unseen(conn, picked, "Easy")
     _give(conn, kids["new"], "Easy", 0, None)  # the third child has now been given every Easy question
     assert _unseen(conn, picked, "Easy") == 0 < left
-    with pytest.raises(ValueError, match="only 0 questions none of these 3 children has been given"):
+    with pytest.raises(
+        ValueError, match="only 0 questions in .* at Easy that none of these 3 children has been given"
+    ):
         maker.plan(conn, SECTION, picked, WEEK, "assessment", "same", ask)
+
+
+def test_a_question_given_before_the_window_comes_back_and_one_given_inside_it_does_not(conn, kids):
+    """SPEC: across weeks, a child is not given a question they saw in the last `exposure.days` days — the threshold row
+    the week's assembly reads (ADR 0011 let a level hold fewer than fifty questions on that window). Neha, 2026-10-16:
+    Grade 1's 13 children had been given all but 4 of Equal groups at Medium, a level of 20 questions, and one paper for
+    all was refused for good, however long ago they had been given them."""
+    picked = [kids["weak"], kids["strong"], kids["new"]]
+    days = int(conn.execute("select value from threshold where key = 'exposure.days'").fetchone()["value"])
+    _give(conn, kids["weak"], "Easy", 0, None)  # every Easy question, to one of the three
+    ask = [{"skill_set": "SUB.3D3D", "level": "Easy", "n": 6}]
+
+    def given(ago):
+        conn.execute(
+            "update item_exposure set created_at = now() - make_interval(days => %s) where child_id = %s",
+            (ago, kids["weak"]),
+        )
+
+    given(days + 1)  # longer ago than the window: they may come back
+    p = maker.plan(conn, SECTION, picked, WEEK, "assessment", "same", ask)
+    assert not p["refused"] and len(_ids(p["papers"][0])) == 6
+    one = focus_paper.plan(conn, kids["weak"], WEEK, ask)
+    assert one["n"] == 6, "a child's own paper holds to the same window"
+
+    given(days - 1)  # inside it: held back, and the refusal says for how long
+    said = rf"only 0 questions in .* at Easy that none of these 3 children has been given in the last {days} days"
+    with pytest.raises(ValueError, match=said):
+        maker.plan(conn, SECTION, picked, WEEK, "assessment", "same", ask)
+    with pytest.raises(ValueError, match=rf"that this child has not been given in the last {days} days"):
+        focus_paper.plan(conn, kids["weak"], WEEK, ask)
 
 
 def test_each_childs_own_is_their_next_step_and_an_educator_can_change_one_child(conn, kids):
@@ -239,7 +271,10 @@ def test_the_same_skill_and_level_gives_each_child_different_questions_none_shar
     assert _unseen(conn, [kids["new"]], "Medium") == 3
     q = maker.plan(conn, SECTION, [kids["new"]], WEEK, "practice", "each", ask)
     assert [r["roll_no"] for r in q["refused"]] == ["10"], "the child the bank cannot fill is named"
-    assert "only 3 questions this child has not seen" in q["refused"][0]["why"]
+    assert (
+        "only 3 questions in 3-digit − 3-digit at Medium that this child has not been given"
+        in q["refused"][0]["why"]
+    )
     before = db.counts(conn, ["sheet_instance"])
     with pytest.raises(ValueError, match="roll 10: only"):
         maker.make(conn, SECTION, picked, WEEK, "practice", "each", BY, ask)

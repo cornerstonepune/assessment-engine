@@ -3,6 +3,19 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-16 — UX5a live; UX5b built
+
+- **UX5a live** (STATE.md "UX5a live; UX5b"): #216 merged as `9a87004`, migration 20261118090000 applied on live at
+  03:12 UTC; its done report on main's code 4/4 + 3/3.
+- **UX5b built on this branch** (`goals/ux5b-make-and-marking.yaml`): Home assessments open on the educator's class, one
+  next step a child, the approved folded; Marking one sentence, each class one line, a next step per child. No migration,
+  no engine change.
+- **L5, on the same PR (Nimish asked it fixed now):** Neha could not make a Grade 1 Class assessment, Equal groups at
+  Medium. A paper drawn for a child now holds the 21-day window the week holds (ADR 0079; STATE.md "L5"). Once live,
+  Neha tries again. If it is still refused, the message says how many questions the class was given in the window.
+- **Next, by BUILD-ORDER's order line:** SF2a (restore its goal and failing tests from `docs/drafts/sf2a/`, README there),
+  then SF2b, UX6, UX7, SF3, SF4.
+
 ## 2026-10-15 — UX3 and UX4 live; UX5 cut in two, UX5a built
 
 - **UX3 and UX4 live** (STATE.md "UX3 and UX4 live; UX5a"): their done reports on main's code, 4/4 + 2/2 each.

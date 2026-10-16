@@ -151,7 +151,7 @@ def respects_exposure_window(conn, sc):
     return {
         "children": len(rx),
         "children_checked_across_two_weeks": checked,
-        "window_days": settings.config(conn, "exposure.days", 21),
+        "window_days": settings.exposure_days(conn),
     }, fails
 
 

@@ -2,6 +2,7 @@
 // papers, and how the reader is doing. The counts are the engine's (answer_standing); nothing here decides one.
 import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
+import { many } from "@/lib/needs-you";
 import type { PaperRow, ReaderReport } from "@/lib/queries-read";
 import { ReaderTable } from "./reader-table";
 
@@ -76,15 +77,17 @@ export function TotalRow({ rows, span, kids }: { rows: PaperRow[]; span: number;
   );
 }
 
-/** One kind of number in the top row: a count and its words, the count labelled for a test to read. */
-export function Count({ id, n, words, tone }: { id: string; n: number; words: string; tone: "neem" | "bamboo" | "terracotta" | "monsoon" }) {
-  const edge = { neem: "border-l-neem", bamboo: "border-l-bamboo", terracotta: "border-l-terracotta", monsoon: "border-l-monsoon" }[tone];
-  return (
-    <div className={`panel border-l-4 p-3 ${edge}`}>
-      <div className="font-heading text-[26px] leading-none" data-testid={id}>{n}</div>
-      <div className="mt-2 text-[12.5px] text-basalt/62">{words}</div>
-    </div>
-  );
+/** What a child's papers need next (goals/ux5b-make-and-marking.yaml): the answers waiting for a person, then a paper
+ *  to sign off — on the one paper that holds them, or across their papers when several do; a paper that came back with
+ *  nothing read is looked at; else nothing, every paper signed off. */
+export function nextStep(rows: PaperRow[]): { words: string; href: string } | null {
+  const at = (some: PaperRow[]) => (some.length === 1 ? `/capture/${some[0].id}` : `/capture?child=${some[0].child_id}`);
+  const waiting = rows.filter((p) => p.n_waiting > 0);
+  if (waiting.length) return { words: `Check ${many(standing(waiting).waiting, "answer")} →`, href: at(waiting) };
+  const sign = rows.filter((p) => p.n_results > 0 && p.n_candidate > 0);
+  if (sign.length) return { words: sign.length === 1 ? "Sign off →" : `Sign off ${sign.length} papers →`, href: at(sign) };
+  if (rows.some((p) => p.n_results === 0)) return { words: "Nothing came back: look →", href: "#nothing-came-back" };
+  return null;
 }
 
 export function PaperTable({ rows, withChild = false }: { rows: PaperRow[]; withChild?: boolean }) {

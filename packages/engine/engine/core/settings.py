@@ -82,3 +82,10 @@ def threshold(conn: db.Conn, key: str, default: float) -> float:
     """A threshold row's value, or `default` when there is no such row."""
     row = conn.execute("select value from threshold where key = %s", (key,)).fetchone()
     return float(row["value"]) if row else default
+
+
+def exposure_days(conn: db.Conn) -> int:
+    """How long a question a child was given is held back from them: the `exposure.days` threshold row (SPEC: across
+    weeks, no question a child saw in the last 21 days). The week's assembly and every paper drawn for a child read it
+    here, so the window has one owner (goals/l5-seen-means-the-last-21-days.yaml)."""
+    return int(threshold(conn, "exposure.days", 21))

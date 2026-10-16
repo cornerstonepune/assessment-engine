@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "@/components/link";
 import { Body, PageHeader, Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
@@ -9,9 +10,11 @@ import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 
 // Make papers (goals/m1-make-papers.yaml): each class's home papers for the week, proposed by the engine from each
-// child's own map; a class opens where they are approved, and where a paper is chosen for any one child.
+// child's own map; a class opens where they are approved, and where a paper is chosen for any one child. An educator
+// who teaches one class opens on it (goals/ux5b-make-and-marking.yaml).
 export default async function MakePapers() {
   const scope = scopeOf(await requireStaff());
+  if (scope.classes?.length === 1) redirect(`/make/${encodeURIComponent(scope.classes[0])}`);
   const [classes, packs] = await deadline(Promise.all([homeByClass(undefined, scope), classPacksWaiting(scope)]));
   return (
     <>

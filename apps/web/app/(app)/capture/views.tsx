@@ -5,7 +5,8 @@ import Link from "@/components/link";
 import { notFound } from "next/navigation";
 import { Body, PageHeader, Panel, Pill } from "@/components/shell";
 import type { PaperRow } from "@/lib/queries-read";
-import { PaperTable, STANDING_HEADS, StandingCells, TotalRow, standing } from "./parts";
+import { many } from "@/lib/needs-you";
+import { PaperTable, STANDING_HEADS, StandingCells, TotalRow, nextStep, standing } from "./parts";
 
 // as the database orders a roll (`roll_order`): by its first number, a roll with none last
 const roll = (r: string) => Number(r.match(/\d{1,9}/)?.[0] ?? Number.MAX_SAFE_INTEGER);
@@ -43,53 +44,75 @@ export function ByClass({ papers }: { papers: PaperRow[] }) {
   );
 }
 
-export function ByChild({ papers, only }: { papers: PaperRow[]; only?: string }) {
-  const classes = [...groupBy(papers, (p) => p.section).entries()]
-    .filter(([section]) => !only || section === only)
-    .sort(([a], [b]) => a.localeCompare(b));
+/** By child (goals/ux5b-make-and-marking.yaml): each class one line saying what waits in it, open to its children —
+ *  Roll, Child, Paper, Waiting, Next step. `open` says which classes start open: the educator's own, or the one asked
+ *  for; the coordinator's every class is one closed line. */
+export function ByChild({ papers, open }: { papers: PaperRow[]; open: (section: string) => boolean }) {
+  const classes = [...groupBy(papers, (p) => p.section).entries()].sort(([a], [b]) => a.localeCompare(b));
   return (
-    <div className="grid min-w-0 gap-[18px]">
-      {only ? (
-        <p>
-          <Link href="/capture?by=child" className="chip">
-            ← Every class
-          </Link>
-        </p>
-      ) : null}
-      {classes.map(([section, rows]) => {
-        const children = [...groupBy(rows, (p) => p.child_id).values()].sort(
-          (a, b) => roll(a[0].roll_no) - roll(b[0].roll_no) || a[0].first_name.localeCompare(b[0].first_name),
-        );
-        const done = children.filter((c) => standing(c).toSign === 0).length;
-        return (
-          <Panel key={section} title={section} aside={`${done} of ${children.length} children signed off`}>
-            <div className="min-w-0 overflow-x-auto">
-              <table className="grid">
-                <thead>
-                  <tr>
-                    <th>Roll</th>
-                    <th>Child</th>
-                    {STANDING_HEADS}
-                  </tr>
-                </thead>
-                <tbody>
-                  {children.map((c) => (
-                    <tr key={c[0].child_id}>
-                      <td className="fact">{c[0].roll_no}</td>
-                      <td>
-                        <Link href={`/capture?child=${c[0].child_id}`}>{c[0].first_name}</Link>
-                      </td>
-                      <StandingCells s={standing(c)} />
-                    </tr>
-                  ))}
-                </tbody>
-                <TotalRow rows={rows} span={2} />
-              </table>
-            </div>
-          </Panel>
-        );
-      })}
-    </div>
+    <section aria-label="By child" className="panel min-w-0">
+      {classes.length ? (
+        classes.map(([section, rows]) => <ClassLine key={section} section={section} rows={rows} open={open(section)} />)
+      ) : (
+        <p className="note p-[18px]">No papers read yet.</p>
+      )}
+    </section>
+  );
+}
+
+function ClassLine({ section, rows, open }: { section: string; rows: PaperRow[]; open: boolean }) {
+  const children = [...groupBy(rows, (p) => p.child_id).values()].sort(
+    (a, b) => roll(a[0].roll_no) - roll(b[0].roll_no) || a[0].first_name.localeCompare(b[0].first_name),
+  );
+  const s = standing(rows);
+  // only what waits is said: a class with nothing waiting is one short line
+  const waits = [s.waiting ? `${many(s.waiting, "answer")} to check` : "", s.toSign ? `${many(s.toSign, "paper")} to sign off` : ""].filter(Boolean);
+  if (!waits.length) waits.push("nothing waiting");
+  return (
+    <details data-class={section} open={open} className="group border-t border-basalt/10 px-[18px] first:border-t-0">
+      <summary className="flex cursor-pointer list-none items-baseline gap-x-2 py-3 text-[13.5px] [&::-webkit-details-marker]:hidden">
+        <span aria-hidden="true" className="inline-block w-3 text-basalt/50 transition-transform group-open:rotate-90">
+          ▸
+        </span>
+        <span className="font-semibold text-basalt">{section}</span>
+        <span className="text-basalt/70">· {[many(children.length, "child", "children"), ...waits].join(" · ")}</span>
+      </summary>
+      <div className="min-w-0 overflow-x-auto pb-3">
+        <table className="grid" aria-label={`${section}: each child`}>
+          <thead>
+            <tr>
+              <th>Roll</th>
+              <th>Child</th>
+              {/* on a phone the paper folds away: the child's name opens their papers, and the next step stays on screen */}
+              <th className="max-sm:hidden">Paper</th>
+              <th className="num">Waiting</th>
+              <th>Next step</th>
+            </tr>
+          </thead>
+          <tbody>
+            {children.map((c) => {
+              const [first] = c;
+              const step = nextStep(c);
+              const waiting = standing(c).waiting;
+              return (
+                <tr key={first.child_id}>
+                  <td className="fact">{first.roll_no}</td>
+                  <td>
+                    <Link href={`/capture?child=${first.child_id}`}>{first.first_name}</Link>
+                  </td>
+                  <td className="max-w-[280px] text-[13px] max-sm:hidden">
+                    {/* several papers are opened from the child's name, which lists them */}
+                    {c.length === 1 ? <Link href={`/capture/${first.id}`}>{first.title ?? first.paper}</Link> : `${c.length} papers`}
+                  </td>
+                  <td className="num">{waiting ? <Pill tone="bamboo">{waiting}</Pill> : "—"}</td>
+                  <td className="whitespace-nowrap">{step ? <Link href={step.href}>{step.words}</Link> : <Pill tone="neem">Signed off</Pill>}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </details>
   );
 }
 

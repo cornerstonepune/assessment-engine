@@ -5,6 +5,7 @@
 // no second one is offered.
 import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
+import { sql } from "@/lib/db";
 import { EngineDown, engineGet } from "@/lib/engine";
 import { isoWeek } from "@/lib/week";
 import { seeHref } from "@/lib/next-paper";
@@ -27,9 +28,15 @@ async function plan(childId: string, week: string): Promise<Plan | string> {
 
 const TITLE = "Home assessment";
 
+/** How long a question a child was given is held back from them: the `exposure.days` row the engine draws by. */
+async function windowDays(): Promise<number> {
+  const [r] = await sql<{ days: number }[]>`select coalesce((select value from threshold where key = 'exposure.days'), 21)::int as days`;
+  return r.days;
+}
+
 export async function FocusPanel({ childId, name, staff }: { childId: string; name: string; staff: Record<string, string> }) {
   const week = isoWeek();
-  const p = await plan(childId, week);
+  const [p, days] = await Promise.all([plan(childId, week), windowDays()]);
   return (
     <Panel title={TITLE} label={TITLE} aside={typeof p === "string" || p.approved ? undefined : `${p.n} questions`}>
       {typeof p === "string" ? (
@@ -78,7 +85,7 @@ export async function FocusPanel({ childId, name, staff }: { childId: string; na
       )}
       <p className="note mt-4">
         Chosen from the ladder: skills with a repeating mistake, under half right, or not yet four in five — weakest
-        first, at most three. Questions come at random from the bank at that level, none {name} has been given, the ones
+        first, at most three. Questions come at random from the bank at that level, none {name} has been given in the last {days} days, the ones
         that can show the repeating mistake first.
       </p>
     </Panel>

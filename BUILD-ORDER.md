@@ -26,7 +26,7 @@ UX5 is cut in two (2026-10-15): its four pages ship as two PRs, each small enoug
 | UX3 | `goals/ux3-children-grouped.yaml` | Children: an educator sees their class as one open table; the coordinator, each class a collapsed row with its summary; columns Roll · Child · Needs help on · Needs help · Practising · Secure · Waiting on you · Parent report; no constant column; one-line colour key; no sideways scroll at 400 px |
 | UX4 | `goals/ux4-class-and-child.yaml` | the class page shows its standing once and every action without a sideways scroll; a child with no answers gets one sentence and one action |
 | UX5a | `goals/ux5-papers-grouped.yaml` | Assessments grouped by week → assessment → copies in roll order, spares on one line; topic and stage stay, the class, child, kind and week fold; Approve names the children, names each child with no paper and why, and its button says how many papers it approves |
-| UX5b | `goals/ux5b-make-and-marking.yaml` | Make and Marking open on the educator's class with a next step per child |
+| UX5b | `goals/ux5b-make-and-marking.yaml` | Home assessments open on the educator's class: Roll · Child · Works on · Why (two lines at most) · Next step, the approved folded; Marking says in one sentence what waits, each class one line (open for its educator, closed for the coordinator) opening to Roll · Child · Paper · Waiting · Next step |
 | UX6 | `goals/ux6-curriculum-for-the-educator.yaml` | Curriculum, the question bank and worksheets open on the person's grade with their class's counts; the bank's stock columns are the coordinator's |
 | UX7 | `goals/ux7-phone-and-words.yaml` | on a phone the heading is in the top 120 px and no action is off-screen; one word and one format for dates, weeks, grades and states |
 

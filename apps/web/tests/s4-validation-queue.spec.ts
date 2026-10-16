@@ -270,9 +270,10 @@ test("Capture & Mark lists students by class; a student lists their papers; a pa
     from sheet_instance si join child ch on ch.id = si.child_id
     where exists (select 1 ${LIVE} and c.sheet_instance_id = si.id)
     group by si.child_id order by si.child_id::text limit 1`;
-  await page.goto("/capture");
-  await expect(page.getByRole("heading", { name: c.section, exact: true }).first()).toBeVisible();
-  await page.locator(`a[href="/capture?child=${c.child}"]`).click();
+  // each class is one line, closed for the coordinator, opened by name (goals/ux5b-make-and-marking.yaml)
+  await page.goto(`/capture?class=${encodeURIComponent(c.section)}`);
+  await expect(page.locator(`details[data-class="${c.section}"]`)).toHaveAttribute("open", "");
+  await page.locator(`details[data-class="${c.section}"] a[href="/capture?child=${c.child}"]`).click();
   await expect(page).toHaveURL(new RegExp(`child=${c.child}$`));
   const papers = page.getByRole("table").first().locator("tbody tr");
   await expect(papers).toHaveCount(c.sheets);
@@ -282,8 +283,8 @@ test("Capture & Mark lists students by class; a student lists their papers; a pa
   await expect(page).toHaveURL(new RegExp(`child=${c.child}$`));
 
   // the first student in the list steps to the next one with something left to check
-  await page.goto("/capture");
-  await page.getByRole("table").filter({ has: page.getByRole("link") }).first().getByRole("link").first().click();
+  await page.goto(`/capture?class=${encodeURIComponent(c.section)}`);
+  await page.getByRole("table", { name: `${c.section}: each child` }).getByRole("link").first().click();
   const first = new URL(page.url()).searchParams.get("child");
   await page.getByRole("link", { name: /^Next child to check: / }).click();
   await expect(page).not.toHaveURL(new RegExp(`child=${first}$`));
