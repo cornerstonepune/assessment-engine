@@ -8271,6 +8271,49 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## L11: a child's pages anywhere in a scan are one copy, and what a scan lacks is said (2026-10-16)
+
+- **Measured on the 2026-10-16 Grade 3 scan** (10 pages, contact sheet of every page, kept out of git): roll 1's
+  "missing" first page was never in the file. Roll 4's first page is in it twice, as pages 1 and 9. Pages were one copy
+  only where they lay together (`sorting.group`), so page 1 was read as a copy of its own. Pages 9–10's reading then
+  replaced it (`copies._replaces`). Nothing on the run or the site said a page was missing: `inbox.read` threw away
+  what `copies.read` returned.
+- **What the old code dropped, run before the fix** (stand-in reader, a 4-page worksheet of 12 questions):
+  - one child's pages apart in the file: 9 of 12 answers kept;
+  - a whole copy, then its first page again: 3 of 12 kept;
+  - 16 Oct escaped only because the lone page came first.
+- **L11 (`goals/l11-a-scan-is-read-whole.yaml`):**
+  - `sorting.gather` makes a child's own code (`OURS`) one copy wherever its pages lie; a library worksheet's copies
+    stay apart.
+  - `copies._placing` places each run alone, and each photograph alone where a run is longer than its paper. A page
+    photographed twice is read from its later photograph.
+  - Each copy's line carries `missing`, `twice` and `lacks`. The `lacks` words are the engine's, e.g. "page 1 of 2 is
+    not in this file: scan it and send it to be read".
+  - `inbox.read` keeps the lines on `flow_run.result`, by child id, never a name. Marking and Papers show the last
+    three files under Read a scan, by class and roll, to the people whose classes they are.
+- **Proved here:**
+  - `tests/test_a_scan_read_whole.py`: 5 passed (all 5 failed first, for the reasons above).
+  - The reading tests (sorting, copies, handout, inbox, read_back, every_answer): 54 passed.
+  - `u41-what-a-scan-lacks.spec.ts` + `u3-marking.spec.ts`: 7 passed.
+  - `bin/check`: 28 passed.
+
+## L6, L7 and L9 live; L10: a small zero is a digit (2026-10-16)
+
+- **Live by hand, at Nimish's word:** L6 + L7 on 2eb105c (Vercel 05:56, engine 06:00 UTC), L9 on 3b2abc3 (Vercel
+  06:36:47); `deploy engine` and `migrate live` dispatched before main's CI finished. Main's CI then passed on both
+  (2eb105c 06:28, 3b2abc3 07:03). `bin/engine done` on main's code: L7 4/4 + 3/3, L9 2/2 + 2/2, L6 3/3 proved and
+  3 of 4 criteria (the week goal's suite fails here on two `test_rules` tests: the local copy carries SF2a's parked
+  migration, which main's migrations do not; CI is green). Each says NOT DONE only because live's database does not
+  answer from here.
+- **The 2026-10-16 Grade 3 scan** (Drive folder `1A3vNmSQ…`, not read by the n8n flow; read by hand at 08:02): 5
+  copies, 93 answers, 65 right, 11 wrong, 17 unclear. Of the 17, 15 were read right: 9 waited on "N boxes hold ink but
+  the reader saw …" (zeros written 40–44% of the box, under DIGIT_TALL 0.45), 6 under the confidence floor (71–90%).
+  Roll 1's first page matched no child (9 of 21 answers read).
+- **L10 (`goals/l10-a-small-zero-is-a-digit.yaml`):** DIGIT_TALL 0.45 → 0.33, between a tick (23%) and the smallest
+  digit measured (40%). `test_a_zero_written_small_is_a_digit_and_a_tick_is_not` failed on 0.45, passes on 0.33;
+  test_boxes 24 passed; the reader's tests (boxes, copies, inbox, lineup, ocr, digits, read_again, read_back,
+  read_eval, second_reader) 153 passed before the test's tick was sized as measured.
+
 ## UX5a live; UX5b: Home assessments and Marking open on the educator's class, a next step per child (2026-10-16)
 
 - **UX5a live:** #216 merged as `9a87004` (02:38 UTC). Main's CI passed; `migrate live` (run 38844303957) applied

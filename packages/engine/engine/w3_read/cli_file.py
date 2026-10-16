@@ -31,7 +31,7 @@ def read_file(
         papers = sorting.sort_file(conn, path)
         conn.rollback()
     for p in papers:
-        pages = f"p{p['pages'][0]}" + (f"–{p['pages'][-1]}" if len(p["pages"]) > 1 else "")
+        pages = sorting.pages_said(p["pages"])
         s, w = p["sheet"], p["worksheet"]
         if w:
             short = (
@@ -73,7 +73,7 @@ def _read_copies(path, names, section, actor):
         }
         waiting = 0
         for c in done:
-            pages = f"p{c['pages'][0]}–{c['pages'][-1]}"
+            pages = sorting.pages_said(c["pages"])
             if c.get("skipped"):
                 typer.echo(
                     f"  copy {c['copy']:>2}  {pages:<8}{c['code']:<8}  not read: {c.get('why', 'no child named')}"
@@ -91,6 +91,8 @@ def _read_copies(path, names, section, actor):
                 f" {c['answers']} answers: {t['right'] + t['right_waiting']} read right, {t['wrong']} wrong,"
                 f" {t['blank']} blank{unread}{again}"
             )
+            for said in c.get("lacks", []):
+                typer.echo(f"            {said}")
         conn.commit()
     typer.echo(
         f"  {waiting} answers wait on Marking for a person; none counts on a child's skills until signed off"

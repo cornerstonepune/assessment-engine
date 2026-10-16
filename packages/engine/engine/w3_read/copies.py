@@ -150,7 +150,7 @@ def _said(conn, bare, section, names, actor):
     "?") a copy, or nothing is read."""
     if len(names) != len(bare):
         found = [
-            f"copy {k}: pages {p['pages'][0]}–{p['pages'][-1]}, {p['qr']}"
+            f"copy {k}: {sorting.pages_said(p['pages'])}, {p['qr']}"
             + (f", {len(p['pages'])} of its {p['length']} pages" if len(p["pages"]) != p["length"] else "")
             + (f", no code read on page {', '.join(map(str, p['unread']))}" if p["unread"] else "")
             for k, p in enumerate(bare, 1)
@@ -209,10 +209,66 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None, again
     return out
 
 
+def _and(ns) -> str:
+    ns = [str(n) for n in ns]
+    return ns[0] if len(ns) == 1 else f"{', '.join(ns[:-1])} and {ns[-1]}"
+
+
+def _run_placed(photos, pdf, margin, n) -> list[int] | None:
+    """Which page of `pdf` each photograph of one run is: the run as one (`boxes.placed`), or — more photographs than
+    the paper has pages — each by itself. None where any cannot be told apart."""
+    if len(photos) <= n:
+        return boxes.placed(photos, pdf, margin)
+    each = [boxes.placed([ph], pdf, margin) for ph in photos]
+    return None if any(not e for e in each) else [e[0] for e in each if e]
+
+
+def _placing(scan, copy, cut, pdf, margin) -> tuple[list[int], list[int], list[dict]] | None:
+    """(the file's pages to read, the paper's page each is, each page photographed more than once) — or None where a
+    run of its pages cannot be told apart. A copy taken in one run, no longer than its paper, is placed as one
+    (`boxes.placed`): it may start part-way, as a copy split across two files does. A copy whose runs lie apart in the
+    file is placed run by run, and one with more photographs than its paper has pages photograph by photograph; a page
+    photographed more than once is read from the last of them, the one a person took again (goals/l11)."""
+    n = len(pymupdf.open(pdf))
+    if len(copy["runs"]) == 1 and len(copy["pages"]) <= n:
+        placed = boxes.placed(list(render_pdf.photos(cut)), pdf, margin)
+        return None if placed is None else (list(copy["pages"]), placed, [])
+    at: dict[int, list[int]] = {}
+    for run in copy["runs"]:
+        placed = _run_placed([render_pdf.photo(scan, f)[0] for f in run], pdf, margin, n)
+        if placed is None:
+            return None
+        for f, p in zip(run, placed):
+            at.setdefault(p, []).append(f)
+    pages = sorted(at)
+    return (
+        [at[p][-1] for p in pages],
+        pages,
+        [{"page": p, "file_pages": at[p]} for p in pages if len(at[p]) > 1],
+    )
+
+
+def _lacks(pdf, placed, twice) -> tuple[list[int], list[str]]:
+    """(the paper's pages not in the copy's file, what the file lacks said for the person who scanned it): each page
+    not in it, and each in it more than once."""
+    n = len(pymupdf.open(pdf))
+    gone = [p for p in range(1, n + 1) if p not in placed]
+    said = []
+    if gone:
+        them = "them" if len(gone) > 1 else "it"
+        said.append(f"{'pages' if len(gone) > 1 else 'page'} {_and(gone)} of {n}"
+                    f" {'are' if len(gone) > 1 else 'is'} not in this file: scan {them} and send {them} to be read")  # fmt: skip
+    for t in twice:
+        said.append(f"page {t['page']} is in the file {'twice' if len(t['file_pages']) == 2 else 'more than once'}"
+                    f" (pages {_and(t['file_pages'])}): page {t['file_pages'][-1]} is read")  # fmt: skip
+    return gone, said
+
+
 def _read_copy(conn, scan, copy, row, name, actor, again):
     """One copy, for the child `row` names: cut to a file of its own, its pages placed, read and marked."""
     mine, code, cid = copy["sheet"], row["code"], row["child_id"]
-    cut = _cut(scan, copy["pages"], name)
+    # cut as a copy in one run always was: the paper's layout is told from it, and a copy in one run is read from it
+    cut = _cut(scan, copy["runs"][0], name)
     pdf = printed_paper.read_from(conn, code, mine, cut)
     if pdf is None:
         return {**row, "skipped": True, "why": "the paper as printed for this child is not kept here, so where its"
@@ -223,17 +279,22 @@ def _read_copy(conn, scan, copy, row, name, actor, again):
         template["qr"] = copy["qr"]  # the answers land on the copy printed for this child
         _given(conn, copy["qr"], cid)
     # which of the paper's pages each photographed one is: a copy split across two files starts part-way
-    placed = boxes.placed(list(render_pdf.photos(cut)), pdf, _margin(conn))
-    if placed is None:
+    where = _placing(scan, copy, cut, pdf, _margin(conn))
+    if where is None:
         return {**row, "skipped": True, "why": f"which pages of {code} these are could not be told apart"}
+    read, placed, twice = where
+    if read != copy["runs"][0]:  # named by every page it holds, never as a file an earlier sorting cut
+        cut = _cut(scan, read, f"copy{row['copy']:02d}-p{'-'.join(map(str, read))}-{code}.pdf")
     template["paper_pages"] = placed
     file_page = {p: f for f, p in enumerate(placed, 1)}
     s = _imported(conn, cut, code, cid, actor, again, template, by_key, file_page)
     _replaces(conn, s["capture_id"], scan)
     _placed_on(conn, s["capture_id"], cut, by_key, file_page)
     answers = s.get("already_results") if s.get("already") else len(s["results"])
+    missing, lacks = _lacks(pdf, placed, twice)
     return {**row, "answers": answers, "already": bool(s.get("already")), "unread": unread,
-            "capture_id": s["capture_id"], "notes": [n for n in s["notes"] if n]}  # fmt: skip
+            "capture_id": s["capture_id"], "missing": missing, "twice": twice, "lacks": lacks,
+            "notes": [n for n in s["notes"] if n]}  # fmt: skip
 
 
 def _imported(conn, cut, code, cid, actor, again, template, by_key, file_page):

@@ -140,6 +140,39 @@ def group(codes: list[str | None], length=lambda code: 0) -> list[dict]:
     return merged
 
 
+def pages_said(pages: list[int]) -> str:
+    """A copy's pages as a person reads them: "p3–4", or "p1, p9–10" for one whose pages lie apart in the file."""
+    runs: list[list[int]] = []
+    for n in pages:
+        if runs and n == runs[-1][-1] + 1:
+            runs[-1].append(n)
+        else:
+            runs.append([n])
+    return ", ".join(f"p{r[0]}" + (f"–{r[-1]}" if len(r) > 1 else "") for r in runs)
+
+
+def gather(papers: list[dict]) -> list[dict]:
+    """Papers in file order → each child's own paper as one, wherever its pages lie: a code printed for one child
+    (`OURS`) is theirs alone, so every run of pages carrying it is the same copy, kept where it first appears, `runs`
+    each stretch of it as the scanner took them. A library worksheet's code is on every child's copy, so its runs stay
+    apart. 2026-10-16: a child's first page was photographed a second time, read as a copy of its own, and its reading
+    replaced the whole copy's (goals/l11-a-scan-is-read-whole.yaml)."""
+    out, mine = [], {}
+    for p in papers:
+        own = p["qr"] and OURS.match(p["qr"])
+        if own and p["qr"] in mine:
+            one = mine[p["qr"]]
+            one["pages"] += p["pages"]
+            one["unread"] += p["unread"]
+            one["runs"].append(list(p["pages"]))
+            continue
+        one = {**p, "pages": list(p["pages"]), "unread": list(p["unread"]), "runs": [list(p["pages"])]}
+        out.append(one)
+        if own:
+            mine[p["qr"]] = one
+    return out
+
+
 def worksheets(conn, codes) -> dict:
     """{code: the library worksheet} for the codes that are one: its skill, level and questions."""
     return {
@@ -191,7 +224,7 @@ def sort_file(conn, path, pages_of=None, read_text=None) -> list[dict]:
             ([c for c in found if c and OURS.match(c)],),
         )
     }
-    papers = group(found, lambda c: length.get(c, 0))
+    papers = gather(group(found, lambda c: length.get(c, 0)))
     qrs = [p["qr"] for p in papers if p["qr"]]
     known = {
         r["qr_code"]: dict(r)

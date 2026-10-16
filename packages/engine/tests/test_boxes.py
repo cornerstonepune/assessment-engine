@@ -441,6 +441,43 @@ def test_an_educators_tick_in_an_empty_box_is_not_a_digit(paper, tmp_path, reade
     assert (got["inked"], got["answer_state"], got["child_answer"]) == (2, "written", wrote), got.get("why")
 
 
+def _cell_with(draw):
+    """A 9 × 11 mm answer box on a blank page, with `draw(img, (x0, y0, x1, y1))` inked into it in canonical
+    pixels: what `holds_digit` is asked of a box."""
+    ppm = boxes.PPM
+    g = {"x": 20.0, "y": 30.0, "w": 9.0, "h": 11.0, "from": (20.0, 30.0)}
+    img = np.zeros((boxes.H, boxes.W), np.uint8)
+    draw(img, (g["x"] * ppm, g["y"] * ppm, (g["x"] + g["w"]) * ppm, (g["y"] + g["h"]) * ppm))
+    return img > 0, np.full((boxes.H, boxes.W), 255, np.uint8), g
+
+
+def test_a_zero_written_small_is_a_digit_and_a_tick_is_not():
+    """16 Oct 2026, Grade 3 (paper CS2A6B23): the children wrote their zeros small, 40–44% of the box's height, and
+    each fell under DIGIT_TALL, then 45%. The reader read 2000, 30000, 100, 80 and 60 right at 94–100%, and each
+    waited, "3 boxes hold ink but the reader saw 2000": 9 right answers of 93 on that scan. Their ink was 1.2–3% of the
+    box, above INK. A tick across a box spans 23% of its height (23 Sep R8-H01): the line sits between the two."""
+    ppm = boxes.PPM
+
+    def zero(img, box):
+        x0, y0, x1, y1 = box
+        cx, cy, ry = int((x0 + x1) / 2), int(y0 + (y1 - y0) * 0.55), int((y1 - y0) * 0.17)
+        cv2.ellipse(img, (cx, cy), (int(ry * 0.8), ry), 0, 0, 360, 255, max(2, int(0.4 * ppm)))
+
+    def tick(img, box):
+        x0, y0, x1, y1 = box
+        a = (int(x0 + (x1 - x0) * 0.3), int(y0 + (y1 - y0) * 0.29))
+        b = (int(x0 + (x1 - x0) * 0.7), int(y0 + (y1 - y0) * 0.15))
+        cv2.line(img, a, b, 255, max(2, int(0.5 * ppm)))
+
+    is_dark, printed, g = _cell_with(zero)
+    assert 0.38 <= boxes.tall(is_dark, printed, g) <= 0.45, "a zero the size those children wrote"
+    assert boxes.ink(is_dark, printed, g) > boxes.INK
+    assert boxes.holds_digit(is_dark, printed, g)
+    is_dark, printed, g = _cell_with(tick)
+    assert boxes.tall(is_dark, printed, g) <= 0.25, "a tick the size the educator made"
+    assert not boxes.holds_digit(is_dark, printed, g)
+
+
 def test_a_boxs_own_line_left_in_the_cell_is_not_ink():
     """23 Sep R8-H01 copy 05, question 4: the fourth box was empty but for its own left line, a hair off where it
     printed — 3 columns 97-100% dark top to bottom — and was counted as a digit. A column dark down (almost) the whole

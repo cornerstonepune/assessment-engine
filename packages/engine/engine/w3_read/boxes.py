@@ -38,8 +38,10 @@ INK = 0.012
 # The reason an answer that is not a number waits: `second_reader` skips a reason that says "not a number".
 FOR_A_PERSON = "not a number: a person reads what the child ticked or wrote here"
 # A digit is written down its box; an educator's tick or a stray stroke lies across it. Measured on 23 Sep R8-H01 copy
-# 05: digits span 74–87% of their box's height, the tick in the box after them 23%, an empty box's specks 6%.
-DIGIT_TALL = 0.45
+# 05: digits span 74–87% of their box's height, the tick in the box after them 23%, an empty box's specks 6%. On
+# 16 Oct (Grade 3, CS2A6B23) children wrote their zeros small, 40–44% of the box, and 0.45 took 9 right answers of 93
+# for blank boxes. The line sits between the tick and the smallest digit measured.
+DIGIT_TALL = 0.33
 EDGE_LINE = 0.9  # a column this much dark, top to bottom, at a cell's edge is the box's line
 WORK_INK = 0.004  # this much of the working space written on is the third signal (rule 5)
 WORK_INSIDE = 1.5  # mm: the working box's dashed border and its printed label stay outside the measure

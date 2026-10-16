@@ -3,6 +3,7 @@ import { Body, PageHeader } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { papersToApprove, readerReport } from "@/lib/queries-read";
+import { lastScans } from "@/lib/queries-scans";
 import { deadline } from "@/lib/deadline";
 import { ReadScan } from "./read-scan";
 import { ReaderPanel, standing } from "./parts";
@@ -25,7 +26,7 @@ export default async function MarkingPage({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
   const scope = scopeOf(me);
-  const [papers, reader] = await deadline(Promise.all([papersToApprove(me.email, scope), readerReport()]));
+  const [papers, reader, scans] = await deadline(Promise.all([papersToApprove(me.email, scope), readerReport(), lastScans(scope)]));
   if (q.child) return <ChildPapers papers={papers} id={q.child} />;
   if (q.worksheet) return <WorksheetPapers papers={papers} worksheet={q.worksheet} />;
 
@@ -71,7 +72,7 @@ export default async function MarkingPage({ searchParams }: Props) {
           {by === "class" ? <ByClass papers={papers} /> : null}
           {by === "child" ? <ByChild papers={papers} open={(section) => !!scope.classes || section === q.class} /> : null}
           {by === "worksheet" ? <ByWorksheet papers={papers} /> : null}
-          <ReadScan from="/capture" read={q.read} why={q.why} pages={q.pages} />
+          <ReadScan from="/capture" read={q.read} why={q.why} pages={q.pages} scans={scans} />
           <ReaderPanel r={reader} />
           <NothingRead papers={papers} />
         </div>
