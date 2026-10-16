@@ -65,7 +65,7 @@ def catalog(conn, section: str | None = None, every: bool = False) -> list[dict]
     return _once(("catalog", section, every), lambda: _catalog(conn, section, every))
 
 
-def _catalog(conn, section, every) -> list[dict]:
+def _catalog(conn, section, every=False) -> list[dict]:
     rows = conn.execute(
         "select s.code, s.rung_code, r.ladder_order,"
         # its own skill is the one its rung declares first (`rung.skill_codes`): a count of its questions' skills made
