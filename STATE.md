@@ -8286,8 +8286,26 @@ one child on live.
 - **The line each reading was read at was not returned by `/capture/{id}/readings`** (`copy_scores.readings` kept a
   fixed list without `ink_line`), so 0.76 on live could be inferred only from the 862's count moving. Now returned;
   `test_ink_line.py::test_a_read_copy_a_person_settled_is_measured_as_the_reader_found_its_boxes` proves it.
-- **`reader ink` on live (run 38931391155, from 945adb2):** dispatched 16:22 UTC; its table is recorded here when it
-  finishes.
+- **`reader ink` on live (run 38931391155, from 945adb2, 16:22–16:56 UTC):** 328 settled answers; 312 count, at the
+  line each was read at, as their reading stored (309 at 14:31).
+
+  | line | agree | lose ink | gain ink | settled blanks given ink |
+  |---|---|---|---|---|
+  | 0.72 | 284 | 40 | 4 | 0 |
+  | 0.74 | 290 | 33 | 5 | 0 |
+  | 0.76 | 294 | 28 | 6 | 0 |
+  | 0.78 | 295 | 26 | 7 | 0 |
+  | 0.80 | 293 | 26 | 9 | 0 |
+  | 0.84 | 290 | 25 | 13 | 0 |
+  | 0.88 | 287 | 23 | 18 | 0 |
+
+  - **The line stays 0.76.** 0.78 agrees on one more answer of 328, and gains ink on one more. Between the two runs
+    each line moved by 3 or 4, so a gap of 1 is not a measured difference. ADR 0083 asks for the next decision once 16 Oct
+    is settled, and it is not yet.
+  - **The measure reproduces.** The 36 answers both runs list as counted differently by a fainter line have the same
+    count at every line in both. What moved is which answers count as settled: copy dfca69a5's ADD.2D2D answer left
+    the list, and the total stayed 328. Live's database does not answer this container, so which answers were
+    settled or judged between 14:31 and 16:22 is unchecked.
 
 ## L12a live and measured on live; L12b: the ink line is a row, 0.76 (2026-10-16)
 

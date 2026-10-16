@@ -7,9 +7,10 @@ is verified. This file only says where the last session stopped.
 
 - **L12b live** (STATE.md "L12b live"). 16 Oct re-read: 74 right, 11 wrong, 8 unclear; the 862 now reads right.
 - **On this branch:** `/capture/{id}/readings` returns `ink_line`.
-- **Next:**
-  1. Record `reader ink` run 38931391155's table in STATE.md.
-  2. Once 16 Oct's answers are settled, run it again. If 0.74 or 0.78 agrees more than 0.76, change the row (ADR 0083).
+- **`reader ink` run 38931391155** (STATE.md): 0.76 agrees on 294 of 328, 0.78 on 295. That gap is less than the 3 or 4
+  each line moved between runs, so the row stays 0.76.
+- **Next:** once 16 Oct's answers are settled, run `reader ink` again. Change the row only if another line agrees by
+  more than the run-to-run drift (ADR 0083).
 - **Still open:**
   - Roll 1's page 1: Achal to scan it.
   - The n8n Drive flow did not fire.
