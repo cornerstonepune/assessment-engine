@@ -78,4 +78,5 @@ def test_a_reader_that_keeps_dying_says_so_in_words(monkeypatch):
 
 
 def test_the_floor_is_the_threshold_row_on_the_engines_scale():
-    assert digits.settings(None) == {"min_confidence": 90.0}
+    # and the ink line, `read.ink_line`, as measured on live (goals/l12b)
+    assert digits.settings(None) == {"min_confidence": 90.0, "ink_line": 0.76}

@@ -35,13 +35,16 @@ class ReaderStopped(RuntimeError):
 
 
 def settings(conn=None):
-    """{"min_confidence": the floor on the engine's 0-100 scale}: `read.auto_confirm_above`, the row that has
-    always meant "a cell read above this skips the confirm queue", 0.90 until a person changes it."""
-    value = 0.90
+    """{"min_confidence": the floor on the engine's 0-100 scale, "ink_line": how much darker than its paper a pixel is
+    to be pencil}: `read.auto_confirm_above`, the row that has always meant "a cell read above this skips the confirm
+    queue", 0.90 until a person changes it; and `read.ink_line`, measured on live (goals/l12b), 0.76."""
+    value, line = 0.90, 0.76
     if conn is not None:
-        row = conn.execute("select value from threshold where key = 'read.auto_confirm_above'").fetchone()
-        value = float(row["value"]) if row else value
-    return {"min_confidence": round(100 * value, 1)}
+        rows = {r["key"]: float(r["value"]) for r in conn.execute(
+            "select key, value from threshold where key in ('read.auto_confirm_above', 'read.ink_line')"
+        )}  # fmt: skip
+        value, line = rows.get("read.auto_confirm_above", value), rows.get("read.ink_line", line)
+    return {"min_confidence": round(100 * value, 1), "ink_line": line}
 
 
 def _load():
