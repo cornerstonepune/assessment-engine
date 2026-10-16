@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-16 — L10 + L11 live 10:11 UTC; L12a built (the ink line measured)
+
+- **L12a on this branch** (STATE.md "L10 + L11 live; L12a"). Once deployed, run Actions → reader ink → Run workflow,
+  and record its table in STATE.md. L12b then sets the line from it: a threshold row, never a constant. Choose the
+  faintest line at which no answer gains ink and no settled blank is given ink. Re-read 2026-10-16.pdf with `again`.
+- **Still open from the 16 Oct scan:**
+  - Roll 1's page 1: Achal to scan it and send it.
+  - The n8n Drive flow did not fire: Nimish to look at its runs around 07:55 UTC.
+  - Nimish to look under Read a scan on Marking for the missing-page line.
+
 ## 2026-10-16 — L10 in #221; L11 built (a scan read whole, what it lacks said)
 
 - **L11** (STATE.md "L11"): pages of one child's paper apart in a file are one copy. A page photographed twice is read

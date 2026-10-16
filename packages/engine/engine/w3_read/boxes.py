@@ -63,13 +63,14 @@ APART = 1.0
 OWN_GROW = 0.5
 
 
-def dark(canon):
-    """Where the page is marked: darker than its own surroundings, so a shadow across a photograph is not ink
-    and a faint pencil on a bright page is. The paper's own print is taken out per answer, where it settled
-    (`_theirs`), never at the key's place: on a bent page that is a millimetre or two off."""
+def dark(canon, line=0.72):
+    """Where the page is marked: darker than its own surroundings by `line`, so a shadow across a photograph is not
+    ink and a faint pencil on a bright page is. The paper's own print is taken out per answer, where it settled
+    (`_theirs`), never at the key's place: on a bent page that is a millimetre or two off. `line` is measured on
+    what people settled (`ink_line`, goals/l12a)."""
     g = cv2.cvtColor(canon, cv2.COLOR_BGR2GRAY)
     background = cv2.blur(g, (8 * PPM, 8 * PPM))
-    return g < background * 0.72
+    return g < background * line
 
 
 def _ruled(canon, pdf, page_no):

@@ -1,0 +1,28 @@
+name: l12a-where-pencil-is-told-from-paper
+goal: >
+  `engine read ink` measures, on every answer a person has settled on a copy read in its boxes, how many of its boxes
+  hold ink at each of several lines between a pencil mark and the paper, against how many digits the person said the
+  child wrote; it says, line by line, how many answers agree, how many lose ink the child wrote, how many gain ink
+  the child did not write, and how many blanks a person settled would be given ink. It writes nothing and names no
+  child. It runs on the server by hand (`reader ink` workflow). The reader's own line does not change here.
+# Written 2026-10-16, before the code. Nimish, on the 16 Oct Grade 3 scan: "Despite having boxes and proper stuff, I
+# don't think you have done this well." After L10 (small zeros) one right answer still waited for its ink: roll 4's
+# "862", its 6 in pencil so faint that its darkest 2% is 21% darker than the paper, where `boxes.dark` asks 28%. The
+# line is not moved on one answer: a fainter one can count a speck in an empty box as a digit, and a blank would then
+# wait as unclear. Nimish, told so: "yes go ahead with L12". This is L12's first half, the measure; the line is set
+# from what it finds on live (L12b).
+says:
+  - words: "Despite having boxes and proper stuff, I don't think you have done this well."
+    proved_by: "packages/engine/tests/test_ink_line.py::test_a_digit_in_faint_pencil_is_ink_at_a_fainter_line_and_an_empty_box_at_none"
+  - words: "Despite having boxes and proper stuff, I don't think you have done this well."
+    proved_by: "packages/engine/tests/test_ink_line.py::test_a_read_copy_a_person_settled_is_measured_as_the_reader_found_its_boxes"
+manual:
+  - "On live, once deployed: run the `reader ink` workflow and record its table in STATE.md; L12b sets the line from it."
+scenarios: []
+criteria:
+  - name: the measure, and the box reader it measures
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_ink_line.py tests/test_boxes.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
