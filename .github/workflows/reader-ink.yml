@@ -1,7 +1,10 @@
 # Where a pencil mark is told from the paper, measured on the server, where the scans are (goals/l12a): every answer a
 # person settled on a copy read in its boxes, counted at each line (`engine read ink`). Run by hand (Actions → reader
 # ink → Run workflow); it reads the live rows and the scans and writes nothing. What it prints is counts by line and
-# answers by copy and question, never a child's name or a photograph (rule 6).
+# answers by copy and question, never a child's name or a photograph (rule 6). It prints only when it has measured every
+# page, which takes minutes on the server: on its first run (2026-10-16, 13:28 UTC) the silent connection was dropped
+# after 4m41s ("client_loop: send disconnect: Broken pipe") and the table was lost while the measure ran on. The
+# connection now says it is alive every 30 s until the measure answers.
 name: reader ink
 on:
   workflow_dispatch:
@@ -12,7 +15,7 @@ permissions:
 jobs:
   measure:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: a way in
         env:
@@ -27,5 +30,5 @@ jobs:
         env:
           HOST: "${{ secrets.LIGHTSAIL_HOST }}"
         run: |
-          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 -o ServerAliveInterval=30 -o ServerAliveCountMax=10 ubuntu@$HOST"
           $S "sudo docker exec deploy-engine-1 engine read ink"
