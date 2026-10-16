@@ -45,3 +45,9 @@ boxes holding ink against the digits settled:
 Both kinds of miscount send an answer to a person, never past one. An answer that loses ink is held as unclear, or
 blank if it loses all of it; an answer that gains ink is held as unclear. So a better line means fewer answers a person
 must type. It does not mean fewer silent errors, because the line causes none. The 16 Oct "862" still waits at 0.76.
+
+## Measured after deploy (2026-10-16, 16:20 UTC)
+
+The prediction above was wrong. Read again on live at 0.76, the 16 Oct "862" has 3 boxes holding ink and reads right.
+"About 0.78" was a rough check on its photograph, not the reader's own boxes; 0.80 was never needed for it. Nothing
+else on that scan moved: 74 read right, 11 wrong, 8 unclear, none of the 8 for ink.

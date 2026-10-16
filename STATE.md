@@ -8271,6 +8271,24 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## L12b live; 2026-10-16.pdf read at 0.76; each reading's line returned by the API (2026-10-16)
+
+- **L12b live by hand, at Nimish's word:** #223 merged as 945adb2 (16:08 UTC). `deploy engine` (run 38929617532,
+  with its step loading thresholds from the seed) and `migrate live` (run 38929621227) both succeeded; `/health` 200.
+- **2026-10-16.pdf read again on live (`again`, run 6bfbd6a3, 16:18–16:20 UTC):**
+  - read right 73 → 74, wrong 11 → 11, unclear 9 → 8; all 93 still wait for a person.
+  - The only answer that moved is roll 4's "862" (MUL.1D3D): 2 boxes held ink at 0.72, 3 at 0.76, now read right
+    (99.9%). The other four copies total the same as at 10:13.
+  - The earlier claim here, that this 6 needed about 0.78 and still waits at 0.76, was wrong. It came from a rough
+    check on the photograph, not from the reader's own boxes.
+  - The 8 still unclear: 7 under the confidence floor (71–90%), and roll 5's 9000 seen as "900" in four inked boxes,
+    held rightly. None waits on ink.
+- **The line each reading was read at was not returned by `/capture/{id}/readings`** (`copy_scores.readings` kept a
+  fixed list without `ink_line`), so 0.76 on live could be inferred only from the 862's count moving. Now returned;
+  `test_ink_line.py::test_a_read_copy_a_person_settled_is_measured_as_the_reader_found_its_boxes` proves it.
+- **`reader ink` on live (run 38931391155, from 945adb2):** dispatched 16:22 UTC; its table is recorded here when it
+  finishes.
+
 ## L12a live and measured on live; L12b: the ink line is a row, 0.76 (2026-10-16)
 
 - **L12a live by hand, at Nimish's word:** #222 merged as 912290e (13:19 UTC). `deploy engine` (run 38907244418) and
@@ -8294,8 +8312,8 @@ one child on live.
 - **L12b (`goals/l12b-the-ink-line-is-a-row.yaml`, ADR 0083):** the line is the row `read.ink_line`, 0.76.
   - `digits.settings` carries it to `boxes.read_page`, and each reading records `ink_line` beside `inked`.
   - `engine read ink` also counts at 0.74 and 0.78, and compares each stored count at the line it was read at.
-  - The 16 Oct "862" measures about 0.78 on its photograph and still waits at 0.76. That is one unsettled answer
-    against 328 settled.
+  - The 16 Oct "862" measured about 0.78 on its photograph (a rough check, not the reader's own boxes). On live it
+    reads right at 0.76: see "L12b live" above.
 
 ## L10 + L11 live; L12a: where a pencil mark is told from the paper, measured (2026-10-16)
 
