@@ -1,0 +1,37 @@
+name: l11-a-scan-is-read-whole
+goal: >
+  Every page of a child's paper in a scanned file is read onto that child's copy, wherever in the file it lies. A page
+  photographed twice is read once, from its later photograph, and the copy says so. A paper whose page is not in the file
+  says which page, by the child's class and roll number, never a name. What the reading of a file came to — each copy
+  read, each not read and why, each page missing or photographed twice — is kept on its run and shown under "Read a
+  scan" to the people whose classes it is.
+# Written 2026-10-16, before the code. Nimish, the same morning: "a new sheet has been uploaded … the system needs to
+# evaluate and score them". The Grade 3 scan (2026-10-16.pdf, 10 pages, 5 children) was read, and measured after:
+# roll 4's first page was photographed twice, as the file's first and ninth pages, and roll 1's first page was not in
+# the file at all. Pages were made one copy only where they lay together (`sorting.group`), so the ninth page's copy
+# was read as a second copy of roll 4's paper and replaced the first's reading (`copies._replaces`). That kept roll 4
+# whole only because the later copy held both pages; had the lone page come last, the paper's second page would have
+# been dropped. Roll 1 was scored on 9 of 21 answers, and nothing on the site or the run said a page was missing:
+# `inbox.read` threw away what `copies.read` returned. Why the later photograph of a page is read: ADR 0082.
+says:
+  - words: "a new sheet has been uploaded … the system needs to evaluate and score them"
+    proved_by: "packages/engine/tests/test_a_scan_read_whole.py::test_a_childs_pages_apart_in_the_file_are_read_as_one_copy"
+  - words: "a new sheet has been uploaded … the system needs to evaluate and score them"
+    proved_by: "packages/engine/tests/test_a_scan_read_whole.py::test_a_page_photographed_twice_is_read_once_from_the_later_and_said"
+  - words: "a new sheet has been uploaded … the system needs to evaluate and score them"
+    proved_by: "packages/engine/tests/test_a_scan_read_whole.py::test_a_page_not_in_the_file_is_said_by_its_page"
+  - words: "a new sheet has been uploaded … the system needs to evaluate and score them"
+    proved_by: "apps/web/tests/u41-what-a-scan-lacks.spec.ts::a scan's missing and doubled pages are said under Read a scan, by roll number"
+manual:
+  - "On live, once deployed: read 2026-10-16.pdf again (`POST /read/file` with again); its run says roll 1's page 1 of 2 is not in the file and roll 4's page 1 is in it twice, and Marking shows the same under Read a scan."
+scenarios: []
+criteria:
+  - name: sorting, copies and the inbox, and the copies' own tests
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_a_scan_read_whole.py tests/test_sorting.py tests/test_copies.py tests/test_handout.py tests/test_inbox.py tests/test_read_back.py
+    expect: "passed"
+  - name: Read a scan, and the pages it sits on
+    run: cd apps/web && npx playwright test tests/u41-what-a-scan-lacks.spec.ts tests/u3-marking.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

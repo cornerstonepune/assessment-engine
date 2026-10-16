@@ -8,6 +8,7 @@ What arrives is a link, never the file: the file stays on Drive and in the asses
 or the repository (rule 6). A copy printed bare — no child's code — is reported, not guessed at.
 """
 
+import json
 import re
 import urllib.request
 from pathlib import Path
@@ -73,13 +74,17 @@ def start(tenant, path: Path, actor: str) -> str:
 
 def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]:
     """Every copy in the file read for its child, on its own connection (this runs after the request that
-    accepted the file has answered), the run marked ok or error with what happened."""
+    accepted the file has answered), the run marked ok or error with what happened. What the reading came to is
+    kept on the run — each copy read, each not read and why, each page missing or photographed twice — by the
+    child's id, never a name (rule 6): until 2026-10-16 it was thrown away, and nobody was told a child's first page
+    was not in the file (goals/l11-a-scan-is-read-whole.yaml)."""
     with db.connect() as conn:
         try:
             out = copies.read(conn, str(path), "", None, actor, again=again)
             conn.execute(
-                "update flow_run set status = 'ok', finished_at = now(), updated_at = now() where id = %s",
-                (run_id,),
+                "update flow_run set status = 'ok', result = %s::jsonb, finished_at = now(), updated_at = now()"
+                " where id = %s",
+                (json.dumps({"copies": out}, default=str), run_id),
             )
             return out
         except Exception as e:  # the run says why; the request that started it has long since answered

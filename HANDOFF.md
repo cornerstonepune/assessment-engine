@@ -3,12 +3,20 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-16 — L10 in #221; L11 built (a scan read whole, what it lacks said)
+
+- **L11** (STATE.md "L11"): pages of one child's paper apart in a file are one copy. A page photographed twice is read
+  once. A missing page is said on the run and under Read a scan. Once live, read 2026-10-16.pdf again with `again`.
+  Its run should say roll 1's page 1 of 2 is not in the file and roll 4's page 1 is in it twice. Achal then scans
+  roll 1's page 1 and sends it.
+- **Still open from that scan:** 6 right reads under the confidence floor; the n8n Drive flow did not fire (n8n does
+  not connect from this session: Nimish to look at its executions ~07:55 UTC).
+
 ## 2026-10-16 — L9 live 06:36 UTC; L10 built; the Grade 3 scan
 
 - **L10 on this branch** (STATE.md "L6, L7 and L9 live; L10"): a small zero counts as a digit (DIGIT_TALL 0.33). Once
   live, read the 2026-10-16 scan again with `again` and report its unclear count to Nimish.
-- **Still open from that scan:** 6 right reads under the confidence floor; roll 1's first page matched no child; the
-  n8n Drive flow did not fire (n8n does not connect from this session: Nimish to look at its executions ~07:55 UTC).
+- **Roll 1's first page** was not in the file (see L11 above).
 
 ## 2026-10-16 — L6 + L7 live 06:00 UTC by hand; L9 built
 

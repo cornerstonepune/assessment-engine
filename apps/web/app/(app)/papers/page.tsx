@@ -3,6 +3,7 @@ import { Body, PageHeader } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { checkQueue } from "@/lib/queries-read";
+import { lastScans } from "@/lib/queries-scans";
 import { topics } from "@/lib/queries-people";
 import {
   assessmentList,
@@ -80,8 +81,8 @@ export default async function PapersPage({ searchParams }: Props) {
     topic: taught.some((t) => t.code === q.topic) ? q.topic : undefined,
     set: q.set || undefined,
   };
-  const [groups, { stages, options }, queue] = await deadline(
-    Promise.all([assessmentList(f, scopeOf(me)), paperFilters(f, me.email, scopeOf(me)), checkQueue(scopeOf(me))]),
+  const [groups, { stages, options }, queue, scans] = await deadline(
+    Promise.all([assessmentList(f, scopeOf(me)), paperFilters(f, me.email, scopeOf(me)), checkQueue(scopeOf(me)), lastScans(scopeOf(me))]),
   );
   // the one assessment opened, by its key (kind~class~week~set) — or the one the filters leave — its copies with it
   const asked = q.open && q.open.split("~")[0] in KIND_WORDS ? q.open : null;
@@ -208,7 +209,7 @@ export default async function PapersPage({ searchParams }: Props) {
         </section>
 
         <div className="mt-[18px]">
-          <ReadScan from="/papers" read={q.read} why={q.why} pages={q.pages} />
+          <ReadScan from="/papers" read={q.read} why={q.why} pages={q.pages} scans={scans} />
         </div>
       </Body>
     </>
