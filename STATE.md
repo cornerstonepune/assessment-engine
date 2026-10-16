@@ -8255,6 +8255,8 @@ one child on live.
 - **Checks:** the engine tests failed first on the refusals, then 79 passed (maker, taught_per_class, focus_paper,
   paper_from_library, week, focus, topics). Web: u39 (new), m2, m4, u16, u29, u30, 20 passed. u39 was written before
   the page but not run red first; the labels it reads did not exist before.
+- **Main's CI red on 9ed8de4:** `test_a_skill_set_is_read_as_itself` called `shelf._catalog(conn, None)` with the old
+  two arguments. `every` now defaults to False; that test and its neighbours, 44 passed.
 
 ## UX5a live; UX5b: Home assessments and Marking open on the educator's class, a next step per child (2026-10-16)
 
