@@ -96,18 +96,21 @@ test("an educator says a topic is taught in their class, in their name, and no o
   }
 });
 
-test("make papers offers a class only the topics it has been taught", async ({ page }) => {
+test("make papers says which skills a class has not been taught, and still offers them", async ({ page }) => {
   try {
     const [{ id: tenant }] = await sql<{ id: string }[]>`select id from tenant limit 1`;
     await sql`
       insert into class_skill (tenant_id, section, skill_set_code, taught, taught_by)
       values (${tenant}, ${MINE}, 'MUL.MODELS', true, 'U30 test')`;
-    const models = 'select[name="s"] option[value^="MUL.MODELS~"]';
-    await page.goto(`/papers/make?class=${MINE}&kind=assessment&way=same`);
-    await expect(page.locator(models).first()).toBeAttached();
-    await page.goto(`/papers/make?class=${OTHER}&kind=assessment&way=same`);
-    await expect(page.locator('select[name="s"]').first()).toBeAttached();
-    await expect(page.locator(models), "a class not taught it is not offered it").toHaveCount(0);
+    // since L7 an educator may choose any skill (ADR 0081, Nimish, 2026-10-16); the line says which one the class
+    // has not been taught
+    const models = async (cls: string) => {
+      await page.goto(`/papers/make?class=${cls}&kind=assessment&way=same`);
+      await page.getByLabel("Topic 1").selectOption("MUL");
+      return page.getByLabel("Skill 1").locator('option[value="MUL.MODELS"]').textContent();
+    };
+    expect(await models(MINE), "taught in the class").not.toContain("not taught yet");
+    expect(await models(OTHER), "not taught in the class, and still offered").toContain("not taught yet");
   } finally {
     await sql`delete from class_skill where section in (${MINE}, ${OTHER})`;
   }

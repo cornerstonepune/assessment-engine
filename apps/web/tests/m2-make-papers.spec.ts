@@ -11,6 +11,7 @@ import { expect, test } from "@playwright/test";
 import postgres from "postgres";
 import { isoWeek } from "../lib/week";
 import { TEST_STAFF } from "./global-setup";
+import { aLine } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -116,10 +117,8 @@ test("a teacher chooses skills, a level each and how many, sees the questions, a
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("A home assessment for Chetan");
 
   const form = page.getByRole("form", { name: "Choose the paper" });
-  await form.getByLabel("Skill and level 1").selectOption("SUB.2D2D~Medium");
-  await form.getByLabel("Questions 1").fill("5");
-  await form.getByLabel("Skill and level 2").selectOption("ADD.2D1D~Easy");
-  await form.getByLabel("Questions 2").fill("3");
+  await aLine(form, 1, "ADDSUB", "SUB.2D2D", "Medium", "5");
+  await aLine(form, 2, "ADDSUB", "ADD.2D1D", "Easy", "3");
   await form.getByRole("button", { name: "See the paper" }).click();
 
   const preview = page.getByRole("region", { name: "The paper" });

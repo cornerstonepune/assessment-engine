@@ -342,7 +342,9 @@ def test_a_class_is_planned_on_one_read_of_the_catalogue_not_one_a_child(conn, k
     """Planning read the bank's catalogue, levels, rule and names again for every child, inside a page that must
     answer in 8 s (code review, 2026-09-30)."""
     reads, real = [], shelf._catalog
-    monkeypatch.setattr(shelf, "_catalog", lambda c, section: reads.append(1) or real(c, section))
+    monkeypatch.setattr(
+        shelf, "_catalog", lambda c, section, every: reads.append(1) or real(c, section, every)
+    )
     maker.plan(conn, SECTION, [kids["weak"], kids["strong"]], WEEK, "focus", "own")
     assert len(reads) == 1
 
@@ -409,18 +411,57 @@ def test_a_class_paper_prints_on_a_database_whose_rule_lost_the_paper_for_one_ch
     assert names_its_child == 1, "a paper made for one child still names its child"
 
 
-def test_a_class_is_given_only_its_grades_levels_and_those_below(conn):
-    """F1e (goals/f1e-the-grade-plan.yaml). Nimish, 2026-10-14: "whenever a grade two teacher is creating the assessments
-    for that topic, it's only easy and medium that should come." Each level has a grade; a class uses its own grade's
-    levels and those below. 2-digit + 1-digit is Grade 2's, its Easy Grade 1's: a Grade 1 class is given Easy and
-    refused Medium, whichever way the paper is made, and told why."""
+def test_the_engine_keeps_a_class_to_its_grade_and_the_educator_may_go_above_it(conn):
+    """F1e (goals/f1e-the-grade-plan.yaml), as L7 leaves it (ADR 0081). Each level has a grade; what the engine chooses
+    by itself keeps a class to its own grade's levels and those below. 2-digit + 1-digit is Grade 2's, its Easy Grade
+    1's: Grade 1's levels hold Easy alone. A paper the educator builds takes the level she chose, whichever way it is
+    made."""
+    assert shelf._levels(conn, "G1")["ADD.2D1D"] == ("Easy",), "the engine's own choice keeps to the grade"
     grade_1 = [_child(conn, str(roll), section="G1PLAN", band="G1") for roll in (1, 2)]
     medium = [{"skill_set": "ADD.2D1D", "level": "Medium", "n": 4}]
-    with pytest.raises(ValueError, match=r"ADD\.2D1D at Medium is Grade 2's.*Grade 1 has Easy"):
-        maker.plan(conn, "G1PLAN", grade_1, WEEK, "assessment", "same", medium)
-    each = maker.plan(conn, "G1PLAN", grade_1, WEEK, "assessment", "each", medium)
-    assert not each["papers"] and all("Grade 2's" in r["why"] for r in each["refused"]), each["refused"]
+    for way in ("same", "each"):
+        made = maker.plan(conn, "G1PLAN", grade_1, WEEK, "assessment", way, medium)
+        assert not made["refused"] and len(made["papers"]) == 2, (way, made["refused"])
+        assert all(a["level"] == "Medium" for p in made["papers"] for a in p["areas"])
 
-    easy = [{"skill_set": "ADD.2D1D", "level": "Easy", "n": 4}]
-    made = maker.plan(conn, "G1PLAN", grade_1, WEEK, "assessment", "same", easy)
-    assert not made["refused"] and len(made["papers"]) == 2, "its own grade's level is given"
+
+def test_an_educator_may_choose_a_skill_of_a_higher_grade_or_one_the_class_was_not_taught(conn):
+    """L7 (goals/l7-a-line-is-topic-skill-level-number.yaml). Achal, through Nimish, 2026-10-16: "Didn't we add two-digit
+    by two-digit multiplication yesterday? … even multiples and factors are not visible." A Grade 3 class, with neither
+    switched on as taught: 2-digit × 2-digit is Grade 4 at every level, multiples Grade 4 at Hard. One paper for all
+    takes both, from two topics; so does a paper for one child. The class's own list of what it was taught, which the
+    engine's own choices read, is unchanged."""
+    kids = [_child(conn, str(roll), section="L7-G3", band="G3") for roll in (1, 2)]
+    conn.execute("update skill_set set taught = false where code in ('MUL.2D2D', 'MD.MULTIPLES')")
+    ask = [
+        {"skill_set": "MUL.2D2D", "level": "Medium", "n": 3},
+        {"skill_set": "MD.MULTIPLES", "level": "Hard", "n": 3},
+    ]
+    for way in ("same", "each"):
+        made = maker.plan(conn, "L7-G3", kids, WEEK, "assessment", way, ask)
+        assert not made["refused"] and len(made["papers"]) == 2, (way, made["refused"])
+        got = {(a["skill_set"], a["level"], len(a["questions"])) for a in made["papers"][0]["areas"]}
+        assert got == {("MUL.2D2D", "Medium", 3), ("MD.MULTIPLES", "Hard", 3)}, got
+    assert focus_paper.plan(conn, str(kids[0]), WEEK, ask)["n"] == 6, "a paper for one child, the same"
+    taught = {c["code"] for c in shelf.catalog(conn, "L7-G3")}
+    assert not taught & {"MUL.2D2D", "MD.MULTIPLES"}, "what the class was taught is still its own"
+    with pytest.raises(ValueError, match="no skill set"):
+        maker.plan(
+            conn,
+            "L7-G3",
+            kids,
+            WEEK,
+            "assessment",
+            "same",
+            [{"skill_set": "NO.SUCH", "level": "Easy", "n": 3}],
+        )
+    with pytest.raises(ValueError, match=r"MD\.MULTIPLES has no level 'Sideways'"):
+        maker.plan(
+            conn,
+            "L7-G3",
+            kids,
+            WEEK,
+            "assessment",
+            "same",
+            [{"skill_set": "MD.MULTIPLES", "level": "Sideways", "n": 3}],
+        )

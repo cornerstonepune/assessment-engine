@@ -3,15 +3,15 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-16 — #217 live; L6 built; Achal's maker next
+## 2026-10-16 — #217 live; L6 and L7 built
 
 - **#217 live** (UX5b + L5): merged as `90136d8`; `migrate live` and Vercel 04:37 UTC; the engine restarted 04:38–04:42
   UTC, and the maker answered "The engine refused (502)" while it did (Nimish saw it).
 - **L6 built on this branch** (ADR 0080; STATE.md "L6"): a paper is always made; short of fresh questions, it repeats
   those seen longest ago and says how many.
-- **Next: M6** (Achal, by phone): each maker line chooses a topic, then that topic's skills, a level, a number; a paper
-  the educator builds may take any skill of the topic, any grade, taught or not (Nimish chose it, 2026-10-16). Home
-  assessments and the week keep the grade and taught rules.
+- **L7 built on the same branch** (ADR 0081; STATE.md "L7"): each maker line is Topic → Skill → Level → how many; an
+  educator's own paper takes any skill, any grade, taught or not. The engine's own choices keep both rules.
+- **On live once merged:** Achal makes the Grade 3 assessment again (manual line in the L7 goal).
 - **SF2a is stashed** (`git stash list`: "SF2a work in progress"), to pop after L6 and M6 merge; expect conflicts in
   `focus_paper.py` and `assemble.py`.
 

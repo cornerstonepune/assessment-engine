@@ -87,9 +87,13 @@ test("a class and a topic make the class's default assessment, every child's pap
   await page.goto(`/papers/make?kind=assessment&way=same`);
   await page.getByRole("form", { name: "Choose the papers" }).getByLabel("Class").selectOption({ value: SECTION });
   await page.getByRole("button", { name: "Show the class" }).click();
-  await page.getByLabel("Topic").selectOption({ label: topic.name });
+  await page.getByLabel("Start from a topic").selectOption({ label: topic.name });
   await page.getByRole("button", { name: "See the papers" }).click();
-  for (const [i, value] of want.entries()) await expect(page.getByLabel(`Skill and level ${i + 1}`)).toHaveValue(value);
+  for (const [i, value] of want.entries()) {
+    const [skill, level] = value.split("~");
+    await expect(page.getByLabel(`Skill ${i + 1}`)).toHaveValue(skill);
+    await expect(page.getByLabel(`Level ${i + 1}`)).toHaveValue(level);
+  }
   // nothing is made until the educator has seen each child's paper
   const papers = page.getByRole("region", { name: "The papers" });
   for (const name of ["Asha", "Bina"]) await expect(papers).toContainText(name);

@@ -3,7 +3,9 @@ goal: >
   Whether a topic has been taught is said for each class, with who said it and when: by an educator for their own
   classes, by the coordinator for any. A class no one has spoken for follows the school's switch, so nothing changes on
   the day. A child's paper — a class paper, a chosen paper, the home paper — draws only on topics taught in the child's
-  class, and a skill whose topic the class has not been taught is refused in words that name the class. A page about a
+  class, and a skill whose topic the class has not been taught is refused in words that name the class. (Since L7,
+  2026-10-16, ADR 0081: a paper an educator builds takes any skill she chooses, the maker saying "not taught yet";
+  what the engine chooses by itself, a child's next step and the week, keeps to what the class was taught.) A page about a
   class or a child reads that class's own; a list for the school, or for an educator's classes, counts a topic taught
   where any of those classes has been taught it. On Curriculum, "Taught" is what a person said of a class and
   "Assessed" is how many children have a checked answer on it: two words, never one.
@@ -17,7 +19,7 @@ goal: >
 # checked answer, which is "Assessed".
 says:
   - words: "people who are there for one thing like educator only see something that's relevant for their class and their students."
-    proved_by: "packages/engine/tests/test_taught_per_class.py::test_a_topic_taught_in_one_class_is_on_its_papers_and_refused_in_another"
+    proved_by: "packages/engine/tests/test_taught_per_class.py::test_a_topic_taught_in_one_class_is_its_own_and_an_educator_may_still_choose_it_in_another"
   - words: "people who are there for one thing like educator only see something that's relevant for their class and their students."
     proved_by: "packages/engine/tests/test_taught_per_class.py::test_a_class_no_one_has_spoken_for_follows_the_schools_switch"
   - words: "people who are there for one thing like educator only see something that's relevant for their class and their students."
@@ -25,7 +27,7 @@ says:
   - words: "people who are there for one thing like educator only see something that's relevant for their class and their students."
     proved_by: "apps/web/tests/u30-taught-per-class.spec.ts::an educator says a topic is taught in their class, in their name, and no other class changes"
   - words: "It's not very clear that here you switch on a certain thing, or you go to the skills and you approve"
-    proved_by: "apps/web/tests/u30-taught-per-class.spec.ts::make papers offers a class only the topics it has been taught"
+    proved_by: "apps/web/tests/u30-taught-per-class.spec.ts::make papers says which skills a class has not been taught, and still offers them"
   - words: "It's not very clear that here you switch on a certain thing, or you go to the skills and you approve"
     proved_by: "apps/web/tests/u30-taught-per-class.spec.ts::curriculum says taught and assessed as two words"
 manual: []

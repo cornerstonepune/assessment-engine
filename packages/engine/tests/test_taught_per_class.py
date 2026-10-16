@@ -60,22 +60,19 @@ def _rule(conn, skill, section):
     ).fetchone()["t"]
 
 
-def test_a_topic_taught_in_one_class_is_on_its_papers_and_refused_in_another(conn):
-    """Two Grade 2 classes; one has been taught multiplication's models. Its papers draw on them; the other's are
-    refused in words that name the class — whichever way the paper is made — and the school's switch is unchanged."""
+def test_a_topic_taught_in_one_class_is_its_own_and_an_educator_may_still_choose_it_in_another(conn):
+    """Two Grade 2 classes; one has been taught multiplication's models. They are on its own list, the one the engine
+    chooses a child's next step from, and not on the other's; the school's switch is unchanged. A paper an educator
+    builds takes what she chose in either class, whichever way it is made (L7, ADR 0081)."""
     yes = [_child(conn, str(r), "F1F-YES") for r in (1, 2)]
     no = [_child(conn, str(r), "F1F-NO") for r in (1, 2)]
     _say(conn, "F1F-YES", "MUL", True)
 
     made = maker.plan(conn, "F1F-YES", yes, WEEK, "assessment", "same", MODELS)
     assert not made["refused"] and len(made["papers"]) == 2, "the class taught it is given it"
-
-    with pytest.raises(ValueError, match=r"MUL\.MODELS is not taught in F1F-NO yet"):
-        maker.plan(conn, "F1F-NO", no, WEEK, "assessment", "same", MODELS)
-    each = maker.plan(conn, "F1F-NO", no, WEEK, "assessment", "each", MODELS)
-    assert not each["papers"] and all("not taught in F1F-NO" in r["why"] for r in each["refused"]), each[
-        "refused"
-    ]
+    for way in ("same", "each"):
+        chosen = maker.plan(conn, "F1F-NO", no, WEEK, "assessment", way, MODELS)
+        assert not chosen["refused"] and len(chosen["papers"]) == 2, (way, chosen["refused"])
 
     assert {c["code"] for c in shelf.catalog(conn, "F1F-YES")} >= {"MUL.MODELS"}
     assert "MUL.MODELS" not in {c["code"] for c in shelf.catalog(conn, "F1F-NO")}
@@ -88,15 +85,15 @@ def test_a_class_no_one_has_spoken_for_follows_the_schools_switch(conn):
     word, once said, is what counts for it — and for no other class."""
     fresh = [_child(conn, str(r), "F1F-NEW") for r in (1, 2)]
     other = [_child(conn, str(r), "F1F-OTHER") for r in (1, 2)]
-    assert not maker.plan(conn, "F1F-NEW", fresh, WEEK, "assessment", "same", ADDING)["refused"], (
+    own = lambda section: {c["code"] for c in shelf.catalog(conn, section)}  # noqa: E731
+    assert "ADD.2D1D" in own("F1F-NEW"), (
         "addition is taught in the school, so in a class no one has spoken for"
     )
-    with pytest.raises(ValueError, match=r"MUL\.MODELS is not taught in F1F-NEW yet"):
-        maker.plan(conn, "F1F-NEW", fresh, WEEK, "assessment", "same", MODELS)
+    assert "MUL.MODELS" not in own("F1F-NEW")
+    assert not maker.plan(conn, "F1F-NEW", fresh, WEEK, "assessment", "same", ADDING)["refused"]
 
     _say(conn, "F1F-NEW", "ADDSUB", False)
-    with pytest.raises(ValueError, match=r"ADD\.2D1D is not taught in F1F-NEW yet"):
-        maker.plan(conn, "F1F-NEW", fresh, WEEK, "assessment", "same", ADDING)
+    assert "ADD.2D1D" not in own("F1F-NEW") and "ADD.2D1D" in own("F1F-OTHER")
     assert not maker.plan(conn, "F1F-OTHER", other, WEEK, "assessment", "same", ADDING)["refused"]
 
     rule = conn.execute(
@@ -109,13 +106,13 @@ def test_a_class_no_one_has_spoken_for_follows_the_schools_switch(conn):
     )
 
 
-def test_a_childs_own_paper_reads_their_own_class(conn):
-    """A paper chosen for one child, like a class paper, is drawn from what their own class was taught."""
+def test_a_paper_chosen_for_one_child_is_what_the_educator_chose(conn):
+    """A paper an educator chooses for one child, like a class paper, takes the skill she chose, taught in their class
+    or not (L7, ADR 0081)."""
     yes, no = _child(conn, "1", "F1F-YES"), _child(conn, "1", "F1F-NO")
     _say(conn, "F1F-YES", "MUL", True)
     assert focus_paper.plan(conn, yes, WEEK, MODELS)["areas"], "taught in their class"
-    with pytest.raises(ValueError, match=r"MUL\.MODELS is not taught in F1F-NO yet"):
-        focus_paper.plan(conn, no, WEEK, MODELS)
+    assert focus_paper.plan(conn, no, WEEK, MODELS)["n"] == 4, "not taught in their class, and chosen"
 
 
 def test_answers_kept_out_of_sight_are_those_on_topics_their_own_class_was_not_taught(conn):
@@ -135,24 +132,25 @@ def test_answers_kept_out_of_sight_are_those_on_topics_their_own_class_was_not_t
 
 def test_a_class_is_taught_skill_by_skill(conn):
     """ADR 0076: switching Multiplication on for a class switches on every skill in it; an educator can then leave one
-    off — column multiplication, until next term — and that skill alone is refused on the class's papers, in words that
-    name the class. The topic still shows as taught there; switching the topic on again switches the skill back on."""
+    off — column multiplication, until next term — and that skill alone leaves the class's own list, the one the engine
+    chooses a child's next step from; an educator may still choose it (L7, ADR 0081). The topic still shows as taught
+    there; switching the topic on again switches the skill back on."""
     kids = [_child(conn, str(r), "T1-SKILL", "G3") for r in (1, 2)]
     _say(conn, "T1-SKILL", "MUL", True)
     _say(conn, "T1-SKILL", "MUL", False, skill="MUL.2D1D")
 
     codes = {c["code"] for c in shelf.catalog(conn, "T1-SKILL")}
     assert {"MUL.MODELS", "MUL.FACTS"} <= codes and "MUL.2D1D" not in codes, codes
-    with pytest.raises(ValueError, match=r"MUL\.2D1D is not taught in T1-SKILL yet"):
-        maker.plan(
-            conn,
-            "T1-SKILL",
-            kids,
-            WEEK,
-            "assessment",
-            "same",
-            [{"skill_set": "MUL.2D1D", "level": "Easy", "n": 4}],
-        )
+    chosen = maker.plan(
+        conn,
+        "T1-SKILL",
+        kids,
+        WEEK,
+        "assessment",
+        "same",
+        [{"skill_set": "MUL.2D1D", "level": "Easy", "n": 4}],
+    )
+    assert not chosen["refused"], "an educator may still choose it (L7, ADR 0081)"
     tenant = _tenant(conn)
     topic = conn.execute("select taught_in(%s, 'MUL', 'T1-SKILL') as t", (tenant,)).fetchone()["t"]
     assert (topic, _rule(conn, "MUL.MODELS", "T1-SKILL"), _rule(conn, "MUL.2D1D", "T1-SKILL")) == (

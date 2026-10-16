@@ -223,14 +223,13 @@ def test_a_child_who_lags_nowhere_is_stretched_on_their_strongest_skill(conn):
     assert "ready to move up" in p["areas"][0]["why"] or "a step up" in p["areas"][0]["why"]
 
 
-def test_a_skill_the_school_does_not_teach_yet_is_never_on_a_paper(conn, child):
+def test_a_skill_the_school_does_not_teach_yet_is_never_on_a_paper_the_engine_chooses(conn, child):
     """Nimish, 2026-09-23: "I'm surprised we haven't even started teaching multiplication"."""
     # the school's word, said skill by skill (goals/t1-topics-are-operations.yaml)
     conn.execute("update skill_set set taught = false where topic_code = 'ADDSUB'")
     assert focus_paper.plan(conn, child, WEEK)["areas"] == []
-    # refused in words that name the child's class, as a skill no class is taught yet (goals/f1f-taught-per-class.yaml)
-    with pytest.raises(ValueError, match=r"MUL\.2D1D is not taught in \S+ yet"):
-        focus_paper.plan(conn, child, WEEK, [{"skill_set": "MUL.2D1D", "level": "Easy", "n": 3}])
+    # an educator's own choice is made, taught or not (L7, ADR 0081)
+    assert focus_paper.plan(conn, child, WEEK, [{"skill_set": "MUL.2D1D", "level": "Easy", "n": 3}])["n"] == 3
     with pytest.raises(ValueError, match="no skill set"):
         focus_paper.plan(conn, child, WEEK, [{"skill_set": "NO.SUCH", "level": "Easy", "n": 3}])
 

@@ -12,6 +12,7 @@ import { randomBytes } from "node:crypto";
 import postgres from "postgres";
 import { isoWeek } from "../lib/week";
 import { TEST_STAFF } from "./global-setup";
+import { aLine } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -90,8 +91,7 @@ test("an educator picks the kind, the children and the way, sees every paper, ma
   await form.getByRole("radio", { name: /Class assessment/ }).check();
   await form.getByRole("radio", { name: /One paper for all/ }).check();
   await form.getByRole("checkbox", { name: "Chetan" }).uncheck();
-  await form.getByLabel("Skill and level 1").selectOption("SUB.2D2D~Easy");
-  await form.getByLabel("Questions 1").fill("5");
+  await aLine(form, 1, "ADDSUB", "SUB.2D2D", "Easy", "5");
   await form.getByRole("button", { name: "See the papers" }).click();
 
   // every paper is seen before anything is made: the same five questions for both, and no one else
@@ -146,7 +146,7 @@ test("each child's own next step is shown child by child, and a child with nothi
   const form = page.getByRole("form", { name: "Choose the papers" });
   await form.getByRole("radio", { name: /Home assessment/ }).check();
   await form.getByRole("radio", { name: /Each child's own next step/ }).check();
-  await expect(form.getByLabel("Skill and level 1")).toBeHidden(); // each child's skill is their own
+  await expect(form.getByLabel("Skill 1")).toBeHidden(); // each child's skill is their own
   await form.getByRole("button", { name: "See the papers" }).click();
 
   const row = (name: string) => page.locator(`table[aria-label="Each child's paper"] tr[data-child="${ids[name]}"]`);
@@ -182,8 +182,7 @@ async function seen(page: Page, kind: RegExp) {
   await form.getByRole("radio", { name: kind }).check();
   await form.getByRole("radio", { name: /Same skill, different questions/ }).check();
   await form.getByRole("checkbox", { name: "Chetan" }).uncheck();
-  await form.getByLabel("Skill and level 1").selectOption("SUB.2D2D~Easy");
-  await form.getByLabel("Questions 1").fill("3");
+  await aLine(form, 1, "ADDSUB", "SUB.2D2D", "Easy", "3");
   await form.getByRole("button", { name: "See the papers" }).click();
   await expect(page.locator('table[aria-label="Each child\'s paper"] tbody tr')).toHaveCount(2);
   return form;

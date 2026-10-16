@@ -8239,6 +8239,23 @@ one child on live.
   yet. The week's scenario `names_the_child_it_could_not_fill` became `gives_every_child_a_whole_paper`.
 - **Checks:** the new tests failed first on the refusal, then passed. Web m2, m4, u37, u38: 19 passed.
 
+## L7: each maker line is a topic, its skill, a level and how many; the educator's choice decides (2026-10-16)
+
+- **Asked (Achal, through Nimish, an educator waiting):** 2-digit × 2-digit and multiples & factors were not in the
+  maker; choosing Multiplication still listed every skill; he wants one paper from several topics.
+- **Cause:** the maker listed only skills taught in the class (F1f) and levels of its grade or below (F1e);
+  2-digit × 2-digit is Grade 4 at every level, multiples not switched on in the school's rows. The Topic box only
+  filled the lines; each line's list held every skill. `focus_paper._asked` refused both too.
+- **Now (ADR 0081, `goals/l7-a-line-is-topic-skill-level-number.yaml`):** each line of `/papers/make` and
+  `/make/custom` is Topic → Skill (that topic's only) → Level → how many (`app/(app)/make/lines.tsx`,
+  `lib/maker.ts:lineTopics`). Every skill is offered; the class's grade's first; "· Grade 4", "· not taught yet" and a
+  level's grade said on the option. "Start from a topic" fills the lines at once. `_asked` checks only that the skill
+  and level exist (`shelf.catalog(every=True)`). A child's own next step, the week, and the per-child change on the
+  maker keep to the class's grade and what it was taught. F1e's and F1f's tests now prove that boundary.
+- **Checks:** the engine tests failed first on the refusals, then 79 passed (maker, taught_per_class, focus_paper,
+  paper_from_library, week, focus, topics). Web: u39 (new), m2, m4, u16, u29, u30, 20 passed. u39 was written before
+  the page but not run red first; the labels it reads did not exist before.
+
 ## UX5a live; UX5b: Home assessments and Marking open on the educator's class, a next step per child (2026-10-16)
 
 - **UX5a live:** #216 merged as `9a87004` (02:38 UTC). Main's CI passed; `migrate live` (run 38844303957) applied

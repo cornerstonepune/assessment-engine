@@ -1,7 +1,7 @@
 import { DatabaseSlow, deadline, PAGE_WAIT_MS } from "./deadline";
 import { EngineDown, engineSend } from "./engine";
 import { readArea, type Area } from "./next-paper";
-import { levelsOf, type SkillSet, usesLevel } from "./queries";
+import { type Difficulty, gradeNo, gradeOf, gradeWords, levelsOf, type SkillSet, usesLevel } from "./queries";
 
 // The maker (goals/m3-the-maker.yaml): papers for any children of one class at once. The engine draws, checks and
 // prints them (`w2_print/maker.py`); this reads the educator's choices from the form or the address and asks it.
@@ -160,4 +160,35 @@ export function topicLines(sets: SkillSet[], topic: string, band: string, length
     const usable = levelsOf(x).filter((d) => usesLevel(x, d, band));
     return usable.length ? [`${x.code}~${usable.includes("Medium") ? "Medium" : usable[0]}~${each}`] : [];
   });
+}
+
+/** A level as a maker line offers it: how many questions the bank holds at it, and its grade where that is above the
+ *  class's. */
+export type LineLevel = { level: Difficulty; n: number; above: string | null };
+/** A skill as a maker line offers it; `note` says a grade above the class's, or that the class was not taught it. */
+export type LineSkill = { code: string; name: string; note: string; levels: LineLevel[] };
+/** A topic with every skill in it, and the lines choosing the topic alone fills (`topicLines`), as `skill~level~n`. */
+export type LineTopic = { code: string; name: string; skills: LineSkill[]; fill: string[] };
+
+/** Every topic, each with every skill in it, for a class of `band` (goals/l7-a-line-is-topic-skill-level-number.yaml,
+ *  ADR 0081): an educator may choose any of them, taught in the class or not, whatever the grade. The skills the
+ *  class's grade uses come first. `sets` are every skill set, each saying whether the class was taught it. */
+export function lineTopics(sets: SkillSet[], band: string, length: number | null, lines: number): LineTopic[] {
+  const topics = new Map<string, { name: string; ord: number }>();
+  for (const x of sets) if (x.topic_code && !topics.has(x.topic_code)) topics.set(x.topic_code, { name: x.topic_name ?? x.topic_code, ord: x.topic_ord ?? 0 });
+  const usable = (x: SkillSet) => levelsOf(x).some((d) => usesLevel(x, d, band));
+  const lowest = (x: SkillSet) => levelsOf(x).map((d) => gradeOf(x, d)).sort((a, b) => gradeNo(a) - gradeNo(b))[0];
+  const taught = sets.filter((x) => x.taught);
+  return [...topics.entries()]
+    .sort(([, a], [, b]) => a.ord - b.ord)
+    .map(([code, t]) => {
+      const here = sets.filter((x) => x.topic_code === code && levelsOf(x).length);
+      const skills = [...here.filter(usable), ...here.filter((x) => !usable(x))].map((x) => ({
+        code: x.code,
+        name: x.name,
+        note: [usable(x) ? "" : gradeWords(lowest(x)), x.taught ? "" : "not taught yet"].filter(Boolean).join(" · "),
+        levels: levelsOf(x).map((d) => ({ level: d, n: x.counts[d] ?? 0, above: usesLevel(x, d, band) ? null : gradeWords(gradeOf(x, d)) })),
+      }));
+      return { code, name: t.name, skills, fill: topicLines(taught, code, band, length, lines) };
+    });
 }

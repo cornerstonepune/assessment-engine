@@ -12,7 +12,7 @@ says:
   - words: "I'm surprised we haven't even started teaching multiplication"
     proved_by: packages/engine/tests/test_topics.py::test_every_taxonomy_case_sits_in_a_taught_skill_and_nothing_else_is_taught
   - words: "we haven't even started teaching multiplication"
-    proved_by: packages/engine/tests/test_focus_paper.py::test_a_skill_the_school_does_not_teach_yet_is_never_on_a_paper
+    proved_by: packages/engine/tests/test_focus_paper.py::test_a_skill_the_school_does_not_teach_yet_is_never_on_a_paper_the_engine_chooses
   - words: "it is still showing 10 skills for me to approve. When I have given you the whole taxonomy, why do we need another approval?"
     proved_by: packages/engine/tests/test_approval.py::test_the_engine_keeping_the_mistake_list_up_to_date_never_withdraws_an_approval
 manual:

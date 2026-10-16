@@ -7,12 +7,12 @@ import { childSection, isMine, scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { engineSend } from "@/lib/engine";
 import { readArea, seeHref, type Area } from "@/lib/next-paper";
-import { repeatWords } from "@/lib/maker";
+import { lineTopics, repeatWords } from "@/lib/maker";
 import { skillSets } from "@/lib/queries";
 import { oneChild } from "@/lib/queries-make";
 import { isoWeek } from "@/lib/week";
 import { approveCustom } from "../actions";
-import { SkillLevelSelect } from "../skill-level";
+import { MakerLines } from "../lines";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 type Plan = { areas: { skill_set: string; name: string; level: string; seen_before: number; questions: { item_key: string; text: string }[] }[] };
@@ -21,8 +21,8 @@ const ROWS = 4; // lines on the form: a paper of up to four skills
 const all = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []);
 
 // A paper a teacher chooses for one child (goals/m1-make-papers.yaml): any skills, a level each, how many
-// questions. The engine draws them from the bank — none the child has seen — and the teacher sees every question
-// before approving; a paper the bank cannot fill is refused in words, never padded.
+// questions, each line a topic first (ADR 0081). The engine draws them from the bank — first those the child was not
+// given lately, then those given longest ago (ADR 0080) — and the teacher sees every question before approving.
 export default async function CustomPaper({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
@@ -30,8 +30,8 @@ export default async function CustomPaper({ searchParams }: Props) {
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const section = await deadline(childSection(id));
   if (!isMine(scopeOf(me), section)) return <NotYours what="This child's class" />;
-  // only what the child's class has been taught (goals/f1f-taught-per-class.yaml)
-  const [child, sets] = await deadline(Promise.all([oneChild(id, me.email), skillSets({ section: section ?? "" })]));
+  // every skill, each saying whether the child's class was taught it: the educator's choice decides (ADR 0081)
+  const [child, sets] = await deadline(Promise.all([oneChild(id, me.email), skillSets({ untaught: true, section: section ?? "" })]));
   if (!child) notFound();
 
   // The form sends each line as `s` (skill~level) and `n` (how many); a link may carry whole areas as `a`.
@@ -71,18 +71,11 @@ export default async function CustomPaper({ searchParams }: Props) {
           <Panel title="Choose the paper">
             <form method="get" action="/make/custom" aria-label="Choose the paper" className="grid gap-3">
               <input type="hidden" name="child" value={id} />
-              {lines.map((a, i) => (
-                <div key={i} className="grid grid-cols-[minmax(0,1fr)_72px] gap-2">
-                  <label className="field">
-                    <span className="label">Skill and level {i + 1}</span>
-                    <SkillLevelSelect name="s" label={`Skill and level ${i + 1}`} value={a ? `${a.skill_set}~${a.level}` : ""} sets={sets} band={child.band} />
-                  </label>
-                  <label className="field">
-                    <span className="label">Questions</span>
-                    <input className="input" name="n" type="number" min={1} max={40} defaultValue={a?.n ?? ""} aria-label={`Questions ${i + 1}`} />
-                  </label>
-                </div>
-              ))}
+              <MakerLines
+                key={lines.map((a) => (a ? `${a.skill_set}~${a.level}~${a.n}` : "")).join("|")}
+                topics={lineTopics(sets, child.band, null, ROWS)}
+                start={lines.map((a) => (a ? `${a.skill_set}~${a.level}~${a.n}` : ""))}
+              />
               <button className="btn self-start" type="submit">
                 See the paper
               </button>
