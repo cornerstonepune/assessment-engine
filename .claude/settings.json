@@ -9,6 +9,117 @@
             "timeout": 180
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/athena/bin/athena\" hook stop",
+            "timeout": 900
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.athena/bin/canny-hook\" ]; then \"$HOME/.athena/bin/canny-hook\"; elif command -v canny >/dev/null 2>&1; then canny hook --agent claude; fi",
+            "timeout": 15,
+            "statusMessage": "canny: done-gate"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/athena/bin/athena\" hook session-start",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.athena/bin/canny-hook\" ]; then \"$HOME/.athena/bin/canny-hook\"; elif command -v canny >/dev/null 2>&1; then canny hook --agent claude; fi",
+            "timeout": 10,
+            "statusMessage": "canny: done-gate"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/athena/bin/athena\" hook prompt",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/athena/bin/athena\" hook guard",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.athena/bin/canny-hook\" ]; then \"$HOME/.athena/bin/canny-hook\"; elif command -v canny >/dev/null 2>&1; then canny hook --agent claude; fi",
+            "timeout": 10,
+            "statusMessage": "canny: done-gate"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "N=\"$HOME/.athena/bin/node\"; [ -x \"$N\" ] || N=node; \"$N\" \"$CLAUDE_PROJECT_DIR/.claude/skills/strategic-compact/scripts/hooks/suggest-compact.js\" || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.athena/bin/canny-hook\" ]; then \"$HOME/.athena/bin/canny-hook\"; elif command -v canny >/dev/null 2>&1; then canny hook --agent claude; fi",
+            "timeout": 15,
+            "statusMessage": "canny: done-gate"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -x \"$HOME/.athena/bin/canny-hook\" ]; then \"$HOME/.athena/bin/canny-hook\"; elif command -v canny >/dev/null 2>&1; then canny hook --agent claude; fi",
+            "timeout": 15,
+            "statusMessage": "canny: done-gate"
+          }
+        ]
       }
     ]
   },
@@ -17,5 +128,32 @@
       "mcp__github__merge_pull_request",
       "mcp__github__update_pull_request"
     ]
+  },
+  "extraKnownMarketplaces": {
+    "athena": {
+      "source": {
+        "source": "github",
+        "repo": "nimishshah1989/athena-ops"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "athena-mods@athena": true,
+    "autoharness@athena": true,
+    "spending-effort-with-jev@athena": true,
+    "toolgate@athena": true,
+    "winnow@athena": true,
+    "fast-jev-compaction@athena": true,
+    "jev@athena": true,
+    "ponytail@athena": true
+  },
+  "env": {
+    "AUTOHARNESS_DISABLE_GLOBAL": "1",
+    "AUTOHARNESS_CAPACITY_PROJECT": "15",
+    "PONYTAIL_DEFAULT_MODE": "full",
+    "WINNOW_MODE": "shadow",
+    "WINNOW_TOOLS": "Read,Grep",
+    "WINNOW_SUMMARY": "0",
+    "WINNOW_MODEL": "jev-1.13.0"
   }
 }

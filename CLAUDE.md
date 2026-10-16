@@ -1,3 +1,5 @@
+@.claude/athena/CLAUDE.md
+
 # assessment-engine — how this repository is built
 
 Read `BUILD-ORDER.md` first — it says which of the four workflows we are on, what "done" means

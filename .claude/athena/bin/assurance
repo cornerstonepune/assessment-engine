@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+"""Writes a repository's scorecard: ASSURANCE.md (for Nimish) and assurance.json (for the band and the
+dashboard). Standard tools produce every result; this only grades them. Standard library only.
+
+  assurance --gate pass|fail --secrets pass|fail [--coverage coverage.json] [--critical pass|fail|n/a]
+            [--osv osv.json] [--out DIR] [--repo NAME] [--commit SHA]
+
+Grade: red if the gate fails, a secret is found, or a critical vulnerability exists.
+Amber if coverage is under the floor, the critical-area check fails, or a high vulnerability exists.
+Otherwise green. The floor comes from .claude/athena/config.json "assurance.coverage_floor" (default 60).
+"""
+import argparse
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+
+def coverage_percent(path: str | None) -> float | None:
+    if not path or not Path(path).exists():
+        return None
+    try:
+        return round(float(json.loads(Path(path).read_text())["totals"]["percent_covered"]), 1)
+    except (KeyError, ValueError, json.JSONDecodeError):
+        return None
+
+
+def worst_packages(path: str | None, limit: int = 8) -> list[str]:
+    """The highest-severity vulnerable packages, one line each: score, package@version, file, advisory."""
+    if not path or not Path(path).exists():
+        return []
+    try:
+        data = json.loads(Path(path).read_text() or "{}")
+    except json.JSONDecodeError:
+        return []
+    best: dict[tuple, tuple] = {}
+    for result in data.get("results", []):
+        src = Path(result.get("source", {}).get("path", "")).name or "?"
+        for pkg in result.get("packages", []):
+            info = pkg.get("package", {})
+            key = (info.get("name"), info.get("version"), src)
+            for group in pkg.get("groups", []):
+                try:
+                    score = float(group.get("max_severity") or 0)
+                except ValueError:
+                    score = 0.0
+                if score >= 7 and (key not in best or score > best[key][0]):
+                    best[key] = (score, (group.get("ids") or ["?"])[0])
+    ranked = sorted(best.items(), key=lambda kv: -kv[1][0])[:limit]
+    return [f"{s:.1f} `{n}@{v}` in `{src}` ({adv})" for (n, v, src), (s, adv) in ranked]
+
+
+def vulnerability_counts(path: str | None) -> dict[str, int] | None:
+    """Counts by severity from osv-scanner's JSON output (results -> packages -> groups)."""
+    if not path or not Path(path).exists():
+        return None
+    try:
+        data = json.loads(Path(path).read_text() or "{}")
+    except json.JSONDecodeError:
+        return None
+    counts = {"critical": 0, "high": 0, "medium": 0, "low": 0, "unknown": 0}
+    for result in data.get("results", []):
+        for pkg in result.get("packages", []):
+            for group in pkg.get("groups", []):
+                try:
+                    score = float(group.get("max_severity") or "")
+                except ValueError:
+                    counts["unknown"] += 1
+                    continue
+                band = "critical" if score >= 9 else "high" if score >= 7 else "medium" if score >= 4 else "low"
+                counts[band] += 1
+    return counts
+
+
+def grade(r: dict, floor: float) -> tuple[str, list[str]]:
+    reasons_red, reasons_amber = [], []
+    if r["gate"] != "pass":
+        reasons_red.append("the quality gate (lint, types, unit tests) failed")
+    if r["secrets"] != "pass":
+        reasons_red.append("a possible secret was found in the code")
+    v = r["vulnerabilities"] or {}
+    if v.get("critical"):
+        reasons_red.append(f"{v['critical']} critical vulnerabilities in dependencies")
+    if r["coverage_percent"] is not None and r["coverage_percent"] < floor:
+        reasons_amber.append(f"test coverage {r['coverage_percent']}% is under the {floor:g}% floor")
+    if r["critical_area"] == "fail":
+        reasons_amber.append("the critical-area coverage check failed")
+    if v.get("high"):
+        reasons_amber.append(f"{v['high']} high vulnerabilities in dependencies")
+    if reasons_red:
+        return "red", reasons_red + reasons_amber
+    if reasons_amber:
+        return "amber", reasons_amber
+    return "green", []
+
+
+def render_md(r: dict) -> str:
+    v = r["vulnerabilities"]
+    vuln = "not scanned" if v is None else ", ".join(f"{k} {n}" for k, n in v.items() if n) or "none found"
+    cov = "not measured" if r["coverage_percent"] is None else f"{r['coverage_percent']}%"
+    lines = [
+        f"# Assurance: {r['repo']}",
+        "",
+        f"**Grade: {r['grade']}** · {r['date']} · commit `{r['commit'][:7]}`",
+        "",
+        "| Check | Result | Tool |",
+        "| --- | --- | --- |",
+        f"| Quality gate (lint, types, unit tests) | {r['gate']} | the repo's own gate |",
+        f"| Leaked secrets | {r['secrets']} | gitleaks |",
+        f"| Vulnerable dependencies | {vuln} | osv-scanner |",
+        f"| Test coverage | {cov} | pytest-cov |",
+        f"| Critical areas fully tested | {r['critical_area']} | the repo's critical-area check |",
+        "",
+    ]
+    if r["reasons"]:
+        lines += ["## Why it is not green", ""] + [f"- {x}" for x in r["reasons"]] + [""]
+    if r.get("worst_packages"):
+        lines += ["## Worst vulnerable packages (critical and high)", ""] + [f"- {x}" for x in r["worst_packages"]] + [""]
+    lines += ["Standard tools produce every result above; nothing here is graded by a model.", ""]
+    return "\n".join(lines)
+
+
+def main(argv=None) -> int:
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--gate", choices=["pass", "fail"], required=True)
+    p.add_argument("--secrets", choices=["pass", "fail"], required=True)
+    p.add_argument("--coverage")
+    p.add_argument("--critical", choices=["pass", "fail", "n/a"], default="n/a")
+    p.add_argument("--osv")
+    p.add_argument("--out", default=".")
+    p.add_argument("--repo", default=Path.cwd().name)
+    p.add_argument("--commit", default="")
+    a = p.parse_args(argv)
+    try:
+        cfg = json.loads(Path(".claude/athena/config.json").read_text())
+    except (OSError, json.JSONDecodeError):
+        cfg = {}
+    floor = float((cfg.get("assurance") or {}).get("coverage_floor", 60))
+    r = {
+        "repo": a.repo, "commit": a.commit, "date": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "gate": a.gate, "secrets": a.secrets, "critical_area": a.critical,
+        "coverage_percent": coverage_percent(a.coverage), "vulnerabilities": vulnerability_counts(a.osv),
+        "worst_packages": worst_packages(a.osv),
+    }
+    r["grade"], r["reasons"] = grade(r, floor)
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "ASSURANCE.md").write_text(render_md(r))
+    (out / "assurance.json").write_text(json.dumps(r, indent=2) + "\n")
+    print(f"assurance: {r['grade']}" + (f" ({'; '.join(r['reasons'])})" if r["reasons"] else ""))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
