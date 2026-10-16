@@ -283,6 +283,19 @@ def read_coverage() -> None:
         raise typer.Exit(1)
 
 
+@read_app.command("ink")
+def read_ink() -> None:
+    """Where a pencil mark is told from the paper: every answer a person settled on a copy read in its boxes, its
+    boxes found again and counted at each line, against the digits it was settled with (`ink_line`). Writes nothing."""
+    from engine.w3_read import ink_line
+
+    with db.connect() as conn:
+        report = ink_line.measure(conn)
+        conn.rollback()
+    for line in ink_line.said(report):
+        typer.echo(line)
+
+
 @read_app.command("again")
 def read_again(
     paper: list[str] = typer.Option([], "--paper", help="one paper's code; default every paper"),

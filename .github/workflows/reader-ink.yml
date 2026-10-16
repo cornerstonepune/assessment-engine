@@ -1,0 +1,31 @@
+# Where a pencil mark is told from the paper, measured on the server, where the scans are (goals/l12a): every answer a
+# person settled on a copy read in its boxes, counted at each line (`engine read ink`). Run by hand (Actions → reader
+# ink → Run workflow); it reads the live rows and the scans and writes nothing. What it prints is counts by line and
+# answers by copy and question, never a child's name or a photograph (rule 6).
+name: reader ink
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: a way in
+        env:
+          KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/server
+          chmod 600 ~/.ssh/server
+          ssh -i ~/.ssh/server -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "ubuntu@$HOST" true
+      - name: the measure
+        env:
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          $S "sudo docker exec deploy-engine-1 engine read ink"

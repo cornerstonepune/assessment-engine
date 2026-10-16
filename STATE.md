@@ -8271,6 +8271,35 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## L10 + L11 live; L12a: where a pencil mark is told from the paper, measured (2026-10-16)
+
+- **Live by hand, at Nimish's word:** #221 merged as 387c20e (10:04 UTC). `deploy engine` (run 38884830849) and
+  `migrate live` (run 38884834073) dispatched; site live 10:05:13, engine on 387c20e at 10:11 UTC.
+- **2026-10-16.pdf read again on live (`again`, run 9626d44d, 10:13 UTC):**
+  - read right 65 → 73, wrong 11 → 11, unclear 17 → 9;
+  - roll 4 is one copy of 21 answers, its first page no longer read twice.
+- **The 9 still unclear:**
+  - 7 under the confidence floor (71–90%), one of them a real misread ("36" for 30);
+  - 1 held rightly (roll 5's 9000 seen as "900" in four inked boxes);
+  - 1 lost to faint pencil: roll 4's "862", its 6 at most 21% darker than the paper where `boxes.dark` asks 28%.
+- **Not checked from here:** the "page 1 of 2 is not in this file" line on the run and under Read a scan. No route
+  returns `flow_run.result`, and live's database does not answer this container.
+- **`bin/engine done` on main's code** (after this container's database came back from a restart):
+  - L10: 1/1 proved, 2/2 criteria;
+  - L11: 4/4 proved, 3/3 criteria;
+  - each NOT DONE only on the live database and its manual step.
+- **L12a (`goals/l12a-where-pencil-is-told-from-paper.yaml`):** `engine read ink` (`w3_read/ink_line.py`) takes every
+  answer a person settled on a copy read in its boxes, typed or signed off as read.
+  - It finds each answer's boxes again as the reader did and counts the boxes holding ink at lines 0.72–0.88, against
+    the digits the answer was settled with.
+  - It says per line how many answers agree, lose ink, gain ink, and how many settled blanks are given ink.
+  - It writes nothing and names no child. It runs on the server by hand (`.github/workflows/reader-ink.yml`).
+  - `boxes.dark` takes the line, default 0.72, so the reader is unchanged.
+  - `tests/test_ink_line.py`: 4 passed, all failing first. A faint 6 is ink at 0.88 and not at 0.72, and an empty box
+    is ink at neither. A worksheet printed for a child, written in, scanned, read by the box reader and signed off
+    measures 12/12 agreeing, its count at 0.72 the one stored with each reading.
+  - `bin/check`: 28 passed.
+
 ## L11: a child's pages anywhere in a scan are one copy, and what a scan lacks is said (2026-10-16)
 
 - **Measured on the 2026-10-16 Grade 3 scan** (10 pages, contact sheet of every page, kept out of git): roll 1's
