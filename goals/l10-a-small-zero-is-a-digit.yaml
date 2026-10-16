@@ -1,0 +1,22 @@
+name: l10-a-small-zero-is-a-digit
+goal: >
+  A digit written small in its box — a zero 40% of the box's height — is counted as a digit, so an answer the reader
+  read right is not sent back as unclear because the box count disagrees. A tick or a stray stroke across a box
+  (under a quarter of its height) is still not a digit.
+# Written 2026-10-16, before the fix. Nimish, on the Grade 3 scan of the same morning (CS2A6B23, 5 children, 93
+# answers, 17 unclear): "Despite having boxes and proper stuff, I don't think you have done this well." Measured first:
+# 15 of the 17 unclear were read right. 9 of those waited because DIGIT_TALL (0.45) counted the children's small
+# zeros (40–44% of the box) as empty: "3 boxes hold ink but the reader saw 2000". Their ink was 1.2–3%, above INK.
+says:
+  - words: "Despite having boxes and proper stuff, I don't think you have done this well."
+    proved_by: "packages/engine/tests/test_boxes.py::test_a_zero_written_small_is_a_digit_and_a_tick_is_not"
+manual:
+  - "On live, once deployed: read the 2026-10-16 scan again (`POST /read/file` with again) and count its unclear answers: the 9 that waited on 'N boxes hold ink' are read."
+scenarios: []
+criteria:
+  - name: the box reader, its tick and its small zero
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_boxes.py tests/test_copies.py tests/test_read_again.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

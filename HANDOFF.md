@@ -3,6 +3,13 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-16 — L9 live 06:36 UTC; L10 built; the Grade 3 scan
+
+- **L10 on this branch** (STATE.md "L6, L7 and L9 live; L10"): a small zero counts as a digit (DIGIT_TALL 0.33). Once
+  live, read the 2026-10-16 scan again with `again` and report its unclear count to Nimish.
+- **Still open from that scan:** 6 right reads under the confidence floor; roll 1's first page matched no child; the
+  n8n Drive flow did not fire (n8n does not connect from this session: Nimish to look at its executions ~07:55 UTC).
+
 ## 2026-10-16 — L6 + L7 live 06:00 UTC by hand; L9 built
 
 - **#218 (L6 + L7) and #219 (the `_catalog(every=False)` fix for main's red CI) are live:** Vercel 05:56 and the engine
