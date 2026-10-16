@@ -18,7 +18,15 @@ from engine.assess.geometry import cells_of
 from engine.w3_read import boxes, printed_paper, render_pdf
 from engine.w3_read.lineup import blank, line_up, settle
 
-LINES = (0.72, 0.76, 0.8, 0.84, 0.88)  # the reader's own line first
+LINES = (
+    0.72,
+    0.74,
+    0.76,
+    0.78,
+    0.8,
+    0.84,
+    0.88,
+)  # 0.72 the reader's line until 2026-10-16, 0.76 since (`read.ink_line`)
 
 
 def inked_at(img, page_no, pdf, geometry, wanted, lines=LINES):
@@ -107,9 +115,9 @@ def _page(conn, group, lines):
 
 def measure(conn, lines=LINES, captures=None):
     """Every settled answer on a copy read in its boxes (`settled`), its boxes found again and counted at each line →
-    {"lines": `tally`, "measured": answers measured, "unmeasured": {why: answers}, "stored": answers whose count at
-    the reader's own line is the one stored with their reading, "changed": the answers a fainter line counts
-    otherwise, as (capture, question, digits, {line: boxes holding ink})}."""
+    {"lines": `tally`, "measured": answers measured, "unmeasured": {why: answers}, "stored": answers whose count, at the
+    line each was read at (0.72 for a reading made before readings named theirs), is the one stored with it, "changed":
+    the answers a fainter line counts otherwise, as (capture, question, digits, {line: boxes holding ink})}."""
     pages, unmeasured, measured, stored, changed = {}, {}, [], 0, []
     for r in settled(conn, captures):
         pages.setdefault((r["capture"], r["raw"].get("page"), r["raw"].get("file_page")), []).append(r)
@@ -124,7 +132,9 @@ def measure(conn, lines=LINES, captures=None):
                 continue
             at = got[r["result"]]
             measured.append((r["digits"], at))
-            stored += at[lines[0]] == r["raw"].get("inked")
+            stored += at.get(r["raw"].get("ink_line", 0.72)) == r["raw"].get(
+                "inked"
+            )  # at the line it was read at
             if len(set(at.values())) > 1:
                 changed.append((str(r["capture"])[:8], r["item_key"], r["digits"], at))
     return {"lines": tally(measured, lines), "measured": len(measured), "unmeasured": unmeasured, "stored": stored,
@@ -134,7 +144,7 @@ def measure(conn, lines=LINES, captures=None):
 def said(report) -> list[str]:
     """The report as a person reads it: a line of counts for each line, and the answers a fainter line changes."""
     out = [f"  {report['measured']} answers a person settled, measured; {report['stored']} count as stored"
-           f" at the reader's own line"]  # fmt: skip
+           f" at the line each was read at"]  # fmt: skip
     out += [f"  not measured: {n} — {why}" for why, n in report["unmeasured"].items()]
     out.append("  line   answers  agree  lose ink  gain ink  blanks given ink")
     for line, t in report["lines"].items():

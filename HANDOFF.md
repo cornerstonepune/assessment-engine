@@ -3,6 +3,16 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-16 — L12a live 13:26 UTC and measured; L12b built (the ink line a row, 0.76)
+
+- **L12b on this branch** (STATE.md "L12a live and measured on live; L12b"). Once deployed:
+  1. Read 2026-10-16.pdf again with `again`.
+  2. Once its answers are settled, run `reader ink` again. If 0.78 agrees more than 0.76, change the row (ADR 0083).
+- **Still open:**
+  - Roll 1's page 1: Achal to scan it.
+  - The n8n Drive flow did not fire.
+  - The 93 answers of 16 Oct wait for a person.
+
 ## 2026-10-16 — L10 + L11 live 10:11 UTC; L12a built (the ink line measured)
 
 - **L12a on this branch** (STATE.md "L10 + L11 live; L12a"). Once deployed, run Actions → reader ink → Run workflow,

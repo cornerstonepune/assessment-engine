@@ -1,0 +1,28 @@
+name: l12b-the-ink-line-is-a-row
+goal: >
+  The line between a pencil mark and the paper is a threshold row, `read.ink_line`, set from what `engine read ink`
+  measured on live, and the box reader reads every page at it. Every reading records the line it was read at, so a
+  later measure compares a stored count at the line it was made. The measure also counts at 0.74 and 0.78, either side
+  of the line chosen.
+# Written 2026-10-16, before the code. Nimish: "Despite having boxes and proper stuff, I don't think you have done this
+# well." and, of the plan to measure the line first and then set it, "yes go ahead with L12". `engine read ink` on live
+# (Actions run 38909176094, 14:31 UTC) measured the 328 answers a person settled on copies read in their boxes:
+#   line 0.72 (the reader's) agree 281, lose ink 40, gain ink 7, settled blanks given ink 0
+#   line 0.76                agree 291, lose ink 28, gain ink 9, blanks 0
+#   line 0.80                agree 289, lose ink 26, gain ink 13, blanks 0
+#   line 0.84 agree 286; 0.88 agree 283, gain 22.
+# 0.76 agrees most. 16 Oct's faint 6 (roll 4's "862", not yet settled, so not in the 328) measures about 0.78 on its
+# photograph; the next measure counts 0.74 and 0.78 to say whether that line does better still. ADR 0083.
+says:
+  - words: "Despite having boxes and proper stuff, I don't think you have done this well."
+    proved_by: "packages/engine/tests/test_ink_line.py::test_the_reader_reads_at_the_line_its_row_holds_and_says_which"
+manual:
+  - "On live, once deployed: read 2026-10-16.pdf again (`again`) and run the `reader ink` workflow; record both in STATE.md."
+scenarios: []
+criteria:
+  - name: the line as a row, the reader at it, and the measure
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_ink_line.py tests/test_boxes.py tests/test_copies.py tests/test_handout.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -62,6 +62,12 @@
    "description": "A digit in its boxes read this surely stands (ADR 0035)"
   },
   {
+   "key": "read.ink_line",
+   "value": 0.76,
+   "unit": "ratio",
+   "description": "A pixel is pencil when it is darker than the paper around it by this much (`boxes.dark`). Measured on live, 2026-10-16, on the 328 answers a person settled on copies read in their boxes (`engine read ink`): 0.72 agreed with the digits settled on 281, 0.76 on 291, 0.80 on 289, 0.84 on 286; no settled blank was given ink at any of them (goals/l12b, ADR 0083)"
+  },
+  {
    "key": "read.route_above_overturn",
    "value": 0.25,
    "unit": "proportion",

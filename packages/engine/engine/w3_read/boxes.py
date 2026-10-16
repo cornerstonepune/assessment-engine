@@ -63,11 +63,11 @@ APART = 1.0
 OWN_GROW = 0.5
 
 
-def dark(canon, line=0.72):
+def dark(canon, line=0.76):
     """Where the page is marked: darker than its own surroundings by `line`, so a shadow across a photograph is not
     ink and a faint pencil on a bright page is. The paper's own print is taken out per answer, where it settled
-    (`_theirs`), never at the key's place: on a bent page that is a millimetre or two off. `line` is measured on
-    what people settled (`ink_line`, goals/l12a)."""
+    (`_theirs`), never at the key's place: on a bent page that is a millimetre or two off. `line` is the row
+    `read.ink_line`, measured on what people settled (`ink_line`, goals/l12b); this default is its measured value."""
     g = cv2.cvtColor(canon, cv2.COLOR_BGR2GRAY)
     background = cv2.blur(g, (8 * PPM, 8 * PPM))
     return g < background * line
@@ -347,7 +347,8 @@ def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1), keep
         return None
     printed = blank(str(pdf), page_no)
     grey = cv2.cvtColor(canon, cv2.COLOR_BGR2GRAY)
-    is_dark = dark(canon)
+    line = cfg.get("ink_line", 0.76)
+    is_dark = dark(canon, line)
     runs, works = cells_of(geometry, page_no)
     wanted, keep, joined = lists.expand(wanted, runs, keep)  # a list's groups, each read as a number is
     out = {}
@@ -374,7 +375,8 @@ def read_page(img, page_no, pdf, geometry, wanted, cfg, frame=(0, 0, 1, 1), keep
                          "confidence": 0.0}  # fmt: skip
             continue
         inked = sum(holds_digit(is_dark, printed, c) for c in run)
-        base = {"working_shown": working, "box": box, "boxes": len(run), "inked": inked, "seen": []}
+        base = {"working_shown": working, "box": box, "boxes": len(run), "inked": inked, "ink_line": line,
+                "seen": []}  # fmt: skip
         seen_as = photo(canon, run)
         if keep:
             base["crop"] = keep(slot, seen_as)

@@ -8271,6 +8271,32 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## L12a live and measured on live; L12b: the ink line is a row, 0.76 (2026-10-16)
+
+- **L12a live by hand, at Nimish's word:** #222 merged as 912290e (13:19 UTC). `deploy engine` (run 38907244418) and
+  `migrate live` (run 38907249370) dispatched; engine on 912290e at 13:26 UTC.
+- **`reader ink` on live:**
+  - First run (38908115501): ssh dropped after 4m41s, silent. `engine logs` (38908838068) showed `engine read ink`
+    still measuring (5m35s, 146% CPU, 604 MB, no out-of-memory kill, 0 restarts).
+  - Fixed with keepalives (#223), and run again from the branch (38909176094): 55 minutes, 328 settled answers.
+    309 of them count, at the line they were read at, as their reading stored.
+
+  | line | agree | lose ink | gain ink | settled blanks given ink |
+  |---|---|---|---|---|
+  | 0.72 | 281 | 40 | 7 | 0 |
+  | 0.76 | 291 | 28 | 9 | 0 |
+  | 0.80 | 289 | 26 | 13 | 0 |
+  | 0.84 | 286 | 25 | 17 | 0 |
+  | 0.88 | 283 | 23 | 22 | 0 |
+
+- **The 16 Oct scan at 13:21 UTC:** 93 answers, all waiting for a person (73 read right, 11 wrong, 9 unclear); none
+  checked yet.
+- **L12b (`goals/l12b-the-ink-line-is-a-row.yaml`, ADR 0083):** the line is the row `read.ink_line`, 0.76.
+  - `digits.settings` carries it to `boxes.read_page`, and each reading records `ink_line` beside `inked`.
+  - `engine read ink` also counts at 0.74 and 0.78, and compares each stored count at the line it was read at.
+  - The 16 Oct "862" measures about 0.78 on its photograph and still waits at 0.76. That is one unsettled answer
+    against 328 settled.
+
 ## L10 + L11 live; L12a: where a pencil mark is told from the paper, measured (2026-10-16)
 
 - **Live by hand, at Nimish's word:** #221 merged as 387c20e (10:04 UTC). `deploy engine` (run 38884830849) and

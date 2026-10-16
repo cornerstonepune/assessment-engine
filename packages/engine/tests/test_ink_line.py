@@ -47,10 +47,28 @@ def test_a_digit_in_faint_pencil_is_ink_at_a_fainter_line_and_an_empty_box_at_no
     )
     assert got["written"] == {0.72: 2, 0.88: 3}, "the faint 6 is ink only at the fainter line"
     assert got["empty"] == {0.72: 0, 0.88: 0}, "a box left empty is ink at neither"
-    assert (
-        boxes.dark(boxes.line_up(photo, pdf, 1)[0]).sum()
-        == boxes.dark(boxes.line_up(photo, pdf, 1)[0], 0.72).sum()
-    ), "the reader's own line is unchanged"
+
+
+def test_the_reader_reads_at_the_line_its_row_holds_and_says_which(paper, conn, tmp_path):  # noqa: F811
+    """L12b (goals/l12b-the-ink-line-is-a-row.yaml): the line is `read.ink_line`, measured on live; the box reader reads
+    at the line its settings carry, and each reading says the line it was read at."""
+    row = conn.execute("select value from threshold where key = 'read.ink_line'").fetchone()
+    assert row and digits.settings(conn)["ink_line"] == float(row["value"]) == 0.76, (
+        "measured on live, 2026-10-16"
+    )
+    pdf, key = paper
+    img = render_pdf.render(pdf, dpi=boxes.PPM * 25.4)[0]
+    runs, _ = _cells(key)
+    written = next(k for k, run in runs.items() if len(run) == 3)
+    for cell, ch, grey in zip(runs[written], "862", (45, 200, 45)):
+        _pencil(img, cell, ch, grey)
+    photo, frame = render_pdf.photo(_scanned(img, tmp_path / "faint.pdf"), 1)
+    wanted = {"q": written}
+    for line, inked in ((0.72, 2), (0.88, 3)):
+        got = boxes.read_page(
+            photo, 1, pdf, key["geometry"], wanted, {**ocr.settings(), "ink_line": line}, frame=frame
+        )
+        assert (got["q"]["inked"], got["q"]["ink_line"]) == (inked, line)
 
 
 def test_each_line_says_how_many_answers_agree_lose_ink_gain_ink_and_how_many_blanks_are_given_ink():
@@ -133,7 +151,7 @@ def test_a_read_copy_a_person_settled_is_measured_as_the_reader_found_its_boxes(
         (got["capture_id"],),
     )
 
-    report = ink_line.measure(conn, (0.72, 0.88), [got["capture_id"]])
-    at = report["lines"][0.72]
+    report = ink_line.measure(conn, (0.76, 0.88), [got["capture_id"]])
+    at = report["lines"][0.76]
     assert at["answers"] > 0 and at["agree"] == at["answers"], report
-    assert report["measured"] == at["answers"] and not report["unmeasured"], report
+    assert report["measured"] == at["answers"] == report["stored"] and not report["unmeasured"], report
