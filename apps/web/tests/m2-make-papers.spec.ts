@@ -100,14 +100,18 @@ test("each class's home papers are proposed from each child's own map, one skill
     where c.section = ${SECTION} and si.week = ${isoWeek()}`;
   expect(made).toHaveLength(2);
   expect(new Set(made.map((m) => `${m.kind} ${m.approved_by}`))).toEqual(new Set([`focus ${TEST_STAFF.email}`]));
-  await expect(asha).toContainText(`Approved by ${TEST_STAFF.name}`);
+  // approved, a child folds away under one line (goals/ux5b-make-and-marking.yaml)
+  await expect(asha).toHaveCount(0);
+  const fold = page.locator("details[data-approved]");
+  await fold.locator("> summary").click();
+  await expect(fold.getByRole("row").filter({ hasText: "Asha" })).toContainText(`Approved by ${TEST_STAFF.name}`);
   await expect(page.getByRole("button", { name: /Approve all/ })).toHaveCount(0);
 });
 
 test("a teacher chooses skills, a level each and how many, sees the questions, and approves the paper", async ({ page }) => {
   await page.goto(`/make/${SECTION}`);
   await page.getByRole("table", { name: "Each child's home assessment" }).locator("tbody tr").filter({ hasText: "Chetan" })
-    .getByRole("link", { name: "Choose a different one" }).click();
+    .getByRole("link", { name: "Choose one" }).click();
   await expect(page).toHaveURL(`/make/custom?child=${ids.Chetan}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("A home assessment for Chetan");
 

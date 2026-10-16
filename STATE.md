@@ -8203,6 +8203,39 @@ one child on live.
   promises on the new one: u9, u16, u22, u24, u26, u33, u36, m4 (it found the maker split), s7 and u27 (the counted
   button; u27's classes now have papers to approve, so the refused approval is a real one).
 
+## UX5a live; UX5b: Home assessments and Marking open on the educator's class, a next step per child (2026-10-16)
+
+- **UX5a live:** #216 merged as `9a87004` (02:38 UTC). Main's CI passed; `migrate live` (run 38844303957) applied
+  20261118090000 and set `live database` at 03:12:09 UTC; Vercel 03:12:10. `bin/engine done ux5-papers-grouped` on main's
+  code, on the copy: 4/4 promises proved, 3/3 criteria (85 browser tests, 21 engine tests, `bin/check` 28). It says NOT
+  DONE only because the live database does not answer from this container; the migrate run is the live check.
+- **Before (the audit's edu-laptop-make, edu-laptop-make-class, edu-laptop-capture, coord-laptop-capture):** an educator
+  with one class met a table of one class and an "Open" link. A class's home assessments ran their why to 7–9 lines in a
+  column squeezed by three action links a row and a "12 questions" every row repeated. Marking stacked a banner over five
+  tiles; its children sat in eight bookkeeping columns; the coordinator got every class open.
+- **Now (`goals/ux5b-make-and-marking.yaml`, `tests/u38-make-and-marking.spec.ts`):**
+  - Home assessments: an educator who teaches one class opens on it (`/make` redirects). Each child still waiting is one
+    line — Roll, Child, Works on, Why, Next step. What it works on opens the paper as it will print; the count every
+    paper shares is said once ("12 questions each"). The next step is one: Approve (with "or choose another" under it),
+    or "Choose one" where the engine has nothing to go on. Children already approved fold under one line ("1 approved
+    this week"). A class paper waiting for the class is one line above the table, as the class list used to show it.
+  - The why is the engine's sentence, never cut: the audit asked for one line, but mistake names run to 84 characters
+    (M_SMALL_FROM_LARGE), so the longest why is about 130. The bar is two lines at 1280 px, measured by the browser's
+    line boxes; a why column squeezed as before measured 7 lines and failed.
+  - Marking: one sentence says what is in and what waits ("3 papers in: 5 answers settled by the engine, 0 checked by a
+    person, 2 waiting for you to check; 2 papers to sign off."), the queue one tap away. By child, each class is one
+    line saying what waits in it, open for the educator who teaches it, closed for the coordinator, opened by
+    `?class=`. Open, its children: Roll, Child, Paper, Waiting, Next step — check the answers waiting (on the one paper
+    that holds them, or the child's papers when several do), sign off, look at a paper that came back with nothing, or
+    "Signed off". By class and by worksheet keep every count.
+  - On a phone the why (Make) and the paper (Marking) fold away, so the next step is on screen.
+  - The plural rule (`many`) is one helper in `lib/needs-you.ts`, used by Children and Marking.
+- **Checks:** u38 failed first, 5 of 5 (each at its first new assertion), then passed. The specs that pinned the old
+  pages keep their promises on the new ones: m2 (an approved child folds; Chetan's step is "Choose one"), u3 (the
+  sentence holds the counts the tiles held; a child's row its answers waiting), u1 (the sentence's papers to sign off),
+  s4 and screens (a class opened by `?class=`), u10 (alignment read inside a closed class line). The goal's 17 specs:
+  110 passed; `bin/check` 28 passed; tsc and eslint clean.
+
 ## A copy photographed from its second page was read in the wrong layout (2026-10-15)
 
 - **Seen:** PR #213's engine job on `2cbd41d`, which changed no engine code. Two `test_copies` tests failed: a copy

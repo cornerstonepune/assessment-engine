@@ -39,6 +39,8 @@ const KIND_WORDS: Record<string, string> = { practice: "class practice", assessm
 
 /** "Grade 2 · 2B": a class as an educator says it. */
 export const classWords = (band: string, section: string) => `${gradeWords(band)} · ${section}`;
+/** A count and its noun, said as a person says it: 1 child, 2 children. */
+export const many = (n: number, one: string, more = `${one}s`) => `${n} ${n === 1 ? one : more}`;
 
 export function linesOf(w: Waiting, may: (kind: Kind) => boolean = () => true): NeedsYou {
   const asks = w.asks.reduce((n, a) => n + a.n, 0);

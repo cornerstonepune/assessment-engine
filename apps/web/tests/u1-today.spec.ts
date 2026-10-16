@@ -131,7 +131,7 @@ test("what has nothing waiting says so, and each count is the page's own", async
   await page.goto("/today");
   const toSign = await count(page, "Papers to sign off");
   await page.goto("/capture");
-  await expect(page.getByText("papers to sign off").locator("..")).toContainText(String(toSign));
+  await expect(page.getByRole("region", { name: "Answers to check" }).getByTestId("to-sign")).toHaveText(String(toSign));
 
   // what has nothing waiting is not listed; a tab with nothing waiting in it says so
   await page.goto("/today");

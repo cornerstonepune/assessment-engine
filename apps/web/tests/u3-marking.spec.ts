@@ -152,7 +152,8 @@ test("marking is one area, and says how many papers are in and where every answe
   const menu = page.getByRole("navigation", { name: "Sections" });
   // Marking sits inside Assessments (goals/u9-papers.yaml, goals/ui1-menu-and-today.yaml)
   await expect(menu.getByRole("link", { name: "Assessments" })).toHaveAttribute("aria-current", "page");
-  expect(await shown(page.getByRole("region", { name: "Where every answer stands" }))).toEqual(await counts());
+  // one sentence says it (goals/ux5b-make-and-marking.yaml), where five tiles stood
+  expect(await shown(page.getByRole("region", { name: "Answers to check" }))).toEqual(await counts());
 
   // checking answers is inside Marking, not a page of its own
   await page.getByRole("link", { name: /check them/i }).click();
@@ -177,12 +178,14 @@ test("by class, by child and by worksheet, each count is where the engine says e
   const answers = Number(await total.getByTestId("answers").innerText());
   expect(answers).toBe(all.engine + all.person + all.waiting);
 
-  // by child: the class opens as its children
+  // by child: the class opens as its children, each with the answers waiting on them (goals/ux5b-make-and-marking.yaml)
   await cls.getByRole("link", { name: SECTION, exact: true }).click();
   await expect(page).toHaveURL(`/capture?by=child&class=${SECTION}`);
+  const children = page.getByRole("table", { name: `${SECTION}: each child` });
   for (const [name, id] of Object.entries(kids)) {
-    const row = page.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
-    expect(await shown(row)).toEqual(await counts(sql`ch.id = ${id}::uuid`));
+    const row = children.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
+    const { waiting } = await counts(sql`ch.id = ${id}::uuid`);
+    await expect(row.locator("td").nth(3)).toHaveText(waiting ? String(waiting) : "—");
   }
 
   // by worksheet: every child who sat it, together
@@ -203,7 +206,7 @@ test("the queue of answers to check sits inside marking with its count, one clic
   expect(n).toBeGreaterThanOrEqual(3);
   await page.goto("/capture");
   const queue = page.getByRole("region", { name: "Answers to check" });
-  await expect(queue.getByTestId("count")).toHaveText(String(n));
+  await expect(queue.getByTestId("waiting")).toHaveText(String(n));
   await queue.getByRole("link", { name: /check them/i }).click();
   await expect(page.getByText(`${n} answers left to check`)).toBeVisible();
 });
