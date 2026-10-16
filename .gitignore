@@ -52,3 +52,4 @@ apps/web/.design-approved.json
 
 # rendered by research/spine_page.py from docs/spine/spine.json; regenerate, do not commit
 docs/spine/index.html
+.athena/

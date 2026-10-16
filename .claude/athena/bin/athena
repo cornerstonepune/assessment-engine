@@ -1,0 +1,816 @@
+#!/usr/bin/env python3
+"""athena: the scope lock and done-gate for this repository.
+
+Standard library only, so it runs wherever git runs (a Mac with the command
+line tools, a cloud session, GitHub Actions).
+
+  athena status                     what is in specs/ and what is active
+  athena new ID [--title T]         make specs/ID/ from the templates
+  athena next-id                    the next free spec ID (config "id_prefix", else the prefix specs/ uses)
+  athena lock ID [--regression]     lock spec + proofs (proofs must fail first)
+  athena start ID                   mark ID as the spec being built here
+  athena done [ID ... | --all]      run the proofs; exit 0 only if all pass
+  athena finish ID                  proofs pass: mark built, awaiting review
+  athena block ID REASON            stop work, write BLOCKED.md for Nimish
+  athena unlock ID                  only after Nimish types "UNLOCK ID"
+  athena verify-locks               every LOCK still matches its files
+  athena check-scope-changes --base REF [--labels JSON]   CI: no silent scope edits
+  athena hook {session-start|guard|stop|prompt}           called by Claude Code
+"""
+import datetime as _dt
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+VERSION = "2.3.0"
+ID_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
+STRIKE_LIMIT = 3
+CHECK_TIMEOUT = int(os.environ.get("ATHENA_CHECK_TIMEOUT", "900"))
+UNLOCK_TTL = 3600  # seconds an "UNLOCK ID" from Nimish stays valid
+
+
+# ---------------------------------------------------------------- paths
+def repo_root() -> Path:
+    env = os.environ.get("CLAUDE_PROJECT_DIR") or os.environ.get("ATHENA_ROOT")
+    if env:
+        return Path(env).resolve()
+    try:
+        out = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, check=True)
+        return Path(out.stdout.strip()).resolve()
+    except Exception:
+        return Path.cwd().resolve()
+
+
+ROOT = repo_root()
+SPECS = ROOT / "specs"
+STATE = ROOT / ".athena"
+HARNESS = ROOT / ".claude" / "athena"
+LEARNINGS = ROOT / "docs" / "athena" / "learnings.md"
+CONFIG = HARNESS / "config.json"
+
+
+def read_config() -> dict:
+    """Repo-owned settings. proof_data: "fake" (default) or "real" (the repo forbids synthetic data)."""
+    try:
+        return {"proof_data": "fake", **json.loads(CONFIG.read_text())}
+    except Exception:
+        return {"proof_data": "fake"}
+
+
+def on_box() -> bool:
+    """True when proofs run on the production box, where box-only proofs can run."""
+    return os.environ.get("ATHENA_ON_BOX") == "1"
+
+
+def now_iso() -> str:
+    return _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat()
+
+
+def die(msg: str, code: int = 2):
+    print(f"athena: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+def spec_dir(spec_id: str) -> Path:
+    if not ID_RE.match(spec_id or ""):
+        die(f"'{spec_id}' is not a spec id (expected something like UNC-12)")
+    return SPECS / spec_id
+
+
+# ---------------------------------------------------------------- locked set
+def locked_files(d: Path):
+    files = [d / "spec.md", d / "checks.sh"]
+    proofs = d / "proofs"
+    if proofs.is_dir():
+        files += sorted(p for p in proofs.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
+    return [f for f in files if f.exists()]
+
+
+def digest(d: Path) -> str:
+    h = hashlib.sha256()
+    for f in locked_files(d):
+        h.update(str(f.relative_to(d)).encode())
+        h.update(b"\0")
+        h.update(f.read_bytes())
+        h.update(b"\0")
+    return h.hexdigest()
+
+
+def read_lock(d: Path):
+    p = d / "LOCK"
+    if not p.exists():
+        return None
+    try:
+        return json.loads(p.read_text())
+    except Exception:
+        return {"digest": "unreadable"}
+
+
+def lock_intact(d: Path):
+    lock = read_lock(d)
+    if lock is None:
+        return None
+    return lock.get("digest") == digest(d)
+
+
+def is_locked_path(path: Path):
+    """Return the spec id if path is part of a locked spec's protected set."""
+    try:
+        rel = path.resolve().relative_to(SPECS.resolve())
+    except Exception:
+        return None
+    parts = rel.parts
+    if len(parts) < 2 or not ID_RE.match(parts[0]):
+        return None
+    d = SPECS / parts[0]
+    if not (d / "LOCK").exists():
+        return None
+    name = parts[1]
+    if name in ("spec.md", "checks.sh", "LOCK", "proofs"):
+        return parts[0]
+    return None
+
+
+# ---------------------------------------------------------------- status
+def read_status(d: Path) -> dict:
+    p = d / "status.json"
+    if p.exists():
+        try:
+            return json.loads(p.read_text())
+        except Exception:
+            pass
+    return {"status": "draft"}
+
+
+def write_status(d: Path, **kw):
+    s = read_status(d)
+    s.update(kw)
+    s["updated_at"] = now_iso()
+    (d / "status.json").write_text(json.dumps(s, indent=2) + "\n")
+    return s
+
+
+def active_id():
+    p = STATE / "active"
+    if p.exists():
+        v = p.read_text().strip()
+        if ID_RE.match(v) and (SPECS / v).is_dir():
+            return v
+    return None
+
+
+def set_active(spec_id):
+    STATE.mkdir(exist_ok=True)
+    p = STATE / "active"
+    if spec_id:
+        p.write_text(spec_id + "\n")
+    elif p.exists():
+        p.unlink()
+
+
+def all_specs():
+    if not SPECS.is_dir():
+        return []
+    return sorted(p.name for p in SPECS.iterdir() if p.is_dir() and ID_RE.match(p.name))
+
+
+# ---------------------------------------------------------------- running proofs
+SUMMARY_RE = re.compile(r"^ATHENA_SUMMARY pass=(\d+) fail=(\d+)(?: box=(\d+))?\s*$", re.M)
+
+
+def run_checks(spec_id: str) -> dict:
+    d = spec_dir(spec_id)
+    script = d / "checks.sh"
+    res = {"id": spec_id, "ok": False, "error": None, "passed": [], "failed": [], "box": [], "output": ""}
+    if not script.exists():
+        res["error"] = "checks.sh is missing"
+        return res
+    intact = lock_intact(d)
+    if intact is False:
+        res["error"] = "the locked proofs were changed after locking (LOCK digest mismatch)"
+        return res
+    env = dict(os.environ, ATHENA_ROOT=str(ROOT), ATHENA_SPEC=spec_id, ATHENA_SPEC_DIR=str(d))
+    try:
+        p = subprocess.run(["bash", str(script)], cwd=str(ROOT), env=env, capture_output=True,
+                           text=True, timeout=CHECK_TIMEOUT)
+        out = (p.stdout or "") + (p.stderr or "")
+        code = p.returncode
+    except subprocess.TimeoutExpired as e:
+        out = (e.stdout or "") if isinstance(e.stdout, str) else ""
+        res["error"] = f"proofs timed out after {CHECK_TIMEOUT}s"
+        res["output"] = out[-4000:]
+        return res
+    res["output"] = out[-4000:]
+    for line in out.splitlines():
+        if line.startswith("PASS "):
+            res["passed"].append(line[5:].strip())
+        elif line.startswith("FAIL "):
+            res["failed"].append(line[5:].strip())
+        elif line.startswith("BOXONLY "):
+            res["box"].append(line[8:].strip())
+    m = SUMMARY_RE.search(out)
+    if not m:
+        res["error"] = "checks.sh did not finish (no ATHENA_SUMMARY line); it may have crashed"
+        return res
+    res["ok"] = code == 0 and int(m.group(2)) == 0 and not res["failed"]
+    return res
+
+
+def describe(res: dict, tail: int = 25) -> str:
+    lines = [f"{res['id']}: " + ("PASS" if res["ok"] else "NOT DONE")]
+    if res["error"]:
+        lines.append(f"  error: {res['error']}")
+    for n in res["passed"]:
+        lines.append(f"  pass  {n}")
+    for n in res["failed"]:
+        lines.append(f"  FAIL  {n}")
+    for n in res.get("box", []):
+        lines.append(f"  box   {n}  (runs only on the production box; not run here)")
+    if not res["ok"] and res["output"]:
+        lines.append("  last output:")
+        lines += ["    " + l for l in res["output"].splitlines()[-tail:]]
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------- commands
+SPEC_TEMPLATE = """# {id}: {title}
+
+Source: {source}
+Scope locked by: Nimish (the label scope-locked on the GitHub issue, or the scope text quoted below)
+
+## What
+<!-- The scope in Nimish's words, quoted verbatim from the GitHub issue. -->
+
+## Done when
+<!-- Numbered, observable outcomes. One proof in checks.sh per line, same numbers. -->
+1.
+
+## Out of scope
+-
+"""
+
+CHECKS_TEMPLATE = """#!/usr/bin/env bash
+# Acceptance proofs for {id}. Written BEFORE the product code, by a different agent.
+# After `athena lock {id}` this file, spec.md and proofs/ cannot be edited.
+# One `check` per "Done when" line, same numbering. Each check must be a real command.
+source "$ATHENA_ROOT/.claude/athena/bin/checklib.sh"
+cd "$ATHENA_ROOT"
+
+# check "1 <the criterion in a few words>" <command that exits 0 only when it is true>
+
+finish
+"""
+
+
+def cmd_new(args):
+    if not args:
+        die("usage: athena new ID [--title TITLE] [--source SOURCE]")
+    spec_id = args[0]
+    title = _opt(args, "--title", "untitled")
+    source = _opt(args, "--source", "local scope text")
+    d = spec_dir(spec_id)
+    if d.exists() and (d / "spec.md").exists():
+        print(f"{spec_id} already exists at {d.relative_to(ROOT)}")
+        return 0
+    (d / "proofs").mkdir(parents=True, exist_ok=True)
+    (d / "spec.md").write_text(SPEC_TEMPLATE.format(id=spec_id, title=title, source=source))
+    (d / "checks.sh").write_text(CHECKS_TEMPLATE.format(id=spec_id))
+    write_status(d, status="draft", created_at=now_iso())
+    print(f"created {d.relative_to(ROOT)}/ (spec.md, checks.sh, proofs/)")
+    return 0
+
+
+def next_id() -> str:
+    """config.json "id_prefix" if set, else the prefix most specs use; then one past the highest number."""
+    found = {}
+    if SPECS.is_dir():
+        for d in SPECS.iterdir():
+            m = re.fullmatch(r"([A-Za-z][A-Za-z0-9]*)-(\d+)", d.name)
+            if d.is_dir() and m:
+                found.setdefault(m.group(1).upper(), []).append(int(m.group(2)))
+    prefix = (read_config().get("id_prefix") or "").upper()
+    if not prefix:
+        if not found:
+            die('no specs yet and no "id_prefix" in .claude/athena/config.json; set one first')
+        prefix = max(found, key=lambda k: len(found[k]))
+    return f"{prefix}-{max(found.get(prefix, [0])) + 1}"
+
+
+def cmd_next_id(args):
+    print(next_id())
+    return 0
+
+
+def cmd_lock(args):
+    if not args:
+        die("usage: athena lock ID [--regression]")
+    spec_id = args[0]
+    d = spec_dir(spec_id)
+    if (d / "LOCK").exists():
+        print(f"{spec_id} is already locked")
+        return 0
+    spec = (d / "spec.md").read_text() if (d / "spec.md").exists() else ""
+    m = re.search(r"^## Done when\s*\n(.*?)(?=^## |\Z)", spec, re.S | re.M)
+    items = [l for l in (m.group(1) if m else "").splitlines() if re.match(r"^\s*\d+\.\s+\S", l)]
+    if not items:
+        die("spec.md has no numbered 'Done when' items; the scope is not ready to lock")
+    checks_text = (d / "checks.sh").read_text() if (d / "checks.sh").exists() else ""
+    if not re.search(r"^\s*check(_box)?\s", checks_text, re.M):
+        die("checks.sh has no checks yet")
+    res = run_checks(spec_id)
+    if res["error"]:
+        print(describe(res))
+        die("the proofs do not run cleanly; fix checks.sh before locking")
+    if res["ok"] and not res["box"] and "--regression" not in args:
+        print(describe(res))
+        die("every proof already passes, so they prove nothing new. Tighten them, or lock with --regression")
+    lock = {"digest": digest(d), "files": [str(f.relative_to(d)) for f in locked_files(d)],
+            "locked_at": now_iso(), "criteria": len(items), "athena": VERSION}
+    (d / "LOCK").write_text(json.dumps(lock, indent=2) + "\n")
+    write_status(d, status="locked", locked_at=lock["locked_at"])
+    extra = f", {len(res['box'])} box-only (confirmed on the box after deploy)" if res["box"] else ""
+    print(f"locked {spec_id}: {len(items)} criteria, {len(res['failed'])} proofs failing as expected{extra}")
+    return 0
+
+
+def cmd_start(args):
+    if not args:
+        die("usage: athena start ID")
+    spec_id = args[0]
+    d = spec_dir(spec_id)
+    intact = lock_intact(d)
+    if intact is None:
+        die(f"{spec_id} is not locked; run the athena-scope skill first")
+    if intact is False:
+        die(f"{spec_id}'s proofs changed after locking; ask Nimish")
+    set_active(spec_id)
+    _strikes_reset(spec_id)
+    told = STATE / f"told-{spec_id}"
+    if told.exists():
+        told.unlink()
+    write_status(d, status="building", started_at=now_iso())
+    print(f"building {spec_id}. The stop gate will hold the session until its proofs pass.")
+    return 0
+
+
+def cmd_done(args):
+    ids = [a for a in args if not a.startswith("--")]
+    if "--all" in args:
+        # Only finished work is re-proven: a locked scope that is not built yet is a queue item,
+        # not a regression, so scopes can be locked and merged ahead of their build.
+        ids = [i for i in all_specs() if (SPECS / i / "LOCK").exists()
+               and read_status(SPECS / i).get("status") == "built"]
+    elif not ids:
+        a = active_id()
+        if not a:
+            die("no spec given and none active")
+        ids = [a]
+    if not ids:
+        print("no locked specs to check")
+        return 0
+    results = [run_checks(i) for i in ids]
+    for r in results:
+        print(describe(r))
+    ok = all(r["ok"] for r in results)
+    boxed = sum(len(r["box"]) for r in results)
+    if boxed:
+        print(f"note: {boxed} proof(s) can only run on the production box and were not run here. "
+              "Run `ATHENA_ON_BOX=1 athena done --all` on the box after deploying.")
+    summary = os.environ.get("GITHUB_STEP_SUMMARY")
+    if "--ci" in args and summary:
+        with open(summary, "a") as fh:
+            fh.write("## Athena acceptance proofs\n\n| Spec | Result | Failing | Box only |\n|---|---|---|---|\n")
+            for r in results:
+                fh.write(f"| {r['id']} | {'pass' if r['ok'] else 'NOT DONE'} | "
+                         f"{', '.join(r['failed']) or (r['error'] or '')} | {', '.join(r['box'])} |\n")
+    print(("ALL DONE" if ok else "NOT DONE") + f" ({sum(r['ok'] for r in results)}/{len(results)} specs pass)")
+    return 0 if ok else 1
+
+
+def cmd_finish(args):
+    if not args:
+        die("usage: athena finish ID")
+    spec_id = args[0]
+    res = run_checks(spec_id)
+    if not res["ok"]:
+        print(describe(res))
+        die(f"{spec_id} is not done; its proofs fail", 1)
+    write_status(spec_dir(spec_id), status="built", built_at=now_iso(), box_pending=res["box"])
+    if active_id() == spec_id:
+        set_active(None)
+    _strikes_reset(spec_id)
+    tail = (f" {len(res['box'])} box-only proof(s) must still pass on the production box after deploy."
+            if res["box"] else "")
+    print(f"{spec_id} built: every proof that can run here passes.{tail} It now waits for Nimish's review "
+          "of the pull request.")
+    return 0
+
+
+def cmd_block(args):
+    if len(args) < 2:
+        die("usage: athena block ID REASON")
+    spec_id, reason = args[0], " ".join(args[1:])
+    _block(spec_id, reason)
+    print(f"{spec_id} blocked: {reason}")
+    return 0
+
+
+def _block(spec_id, reason, res=None):
+    d = spec_dir(spec_id)
+    res = res or run_checks(spec_id)
+    body = [f"# {spec_id} is blocked", "", f"When: {now_iso()}", "", "## Why, in plain words", "", reason, "",
+            "## What Nimish needs to decide", "",
+            "Read the reason above. Then either clarify the scope in the GitHub issue, or type `UNLOCK "
+            f"{spec_id}` in a Claude session to change the proofs, or close the issue.", "",
+            "## Last proof run", "", "```", describe(res, tail=40), "```", ""]
+    (d / "BLOCKED.md").write_text("\n".join(body))
+    write_status(d, status="blocked", blocked_at=now_iso(), blocked_reason=reason[:300])
+    if active_id() == spec_id:
+        set_active(None)
+
+
+def cmd_unlock(args):
+    if not args:
+        die("usage: athena unlock ID")
+    spec_id = args[0]
+    d = spec_dir(spec_id)
+    token = STATE / f"unlock-{spec_id}"
+    human = os.environ.get("ATHENA_HUMAN") == "1"
+    fresh = token.exists() and time.time() - token.stat().st_mtime < UNLOCK_TTL
+    if not (human or fresh):
+        die(f"only Nimish can unlock {spec_id}: he types 'UNLOCK {spec_id}' in the session")
+    if (d / "LOCK").exists():
+        (d / "LOCK").unlink()
+    if token.exists():
+        token.unlink()
+    write_status(d, status="draft", unlocked_at=now_iso())
+    print(f"unlocked {spec_id}; edit the scope, rewrite the proofs, then lock again")
+    return 0
+
+
+def cmd_verify_locks(args):
+    bad = []
+    for i in all_specs():
+        d = SPECS / i
+        if (d / "LOCK").exists() and not lock_intact(d):
+            bad.append(i)
+    for i in bad:
+        print(f"LOCK BROKEN {i}: its spec or proofs changed after locking")
+    if not bad:
+        print("all locks intact")
+    return 1 if bad else 0
+
+
+def cmd_check_scope_changes(args):
+    base = _opt(args, "--base", "origin/main")
+    labels = []
+    raw = _opt(args, "--labels", "[]")
+    try:
+        labels = json.loads(raw or "[]")
+    except Exception:
+        labels = []
+    if "scope-change" in labels:
+        print("label scope-change present: Nimish approved a scope change")
+        return 0
+    diff = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd=str(ROOT),
+                          capture_output=True, text=True)
+    if diff.returncode != 0:
+        print(diff.stderr.strip())
+        die("could not diff against base", 2)
+    violations = []
+    for path in diff.stdout.split():
+        parts = Path(path).parts
+        if len(parts) >= 3 and parts[0] == "specs" and ID_RE.match(parts[1]) and \
+                parts[2] in ("spec.md", "checks.sh", "LOCK", "proofs"):
+            had_lock = subprocess.run(["git", "cat-file", "-e", f"{base}:specs/{parts[1]}/LOCK"],
+                                      cwd=str(ROOT), capture_output=True).returncode == 0
+            if had_lock:
+                violations.append(path)
+    for v in violations:
+        print(f"SCOPE CHANGED WITHOUT APPROVAL: {v}")
+    if violations:
+        print("A locked scope or its proofs changed. Only Nimish can approve this, by adding the "
+              "'scope-change' label to the pull request.")
+        return 1
+    print("no locked scope changed")
+    return 0
+
+
+def cmd_status(args):
+    a = active_id()
+    specs = all_specs()
+    if not specs:
+        print("no specs yet")
+    for i in specs:
+        d = SPECS / i
+        s = read_status(d)
+        lock = "locked" if (d / "LOCK").exists() else "unlocked"
+        if lock == "locked" and lock_intact(d) is False:
+            lock = "LOCK BROKEN"
+        print(f"{'*' if i == a else ' '} {i:12} {s.get('status', '?'):10} {lock}")
+    return 0
+
+
+# ---------------------------------------------------------------- strikes
+def _strikes_path(spec_id):
+    return STATE / f"strikes-{spec_id}.json"
+
+
+def _strikes_reset(spec_id):
+    p = _strikes_path(spec_id)
+    if p.exists():
+        p.unlink()
+
+
+def _strike(spec_id, signature) -> int:
+    STATE.mkdir(exist_ok=True)
+    p = _strikes_path(spec_id)
+    data = {}
+    if p.exists():
+        try:
+            data = json.loads(p.read_text())
+        except Exception:
+            data = {}
+    count = data.get("count", 0) + 1 if data.get("sig") == signature else 1
+    p.write_text(json.dumps({"sig": signature, "count": count, "at": now_iso()}))
+    return count
+
+
+# ---------------------------------------------------------------- hooks
+MUTATORS = re.compile(
+    r"(\btee\b|\bsed\s+(?:-\S+\s+)*-i|\bperl\s+-\S*i|\brm\b|\bmv\b|\bcp\b|\btruncate\b|\bchmod\b|"
+    r"\bunlink\b|\bln\b|\bdd\b|\binstall\b|\btouch\b|\bgit\s+(?:checkout|restore|rm|mv|stash|reset)\b|"
+    r"open\(|write_text|writeFile|\bpatch\b)")
+REDIRECT = re.compile(r"(?<![0-9&>])>>?\s*([^\s;&|<>]+)")
+
+
+HEREDOC = re.compile(r"<<-?\s*['\"]?(\w+)['\"]?[^\n]*\n.*?\n\s*\1\b", re.S)
+QUOTED = re.compile(r"'[^']*'|\"(?:[^\"\\]|\\.)*\"")
+
+
+def _no_heredoc(cmd: str) -> str:
+    """The command with heredoc bodies removed: text fed to a program is content, not commands."""
+    return HEREDOC.sub(lambda m: m.group(0).split("\n", 1)[0], cmd)
+
+
+def _touches(cmd: str, needle: re.Pattern) -> bool:
+    """Could this shell command change a path matching needle? Quoted strings and heredoc bodies
+    are content (a commit message, a document), so '>' or 'rm' inside them is not an operation."""
+    cmd = _no_heredoc(cmd)
+    if not needle.search(cmd):
+        return False
+    code = QUOTED.sub("''", cmd)
+    if MUTATORS.search(code):
+        return True
+    for target in REDIRECT.findall(code):
+        if needle.search(target) or not target.startswith(("/", "~", "$TMPDIR", "$HOME")):
+            return True
+    return False
+
+
+def _current_branch():
+    try:
+        return subprocess.run(["git", "branch", "--show-current"], cwd=str(ROOT), capture_output=True,
+                              text=True).stdout.strip()
+    except Exception:
+        return ""
+
+
+def _push_problem(cmd: str):
+    """Return a reason string if a git push in cmd forces or targets main/master."""
+    for seg in re.split(r"&&|\|\||;|\|", cmd):
+        toks = seg.split()
+        if "git" not in toks or "push" not in toks:
+            continue
+        rest = toks[toks.index("push") + 1:]
+        if any(t in ("--force", "-f", "--force-with-lease") or t.startswith("--force") for t in rest):
+            return "Force-pushing is not allowed. Push a normal branch and open a pull request."
+        args = [t for t in rest if not t.startswith("-")]
+        refspecs = args[1:]
+        if any(r.startswith("+") for r in refspecs):
+            return "Force-pushing is not allowed. Push a normal branch and open a pull request."
+        targets = [r.split(":")[-1].replace("refs/heads/", "") for r in refspecs]
+        if not refspecs or "HEAD" in targets:
+            targets.append(_current_branch())
+        if any(t in ("main", "master") for t in targets):
+            return "Never push to main or master. Push a feature branch and open a pull request; Nimish merges."
+    return None
+
+
+def _deny(reason):
+    print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse",
+                                             "permissionDecision": "deny",
+                                             "permissionDecisionReason": reason}}))
+    return 0
+
+
+def hook_guard(payload):
+    tool = payload.get("tool_name", "")
+    ti = payload.get("tool_input") or {}
+    if tool in ("Edit", "Write", "MultiEdit", "NotebookEdit"):
+        raw = ti.get("file_path") or ti.get("notebook_path") or ti.get("path") or ""
+        if not raw:
+            return 0
+        path = Path(raw)
+        if not path.is_absolute():
+            path = ROOT / path
+        sid = is_locked_path(path)
+        if sid:
+            return _deny(f"{sid}'s scope and acceptance proofs are locked. Change the product code, never the "
+                         f"proofs. If the proofs are wrong, run `athena block {sid} \"<why>\"` so Nimish can decide.")
+        try:
+            rel = path.resolve().relative_to(STATE.resolve())
+            return _deny(f"{rel} is Athena's own state; it is changed only by the athena command.")
+        except Exception:
+            pass
+        return 0
+    if tool == "Bash":
+        cmd = ti.get("command", "")
+        m = re.search(r"\bathena\S*\s+unlock\s+([A-Z][A-Z0-9]*-\d+)", cmd)
+        if m:
+            tok = STATE / f"unlock-{m.group(1)}"
+            if tok.exists() and time.time() - tok.stat().st_mtime < UNLOCK_TTL:
+                return 0
+            return _deny(f"Only Nimish can unlock {m.group(1)}: he types 'UNLOCK {m.group(1)}' in this session.")
+        if "ATHENA_HUMAN" in cmd or _touches(cmd, re.compile(r"(^|[\s/'\"])\.athena(/|\b)")):
+            return _deny("Athena's state and human-only switches are not for agents.")
+        locked = [i for i in all_specs() if (SPECS / i / "LOCK").exists()]
+        if locked:
+            ids = "|".join(map(re.escape, locked))
+            # the protected files, or the spec folder itself (rm -rf specs/ID, cd specs/ID && ...)
+            needle = re.compile(r"specs/(?:" + ids + r")(?:/(?:spec\.md|checks\.sh|LOCK|proofs)\b|/?(?=[\s;&|)'\"]|$))")
+            if _touches(cmd, needle):
+                return _deny("That command could change a locked spec or its proofs. Read them freely, but "
+                             "change the product code instead; if a proof is wrong, use `athena block`.")
+        problem = _push_problem(cmd) if re.search(r"\bgit\b.*\bpush\b", cmd) else None
+        if problem:
+            return _deny(problem)
+        if "--no-verify" in cmd:
+            return _deny("Skipping git hooks (--no-verify) is not allowed.")
+    return 0
+
+
+def hook_stop(payload):
+    sid = active_id()
+    if not sid:
+        return 0
+    d = SPECS / sid
+    if read_status(d).get("status") != "building":
+        return 0
+    res = run_checks(sid)
+    if res["ok"]:
+        told = STATE / f"told-{sid}"
+        if told.exists():
+            return 0
+        STATE.mkdir(exist_ok=True)
+        told.write_text(now_iso())
+        print(json.dumps({"decision": "block", "reason":
+            f"Athena: every proof for {sid} passes. Before you stop, finish the loop: run the athena-verify "
+            f"skill, then athena-ship (or `athena finish {sid}` if shipping is not possible here)."}))
+        return 0
+    sig = hashlib.sha1(("|".join(sorted(res["failed"])) + "|" + (res["error"] or "")).encode()).hexdigest()
+    n = _strike(sid, sig)
+    if n >= STRIKE_LIMIT:
+        _block(sid, f"The same acceptance proofs failed {n} times in a row: "
+                    f"{', '.join(res['failed']) or res['error']}. Stopping instead of guessing.", res)
+        print(json.dumps({"systemMessage": f"Athena: {sid} is BLOCKED after {n} identical failures. "
+                                           f"See specs/{sid}/BLOCKED.md."}))
+        return 0
+    print(json.dumps({"decision": "block", "reason":
+        f"Athena done-gate: {sid} is not done (strike {n} of {STRIKE_LIMIT} on this same failure).\n"
+        f"{describe(res, tail=20)}\n"
+        f"Fix the product code; the proofs are locked. If the proofs themselves are wrong or impossible, run "
+        f"`athena block {sid} \"<reason in plain words>\"` and stop."}))
+    return 0
+
+
+def hook_prompt(payload):
+    prompt = payload.get("prompt") or ""
+    ids = re.findall(r"\bUNLOCK\s+([A-Z][A-Z0-9]*-\d+)\b", prompt)
+    if not ids:
+        return 0
+    STATE.mkdir(exist_ok=True)
+    for i in ids:
+        (STATE / f"unlock-{i}").write_text(now_iso())
+    print(json.dumps({"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext":
+        f"Nimish has authorised unlocking {', '.join(ids)} for the next hour. Run `athena unlock <ID>`, "
+        f"update spec.md from the new scope, have the athena-proof-writer agent rewrite the proofs, then lock again."}}))
+    return 0
+
+
+def _refresh_assurance():
+    """Copy the latest scorecard from the `assurance` branch to .athena/assurance.json (for the band).
+    Best-effort and quick: a missing branch or no network leaves the old copy in place."""
+    dest = ROOT / ".athena" / "assurance.json"
+    try:
+        subprocess.run(["git", "fetch", "-q", "origin", "assurance"], cwd=ROOT, timeout=8,
+                       capture_output=True, check=True)
+        out = subprocess.run(["git", "show", "FETCH_HEAD:assurance.json"], cwd=ROOT, timeout=5,
+                             capture_output=True, text=True, check=True).stdout
+        data = json.loads(out)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(json.dumps(data, indent=2) + "\n")
+    except (subprocess.SubprocessError, OSError, json.JSONDecodeError):
+        pass
+    try:
+        return json.loads(dest.read_text()).get("grade")
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def hook_session_start(payload):
+    lines = [f"Athena harness v{VERSION} is installed in this repo. Read .claude/athena/CLAUDE.md if you have not."]
+    own = read_config().get("own_loop") or {}
+    handoff = ROOT / own.get("handoff", "docs/HANDOFF.md")
+    if own:
+        lines.append(f"This repo runs its own loop: `{own.get('done', 'see its CLAUDE.md')}` decides done, "
+                     "not `athena done`. Its CLAUDE.md's loop replaces Athena's spec loop.")
+    if read_config().get("proof_data") == "real":
+        lines.append("Proof data: REAL. This repo forbids synthetic, mocked or placeholder data, even in tests. "
+                     "Proofs assert on real outputs; anything that needs the production database or the box "
+                     "uses check_box.")
+    a = active_id()
+    specs = all_specs()
+    if a:
+        s = read_status(SPECS / a).get("status")
+        lines.append(f"Active spec: {a} ({s}). The stop gate holds this session until its proofs pass.")
+    blocked = [i for i in specs if read_status(SPECS / i).get("status") == "blocked"]
+    if blocked:
+        lines.append("Blocked, waiting for Nimish: " + ", ".join(blocked))
+    built = [i for i in specs if read_status(SPECS / i).get("status") == "built"]
+    if built:
+        lines.append("Built, awaiting Nimish's review: " + ", ".join(built))
+    if handoff.exists():
+        top = [l for l in handoff.read_text().splitlines() if l.strip()][:30]
+        lines.append(f"Where things stand ({handoff.relative_to(ROOT)}, top lines; rewrite it before you end the session):")
+        lines += top
+    if LEARNINGS.exists():
+        tail = [l for l in LEARNINGS.read_text().splitlines() if l.startswith("- ")][-15:]
+        if tail:
+            lines.append("Lessons this repo has learned (apply them):")
+            lines += tail
+    grade = _refresh_assurance()
+    if grade:
+        lines.append(f"Assurance grade on main: {grade}. Read ASSURANCE.md on the assurance branch before "
+                     "claiming a change improves quality.")
+    ctx = "\n".join(lines)[:9500]
+    print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": ctx}}))
+    return 0
+
+
+def cmd_hook(args):
+    if not args:
+        die("usage: athena hook NAME")
+    try:
+        payload = json.loads(sys.stdin.read() or "{}")
+    except Exception:
+        payload = {}
+    fn = {"guard": hook_guard, "stop": hook_stop, "prompt": hook_prompt,
+          "session-start": hook_session_start}.get(args[0])
+    if not fn:
+        die(f"unknown hook {args[0]}")
+    try:
+        return fn(payload)
+    except SystemExit:
+        raise
+    except Exception as e:  # a broken hook must never wedge the session
+        print(f"athena hook {args[0]} error: {e}", file=sys.stderr)
+        return 0
+
+
+# ---------------------------------------------------------------- main
+def _opt(args, name, default=None):
+    if name in args:
+        i = args.index(name)
+        if i + 1 < len(args):
+            return args[i + 1]
+    return default
+
+
+COMMANDS = {
+    "new": cmd_new, "next-id": cmd_next_id, "lock": cmd_lock, "start": cmd_start, "done": cmd_done, "finish": cmd_finish,
+    "block": cmd_block, "unlock": cmd_unlock, "verify-locks": cmd_verify_locks,
+    "check-scope-changes": cmd_check_scope_changes, "status": cmd_status, "hook": cmd_hook,
+}
+
+
+def main(argv):
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        print(__doc__)
+        return 0
+    if argv[0] in ("-v", "--version", "version"):
+        print(VERSION)
+        return 0
+    fn = COMMANDS.get(argv[0])
+    if not fn:
+        die(f"unknown command '{argv[0]}'. Try: athena help")
+    return fn(argv[1:]) or 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
