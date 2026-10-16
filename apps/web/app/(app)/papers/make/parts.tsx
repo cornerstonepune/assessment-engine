@@ -1,7 +1,7 @@
 import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
 import type { SkillSet } from "@/lib/queries";
-import { KINDS, type Batch, type MakerPlan, type PlannedPaper } from "@/lib/maker";
+import { KINDS, repeatWords, type Batch, type MakerPlan, type PlannedPaper } from "@/lib/maker";
 import { SkillLevelSelect } from "../../make/skill-level";
 import { makePapers } from "./actions";
 import { MakeButton } from "./make-button";
@@ -42,6 +42,7 @@ export function ThePapers({ plan, batch, roll, sets, band, once }: {
         <div className="mb-4">
           <p className="note mb-2">
             Every paper holds these {shared.n} questions, {paperWords(shared)}; each child&rsquo;s copy has its own code.
+            {repeatWords(shared.areas) ? ` ${repeatWords(shared.areas)}` : null}
           </p>
           <Questions areas={shared.areas} />
         </div>
@@ -73,6 +74,7 @@ export function ThePapers({ plan, batch, roll, sets, band, once }: {
                           <div className="font-medium">
                             {paperWords(p)} <span className="text-basalt/55">· {p.n} questions</span>
                           </div>
+                          {shared || !repeatWords(p.areas) ? null : <div className="note">{repeatWords(p.areas)}</div>}
                           {own ? (
                             <div className="note">{p.chosen === "graph" ? p.areas.map((a) => a.why).join(" ") : "Chosen by you."}</div>
                           ) : null}

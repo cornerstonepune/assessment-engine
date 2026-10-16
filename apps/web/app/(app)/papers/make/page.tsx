@@ -4,12 +4,12 @@ import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
-import { forChildren, KINDS, planBatch, readBatch, topicLines, UUID, WAYS } from "@/lib/maker";
+import { forChildren, KINDS, lineTopics, planBatch, readBatch, topicLines, UUID, WAYS } from "@/lib/maker";
 import { gradeWords, skillSets } from "@/lib/queries";
 import { classRoll } from "@/lib/queries-children";
 import { homeByClass, homeLength } from "@/lib/queries-make";
 import { isoWeek } from "@/lib/week";
-import { SkillLevelSelect } from "../../make/skill-level";
+import { MakerLines } from "../../make/lines";
 import { Made, ThePapers } from "./parts";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -40,13 +40,14 @@ export default async function Maker({ searchParams }: Props) {
   const week = isoWeek();
   const [classes, homeN] = await deadline(Promise.all([homeByClass(week, scopeOf(me)), homeLength()]));
   const cls = classes.find((c) => c.section === get("class")[0]);
-  // only what this class has been taught (goals/f1f-taught-per-class.yaml)
-  const sets = cls ? await deadline(skillSets({ section: cls.section })) : [];
+  // every skill, each saying whether this class was taught it: an educator may choose any (ADR 0081); the engine's
+  // own choice, a child's next step, keeps to what the class was taught (goals/f1f-taught-per-class.yaml)
+  const every = cls ? await deadline(skillSets({ untaught: true, section: cls.section })) : [];
+  const sets = every.filter((x) => x.taught);
   // a starting point's kind and way hold until the class is chosen; "for one child" ticks no one until they are chosen
   const one = get("one")[0] === "1";
   const topic = get("topic")[0] ?? "";
   const fromTopic = cls && topic && !get("s").some(Boolean) && !get("a").length ? topicLines(sets, topic, cls.band, homeN, LINES) : [];
-  const topics = cls ? [...new Map(sets.filter((x) => x.band === cls.band && x.topic_code).map((x) => [x.topic_code!, x.topic_name ?? x.topic_code!])).entries()] : [];
   const roll = cls ? await deadline(classRoll(cls.section, me.email)) : [];
   // every child is ticked until the form for this class has been sent
   const sent = get("picked").length > 0 && get("of")[0] === cls?.section;
@@ -126,23 +127,14 @@ export default async function Maker({ searchParams }: Props) {
                   </fieldset>
                   {/* the skill and level are the educator's for one paper for all and for the same skill for each */}
                   <fieldset className="grid gap-2 group-has-[input[value=own]:checked]:hidden">
-                    <legend className="label mb-2">Skill, level and how many questions</legend>
-                    <label className="field">
-                      <span className="label">Topic</span>
-                      <select className="select" name="topic" defaultValue={topic}>
-                        <option value="">Choose the skills yourself</option>
-                        {topics.map(([code, name]) => (
-                          <option key={code} value={code}>{name}</option>
-                        ))}
-                      </select>
-                      <span className="note">A topic fills its skills at this class&rsquo;s grade; change any line before you see the papers.</span>
-                    </label>
-                    {lines.map((a, i) => (
-                      <div key={i} className="grid grid-cols-[minmax(0,1fr)_72px] gap-2">
-                        <SkillLevelSelect name="s" label={`Skill and level ${i + 1}`} value={a ? `${a.skill_set}~${a.level}` : ""} sets={sets} band={cls.band} />
-                        <input className="input" name="n" type="number" min={1} max={40} defaultValue={a?.n ?? (i === 0 ? (homeN ?? "") : "")} aria-label={`Questions ${i + 1}`} />
-                      </div>
-                    ))}
+                    <legend className="label mb-2">Each line: a topic, its skill, a level, how many questions</legend>
+                    <MakerLines
+                      key={`${cls.section}|${lines.map((a) => (a ? `${a.skill_set}~${a.level}~${a.n}` : "")).join("|")}`}
+                      topics={lineTopics(every, cls.band, homeN, LINES)}
+                      start={lines.map((a, i) => (a ? `${a.skill_set}~${a.level}~${a.n}` : i === 0 ? `~~${homeN ?? ""}` : ""))}
+                      topic={topic}
+                      fill
+                    />
                   </fieldset>
                   <p className="note hidden group-has-[input[value=own]:checked]:block">
                     The engine picks each child&rsquo;s skill and level from their checked answers. See the papers, then change any child.

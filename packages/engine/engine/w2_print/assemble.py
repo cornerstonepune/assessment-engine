@@ -3,13 +3,16 @@
 A child's paper is a worksheet from the library (ADR 0026, step 7): each child is handed a worksheet
 at their skill and level that they have never sat, holding no question they saw inside the exposure
 window and none another child has this week — so copying from a neighbour gains nothing while the
-teacher still holds one key per worksheet. A worksheet is never edited once made; what was printed
-for one child, its page geometry, is kept on that child's sheet instance.
+teacher still holds one key per worksheet. When the library has no such worksheet left for a child, they are given
+the one they were given longest ago (goals/l6-a-paper-is-always-made.yaml): every child holds a whole paper while
+their level has a worksheet. A worksheet is never edited once made; what was printed for one child, its page geometry,
+is kept on that child's sheet instance.
 """
 
 import hashlib
 import json
 import shutil
+from datetime import UTC, datetime
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -44,31 +47,36 @@ def _worksheets(conn, skill_set, difficulty, child_id, window_days):
     ).fetchall()
 
 
-def _why_short(conn, p, window_days):
-    """Why this child could not be given a worksheet, in words — never a short paper or a repeat."""
-    n = conn.execute(
-        "select count(*) as level, count(*) filter (where exists (select 1 from sheet_instance si"
-        "   where si.sheet_template_id = t.id and si.child_id = %s)) as sat"
+# Why a child holds no paper, now that one is always given while the level has a worksheet (goals/l6-a-paper-is-always-
+# made.yaml): the level has none that every question of is still in the bank.
+NO_WORKSHEET = "the library holds no worksheet at this level yet: run engine library build"
+LONG_AGO = datetime.min.replace(tzinfo=UTC)
+
+
+def _seen_longest_ago(conn, skill_set, difficulty, child_id, given, used):
+    """When no worksheet at the level is fresh for the child: the one they were given longest ago — one no other child
+    holds this week before one another does, one sharing no question with this week's papers before one that does — so
+    a child is never left without a paper while the level has one (goals/l6-a-paper-is-always-made.yaml). None when the
+    level has no worksheet every question of is still in the bank."""
+    rows = conn.execute(
+        "select t.id, t.code, t.item_ids, (select max(x.created_at) from item_exposure x"
+        "   where x.child_id = %s and x.item_id = any(t.item_ids)) as last"
         " from sheet_template t where t.source = 'library' and t.retired_at is null"
         "   and t.skill_set_code = %s and t.difficulty = %s"
-        "   and not exists (select 1 from item i where i.id = any(t.item_ids) and i.status <> 'active')",
-        (p["child_id"], p["skill_set_code"], p["difficulty"]),
-    ).fetchone()
-    if not n["level"]:
-        return "the library holds no worksheet at this level yet: run engine library build"
-    if n["sat"] >= n["level"]:
-        return f"has sat every worksheet at {p['difficulty']} ({n['level']})"
-    return (
-        "every worksheet left shares a question with another child's paper this week, or holds one"
-        f" this child saw in the last {int(window_days)} days"
-    )
+        "   and not exists (select 1 from item i where i.id = any(t.item_ids) and i.status <> 'active')"
+        " order by t.code",
+        (child_id, skill_set, difficulty),
+    ).fetchall()
+    rows.sort(key=lambda w: (w["id"] in given, bool(used.intersection(w["item_ids"])), w["last"] or LONG_AGO))
+    return rows[0] if rows else None
 
 
 def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
     """Hand every prescription in the section this week a worksheet from the library, plus the spares.
 
-    No two children share a question, and what each child was shown is recorded. A child who cannot
-    be given one is named with the reason, never handed a short paper or a repeat.
+    No two children share a question while the library allows, and what each child was shown is recorded. A child
+    with no fresh worksheet left is given the one they were given longest ago (goals/l6-a-paper-is-always-made.yaml);
+    only a level with no worksheet at all leaves a child without a paper, named with the reason — never a short paper.
     """
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     spares_each = int(settings.config(conn, "assemble.spares_per_difficulty", 2))
@@ -98,7 +106,9 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
             None,
         )
         if w is None:
-            why = _why_short(conn, p, window)
+            w = _seen_longest_ago(conn, p["skill_set_code"], p["difficulty"], p["child_id"], given, used)
+        if w is None:
+            why = NO_WORKSHEET
             # kept on the child's plan, where the class's papers to approve name them and say why
             # (goals/ux5-papers-grouped.yaml)
             conn.execute("update prescription set no_paper = %s where id = %s", (why, p["id"]))

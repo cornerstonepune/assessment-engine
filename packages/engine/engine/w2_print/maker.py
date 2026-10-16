@@ -22,7 +22,6 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
-from engine.core import roster
 from engine.w2_print import focus_paper, pack, shelf
 
 KINDS = {"practice": "class practice", "assessment": "class assessment", "focus": "home assessment"}
@@ -51,15 +50,12 @@ def _class(conn, section: str, children: list) -> list:
 
 
 def _for_all(conn, kids, week: str, ask: list) -> dict:
-    """One paper for every child: the areas asked for, filled with questions none of them has been given — refused
-    whole when the bank cannot fill it."""
+    """One paper for every child: the areas asked for, filled first with questions none of them was given lately, then
+    with those given longest ago (ADR 0080) — refused whole only when a level holds too few at all."""
     whose = [str(k["id"]) for k in kids]
     rng = random.Random("|".join([week, *sorted(whose)]))
-    # the class's grade decides the levels it is given, as a class's week is its own grade's (`roster.class_band`)
-    # and what it has been taught, its own (goals/f1f-taught-per-class.yaml)
-    section = kids[0]["section"]
-    band = roster.class_band(conn, section)
-    return focus_paper.drawn(conn, whose, focus_paper._asked(conn, [], ask, band, section), rng)
+    # the educator's choice decides, whatever the class's grade and whether it was taught it (L7, ADR 0081)
+    return focus_paper.drawn(conn, whose, focus_paper._asked(conn, [], ask), rng)
 
 
 def plan(conn, section, children, week, kind, way, ask=None, changed=None) -> dict:

@@ -9,6 +9,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type postgres from "postgres";
+import type { Locator } from "@playwright/test";
 
 type Sql = postgres.Sql;
 
@@ -106,4 +107,13 @@ export async function aReadPaper(
     results.push(id);
   }
   return { sheet, capture, results };
+}
+
+/** One line of a paper, as the maker and a one-child paper ask for it: a topic, one of its skills, a level and how many
+ *  (goals/l7-a-line-is-topic-skill-level-number.yaml). */
+export async function aLine(form: Locator, i: number, topic: string, skill: string, level: string, n: string) {
+  await form.getByLabel(`Topic ${i}`).selectOption(topic);
+  await form.getByLabel(`Skill ${i}`).selectOption(skill);
+  await form.getByLabel(`Level ${i}`).selectOption(level);
+  await form.getByLabel(`Questions ${i}`).fill(n);
 }

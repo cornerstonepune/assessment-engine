@@ -1,0 +1,34 @@
+name: l6-a-paper-is-always-made
+goal: >
+  A teacher always gets the paper she asks for. A paper draws first the questions none of its children was given in
+  the last `exposure.days` days. When those run short, it takes the questions they were given longest ago, and says how
+  many it repeats. That holds for a paper the maker makes, a home assessment, and the week's pack: a child who has sat
+  every worksheet at the level is given the one sat longest ago. A paper is refused only when it asks for more questions
+  than the level holds at all, and then it says how many the level holds.
+# Written 2026-10-16, before the code. Nimish, the same morning, after Neha could not make a Grade 1 Class assessment
+# (L5): "I don't want teachers to have this many complications." He chose, of three: always make the paper, repeating
+# the questions seen longest ago (rather than filling from another level, or keeping the refusal in plainer words).
+# Until now every drawer refused rather than repeat: focus_paper._draw (the maker, home assessments) and
+# assemble.for_week (the week's pack, which named the child with no paper instead).
+says:
+  - words: "I don't want teachers to have this many complications. Can we just make it simplified"
+    proved_by: "packages/engine/tests/test_maker.py::test_a_paper_short_of_fresh_questions_is_made_with_those_seen_longest_ago"
+  - words: "I don't want teachers to have this many complications. Can we just make it simplified"
+    proved_by: "packages/engine/tests/test_paper_from_library.py::test_a_child_who_has_sat_every_worksheet_at_a_level_is_given_the_one_sat_longest_ago"
+  - words: "I don't want teachers to have this many complications. Can we just make it simplified"
+    proved_by: "apps/web/tests/m2-make-papers.spec.ts::a paper short of fresh questions is made, and says how many it repeats"
+manual: []
+scenarios: []
+criteria:
+  - name: every drawer makes the paper asked for
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_maker.py tests/test_focus_paper.py tests/test_paper_from_library.py tests/test_week.py tests/test_focus.py
+    expect: "passed"
+  - name: the week's scenarios hold
+    run: bin/engine goal w2-assemble-and-print
+    expect: "passed"
+  - name: the pages that make papers still hold
+    run: cd apps/web && npx playwright test tests/m2-make-papers.spec.ts tests/m4-the-maker.spec.ts tests/u37-papers-grouped.spec.ts tests/u38-make-and-marking.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

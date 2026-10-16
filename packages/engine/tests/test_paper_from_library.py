@@ -104,47 +104,62 @@ def test_a_worksheet_holding_a_question_no_longer_in_the_bank_is_never_handed_ou
     assert first["code"] not in {s["code"] for s in built["sheets"] + built["spares"]}
 
 
-def test_a_child_who_has_sat_every_worksheet_at_a_level_is_named_not_handed_a_repeat(conn, children):
+def test_a_child_who_has_sat_every_worksheet_at_a_level_is_given_the_one_sat_longest_ago(conn, children):
+    """Nimish, 2026-10-16: "I don't want teachers to have this many complications." A child who has sat every
+    worksheet at their level is given the one they sat longest ago, never named with no paper (goals/l6)."""
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     kid = children[0]
-    for t in conn.execute(
-        "select id from sheet_template where source = 'library' and skill_set_code = %s and difficulty = 'Hard'",
+    sheets = conn.execute(
+        "select id, code, item_ids from sheet_template where source = 'library' and retired_at is null"
+        " and skill_set_code = %s and difficulty = 'Hard' order by code",
         (SET,),
-    ).fetchall():
+    ).fetchall()
+    for age, t in enumerate(reversed(sheets)):  # the first worksheet by code was sat longest ago
         conn.execute(
-            "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id) values (%s,%s,%s,%s)",
-            (tenant, assemble._qr(t["id"], kid, "an earlier term", "practice"), t["id"], kid),
+            "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, created_at)"
+            " values (%s,%s,%s,%s, now() - make_interval(days => %s))",
+            (tenant, assemble._qr(t["id"], kid, "an earlier term", "practice"), t["id"], kid, 30 + age),
+        )
+        conn.execute(
+            "insert into item_exposure (tenant_id, child_id, item_id, week, created_at)"
+            " select %s, %s, x, 'earlier', now() - make_interval(days => %s) from unnest(%s::uuid[]) x"
+            " on conflict do nothing",
+            (tenant, kid, 30 + age, list(t["item_ids"])),
         )
     built = _week(conn, "S7-W1")
-    assert kid not in {s["child_id"] for s in built["sheets"]}
-    (named,) = [x for x in built["short"] if x["child_id"] == kid]
-    assert "every worksheet" in named["why"] and {"had", "needed"} <= named.keys()
+    assert not built["short"], built["short"]
+    (mine,) = [s for s in built["sheets"] if s["child_id"] == kid]
+    assert mine["code"] == sheets[0]["code"], "the worksheet sat longest ago"
+    assert len(built["sheets"]) == len(children), "every child holds a whole paper"
 
 
 def test_the_reason_a_child_has_no_paper_is_kept_on_their_plan(conn, children):
     # the class's papers to approve name the child and why (goals/ux5-papers-grouped.yaml): the reason the assembly
-    # found is kept on their plan, where the page reads it, not only returned to whoever ran it
-    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
-    kid = children[0]
-    for t in conn.execute(
-        "select id from sheet_template where source = 'library' and skill_set_code = %s and difficulty = 'Hard'",
+    # found is kept on their plan, where the page reads it, and cleared when they are handed a paper. Since a child is
+    # given the worksheet sat longest ago rather than none (goals/l6), the one reason left is a level with no worksheet.
+    retired = conn.execute(
+        "update sheet_template set retired_at = now() where source = 'library' and retired_at is null"
+        " and skill_set_code = %s and difficulty = 'Hard' returning id",
         (SET,),
-    ).fetchall():
-        conn.execute(
-            "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id) values (%s,%s,%s,%s)",
-            (tenant, assemble._qr(t["id"], kid, "an earlier term", "practice"), t["id"], kid),
-        )
+    ).fetchall()
     built = _week(conn, "S7-W1")
-    (named,) = [x for x in built["short"] if x["child_id"] == kid]
-    kept = {
-        r["child_id"]: r["no_paper"]
-        for r in conn.execute(
-            "select child_id, no_paper from prescription where week = 'S7-W1' and child_id = any(%s)",
-            (children,),
-        ).fetchall()
-    }
-    # a child handed a paper has no reason against them
-    assert kept == {kid: named["why"], children[1]: None, children[2]: None}
+    assert {x["child_id"] for x in built["short"]} == set(children)
+
+    def kept():
+        return {
+            r["child_id"]: r["no_paper"]
+            for r in conn.execute(
+                "select child_id, no_paper from prescription where week = 'S7-W1' and child_id = any(%s)",
+                (children,),
+            ).fetchall()
+        }
+
+    assert set(kept().values()) == {built["short"][0]["why"]} and "no worksheet" in built["short"][0]["why"]
+    conn.execute(
+        "update sheet_template set retired_at = null where id = any(%s)", ([r["id"] for r in retired],)
+    )
+    assemble.for_week(conn, SECTION, "S7-W1")
+    assert set(kept().values()) == {None}, "a child handed a paper has no reason against them"
 
 
 def test_the_printed_paper_names_its_worksheet(conn, children):

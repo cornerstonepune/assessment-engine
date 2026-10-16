@@ -1,9 +1,8 @@
 name: l5-seen-means-the-last-21-days
 goal: >
-  A paper the maker or a home assessment draws holds no question a child was given in the last `exposure.days` days
-  (21, a threshold row), as the week's assembly already holds — and a question given longer ago may come back. When the
-  bank cannot fill a line, the refusal says how many questions are left, at which skill and level, and the window it
-  counted, in the school's words.
+  A paper the maker or a home assessment draws counts as fresh only a question none of its children was given in the
+  last `exposure.days` days (21, a threshold row), as the week's assembly already does — and a question given longer
+  ago is fresh again. (When the fresh ones run short, the paper repeats those seen longest ago: L6, ADR 0080.)
 # Written 2026-10-16, before the code, from live: Neha, Grade 1's educator, asked for one Class assessment for her 13
 # children — Equal groups (repeated addition), Medium, 12 questions — and was refused: "only 4 questions none of these 13
 # children has been given". Medium Equal groups is four or five groups of 2 to 6, as a sum or a picture: 20 questions
@@ -14,9 +13,9 @@ goal: >
 # level ran dry for good after a few papers. The fix is the rule's one window, read from its row, in both drawers.
 says:
   - words: "Neha ma'am, the educator, is trying to create the assessment, and she is getting this error for grade 1. Just check, let me know, and solve this."
-    proved_by: "packages/engine/tests/test_maker.py::test_a_question_given_before_the_window_comes_back_and_one_given_inside_it_does_not"
+    proved_by: "packages/engine/tests/test_maker.py::test_a_question_given_before_the_window_is_fresh_again_and_one_given_inside_it_is_a_repeat"
 manual:
-  - "On live, once merged and deployed: Neha makes the Grade 1 Class assessment again (Equal groups, Medium, 12, one paper for all). If the class was given so many of the level's questions in the last 21 days that fewer than 12 are left, it is still refused, and the refusal now says so; then a second line at another level fills it."
+  - "On live, once merged and deployed: Neha makes the Grade 1 Class assessment again (Equal groups, Medium, 12, one paper for all). With L6 live it is made; the preview says how many of its questions the class was given in the last 21 days."
 scenarios: []
 criteria:
   - name: the drawers of a child's paper and the maker hold to the window

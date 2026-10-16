@@ -11,6 +11,7 @@ import { expect, test } from "@playwright/test";
 import postgres from "postgres";
 import { isoWeek } from "../lib/week";
 import { TEST_STAFF } from "./global-setup";
+import { aLine } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -116,10 +117,8 @@ test("a teacher chooses skills, a level each and how many, sees the questions, a
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("A home assessment for Chetan");
 
   const form = page.getByRole("form", { name: "Choose the paper" });
-  await form.getByLabel("Skill and level 1").selectOption("SUB.2D2D~Medium");
-  await form.getByLabel("Questions 1").fill("5");
-  await form.getByLabel("Skill and level 2").selectOption("ADD.2D1D~Easy");
-  await form.getByLabel("Questions 2").fill("3");
+  await aLine(form, 1, "ADDSUB", "SUB.2D2D", "Medium", "5");
+  await aLine(form, 2, "ADDSUB", "ADD.2D1D", "Easy", "3");
   await form.getByRole("button", { name: "See the paper" }).click();
 
   const preview = page.getByRole("region", { name: "The paper" });
@@ -133,16 +132,29 @@ test("a teacher chooses skills, a level each and how many, sees the questions, a
   expect(paper).toEqual({ kind: "custom", approved_by: TEST_STAFF.email, n: 8 });
 });
 
-test("a paper the bank cannot fill says why, and nothing prints", async ({ page }) => {
-  // Chetan has been given all but three of the level's questions, whatever the bank holds: the test skipped itself
-  // on a bank with 40 or more (goals/p1-browser-tests-in-ci.yaml). clearUp takes the exposures back.
+test("a paper short of fresh questions is made, and says how many it repeats", async ({ page }) => {
+  // Nimish, 2026-10-16: "I don't want teachers to have this many complications." Chetan has been given all but three
+  // of the level's questions: a paper of eight is made all the same, the three fresh first, then five he was given
+  // longest ago, and the page says so in one line (goals/l6-a-paper-is-always-made.yaml). clearUp takes the
+  // exposures back.
   await sql`
     insert into item_exposure (tenant_id, child_id, item_id, week)
     select i.tenant_id, ${ids.Chetan}, i.id, 'M2-SEEN' from item i
     where i.status = 'active' and i.skill_set_code = 'SUB.1D1D' and i.difficulty = 'Medium' order by i.item_key offset 3
     on conflict do nothing`;
-  await page.goto(`/make/custom?child=${ids.Chetan}&a=SUB.1D1D~Medium~40`);
-  await expect(page.getByRole("status")).toContainText(/only 3 questions in .* that this child has not been given in the last \d+ days/);
+  await page.goto(`/make/custom?child=${ids.Chetan}&a=SUB.1D1D~Medium~8`);
+  const paper = page.getByRole("region", { name: "The paper" });
+  await expect(paper.getByRole("listitem")).toHaveCount(8);
+  await expect(paper).toContainText("5 of these questions were seen before: the bank had no more fresh ones.");
+  await expect(page.getByRole("button", { name: "Approve and print" })).toBeVisible();
+});
+
+test("a paper asking for more questions than its level holds says so, and nothing prints", async ({ page }) => {
+  const [{ n }] = await sql<{ n: number }[]>`
+    select count(*)::int as n from item where status = 'active' and skill_set_code = 'SUB.1D1D' and difficulty = 'Medium'`;
+  expect(n, "the level must hold fewer than the 40 a line may ask for").toBeLessThan(40);
+  await page.goto(`/make/custom?child=${ids.Chetan}&a=SUB.1D1D~Medium~${n + 1}`);
+  await expect(page.getByRole("status")).toContainText(`holds ${n} questions at Medium; ask for ${n} or fewer`);
   await expect(page.getByRole("button", { name: "Approve and print" })).toHaveCount(0);
 });
 

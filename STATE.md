@@ -8226,6 +8226,36 @@ one child on live.
   test_week, test_focus and the scenario tests, 62 passed. Web: m2, m4, u38, s11, u2, 23 passed (m2's refusal words
   updated). `bin/check` 28 passed.
 
+## L6: a paper is always made, repeating the questions seen longest ago (2026-10-16)
+
+- **Asked:** after L5, a line the 21-day window could not fill was still refused. Nimish: "I don't want teachers to have
+  this many complications. Can we just make it simplified". He chose: always make the paper, repeating the oldest.
+- **Now (ADR 0080, `goals/l6-a-paper-is-always-made.yaml`):** `focus_paper._draw` (the maker, home assessments) takes
+  the questions fresh to the paper's children in the window, then those they were given longest ago, then those another
+  paper of the batch holds; never one twice on a paper. Each line reports `seen_before`; the maker's preview says it in
+  one line ("5 of these questions were seen before: the bank had no more fresh ones."). `assemble.for_week` gives a child
+  who has sat every worksheet at a level the one sat longest ago (`_seen_longest_ago`). The only refusal left: more
+  questions than the level holds ("… holds 16 questions at Medium; ask for 16 or fewer"), or no worksheet at the level
+  yet. The week's scenario `names_the_child_it_could_not_fill` became `gives_every_child_a_whole_paper`.
+- **Checks:** the new tests failed first on the refusal, then passed. Web m2, m4, u37, u38: 19 passed.
+
+## L7: each maker line is a topic, its skill, a level and how many; the educator's choice decides (2026-10-16)
+
+- **Asked (Achal, through Nimish, an educator waiting):** 2-digit × 2-digit and multiples & factors were not in the
+  maker; choosing Multiplication still listed every skill; he wants one paper from several topics.
+- **Cause:** the maker listed only skills taught in the class (F1f) and levels of its grade or below (F1e);
+  2-digit × 2-digit is Grade 4 at every level, multiples not switched on in the school's rows. The Topic box only
+  filled the lines; each line's list held every skill. `focus_paper._asked` refused both too.
+- **Now (ADR 0081, `goals/l7-a-line-is-topic-skill-level-number.yaml`):** each line of `/papers/make` and
+  `/make/custom` is Topic → Skill (that topic's only) → Level → how many (`app/(app)/make/lines.tsx`,
+  `lib/maker.ts:lineTopics`). Every skill is offered; the class's grade's first; "· Grade 4", "· not taught yet" and a
+  level's grade said on the option. "Start from a topic" fills the lines at once. `_asked` checks only that the skill
+  and level exist (`shelf.catalog(every=True)`). A child's own next step, the week, and the per-child change on the
+  maker keep to the class's grade and what it was taught. F1e's and F1f's tests now prove that boundary.
+- **Checks:** the engine tests failed first on the refusals, then 79 passed (maker, taught_per_class, focus_paper,
+  paper_from_library, week, focus, topics). Web: u39 (new), m2, m4, u16, u29, u30, 20 passed. u39 was written before
+  the page but not run red first; the labels it reads did not exist before.
+
 ## UX5a live; UX5b: Home assessments and Marking open on the educator's class, a next step per child (2026-10-16)
 
 - **UX5a live:** #216 merged as `9a87004` (02:38 UTC). Main's CI passed; `migrate live` (run 38844303957) applied

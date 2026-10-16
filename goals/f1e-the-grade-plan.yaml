@@ -4,6 +4,9 @@ goal: >
   the grades below. Make papers offers a class only those levels, grouped by grade with the class's own first, and the
   engine refuses any other, saying which grade the level is and what the class's grade has — for one paper for all, the
   same skill for each child, a chosen paper and a changed child alike. The home paper keeps the rule it already had.
+  (Since L7, 2026-10-16, ADR 0081: on a paper an educator builds, her choice decides. Make papers offers every level,
+  the class's own grade's first and chosen by default, a higher one labelled with its grade, and the engine makes it.
+  What the engine chooses by itself keeps this rule.)
 # Written 2026-10-14, before the code: slice F1e of BUILD-ORDER "One flow for the educator" (ADR 0073, D2). Nimish, the
 # same day: "for grade two, let's just say for a certain topic, it's only easy and medium that have been marked. So
 # whenever a grade two teacher is creating the assessments for that topic, it's only easy and medium that should come."
@@ -12,9 +15,9 @@ goal: >
 # every taught skill and `focus_paper._asked` checks only that the level exists.
 says:
   - words: "So whenever a grade two teacher is creating the assessments for that topic, it's only easy and medium that should come."
-    proved_by: "packages/engine/tests/test_maker.py::test_a_class_is_given_only_its_grades_levels_and_those_below"
+    proved_by: "packages/engine/tests/test_maker.py::test_the_engine_keeps_a_class_to_its_grade_and_the_educator_may_go_above_it"
   - words: "So whenever a grade two teacher is creating the assessments for that topic, it's only easy and medium that should come."
-    proved_by: "apps/web/tests/u29-a-grade-uses-its-levels.spec.ts::make papers offers a class only its grade's levels and those below"
+    proved_by: "apps/web/tests/u29-a-grade-uses-its-levels.spec.ts::make papers offers a class its own grade's levels first, a higher grade's said so"
 manual: []
 scenarios: []
 criteria:

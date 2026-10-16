@@ -1,0 +1,39 @@
+name: l7-a-line-is-topic-skill-level-number
+goal: >
+  Each line of Make papers chooses a topic, then one of that topic's skills, then its level, then how many questions,
+  and one paper can take its lines from different topics. Every skill of every topic is offered, whatever the class's
+  grade and whether or not the class has been taught it: those the class's grade uses come first, and a skill or level
+  of a higher grade, or a skill not taught in the class, says so. The engine makes what the educator chose. What the
+  engine chooses by itself (a child's own next step, the week's pack) still keeps to the class's grade and to what the
+  class has been taught.
+# Written 2026-10-16, before the code. Nimish, relaying Achal on the phone while an educator waited: "Didn't we add
+# two-digit by two-digit multiplication yesterday? I think a lot of those things are not visible, even multiples and
+# factors are not visible. … If I'm choosing a topic, it should only show the skills related to that topic, right?
+# Ideally, for an assessment, I should be able to create questions from multiple topics."
+# Measured first: the maker listed only skills taught in the class (f1f) and only levels of the class's grade or below
+# (f1e). 2-digit × 2-digit is Grade 4 at every level, so a Grade 3 class never saw it. Multiples & factors is not taught
+# in the school's rows. The topic box only filled the lines; each line's list held every skill. `focus_paper._asked`
+# refused the same two things. Asked whether an educator's own paper may take an untaught or higher-grade skill,
+# Nimish chose "her choice decides" (2026-10-16). That supersedes f1e and f1f for a paper the educator builds; ADR 0081.
+says:
+  - words: "If I'm choosing a topic, it should only show the skills related to that topic, right?"
+    proved_by: "apps/web/tests/u39-maker-line.spec.ts::a line's skills are its topic's, and one paper takes lines from different topics"
+  - words: "Ideally, for an assessment, I should be able to create questions from multiple topics."
+    proved_by: "apps/web/tests/u39-maker-line.spec.ts::a line's skills are its topic's, and one paper takes lines from different topics"
+  - words: "Didn't we add two-digit by two-digit multiplication yesterday? I think a lot of those things are not visible, even multiples and factors are not visible."
+    proved_by: "apps/web/tests/u39-maker-line.spec.ts::every skill of a topic is offered, a higher grade and an untaught skill said so"
+  - words: "Didn't we add two-digit by two-digit multiplication yesterday? I think a lot of those things are not visible, even multiples and factors are not visible."
+    proved_by: "packages/engine/tests/test_maker.py::test_an_educator_may_choose_a_skill_of_a_higher_grade_or_one_the_class_was_not_taught"
+manual:
+  - "On live, once merged and deployed: Achal makes a Grade 3 Class assessment with one line of Multiplication · 2-digit × 2-digit and one of Multiples & factors; both are offered, labelled, and the paper is made."
+scenarios: []
+criteria:
+  - name: an educator's choice is made; the engine's own keeps to grade and taught
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_maker.py tests/test_focus_paper.py tests/test_taught_per_class.py tests/test_paper_from_library.py
+    expect: "passed"
+  - name: the maker's lines, and the pages that pinned the old lists
+    run: cd apps/web && npx playwright test tests/u39-maker-line.spec.ts tests/m2-make-papers.spec.ts tests/m4-the-maker.spec.ts tests/u16-assessments.spec.ts tests/u29-a-grade-uses-its-levels.spec.ts tests/u30-taught-per-class.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
