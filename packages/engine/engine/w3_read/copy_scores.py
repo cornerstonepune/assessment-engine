@@ -49,8 +49,9 @@ def of_scan(conn, name: str) -> list[dict]:
 
 def readings(conn, capture_id) -> list[dict]:
     """Every answer on one read copy as the reader left it — its state, why it waits, how many boxes the paper
-    printed and how many held ink, what the reader saw — with no name and no image: what someone improving the
-    reader needs to see why answers came back unclear, through the engine's API."""
+    printed and how many held ink at the line it was read at (`read.ink_line`, ADR 0083), what the reader saw — with
+    no name and no image: what someone improving the reader needs to see why answers came back unclear, through the
+    engine's API."""
     rows = conn.execute(
         "select i.item_key, r.rid, r.status, r.raw_read::jsonb as raw"
         " from item_result r join item i on i.id = r.item_id where r.capture_id = %s order by i.item_key, r.rid",
@@ -66,6 +67,7 @@ def readings(conn, capture_id) -> list[dict]:
         "confidence",
         "boxes",
         "inked",
+        "ink_line",
         "seen",
         "working_shown",
     )

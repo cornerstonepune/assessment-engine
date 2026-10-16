@@ -3,6 +3,19 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-16 — L12b live 16:16 UTC; 16 Oct read at 0.76; readings name their line
+
+- **L12b live** (STATE.md "L12b live"). 16 Oct re-read: 74 right, 11 wrong, 8 unclear; the 862 now reads right.
+- **On this branch:** `/capture/{id}/readings` returns `ink_line`.
+- **`reader ink` run 38931391155** (STATE.md): 0.76 agrees on 294 of 328, 0.78 on 295. That gap is less than the 3 or 4
+  each line moved between runs, so the row stays 0.76.
+- **Next:** once 16 Oct's answers are settled, run `reader ink` again. Change the row only if another line agrees by
+  more than the run-to-run drift (ADR 0083).
+- **Still open:**
+  - Roll 1's page 1: Achal to scan it.
+  - The n8n Drive flow did not fire.
+  - The 93 answers of 16 Oct wait for a person.
+
 ## 2026-10-16 — L12a live 13:26 UTC and measured; L12b built (the ink line a row, 0.76)
 
 - **L12b on this branch** (STATE.md "L12a live and measured on live; L12b"). Once deployed:

@@ -15,7 +15,7 @@ import pymupdf
 from engine.adapters import digits, ocr
 from engine.assess import geometry
 from engine.w2_print import handout
-from engine.w3_read import boxes, copies, ink_line, render_pdf, second_reader
+from engine.w3_read import boxes, copies, copy_scores, ink_line, render_pdf, second_reader
 from tests import rows, test_copies
 from tests.test_boxes import FONT, SCALE, THICK, StandIn, _cells, _scanned, paper  # noqa: F401 (fixture)
 from tests.test_copies import _child
@@ -155,3 +155,7 @@ def test_a_read_copy_a_person_settled_is_measured_as_the_reader_found_its_boxes(
     at = report["lines"][0.76]
     assert at["answers"] > 0 and at["agree"] == at["answers"], report
     assert report["measured"] == at["answers"] == report["stored"] and not report["unmeasured"], report
+    # what the engine's API says of each answer (`/capture/{id}/readings`) names the line it was read at: on live,
+    # 2026-10-16, it did not, and whether the re-read was at 0.76 could only be inferred from a count that moved
+    said = [r for r in copy_scores.readings(conn, got["capture_id"]) if r["boxes"]]
+    assert said and {r["ink_line"] for r in said} == {0.76}, said
