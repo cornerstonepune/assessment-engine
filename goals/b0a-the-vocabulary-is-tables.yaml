@@ -1,0 +1,31 @@
+name: b0a-the-vocabulary-is-tables
+goal: >
+  Grades, the four levels and the states of a child's map are tables (`grade`, `difficulty`, `child_state`), each
+  with its order, loaded from the seed and made for every school by the migration. A topic's subject, a skill's topic,
+  the level of a question, a prescription, a paper and a review, and a child's state are real keys into them, so the
+  database refuses a word that is not a row, and adding one is an insert. Every row on live satisfies them, and no
+  paper, map or page changes: nothing reads the new tables yet (B0b–B0d).
+# Written 2026-10-20, before the code. Nimish approved "all backend first" (B0–B4, BUILD-ORDER.md) on the audit in
+# claude.ai/code/artifact/71c2aaf5-06c1-49b7-bcd5-2e6761154e9e. ADR 0084.
+says:
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_vocabulary.py::test_grades_levels_and_states_are_tables_in_their_order"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_vocabulary.py::test_every_link_is_a_key_the_database_checks"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_vocabulary.py::test_a_new_school_gets_the_seed_rows_from_the_migration"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_vocabulary.py::test_a_new_grade_level_or_state_is_an_insert"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: the tables, their keys, the seed and the migration agree
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_vocabulary.py tests/test_loaders.py tests/test_rules.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

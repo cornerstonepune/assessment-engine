@@ -41,8 +41,8 @@ jobs:
         run: |
           psql "$COPY" -q -v ON_ERROR_STOP=1 -c "create role anon nologin; create role authenticated nologin; create role service_role nologin;"
           # Live as it is: the migrations live has applied, then the tables someone made there by hand (rule 9 —
-          # `item_placement` stopped rehome on 2026-09-24 and a copy without it did not), then the migrations
-          # `bin/update-live` pushes.
+          # `item_placement` stopped rehome on 2026-09-24 and a copy without it did not). The migrations
+          # `bin/update-live` pushes run once live's rows are in, below.
           applied=$(psql "$LIVE" -tAc "select version from supabase_migrations.schema_migrations")
           for f in supabase/migrations/*.sql; do v=$(basename "$f" | cut -d_ -f1); if echo "$applied" | grep -qx "$v"; then psql "$COPY" -q -v ON_ERROR_STOP=1 -f "$f" >/dev/null; fi; done
           tables="select schemaname || '.' || tablename from pg_tables where schemaname in ('public', 'pii') order by 1"
@@ -52,15 +52,6 @@ jobs:
           done
           psql "$COPY" -q -v ON_ERROR_STOP=1 -c "create schema supabase_migrations; create table supabase_migrations.schema_migrations (version text primary key);"
           psql "$LIVE" -tAc "select version from supabase_migrations.schema_migrations" | psql "$COPY" -q -v ON_ERROR_STOP=1 -c "copy supabase_migrations.schema_migrations from stdin"
-          # each one recorded as `supabase db push` records it, so the copy's own check afterwards finds it applied
-          # (2026-09-30: a branch's new migration was on the copy, unrecorded, and "every migration is applied" failed)
-          for f in supabase/migrations/*.sql; do
-            v=$(basename "$f" | cut -d_ -f1)
-            if ! echo "$applied" | grep -qx "$v"; then
-              psql "$COPY" -q -v ON_ERROR_STOP=1 -f "$f" >/dev/null
-              psql "$COPY" -q -v ON_ERROR_STOP=1 -c "insert into supabase_migrations.schema_migrations (version) values ('$v')"
-            fi
-          done
       - name: the copy's rows, every one of live's
         run: |
           tables="select schemaname || '.' || tablename from pg_tables where schemaname in ('public', 'pii') order by 1"
@@ -76,6 +67,22 @@ jobs:
           LC_ALL=C comm -12 /tmp/copy.tables /tmp/live.tables | while read t; do echo "$t $(psql "$COPY" -tAc "select count(*) from $t")"; done > /tmp/copy.counts
           diff /tmp/live.counts /tmp/copy.counts
           echo "copied: $(wc -l < /tmp/live.counts) tables, $(awk '{s+=$2} END {print s}' /tmp/copy.counts) rows, every count equal to live"
+      # The migrations `bin/update-live` pushes, run on live's rows as they will be on live. Until 2026-10-20 they ran on
+      # the empty copy before its rows arrived, and the rows were restored with their triggers off, so a new key (ADR
+      # 0084) was never checked against a live row. Each recorded as `supabase db push` records it, so the copy's own
+      # check afterwards finds it applied (2026-09-30: a branch's new migration was on the copy, unrecorded, and
+      # "every migration is applied" failed).
+      - name: the migrations live has not applied, on live's rows
+        run: |
+          applied=$(psql "$LIVE" -tAc "select version from supabase_migrations.schema_migrations")
+          for f in supabase/migrations/*.sql; do
+            v=$(basename "$f" | cut -d_ -f1)
+            if ! echo "$applied" | grep -qx "$v"; then
+              echo "applying ${f##*/}"
+              psql "$COPY" -q -v ON_ERROR_STOP=1 -f "$f" >/dev/null
+              psql "$COPY" -q -v ON_ERROR_STOP=1 -c "insert into supabase_migrations.schema_migrations (version) values ('$v')"
+            fi
+          done
       - name: before, on the copy
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: bin/engine live data --url "$COPY" || true

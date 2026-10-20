@@ -8,7 +8,7 @@ registry cannot be trusted as the thing every assessment result joins to.
 import json
 from typing import Any, LiteralString
 
-from engine.core import asks, db, question_formats, settings, topics
+from engine.core import asks, db, question_formats, settings, topics, vocabulary
 
 SEED = settings.SEED
 
@@ -36,6 +36,9 @@ FILLED_TABLES = (
     "topic",
     "question_format",
     "ask",
+    "grade",
+    "difficulty",
+    "child_state",
 )
 
 
@@ -341,6 +344,7 @@ def _subjects(conn: db.Conn, t: db.Id) -> None:
 def load_all() -> dict[str, int]:
     with db.connect() as conn:
         t = _tenant(conn)
+        vocabulary.load(conn, t, settings.seed)
         for step in (
             _registry,
             _rungs,

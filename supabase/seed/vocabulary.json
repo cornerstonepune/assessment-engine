@@ -1,0 +1,33 @@
+{
+  "_note": "The school's words for its grades, its four levels and the states of a child's map (ADR 0084). Each list is in its order. Pre-school names are the school's own, from the titles of its developmental updates (registry.json). A child state's colour is its red / amber / green / grey on the website (apps/web/lib/rag.ts); needs_work is whether a next paper works on it (rag.ts NEEDS_WORK). The migration 20261119090000 inserts these same rows for every school already there; tests/test_vocabulary.py keeps the two equal.",
+  "grades": [
+    {"code": "PG", "name": "PG"},
+    {"code": "N", "name": "Nursery"},
+    {"code": "K1", "name": "K1"},
+    {"code": "K2", "name": "K2"},
+    {"code": "G1", "name": "Grade 1"},
+    {"code": "G2", "name": "Grade 2"},
+    {"code": "G3", "name": "Grade 3"},
+    {"code": "G4", "name": "Grade 4"},
+    {"code": "G5", "name": "Grade 5"},
+    {"code": "G6", "name": "Grade 6"},
+    {"code": "G7", "name": "Grade 7"},
+    {"code": "G8", "name": "Grade 8"},
+    {"code": "G9", "name": "Grade 9"},
+    {"code": "G10", "name": "Grade 10"}
+  ],
+  "difficulties": [
+    {"code": "Easy"},
+    {"code": "Medium"},
+    {"code": "Hard"},
+    {"code": "Advance"}
+  ],
+  "child_states": [
+    {"code": "patterned_error", "words": "repeating mistake", "colour": "red", "needs_work": true},
+    {"code": "emerging", "words": "under half right", "colour": "red", "needs_work": true},
+    {"code": "practising", "words": "practising", "colour": "amber", "needs_work": true},
+    {"code": "secure", "words": "secure", "colour": "green", "needs_work": false},
+    {"code": "stretch_ready", "words": "ready to move up", "colour": "green", "needs_work": false},
+    {"code": "not_enough_yet", "words": "not enough yet", "colour": "grey", "needs_work": false}
+  ]
+}
