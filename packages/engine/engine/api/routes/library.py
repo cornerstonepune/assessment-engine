@@ -16,7 +16,7 @@ from engine.w2_print import handout, library
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
 # R5-H07, M1-E12, X2-A18: the only shape a worksheet code has, so nothing else reaches the disk.
-CODE = re.compile(r"^[RMX]\d{1,2}-[EMHA]\d{2,3}$")
+CODE = re.compile(r"^[RMX]\d{1,2}-[A-Z]\d{2,3}$")
 PRINTS = db.REPO_ROOT / "data" / "prints"  # gitignored: a printed copy names its child
 
 

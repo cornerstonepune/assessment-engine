@@ -8,7 +8,7 @@ import contextvars
 from contextlib import contextmanager
 from typing import Any
 
-from engine.core import roster, settings
+from engine.core import roster, settings, vocabulary
 
 _BATCH: contextvars.ContextVar[dict[str, Any] | None] = contextvars.ContextVar(
     "focus_paper_batch", default=None
@@ -41,18 +41,15 @@ def home_length(conn) -> int:
 
 
 def rule(conn) -> dict:
-    """How far from its rung an area may be worked on, the stretch level for each strong state, and where Easy
-    ends — all rows."""
+    """How far from its rung an area may be worked on, the stretch level for each strong state, where the easiest level
+    ends, the levels in order and the usual one — all rows."""
     return _once("rule", lambda: _rule(conn))
 
 
 def _rule(conn) -> dict:
-    r = dict(
-        settings.config(
-            conn, "focus", {"reach": 2, "stretch": {"secure": "Hard", "stretch_ready": "Advance"}}
-        )
-    )
+    r = dict(settings.config(conn, "focus"))
     r["easy_below"] = settings.threshold(conn, "next_sheet.demote_below", 0.5)
+    r["order"], r["usual"] = vocabulary.levels(conn), settings.config(conn, "level.usual")
     return r
 
 

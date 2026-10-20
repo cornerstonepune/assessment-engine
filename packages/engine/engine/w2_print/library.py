@@ -21,12 +21,11 @@ from collections import Counter
 
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
-from engine.core import db
+from engine.core import db, vocabulary
 from engine.w1_bank.inventory import item_from_row
 
 MIN_PER_LEVEL = 10
 ROUNDS = 20  # deals `deal` tries for worksheets that all differ before letting two alike stand for `check` to refuse
-LEVEL_LETTER = {"Easy": "E", "Medium": "M", "Hard": "H", "Advance": "A"}
 PDF_DIR = db.REPO_ROOT / "data" / "worksheets"
 
 
@@ -227,11 +226,16 @@ def _plan_level(conn, lv, n):
     return sheets, deal(questions, n, kinds, want)
 
 
+def code_of(letters, lv, k):
+    """A library worksheet's code: its rung, its level's letter (`vocabulary.letters`), its number — R5-M03."""
+    return f"{lv['rung_code']}-{letters[lv['difficulty']]}{k:02d}"
+
+
 def build(conn, dry_run=False, only=None):
     """Make every level ready — or just `only`, a (skill set, level) pair: retire worksheets holding
     a question no longer in the bank and deal new ones until every active question is on one and
     every level has its worksheets. Running it again changes nothing."""
-    n = per_sheet(conn)
+    n, letters = per_sheet(conn), vocabulary.letters(conn)
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     made = retired = 0
     for lv in _levels(conn, only):
@@ -251,7 +255,7 @@ def build(conn, dry_run=False, only=None):
                 "insert into sheet_template (tenant_id, band, variant, item_ids, skill_set_code, difficulty,"
                 " source, code) values (%s, %s, %s, %s, %s, %s, 'library', %s)",
                 (tenant, lv["band"], k, [q["id"] for q in qs], lv["code"], lv["difficulty"],
-                 f"{lv['rung_code']}-{LEVEL_LETTER[lv['difficulty']]}{k:02d}"),
+                 code_of(letters, lv, k)),
             )  # fmt: skip
     return {"made": made, "retired": retired}
 

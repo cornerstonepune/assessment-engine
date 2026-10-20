@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { deciding } from "@/lib/decides";
 import { sql } from "@/lib/db";
-import { type Band, DIFFICULTIES, type Difficulty, levelsOf } from "@/lib/queries";
+import { levels as schoolLevels } from "@/lib/levels";
+import { type Band, type Difficulty, levelsColumn, levelsOf } from "@/lib/queries";
 
 const CODE = /^[A-Z0-9._]+$/;
 // the approval page under its own choices (goals/ui6a-approve-filtered.yaml), and nothing else
@@ -20,7 +21,8 @@ export async function saveWords(formData: FormData): Promise<void> {
   if (!CODE.test(code)) redirect("/");
   const name = String(formData.get("name") ?? "").trim().slice(0, 80);
   const outcome = String(formData.get("learning_objective") ?? "").trim().slice(0, 400);
-  const [row] = await sql<{ difficulty: Record<Difficulty, Band> }[]>`select difficulty from skill_set where code = ${code}`;
+  const [row] = await sql<{ difficulty: Record<Difficulty, Band>; levels: Difficulty[] }[]>`
+    select s.difficulty, ${levelsColumn()} from skill_set s where s.code = ${code}`;
   if (!row) redirect("/");
   // only the levels the skill defines: 1-digit − 1-digit has no Hard, and saving must not make one
   const levels = levelsOf(row);
@@ -97,8 +99,8 @@ export async function saveGrades(formData: FormData): Promise<void> {
   const me = await deciding("skill_drafts");
   const code = String(formData.get("code") ?? "");
   if (!CODE.test(code)) redirect("/");
-  const [row] = await sql<{ difficulty: Record<Difficulty, Band>; band: string }[]>`
-    select s.difficulty, r.band from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+  const [row] = await sql<{ difficulty: Record<Difficulty, Band>; levels: Difficulty[]; band: string }[]>`
+    select s.difficulty, ${levelsColumn()}, r.band from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
     where s.code = ${code}`;
   if (!row) redirect("/");
   const moved = Object.fromEntries(
@@ -123,7 +125,7 @@ export async function approveLevel(formData: FormData): Promise<void> {
   const code = String(formData.get("code") ?? "");
   const version = Number(formData.get("version"));
   const level = String(formData.get("level") ?? "");
-  if (!CODE.test(code) || !Number.isInteger(version) || !DIFFICULTIES.includes(level as Difficulty)) redirect("/");
+  if (!CODE.test(code) || !Number.isInteger(version) || !(await schoolLevels()).order.includes(level)) redirect("/");
   await sql`
     update skill_set set level_approved = level_approved || jsonb_build_object(${level}::text,
                            jsonb_build_object('by', ${me.name}::text, 'at', now())),

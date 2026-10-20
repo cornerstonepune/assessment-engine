@@ -3,8 +3,8 @@ import Link from "@/components/link";
 import { Answers, KIND, mistakeOf, Question } from "@/components/question";
 import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
+import { levels } from "@/lib/levels";
 import {
-  DIFFICULTIES,
   GRADE_GROUPS,
   gradeOf,
   gradeWords,
@@ -43,7 +43,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   const me = await requireStaff();
   const mayApprove = await deadline(mayDecide(me, "skills"));
   const [{ code }, q] = await Promise.all([params, searchParams]);
-  const level = DIFFICULTIES.find((d) => d === q.level);
+  const level = (await levels()).order.find((d) => d === q.level);
   const everyLevel = q.level === "all";
   const [all, examples, kinds, caught, book, sheets] = await deadline(
     Promise.all([
@@ -60,9 +60,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   if (!s) notFound();
   const sets = all.filter((x) => x.taught);
   const example = (d: Difficulty) => examples.find((e) => e.difficulty === d);
-  const ops = new Set(
-    DIFFICULTIES.map((d) => s.difficulty[d]?.check?.op).filter(Boolean),
-  );
+  const ops = new Set(levelsOf(s).map((d) => s.difficulty[d]?.check?.op).filter(Boolean));
   const op = ops.size === 1 ? String([...ops][0]) : undefined;
   // the worksheets of one level at a time (goals/ui3-curriculum.yaml): the one asked for, every one when asked, else the
   // first that has any — a skill's 73 worksheets listed at once were a page of codes

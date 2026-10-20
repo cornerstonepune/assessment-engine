@@ -42,7 +42,7 @@ def coverage(conn):
         "select s.code, d.difficulty, coalesce(i.n, 0) as n,"
         " coalesce((s.difficulty -> d.difficulty ->> 'min_items')::int, " + str(need) + ") as target"
         " from skill_set s"
-        " cross join (values ('Easy',1),('Medium',2),('Hard',3),('Advance',4)) as d(difficulty, ord)"
+        " join (select tenant_id, code as difficulty, ord from difficulty) d on d.tenant_id = s.tenant_id"
         " left join ("
         "   select skill_set_code, difficulty, count(*) as n from item"
         "   where status = 'active' group by skill_set_code, difficulty"

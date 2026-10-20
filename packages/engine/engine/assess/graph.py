@@ -6,8 +6,6 @@ lookup returns "nothing to go on", the prescriber falls back to the band default
 prescription says so honestly. The thresholds are rows, so the rule can be tuned without a deploy.
 """
 
-ORDER = ["Easy", "Medium", "Hard", "Advance"]
-
 
 def next_difficulty(conn, child_id: str, skill_set: str) -> tuple[str | None, str, list[str]]:
     """Return (difficulty, rule, misconception targets), or (None, "band_default", []) when there

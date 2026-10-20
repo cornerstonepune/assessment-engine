@@ -64,6 +64,11 @@
       }
     },
     {
+      "key": "level.usual",
+      "description": "The level a paper is at when nothing says otherwise: a child with no level yet, a grade with no starting level, a topic's default assessment, a skill chosen on the maker.",
+      "value": "Medium"
+    },
+    {
       "key": "assemble.items_per_sheet",
       "description": "Questions on one worksheet. Twelve fills two sides for Grade 2 and 3.",
       "value": 12

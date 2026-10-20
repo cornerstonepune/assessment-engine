@@ -3,13 +3,19 @@ import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { RAG, RAG_TONE } from "./rag";
 import { skillTaughtFor, skillTaughtIn } from "./taught";
 
-export const DIFFICULTIES = ["Easy", "Medium", "Hard", "Advance"] as const;
-export type Difficulty = (typeof DIFFICULTIES)[number];
+/** A level's name, a row of `difficulty` (lib/levels.ts). */
+export type Difficulty = string;
 
 export type Band = { words: string; check: Record<string, unknown> };
 
-/** The levels a skill defines, in order: most have all four, some fewer (1-digit − 1-digit has no Hard). */
-export const levelsOf = (s: { difficulty: Partial<Record<Difficulty, Band>> }) => DIFFICULTIES.filter((d) => s.difficulty[d]);
+/** The levels a skill defines, in the table's order (`levelsColumn`): most have all four, some fewer (1-digit −
+ *  1-digit has no Hard). */
+export const levelsOf = (s: { levels: Difficulty[] }) => s.levels;
+
+/** `levels` of a skill set row `s`, for a query to select: the levels its rule defines, in the table's order. A
+ *  function, so importing this file never touches the database. */
+export const levelsColumn = () => sql`coalesce((select array_agg(d.code order by d.ord) from difficulty d
+                                        where d.tenant_id = s.tenant_id and s.difficulty ? d.code), '{}') as levels`;
 
 /** The grade a skill's level belongs to: one grade each — named in `level_band`, else the skill's own. */
 export const gradeOf = (s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty) =>
@@ -32,6 +38,7 @@ export type SkillSet = {
   formats: string[];
   misconception_codes: string[];
   difficulty: Record<Difficulty, Band>;
+  levels: Difficulty[];
   status: "draft" | "ratified";
   ratified_by: string | null;
   /** Each level whose questions a person approved, with who and when (goals/f1d-questions-approved-per-level.yaml). */
@@ -68,7 +75,7 @@ export async function skillSets({
   const taught = section ? skillTaughtIn(sql`s.tenant_id`, sql`s.code`, section) : skillTaughtFor(scope, sql`s.tenant_id`, sql`s.code`);
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
-           s.misconception_codes, s.difficulty, s.status, s.ratified_by, s.level_approved, s.updated_at, s.version,
+           s.misconception_codes, s.difficulty, ${levelsColumn()}, s.status, s.ratified_by, s.level_approved, s.updated_at, s.version,
            r.band, coalesce(s.level_band, '{}'::jsonb) as level_band, s.level_band_by, s.level_band_at, r.descriptor, r.skill_codes, s.topic_code,
            t.name as topic_name, t.ord as topic_ord, ${taught} as taught,
            coalesce((select json_object_agg(d.difficulty, d.n)

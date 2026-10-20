@@ -1,6 +1,7 @@
 import { sql } from "./db";
 import type { Difficulty, SkillSet } from "./queries";
-import { DIFFICULTIES, GRADE_GROUPS, gradeOf, skillSets } from "./queries";
+import { levels as schoolLevels } from "./levels";
+import { GRADE_GROUPS, gradeOf, skillSets } from "./queries";
 import type { Scope } from "./scope";
 import { taughtByGrade, untaughtByGrade } from "./taught";
 
@@ -59,8 +60,8 @@ export type CurriculumRow = {
 /** The curriculum as rows, grade by grade — each skill under every grade one of its levels belongs to, with those
  *  levels only — and each row's children assessed: those with a checked answer on it (`child_skill_state`), counted
  *  once however many of a topic's skills they reached. */
-export async function curriculumRows(scope: Scope): Promise<{ subject: string; rows: CurriculumRow[] }> {
-  const [{ subject, skills }, reached, taught, untaught] = await Promise.all([
+export async function curriculumRows(scope: Scope): Promise<{ subject: string; rows: CurriculumRow[]; order: string[] }> {
+  const [{ subject, skills }, reached, taught, untaught, { order }] = await Promise.all([
     curriculum(scope),
     sql<{ code: string; kids: string[] }[]>`
       select ss.code, array_agg(distinct s.child_id::text) as kids
@@ -69,16 +70,17 @@ export async function curriculumRows(scope: Scope): Promise<{ subject: string; r
       where s.n_events > 0 group by ss.code`,
     taughtByGrade(scope),
     untaughtByGrade(scope),
+    schoolLevels(),
   ]);
   const kids = new Map(reached.map((r) => [r.code, r.kids]));
   const rows: CurriculumRow[] = [];
   const sum = (xs: CurriculumRow[], k: "questions" | "worksheets") => xs.reduce((n, x) => n + x[k], 0);
   const levelSums = (xs: CurriculumRow[]) =>
     Object.fromEntries(
-      DIFFICULTIES.map((d) => [d, xs.some((x) => x.levels[d] != null) ? xs.reduce((n, x) => n + (x.levels[d] ?? 0), 0) : null]),
+      order.map((d) => [d, xs.some((x) => x.levels[d] != null) ? xs.reduce((n, x) => n + (x.levels[d] ?? 0), 0) : null]),
     ) as CurriculumRow["levels"];
   for (const [band, words] of GRADE_GROUPS) {
-    const inGrade = (s: CurriculumSkill) => DIFFICULTIES.filter((d) => s.difficulty[d] && gradeOf(s, d) === band);
+    const inGrade = (s: CurriculumSkill) => order.filter((d) => s.difficulty[d] && gradeOf(s, d) === band);
     const group = skills.filter((s) => inGrade(s).length);
     if (!group.length) continue;
     const grade: CurriculumRow = { id: band, parent: null, depth: 0, label: words, questions: 0, worksheets: 0, levels: {}, children: 0, assessed: 0, skills: 0 };
@@ -107,7 +109,7 @@ export async function curriculumRows(scope: Scope): Promise<{ subject: string; r
             untaught: untaught(band, s.code),
             questions: levels.reduce((n, d) => n + (s.counts[d] ?? 0), 0),
             worksheets: levels.reduce((n, d) => n + (s.worksheets[d] ?? 0), 0),
-            levels: Object.fromEntries(DIFFICULTIES.map((d) => [d, levels.includes(d) ? (s.counts[d] ?? 0) : null])),
+            levels: Object.fromEntries(order.map((d) => [d, levels.includes(d) ? (s.counts[d] ?? 0) : null])),
             words: Object.fromEntries(levels.map((d) => [d, s.difficulty[d].words])),
             children: kids.get(s.code)?.length ?? 0,
             assessed: kids.has(s.code) ? 1 : 0,
@@ -145,5 +147,5 @@ export async function curriculumRows(scope: Scope): Promise<{ subject: string; r
       });
     }
   }
-  return { subject, rows };
+  return { subject, rows, order };
 }
