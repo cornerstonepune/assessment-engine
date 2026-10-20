@@ -8271,6 +8271,26 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## Marking counts each answer once: the check counted questions, not answers (2026-10-20, W3)
+
+- **Which reading:** the check was wrong; no answer was counted twice. Measured on live through the engine's API
+  (`GET /read/scan/2026-10-16.pdf/copies`, `/capture/{id}/readings`): each of the five papers has one live reading.
+  CS2A6B23, CSCE3E2C, CSA4999D, CSB8ACB3 print 13 questions, two of them grids asking five answers each (`ans`,
+  `s1`–`s4`): 11 + 10 = 21 results, every one a different question and answer. CS6A1049 (roll 1, page 1 not scanned):
+  one grid and 4 others, 9 results. `_marking` compared results with distinct *questions* (13), so each grid's four
+  extra cells read as "counted twice". No child's score or map was affected.
+- **Fixed (`goals/l13-marking-counts-each-answer-once.yaml`):** `live_data._marking` counts the answers each printed
+  question asks for (its `responses`, at least one) and calls twice only the same question *and* answer (`rid`) on two
+  live readings of one paper. `test_each_answer_of_a_grid_question_counts_once_and_is_not_counted_twice` failed first
+  with live's own words ("5 answers counted for 1 questions printed, 4 counted twice"), then passed; the page scanned
+  twice still fails.
+- **Seen on the way, fixed too:** a copy's score (`copy_scores.tally`) counted an answer read wrong or blank that a
+  person then judged right as right *and* wrong: roll 1 of that scan showed 6 right, 5 wrong of 9 answers.
+  `test_an_answer_read_wrong_and_judged_right_by_a_person_counts_once_as_right` failed first (wrong 2, blank 2), then
+  passed.
+- **`bin/engine done l13-marking-counts-each-answer-once`:** three sentences PROVED, criteria PASSED (7 passed, 1 skipped;
+  bin/check 28 passed); NOT DONE for the manual rehearsal line and not being live.
+
 ## B0b — grades are read from the `grade` table; every grade a row holds is a key; "G2+" is Grade 2 (2026-10-20, ADR 0085)
 
 - **Built (`goals/b0b-grades-from-the-table.yaml`, PR #229):** the website reads the grades once a request (`grades()`,

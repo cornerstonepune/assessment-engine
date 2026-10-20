@@ -1,0 +1,33 @@
+name: l13-marking-counts-each-answer-once
+goal: >
+  `engine live data` says a paper counts each printed question once when every answer its questions ask for is
+  counted once: a question asking for several answers (a grid's five cells, an estimate and its exact answer) has one
+  result per answer, and those are not "counted twice". The same answer to the same question on two live readings of
+  one paper is counted twice, and still fails, naming the paper. The rehearsal on a copy of live comes back clean on
+  the five Grade 3 papers of 2026-10-16.pdf, whose only extra results were their grid questions' cells. A copy's score
+  (`/read/scan/{name}/copies`) puts each answer in one count: one read wrong or blank that a person judged right is
+  right, not right and wrong as well (roll 1 of that scan showed 6 right and 5 wrong of 9 answers).
+
+# Written 2026-10-20, before the fix. Measured first on live (`GET /read/scan/2026-10-16.pdf/copies`, then
+# `/capture/{id}/readings` for each copy): each of the five papers has one live reading; CS2A6B23, CSCE3E2C, CSA4999D
+# and CSB8ACB3 print 13 questions, two of them grids asking five answers each (11 + 2 × 5 = 21 results, each a different
+# question and answer); CS6A1049 (roll 1, page 1 not scanned) holds one grid and 4 other questions (5 + 4 = 9). No
+# answer was stored twice; the check counted questions where it should count answers (STATE.md "Marking counts each
+# answer once").
+says:
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_live_data.py::test_each_answer_of_a_grid_question_counts_once_and_is_not_counted_twice
+  - words: "create the whole loop that we have"
+    proved_by: packages/engine/tests/test_live_data.py::test_a_paper_with_one_question_counted_twice_fails_and_names_the_paper
+  - words: "each sheet gets its score"
+    proved_by: packages/engine/tests/test_copies.py::test_an_answer_read_wrong_and_judged_right_by_a_person_counts_once_as_right
+manual:
+  - "Actions → rehearse update-live, on this branch: the step \"before, on the copy\" says ok for \"Marking counts each printed question once\"."
+scenarios: []
+criteria:
+  - name: the check, on a database built from the migrations
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_live_data.py tests/test_copies.py::test_an_answer_read_wrong_and_judged_right_by_a_person_counts_once_as_right
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

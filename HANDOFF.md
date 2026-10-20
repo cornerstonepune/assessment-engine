@@ -3,6 +3,13 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-20 — the 5 papers "counted twice" were never counted twice (W3); PR on `claude/marking-counts-once`, draft
+- **The check was wrong, not the data** (STATE.md "Marking counts each answer once"): their grid questions ask five
+  answers each; the check counted questions. Now it counts answers; the same answer read twice still fails. No child's
+  score or map moved; no repair on live needed.
+- **Also fixed:** a copy's score counted an answer read wrong, then judged right by a person, as both.
+- **Next:** rehearsal on this branch green → merge; then B0c once B0b is merged and live.
+
 ## 2026-10-20 — B0b built (W1, gate 3): grades read from the table; "G2+" is Grade 2; PR #229, draft, not deployed
 
 - **On `claude/b0b-grades-from-the-table`** (STATE.md "B0b", ADR 0085): every page and query reads grades, names and

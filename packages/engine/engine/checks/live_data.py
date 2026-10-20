@@ -88,19 +88,28 @@ def _stale_graph(conn):
 
 
 def _marking(conn):
+    """A paper counts each answer its printed questions ask for once: a question asking for several (a grid's cells,
+    an estimate and its exact answer, goals/md0a-every-answer-counts.yaml) has one result per answer, each its own
+    `rid`. Counted twice is the same answer to the same question on two live captures of one paper."""
     rows = conn.execute(
-        "select si.qr_code, coalesce(array_length(t.item_ids, 1), 0) as printed,"
-        "       count(r.id) as answers, count(r.id) - count(distinct r.item_id) as twice"
+        "with asked as ("
+        "  select t.id, count(*) as printed,"
+        "         sum(greatest(coalesce(jsonb_array_length(i.responses), 0), 1)) as asked"
+        "  from sheet_template t cross join unnest(t.item_ids) q(item_id) join item i on i.id = q.item_id"
+        "  group by t.id)"
+        " select si.qr_code, coalesce(a.printed, 0) as printed, coalesce(a.asked, 0) as asked, count(r.id) as answers,"
+        "        count(r.id) - count(distinct (r.item_id, coalesce(r.rid, i.responses -> 0 ->> 'rid', ''))) as twice"
         " from sheet_instance si"
-        " join sheet_template t on t.id = si.sheet_template_id"
+        " left join asked a on a.id = si.sheet_template_id"
         " join capture c on c.sheet_instance_id = si.id and c.superseded_by is null"
-        " join item_result r on r.capture_id = c.id"
-        " group by si.id, si.qr_code, t.item_ids"
-        " having count(r.id) <> count(distinct r.item_id) or count(r.id) > coalesce(array_length(t.item_ids, 1), 0)"
+        " join item_result r on r.capture_id = c.id join item i on i.id = r.item_id"
+        " group by si.id, si.qr_code, a.printed, a.asked"
+        " having count(r.id) <> count(distinct (r.item_id, coalesce(r.rid, i.responses -> 0 ->> 'rid', '')))"
+        "     or count(r.id) > coalesce(a.asked, 0)"
     ).fetchall()
     return [
-        f"paper {r['qr_code']}: {r['answers']} answers counted for {r['printed']} questions printed"
-        + (f", {r['twice']} counted twice" if r["twice"] else "")
+        f"paper {r['qr_code']}: {r['answers']} answers counted for {r['asked']} asked by {r['printed']} questions"
+        " printed" + (f", {r['twice']} counted twice" if r["twice"] else "")
         for r in rows
     ]
 
