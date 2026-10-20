@@ -5,7 +5,7 @@ import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { forChildren, KINDS, lineTopics, planBatch, readBatch, topicLines, UUID, WAYS } from "@/lib/maker";
-import { gradeWords, skillSets } from "@/lib/queries";
+import { grades, skillSets } from "@/lib/queries";
 import { classRoll } from "@/lib/queries-children";
 import { homeByClass, homeLength } from "@/lib/queries-make";
 import { isoWeek } from "@/lib/week";
@@ -38,7 +38,7 @@ export default async function Maker({ searchParams }: Props) {
   const q = await searchParams;
   const get = (k: string) => all(q[k]);
   const week = isoWeek();
-  const [classes, homeN] = await deadline(Promise.all([homeByClass(week, scopeOf(me)), homeLength()]));
+  const [classes, homeN, g] = await deadline(Promise.all([homeByClass(week, scopeOf(me)), homeLength(), grades()]));
   const cls = classes.find((c) => c.section === get("class")[0]);
   // every skill, each saying whether this class was taught it: an educator may choose any (ADR 0081); the engine's
   // own choice, a child's next step, keeps to what the class was taught (goals/f1f-taught-per-class.yaml)
@@ -47,7 +47,7 @@ export default async function Maker({ searchParams }: Props) {
   // a starting point's kind and way hold until the class is chosen; "for one child" ticks no one until they are chosen
   const one = get("one")[0] === "1";
   const topic = get("topic")[0] ?? "";
-  const fromTopic = cls && topic && !get("s").some(Boolean) && !get("a").length ? topicLines(sets, topic, cls.band, homeN, LINES) : [];
+  const fromTopic = cls && topic && !get("s").some(Boolean) && !get("a").length ? topicLines(g, sets, topic, cls.band, homeN, LINES) : [];
   const roll = cls ? await deadline(classRoll(cls.section, me.email)) : [];
   // every child is ticked until the form for this class has been sent
   const sent = get("picked").length > 0 && get("of")[0] === cls?.section;
@@ -86,7 +86,7 @@ export default async function Maker({ searchParams }: Props) {
                   <option value="">Choose a class</option>
                   {classes.map((c) => (
                     <option key={c.section} value={c.section}>
-                      {c.section} · {gradeWords(c.band)} · {c.children} children
+                      {c.section} · {g.name(c.band)} · {c.children} children
                     </option>
                   ))}
                 </select>
@@ -130,7 +130,7 @@ export default async function Maker({ searchParams }: Props) {
                     <legend className="label mb-2">Each line: a topic, its skill, a level, how many questions</legend>
                     <MakerLines
                       key={`${cls.section}|${lines.map((a) => (a ? `${a.skill_set}~${a.level}~${a.n}` : "")).join("|")}`}
-                      topics={lineTopics(every, cls.band, homeN, LINES)}
+                      topics={lineTopics(g, every, cls.band, homeN, LINES)}
                       start={lines.map((a, i) => (a ? `${a.skill_set}~${a.level}~${a.n}` : i === 0 ? `~~${homeN ?? ""}` : ""))}
                       topic={topic}
                       fill

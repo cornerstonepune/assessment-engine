@@ -1,0 +1,36 @@
+name: b0b-grades-from-the-table
+goal: >
+  Every page and query reads the grades, their names and their order from the `grade` table: a Grade 10 skill shows on
+  the curriculum page under Grade 10, after Grade 9, and is never read as Grade 1. Every column that holds a grade —
+  the rung's, a child's, a level's (`level_band`), a paper's and the registry's — is a key into `grade`, so the
+  database refuses a grade that is not a row. Reasoning's "G2+" is Grade 2 (Nimish's decision, B3 on the design). A test
+  fails if any file outside the maths library names a grade, reads one out of its code or sorts grades as text. No paper
+  or child's map changes.
+# Written 2026-10-20, before the code. Nimish approved "all backend first" (B0–B4, BUILD-ORDER.md) on the audit in
+# claude.ai/code/artifact/71c2aaf5-06c1-49b7-bcd5-2e6761154e9e (Backend, sections 3 and 7; decision B3). ADR 0085.
+says:
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_grades.py::test_no_file_outside_the_maths_library_names_a_grade"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_grades.py::test_grade_10_sorts_after_grade_9_and_is_never_read_as_grade_1"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "apps/web/tests/b0b-grades-from-the-table.spec.ts::a Grade 10 skill shows on the curriculum page, under Grade 10, after Grade 4"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_grades.py::test_every_grade_a_row_holds_is_a_key_into_grade"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_grades.py::test_reasoning_is_grade_2"
+  - words: "we need proper tables"
+    proved_by: "apps/web/tests/b0b-grades-from-the-table.spec.ts::reasoning sits under Grade 2, and no group is called Grade 2 and up"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive, every grade a row holds is a row of `grade`, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: the keys, the order and the scan
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_grades.py tests/test_vocabulary.py tests/test_loaders.py
+    expect: "passed"
+  - name: no paper and no child's map moved — the engine's whole suite, the papers drawn on fixed seeds included
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

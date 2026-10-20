@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "@/components/link";
 import { Body, PageHeader, Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
-import { gradeWords } from "@/lib/queries";
+import { grades } from "@/lib/queries";
 import { homeByClass } from "@/lib/queries-make";
 import { classPacksWaiting } from "@/lib/queries-today";
 import { isoWeek } from "@/lib/week";
@@ -15,7 +15,7 @@ import { scopeOf } from "@/lib/scope";
 export default async function MakePapers() {
   const scope = scopeOf(await requireStaff());
   if (scope.classes?.length === 1) redirect(`/make/${encodeURIComponent(scope.classes[0])}`);
-  const [classes, packs] = await deadline(Promise.all([homeByClass(undefined, scope), classPacksWaiting(scope)]));
+  const [classes, packs, g] = await deadline(Promise.all([homeByClass(undefined, scope), classPacksWaiting(scope), grades()]));
   return (
     <>
       <PageHeader
@@ -46,7 +46,7 @@ export default async function MakePapers() {
                 {classes.map((c) => (
                   <tr key={c.section}>
                     <td className="fact">{c.section}</td>
-                    <td className="num">{gradeWords(c.band)}</td>
+                    <td className="num">{g.name(c.band)}</td>
                     <td className="num">{c.children}</td>
                     <td className="num" data-n="proposed">
                       {c.proposed}
