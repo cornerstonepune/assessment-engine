@@ -8281,6 +8281,8 @@ one child on live.
 - **Now (`goals/l13-a-paper-is-counted-by-its-answers.yaml`):** `live_data._marking` counts answer slots; it names a
   paper where one answer is counted twice across live readings, or more answers than printed. `tests/test_live_data.py`:
   the new test failed first ("1 counted twice" for a quotient and a remainder), then 7 passed.
+- **On a copy of live** (rehearsal run 39467314863, 63 tables, 160,215 rows): `engine live data` all ok, "Marking counts
+  each printed question once" included; audit 19 invariants, 0 violations. B0a's migration was already on live.
 
 ## B0a — grades, levels and a child's states are tables, every link to them a key (2026-10-20, ADR 0084)
 

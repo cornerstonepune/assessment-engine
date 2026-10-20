@@ -7,7 +7,9 @@ is verified. This file only says where the last session stopped.
 
 - **B0a merged** (#227). **L13 on `claude/b0a-vocabulary-tables`** (STATE.md "L13"): the live check counted questions,
   and a question asking for two answers looked counted twice. No paper was. The check now counts answer slots.
-- **Next:** once L13's rehearsal comes back clean and Nimish merges, B0b (grades read from the table everywhere).
+- **Rehearsal on a copy of live, run 39467314863:** every `engine live data` line ok, audit 19 invariants, 0
+  violations; B0a was already live (no migration waiting).
+- **Next:** once Nimish merges L13 (#230), B0b (grades read from the table everywhere).
   Pre-school names stay "PG", "Nursery", "K1", "K2" (Nimish, 2026-10-20).
 
 ## 2026-10-20 — B0a built (W1, gate 3): grades, levels and states are tables; PR #227, draft, not deployed
@@ -20,9 +22,7 @@ is verified. This file only says where the last session stopped.
 - **Next:** once Nimish merges and it is live, B0b (grades read from the table everywhere; "G2+" → G2; G10 sorts after
   G9, never read as G1).
 - **Still open:**
-  - **Live's data:** 5 papers count some answers twice (CS2A6B23, CSCE3E2C, CSA4999D, CSB8ACB3: 21 for 13 printed;
-    CS6A1049: 9, 4 twice). The rehearsal on main fails the same way. Most likely from the 16 Oct scan; find which
-    reading counted each page twice, on a copy of live.
+  - ~~Live's data: 5 papers count some answers twice~~ — a false alarm in the check, fixed by L13 (above).
   - Pre-school names are the school's words ("PG", "Nursery", "K1", "K2"); Nimish may prefer others.
   - From 16 Oct: roll 1's page 1 (Achal to scan); the n8n Drive flow did not fire; 93 answers wait for a person.
 
