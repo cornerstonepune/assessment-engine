@@ -88,20 +88,25 @@ def _stale_graph(conn):
 
 
 def _marking(conn):
+    """A paper whose live readings count one answer twice, or count more answers than it printed. An answer is a
+    question's answer slot (`item_result.rid`): a question asking for a quotient and a remainder is two answers, never
+    one counted twice (16 Oct: 5 papers of 13 questions and 21 answers were named here as counting 8 twice)."""
     rows = conn.execute(
-        "select si.qr_code, coalesce(array_length(t.item_ids, 1), 0) as printed,"
-        "       count(r.id) as answers, count(r.id) - count(distinct r.item_id) as twice"
+        "select si.qr_code,"
+        "       (select coalesce(sum(greatest(jsonb_array_length(i.responses), 1)), 0) from item i"
+        "         where i.id = any(t.item_ids)) as printed,"
+        "       count(r.id) as answers, count(r.id) - count(distinct (r.item_id, r.rid)) as twice"
         " from sheet_instance si"
         " join sheet_template t on t.id = si.sheet_template_id"
         " join capture c on c.sheet_instance_id = si.id and c.superseded_by is null"
         " join item_result r on r.capture_id = c.id"
         " group by si.id, si.qr_code, t.item_ids"
-        " having count(r.id) <> count(distinct r.item_id) or count(r.id) > coalesce(array_length(t.item_ids, 1), 0)"
     ).fetchall()
     return [
-        f"paper {r['qr_code']}: {r['answers']} answers counted for {r['printed']} questions printed"
+        f"paper {r['qr_code']}: {r['answers']} answers counted for {r['printed']} printed"
         + (f", {r['twice']} counted twice" if r["twice"] else "")
         for r in rows
+        if r["twice"] or r["answers"] > r["printed"]
     ]
 
 

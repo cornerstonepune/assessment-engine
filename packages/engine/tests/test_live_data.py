@@ -104,7 +104,46 @@ def test_a_paper_with_one_question_counted_twice_fails_and_names_the_paper(conn)
     # the same page scanned again and neither file marked as replacing the other
     conn.execute(one, (tenant, conn.execute(file, (tenant, sheet)).fetchone()["id"], item))
     assert [p for p in live_data._marking(conn) if "CS00ffee" in p] == [
-        "paper CS00ffee: 2 answers counted for 1 questions printed, 1 counted twice"
+        "paper CS00ffee: 2 answers counted for 1 printed, 1 counted twice"
+    ]
+
+
+def test_a_question_asking_for_two_answers_is_two_answers_not_one_counted_twice(conn):
+    """Live, 16 Oct (rehearsal run 39464896455): 5 papers of 13 questions asking for 21 answers between them, each read
+    once, 21 results. The check counted questions and said 8 were counted twice. Each answer is counted once; the same
+    answer read on two live readings still fails."""
+    tenant = conn.execute(
+        "insert into tenant (slug, name) values (%s, 't') returning id", (f"t-{uuid.uuid4()}",)
+    ).fetchone()["id"]
+    conn.execute(
+        "insert into rung (tenant_id, code, band, descriptor) values (%s, 'R1', 'G2', 'd')", (tenant,)
+    )
+    item = conn.execute(
+        "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses)"
+        " values (%s, 'K', 'T', 'R1', 'Procedural', 'bare_sum', '{}',"
+        ' \'[{"rid": "q"}, {"rid": "r"}]\') returning id',
+        (tenant,),
+    ).fetchone()["id"]
+    template = conn.execute(
+        "insert into sheet_template (tenant_id, band, week, item_ids) values (%s, 'G2', 'w', %s) returning id",
+        (tenant, [item]),
+    ).fetchone()["id"]
+    sheet = conn.execute(
+        "insert into sheet_instance (tenant_id, qr_code, sheet_template_id) values (%s, 'CS00beef', %s)"
+        " returning id",
+        (tenant, template),
+    ).fetchone()["id"]
+    file = "insert into capture (tenant_id, path, sheet_instance_id) values (%s, 'p', %s) returning id"
+    one = "insert into item_result (tenant_id, capture_id, item_id, rid, status) values (%s, %s, %s, %s, 'correct')"
+    read = conn.execute(file, (tenant, sheet)).fetchone()["id"]
+    conn.execute(one, (tenant, read, item, "q"))
+    conn.execute(one, (tenant, read, item, "r"))
+    assert not [p for p in live_data._marking(conn) if "CS00beef" in p], (
+        "a quotient and a remainder are two answers"
+    )
+    conn.execute(one, (tenant, conn.execute(file, (tenant, sheet)).fetchone()["id"], item, "r"))
+    assert [p for p in live_data._marking(conn) if "CS00beef" in p] == [
+        "paper CS00beef: 3 answers counted for 2 printed, 1 counted twice"
     ]
 
 
