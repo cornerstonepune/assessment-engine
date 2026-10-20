@@ -8289,7 +8289,15 @@ one child on live.
   lacked the four new keys (`engine live rules --write --url <local>`), and the parent-review eval runs with no database.
 - **Website:** `npx tsc --noEmit` and `npx eslint --max-warnings 0` clean. The children table's sort keys are now
   `amber` / `green` (u8 spec updated). Browser specs: CI.
-- **Rehearsal on a copy of live:** to run (`rehearse-update-live.yml` on this branch).
+- **CI on 36be8d4 (run 39474159174): green** — engine (the whole suite, on CI's own browser), web, every browser spec.
+- **Rehearsal on a copy of live (run 39474127831):** "copied: 63 tables, 160215 rows, every count equal to live", then
+  `applying 20261122090000_states_and_subject_are_rows.sql` with no error, so every live row satisfies the new keys. The
+  run is red only on "Marking counts each printed question once" (CS2A6B23, CSCE3E2C, CSA4999D, CSB8ACB3: 21 for 13;
+  CS6A1049: 9): live's data, failing before any update step and identically on main (B0a, above).
+- **`bin/engine done b0d-states-and-subject-from-tables` on 36be8d4, in this container:** all four sentences PROVED;
+  "the rows, the scan and the old answers agree" PASSED (22 passed); bin/check PASSED (28 passed); the whole suite
+  timed out at `engine done`'s 1800 s here (its printing tests alone took 21 min on this container) — CI ran the same
+  suite green. NOT DONE otherwise only for the manual rehearsal line and not being live.
 
 ## B0a — grades, levels and a child's states are tables, every link to them a key (2026-10-20, ADR 0084)
 
