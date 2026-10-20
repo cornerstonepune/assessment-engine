@@ -8290,6 +8290,14 @@ one child on live.
   whole-suite criterion timed out at 1800 s in this container; run directly here it is 2571 passed, 2 skipped
   in 1884 s (the slowest are the reader's and the invariants', untouched here), and green on CI in 20 min; NOT DONE
   also for not being on main or live.
+- **Merged with B0b (63f35e5):** main's grades (`grades()`) and this branch's levels (`levels()`) both kept; `topicLines`
+  / `lineTopics` take the grades and the usual level; the curriculum walks `grade`'s rows in `difficulty`'s order. A
+  fresh database from all 82 migrations (B0b's 20261120090000, then B0c's 20261121090000) applied cleanly; `engine
+  live rules --write` on it gave the merged rules.json unchanged (271 rules). `bin/check` 28 passed; web `tsc` and
+  eslint clean; level/grade/library/rules tests 155 passed. Rehearsal run 39491988653 on 63f35e5 green: copied 160,215
+  rows; live already holds B0b's migration, so only 20261121090000 applied; `library build` made 0, retired 0; the copy
+  after clean. `bin/engine done` again: six sentences PROVED, criteria 1 and 3 PASSED, the whole suite timed out at
+  1800 s here (CI runs it).
 
 ## B0b — grades are read from the `grade` table; every grade a row holds is a key; "G2+" is Grade 2 (2026-10-20, ADR 0085)
 
