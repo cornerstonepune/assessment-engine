@@ -8280,8 +8280,13 @@ one child on live.
   replace are gone (`rules.json` rewritten from a database built from the migrations). Nothing reads the new tables yet.
 - **Checks:** `tests/test_vocabulary.py` failed first (`relation "grade" does not exist`; topic.subject_code no key),
   then 4 passed with test_loaders and test_rules (19 passed). CI on 899891c: web and browser (every spec) green.
+- **A school added later gets its words too** (CI, 2026-10-20: `test_live_data` made a school with no states and its
+  child's map could not be rebuilt): `internal.school_vocabulary()` makes them for every school there, and a trigger on
+  `tenant` for any added later. `bin/engine done b0a-the-vocabulary-is-tables` on 7568a7d: all four sentences PROVED;
+  criteria PASSED (19 passed; whole suite 2555 passed, 2 skipped; bin/check 28 passed); NOT DONE only for the manual
+  rehearsal line and not being live.
 - **The rehearsal now meets live's rows** (`rehearse-update-live.yml`): migrations live has not applied run after
-  live's rows are restored. Run 39447048331: "copied: 60 tables, 160191 rows", then
+  live's rows are restored. Run 39447048331 (and 39454151982 on 7568a7d): "copied: 60 tables, 160191 rows", then
   `applying 20261119090000_the_vocabulary_is_tables.sql` with no error, so every live row satisfies every new key;
   `bin/engine load` and the whole update sequence ran after it.
 - **Not this change, seen by it:** `engine live data` on the copy: "Marking counts each printed question once" FAILs on
