@@ -1,4 +1,5 @@
-import { sql } from "./db";
+import { cache } from "react";
+import { sql, TENANT_SLUG } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { RAG, RAG_TONE } from "./rag";
 import { skillTaughtFor, skillTaughtIn } from "./taught";
@@ -15,13 +16,32 @@ export const levelsOf = (s: { difficulty: Partial<Record<Difficulty, Band>> }) =
 export const gradeOf = (s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty) =>
   s.level_band?.[d] ?? s.band;
 
-/** A grade's place among the grades: G1 → 1, reasoning's "G2+" → 2 — the engine's own rule (`shelf._grade`). */
-export const gradeNo = (band: string) => Number(band.replace(/\D/g, "")) || 0;
+export type Grade = { code: string; name: string; ord: number };
+/** The school's grades in their order, and each one's name and place (goals/b0b-grades-from-the-table.yaml). */
+export type Grades = { list: Grade[]; name: (code: string) => string; ord: (code: string) => number };
+
+/** The school's grades, as the `grade` table holds them: read once a request, by every page that names or orders one.
+ *  A grade's place is its row's order, never a number read from its code ("G10" is not Grade 1). */
+export const grades = cache(async (): Promise<Grades> => {
+  const list = await sql<Grade[]>`
+    select g.code, g.name, g.ord from grade g join tenant t on t.id = g.tenant_id and t.slug = ${TENANT_SLUG} order by g.ord`;
+  const by = new Map(list.map((g) => [g.code, g]));
+  return { list, name: (code) => by.get(code)?.name ?? code, ord: (code) => by.get(code)?.ord ?? -1 };
+});
+
+/** The grades the curriculum runs over, as the menu says them: its lowest and highest grade that a skill is in. */
+export async function gradeSpan(): Promise<string> {
+  const rows = await sql<{ name: string }[]>`
+    select g.name from grade g join tenant t on t.id = g.tenant_id and t.slug = ${TENANT_SLUG}
+    where exists (select 1 from rung r where r.tenant_id = g.tenant_id and r.band = g.code)
+    order by g.ord`;
+  return [...new Set([rows[0]?.name, rows.at(-1)?.name])].filter(Boolean).join("–");
+}
 
 /** Whether a class or child of `band` uses this level: its own grade's levels and those of the grades below
- *  (goals/f1e-the-grade-plan.yaml) — as the engine gives and refuses them. */
-export const usesLevel = (s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty, band: string) =>
-  gradeNo(gradeOf(s, d)) <= gradeNo(band);
+ *  (goals/f1e-the-grade-plan.yaml) — as the engine gives and refuses them (`shelf._levels`). */
+export const usesLevel = (g: Grades, s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty, band: string) =>
+  g.ord(gradeOf(s, d)) <= g.ord(band);
 
 export type SkillSet = {
   code: string;
@@ -85,17 +105,6 @@ export async function skillSets({
     where ${untaught} or ${taught}
     order by r.ladder_order nulls last, s.code`;
 }
-
-// The school's grades, in the order the map shows them. Reasoning runs from Grade 2 up, so it has
-// its own group at the end rather than a grade of its own.
-export const GRADE_GROUPS: [string, string][] = [
-  ["G1", "Grade 1"],
-  ["G2", "Grade 2"],
-  ["G3", "Grade 3"],
-  ["G4", "Grade 4"],
-  ["G2+", "Reasoning · Grade 2 and up"],
-];
-export const gradeWords = (band: string) => GRADE_GROUPS.find(([b]) => b === band)?.[1] ?? band;
 
 export async function skillSet(code: string, scope: Scope = EVERY_CLASS): Promise<SkillSet | undefined> {
   const rows = await skillSets({ untaught: true, scope });

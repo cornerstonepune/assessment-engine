@@ -61,7 +61,7 @@ const LIMIT = 300;
  *  a constant: `sql` is touched only when data is asked for (lib/db.ts), never when the page is imported to build. */
 const papersCte = () => sql`
   papers as (
-    select si.id, si.qr_code as qr, coalesce(si.kind, 'earlier') as kind, si.child_id, ch.roll_no, t.difficulty as level,
+    select si.id, si.tenant_id, si.qr_code as qr, coalesce(si.kind, 'earlier') as kind, si.child_id, ch.roll_no, t.difficulty as level,
            -- a child's copy is at the child's grade, a spare at its class's (class_band, the one rule), and only a paper
            -- given to no class at its worksheet's (goals/ux2-one-count-one-thing.yaml)
            coalesce(si.section, ch.section) as section, coalesce(ch.band, cls.band, t.band) as band, cls.band as class_band,
@@ -215,7 +215,9 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
   const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
   const rows = await sql<AssessmentRow[]>`
     with ${papersCte()}
-    select kind, section, coalesce(min(class_band), min(band)) as band, week, set_key as set, min(set_name) as title,
+    -- the lowest grade of its copies, by the grades' order (grade_ord), never as text
+    select kind, section, coalesce((array_agg(class_band order by grade_ord(tenant_id, class_band)) filter (where class_band is not null))[1],
+                                   (array_agg(band order by grade_ord(tenant_id, band)))[1]) as band, week, set_key as set, min(set_name) as title,
            count(*) filter (where not spare)::int as copies, count(*) filter (where spare)::int as spares,
            jsonb_build_object('made', count(*) filter (where stage = 'made' and not spare),
                               'printed', count(*) filter (where stage = 'printed' and not spare),

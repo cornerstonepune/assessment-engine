@@ -91,12 +91,6 @@ def _catalog(conn, section, every=False) -> list[dict]:
     ]
 
 
-def _grade(band) -> int:
-    """A band's place among the grades: G1 → 1; reasoning's "G2+" → 2."""
-    digits = "".join(ch for ch in str(band or "") if ch.isdigit())
-    return int(digits) if digits else 0
-
-
 def _levels(conn, band=None) -> dict:
     """{skill set: its levels}. With a child's band, only the levels of that child's grade or below: each level
     belongs to one grade (`skill_set.level_band`, else the skill's own), and a child is never given a level of a
@@ -107,14 +101,16 @@ def _levels(conn, band=None) -> dict:
 def _read_levels(conn, band) -> dict:
     out = {}
     for r in conn.execute(
-        "select s.code, s.difficulty, s.level_band, r.band from skill_set s"
-        " left join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
+        # a grade's place is its row's order (`grade_ord`), never a number read from its code: "G10" is not Grade 1
+        "select s.code, s.difficulty, grade_ord(s.tenant_id, %(band)s) as mine,"
+        " (select jsonb_object_agg(k, coalesce(grade_ord(s.tenant_id, coalesce(s.level_band ->> k, r.band)), -1))"
+        "  from jsonb_object_keys(s.difficulty) k) as ords"
+        " from skill_set s left join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code",
+        {"band": band},
     ):
         defined = tuple(r["difficulty"] or {})
         if band is not None:
-            defined = tuple(
-                d for d in defined if _grade((r["level_band"] or {}).get(d) or r["band"]) <= _grade(band)
-            )
+            defined = tuple(d for d in defined if r["mine"] is not None and r["ords"][d] <= r["mine"])
         out[r["code"]] = defined
     return out
 

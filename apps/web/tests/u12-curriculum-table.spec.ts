@@ -95,7 +95,7 @@ test("every row has the same columns, and every number is the database's own", a
            exists (select 1 from child_skill_state k join child c on c.id = k.child_id and c.active
                    where k.rung_code = s.rung_code and k.n_events > 0) as assessed
     from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-    join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code and s.taught
+    join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
     where s.topic_code = 'ADDSUB'
       and exists (select 1 from jsonb_object_keys(s.difficulty) d where coalesce(s.level_band ->> d, r.band) = 'G2')`;
   const topic = table(page).locator('tr[data-row="G2/ADDSUB"] td');

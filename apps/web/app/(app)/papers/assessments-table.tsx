@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { Pill } from "@/components/shell";
 import { classWords } from "@/lib/needs-you";
+import { grades } from "@/lib/queries";
 import { KIND_WORDS, STAGES, STAGE_WORDS, type AssessmentRow, type PaperListRow } from "@/lib/queries-papers";
 import { CopiesTable, STAGE_TONE } from "./copies-table";
 
@@ -16,7 +17,7 @@ export const assessmentTitle = (a: AssessmentRow) => (a.set ? a.title : (MANY[a.
 // A week's assessments (goals/ui5-assessments-readable.yaml, goals/ux5-papers-grouped.yaml): one line each — what it is,
 // its class, its copies counted at each stage in words, the answers waiting for a person, its score across the copies
 // that are checked — its name opening it in place to its copies (`copies`, by assessment), and closing it again.
-export function AssessmentsTable({
+export async function AssessmentsTable({
   label,
   rows,
   copies,
@@ -27,6 +28,7 @@ export function AssessmentsTable({
   copies: Map<string, PaperListRow[]>;
   href: (a: AssessmentRow, open: boolean) => string;
 }) {
+  const g = await grades();
   return (
     <table className="grid" aria-label={label}>
       <thead>
@@ -58,7 +60,7 @@ export function AssessmentsTable({
               </td>
               <td className="whitespace-nowrap">{KIND_WORDS[a.kind] ?? a.kind}</td>
               <td className="whitespace-nowrap">
-                {a.section ? (a.band ? classWords(a.band, a.section) : a.section) : <span className="text-basalt/45">—</span>}
+                {a.section ? (a.band ? classWords(g, a.band, a.section) : a.section) : <span className="text-basalt/45">—</span>}
               </td>
               <td className="num fact whitespace-nowrap">
                 {a.copies}

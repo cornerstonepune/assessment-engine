@@ -10,8 +10,7 @@ export const ROLE_WORDS: Record<string, string> = { coordinator: "a coordinator"
 
 /** A class's word on one skill (goals/t1-topics-are-operations.yaml): its own (`own`), or the school's while no one has
  *  spoken for the class — with who said it, if a person did, and when. `reaches`: one of its levels is the class's
- *  grade or below, so the class's children can be given it (a child never meets a grade above their own; "G2+" is
- *  Grade 2 and up). */
+ *  grade or below, so the class's children can be given it (a child never meets a grade above their own). */
 export type SkillTaught = {
   code: string;
   name: string;
@@ -44,7 +43,7 @@ export async function topics(scope: Scope = EVERY_CLASS): Promise<Topic[]> {
                                'own', cs.section is not null, 'by', coalesce(cs.taught_by, s.taught_by),
                                'at', coalesce(cs.taught_at, s.taught_at)::text,
                                'reaches', exists (select 1 from jsonb_object_keys(s.difficulty) lvl
-                                                  where left(coalesce(s.level_band ->> lvl, r.band), 2) <= left(k.band, 2))
+                                                  where grade_ord(s.tenant_id, coalesce(s.level_band ->> lvl, r.band)) <= grade_ord(s.tenant_id, k.band))
                              ) order by s.code), '[]')
                       from skill_set s
                       left join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code

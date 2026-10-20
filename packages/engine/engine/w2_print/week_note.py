@@ -25,25 +25,19 @@ def _bar(conn):
     return float(row["value"]) if row else BAR[1]
 
 
-def _of(level_grade, band):
-    """A level of `level_grade` is worked on by a class in `band`: its own grade, or one for that grade and above
-    ("G2+")."""
-    grade = int(band[1:]) if band[1:].isdigit() else 0
-    above = level_grade.endswith("+") and level_grade[1:-1].isdigit() and int(level_grade[1:-1]) <= grade
-    return level_grade == band or above
-
-
 def options(conn, band):
-    """{code: its name and what the child can do} for the skill sets a class in `band` works on: those with a level
-    of its grade — the skill's own, or the one a level was moved to (`skill_set.level_band`) — and the ones for that
-    grade and above ("G2+")."""
+    """{code: its name and what the child can do} for the skill sets a class in `band` works on: those with a level of
+    its grade — the skill's own, or the one a level was moved to (`skill_set.level_band`). A grade is its row in
+    `grade`: reasoning's "G2+" is Grade 2 (ADR 0085)."""
     out = {}
     for r in conn.execute(
-        "select s.code, s.name, s.learning_objective, g.band, s.level_band, s.difficulty from skill_set s join rung g"
-        " on g.tenant_id = s.tenant_id and g.code = s.rung_code order by s.code"
+        "select s.code, s.name, s.learning_objective from skill_set s join rung g"
+        " on g.tenant_id = s.tenant_id and g.code = s.rung_code"
+        " where exists (select 1 from jsonb_object_keys(s.difficulty) d where coalesce(s.level_band ->> d, g.band) = %s)"
+        " order by s.code",
+        (band,),
     ):
-        if any(_of((r["level_band"] or {}).get(d) or r["band"], band) for d in r["difficulty"] or {}):
-            out[r["code"]] = f"{r['name']} — {r['learning_objective']}"
+        out[r["code"]] = f"{r['name']} — {r['learning_objective']}"
     return out
 
 

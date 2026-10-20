@@ -44,7 +44,7 @@ export async function reportsWaiting(actor: string, scope: Scope = EVERY_CLASS):
     select c.id as child_id, p.first_name, c.band, c.section, c.roll_no, ${reportState(sql`c.id`)} as report
     from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active and ${inScope(scope, sql`c.section`)}
-    order by c.band, c.section, roll_order(c.roll_no), c.roll_no`;
+    order by grade_ord(c.tenant_id, c.band), c.section, roll_order(c.roll_no), c.roll_no`;
   return rows.filter((r) => reportRank(r.report) < 3).sort((a, b) => reportRank(a.report) - reportRank(b.report));
 }
 

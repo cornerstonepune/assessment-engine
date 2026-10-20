@@ -1,6 +1,6 @@
 import type { Session } from "./auth";
 import { decidable, type Kind } from "./decides";
-import { gradeWords } from "./queries";
+import { grades, type Grades } from "./queries";
 import { type Waiting, waiting } from "./queries-today";
 import { scopeOf } from "./scope";
 import { weekWords } from "./week";
@@ -38,11 +38,11 @@ export type NeedsYou = Record<Tab, Line[]>;
 const KIND_WORDS: Record<string, string> = { practice: "class practice", assessment: "class assessment", focus: "home assessment" };
 
 /** "Grade 2 · 2B": a class as an educator says it. */
-export const classWords = (band: string, section: string) => `${gradeWords(band)} · ${section}`;
+export const classWords = (g: Grades, band: string, section: string) => `${g.name(band)} · ${section}`;
 /** A count and its noun, said as a person says it: 1 child, 2 children. */
 export const many = (n: number, one: string, more = `${one}s`) => `${n} ${n === 1 ? one : more}`;
 
-export function linesOf(w: Waiting, may: (kind: Kind) => boolean = () => true): NeedsYou {
+export function linesOf(w: Waiting, g: Grades, may: (kind: Kind) => boolean = () => true): NeedsYou {
   const asks = w.asks.reduce((n, a) => n + a.n, 0);
   const packs = w.packs.reduce((n, p) => n + p.n, 0);
   const all: Record<Tab, Line[]> = {
@@ -55,7 +55,7 @@ export function linesOf(w: Waiting, may: (kind: Kind) => boolean = () => true): 
         n: packs,
         words: "papers made for a class, waiting for a person before they print",
         items: w.packs.map((p) => ({
-          label: `${classWords(p.band, p.section)} · ${KIND_WORDS[p.kind] ?? p.kind} · ${weekWords(p.week)}`,
+          label: `${classWords(g, p.band, p.section)} · ${KIND_WORDS[p.kind] ?? p.kind} · ${weekWords(p.week)}`,
           href: `/papers/approve?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`,
           n: p.n,
         })),
@@ -76,7 +76,7 @@ export function linesOf(w: Waiting, may: (kind: Kind) => boolean = () => true): 
         kind: "reports",
         n: w.reports.length,
         words: "written for a parent and waiting for a person to read and approve",
-        items: w.reports.map((r) => ({ label: `${classWords(r.band, r.section)} · Roll ${r.roll_no}`, href: `/growth/${r.child_id}/parent` })),
+        items: w.reports.map((r) => ({ label: `${classWords(g, r.band, r.section)} · Roll ${r.roll_no}`, href: `/growth/${r.child_id}/parent` })),
         // every report waiting on a person, in one list (goals/ui4b1-child-by-topic.yaml)
         href: "/growth/reports",
         action: "Open the list",
@@ -91,9 +91,9 @@ export function linesOf(w: Waiting, may: (kind: Kind) => boolean = () => true): 
 
 /** What waits on this person: in their classes, decisions that are theirs, and the questions drafted for their role. */
 export async function needsYou(me: Session): Promise<NeedsYou> {
-  const [w, may] = await Promise.all([waiting(me.email, scopeOf(me)), decidable(me)]);
+  const [w, may, g] = await Promise.all([waiting(me.email, scopeOf(me)), decidable(me), grades()]);
   const asks = me.role === "coordinator" ? w.asks : w.asks.filter((a) => a.for_role === me.role);
-  return linesOf({ ...w, asks }, may);
+  return linesOf({ ...w, asks }, g, may);
 }
 
 /** {tab: what waits in it} for the menu, and Today's: every tab's together. */

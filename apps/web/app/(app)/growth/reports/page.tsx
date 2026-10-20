@@ -4,6 +4,7 @@ import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { classWords } from "@/lib/needs-you";
+import { grades } from "@/lib/queries";
 import { reportsWaiting, reportWords } from "@/lib/queries-reports";
 
 // Parent reports (goals/ui4b1-child-by-topic.yaml): every child whose report waits on a person, in one list — out of
@@ -13,7 +14,7 @@ import { reportsWaiting, reportWords } from "@/lib/queries-reports";
 // at once was one long table.
 export default async function ReportsPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
-  const [every, q] = await Promise.all([deadline(reportsWaiting(me.email, scopeOf(me))), searchParams]);
+  const [every, q, g] = await Promise.all([deadline(reportsWaiting(me.email, scopeOf(me))), searchParams, deadline(grades())]);
   const sections = [...new Map(every.map((r) => [r.section, r])).values()];
   const chosen = sections.some((r) => r.section === q.class) ? q.class : undefined;
   const rows = chosen ? every.filter((r) => r.section === chosen) : every;
@@ -41,7 +42,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
                 className={`chip ${chosen === r.section ? "on" : ""}`}
                 aria-current={chosen === r.section ? "page" : undefined}
               >
-                {classWords(r.band, r.section)} <span className="fact ml-1 opacity-70">{every.filter((x) => x.section === r.section).length}</span>
+                {classWords(g, r.band, r.section)} <span className="fact ml-1 opacity-70">{every.filter((x) => x.section === r.section).length}</span>
               </Link>
             ))}
           </nav>
@@ -73,7 +74,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
                         <td>
                           <Link href={`/growth/${r.child_id}/parent`}>{r.first_name}</Link>
                         </td>
-                        <td>{classWords(r.band, r.section)}</td>
+                        <td>{classWords(g, r.band, r.section)}</td>
                         <td className="num fact">{r.roll_no}</td>
                         <td>
                           <Pill tone={tone}>{short}</Pill>

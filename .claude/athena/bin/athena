@@ -27,7 +27,7 @@ import sys
 import time
 from pathlib import Path
 
-VERSION = "2.3.0"
+VERSION = "2.4.0"
 ID_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
 STRIKE_LIMIT = 3
 CHECK_TIMEOUT = int(os.environ.get("ATHENA_CHECK_TIMEOUT", "900"))

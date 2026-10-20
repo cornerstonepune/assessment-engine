@@ -32,7 +32,7 @@ test("the map lists every skill by grade, each led by what the child can do, and
   const all = await skills();
   await page.goto("/");
   const table = page.getByRole("table", { name: "The curriculum, grade by grade" });
-  for (const grade of ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Reasoning · Grade 2 and up"]) {
+  for (const grade of ["Grade 1", "Grade 2", "Grade 3", "Grade 4"]) {
     await expect(table.getByRole("button", { name: grade, exact: true })).toBeVisible();
   }
   await page.getByRole("button", { name: "Open everything" }).click();
