@@ -72,6 +72,13 @@ These run beside the loop as plugins from the `athena` marketplace (`nimishshah1
 - Skills, MCP tools and subagents load on demand. Load every tool a step needs in one search; never "just in case".
 - Subagents only for three or more independent tasks. Use the cheapest model that can do the job: Haiku to search, Sonnet for routine work, Opus for design and hard debugging. The proof-writer and verifier keep their fixed models.
 - A plugin this repository doesn't need stays off in `.claude/settings.json`.
+- Standards live in `.claude/athena/standards/`. Open only the one the task needs, before you start:
+  - `ARCHITECTURE.md` for a new system, module, data model or integration;
+  - `AI-AGENTS.md` for anything where a model reads, decides or acts;
+  - `DESIGN.md` for anything a person looks at;
+  - `WRITING.md` for anything a person reads;
+  - `rules/` for backend, database, data, auth, money, testing and frontend conventions.
+- Two skills worth knowing: `archify` draws architecture and flow diagrams from the code for Nimish; `pentest` attacks a staging app with Strix before a big release.
 
 ## The repository's memory
 
