@@ -8,7 +8,8 @@ is verified. This file only says where the last session stopped.
   answers each; the check counted questions. Now it counts answers; the same answer read twice still fails. No child's
   score or map moved; no repair on live needed.
 - **Also fixed:** a copy's score counted an answer read wrong, then judged right by a person, as both.
-- **Next:** rehearsal on this branch green → merge; then B0c once B0b is merged and live.
+- **Rehearsed green** on a copy of live (run 39480469879): the check says ok before and after the update.
+- **Next:** Nimish merges and deploys; then B0c once B0b is merged and live.
 
 ## 2026-10-20 — B0b built (W1, gate 3): grades read from the table; "G2+" is Grade 2; PR #229, draft, not deployed
 

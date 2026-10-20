@@ -8290,6 +8290,9 @@ one child on live.
   passed.
 - **`bin/engine done l13-marking-counts-each-answer-once`:** three sentences PROVED, criteria PASSED (7 passed, 1 skipped;
   bin/check 28 passed); NOT DONE for the manual rehearsal line and not being live.
+- **Rehearsed on a copy of live (run 39480469879, 784f54b):** "copied: 63 tables, 160215 rows, every count equal to
+  live"; `engine live data` before the update: `ok    Marking counts each printed question once`, and again after
+  `bin/update-live`'s steps (the copy after, must be clean: every check ok).
 
 ## B0b — grades are read from the `grade` table; every grade a row holds is a key; "G2+" is Grade 2 (2026-10-20, ADR 0085)
 
