@@ -8271,6 +8271,25 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## B0c — the four levels are read from `difficulty` everywhere (2026-10-20, ADR 0084)
+
+- **Built (`goals/b0c-levels-from-the-table.yaml`, PR #228):** every reader outside the maths library takes the levels'
+  names and order from `difficulty`: the engine (`vocabulary.levels` / `letters`: prescribe, library codes, the bank's
+  coverage, rehome, the home paper's level via `shelf.rule`), the website (`lib/levels.ts`; a skill's own levels as
+  `levels`, ordered in SQL; every page, form and query that listed or ordered them) and `next_difficulty` (steps along
+  the table's order, so a fifth level is reachable). Migration 20261121090000: `difficulty.letter` (E, M, H, A from the
+  seed, unique per school) and the config row `level.usual` ("Medium", where four files each wrote it).
+  `assess/placing.py` still names levels: the maths library's own rule, outside the test.
+- **Rejected:** the letter computed as the level's initial; B0a's test adding "Expert" failed on it (clashes with Easy).
+- **Checks:** `tests/test_levels.py` failed first (every file and `next_difficulty` listed; no `vocabulary.levels`; no
+  `letter`); the ten next-level cases passed before and after. CI on 55bef20: engine (whole suite), web and browser
+  green. Rehearsal run 39471842250: the migration applied on 160,215 of live's rows, `library build` made 0 and retired
+  0; it then stopped at `live data` on the 16 Oct papers (main fails the same way). L13's check (d96972f) ported in
+  55bef20; rehearsal run 39473436188 green end to end.
+- **`bin/engine done b0c-levels-from-the-table`** (local copy): all six sentences PROVED; criteria 1 and 3 PASSED; the
+  whole-suite criterion timed out at 1800 s in this container (33 min here, 20 min on CI, where it passed); NOT DONE
+  also for not being on main or live.
+
 ## B0a — grades, levels and a child's states are tables, every link to them a key (2026-10-20, ADR 0084)
 
 - **Built (`goals/b0a-the-vocabulary-is-tables.yaml`):** `grade` (14 rows, PG → G10), `difficulty` (4) and

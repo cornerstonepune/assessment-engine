@@ -3,6 +3,13 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-20 — B0c built (W1, gate 3): the levels are read from their table; PR #228, draft, not deployed
+- **On `claude/b0c-levels-from-the-table`** (STATE.md "B0c"): no file outside `assess/` names a level; the worksheet
+  letter is `difficulty.letter`; "Medium" by default is the config row `level.usual`. Migration 20261121090000.
+- **Proved:** CI green on 55bef20; rehearsal on a copy of live green (run 39473436188), no worksheet code changed.
+- **Carries L13's marking-check fix** (two files, d96972f) so the rehearsal reads live as L13's; no-op once #230 merges.
+- **Next:** Nimish merges #228 (alone or after #230), then live is migrated and deployed; then B0d.
+
 ## 2026-10-20 — B0a built (W1, gate 3): grades, levels and states are tables; PR #227, draft, not deployed
 
 - **On `claude/b0a-vocabulary-tables`** (STATE.md "B0a"): `grade`, `difficulty`, `child_state` from
