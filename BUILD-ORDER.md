@@ -5,6 +5,30 @@ workflow and which gate it is on, and does not touch a later workflow until ever
 current one passes in `STATE.md`. Nimish set this on 2026-09-19 after three sessions drifted
 across the map and left every part incomplete. Nothing here is a suggestion.
 
+## Inserted now: the backend for every subject — Nimish, 2026-10-20
+
+Nimish, on the audit of the backend (claude.ai/code/artifact/71c2aaf5-06c1-49b7-bcd5-2e6761154e9e, the "Backend" tab):
+"we need proper tables", and "everything is now getting built in a proper, scalable way, not as some one-time random
+effort". His decision: all backend first, B0–B4, before Hindi or any new screen. **W1, gate 3** ("any topic, by rows
+only") carries it. The target model and what was rejected are ADR 0084.
+
+Three rules hold for every step: a numbered migration, rehearsed on a copy of live first (`rehearse update-live`);
+a check that compares the new tables with the old answer; and no paper, map or page changes on the day. An old column
+stays readable for one deploy after its readers move, then goes.
+
+**Order, until Nimish says otherwise:** B0a → B0b → B0c → B0d → B1 → B2 → B3 → B4. The slices above (UX…, SF…) wait.
+
+| Slice | Goal file | Green means |
+|---|---|---|
+| B0a | `goals/b0a-the-vocabulary-is-tables.yaml` | three tables, `grade` (PG, N, K1, K2, G1–G10, each with its name and order), `difficulty` (Easy, Medium, Hard, Advance in order) and `child_state` (the graph's six states with their order, words, colour and whether a next paper works on them), loaded from the seed and made for every school by the migration; a topic's subject, a skill's topic, the level of a question, prescription, paper and review, and a child's state are real keys the database checks, replacing their lists of allowed words; every row on live satisfies them; adding a grade, level or state is an insert. Nothing reads the tables yet |
+| B0b | `goals/b0b-grades-from-the-table.yaml` | every page and query reads grades, their names and order from `grade`: a Grade 10 skill shows on the curriculum page, G10 sorts after G9 and is never read as G1; `rung.band` and `level_band` hold grade codes ("G2+" becomes G2) and are real keys; a test fails if any file outside the maths library names a grade |
+| B0c | `goals/b0c-levels-from-the-table.yaml` | the four levels' names and order are read from `difficulty` everywhere; a test fails if any file outside the maths library names a level |
+| B0d | `goals/b0d-states-and-subject-from-tables.yaml` | a child's states, their words, colours and order are read from `child_state`; the subject comes from the skill's topic, never "NUM" or "Maths" in code; a test fails if any file names a state or a subject |
+| B1 | `goals/b1-levels-are-rows.yaml` | `skill_level`, one row per level (178), filled from the blob with grades and approvals; every reader switched, the version history on the level. For every skill and level the generator draws exactly the same questions from the rows as from the blob, on the same seed; counts of grades and approvals equal before and after |
+| B2 | `goals/b2-question-types-are-rows.yaml` | `question_type` holds the 33 labels, the 6 card kinds and the maths library's types, each with how it reaches the child and how it is marked; `skill_level_question_type` replaces the formats lists; one approval per type (SF2a). Every level's question types the same before and after; the paper-maker takes only confirmed levels and approved types, and says which one waits when it cannot |
+| B3 | `goals/b3-samples-mistakes-prerequisites.yaml` | `skill_level_sample` from the card examples and each level's "statement: examples" text (Achal checks the split); `skill_mistake`, `skill_registry_link`, `skill_prerequisite`. Every code a skill names is a real key; Achal has confirmed or removed the 8 division mistakes on Multiplication facts |
+| B4 | `goals/b4-the-rung-folded-in.yaml` | the rung's grade, order and description on the skill, its code kept as the skill's second code; tables renamed as decision B1 says. No file reads `rung`; evidence untouched, its row count and checksum equal before and after |
+
 ## Inserted now: topics are operations, and every page is the educator's own — Nimish, 2026-10-15
 
 Nimish, on live's Children page: "You are putting estimation word problems as a potential topic. How can that be a

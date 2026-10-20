@@ -8271,6 +8271,29 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## B0a — grades, levels and a child's states are tables, every link to them a key (2026-10-20, ADR 0084)
+
+- **Built (`goals/b0a-the-vocabulary-is-tables.yaml`):** `grade` (14 rows, PG → G10), `difficulty` (4) and
+  `child_state` (6, with words, colour, needs_work), from `supabase/seed/vocabulary.json`, made for every school by
+  migration 20261119090000. Keys on (tenant_id, code): topic → subject, skill_set → topic, item / prescription /
+  sheet_template / item_review difficulty → difficulty, child_skill_state.state → child_state; the four CHECKs they
+  replace are gone (`rules.json` rewritten from a database built from the migrations). Nothing reads the new tables yet.
+- **Checks:** `tests/test_vocabulary.py` failed first (`relation "grade" does not exist`; topic.subject_code no key),
+  then 4 passed with test_loaders and test_rules (19 passed). CI on 899891c: web and browser (every spec) green.
+- **A school added later gets its words too** (CI, 2026-10-20: `test_live_data` made a school with no states and its
+  child's map could not be rebuilt): `internal.school_vocabulary()` makes them for every school there, and a trigger on
+  `tenant` for any added later. `bin/engine done b0a-the-vocabulary-is-tables` on 7568a7d: all four sentences PROVED;
+  criteria PASSED (19 passed; whole suite 2555 passed, 2 skipped; bin/check 28 passed); NOT DONE only for the manual
+  rehearsal line and not being live.
+- **The rehearsal now meets live's rows** (`rehearse-update-live.yml`): migrations live has not applied run after
+  live's rows are restored. Run 39447048331 (and 39454151982 on 7568a7d): "copied: 60 tables, 160191 rows", then
+  `applying 20261119090000_the_vocabulary_is_tables.sql` with no error, so every live row satisfies every new key;
+  `bin/engine load` and the whole update sequence ran after it.
+- **Not this change, seen by it:** `engine live data` on the copy: "Marking counts each printed question once" FAILs on
+  5 papers (CS2A6B23, CSCE3E2C, CSA4999D, CSB8ACB3: 21 answers for 13 printed; CS6A1049: 9, 4 twice), already in the
+  step before any update ran. Main fails identically (run 39449844559 on 1d92306), so it is in live's data, not this
+  change; the last green rehearsal (2026-10-15) was before the 16 Oct scan was read.
+
 ## L12b live; 2026-10-16.pdf read at 0.76; each reading's line returned by the API (2026-10-16)
 
 - **L12b live by hand, at Nimish's word:** #223 merged as 945adb2 (16:08 UTC). `deploy engine` (run 38929617532,

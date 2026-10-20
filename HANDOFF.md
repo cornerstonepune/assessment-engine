@@ -3,6 +3,22 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-20 — B0a built (W1, gate 3): grades, levels and states are tables; PR #227, draft, not deployed
+
+- **On `claude/b0a-vocabulary-tables`** (STATE.md "B0a"): `grade`, `difficulty`, `child_state` from
+  `supabase/seed/vocabulary.json`; real keys topic → subject, skill → topic, every level column → difficulty, a child's
+  state → child_state. Nothing reads the new tables yet. BUILD-ORDER has B0a–B4; ADR 0084.
+- **Rehearsal fixed:** migrations live has not applied now run after live's rows arrive. On a copy of live the B0a
+  migration applied cleanly to 160,191 rows (run 39447048331).
+- **Next:** once Nimish merges and it is live, B0b (grades read from the table everywhere; "G2+" → G2; G10 sorts after
+  G9, never read as G1).
+- **Still open:**
+  - **Live's data:** 5 papers count some answers twice (CS2A6B23, CSCE3E2C, CSA4999D, CSB8ACB3: 21 for 13 printed;
+    CS6A1049: 9, 4 twice). The rehearsal on main fails the same way. Most likely from the 16 Oct scan; find which
+    reading counted each page twice, on a copy of live.
+  - Pre-school names are the school's words ("PG", "Nursery", "K1", "K2"); Nimish may prefer others.
+  - From 16 Oct: roll 1's page 1 (Achal to scan); the n8n Drive flow did not fire; 93 answers wait for a person.
+
 ## 2026-10-16 — L12b live 16:16 UTC; 16 Oct read at 0.76; readings name their line
 
 - **L12b live** (STATE.md "L12b live"). 16 Oct re-read: 74 right, 11 wrong, 8 unclear; the 862 now reads right.
