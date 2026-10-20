@@ -27,14 +27,13 @@ def _bar(conn):
 
 def options(conn, band):
     """{code: its name and what the child can do} for the skill sets a class in `band` works on: those with a level of
-    its grade or a grade below — the skill's own, or the one a level was moved to (`skill_set.level_band`) — the rule a
-    paper keeps (`shelf._levels`). A grade's place is its row's order, never a number read from its code."""
+    its grade — the skill's own, or the one a level was moved to (`skill_set.level_band`). A grade is its row in
+    `grade`: reasoning's "G2+" is Grade 2 (ADR 0085)."""
     out = {}
     for r in conn.execute(
         "select s.code, s.name, s.learning_objective from skill_set s join rung g"
         " on g.tenant_id = s.tenant_id and g.code = s.rung_code"
-        " where exists (select 1 from jsonb_object_keys(s.difficulty) d"
-        "  where grade_ord(s.tenant_id, coalesce(s.level_band ->> d, g.band)) <= grade_ord(s.tenant_id, %s))"
+        " where exists (select 1 from jsonb_object_keys(s.difficulty) d where coalesce(s.level_band ->> d, g.band) = %s)"
         " order by s.code",
         (band,),
     ):

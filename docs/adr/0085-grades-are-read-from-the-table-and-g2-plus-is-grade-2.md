@@ -22,9 +22,11 @@ and a level's grade sat in `skill_set.level_band`, a JSON object no key reaches.
   grade a row of `grade`, refused with a key's own error; a grade a level names is not deleted or renamed from under
   it. A true key arrives with B1, when a level is a row (`skill_level.grade`).
 - **"G2+" is Grade 2** (Nimish's decision, B3 on the design): it meant first met in Grade 2, which is what every
-  level's grade means. A level's grade is used by its own grade and every grade above (goals/f1e-the-grade-plan.yaml),
-  so the week's declaration now offers a class the skills of its grade and the grades below, the rule a paper already
-  kept (`shelf._levels`) — where it offered its own grade's and the two reasoning skills.
+  level's grade means. A paper gives a child the levels of their grade and the grades below
+  (goals/f1e-the-grade-plan.yaml), so a Grade 3 or 4 child is still given reasoning. The week's declaration offers a
+  class the skills with a level in its own grade only (goals/n4-week-declaration.yaml, and "nothing else" for Grade 1),
+  so a Grade 3 or 4 class's week no longer lists the two reasoning skills, which "G2+" had added to every grade from 2
+  up. Open for Nimish: move a reasoning level to Grade 3 or 4 on its skill's page, or say the week should list them.
 - **The maths library keeps its paper's layout for the youngest grade** (`render.py`: bigger boxes, two to a row,
   when `sheet.grade == "G1"`). It is how the library draws a paper, not a list of grades a page or another subject
   reads (decision B4 on the design); moving it to a column would change no paper and is left until a second layout
@@ -39,13 +41,14 @@ and a level's grade sat in `skill_set.level_band`, a JSON object no key reaches.
 - The 144 reasoning library worksheets print "Grade 2" where they printed "Grade 2+"; the other 2,593 are the same to
   the byte (STATE.md "B0b").
 - A level's grade can be set to any grade the table holds, Grade 10 included.
+- A Grade 3 or 4 class's week declaration no longer offers the two reasoning skills (above).
 - The menu says "Grade 1–Grade 4 · Maths", the lowest and highest grade a skill is in, where it said "Grade 1–4".
 
 ## Rejected
 
 - **Keep "G2+" as a grade row** ("Grade 2 and up"). A grade a child cannot be in, kept only to sort reasoning into a
   group of its own; every other level already means "this grade and up".
-- **Keep the week's declaration to a class's own grade only.** With reasoning now Grade 2, a Grade 3 or 4 class would
-  have lost the reasoning skills it was offered.
+- **Let the week's declaration list a class's grade and the grades below.** Tried: it broke the Grade 1 week Nimish
+  asked for on 2026-10-06 (every skill Grade 1 teaches "and nothing else"; tests/test_week_note.py).
 - **A key on `level_band` now** by splitting it into rows. That is B1's step (`skill_level`), with its own proof that
   every question drawn is the same; done here it would be B1 twice.
