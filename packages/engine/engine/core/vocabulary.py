@@ -58,7 +58,7 @@ def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
 
 
 def states(conn: db.Conn) -> list[dict[str, Any]]:
-    """The school's states of a child's map, weakest first, each with every rule about it (ADR 0085): what a next
+    """The school's states of a child's map, weakest first, each with every rule about it (ADR 0086): what a next
     paper works on (`needs_work`), what waits on too few answers (`enough`), what is ready to move up, what may be
     nearly secure, its group on the class card, the reason a paper prints. Code reads these, never names a state."""
     return conn.execute(

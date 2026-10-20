@@ -84,11 +84,9 @@ export function nextStep(next: Facts["next"], name: string): string | null {
     : `The educator gives ${name} more questions of ${skill}, at ${next.level}, until it is secure.`;
 }
 
-// "Grade 2 · G2" said the class twice: a section named for its band adds nothing to the grade beside it.
-export function classOf(grade: string, section: string): string {
-  return section === `G${grade.replace(/\D/g, "")}`
-    ? grade
-    : `${grade} · ${section}`;
+// "Grade 2 · G2" said the class twice: a section named for its grade's code adds nothing to the grade beside it.
+export function classOf(grade: string, band: string, section: string): string {
+  return section === band ? grade : `${grade} · ${section}`;
 }
 
 function Section({
@@ -114,12 +112,15 @@ export function Letter({
   note,
   name,
   section,
+  band,
   subject,
   approver,
 }: {
   note: Note;
   name: string;
   section: string;
+  /** The child's grade's code: a section named for it is not said twice. */
+  band: string;
   /** What the report is of (skill_set → topic → subject): "Maths". */
   subject: string;
   approver: string | null;
@@ -154,7 +155,7 @@ export function Letter({
             {name}
           </h1>
           <div className="text-[13.5px] text-basalt/70">
-            {classOf(f.grade, section)}
+            {classOf(f.grade, band, section)}
           </div>
         </div>
         <div className="text-right text-[13px] text-basalt/70">

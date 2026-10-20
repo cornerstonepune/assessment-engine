@@ -1,4 +1,4 @@
-# ADR 0085 — A state's rules are its columns, and the subject comes from the skill's topic
+# ADR 0086 — A state's rules are its columns, and the subject comes from the skill's topic
 
 **Status:** accepted (2026-10-20).
 Goal: goals/b0d-states-and-subject-from-tables.yaml

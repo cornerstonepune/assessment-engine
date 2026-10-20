@@ -7,7 +7,7 @@ goal: >
   test fails if any file names a state or a subject. No paper, no page wording a parent sees and no child's map
   changes: the rows give the very answers the code gave.
 # Written 2026-10-20, before the code. Nimish approved "all backend first" (B0–B4, BUILD-ORDER.md) on the audit in
-# claude.ai/code/artifact/71c2aaf5-06c1-49b7-bcd5-2e6761154e9e (Backend tab §3, §7). ADR 0085.
+# claude.ai/code/artifact/71c2aaf5-06c1-49b7-bcd5-2e6761154e9e (Backend tab §3, §7). ADR 0086.
 says:
   - words: "we need proper tables"
     proved_by: "packages/engine/tests/test_states_and_subject.py::test_a_states_rules_are_its_columns_and_give_the_old_answers"

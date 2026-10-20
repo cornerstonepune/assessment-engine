@@ -8,7 +8,7 @@ is verified. This file only says where the last session stopped.
 - **On `claude/b0d-states-and-subject`** (STATE.md "B0d"): every rule about a state is a column of `child_state`
   (enough, severity, move_up, nearly, card_group, why); each colour's words are `state_colour` rows; a subject has a
   `label` ("Maths"). Prescriptions take their strand from the skill set's topic's subject; the three headings read it.
-  Migration 20261122090000; ADR 0085. A test fails if any file names a state or a subject.
+  Migration 20261122090000; ADR 0086. A test fails if any file names a state or a subject.
 - **Ran beside B0b and B0c.** Their migrations may redefine B0a's `internal.school_vocabulary`; this one does not (it adds
   `internal.school_states`, fired first by name). Merge main in before the PR is ready, and again after either merges.
   Shared lines likely to conflict: `components/shell.tsx` ("Grade 1–4 · {subject}"), `lib/queries.ts`, the seed.
@@ -17,6 +17,18 @@ is verified. This file only says where the last session stopped.
   `secure`): an old bookmarked sort opens unsorted.
 - **This container's browser:** the pinned Playwright wants Chromium 1243; only 1194 is installed. A private
   `PLAYWRIGHT_BROWSERS_PATH` linking 1194 ran every printing test locally.
+
+## 2026-10-20 — B0b built (W1, gate 3): grades read from the table; "G2+" is Grade 2; PR #229, draft, not deployed
+
+- **On `claude/b0b-grades-from-the-table`** (STATE.md "B0b", ADR 0085): every page and query reads grades, names and
+  order from `grade`; ten band columns are keys; `level_band` checked on write; reasoning is Grade 2.
+  `tests/test_grades.py` fails if a file outside `engine/assess/` names a grade.
+- **Proved:** library worksheets drawn before/after: 2,593 of 2,737 identical; 144 reasoning ones say "Grade 2" for
+  "Grade 2+". Rehearsal on a copy of live applied the migration cleanly (run 39467290221).
+- **Open for Nimish:** a Grade 3 or 4 class's week no longer offers the two reasoning skills (the week keeps to a
+  class's own grade). Move a reasoning level to Grade 3/4, or say the week should list them.
+- **Next:** once merged and live, B0c (levels from `difficulty`).
+- **Still open (from B0a):** the 5 papers that count answers twice on live; pre-school names; roll 1's page 1; n8n.
 
 ## 2026-10-20 — B0a built (W1, gate 3): grades, levels and states are tables; PR #227, draft, not deployed
 

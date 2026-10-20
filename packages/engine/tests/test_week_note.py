@@ -42,7 +42,7 @@ def test_a_note_in_the_educators_words_proposes_the_grades_skill_sets_it_covered
     purpose, state, codes = asked[0]
     assert purpose == "week_skills" and state == {"educator_note": got and state["educator_note"]}
     assert "SUB.2D2D" in codes and "REASON.FIND_MISTAKE" in codes, (
-        "the grade's own and the G2+ reasoning sets"
+        "the grade's own, reasoning among them (Grade 2's)"
     )
     # the tables and 2-digit × 1-digit have Grade 2 levels (assumption A6); the rest of multiplication is later
     later = ("ADD.3D", "SUB.3D", "MUL.3D1D", "MUL.2D2D", "MUL.TENS", "MUL.GROUPS")

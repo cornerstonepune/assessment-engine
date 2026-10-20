@@ -2,7 +2,7 @@ import { sql } from "./db";
 import type { Rag } from "./rag";
 
 // A child's states and the colours they show in, as the school's rows say them (goals/b0d-states-and-subject-from-tables.yaml,
-// ADR 0085): each state's words, colour and order, and every rule about it — whether a next paper works on it, whether it
+// ADR 0086): each state's words, colour and order, and every rule about it — whether a next paper works on it, whether it
 // has enough answers to say, how severe it is when a skill set takes its worst skill, whether it is ready to move up or
 // may be nearly secure. The states are the engine's (`rebuild_child_skill_state`); no page names one.
 

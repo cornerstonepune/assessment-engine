@@ -138,10 +138,13 @@ def facts(conn, child_id):
     rows = conn.execute(SIGNED, (child_id,)).fetchall()
     if not rows:
         return None
-    band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
+    grade = conn.execute(
+        "select g.name from child c join grade g on g.tenant_id = c.tenant_id and g.code = c.band where c.id = %s",
+        (child_id,),
+    ).fetchone()["name"]
     sets, rep = _sets(conn), report.build(conn, child_id)
     by_code = {s["code"]: s for s in sets.values()}
-    # each state's rules are its row's (ADR 0085): ready to move up; may be nearly secure; a next paper works on it
+    # each state's rules are its row's (ADR 0086): ready to move up; may be nearly secure; a next paper works on it
     st = vocabulary.states(conn)
     move_up = [s["code"] for s in st if s["move_up"]]
     near = [s["code"] for s in st if s["nearly"]]
@@ -182,7 +185,7 @@ def facts(conn, child_id):
     wrong = [r for r in rows if r["correct"] is False]
     what = mistake_names.names(conn, "description")
     return {
-        "grade": f"Grade {band[1:]}",
+        "grade": grade,
         "from": rows[0]["observed_at"].date().isoformat(),
         "to": rows[-1]["observed_at"].date().isoformat(),
         # a question left blank is not an answer: the header said "112 answers" with the blank ones in the count

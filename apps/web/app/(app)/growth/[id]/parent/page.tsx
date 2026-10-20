@@ -198,6 +198,7 @@ export default async function ParentReport({ params, searchParams }: Props) {
             note={note}
             name={name}
             section={child.section}
+            band={child.band}
             subject={subject}
             approver={approver}
           />

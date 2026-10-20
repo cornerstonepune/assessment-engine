@@ -8,7 +8,7 @@ import { NotYours } from "@/components/not-yours";
 import { isMine, scopeOf } from "@/lib/scope";
 import { checkHref, checkLevel, colourRules } from "@/lib/colours";
 import { classGrid, stepKey, type GridChild, type Step } from "@/lib/queries-children";
-import { gradeWords } from "@/lib/queries";
+import { grades } from "@/lib/queries";
 import { childStates, type States } from "@/lib/states";
 import { deadline } from "@/lib/deadline";
 import { ChecksPanel, type Check } from "../../checks";
@@ -25,8 +25,8 @@ export default async function ClassPage({ params, searchParams }: Props) {
   const me = await requireStaff();
   const section = decodeURIComponent((await params).section);
   if (!isMine(scopeOf(me), section)) return <NotYours what={section} />;
-  const [{ steps: every, children, notYet: unanswered, band }, rules, states] = await deadline(
-    Promise.all([classGrid(section, me.email), colourRules(), childStates()]),
+  const [{ steps: every, children, notYet: unanswered, band }, rules, g, states] = await deadline(
+    Promise.all([classGrid(section, me.email), colourRules(), grades(), childStates()]),
   );
   if (!children.length) notFound();
   // a topic of the class's own opens its skills alone; any other word is every topic's
@@ -61,7 +61,7 @@ export default async function ClassPage({ params, searchParams }: Props) {
       <PageHeader
         stage="Children · class"
         title={section}
-        sub={`${gradeWords(band)} · ${children.length} ${children.length === 1 ? "child" : "children"}, each against the topics the class has answers in, from checked papers only. A topic opens its skills; a name opens the child.`}
+        sub={`${g.name(band)} · ${children.length} ${children.length === 1 ? "child" : "children"}, each against the topics the class has answers in, from checked papers only. A topic opens its skills; a name opens the child.`}
       />
       <Body>
         <p className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-basalt/62">

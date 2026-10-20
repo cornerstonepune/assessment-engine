@@ -4,7 +4,7 @@ import { Answers, KIND, Question } from "@/components/question";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { requireStaff } from "@/lib/auth";
-import { childrenOnRoll, gradeWords, type ChildRow } from "@/lib/queries";
+import { childrenOnRoll, grades, type ChildRow } from "@/lib/queries";
 import { scopeOf } from "@/lib/scope";
 import { worksheetCases } from "@/lib/queries-taxonomy";
 import { libraryWorksheet, worksheetItems } from "@/lib/queries-worksheets";
@@ -19,8 +19,8 @@ const fmtDate = (d: string) =>
 // with their answers, and the printed paper one press away.
 export async function LibraryWorksheetPage({ code }: { code: string }) {
   const me = await requireStaff();
-  const [w, questions, cases, kids] = await deadline(
-    Promise.all([libraryWorksheet(code), worksheetItems(code), worksheetCases(code), childrenOnRoll(me.email, scopeOf(me))]),
+  const [w, questions, cases, kids, g] = await deadline(
+    Promise.all([libraryWorksheet(code), worksheetItems(code), worksheetCases(code), childrenOnRoll(me.email, scopeOf(me)), grades()]),
   );
   if (!w) notFound();
   const kinds = questions.reduce<Record<string, number>>((a, q) => ({ ...a, [q.fmt]: (a[q.fmt] ?? 0) + 1 }), {});
@@ -28,7 +28,7 @@ export async function LibraryWorksheetPage({ code }: { code: string }) {
   return (
     <>
       <PageHeader
-        stage={`Curriculum · Worksheets · ${gradeWords(w.band)} · ${w.skill} · ${w.difficulty}`}
+        stage={`Curriculum · Worksheets · ${g.name(w.band)} · ${w.skill} · ${w.difficulty}`}
         title={`Worksheet ${w.code}`}
         sub={w.outcome}
       />

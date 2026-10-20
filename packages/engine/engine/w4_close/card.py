@@ -16,7 +16,7 @@ BY_MISTAKE = "reteach"  # the card's group whose children are grouped by the nam
 
 
 def groups(states):
-    """({state: its group on the card}, the groups in the card's order) from the states' rows (ADR 0085): strongest
+    """({state: its group on the card}, the groups in the card's order) from the states' rows (ADR 0086): strongest
     first, "not enough evidence yet" last."""
     order = sorted(states, key=lambda s: (not s["enough"], -s["ord"]))
     group = {s["code"]: s["card_group"] or s["code"] for s in states}  # no group named: a group of its own

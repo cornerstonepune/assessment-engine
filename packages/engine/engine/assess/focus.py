@@ -4,7 +4,7 @@ Pure: no database. The graph (`child_skill_state`, one row per skill per rung) a
 stands; this answers one question — which few areas next, and at what level:
 
 - an area the child lags in is a row in a lagging state, `rule["lagging"]`, weakest first (the states a next paper
-  works on, read from `child_state` by the caller: ADR 0085). At most `rule["most"]`.
+  works on, read from `child_state` by the caller: ADR 0086). At most `rule["most"]`.
 - an area is one skill set of the bank: the set on the row's rung that is for the row's skill; else the
   nearest set for that skill within `rule["reach"]` rungs; else a set on the rung whose questions use the
   skill. So subtraction mistakes on an addition rung are worked on as subtraction.

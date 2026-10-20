@@ -43,7 +43,7 @@ def share_words(share: float) -> str:
 
 def reasons(conn) -> dict[str, str]:
     """{state: the reason a paper prints for an area in it}, from each state's row (`child_state.why`), every
-    {threshold.key} in it said as that row's share — so the words follow the rule in force (ADR 0085)."""
+    {threshold.key} in it said as that row's share — so the words follow the rule in force (ADR 0086)."""
     return {
         # a threshold with no row is NaN, which no share says: the paper is refused, never printed with a made-up share
         s["code"]: WITHIN.sub(lambda m: share_words(settings.threshold(conn, m[1], float("nan"))), s["why"])

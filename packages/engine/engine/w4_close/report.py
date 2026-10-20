@@ -13,7 +13,7 @@ from engine.w2_print import focus_paper
 
 
 def strong_states(conn) -> tuple:
-    """The states a set is strong in: enough answers, and nothing a next paper must work on (`child_state`, ADR 0085)."""
+    """The states a set is strong in: enough answers, and nothing a next paper must work on (`child_state`, ADR 0086)."""
     return tuple(s["code"] for s in vocabulary.states(conn) if s["enough"] and not s["needs_work"])
 
 

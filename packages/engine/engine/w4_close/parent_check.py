@@ -65,7 +65,7 @@ NAMES_NOTHING = {"subtraction", "addition", "multiplication", "division", "sum",
 IMPROVED = re.compile(r"\b(improv\w*|grow\w*|grew|better|progress\w*)\b", re.IGNORECASE)
 DIGITS = {"one": "1", "two": "2", "three": "3", "four": "4", "five": "5"}
 CODE = re.compile(r"\b(M_[A-Z0-9_]+|[RX]\d{1,2}|[A-Z]{2,}\.[A-Z0-9_.]*[A-Z0-9])\b")
-# a subject's own word ("Maths") is its `subject.label` row's, passed in as `subject_words` (ADR 0085)
+# a subject's own word ("Maths") is its `subject.label` row's, passed in as `subject_words` (ADR 0086)
 PLAIN_CAPS = {"I", "Cornerstone", "School", "Pune", "Grade"}
 
 

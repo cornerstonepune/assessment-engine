@@ -3,7 +3,7 @@ import { Body, PageHeader, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { childTable, type ChildRow } from "@/lib/queries-children";
-import { gradeWords } from "@/lib/queries";
+import { grades as schoolGrades } from "@/lib/queries";
 import { many } from "@/lib/needs-you";
 import { deadline } from "@/lib/deadline";
 import { ColourKeyLine } from "@/components/colour-key";
@@ -174,8 +174,8 @@ export default async function ChildrenPage({ searchParams }: Props) {
   const taught = (await deadline(topics(scope))).filter((t) => t.shown);
   // only a topic that is taught narrows the table; any other word is every topic
   const topic = taught.find((t) => t.code === q.topic) ?? null;
-  const [rows, rules, states] = await deadline(
-    Promise.all([childTable(me.email, topic?.code ?? null, scope), colourRules(), childStates()]),
+  const [rows, rules, school, states] = await deadline(
+    Promise.all([childTable(me.email, topic?.code ?? null, scope), colourRules(), schoolGrades(), childStates()]),
   );
   // a class sorted stays open: the coordinator's classes open one by one, and a sort is a new page
   const opened = q.open ?? null;
@@ -190,7 +190,8 @@ export default async function ChildrenPage({ searchParams }: Props) {
   };
   // an educator's own classes are their work, open; every class, as the coordinator sees them, is a list to choose from
   const own = scope.classes !== null;
-  const grades = [...new Set(rows.map((r) => r.band))];
+  // in the grades' own order (`grade`), never as text: Grade 10 after Grade 9
+  const grades = school.list.map((x) => x.code).filter((b) => rows.some((r) => r.band === b));
 
   return (
     <>
@@ -225,9 +226,9 @@ export default async function ChildrenPage({ searchParams }: Props) {
             const children = rows.filter((r) => r.band === band);
             const classes = [...new Set(children.map((r) => r.section))];
             return (
-              <section key={band} aria-label={gradeWords(band)} className="panel">
+              <section key={band} aria-label={school.name(band)} className="panel">
                 <div className="panel-head">
-                  <h2 className="text-[16px]">{gradeWords(band)}</h2>
+                  <h2 className="text-[16px]">{school.name(band)}</h2>
                   <div className="fact text-[11px] text-basalt/55">
                     {many(classes.length, "class", "classes")} · {many(children.length, "child", "children")}
                   </div>

@@ -1,6 +1,6 @@
 import { sql } from "./db";
 import type { Difficulty, SkillSet } from "./queries";
-import { DIFFICULTIES, GRADE_GROUPS, gradeOf, skillSets } from "./queries";
+import { DIFFICULTIES, gradeOf, grades, skillSets } from "./queries";
 import type { Scope } from "./scope";
 import { taughtByGrade, untaughtByGrade } from "./taught";
 
@@ -65,7 +65,7 @@ export type CurriculumRow = {
  *  levels only — and each row's children assessed: those with a checked answer on it (`child_skill_state`), counted
  *  once however many of a topic's skills they reached. */
 export async function curriculumRows(scope: Scope): Promise<{ subject: string; rows: CurriculumRow[] }> {
-  const [{ subject, skills }, reached, taught, untaught] = await Promise.all([
+  const [{ subject, skills }, reached, taught, untaught, g] = await Promise.all([
     curriculum(scope),
     sql<{ code: string; kids: string[] }[]>`
       select ss.code, array_agg(distinct s.child_id::text) as kids
@@ -74,6 +74,7 @@ export async function curriculumRows(scope: Scope): Promise<{ subject: string; r
       where s.n_events > 0 group by ss.code`,
     taughtByGrade(scope),
     untaughtByGrade(scope),
+    grades(),
   ]);
   const kids = new Map(reached.map((r) => [r.code, r.kids]));
   const rows: CurriculumRow[] = [];
@@ -82,7 +83,8 @@ export async function curriculumRows(scope: Scope): Promise<{ subject: string; r
     Object.fromEntries(
       DIFFICULTIES.map((d) => [d, xs.some((x) => x.levels[d] != null) ? xs.reduce((n, x) => n + (x.levels[d] ?? 0), 0) : null]),
     ) as CurriculumRow["levels"];
-  for (const [band, words] of GRADE_GROUPS) {
+  // every grade the school has, in its order (goals/b0b-grades-from-the-table.yaml): one with no level in it has no row
+  for (const { code: band, name: words } of g.list) {
     const inGrade = (s: CurriculumSkill) => DIFFICULTIES.filter((d) => s.difficulty[d] && gradeOf(s, d) === band);
     const group = skills.filter((s) => inGrade(s).length);
     if (!group.length) continue;

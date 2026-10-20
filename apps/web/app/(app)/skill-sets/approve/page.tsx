@@ -4,7 +4,7 @@ import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { KIND } from "@/components/question";
-import { GRADE_GROUPS, gradeWords, levelsOf, skillSets, type SkillSet } from "@/lib/queries";
+import { grades as schoolGrades, levelsOf, skillSets, type SkillSet } from "@/lib/queries";
 import { chargesTable } from "@/lib/queries-charges";
 import { approveSkills } from "../[code]/actions";
 import { mayDecide } from "@/lib/decides";
@@ -40,15 +40,12 @@ function keeps(x: SkillSet, f: Filter, except?: keyof Filter) {
 export default async function ApproveSkills({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
   const q = await searchParams;
-  const [sets, charges, mayApprove] = await deadline(
-    Promise.all([skillSets({ untaught: true, scope: scopeOf(me) }), chargesTable(), mayDecide(me, "skills")]),
+  const [sets, charges, mayApprove, school] = await deadline(
+    Promise.all([skillSets({ untaught: true, scope: scopeOf(me) }), chargesTable(), mayDecide(me, "skills"), schoolGrades()]),
   );
   const waiting = sets.filter((s) => s.status !== "ratified");
-  // the school's grades in order, then any grade a waiting skill holds that the list does not name: none is left off
-  const grades: [string, string][] = [
-    ...GRADE_GROUPS,
-    ...[...new Set(waiting.map((x) => x.band))].filter((b) => !GRADE_GROUPS.some(([g]) => g === b)).map((b): [string, string] => [b, b]),
-  ];
+  // the school's grades in their order (`grade`): every grade a skill holds is one of them
+  const grades = school.list.map((x): [string, string] => [x.code, x.name]);
   const topics = [...new Map(waiting.filter((x) => x.topic_code).map((x) => [x.topic_code!, x])).values()].sort(
     (a, b) => (a.topic_ord ?? 0) - (b.topic_ord ?? 0),
   );
@@ -183,7 +180,7 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
                       {shown.map((x) => (
                         <tr key={x.code} data-row={x.code}>
                           <th scope="row" className="min-w-[160px] text-left font-medium">{x.name}</th>
-                          <td className="whitespace-nowrap">{gradeWords(x.band)}</td>
+                          <td className="whitespace-nowrap">{school.name(x.band)}</td>
                           <td className="min-w-[140px]">
                             {x.topic_name ?? "—"}
                             {x.taught ? null : <span className="ml-1 inline-block"><Pill tone="monsoon">Not taught yet</Pill></span>}

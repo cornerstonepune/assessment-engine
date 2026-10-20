@@ -2,7 +2,7 @@
 
 Nimish, 2026-10-20: "we need proper tables". B0a made `child_state`; until B0d nothing read it: the states, their
 colours, words and order were lists in eleven files of the website and five of the engine, prescriptions were stamped
-"NUM", and page headings said "Maths". Each rule a list made is now a column of the row (ADR 0085), and the answers
+"NUM", and page headings said "Maths". Each rule a list made is now a column of the row (ADR 0086), and the answers
 below are the lists' own, copied from the code they replace on 2026-10-20, so the rows are proved to change nothing.
 """
 

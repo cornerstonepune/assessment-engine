@@ -1,4 +1,4 @@
--- A child's states and the subject are read from rows (goals/b0d-states-and-subject-from-tables.yaml, ADR 0085).
+-- A child's states and the subject are read from rows (goals/b0d-states-and-subject-from-tables.yaml, ADR 0086).
 --
 -- Nimish, 2026-10-20: "we need proper tables". B0a made `child_state` (code, order, words, colour, whether a next paper
 -- works on it), and nothing read it: every rule about a state was a list in code — which wait on too few answers, how
