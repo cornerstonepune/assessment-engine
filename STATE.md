@@ -8286,7 +8286,8 @@ one child on live.
   `bin/engine load` and the whole update sequence ran after it.
 - **Not this change, seen by it:** `engine live data` on the copy: "Marking counts each printed question once" FAILs on
   5 papers (CS2A6B23, CSCE3E2C, CSA4999D, CSB8ACB3: 21 answers for 13 printed; CS6A1049: 9, 4 twice), already in the
-  step before any update ran. Rehearsal on main to confirm: see HANDOFF.
+  step before any update ran. Main fails identically (run 39449844559 on 1d92306), so it is in live's data, not this
+  change; the last green rehearsal (2026-10-15) was before the 16 Oct scan was read.
 
 ## L12b live; 2026-10-16.pdf read at 0.76; each reading's line returned by the API (2026-10-16)
 
