@@ -5,9 +5,9 @@
 -- never checked. Now each word is a row with its order, and each link a key on (school, code), so adding a grade, a
 -- level or a state is an insert. Nothing reads the new tables yet (B0b–B0d), so no paper, map or page changes.
 --
--- The rows are supabase/seed/vocabulary.json's, made here for every school already there because a key needs them
--- before any load runs; a load keeps them (engine/core/vocabulary.py), and tests/test_vocabulary.py runs this file for
--- a new school and compares it with the seed. Written to run twice.
+-- The rows are supabase/seed/vocabulary.json's, made here for every school, there now or added later, because a key
+-- needs them before any load runs; a load keeps them (engine/core/vocabulary.py), and tests/test_vocabulary.py adds a
+-- school, runs this file again, and compares both with the seed. Written to run twice.
 
 create table if not exists grade (
   id          uuid primary key default gen_random_uuid(),
@@ -43,31 +43,52 @@ create table if not exists child_state (
   unique (tenant_id, code)
 );
 
-insert into grade (tenant_id, code, name, ord)
-select t.id, v.code, v.name, v.ord
-from tenant t cross join (values
-  ('PG', 'PG', 0), ('N', 'Nursery', 1), ('K1', 'K1', 2), ('K2', 'K2', 3),
-  ('G1', 'Grade 1', 4), ('G2', 'Grade 2', 5), ('G3', 'Grade 3', 6), ('G4', 'Grade 4', 7), ('G5', 'Grade 5', 8),
-  ('G6', 'Grade 6', 9), ('G7', 'Grade 7', 10), ('G8', 'Grade 8', 11), ('G9', 'Grade 9', 12), ('G10', 'Grade 10', 13)
-) v (code, name, ord)
-on conflict (tenant_id, code) do nothing;
+-- A school's words, made the moment the school is: for every school already here, and by a trigger for any added
+-- later, however it is added (CI, 2026-10-20: a school a test made had no states, and its child's map could not be
+-- rebuilt). The loader then keeps them as the seed says.
+create or replace function internal.school_vocabulary(p_tenant uuid) returns void
+language plpgsql as $$
+begin
+  insert into grade (tenant_id, code, name, ord)
+  select p_tenant, v.code, v.name, v.ord
+  from (values
+    ('PG', 'PG', 0), ('N', 'Nursery', 1), ('K1', 'K1', 2), ('K2', 'K2', 3),
+    ('G1', 'Grade 1', 4), ('G2', 'Grade 2', 5), ('G3', 'Grade 3', 6), ('G4', 'Grade 4', 7), ('G5', 'Grade 5', 8),
+    ('G6', 'Grade 6', 9), ('G7', 'Grade 7', 10), ('G8', 'Grade 8', 11), ('G9', 'Grade 9', 12), ('G10', 'Grade 10', 13)
+  ) v (code, name, ord)
+  on conflict (tenant_id, code) do nothing;
 
-insert into difficulty (tenant_id, code, ord)
-select t.id, v.code, v.ord
-from tenant t cross join (values ('Easy', 0), ('Medium', 1), ('Hard', 2), ('Advance', 3)) v (code, ord)
-on conflict (tenant_id, code) do nothing;
+  insert into difficulty (tenant_id, code, ord)
+  select p_tenant, v.code, v.ord
+  from (values ('Easy', 0), ('Medium', 1), ('Hard', 2), ('Advance', 3)) v (code, ord)
+  on conflict (tenant_id, code) do nothing;
 
-insert into child_state (tenant_id, code, ord, words, colour, needs_work)
-select t.id, v.code, v.ord, v.words, v.colour, v.needs_work
-from tenant t cross join (values
-  ('patterned_error', 0, 'repeating mistake', 'red', true),
-  ('emerging', 1, 'under half right', 'red', true),
-  ('practising', 2, 'practising', 'amber', true),
-  ('secure', 3, 'secure', 'green', false),
-  ('stretch_ready', 4, 'ready to move up', 'green', false),
-  ('not_enough_yet', 5, 'not enough yet', 'grey', false)
-) v (code, ord, words, colour, needs_work)
-on conflict (tenant_id, code) do nothing;
+  insert into child_state (tenant_id, code, ord, words, colour, needs_work)
+  select p_tenant, v.code, v.ord, v.words, v.colour, v.needs_work
+  from (values
+    ('patterned_error', 0, 'repeating mistake', 'red', true),
+    ('emerging', 1, 'under half right', 'red', true),
+    ('practising', 2, 'practising', 'amber', true),
+    ('secure', 3, 'secure', 'green', false),
+    ('stretch_ready', 4, 'ready to move up', 'green', false),
+    ('not_enough_yet', 5, 'not enough yet', 'grey', false)
+  ) v (code, ord, words, colour, needs_work)
+  on conflict (tenant_id, code) do nothing;
+end $$;
+
+-- Run as its owner: whichever role adds a school, its words are written (as skill_set_version_on_change is).
+create or replace function internal.school_vocabulary_on_new_school() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  perform internal.school_vocabulary(new.id);
+  return new;
+end $$;
+
+drop trigger if exists school_vocabulary on tenant;
+create trigger school_vocabulary after insert on tenant
+  for each row execute function internal.school_vocabulary_on_new_school();
+
+select internal.school_vocabulary(id) from tenant;
 
 -- A topic's subject and a skill's topic: codes until now, keys from here.
 alter table topic drop constraint if exists topic_tenant_id_subject_code_fkey;

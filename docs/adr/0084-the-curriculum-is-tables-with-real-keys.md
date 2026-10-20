@@ -33,9 +33,9 @@ some one-time random effort". All backend first: B0–B4 (BUILD-ORDER.md), befor
 - **In steps, each proved to change nothing** (section 7): a numbered migration rehearsed on a copy of live, a check
   comparing the new tables with the old answer, no paper or child's map changed on the day. B0a only adds the tables
   and keys; readers move in B0b–B0d.
-- **The seed is the source of the rows**; the migration inserts the same rows for every school already there, because
-  a key needs its rows before any load runs. A test runs the migration for a new school and compares it with the seed,
-  so the two cannot drift.
+- **The seed is the source of the rows**; the database makes the same rows for every school, those there when the
+  migration runs and any added later (a trigger on `tenant`), because a key needs its rows before any load runs. A test
+  adds a school and compares its rows with the seed, so the two cannot drift.
 - **The rehearsal applies a new migration after live's rows arrive**, as `bin/update-live` does on live. Until now it
   applied it to the empty copy and then restored live's rows with their triggers (and so their keys) off, which could
   not show that live's rows satisfy a new key.

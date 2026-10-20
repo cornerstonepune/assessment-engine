@@ -93,14 +93,17 @@ def test_every_link_is_a_key_the_database_checks(conn):
             conn.execute(sql)
 
 
-def test_a_new_school_gets_the_seed_rows_from_the_migration(conn):
-    """The keys need their rows before any load runs, so the migration makes them for every school already there. Run
-    for a school with none, it makes exactly the seed's rows; run again where they are, it changes nothing."""
+def test_a_new_school_has_the_seed_rows_from_the_moment_it_exists(conn):
+    """The keys need their rows before any load runs. A school already there gets them from the migration; a school
+    added later, by any route, gets them as it is added — CI, 2026-10-20: a school made by a test had no states, and
+    the graph could not rebuild its child's map. Exactly the seed's rows; the migration run again changes nothing."""
     t = loaders._tenant(conn)
     before = {table: _rows(conn, t, table) for table in SEEDED}
     school = conn.execute(
         "insert into tenant (slug, name) values ('b0a-new', 'b0a') returning id"
     ).fetchone()["id"]
+    for table, seeded in SEEDED.items():
+        assert _rows(conn, school, table) == seeded, f"{table}: a new school and the seed disagree"
     conn.execute(MIGRATION.read_text())
     for table, seeded in SEEDED.items():
         assert _rows(conn, school, table) == seeded, f"{table}: the migration and the seed disagree"

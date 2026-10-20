@@ -1,5 +1,5 @@
 {
-  "_note": "The school's words for its grades, its four levels and the states of a child's map (ADR 0084). Each list is in its order. Pre-school names are the school's own, from the titles of its developmental updates (registry.json). A child state's colour is its red / amber / green / grey on the website (apps/web/lib/rag.ts); needs_work is whether a next paper works on it (rag.ts NEEDS_WORK). The migration 20261119090000 inserts these same rows for every school already there; tests/test_vocabulary.py keeps the two equal.",
+  "_note": "The school's words for its grades, its four levels and the states of a child's map (ADR 0084). Each list is in its order. Pre-school names are the school's own, from the titles of its developmental updates (registry.json). A child state's colour is its red / amber / green / grey on the website (apps/web/lib/rag.ts); needs_work is whether a next paper works on it (rag.ts NEEDS_WORK). The migration 20261119090000 inserts these same rows for every school, there now or added later; tests/test_vocabulary.py keeps the two equal.",
   "grades": [
     {"code": "PG", "name": "PG"},
     {"code": "N", "name": "Nursery"},

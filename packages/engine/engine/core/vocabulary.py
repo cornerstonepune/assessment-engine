@@ -3,8 +3,8 @@ supabase/seed/vocabulary.json, each list in its order. A topic's subject, a ques
 keys into these tables, so a word is a row before anything may use it, and adding one is an insert.
 
 The seed is their source: a load upserts every row, so a word or a colour changed in the file is changed on the next
-load. The migration that made the tables inserts the same rows for every school already there (tests/test_vocabulary.py
-keeps the two equal)."""
+load. The migration that made the tables inserts the same rows for every school, there now or added later
+(tests/test_vocabulary.py keeps the two equal)."""
 
 from collections.abc import Callable
 from typing import Any
