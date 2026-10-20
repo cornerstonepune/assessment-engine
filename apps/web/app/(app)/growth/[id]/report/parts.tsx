@@ -1,8 +1,9 @@
 // The report card's sections (goals/u6-report-card.yaml). Every sentence is built from a counted fact — the engine's
 // report (`w4_close/report.py`: strong, each named mistake with the child's own example and what the school does about
 // it, the next area) and the skill map — so nothing on the card is guessed. Anything a parent reads says "educator".
+import type { ColourRules } from "@/lib/colours";
 import type { MapNode } from "@/lib/queries-report";
-import { STATE_WORDS } from "@/lib/queries";
+import { strongWords, type States } from "@/lib/states";
 
 export type Example = {
   question: string;
@@ -80,19 +81,24 @@ export function GoingWell({
   name,
   report,
   nodes,
+  states,
+  rules,
 }: {
   name: string;
   report: Report;
   nodes: MapNode[];
+  states: States;
+  rules: ColourRules;
 }) {
   const strong = new Set(report.strong.map((s) => s.skill_set));
+  // nearly secure: in a state that may be, on enough answers to have a colour, right as often as green needs
   const nearly = nodes.filter((n) => {
     const answered = n.right + n.wrong + n.wrong_working;
     return (
       !strong.has(n.code) &&
-      n.state === "practising" &&
-      answered >= 3 &&
-      n.right / answered >= 0.8
+      states.of(n.state).nearly &&
+      answered >= rules.minAnswers &&
+      n.right / answered >= rules.promote
     );
   });
   const wrong = nodes.reduce((s, n) => s + n.wrong + n.wrong_working, 0);
@@ -102,7 +108,7 @@ export function GoingWell({
     ...report.strong.map((s) => ({
       key: `s-${s.skill_set}-${s.name}`,
       head: s.name,
-      body: `${s.right} of ${s.answered} right — ${nodes.find((n) => n.code === s.skill_set)?.state === "stretch_ready" ? STATE_WORDS.stretch_ready.words : STATE_WORDS.secure.words}.`,
+      body: `${s.right} of ${s.answered} right — ${strongWords(states, nodes.find((n) => n.code === s.skill_set)?.state)}.`,
     })),
     ...nearly.map((n) => ({
       key: `n-${n.code}`,

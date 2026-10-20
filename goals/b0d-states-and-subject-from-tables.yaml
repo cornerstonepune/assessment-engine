@@ -1,0 +1,32 @@
+name: b0d-states-and-subject-from-tables
+goal: >
+  A child's states, their words, colours and order are read from `child_state`, and each colour's words from
+  `state_colour`: which states a next paper works on, which count as strong, which wait on too few answers, how the
+  children table and Friday's card group them, and the reason a paper prints, are columns of the rows, never lists in
+  code. The subject comes from the skill's topic (skill_set → topic → subject), never "NUM" or "Maths" in code, and a
+  test fails if any file names a state or a subject. No paper, no page wording a parent sees and no child's map
+  changes: the rows give the very answers the code gave.
+# Written 2026-10-20, before the code. Nimish approved "all backend first" (B0–B4, BUILD-ORDER.md) on the audit in
+# claude.ai/code/artifact/71c2aaf5-06c1-49b7-bcd5-2e6761154e9e (Backend tab §3, §7). ADR 0085.
+says:
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_states_and_subject.py::test_a_states_rules_are_its_columns_and_give_the_old_answers"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_states_and_subject.py::test_no_file_names_a_state_or_a_subject"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_states_and_subject.py::test_a_prescription_takes_its_subject_from_the_skills_topic"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_states_and_subject.py::test_a_state_reworded_in_its_row_is_reworded_on_the_paper"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: the rows, the scan and the old answers agree
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_states_and_subject.py tests/test_vocabulary.py tests/test_loaders.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite (papers, cards, reports, the focus)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

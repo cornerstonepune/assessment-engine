@@ -2,7 +2,12 @@
 // by `layout` — a column per grade, a row per registry skill, the school's ladder left to right — each coloured by the
 // graph's own state and carrying the child's answers on it in the three signals. Drawn on the server; no library.
 import { layout, type MapNode } from "@/lib/queries-report";
-import { rag, RAG_WORDS, type Rag } from "@/lib/rag";
+import type { Rag } from "@/lib/rag";
+import type { ColourRules } from "@/lib/colours";
+import type { States } from "@/lib/states";
+
+// a small count as the key says it: "fewer than three answers"
+const NUMBER = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 
 const W = 168; // a skill set's box
 const H = 66;
@@ -73,7 +78,7 @@ function Signals({
   );
 }
 
-export function SkillMap({ nodes, band }: { nodes: MapNode[]; band: string }) {
+export function SkillMap({ nodes, band, states }: { nodes: MapNode[]; band: string; states: States }) {
   const { placed, edges, lanes, columns } = layout(nodes);
   const slots = columns.reduce((s, c) => s + c.width, 0);
   const width = LEFT + slots * (W + GAP_X) + GAP_X;
@@ -167,9 +172,9 @@ export function SkillMap({ nodes, band }: { nodes: MapNode[]; band: string }) {
           );
         })}
         {placed.map((n) => {
-          const c = n.state ? rag(n.state) : "none";
+          const c = n.state ? states.of(n.state).colour : "none";
           const answered = n.right + n.wrong + n.wrong_working;
-          const words = n.state ? RAG_WORDS[rag(n.state)] : "not assessed yet";
+          const words = n.state ? states.colours[states.of(n.state).colour].words : "not assessed yet";
           return (
             <g key={n.code} data-node={n.code} data-rag={n.state ? c : "none"}>
               <title>{`${n.name} — ${words}${n.objective ? `. ${n.objective}` : ""}`}</title>
@@ -217,15 +222,16 @@ export function SkillMap({ nodes, band }: { nodes: MapNode[]; band: string }) {
   );
 }
 
-export function MapKey() {
+export function MapKey({ states, rules }: { states: States; rules: ColourRules }) {
+  const w = (c: Rag) => states.colours[c].words;
   const keys: [string, string, boolean?][] = [
-    ["var(--neem)", `${RAG_WORDS.green} — secure, or ready to move up`],
-    ["var(--bamboo)", RAG_WORDS.amber],
+    ["var(--neem)", `${w("green")} — secure, or ready to move up`],
+    ["var(--bamboo)", w("amber")],
     [
       "var(--terracotta)",
-      `${RAG_WORDS.red} — a repeating mistake, or under half right`,
+      `${w("red")} — a repeating mistake, or under half right`,
     ],
-    ["var(--monsoon)", `${RAG_WORDS.grey} — fewer than three answers`],
+    ["var(--monsoon)", `${w("grey")} — fewer than ${NUMBER[rules.minAnswers - 1] ?? rules.minAnswers} answers`],
     ["var(--chalk)", "not assessed yet", true],
   ];
   return (

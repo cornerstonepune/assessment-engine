@@ -45,7 +45,8 @@ CATALOG = [
     },
     {"code": "REASON.EXPLAIN", "rung": "X1", "order": None, "own": "NUM.PRB.03", "skills": {"NUM.PRB.03"}},
 ]
-RULE = {"most": 3, "reach": 2, "easy_below": 0.5}
+# the states a next paper works on, weakest first, as `child_state` gives them (shelf.rule reads them)
+RULE = {"most": 3, "reach": 2, "easy_below": 0.5, "lagging": ("patterned_error", "emerging", "practising")}
 
 
 def row(skill, rung, state, right, answered, mistake=None):

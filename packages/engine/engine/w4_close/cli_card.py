@@ -18,10 +18,13 @@ def card_build(section: str, week: str) -> None:
         conn.commit()
     for s in got["skills"]:
         g = s["groups"]
-        line = " · ".join(f"{k.replace('_', ' ')} {len(g[k])}" for k in card.ORDER if k != "reteach" and g[k])
+        # the groups are in the card's order (`card.groups`)
+        line = " · ".join(
+            f"{k.replace('_', ' ')} {len(v)}" for k, v in g.items() if k != card.BY_MISTAKE and v
+        )
         typer.echo(f"  {s['name']:<40}{line}")
-        for code, r in g["reteach"].items():
-            typer.echo(f"    reteach {r['name']} ({code}): {len(r['children'])}")
+        for code, r in g[card.BY_MISTAKE].items():
+            typer.echo(f"    {card.BY_MISTAKE} {r['name']} ({code}): {len(r['children'])}")
     for ch in got["children"]:
         h = ch["home"]
         where = (

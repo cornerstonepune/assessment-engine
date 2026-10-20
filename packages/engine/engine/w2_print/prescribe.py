@@ -37,15 +37,18 @@ def for_class(conn, section: str, week: str, skill_set: str, kind: str = "practi
             difficulty = defaults.get(c["band"], "Medium")
             rule = "band_default"
         row = conn.execute(
+            # the strand is the subject of the skill set's topic (skill_set → topic → subject), never a code here
             "insert into prescription (tenant_id, child_id, week, kind, skill_set_code, difficulty,"
-            " rule_fired, misconception_targets, strand) values (%s,%s,%s,%s,%s,%s,%s,%s,'NUM')"
+            " rule_fired, misconception_targets, strand) select %s,%s,%s,%s,%s,%s,%s,%s,"
+            " (select t.subject_code from skill_set ss join topic t on t.tenant_id = ss.tenant_id"
+            "  and t.code = ss.topic_code where ss.code = %s)"
             " on conflict (tenant_id, child_id, week, kind) do update set"
             " skill_set_code = excluded.skill_set_code, difficulty = excluded.difficulty,"
             " rule_fired = excluded.rule_fired, misconception_targets = excluded.misconception_targets,"
             " updated_at = now()"
             " where prescription.override_by is null"  # a teacher's override is never overwritten
             " returning id, difficulty, rule_fired",
-            (tenant, c["id"], week, kind, skill_set, difficulty, rule, targets),
+            (tenant, c["id"], week, kind, skill_set, difficulty, rule, targets, skill_set),
         ).fetchone()
         kept = (
             row

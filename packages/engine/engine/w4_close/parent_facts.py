@@ -7,10 +7,9 @@ and holds the words to it. Each answer counts once, however many skills its ques
 (goals/p0-one-answer-counts-once.yaml).
 """
 
-from engine.core import mistake_names
+from engine.core import mistake_names, settings, vocabulary
 from engine.w4_close import report
 
-NEARLY = 0.8  # four in five right, waiting only on a second paper to be called secure
 IMPROVED_BY = (
     0.25  # the recent half of a skill set's answers right this much more often than the earlier half
 )
@@ -94,17 +93,16 @@ def _per_set(rows):
     return out
 
 
-def _not_yet(conn, child_id, rows):
+def _not_yet(conn, child_id, rows, nearly):
     """{rung: why it is not secure yet}, as the graph decides it: a skill is secure only once it holds on
     `state.min_observers` papers. v7 on live wrote "nearly secure ... got 14 of 14 right" with no reason, which reads to
     a parent as a contradiction. Counted over the skills of the set still practising, as the nearly counts are."""
-    row = conn.execute("select value from threshold where key = 'state.min_observers'").fetchone()
-    need = row["value"] if row else 2
+    need = settings.threshold(conn, "state.min_observers", 2)
     practising = {
         (r["rung_code"], r["skill_code"])
         for r in conn.execute(
-            "select rung_code, skill_code from child_skill_state where child_id = %s and state = 'practising'",
-            (child_id,),
+            "select rung_code, skill_code from child_skill_state where child_id = %s and state = any(%s)",
+            (child_id, list(nearly)),
         )
     }
     papers = {}
@@ -143,12 +141,21 @@ def facts(conn, child_id):
     band = conn.execute("select band from child where id = %s", (child_id,)).fetchone()["band"]
     sets, rep = _sets(conn), report.build(conn, child_id)
     by_code = {s["code"]: s for s in sets.values()}
-    stretch = {sets[r]["code"] for r in _every(conn, child_id, ("stretch_ready",)) if r in sets}
+    # each state's rules are its row's (ADR 0085): ready to move up; may be nearly secure; a next paper works on it
+    st = vocabulary.states(conn)
+    move_up = [s["code"] for s in st if s["move_up"]]
+    near = [s["code"] for s in st if s["nearly"]]
+    lagging = [s["code"] for s in st if s["needs_work"] and not s["nearly"]]
+    strong_in = report.strong_states(conn)
+    # four in five right and on enough answers to have a colour, waiting only on a second paper to be called secure
+    promote = settings.threshold(conn, "next_sheet.promote_at", 0.8)
+    least = settings.threshold(conn, "state.min_events", 3)
+    stretch = {sets[r]["code"] for r in _every(conn, child_id, move_up) if r in sets}
     per_set = _per_set(rows)
     # one entry per skill set: a rung holds several of the registry's skills, and each can be strong or practising
     # on its own — the first eval listed ADD.2D2D twice, and held the words to a count they rightly would not repeat.
     # Its count is its answers, once each: adding up its skills' counts counted an answer once per skill.
-    secure = _every(conn, child_id, report.STRONG)
+    secure = _every(conn, child_id, strong_in)
     strong = list(
         dict.fromkeys(
             s["skill_set"]
@@ -161,16 +168,14 @@ def facts(conn, child_id):
         for code in strong
         for right, n in [per_set.get(by_code[code]["rung_code"], (0, 0))]
     ]
-    why = _not_yet(conn, child_id, rows)
+    why = _not_yet(conn, child_id, rows, near)
     nearly = [
         _skill(sets[r], right=right, answered=n, not_yet=why.get(r, "not yet secure"))
         # "nearly ... secure once it holds on another paper" promises one more paper is all it needs: never of a set
         # with a skill still making its mistake, or only emerging
-        for r in sorted(
-            _any(conn, child_id, ("practising",)) - _any(conn, child_id, ("patterned_error", "emerging"))
-        )
+        for r in sorted(_any(conn, child_id, near) - _any(conn, child_id, lagging))
         for right, n in [per_set.get(r, (0, 0))]
-        if r in sets and sets[r]["code"] not in strong and n >= 3 and right / n >= NEARLY
+        if r in sets and sets[r]["code"] not in strong and n >= least and right / n >= promote
     ]
     said = {x["id"] for x in can_do + nearly}
     nxt = rep["next"] and by_code.get(rep["next"]["skill_set"])
@@ -195,7 +200,7 @@ def facts(conn, child_id):
             level=rep["next"]["level"],
             # as the report shows it: a skill set it lists as "can do" is secure (v4 said "can do" and "more practice")
             why="secure already: next, harder questions of it"
-            if nxt["rung_code"] in secure and (rep["next"]["state"] in report.STRONG or nxt["code"] in strong)
+            if nxt["rung_code"] in secure and (rep["next"]["state"] in strong_in or nxt["code"] in strong)
             else "still practising it: more questions of it",
         ),
         "days": (rows[-1]["observed_at"].date() - rows[0]["observed_at"].date()).days + 1,

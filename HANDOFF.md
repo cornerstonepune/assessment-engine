@@ -3,6 +3,21 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-20 — B0d built (W1, gate 3): a child's states and the subject are read from rows; draft PR, not deployed
+
+- **On `claude/b0d-states-and-subject`** (STATE.md "B0d"): every rule about a state is a column of `child_state`
+  (enough, severity, move_up, nearly, card_group, why); each colour's words are `state_colour` rows; a subject has a
+  `label` ("Maths"). Prescriptions take their strand from the skill set's topic's subject; the three headings read it.
+  Migration 20261122090000; ADR 0085. A test fails if any file names a state or a subject.
+- **Ran beside B0b and B0c.** Their migrations may redefine B0a's `internal.school_vocabulary`; this one does not (it adds
+  `internal.school_states`, fired first by name). Merge main in before the PR is ready, and again after either merges.
+  Shared lines likely to conflict: `components/shell.tsx` ("Grade 1–4 · {subject}"), `lib/queries.ts`, the seed.
+- **Next:** Nimish merges B0b–B0d; then B1 (levels become rows).
+- **Still open:** the children-table sort keys in the address are now `amber` / `green` (were `practising` /
+  `secure`): an old bookmarked sort opens unsorted.
+- **This container's browser:** the pinned Playwright wants Chromium 1243; only 1194 is installed. A private
+  `PLAYWRIGHT_BROWSERS_PATH` linking 1194 ran every printing test locally.
+
 ## 2026-10-20 — B0a built (W1, gate 3): grades, levels and states are tables; PR #227, draft, not deployed
 
 - **On `claude/b0a-vocabulary-tables`** (STATE.md "B0a"): `grade`, `difficulty`, `child_state` from

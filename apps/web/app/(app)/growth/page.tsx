@@ -8,6 +8,7 @@ import { many } from "@/lib/needs-you";
 import { deadline } from "@/lib/deadline";
 import { ColourKeyLine } from "@/components/colour-key";
 import { colourRules } from "@/lib/colours";
+import { childStates } from "@/lib/states";
 import { ChildFinder } from "./finder";
 import { reportRank, reportWaits, reportWords } from "@/lib/queries-reports";
 import { topics } from "@/lib/queries-people";
@@ -28,8 +29,8 @@ const COLUMNS: Column[] = [
   { key: "name", label: "Child", dir: "ascending", by: (a, b) => a.first_name.localeCompare(b.first_name) },
   { key: "help", label: "Needs help on", dir: "other", by: (a, b) => helpRank(a.help) - helpRank(b.help) },
   { key: "needs", label: "Needs help", num: true, wide: true, dir: "descending", by: (a, b) => b.needs_help - a.needs_help },
-  { key: "practising", label: "Practising", num: true, wide: true, dir: "descending", by: (a, b) => b.practising - a.practising },
-  { key: "secure", label: "Secure", num: true, wide: true, dir: "descending", by: (a, b) => b.secure - a.secure },
+  { key: "amber", label: "Practising", num: true, wide: true, dir: "descending", by: (a, b) => b.amber - a.amber },
+  { key: "green", label: "Secure", num: true, wide: true, dir: "descending", by: (a, b) => b.green - a.green },
   { key: "waiting", label: "Waiting on you", num: true, wide: true, dir: "descending", by: (a, b) => b.waiting - a.waiting },
   { key: "report", label: "Parent report", wide: true, dir: "other", by: (a, b) => reportRank(a.report) - reportRank(b.report) },
 ];
@@ -141,10 +142,10 @@ function ClassGroup({ section, kids, open, sort, href }: {
                   <Count n={r.needs_help} />
                 </td>
                 <td className={`num ${FOLD}`}>
-                  <Count n={r.practising} />
+                  <Count n={r.amber} />
                 </td>
                 <td className={`num ${FOLD}`}>
-                  <Count n={r.secure} />
+                  <Count n={r.green} />
                 </td>
                 <td className={`num ${FOLD}`}>
                   <Count n={r.waiting} />
@@ -173,7 +174,9 @@ export default async function ChildrenPage({ searchParams }: Props) {
   const taught = (await deadline(topics(scope))).filter((t) => t.shown);
   // only a topic that is taught narrows the table; any other word is every topic
   const topic = taught.find((t) => t.code === q.topic) ?? null;
-  const [rows, rules] = await deadline(Promise.all([childTable(me.email, topic?.code ?? null, scope), colourRules()]));
+  const [rows, rules, states] = await deadline(
+    Promise.all([childTable(me.email, topic?.code ?? null, scope), colourRules(), childStates()]),
+  );
   // a class sorted stays open: the coordinator's classes open one by one, and a sort is a new page
   const opened = q.open ?? null;
   const href = (to: { sort?: string; topic?: string | null; open?: string }) => {
@@ -248,7 +251,7 @@ export default async function ChildrenPage({ searchParams }: Props) {
             &ldquo;Waiting on you&rdquo; is their answers the reader could not settle. A parent report shows here only when it waits to be
             approved or is out of date.
           </p>
-          <ColourKeyLine rules={rules} />
+          <ColourKeyLine rules={rules} states={states} />
         </div>
       </Body>
     </>

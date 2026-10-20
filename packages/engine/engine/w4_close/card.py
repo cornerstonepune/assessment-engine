@@ -9,27 +9,25 @@ rebuilt whenever it is built); the educator confirms it once, by name, and what 
 
 import json
 
-from engine.core import db, mistake_names
+from engine.core import db, mistake_names, vocabulary
 from engine.w2_print import focus_paper
 
-GROUPS = {
-    "stretch_ready": "move_up",
-    "secure": "secure",
-    "practising": "practising",
-    "emerging": "emerging",
-    "not_enough_yet": "not_enough_yet",
-}
-ORDER = ("move_up", "secure", "practising", "emerging", "reteach", "not_enough_yet")
+BY_MISTAKE = "reteach"  # the card's group whose children are grouped by the named mistake each repeats
 
 
-WEAKEST_FIRST = ("patterned_error", "emerging", "practising", "secure", "stretch_ready", "not_enough_yet")
+def groups(states):
+    """({state: its group on the card}, the groups in the card's order) from the states' rows (ADR 0085): strongest
+    first, "not enough evidence yet" last."""
+    order = sorted(states, key=lambda s: (not s["enough"], -s["ord"]))
+    group = {s["code"]: s["card_group"] or s["code"] for s in states}  # no group named: a group of its own
+    return group, tuple(dict.fromkeys(group[s["code"]] for s in order))
 
 
-def _weakest(states):
+def _weakest(states, rank):
     """{(rung, child): the child's weakest state on that rung} — a child sits once in a skill set's groups, where they
     are weakest; "not enough yet" only when nothing on the rung has enough evidence."""
     out = {}
-    for s in sorted(states, key=lambda s: WEAKEST_FIRST.index(s["state"])):
+    for s in sorted(states, key=lambda s: rank[s["state"]]):
         out.setdefault((s["rung_code"], str(s["child_id"])), s)
     return out
 
@@ -59,17 +57,19 @@ def build(conn, section):
         )
     }
     name_of = mistake_names.names(conn)
+    rows = vocabulary.states(conn)
+    group_of, order = groups(rows)
 
     by_rung = {}
-    for (rung, who), s in _weakest(states).items():
-        g = by_rung.setdefault(rung, {k: [] for k in ORDER if k != "reteach"} | {"reteach": {}})
-        if s["state"] == "patterned_error":
+    for (rung, who), s in _weakest(states, {r["code"]: r["ord"] for r in rows}).items():
+        g = by_rung.setdefault(rung, {k: [] for k in order if k != BY_MISTAKE} | {BY_MISTAKE: {}})
+        if group_of[s["state"]] == BY_MISTAKE:
             code = s["repeating_misconception"]
-            g["reteach"].setdefault(code, {"name": name_of(code, skill=s["skill_code"]), "children": []})[
+            g[BY_MISTAKE].setdefault(code, {"name": name_of(code, skill=s["skill_code"]), "children": []})[
                 "children"
             ].append(who)
         else:
-            g[GROUPS[s["state"]]].append(who)
+            g[group_of[s["state"]]].append(who)
     skills = [
         {
             "skill_set": sets[r]["code"] if r in sets else None,
@@ -114,6 +114,10 @@ def build(conn, section):
 def store(conn, section, week, card):
     """The week's card as `class_card` rows, one per rung: what was there for this section and week is replaced."""
     conn.execute("delete from class_card where section = %s and week = %s", (section, week))
+    rows = vocabulary.states(conn)
+    # the rows' own columns: those ready to move up, and the others strong enough to need nothing (secure)
+    up = [r["card_group"] for r in rows if r["move_up"]]
+    strong = [r["card_group"] for r in rows if r["enough"] and not r["needs_work"] and not r["move_up"]]
     for s in card["skills"]:
         g = s["groups"]
         conn.execute(
@@ -123,9 +127,9 @@ def store(conn, section, week, card):
                 section,
                 week,
                 s["rung"],
-                g["secure"],
-                json.dumps({c: r["children"] for c, r in g["reteach"].items()}),
-                g["move_up"],
+                [who for k in strong for who in g[k]],
+                json.dumps({c: r["children"] for c, r in g[BY_MISTAKE].items()}),
+                [who for k in up for who in g[k]],
                 json.dumps(g),
                 db.tenant_slug(),
             ),

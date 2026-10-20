@@ -1,9 +1,9 @@
 import { mistakeName } from "@/lib/mistake-name";
 import { Panel, Pill } from "@/components/shell";
 import type { Evidence } from "@/lib/queries";
-import { STATE_WORDS } from "@/lib/queries";
 import type { ChildSkill } from "@/lib/queries-children";
-import { rag, type Rag } from "@/lib/rag";
+import { RAG_TONE, type Rag } from "@/lib/rag";
+import type { States } from "@/lib/states";
 import { byTopic, NEED, type TopicStanding } from "@/lib/profile";
 import { AnswerTable, fmtDate } from "./answers";
 
@@ -12,20 +12,18 @@ import { AnswerTable, fmtDate } from "./answers";
 // taught a group whose line counts its skills by where they stand, open where a skill needs help; inside, its skills one
 // line each, those that need help first — its score, what it means, the mistake that repeats — opening to the answers
 // behind it. A topic's skills no paper has reached are named once, in a line under it, not drawn as a wall of grey.
-const COUNTS: [Rag | "notYet", string][] = [
-  ["red", "needs help"],
-  ["amber", "practising"],
-  ["green", "secure"],
-  ["grey", "too few answers"],
-  ["notYet", "not assessed yet"],
-];
+// A topic's counts in its line: each colour in a count's words (`state_colour.count_words`), then the skills no paper has
+// reached.
+const COUNTED: Rag[] = ["red", "amber", "green", "grey"];
+const NOT_YET = "not assessed yet";
 
-export function SkillsPanel({ skills, answers, names }: { skills: ChildSkill[]; answers: Evidence[]; names: Record<string, string> }) {
+export function SkillsPanel({ skills, answers, names, states }: { skills: ChildSkill[]; answers: Evidence[]; names: Record<string, string>; states: States }) {
   const assessed = skills.filter((s) => s.n_events > 0);
+  const rag = (state: string | null) => states.of(state).colour;
   return (
     <Panel id="skills" label="What their answers show" title="What their answers show" aside="from checked answers only">
       {assessed.length ? null : <p className="note mb-4">No checked answers yet. This fills in once a paper is read and checked.</p>}
-      {byTopic(skills).map((t) => {
+      {byTopic(skills, states).map((t) => {
         const { code, name } = t;
         const here = assessed.filter((s) => s.topic_code === code).sort((a, b) => NEED[rag(a.state)] - NEED[rag(b.state)]);
         const notYet = skills.filter((s) => s.topic_code === code && s.n_events === 0);
@@ -42,7 +40,7 @@ export function SkillsPanel({ skills, answers, names }: { skills: ChildSkill[]; 
                 ▸
               </span>
               <h3 className="font-heading text-[15px]">{name}</h3>
-              <Counts t={t} />
+              <Counts t={t} states={states} />
             </summary>
             {here.length ? (
               <ul aria-label={name} className="grid gap-2">
@@ -54,6 +52,7 @@ export function SkillsPanel({ skills, answers, names }: { skills: ChildSkill[]; 
                     of={assessed.filter((x) => x.code === s.code).length > 1 ? s.skill_name : null}
                     answers={answers.filter((a) => a.rung_code === s.rung_code)}
                     names={names}
+                    states={states}
                   />
                 ))}
               </ul>
@@ -71,22 +70,23 @@ export function SkillsPanel({ skills, answers, names }: { skills: ChildSkill[]; 
 }
 
 /** A topic's line: its skills counted by where they stand, only the counts that are not nought. */
-function Counts({ t }: { t: TopicStanding }) {
+function Counts({ t, states }: { t: TopicStanding; states: States }) {
+  const counts: [Rag | "notYet", string][] = [...COUNTED.map((c) => [c, states.colours[c].count_words] as [Rag, string]), ["notYet", NOT_YET]];
   return (
     <span className="text-[12.5px] text-basalt/70">
-      {COUNTS.filter(([k]) => t[k])
+      {counts
+        .filter(([k]) => t[k])
         .map(([k, words]) => `${t[k]} ${words}`)
         .join(" · ")}
     </span>
   );
 }
 
-function SkillLine({ s, of, answers, names }: { s: ChildSkill; of: string | null; answers: Evidence[]; names: Record<string, string> }) {
-  const state = s.state ?? "not_enough_yet";
-  const words = STATE_WORDS[state];
+function SkillLine({ s, of, answers, names, states }: { s: ChildSkill; of: string | null; answers: Evidence[]; names: Record<string, string>; states: States }) {
+  const state = states.of(s.state);
   const blank = answers.filter((a) => a.status === "blank").length;
   return (
-    <li data-rag={rag(s.state)} data-skill={s.code} data-of={s.skill_code ?? undefined}>
+    <li data-rag={state.colour} data-skill={s.code} data-of={s.skill_code ?? undefined}>
       <details className="rounded-md border border-basalt/12">
         <summary className="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 text-[13.5px]">
           <span className="min-w-[150px] font-medium text-basalt">
@@ -96,7 +96,7 @@ function SkillLine({ s, of, answers, names }: { s: ChildSkill; of: string | null
           <span className="fact">
             {s.n_correct} of {s.n_events} right
           </span>
-          <Pill tone={words.tone}>{state === "not_enough_yet" ? "too few answers to say" : words.words}</Pill>
+          <Pill tone={RAG_TONE[state.colour]}>{state.enough ? state.words : "too few answers to say"}</Pill>
           {s.repeating_misconception ? (
             <span className="text-[12.5px] text-terracotta">
               keeps: {mistakeName(names, s.repeating_misconception, null, s.skill_code)}

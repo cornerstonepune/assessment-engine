@@ -14,7 +14,7 @@ export const NAV: readonly NavItem[] = [
   { href: "/growth", label: "Children", icon: "growth", match: ["/growth"] },
 ];
 
-export function Shell({ me, waiting, children }: { me: Session; waiting: Partial<Record<string, number>>; children: ReactNode }) {
+export function Shell({ me, waiting, subject, children }: { me: Session; waiting: Partial<Record<string, number>>; subject: string; children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
       <aside className="flex w-full flex-col bg-basalt px-[18px] py-[26px] text-lime md:w-[230px] md:shrink-0 print:hidden">
@@ -30,7 +30,7 @@ export function Shell({ me, waiting, children }: { me: Session; waiting: Partial
               How it works
             </a>
           ) : null}
-          <div className="label !text-bamboo opacity-75">Grade 1–4 · Maths</div>
+          <div className="label !text-bamboo opacity-75">Grade 1–4 · {subject}</div>
           <div role="group" aria-label="Signed in" className="mt-3 text-[12.5px] text-bamboo">
             <div className="flex items-center justify-between gap-2">
               <span className="truncate" title={me.email}>{me.name}</span>

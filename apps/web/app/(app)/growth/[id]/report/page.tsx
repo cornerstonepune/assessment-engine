@@ -9,7 +9,10 @@ import { deadline } from "@/lib/deadline";
 import { EngineDown, engineGet } from "@/lib/engine";
 import { childHeader } from "@/lib/queries";
 import { around, coverage, skillMap } from "@/lib/queries-report";
-import { rag, RAG_TONE, RAG_WORDS } from "@/lib/rag";
+import { RAG_TONE } from "@/lib/rag";
+import { colourRules } from "@/lib/colours";
+import { childStates } from "@/lib/states";
+import { subjectOf } from "@/lib/subject";
 import { fmtDate } from "../answers";
 import { GoingWell, NextSteps, Signals, WorkingOn, type Report } from "./parts";
 import { PrintButton } from "./print-button";
@@ -34,20 +37,23 @@ export default async function ReportCard({ params }: Props) {
   const me = await requireStaff();
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
-  const [child, all, cov, rep] = await deadline(
+  const [child, all, cov, rep, states, rules] = await deadline(
     Promise.all([
       childHeader(id, me.email),
       skillMap(id),
       coverage(id),
       report(id),
+      childStates(),
+      colourRules(),
     ]),
   );
   if (!child) notFound();
   const nodes = around(all, child.band);
+  const subject = await deadline(subjectOf(nodes.map((n) => n.code)));
   const name = child.first_name;
   const assessed = nodes.filter((n) => n.state);
   const count = (c: string) =>
-    assessed.filter((n) => rag(n.state) === c).length;
+    assessed.filter((n) => states.of(n.state).colour === c).length;
   const waiting = cov.answers - cov.signed;
   const [first, last] = [fmtDate(cov.first), fmtDate(cov.last)];
   const when = cov.first
@@ -61,7 +67,7 @@ export default async function ReportCard({ params }: Props) {
       <PageHeader
         stage={`Children · report card · ${child.section}`}
         title={name}
-        sub={`Roll ${child.roll_no} · Grade ${child.band.slice(1)} · Maths · ${when}`}
+        sub={`Roll ${child.roll_no} · Grade ${child.band.slice(1)} · ${subject} · ${when}`}
       />
       <Body>
         <p className="mb-4 flex flex-wrap gap-2 print:hidden">
@@ -96,7 +102,7 @@ export default async function ReportCard({ params }: Props) {
               key={c}
               tone={RAG_TONE[c]}
               n={count(c)}
-              words={`skill set${count(c) === 1 ? "" : "s"} · ${c === "grey" ? "too few answers yet" : RAG_WORDS[c]}`}
+              words={`skill set${count(c) === 1 ? "" : "s"} · ${c === "grey" ? "too few answers yet" : states.colours[c].words}`}
             />
           ))}
         </div>
@@ -108,8 +114,8 @@ export default async function ReportCard({ params }: Props) {
             label="Skill map panel"
             aside={`${assessed.length} of ${nodes.length} skill sets assessed`}
           >
-            <SkillMap nodes={nodes} band={child.band} />
-            <MapKey />
+            <SkillMap nodes={nodes} band={child.band} states={states} />
+            <MapKey states={states} rules={rules} />
           </Panel>
         </div>
 
@@ -119,7 +125,7 @@ export default async function ReportCard({ params }: Props) {
           <>
             <div className="mb-[18px] grid gap-[18px] md:grid-cols-2 print:break-inside-avoid">
               <Panel title="Going well" label="Going well">
-                <GoingWell name={name} report={rep} nodes={nodes} />
+                <GoingWell name={name} report={rep} nodes={nodes} states={states} rules={rules} />
               </Panel>
               <Panel title="Working on" label="Working on">
                 <WorkingOn name={name} report={rep} />

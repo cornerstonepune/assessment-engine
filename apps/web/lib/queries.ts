@@ -1,6 +1,5 @@
 import { sql } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
-import { RAG, RAG_TONE } from "./rag";
 import { skillTaughtFor, skillTaughtIn } from "./taught";
 
 export const DIFFICULTIES = ["Easy", "Medium", "Hard", "Advance"] as const;
@@ -104,13 +103,16 @@ export async function skillSet(code: string, scope: Scope = EVERY_CLASS): Promis
 
 export type Skill = { code: string; name: string; description: string; rungs: string[] };
 
-export async function numSkills(): Promise<Skill[]> {
+/** The registry's skills a skill set practises — each reached through its rung, the way to its topic and so to its
+ *  subject — with the rungs that carry it. */
+export async function setSkills(): Promise<Skill[]> {
   return sql<Skill[]>`
     select k.code, k.name, k.description,
            coalesce(array_agg(r.code order by r.ladder_order) filter (where r.code is not null), '{}') as rungs
     from skill k
     left join rung r on r.tenant_id = k.tenant_id and k.code = any(r.skill_codes)
-    where k.domain = 'NUM'
+    where exists (select 1 from skill_set ss join rung sr on sr.tenant_id = ss.tenant_id and sr.code = ss.rung_code
+                  where ss.tenant_id = k.tenant_id and k.code = any(sr.skill_codes))
     group by k.code, k.name, k.description
     order by k.code`;
 }
@@ -159,16 +161,6 @@ export async function staffList(): Promise<Staff[]> {
 }
 
 // ---- Child Growth: what confirmed evidence says about one child, and what still waits for a person.
-
-// Each state's words; its colour is lib/rag.ts's, so the ladder, the class grid and Today agree.
-export const STATE_WORDS: Record<string, { words: string; tone: "neem" | "bamboo" | "terracotta" | "monsoon" }> = {
-  not_enough_yet: { words: "not enough yet", tone: RAG_TONE[RAG.not_enough_yet] },
-  patterned_error: { words: "repeating mistake", tone: RAG_TONE[RAG.patterned_error] },
-  emerging: { words: "under half right", tone: RAG_TONE[RAG.emerging] },
-  practising: { words: "practising", tone: RAG_TONE[RAG.practising] },
-  secure: { words: "secure", tone: RAG_TONE[RAG.secure] },
-  stretch_ready: { words: "ready to move up", tone: RAG_TONE[RAG.stretch_ready] },
-};
 
 export type ChildRow = {
   id: string;

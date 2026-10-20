@@ -8,8 +8,8 @@ import { NotYours } from "@/components/not-yours";
 import { isMine, scopeOf } from "@/lib/scope";
 import { checkHref, checkLevel, colourRules } from "@/lib/colours";
 import { classGrid, stepKey, type GridChild, type Step } from "@/lib/queries-children";
-import { gradeWords, STATE_WORDS } from "@/lib/queries";
-import { rag } from "@/lib/rag";
+import { gradeWords } from "@/lib/queries";
+import { childStates, type States } from "@/lib/states";
 import { deadline } from "@/lib/deadline";
 import { ChecksPanel, type Check } from "../../checks";
 import { TopicGrid } from "./topics";
@@ -20,12 +20,14 @@ type Props = { params: Promise<{ section: string }>; searchParams: Promise<Recor
 // answers in (goals/ui4b2-class-by-topic.yaml), or, a topic opened, against that topic's skills alone in the same place,
 // each cell the child's score in the colour of the graph's own state (goals/v2-what-answers-show.yaml). Never both, and
 // never every skill of every topic: that was the standing said twice, and a grid wider than any screen. The colour is
-// lib/rag.ts's. Then the checks that would place the children the colours cannot say yet.
+// the state's row's (lib/states.ts). Then the checks that would place the children the colours cannot say yet.
 export default async function ClassPage({ params, searchParams }: Props) {
   const me = await requireStaff();
   const section = decodeURIComponent((await params).section);
   if (!isMine(scopeOf(me), section)) return <NotYours what={section} />;
-  const [{ steps: every, children, notYet: unanswered, band }, rules] = await deadline(Promise.all([classGrid(section, me.email), colourRules()]));
+  const [{ steps: every, children, notYet: unanswered, band }, rules, states] = await deadline(
+    Promise.all([classGrid(section, me.email), colourRules(), childStates()]),
+  );
   if (!children.length) notFound();
   // a topic of the class's own opens its skills alone; any other word is every topic's
   const asked = (await searchParams).topic;
@@ -46,7 +48,7 @@ export default async function ClassPage({ params, searchParams }: Props) {
   const checks: Check[] = [
     ...answered.flatMap((skill) => {
       const columns = steps.filter((s) => s.skill_set === skill.code);
-      const grey = (c: GridChild) => columns.some((s) => (c.states[stepKey(s)]?.state ?? "not_enough_yet") === "not_enough_yet");
+      const grey = (c: GridChild) => columns.some((s) => !states.of(c.states[stepKey(s)]?.state).enough);
       const answers = (c: GridChild) => Math.max(...columns.map((s) => c.states[stepKey(s)]?.n_events ?? 0));
       const kids = children.filter(grey);
       return kids.length ? [check(skill, kids, <Who kids={kids} answers={answers} />)] : [];
@@ -86,10 +88,14 @@ export default async function ClassPage({ params, searchParams }: Props) {
         ) : (
           <p className="note mb-3">No checked answers in this class yet.</p>
         )}
-        {open ? <TopicSkills section={section} steps={steps} kids={children} /> : <TopicGrid section={section} steps={every} kids={children} />}
+        {open ? (
+          <TopicSkills section={section} steps={steps} kids={children} states={states} />
+        ) : (
+          <TopicGrid section={section} steps={every} kids={children} states={states} />
+        )}
         <div className="mt-[18px] grid gap-[18px]">
           <ChecksPanel title="Checks that would place them" unanswered="no child has answered yet" checks={checks} />
-          <ColourKeyLine rules={rules} />
+          <ColourKeyLine rules={rules} states={states} />
         </div>
       </Body>
     </>
@@ -97,7 +103,7 @@ export default async function ClassPage({ params, searchParams }: Props) {
 }
 
 /** One topic's skills, each child against each: a cell is the child's right answers of all they answered. */
-function TopicSkills({ section, steps, kids }: { section: string; steps: Step[]; kids: GridChild[] }) {
+function TopicSkills({ section, steps, kids, states }: { section: string; steps: Step[]; kids: GridChild[]; states: States }) {
   return (
     <>
       <div id="steps" className="panel scroll-mt-6 overflow-x-auto">
@@ -126,7 +132,7 @@ function TopicSkills({ section, steps, kids }: { section: string; steps: Step[];
                   </Link>
                 </td>
                 {steps.map((s) => (
-                  <Cell key={stepKey(s)} step={s} got={c.states[stepKey(s)]} />
+                  <Cell key={stepKey(s)} step={s} got={c.states[stepKey(s)]} states={states} />
                 ))}
               </tr>
             ))}
@@ -140,9 +146,9 @@ function TopicSkills({ section, steps, kids }: { section: string; steps: Step[];
   );
 }
 
-function Cell({ step, got }: { step: Step; got?: { state: string; n_events: number; n_correct: number } }) {
-  const colour = rag(got?.state);
-  const said = `${step.skill_name} — ${got?.n_events ? `${got.n_correct} of ${got.n_events} right, ${STATE_WORDS[got.state].words}` : "no answers yet"}`;
+function Cell({ step, got, states }: { step: Step; got?: { state: string; n_events: number; n_correct: number }; states: States }) {
+  const colour = states.of(got?.state).colour;
+  const said = `${step.skill_name} — ${got?.n_events ? `${got.n_correct} of ${got.n_events} right, ${states.of(got.state).words}` : "no answers yet"}`;
   return (
     <td data-col={stepKey(step)} data-rag={colour} title={said} className="num">
       {got?.n_events ? (

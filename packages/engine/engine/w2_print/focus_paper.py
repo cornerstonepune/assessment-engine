@@ -15,27 +15,43 @@ the paper names who approved it. One next paper a week: a second approval is ref
 
 import json
 import random
+import re
 import tempfile
 from dataclasses import replace
 from datetime import UTC, datetime
+from fractions import Fraction
 from pathlib import Path
 
 from engine.assess import focus
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
-from engine.core import db, mistake_names, roster, settings
+from engine.core import db, mistake_names, roster, settings, vocabulary
 from engine.w1_bank.inventory import item_from_row
 from engine.w2_print.assemble import _qr
 from engine.w2_print.shelf import _levels, _once, catalog, home_length, rule
 
-WHY = {
-    "patterned_error": "the same mistake more than once",
-    "emerging": "fewer than half right",
-    "practising": "not yet four in five right",
-    "secure": "four in five right — a step up",
-    "stretch_ready": "ready to move up",
-    "asked": "chosen by a teacher",
-}
+ASKED = "chosen by a teacher"  # an area an educator asked for has no state behind it
+NUMBER = ("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")
+WITHIN = re.compile(r"\{([a-z_.]+)\}")
+
+
+def share_words(share: float) -> str:
+    """A threshold's share as a paper says it: 0.5 "half", 0.8 "four in five", 0.75 "three in four"."""
+    f = Fraction(share).limit_denominator(10)
+    return "half" if f == Fraction(1, 2) else f"{NUMBER[f.numerator - 1]} in {NUMBER[f.denominator - 1]}"
+
+
+def reasons(conn) -> dict[str, str]:
+    """{state: the reason a paper prints for an area in it}, from each state's row (`child_state.why`), every
+    {threshold.key} in it said as that row's share — so the words follow the rule in force (ADR 0085)."""
+    return {
+        # a threshold with no row is NaN, which no share says: the paper is refused, never printed with a made-up share
+        s["code"]: WITHIN.sub(lambda m: share_words(settings.threshold(conn, m[1], float("nan"))), s["why"])
+        for s in vocabulary.states(conn)
+        if s["why"]
+    }
+
+
 HOW = {"focus": "chosen from their own checked papers", "custom": "chosen by their educator"}
 # What the paper says it is, at the top of the page: a paper chosen from a child's graph is the one sent home
 # (Nimish, 2026-09-24: "it needs to be explicitly written as home assessment").
@@ -169,8 +185,9 @@ def _asked(conn, states, ask) -> list:
         own = cat[code]["own"]
         # the child's states on this skill set's own rung (ADR 0048: a rung is one skill set), whatever skill a mistake
         # there was charged to; a state of the same skill on another rung is another skill set's
-        mine = [x for x in states if x["rung_code"] == cat[code]["rung"] and x["state"] in focus.LAGGING]
-        weakest = min(mine, key=lambda x: focus.LAGGING.index(x["state"]), default=None)
+        lagging = rule(conn)["lagging"]
+        mine = [x for x in states if x["rung_code"] == cat[code]["rung"] and x["state"] in lagging]
+        weakest = min(mine, key=lambda x: lagging.index(x["state"]), default=None)
         mistake = weakest["repeating_misconception"] if weakest else None
         out.append((focus.Area(code, own, level, 0, 0, mistake, "asked"), n))
     return out
@@ -217,6 +234,7 @@ def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
     )
     name_of = _once("mistake names", lambda: mistake_names.names(conn))
     days = _once("exposure days", lambda: settings.exposure_days(conn))
+    said = _once("reasons", lambda: reasons(conn))
     # what the paper never repeats: its own lines' questions, or two lines alike drew the same (code review,
     # 2026-09-30); another child's paper's questions it takes only last
     out, own = [], set()
@@ -227,9 +245,7 @@ def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
             alike = any((a.skill_set, a.level) == (area.skill_set, area.level) for a, _ in chosen[:i])
             raise ValueError(_short(len(questions), names.get(area.skill_set), area.level, alike))
         why = (
-            WHY["asked"]
-            if area.state == "asked"
-            else f"Right {area.right} of {area.answered} — {WHY[area.state]}"
+            ASKED if area.state == "asked" else f"Right {area.right} of {area.answered} — {said[area.state]}"
         )
         if area.mistake:
             why += f": {name_of(area.mistake, skill=area.skill_code)}"

@@ -1,6 +1,7 @@
 import { sql } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
-import { rag, type Rag } from "./rag";
+import type { Rag } from "./rag";
+import type { States } from "./states";
 import { reportState, type ReportState } from "./queries-reports";
 import { skillTaughtIn } from "./taught";
 
@@ -18,10 +19,10 @@ export type ChildRow = {
   /** The skill they most need help on: red before amber, the least often right first, and the mistake they repeat on
    *  it, named for its skill. None when nothing is red or amber. */
   help: { name: string; rag: "red" | "amber"; mistake: string | null } | null;
-  /** How many skills are red. */
+  /** How many skill sets are red, amber and green. */
   needs_help: number;
-  secure: number;
-  practising: number;
+  green: number;
+  amber: number;
   /** Their answers waiting for a person, on papers not replaced or voided: the papers pages' rule (`queries-papers`). */
   waiting: number;
   /** Their newest parent report and whether there are answers to write one from (`queries-reports`). */
@@ -36,26 +37,27 @@ export async function childTable(actor: string, topic: string | null = null, sco
   return sql<ChildRow[]>`
     with st as (
       select s.child_id, s.rung_code, ss.name,
-             min(case s.state when 'patterned_error' then 1 when 'emerging' then 2 when 'practising' then 3
-                              when 'secure' then 5 when 'stretch_ready' then 5 else 4 end) as sev,
+             min(cs.severity) as sev,
              sum(s.n_correct)::float / nullif(sum(s.n_events), 0) as right_share,
              (array_agg(mistake_name(s.repeating_misconception, s.skill_code))
                 filter (where s.repeating_misconception is not null))[1] as mistake
       from child_skill_state s
+      join child_state cs on cs.tenant_id = s.tenant_id and cs.code = s.state
       join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
       join child sc on sc.id = s.child_id
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
         and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, sql`sc.section`)} ${topic ? sql`and t.code = ${topic}` : sql``}
       group by s.child_id, s.rung_code, ss.name
-    )
+    ),
+    -- a severity's colour and whether a next paper works on it: the states of one severity share both
+    sv as (select distinct on (severity) severity, colour, needs_work from child_state order by severity, ord)
     select c.id, c.band, c.section, c.roll_no, p.first_name,
-           (select jsonb_build_object('name', st.name, 'rag', case when st.sev <= 2 then 'red' else 'amber' end,
-                                      'mistake', st.mistake)
-              from st where st.child_id = c.id and st.sev <= 3
+           (select jsonb_build_object('name', st.name, 'rag', sv.colour, 'mistake', st.mistake)
+              from st join sv on sv.severity = st.sev where st.child_id = c.id and sv.needs_work
              order by st.sev, st.right_share nulls last, st.name limit 1) as help,
-           (select count(*)::int from st where st.child_id = c.id and st.sev <= 2) as needs_help,
-           (select count(*)::int from st where st.child_id = c.id and st.sev = 5) as secure,
-           (select count(*)::int from st where st.child_id = c.id and st.sev = 3) as practising,
+           (select count(*)::int from st join sv on sv.severity = st.sev where st.child_id = c.id and sv.colour = 'red') as needs_help,
+           (select count(*)::int from st join sv on sv.severity = st.sev where st.child_id = c.id and sv.colour = 'green') as green,
+           (select count(*)::int from st join sv on sv.severity = st.sev where st.child_id = c.id and sv.colour = 'amber') as amber,
            (select count(*)::int from item_result r join capture k on k.id = r.capture_id
               join sheet_instance si on si.id = k.sheet_instance_id
              where si.child_id = c.id and k.superseded_by is null and si.print_status <> 'void'
@@ -185,10 +187,10 @@ export async function childSkills(id: string): Promise<ChildSkill[]> {
 
 /** The one sentence a child's page opens on: the skills their checked answers reach, counted by colour, red first;
  *  then how many have too few answers to say, and how many of their grade's skills no paper has reached yet. */
-export function summary(name: string, assessed: (string | null)[], notYet: number): string {
+export function summary(name: string, assessed: (string | null)[], notYet: number, states: States): string {
   if (!assessed.length) return `${name} has no checked answers yet; this fills in once a paper is read and checked.`;
   const n: Record<Rag, number> = { red: 0, amber: 0, green: 0, grey: 0 };
-  for (const s of assessed) n[rag(s)] += 1;
+  for (const s of assessed) n[states.of(s).colour] += 1;
   const skills = (k: number) => `${k} skill${k === 1 ? "" : "s"}`;
   // the first count says "skill"; the rest are read against it
   const said = (

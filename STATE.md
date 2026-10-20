@@ -8271,6 +8271,26 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## B0d — a child's states and the subject are read from rows (2026-10-20, ADR 0085)
+
+- **Built (`goals/b0d-states-and-subject-from-tables.yaml`):** migration 20261122090000 adds to `child_state` a column
+  for each rule the code's lists held — `enough`, `severity`, `move_up`, `nearly`, `card_group`, `why` (the paper's
+  reason, `{next_sheet.promote_at}` said in words from the row) — and `state_colour` (each colour's key and count
+  words; a state's colour is a key into it), and `subject.label` ("Maths"). The engine reads them through
+  `core/vocabulary.states`; the website through `lib/states.ts` and `lib/subject.ts`. A prescription's strand is its
+  skill set's topic's subject.
+- **Proved to change nothing:** `tests/test_states_and_subject.py` holds the lists from main (RAG, RAG_WORDS, the
+  topic counts' words, STATE_WORDS, LAGGING, PROPOSABLE, STRONG, the card's GROUPS and ORDER, the children table's
+  CASE, WHY) and checks the rows give each; it failed first (`vocabulary has no attribute 'states'`, 63 files' names
+  found), then 6 passed. The scan finds no state or subject named in `packages/engine/engine` or `apps/web/{app,lib,components}`.
+- **Whole engine suite, local Postgres 16 from `bin/testdb fresh` + this migration:** 2377 passed, 126 failed, 58
+  errors at first. Every one of those 184 then passed (184 passed, 2 skipped) with Playwright pointed at the
+  container's Chromium 1194 (the pinned Playwright wants 1243): they were the browser, and two of mine — `rules.json`
+  lacked the four new keys (`engine live rules --write --url <local>`), and the parent-review eval runs with no database.
+- **Website:** `npx tsc --noEmit` and `npx eslint --max-warnings 0` clean. The children table's sort keys are now
+  `amber` / `green` (u8 spec updated). Browser specs: CI.
+- **Rehearsal on a copy of live:** to run (`rehearse-update-live.yml` on this branch).
+
 ## B0a — grades, levels and a child's states are tables, every link to them a key (2026-10-20, ADR 0084)
 
 - **Built (`goals/b0a-the-vocabulary-is-tables.yaml`):** `grade` (14 rows, PG → G10), `difficulty` (4) and

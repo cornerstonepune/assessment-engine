@@ -22,12 +22,19 @@
     {"code": "Hard"},
     {"code": "Advance"}
   ],
+  "_states_note": "B0d (ADR 0085): every rule about a state is a column. enough: false for the one state that waits on too few answers. severity: the children table counts a skill set as its most severe skill. move_up: ready to move up a level. nearly: a set in it may be nearly secure (parent report). card_group: its group on Friday's class card (reteach groups by the mistake). why: the reason a paper prints, {threshold.key} said as that row's share in words. A state's colour is a row of state_colours: words in a key or legend, count_words in a count. The migration 20261122090000 inserts these same rows for every school; tests/test_states_and_subject.py keeps them equal to the code's old answers.",
   "child_states": [
-    {"code": "patterned_error", "words": "repeating mistake", "colour": "red", "needs_work": true},
-    {"code": "emerging", "words": "under half right", "colour": "red", "needs_work": true},
-    {"code": "practising", "words": "practising", "colour": "amber", "needs_work": true},
-    {"code": "secure", "words": "secure", "colour": "green", "needs_work": false},
-    {"code": "stretch_ready", "words": "ready to move up", "colour": "green", "needs_work": false},
-    {"code": "not_enough_yet", "words": "not enough yet", "colour": "grey", "needs_work": false}
+    {"code": "patterned_error", "words": "repeating mistake", "colour": "red", "needs_work": true, "enough": true, "severity": 1, "move_up": false, "nearly": false, "card_group": "reteach", "why": "the same mistake more than once"},
+    {"code": "emerging", "words": "under half right", "colour": "red", "needs_work": true, "enough": true, "severity": 2, "move_up": false, "nearly": false, "card_group": "emerging", "why": "fewer than {next_sheet.demote_below} right"},
+    {"code": "practising", "words": "practising", "colour": "amber", "needs_work": true, "enough": true, "severity": 3, "move_up": false, "nearly": true, "card_group": "practising", "why": "not yet {next_sheet.promote_at} right"},
+    {"code": "secure", "words": "secure", "colour": "green", "needs_work": false, "enough": true, "severity": 5, "move_up": false, "nearly": false, "card_group": "secure", "why": "{next_sheet.promote_at} right — a step up"},
+    {"code": "stretch_ready", "words": "ready to move up", "colour": "green", "needs_work": false, "enough": true, "severity": 5, "move_up": true, "nearly": false, "card_group": "move_up", "why": "ready to move up"},
+    {"code": "not_enough_yet", "words": "not enough yet", "colour": "grey", "needs_work": false, "enough": false, "severity": 4, "move_up": false, "nearly": false, "card_group": "not_enough_yet", "why": null}
+  ],
+  "state_colours": [
+    {"code": "red", "words": "needs help", "count_words": "needs help"},
+    {"code": "amber", "words": "practising", "count_words": "practising"},
+    {"code": "green", "words": "got it", "count_words": "secure"},
+    {"code": "grey", "words": "not enough yet", "count_words": "too few answers"}
   ]
 }
