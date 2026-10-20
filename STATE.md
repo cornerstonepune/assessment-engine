@@ -8271,6 +8271,17 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## L13 — the marking check counts answers, not questions; the 16 Oct papers were never double-counted (2026-10-20)
+
+- **Found on a copy of live** (rehearsal runs 39463070268, 39464896455, read only): the 5 papers `engine live data` named
+  (CS2A6B23, CSCE3E2C, CSA4999D, CSB8ACB3, CS6A1049) each have one live reading; 13 questions ask for 21 answers
+  (`ans`, `s1`–`s4`); 21, 21, 21, 21 and 9 results, every one a different (question, answer) pair, every answer one its
+  question asks for. Nothing was counted twice. The check (M3c, 2026-10-11) predates questions with more than one
+  answer (md0a, migration 20261025090000) and counted questions.
+- **Now (`goals/l13-a-paper-is-counted-by-its-answers.yaml`):** `live_data._marking` counts answer slots; it names a
+  paper where one answer is counted twice across live readings, or more answers than printed. `tests/test_live_data.py`:
+  the new test failed first ("1 counted twice" for a quotient and a remainder), then 7 passed.
+
 ## B0a — grades, levels and a child's states are tables, every link to them a key (2026-10-20, ADR 0084)
 
 - **Built (`goals/b0a-the-vocabulary-is-tables.yaml`):** `grade` (14 rows, PG → G10), `difficulty` (4) and

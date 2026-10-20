@@ -3,6 +3,13 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-20 — B0a merged; L13: the "counted twice" papers were a false alarm in the check
+
+- **B0a merged** (#227). **L13 on `claude/b0a-vocabulary-tables`** (STATE.md "L13"): the live check counted questions,
+  and a question asking for two answers looked counted twice. No paper was. The check now counts answer slots.
+- **Next:** once L13's rehearsal comes back clean and Nimish merges, B0b (grades read from the table everywhere).
+  Pre-school names stay "PG", "Nursery", "K1", "K2" (Nimish, 2026-10-20).
+
 ## 2026-10-20 — B0a built (W1, gate 3): grades, levels and states are tables; PR #227, draft, not deployed
 
 - **On `claude/b0a-vocabulary-tables`** (STATE.md "B0a"): `grade`, `difficulty`, `child_state` from

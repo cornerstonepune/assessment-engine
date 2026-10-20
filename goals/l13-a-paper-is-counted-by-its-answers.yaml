@@ -1,0 +1,27 @@
+name: l13-a-paper-is-counted-by-its-answers
+goal: >
+  The live check "Marking counts each printed question once" counts a paper's answer slots, not its questions: a question
+  that asks for more than one answer (a quotient and a remainder, an estimate and the exact answer) has one result per
+  answer, and that is not counting twice. It still names a paper where the same answer of the same question is counted on
+  two live readings, or where more answers are counted than the paper printed.
+# Written 2026-10-20, before the code. The rehearsal of B0a on a copy of live (runs 39447048331, 39449844559 on main)
+# failed this check on 5 papers of 16 Oct, "21 answers counted for 13 questions printed, 8 counted twice". Read on the
+# copy (run 39464896455): each has one live reading, 13 questions with 21 answers between them, 21 results, 21
+# different (question, answer) pairs, every one an answer its question asks for. Nothing was counted twice; the check
+# predates questions with more than one answer (md0a, migration 20261025090000). Nimish: "fix the double-counted papers
+# first, then B0b".
+says:
+  - words: "fix the double-counted papers first"
+    proved_by: "packages/engine/tests/test_live_data.py::test_a_question_asking_for_two_answers_is_two_answers_not_one_counted_twice"
+  - words: "fix the double-counted papers first"
+    proved_by: "packages/engine/tests/test_live_data.py::test_a_paper_with_one_question_counted_twice_fails_and_names_the_paper"
+manual:
+  - "Actions → rehearse update-live: `engine live data` on the copy says ok for \"Marking counts each printed question once\"."
+scenarios: []
+criteria:
+  - name: the check counts answers, and still finds one counted twice
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_live_data.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

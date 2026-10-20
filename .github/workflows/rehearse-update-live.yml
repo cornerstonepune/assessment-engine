@@ -86,9 +86,6 @@ jobs:
       - name: before, on the copy
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: bin/engine live data --url "$COPY" || true
-      - name: papers whose answers count twice, slot by slot (codes and counts; no path, no name)
-        run: |
-          psql "$COPY" -c "with twice as (select si.id, si.qr_code, t.item_ids from sheet_instance si join sheet_template t on t.id = si.sheet_template_id join capture c on c.sheet_instance_id = si.id and c.superseded_by is null join item_result r on r.capture_id = c.id group by si.id, si.qr_code, t.item_ids having count(r.id) <> count(distinct r.item_id)) select tw.qr_code, cardinality(tw.item_ids) as questions, (select sum(jsonb_array_length(i.responses)) from item i where i.id = any(tw.item_ids)) as slots, count(r.id) as answers, count(distinct (r.item_id, r.rid)) as question_slot_pairs, count(*) filter (where not exists (select 1 from item i, jsonb_array_elements(i.responses) x where i.id = r.item_id and x ->> 'rid' = r.rid)) as slot_not_its_questions, string_agg(distinct r.rid, ',') as rids from twice tw join capture c on c.sheet_instance_id = tw.id and c.superseded_by is null join item_result r on r.capture_id = c.id group by tw.qr_code, tw.item_ids order by tw.qr_code"
       - name: stories the labeller cannot name (their text; questions hold no names)
         run: |
           psql "$COPY" -c "select item_key, skill_set_code, stem, spec from item where fmt = 'word_1step' and not (tags ? 'structure') order by item_key limit 25"

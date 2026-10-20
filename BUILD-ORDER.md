@@ -16,11 +16,12 @@ Three rules hold for every step: a numbered migration, rehearsed on a copy of li
 a check that compares the new tables with the old answer; and no paper, map or page changes on the day. An old column
 stays readable for one deploy after its readers move, then goes.
 
-**Order, until Nimish says otherwise:** B0a → B0b → B0c → B0d → B1 → B2 → B3 → B4. The slices above (UX…, SF…) wait.
+**Order, until Nimish says otherwise:** B0a → L13 → B0b → B0c → B0d → B1 → B2 → B3 → B4. The slices above (UX…, SF…) wait.
 
 | Slice | Goal file | Green means |
 |---|---|---|
 | B0a | `goals/b0a-the-vocabulary-is-tables.yaml` | three tables, `grade` (PG, N, K1, K2, G1–G10, each with its name and order), `difficulty` (Easy, Medium, Hard, Advance in order) and `child_state` (the graph's six states with their order, words, colour and whether a next paper works on them), loaded from the seed and made for every school by the migration; a topic's subject, a skill's topic, the level of a question, prescription, paper and review, and a child's state are real keys the database checks, replacing their lists of allowed words; every row on live satisfies them; adding a grade, level or state is an insert. Nothing reads the tables yet |
+| L13 | `goals/l13-a-paper-is-counted-by-its-answers.yaml` | Nimish, 2026-10-20: "fix the double-counted papers first, then B0b". The live check counts a paper's answer slots, not its questions: the 5 papers of 16 Oct it named (13 questions, 21 answers) count each answer once. It still names an answer counted on two live readings, or more answers than printed; the rehearsal's copy of live comes back clean |
 | B0b | `goals/b0b-grades-from-the-table.yaml` | every page and query reads grades, their names and order from `grade`: a Grade 10 skill shows on the curriculum page, G10 sorts after G9 and is never read as G1; `rung.band` and `level_band` hold grade codes ("G2+" becomes G2) and are real keys; a test fails if any file outside the maths library names a grade |
 | B0c | `goals/b0c-levels-from-the-table.yaml` | the four levels' names and order are read from `difficulty` everywhere; a test fails if any file outside the maths library names a level |
 | B0d | `goals/b0d-states-and-subject-from-tables.yaml` | a child's states, their words, colours and order are read from `child_state`; the subject comes from the skill's topic, never "NUM" or "Maths" in code; a test fails if any file names a state or a subject |
