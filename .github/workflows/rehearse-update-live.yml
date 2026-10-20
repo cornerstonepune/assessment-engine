@@ -71,6 +71,8 @@ jobs:
       # `grade` holds stops the migration below, and this says which. Codes and counts only.
       - name: the grades live's rows hold
         run: |
+          psql "$LIVE" -tAc "select 'live: grade table ' || coalesce(to_regclass('public.grade')::text, 'absent') || ', last migrations ' || string_agg(version, ' ' order by version desc) from (select version from supabase_migrations.schema_migrations order by version desc limit 4) v"
+          psql "$COPY" -tAc "select 'copy: grade table ' || coalesce(to_regclass('public.grade')::text, 'absent')"
           psql "$COPY" -c "select 'rung' as held_by, band as grade, count(*) from rung group by 2
             union all select 'child', band, count(*) from child group by 2
             union all select 'sheet_template', band, count(*) from sheet_template group by 2
