@@ -1,5 +1,5 @@
 /**
- * B0b — grades are read from the `grade` table (goals/b0b-grades-from-the-table.yaml, ADR 0085). The website listed
+ * U34 (B0b) — grades are read from the `grade` table (goals/b0b-grades-from-the-table.yaml, ADR 0085). The website listed
  * Grade 1 to 4 and "Reasoning · Grade 2 and up" in its code, and read a grade's number out of its code, so a Grade 10
  * level had nowhere to show and would have been read as Grade 1. Every change is put back after.
  */
