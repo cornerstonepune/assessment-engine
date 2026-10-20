@@ -8271,6 +8271,32 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## B0b — grades are read from the `grade` table; every grade a row holds is a key; "G2+" is Grade 2 (2026-10-20, ADR 0085)
+
+- **Built (`goals/b0b-grades-from-the-table.yaml`, PR #229):** the website reads the grades once a request (`grades()`,
+  `lib/queries.ts`); SQL orders and compares by `grade_ord(tenant, code)` or a join to `grade`; the engine likewise
+  (`shelf._read_levels`, `week_note.options`, `parent_facts`, `every_report`). Migration 20261120090000: "G2+" → G2 on
+  rung, sheet_template, blueprint, level_rule and `level_band`; a key on (tenant_id, band) into `grade` on ten tables;
+  `level_band` checked on every write (`level_band_is_keyed`) and a grade a level names kept (`grade_held_by_a_level`);
+  `class_band` breaks a tie by the grades' order. Seed: X1, X2 are G2.
+- **Checks:** `tests/test_grades.py` failed first for the right reasons (the scan listed every site; "rung.band is no
+  key into grade"; "rung.band still holds a '+' grade"; a Grade 9 + Grade 10 class read as G10), then 5 passed.
+  `apps/web/tests/u34-grades-from-the-table.spec.ts`: a level moved to Grade 10 shows under Grade 10, last; reasoning
+  under Grade 2 — 20 passed locally with s2, u12, u19, u20, u33.
+- **No paper moved but the decided word:** every library worksheet drawn as HTML with main's code before the migration
+  and this branch's after it, on one copy: 2,593 of 2,737 identical to the byte; the 144 reasoning worksheets differ
+  only in "Grade 2+" → "Grade 2" (header and footer). The child's map already drew reasoning under Grade 2
+  (`left(band, 2)`); its columns now come from `grade` in the same order.
+- **What a person sees change:** reasoning's two skills under Grade 2 (the "Reasoning · Grade 2 and up" group gone);
+  a Grade 2 child's profile counts the taught reasoning skill among the grade's; a Grade 3 or 4 class's week no longer
+  offers the two reasoning skills (the week keeps to a class's own grade, test_week_note); a level's grade can be any
+  grade the table holds; the menu reads "Grade 1–Grade 4 · Maths".
+- **Rehearsed on a copy of live** (run 39467290221 on 6fbd2f6): "copied: 63 tables, 160215 rows"; live held G2+ on 2
+  rungs and 337 worksheets, every other grade a row of `grade`; `applying 20261120090000_grades_from_the_table.sql`
+  with no error; the update sequence ran after it. Its last step fails only on "Marking counts each printed question
+  once" (the 5 papers of B0a below), as main does. Run 39466319322 met live mid-deploy of B0a ("relation grade does
+  not exist"): live recorded 20261119 between the copy's schema step and its migration step.
+
 ## B0a — grades, levels and a child's states are tables, every link to them a key (2026-10-20, ADR 0084)
 
 - **Built (`goals/b0a-the-vocabulary-is-tables.yaml`):** `grade` (14 rows, PG → G10), `difficulty` (4) and

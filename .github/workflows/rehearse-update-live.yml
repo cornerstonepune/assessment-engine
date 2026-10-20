@@ -67,6 +67,20 @@ jobs:
           LC_ALL=C comm -12 /tmp/copy.tables /tmp/live.tables | while read t; do echo "$t $(psql "$COPY" -tAc "select count(*) from $t")"; done > /tmp/copy.counts
           diff /tmp/live.counts /tmp/copy.counts
           echo "copied: $(wc -l < /tmp/live.counts) tables, $(awk '{s+=$2} END {print s}' /tmp/copy.counts) rows, every count equal to live"
+      # Every grade live's rows hold, before the migrations make each a key into `grade` (ADR 0085): a grade no row of
+      # `grade` holds stops the migration below, and this says which. Codes and counts only.
+      - name: the grades live's rows hold
+        run: |
+          psql "$LIVE" -tAc "select 'live: grade table ' || coalesce(to_regclass('public.grade')::text, 'absent') || ', last migrations ' || string_agg(version, ' ' order by version desc) from (select version from supabase_migrations.schema_migrations order by version desc limit 4) v"
+          psql "$COPY" -tAc "select 'copy: grade table ' || coalesce(to_regclass('public.grade')::text, 'absent')"
+          psql "$COPY" -c "select 'rung' as held_by, band as grade, count(*) from rung group by 2
+            union all select 'child', band, count(*) from child group by 2
+            union all select 'sheet_template', band, count(*) from sheet_template group by 2
+            union all select 'blueprint', band, count(*) from blueprint group by 2
+            union all select 'level_rule', band, count(*) from level_rule group by 2
+            union all select 'registry', band, count(*) from (select band from milestone union all select band from learning_objective union all select band from activity union all select band from report_item union all select band from trait) r group by 2
+            union all select 'level_band', e.value, count(*) from skill_set s, jsonb_each_text(s.level_band) e group by 2
+            order by 1, 2"
       # The migrations `bin/update-live` pushes, run on live's rows as they will be on live. Until 2026-10-20 they ran on
       # the empty copy before its rows arrived, and the rows were restored with their triggers off, so a new key (ADR
       # 0084) was never checked against a live row. Each recorded as `supabase db push` records it, so the copy's own

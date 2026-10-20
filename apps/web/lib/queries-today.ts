@@ -40,7 +40,7 @@ export async function reportsWaiting(scope: Scope = EVERY_CLASS): Promise<Report
     join lateral (select n.approved_by from parent_note n where n.child_id = c.id and n.body like '{"facts"%'
                   order by n.created_at desc limit 1) n on true
     where c.active and n.approved_by is null and ${inScope(scope, sql`c.section`)}
-    order by c.band, c.section, roll_order(c.roll_no), c.roll_no`;
+    order by grade_ord(c.tenant_id, c.band), c.section, roll_order(c.roll_no), c.roll_no`;
 }
 
 /** What waits in the classes a person sees; the curriculum's lines are the school's (a skill is every grade's). */

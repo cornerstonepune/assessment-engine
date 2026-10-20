@@ -51,7 +51,7 @@
     },
     {
       "code": "X1",
-      "band": "G2+",
+      "band": "G2",
       "ladder_order": null,
       "descriptor": "Explains the procedure / judges a claim",
       "skill_codes": [
@@ -60,7 +60,7 @@
     },
     {
       "code": "X2",
-      "band": "G2+",
+      "band": "G2",
       "ladder_order": null,
       "descriptor": "Finds the mistake in a worked example",
       "skill_codes": [

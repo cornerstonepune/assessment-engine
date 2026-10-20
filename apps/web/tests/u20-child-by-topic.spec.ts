@@ -64,10 +64,12 @@ test("a child's page opens on their profile topic by topic", async ({ page }) =>
   // (goals/ux4-class-and-child.yaml)
   const shown = page.getByRole("region", { name: "What their answers show" });
   const line = (code: string) => shown.locator(`details[data-topic="${code}"] > summary`);
-  // the rest of the grade's addition and subtraction is counted as not assessed yet, not drawn as a wall of grey
+  // the rest of the grade's addition and subtraction taught in the class (reasoning's among them, Grade 2's since
+  // ADR 0085) is counted as not assessed yet, not drawn as a wall of grey
   const [{ notYet }] = await sql<{ notYet: number }[]>`
     select count(*)::int - 3 as "notYet" from skill_set s join rung r on r.code = s.rung_code
-    where s.topic_code = 'ADDSUB' and r.band = 'G2'`;
+    where s.topic_code = 'ADDSUB' and r.band = 'G2'
+      and skill_taught_in(s.tenant_id, s.code, (select section from child where id = ${kids.Ishaan}))`;
   await expect(line("ADDSUB")).toContainText(`Addition & subtraction`);
   await expect(line("ADDSUB")).toContainText(`1 needs help · 1 practising · 1 secure · ${notYet} not assessed yet`);
   await expect(line("DATA")).toContainText(/^\W*Data handling\s*1 needs help\b/);

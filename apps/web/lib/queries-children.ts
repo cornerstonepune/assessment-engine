@@ -63,7 +63,7 @@ export async function childTable(actor: string, topic: string | null = null, sco
            ${reportState(sql`c.id`)} as report
     from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active and ${inScope(scope, sql`c.section`)}
-    order by c.band, c.section, roll_order(c.roll_no), c.roll_no`;
+    order by grade_ord(c.tenant_id, c.band), c.section, roll_order(c.roll_no), c.roll_no`;
 }
 
 /** One column of the class grid: a rung, for one skill it carries. */
@@ -98,8 +98,7 @@ export async function classRoll(section: string, actor: string): Promise<{ id: s
  *  (goals/f1e-the-grade-plan.yaml) — the engine's rule, so a check is never offered at a level a paper would refuse. */
 const levelsUsedBy = (band: ReturnType<typeof sql>) => sql`array(
   select k from jsonb_object_keys(ss.difficulty) k
-  where coalesce(nullif(regexp_replace(coalesce(ss.level_band ->> k, r.band), '\\D', '', 'g'), '')::int, 0)
-     <= coalesce(nullif(regexp_replace(${band}, '\\D', '', 'g'), '')::int, 0))`;
+  where coalesce(grade_ord(ss.tenant_id, coalesce(ss.level_band ->> k, r.band)), -1) <= grade_ord(ss.tenant_id, ${band}))`;
 
 /** A class against the skills it has been assessed on (goals/v2-what-answers-show.yaml): one column per taught skill
  *  any child in the class has a checked answer on, in the shared tree's order — topic by topic, easy to hard — and
