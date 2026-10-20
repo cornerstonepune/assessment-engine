@@ -8287,7 +8287,8 @@ one child on live.
   0; it then stopped at `live data` on the 16 Oct papers (main fails the same way). L13's check (d96972f) ported in
   55bef20; rehearsal run 39473436188 green end to end.
 - **`bin/engine done b0c-levels-from-the-table`** (local copy): all six sentences PROVED; criteria 1 and 3 PASSED; the
-  whole-suite criterion timed out at 1800 s in this container (33 min here, 20 min on CI, where it passed); NOT DONE
+  whole-suite criterion timed out at 1800 s in this container; run directly here it is 2571 passed, 2 skipped
+  in 1884 s (the slowest are the reader's and the invariants', untouched here), and green on CI in 20 min; NOT DONE
   also for not being on main or live.
 
 ## B0a — grades, levels and a child's states are tables, every link to them a key (2026-10-20, ADR 0084)
