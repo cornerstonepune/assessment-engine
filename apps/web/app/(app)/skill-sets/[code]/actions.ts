@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { deciding } from "@/lib/decides";
 import { sql } from "@/lib/db";
 import { levels as schoolLevels } from "@/lib/levels";
-import { type Band, type Difficulty, levelsColumn, levelsOf } from "@/lib/queries";
+import { type Band, type Difficulty, grades, levelsColumn, levelsOf } from "@/lib/queries";
 
 const CODE = /^[A-Z0-9._]+$/;
 // the approval page under its own choices (goals/ui6a-approve-filtered.yaml), and nothing else
@@ -103,10 +103,12 @@ export async function saveGrades(formData: FormData): Promise<void> {
     select s.difficulty, ${levelsColumn()}, r.band from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
     where s.code = ${code}`;
   if (!row) redirect("/");
+  // a grade the school has (`grade`), other than the skill's own
+  const school = (await grades()).list.map((x) => x.code);
   const moved = Object.fromEntries(
     levelsOf(row)
       .map((d) => [d, String(formData.get(`grade:${d}`) ?? "")] as const)
-      .filter(([, g]) => /^G[1-9]\+?$/.test(g) && g !== row.band),
+      .filter(([, g]) => school.includes(g) && g !== row.band),
   );
   // in the mover's name (goals/c1-whole-curriculum.yaml): Achal reviews the progression by moving levels here
   await sql`

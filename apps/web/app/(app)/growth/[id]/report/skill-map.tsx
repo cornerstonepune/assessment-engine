@@ -128,7 +128,7 @@ export function SkillMap({ nodes, band }: { nodes: MapNode[]; band: string }) {
               fontWeight={600}
               fill="var(--basalt)"
             >
-              {`Grade ${c.band.slice(1)}${c.band === band ? " · this year" : ""}`}
+              {`${c.name}${c.band === band ? " · this year" : ""}`}
             </text>
           </g>
         ))}

@@ -9,7 +9,7 @@ import { engineSend } from "@/lib/engine";
 import { readArea, seeHref, type Area } from "@/lib/next-paper";
 import { levels } from "@/lib/levels";
 import { lineTopics, repeatWords } from "@/lib/maker";
-import { skillSets } from "@/lib/queries";
+import { grades, skillSets } from "@/lib/queries";
 import { oneChild } from "@/lib/queries-make";
 import { isoWeek } from "@/lib/week";
 import { approveCustom } from "../actions";
@@ -32,8 +32,8 @@ export default async function CustomPaper({ searchParams }: Props) {
   const section = await deadline(childSection(id));
   if (!isMine(scopeOf(me), section)) return <NotYours what="This child's class" />;
   // every skill, each saying whether the child's class was taught it: the educator's choice decides (ADR 0081)
-  const [child, sets, { usual }] = await deadline(
-    Promise.all([oneChild(id, me.email), skillSets({ untaught: true, section: section ?? "" }), levels()]),
+  const [child, sets, g, { usual }] = await deadline(
+    Promise.all([oneChild(id, me.email), skillSets({ untaught: true, section: section ?? "" }), grades(), levels()]),
   );
   if (!child) notFound();
 
@@ -76,7 +76,7 @@ export default async function CustomPaper({ searchParams }: Props) {
               <input type="hidden" name="child" value={id} />
               <MakerLines
                 key={lines.map((a) => (a ? `${a.skill_set}~${a.level}~${a.n}` : "")).join("|")}
-                topics={lineTopics(sets, child.band, null, ROWS, usual)}
+                topics={lineTopics(g, sets, child.band, null, ROWS, usual)}
                 usual={usual}
                 start={lines.map((a) => (a ? `${a.skill_set}~${a.level}~${a.n}` : ""))}
               />

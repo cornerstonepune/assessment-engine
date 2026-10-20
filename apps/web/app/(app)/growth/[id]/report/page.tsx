@@ -7,7 +7,7 @@ import { Body, Notice, PageHeader, Panel, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { EngineDown, engineGet } from "@/lib/engine";
-import { childHeader } from "@/lib/queries";
+import { childHeader, grades } from "@/lib/queries";
 import { around, coverage, skillMap } from "@/lib/queries-report";
 import { rag, RAG_TONE, RAG_WORDS } from "@/lib/rag";
 import { fmtDate } from "../answers";
@@ -34,16 +34,17 @@ export default async function ReportCard({ params }: Props) {
   const me = await requireStaff();
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
-  const [child, all, cov, rep] = await deadline(
+  const [child, all, cov, rep, g] = await deadline(
     Promise.all([
       childHeader(id, me.email),
       skillMap(id),
       coverage(id),
       report(id),
+      grades(),
     ]),
   );
   if (!child) notFound();
-  const nodes = around(all, child.band);
+  const nodes = around(all, g.ord(child.band));
   const name = child.first_name;
   const assessed = nodes.filter((n) => n.state);
   const count = (c: string) =>
@@ -61,7 +62,7 @@ export default async function ReportCard({ params }: Props) {
       <PageHeader
         stage={`Children · report card · ${child.section}`}
         title={name}
-        sub={`Roll ${child.roll_no} · Grade ${child.band.slice(1)} · Maths · ${when}`}
+        sub={`Roll ${child.roll_no} · ${g.name(child.band)} · Maths · ${when}`}
       />
       <Body>
         <p className="mb-4 flex flex-wrap gap-2 print:hidden">

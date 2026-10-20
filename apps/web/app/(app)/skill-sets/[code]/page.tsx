@@ -5,9 +5,8 @@ import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { levels } from "@/lib/levels";
 import {
-  GRADE_GROUPS,
   gradeOf,
-  gradeWords,
+  grades,
   levelsOf,
   skillSets,
   type Difficulty,
@@ -45,7 +44,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   const [{ code }, q] = await Promise.all([params, searchParams]);
   const level = (await levels()).order.find((d) => d === q.level);
   const everyLevel = q.level === "all";
-  const [all, examples, kinds, caught, book, sheets] = await deadline(
+  const [all, examples, kinds, caught, book, sheets, g] = await deadline(
     Promise.all([
       skillSets({ untaught: true, scope: scopeOf(me) }),
       levelExamples(code),
@@ -53,6 +52,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
       skillMistakes(code),
       mistakeBook(),
       worksheets({ set: code, level }, 200, 0),
+      grades(),
     ]),
   );
   // a skill whose topic is not taught yet opens too, to be read and approved before it is switched on (goals/ny1-needs-you.yaml)
@@ -73,7 +73,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage={`Curriculum · ${gradeWords(s.band)} · ${s.taught ? `Skill ${sets.indexOf(s) + 1} of ${sets.length}` : "Not taught yet"} · ${s.name}`}
+        stage={`Curriculum · ${g.name(s.band)} · ${s.taught ? `Skill ${sets.indexOf(s) + 1} of ${sets.length}` : "Not taught yet"} · ${s.name}`}
         title={s.learning_objective}
         sub="What this skill looks like at each level, each with a real question from the bank, the mistakes its questions are built to catch, and its worksheets."
       />
@@ -149,9 +149,9 @@ export default async function SkillPage({ params, searchParams }: Props) {
                 <label key={d} className="grid gap-1 text-[13px]">
                   <span className="label">{d}</span>
                   <select name={`grade:${d}`} defaultValue={gradeOf(s, d)} className="border border-basalt/20 bg-white px-2 py-1">
-                    {GRADE_GROUPS.filter(([b]) => /^G\d$/.test(b) || b === s.band).map(([b, words]) => (
-                      <option key={b} value={b}>
-                        {words}
+                    {g.list.map((x) => (
+                      <option key={x.code} value={x.code}>
+                        {x.name}
                       </option>
                     ))}
                   </select>

@@ -4,7 +4,7 @@ import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
 import { childSection, isMine, scopeOf } from "@/lib/scope";
-import { childEvidence, childHeader, childPapers, gradeWords, misconceptionNames, pendingResults, staffList } from "@/lib/queries";
+import { childEvidence, childHeader, childPapers, grades, misconceptionNames, pendingResults, staffList } from "@/lib/queries";
 import { childSheets, childSkills, classLatest, firstStep, repeatedMistakes, summary } from "@/lib/queries-children";
 import { ColourKeyLine } from "@/components/colour-key";
 import { checkHref, checkLevel, colourRules } from "@/lib/colours";
@@ -28,7 +28,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   if (!isMine(scopeOf(me), await deadline(childSection(id)))) return <NotYours what="This child's class" />;
   const q = await searchParams;
-  const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff, rules, report] = await deadline(Promise.all([
+  const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff, rules, report, g] = await deadline(Promise.all([
     childHeader(id, me.email),
     childSkills(id),
     childEvidence(id),
@@ -40,6 +40,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
     staffList(),
     colourRules(),
     reportOf(id),
+    grades(),
   ]));
   if (!child) notFound();
 
@@ -95,7 +96,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
     });
     return (
       <>
-        <PageHeader stage={`Children · ${child.section}`} title={child.first_name} sub={`Roll ${child.roll_no} · ${gradeWords(child.band)}`} />
+        <PageHeader stage={`Children · ${child.section}`} title={child.first_name} sub={`Roll ${child.roll_no} · ${g.name(child.band)}`} />
         <Body>
           <nav aria-label="Back" className="mb-4 flex flex-wrap gap-2">
             {back}
@@ -119,7 +120,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
       <PageHeader
         stage={`Children · ${child.section}`}
         title={child.first_name}
-        sub={`Roll ${child.roll_no} · ${gradeWords(child.band)} · ${child.n_events} answers signed off over ${read.length} paper${read.length === 1 ? "" : "s"}.`}
+        sub={`Roll ${child.roll_no} · ${g.name(child.band)} · ${child.n_events} answers signed off over ${read.length} paper${read.length === 1 ? "" : "s"}.`}
       />
       <Body>
         <nav aria-label="Back" className="mb-4 flex flex-wrap gap-2">

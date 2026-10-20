@@ -10,6 +10,18 @@ is verified. This file only says where the last session stopped.
 - **Carries L13's marking-check fix** (two files, d96972f) so the rehearsal reads live as L13's; no-op once #230 merges.
 - **Next:** Nimish merges #228 (alone or after #230), then live is migrated and deployed; then B0d.
 
+## 2026-10-20 — B0b built (W1, gate 3): grades read from the table; "G2+" is Grade 2; PR #229, draft, not deployed
+
+- **On `claude/b0b-grades-from-the-table`** (STATE.md "B0b", ADR 0085): every page and query reads grades, names and
+  order from `grade`; ten band columns are keys; `level_band` checked on write; reasoning is Grade 2.
+  `tests/test_grades.py` fails if a file outside `engine/assess/` names a grade.
+- **Proved:** library worksheets drawn before/after: 2,593 of 2,737 identical; 144 reasoning ones say "Grade 2" for
+  "Grade 2+". Rehearsal on a copy of live applied the migration cleanly (run 39467290221).
+- **Open for Nimish:** a Grade 3 or 4 class's week no longer offers the two reasoning skills (the week keeps to a
+  class's own grade). Move a reasoning level to Grade 3/4, or say the week should list them.
+- **Next:** once merged and live, B0c (levels from `difficulty`).
+- **Still open (from B0a):** the 5 papers that count answers twice on live; pre-school names; roll 1's page 1; n8n.
+
 ## 2026-10-20 — B0a built (W1, gate 3): grades, levels and states are tables; PR #227, draft, not deployed
 
 - **On `claude/b0a-vocabulary-tables`** (STATE.md "B0a"): `grade`, `difficulty`, `child_state` from
