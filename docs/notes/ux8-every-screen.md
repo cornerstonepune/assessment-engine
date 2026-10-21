@@ -43,10 +43,11 @@ roles; D is 1280 px, P is 390 px.
    for an educator whose classes are Grade 2: ADD.2D2D and SUB.2D2D have their Easy level filed under Grade 1, and
    "assessed" counts the skill, not the level answered. Fix: count a child under a grade by answers on that grade's
    levels (the answered question's level). Both roles, D.
-5. **A link to a pack someone already approved opens a different class's pack, silently.** `/papers/approve?section=
-   U37-CLASS&week=2026-W30&kind=practice` (approved) shows U37's week-of-19-Oct assessment instead, with no word.
-   A Today link goes stale this way the moment a colleague approves. Fix: say "already approved by …, on …" and link
-   its papers.
+5. **A link to a class's week that is not on the list opens another class's week, silently.**
+   `/papers/approve?section=U37-CLASS&week=2026-W30&kind=practice` (no plan was made for that week) shows U37's
+   week-of-19-Oct assessment instead, with no word; an educator following a link to another educator's class sees the
+   first of their own. (Corrected after the audit: I first wrote that week was already approved; nothing was planned.)
+   Fix: say "no papers have been made for it" or "not one of your classes", then what is shown instead.
 6. To verify on live, not fixed: a child's page says "12 answers signed off over 1 paper" and the report card "2
    answers on 1 paper" above "12 right of 12". Both come from 10 answers the tests wrote with no paper. Every engine
    path ties an answer to a paper, so live should have none: `select count(*) from evidence_event where
