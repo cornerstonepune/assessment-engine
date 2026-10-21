@@ -7,10 +7,15 @@
  */
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
-import { aWaitingSkill } from "./rows";
+import { aClass, aWaitingSkill } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
+// A skill is taught in a class (`skill_taught_in`), so with no class on the roll every skill page says "Not taught yet"
+// beside the notice a test waits for: the class is this spec's own, as a fresh copy has none (`bin/testdb fresh`).
+test.beforeAll(async () => {
+  await aClass(sql, "S2-TEST", "G2", ["Asha"]);
+});
 test.afterAll(async () => sql.end());
 
 type Skill = { code: string; outcome: string; name: string; band: string; words: Record<string, { words: string }> };
