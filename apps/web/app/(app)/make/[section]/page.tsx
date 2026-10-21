@@ -9,7 +9,7 @@ import { readDraw, seeHref } from "@/lib/next-paper";
 import { CHANGED, Questions } from "@/components/questions";
 import { classHome, type ClassChild } from "@/lib/queries-make";
 import { classPacksWaiting } from "@/lib/queries-today";
-import { isoWeek } from "@/lib/week";
+import { isoWeek, weekWords } from "@/lib/week";
 import { approveHome } from "../actions";
 
 type Props = { params: Promise<{ section: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -54,7 +54,7 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
       <PageHeader
         stage="Assessments · make"
         title={`${section} · home assessments`}
-        sub={`Week ${week}. Each child's home assessment works on one skill from their own map; its questions are on its line before anything prints. Approve them, ask for different questions, or choose a different one for any child.`}
+        sub={`This week, ${weekWords(week)}. Each child's home assessment works on one skill from their own map; its questions are on its line before anything prints. Approve them, ask for different questions, or choose a different one for any child.`}
       />
       <Body>
         {one(q.approved) ? <Notice tone="neem">Approved {one(q.approved)}, in your name. They print as each child&rsquo;s home assessment.</Notice> : null}
@@ -95,7 +95,7 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
             <p key={`${p.week}|${p.kind}`} className="mb-3 text-[13.5px]">
               Class papers waiting for you:{" "}
               <Link href={`/papers/approve?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`}>
-                {p.week} · {p.kind === "assessment" ? "class assessment" : "class practice"} — {p.n} papers
+                {weekWords(p.week)} · {p.kind === "assessment" ? "class assessment" : "class practice"} — {p.n} papers
               </Link>
             </p>
           ))}

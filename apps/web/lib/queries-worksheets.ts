@@ -2,7 +2,7 @@
 // A worksheet is a `sheet_template` row with source 'library'; which worksheets hold a question is
 // read from their question ids, never copied onto the question.
 import { sql } from "./db";
-import { EVERY_CLASS } from "./scope";
+import { EVERY_CLASS, type Scope } from "./scope";
 import { skillTaughtFor } from "./taught";
 import { itemColumns, type ItemRow } from "./queries-bank";
 import type { Difficulty } from "./queries";
@@ -15,14 +15,18 @@ export type WorksheetRow = {
   kinds: Record<string, number>;
 };
 
-export type WorksheetFilter = { set?: string; level?: string };
+/** `scope`: the classes whose taught skills it lists, every class unless said; `grades`: only worksheets at a level of
+ *  these grades (its row's grade, `skill_level.grade`), none being every grade (goals/ux6-curriculum-for-the-educator.yaml). */
+export type WorksheetFilter = { set?: string; level?: string; scope?: Scope; grades?: string[] };
 
 // A library worksheet of a skill taught in some class: what the page's total counts, so its pager and its list count
 // the same worksheets (goals/ux2-one-count-one-thing.yaml) — never one of a skill since replaced, which no list shows.
 const live = (f: WorksheetFilter) => sql`
   t.source = 'library' and t.retired_at is null
   and exists (select 1 from skill_set ls where ls.tenant_id = t.tenant_id and ls.code = t.skill_set_code
-              and ${skillTaughtFor(EVERY_CLASS, sql`ls.tenant_id`, sql`ls.code`)})
+              and ${skillTaughtFor(f.scope ?? EVERY_CLASS, sql`ls.tenant_id`, sql`ls.code`)})
+  ${f.grades?.length ? sql`and exists (select 1 from skill_level wl where wl.tenant_id = t.tenant_id and wl.skill_code = t.skill_set_code
+                                      and wl.difficulty = t.difficulty and wl.grade = any(${f.grades}))` : sql``}
   ${f.set ? sql`and t.skill_set_code = ${f.set}` : sql``}
   ${f.level ? sql`and t.difficulty = ${f.level}` : sql``}`;
 

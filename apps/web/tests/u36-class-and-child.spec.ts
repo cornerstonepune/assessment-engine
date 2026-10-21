@@ -141,7 +141,7 @@ test("every check is one line, its names folded, and every action is on screen",
 
 test("a child's page says their standing once, topic by topic, the ones that need help open", async ({ page }) => {
   await page.goto(`/growth/${kids.Asha}`);
-  await expect(page.getByTestId("summary")).toHaveText(/^Asha needs help on 1 skill and has got 2;/);
+  await expect(page.getByTestId("summary")).toHaveText(/^Asha needs help on 1 skill and is secure on 2;/);
   const shown = page.getByRole("region", { name: "What their answers show" });
   // read once the page has streamed in: no tiles, no second table
   await expect(shown).toBeVisible();

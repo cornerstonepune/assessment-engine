@@ -15,41 +15,52 @@ export const NAV: readonly NavItem[] = [
 ];
 
 export function Shell({ me, waiting, grades, subject, children }: { me: Session; waiting: Partial<Record<string, number>>; grades: string; subject: string; children: ReactNode }) {
+  // On a phone the menu is one row of tabs, so a page's heading is in the top 120 px (goals/ux7-phone-and-words.yaml);
+  // who is signed in moves to the foot of the page there, as it is the menu's foot on a wider screen.
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
-      <aside className="flex w-full flex-col bg-basalt px-[18px] py-[26px] text-lime md:w-[230px] md:shrink-0 print:hidden">
-        <div className="mb-9 flex items-center gap-[10px]">
+      <aside className="flex w-full flex-row items-center gap-2 bg-basalt px-3 py-[2px] text-lime md:w-[230px] md:shrink-0 md:flex-col md:items-stretch md:gap-0 md:px-[18px] md:py-[26px] print:hidden">
+        <div className="flex items-center gap-[10px] md:mb-9">
           <Mark />
-          <div className="font-heading text-[19px] text-lime">cornerstone</div>
+          <div className="hidden font-heading text-[19px] text-lime md:block">cornerstone</div>
         </div>
         <Nav items={NAV.map((it) => ({ ...it, count: waiting[it.label] }))} />
-        <div className="mt-auto pt-8">
-          {/* the engineering map is the coordinator's: an educator's menu holds the school's work alone */}
-          {me.role === "coordinator" ? (
-            <a href="/workflows" className="mb-4 block text-[12.5px] text-bamboo underline-offset-2 hover:underline">
-              How it works
-            </a>
-          ) : null}
-          <div className="label !text-bamboo opacity-75">{grades} · {subject}</div>
-          <div role="group" aria-label="Signed in" className="mt-3 text-[12.5px] text-bamboo">
-            <div className="flex items-center justify-between gap-2">
-              <span className="truncate" title={me.email}>{me.name}</span>
-              {me.devBypass ? (
-                <span className="pill pill-terracotta">dev bypass</span>
-              ) : (
-                <form action={signOut}>
-                  <button className="cursor-pointer text-bamboo underline-offset-2 hover:underline" type="submit">
-                    Sign out
-                  </button>
-                </form>
-              )}
-            </div>
-            {/* what the site opens on for this person (ADR 0073): never a guess */}
-            <div className="mt-1 opacity-75">{classesSaid(me)}</div>
-          </div>
-        </div>
+        <Account me={me} grades={grades} subject={subject} className="mt-auto hidden pt-8 md:block" />
       </aside>
       <main className="flex min-w-0 flex-1 flex-col">{children}</main>
+      <footer className="bg-basalt px-5 py-4 md:hidden print:hidden">
+        <Account me={me} grades={grades} subject={subject} />
+      </footer>
+    </div>
+  );
+}
+
+function Account({ me, grades, subject, className }: { me: Session; grades: string; subject: string; className?: string }) {
+  return (
+    <div className={className}>
+      {/* the engineering map is the coordinator's: an educator's menu holds the school's work alone */}
+      {me.role === "coordinator" ? (
+        <a href="/workflows" className="mb-4 block text-[12.5px] text-bamboo underline-offset-2 hover:underline">
+          How it works
+        </a>
+      ) : null}
+      <div className="label !text-bamboo opacity-75">{grades} · {subject}</div>
+      <div role="group" aria-label="Signed in" className="mt-3 text-[12.5px] text-bamboo">
+        <div className="flex items-center justify-between gap-2">
+          <span className="truncate" title={me.email}>{me.name}</span>
+          {me.devBypass ? (
+            <span className="pill pill-terracotta">dev bypass</span>
+          ) : (
+            <form action={signOut}>
+              <button className="cursor-pointer text-bamboo underline-offset-2 hover:underline" type="submit">
+                Sign out
+              </button>
+            </form>
+          )}
+        </div>
+        {/* what the site opens on for this person (ADR 0073): never a guess */}
+        <div className="mt-1 opacity-75">{classesSaid(me)}</div>
+      </div>
     </div>
   );
 }
@@ -67,11 +78,11 @@ function Mark() {
 
 export function PageHeader({ stage, title, sub }: { stage: string; title: string; sub: string }) {
   return (
-    <header className="border-b border-basalt/12 px-5 pt-6 pb-[18px] md:px-9">
-      <div className="label mb-2 !text-monsoon !tracking-[0.08em]" data-testid="stage">
+    <header className="border-b border-basalt/12 px-5 pt-3 pb-[18px] md:px-9 md:pt-6">
+      <div className="label mb-1 truncate !text-monsoon !tracking-[0.08em] md:mb-2 md:whitespace-normal" data-testid="stage">
         {stage}
       </div>
-      <h1 className="text-[26px] leading-tight">{title}</h1>
+      <h1 className="text-[22px] leading-tight md:text-[26px]">{title}</h1>
       <p className="mt-[6px] max-w-[620px] text-[13.5px] leading-[1.5] text-basalt/62">{sub}</p>
       <div className="chalkline" />
     </header>

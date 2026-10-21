@@ -1,6 +1,7 @@
 import { Pill } from "@/components/shell";
 import type { Difficulty, SkillSet } from "@/lib/queries";
 import { approveLevel } from "./actions";
+import { dateWords } from "@/lib/week";
 
 /** One level's approval on its card (goals/f1d-questions-approved-per-level.yaml): who approved its questions and when,
  *  or — for the coordinator — the button that approves this level alone; an educator reads who it waits for. */
@@ -9,7 +10,7 @@ export function LevelApproval({ s, d, mayApprove }: { s: SkillSet; d: Difficulty
   if (done) {
     return (
       <Pill tone="neem">
-        Approved · {done.by.split(" (")[0]} · {new Date(done.at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+        Approved · {done.by.split(" (")[0]} · {dateWords(done.at)}
       </Pill>
     );
   }

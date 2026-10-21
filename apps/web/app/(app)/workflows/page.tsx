@@ -3,6 +3,7 @@ import { Body, PageHeader, Panel, Pill, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { HANDOVERS, SHARED, STEPS, WORKFLOWS, handsOnTo, measures, type Measure, type Step } from "@/lib/workflows";
+import { dateWords } from "@/lib/week";
 
 // Nimish, 2026-09-22: "a frontend representation … that shows each of the steps as a proper workflow,
 // what is working, and how things are connected." Drawn from `workflows.json`, the map the engine's code
@@ -13,8 +14,6 @@ const BUILT: Record<Step["built"], { tone: "neem" | "bamboo" | "monsoon"; words:
   "not built": { tone: "monsoon", words: "not built yet" },
 };
 const byNumber = (a: Step, b: Step) => Number(a.code.slice(1)) - Number(b.code.slice(1));
-const fmtDate = (d: string | null) =>
-  d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-") : null;
 
 export default async function HowItWorks() {
   await requireStaff();
@@ -104,7 +103,7 @@ function StepCard({ s, m }: { s: Step; m: Measure | undefined }) {
       {m ? (
         <p className="mt-3 text-[14px]" data-measure={s.code}>
           <span className="font-heading text-[22px]">{m.n.toLocaleString("en-IN")}</span> {m.words}
-          {fmtDate(m.when) ? <span className="text-basalt/55"> · last {fmtDate(m.when)}</span> : null}
+          {m.when ? <span className="text-basalt/55"> · last {dateWords(m.when)}</span> : null}
         </p>
       ) : (
         <p className="mt-3 text-[13px] text-basalt/55">Nothing to count yet.</p>

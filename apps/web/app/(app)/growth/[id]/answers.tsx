@@ -2,9 +2,9 @@
 import { mistakeName } from "@/lib/mistake-name";
 import { MarkPill } from "@/components/shell";
 import type { Evidence } from "@/lib/queries";
+import { dateWords } from "@/lib/week";
 
-export const fmtDate = (d: string | null) =>
-  d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-") : "—";
+export const fmtDate = dateWords;
 
 type AnswerRow = Pick<Evidence, "date" | "item_key" | "question" | "read" | "answer" | "working" | "status" | "misconception_codes" | "skill_code" | "op"> & {
   id?: string;

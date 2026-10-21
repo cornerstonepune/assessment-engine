@@ -47,10 +47,20 @@ function NotTaught({ row, say }: { row: CurriculumRow; say: boolean }) {
   );
 }
 
-/** `levels`: the school's levels in order, the columns (lib/levels.ts). */
-export function CurriculumTable({ rows, levels, say = false }: { rows: CurriculumRow[]; levels: string[]; say?: boolean }) {
-  const [open, setOpen] = useState<Set<string>>(new Set());
+/** `levels`: the school's levels in order, the columns (lib/levels.ts). `start`: the grades it opens on, the person's own
+ *  (goals/ux6-curriculum-for-the-educator.yaml), every other grade closed. */
+export function CurriculumTable({ rows, levels, say = false, start = [] }: { rows: CurriculumRow[]; levels: string[]; say?: boolean; start?: string[] }) {
   const under = (id: string) => rows.filter((r) => r.parent === id);
+  // a grade opens with its subject when that is the grade's only one; a topic waits for its own click
+  const opening = (next: Set<string>, id: string) => {
+    for (let at: string | undefined = id; at; ) {
+      next.add(at);
+      const only: CurriculumRow[] = under(at);
+      at = only.length === 1 && only[0].depth === 1 ? only[0].id : undefined;
+    }
+    return next;
+  };
+  const [open, setOpen] = useState<Set<string>>(() => start.reduce(opening, new Set<string>()));
   const toggle = (id: string) =>
     setOpen((was) => {
       const next = new Set(was);
@@ -58,13 +68,7 @@ export function CurriculumTable({ rows, levels, say = false }: { rows: Curriculu
         next.delete(id);
         return next;
       }
-      // open it, and its subject with it when it is the grade's only one; a topic waits for its own click
-      for (let at: string | undefined = id; at; ) {
-        next.add(at);
-        const only: CurriculumRow[] = under(at);
-        at = only.length === 1 && only[0].depth === 1 ? only[0].id : undefined;
-      }
-      return next;
+      return opening(next, id);
     });
   const byId = new Map(rows.map((r) => [r.id, r]));
   const shown = rows.filter((r) => {
@@ -171,7 +175,7 @@ export function CurriculumTable({ rows, levels, say = false }: { rows: Curriculu
       </div>
       <p className="note px-[18px] py-3">
         Questions and worksheets are the bank&rsquo;s, at this grade&rsquo;s levels; a level another grade holds is a dash. Assessed is read
-        from the answers: a skill is assessed once any child has a checked answer on it; a topic or grade counts its skills assessed.
+        from the answers: a skill is assessed once a child of your classes has a checked answer on it; a topic or grade counts its skills assessed.
         Taught is what an educator said of their class: &ldquo;not taught yet&rdquo; marks a topic no class of the grade has been taught.
         Hover a level&rsquo;s count for what the level asks.
       </p>

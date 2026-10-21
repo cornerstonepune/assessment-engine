@@ -96,7 +96,7 @@ function SkillLine({ s, of, answers, names, states }: { s: ChildSkill; of: strin
           <span className="fact">
             {s.n_correct} of {s.n_events} right
           </span>
-          <Pill tone={RAG_TONE[state.colour]}>{state.enough ? state.words : "too few answers to say"}</Pill>
+          <Pill tone={RAG_TONE[state.colour]}>{states.say(s.state)}</Pill>
           {s.repeating_misconception ? (
             <span className="text-[12.5px] text-terracotta">
               keeps: {mistakeName(names, s.repeating_misconception, null, s.skill_code)}

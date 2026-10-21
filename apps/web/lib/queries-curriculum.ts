@@ -2,7 +2,7 @@ import { sql } from "./db";
 import type { Difficulty, SkillSet } from "./queries";
 import { levels as schoolLevels } from "./levels";
 import { gradeOf, grades, skillSets } from "./queries";
-import type { Scope } from "./scope";
+import { inScope, type Scope } from "./scope";
 import { taughtByGrade, untaughtByGrade } from "./taught";
 
 // Curriculum as one tree (goals/u5-curriculum.yaml): grade → subject → skill → level → worksheets. The skills and
@@ -63,8 +63,9 @@ export type CurriculumRow = {
 };
 
 /** The curriculum as rows, grade by grade — each skill under every grade one of its levels belongs to, with those
- *  levels only — and each row's children assessed: those with a checked answer on it (`child_skill_state`), counted
- *  once however many of a topic's skills they reached. */
+ *  levels only — and each row's children assessed: those of the scope's classes with a checked answer on it
+ *  (`child_skill_state`), counted once however many of a topic's skills they reached (goals/ux6-curriculum-for-the-
+ *  educator.yaml: an educator counts their own class's). */
 export async function curriculumRows(scope: Scope): Promise<{ subject: string; rows: CurriculumRow[]; order: string[] }> {
   const [{ subject, skills }, reached, taught, untaught, { order }, g] = await Promise.all([
     curriculum(scope),
@@ -72,7 +73,7 @@ export async function curriculumRows(scope: Scope): Promise<{ subject: string; r
       select ss.code, array_agg(distinct s.child_id::text) as kids
       from child_skill_state s join child c on c.id = s.child_id and c.active
       join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
-      where s.n_events > 0 group by ss.code`,
+      where s.n_events > 0 and ${inScope(scope, sql`c.section`)} group by ss.code`,
     taughtByGrade(scope),
     untaughtByGrade(scope),
     schoolLevels(),

@@ -5,6 +5,7 @@ import { Panel, Pill } from "@/components/shell";
 import { PURPOSE, type ChildSheet, type Repeated } from "@/lib/queries-children";
 import type { Paper } from "@/lib/queries";
 import { fmtDate } from "./answers";
+import { weekWords } from "@/lib/week";
 
 /** `opens`: the steps whose answers the graph can open (a skill and rung with answers from a read paper). */
 export function RepeatedMistakes({ rows, opens }: { rows: Repeated[]; opens: Set<string> }) {
@@ -62,7 +63,7 @@ export function TheirPapers({
                 <li key={s.id} className="text-[13px]">
                   <div className="flex flex-wrap items-center gap-2">
                     <Pill tone="monsoon">{s.kind ? (PURPOSE[s.kind] ?? s.kind) : "paper done in class"}</Pill>
-                    <span className="fact">{s.date ? fmtDate(s.date) : s.week}</span>
+                    <span className="fact">{s.date ? fmtDate(s.date) : s.week ? weekWords(s.week) : "—"}</span>
                   </div>
                   <Link href={s.n_results ? `/capture/${s.id}` : `/worksheets/${s.qr_code}`} className="mt-1 block leading-snug">
                     {s.title ?? `Paper ${s.qr_code}`}

@@ -4,7 +4,7 @@ import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
 import { isMine, scopeOf } from "@/lib/scope";
 import { engineGet, engineSend } from "@/lib/engine";
-import { isoWeek } from "@/lib/week";
+import { isoWeek, weekWords } from "@/lib/week";
 import { confirmWeek } from "./actions";
 
 type Props = { params: Promise<{ section: string }>; searchParams: Promise<Record<string, string | undefined>> };
@@ -47,7 +47,7 @@ export default async function WeekDeclaration({ params, searchParams }: Props) {
       <PageHeader
         stage="Assessments · make"
         title={`${section} · this week`}
-        sub={`Week ${week}. Say in your own words what the class did; the engine proposes the skills it covered, and you confirm.`}
+        sub={`This week, ${weekWords(week)}. Say in your own words what the class did; the engine proposes the skills it covered, and you confirm.`}
       />
       <Body>
         {q.confirmed ? <Notice tone="neem">This week is declared in your name. Its papers are made from it.</Notice> : null}

@@ -177,7 +177,7 @@ test("a child's page opens on one plain sentence that counts what their answers 
       where s.child_id = ${ids.Asha}::uuid and s.rung_code = r.code and s.n_events > 0)`;
   await page.goto(`/growth/${ids.Asha}`);
   await expect(page.getByTestId("summary")).toHaveText(
-    `Asha needs help on 1 skill, is practising 1 and has got 1; 1 skill has too few answers to say; ${notYet} skill${notYet === 1 ? "" : "s"} of the grade not assessed yet.`,
+    `Asha needs help on 1 skill, is practising 1 and is secure on 1; 1 skill has too few answers to say; ${notYet} skill${notYet === 1 ? "" : "s"} of the grade not assessed yet.`,
   );
   // the sentence counts the skills shown beneath it, one line each
   const shown = page.getByRole("region", { name: "What their answers show" });
