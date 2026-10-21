@@ -25,6 +25,19 @@ says:
     proved_by: packages/engine/tests/test_legacy.py::test_a_right_answer_waits_for_a_person_until_its_kind_of_question_is_trusted
   - words: "This is a massive effort I'm making the teachers do, so it better help the case"
     proved_by: apps/web/tests/s4-validation-queue.spec.ts::the second reader's guess is offered back as one click, on the queue and on the paper
+  # 2026-10-21, the audit on live (docs/notes/reader-learns-audit.md): every notebook was older than its child's last
+  # check; a printed paper was read against the digit reader's floor for every child; and an answer signed off that no
+  # person was shown counted as the reader being right.
+  - words: "if what you are mentioning, ADR, is at least happening, that's something we need to ensure from a codebase point of view"
+    proved_by: packages/engine/tests/test_profiles.py::test_a_check_rebuilds_the_notebook_of_the_child_checked_and_no_other
+  - words: "if what you are mentioning, ADR, is at least happening, that's something we need to ensure from a codebase point of view"
+    proved_by: packages/engine/tests/api/test_capture_routes.py::test_every_check_rebuilds_the_notebooks_it_made_stale_correction_and_sign_off_alike
+  - words: "if what you are mentioning, ADR, is at least happening, that's something we need to ensure from a codebase point of view"
+    proved_by: packages/engine/tests/test_copies.py::test_a_printed_copy_is_read_against_the_childs_own_floor_on_the_box_reader_never_below_the_readers
+  - words: "if what you are mentioning, ADR, is at least happening, that's something we need to ensure from a codebase point of view"
+    proved_by: packages/engine/tests/test_profiles.py::test_a_childs_floor_on_the_box_reader_is_measured_on_that_readers_readings_alone
+  - words: "All the validations that we are doing right now should help improve the system."
+    proved_by: packages/engine/tests/test_profiles.py::test_an_answer_signed_off_that_no_person_was_shown_is_not_a_check
 scenarios: []
 criteria:
   - name: >-

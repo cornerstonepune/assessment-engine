@@ -239,7 +239,7 @@
         "C901": 13
       },
       "engine/w3_read/profiles.py::build": {
-        "C901": 13
+        "C901": 12
       },
       "engine/w4_close/parent_check.py::check": {
         "C901": 26,

@@ -55,13 +55,14 @@ def build(rows, route_above=0.25):
         "by_confidence": {},
         "gave_up": {"n": 0, "guess_right": 0},
         "floor": FLOORS[0],
+        "box_floor": FLOORS[0],
         "route": [],
         "confusions": {},
         "samples": [],
     }
-    at = {
-        level: [0, 0] for level in FLOORS
-    }  # readings the reader stood behind at or above each level: n, right
+    # readings the reader stood behind at or above each level, n and right, for each reader: found in a region (Textract)
+    # or read in the boxes of a paper this system printed (the digit reader, ADR 0035), whose confidences are its own
+    at = {boxed: {level: [0, 0] for level in FLOORS} for boxed in (False, True)}
     conf, confusions = Counter(), Counter()
     for r in rows:
         truth = _norm(r["human_read"])
@@ -86,8 +87,8 @@ def build(rows, route_above=0.25):
         conf[(bucket, "right")] += right
         for level in FLOORS:
             if c >= level:
-                at[level][0] += 1
-                at[level][1] += right
+                at[bool(r.get("in_boxes"))][level][0] += 1
+                at[bool(r.get("in_boxes"))][level][1] += right
         if not right:
             m, h = r["model_read"] or "", r["human_read"] or ""
             if m.isdigit() and h.isdigit() and len(m) == len(h):
@@ -97,10 +98,7 @@ def build(rows, route_above=0.25):
     notes["by_confidence"] = {
         b: {"n": conf[(b, "n")], "right": conf[(b, "right")]} for b in ("90+", "80-89", "70-79", "<70")
     }
-    if at[FLOORS[0]][0] >= MIN_CHECKS:
-        notes["floor"] = next(
-            (lv for lv in FLOORS if at[lv][0] >= MIN_CHECKS and at[lv][1] / at[lv][0] >= 0.95), NO_FLOOR
-        )
+    notes["floor"], notes["box_floor"] = _floor(at[False]), _floor(at[True])
     notes["route"] = sorted(
         fmt
         for fmt, k in notes["by_kind"].items()
@@ -122,6 +120,13 @@ def build(rows, route_above=0.25):
             break
     notes["samples"] = samples[::-1]
     return notes
+
+
+def _floor(at):
+    """The lowest level at which this child's readings were right 95% of the time over at least ten checks."""
+    if at[FLOORS[0]][0] < MIN_CHECKS:
+        return FLOORS[0]
+    return next((lv for lv in FLOORS if at[lv][0] >= MIN_CHECKS and at[lv][1] / at[lv][0] >= 0.95), NO_FLOOR)
 
 
 def apply(readings, notes, fmt_of):
@@ -163,7 +168,7 @@ def checked_rows(conn, child_id=None):
     (goals/s19-validation-teaches.yaml); Marking counts from it too."""
     return conn.execute(
         "select child_id, fmt, capture_id, path, file_pages, read_on as batch, page, file_page, item_key, paper,"
-        " item_result_id, never_read,"
+        " item_result_id, never_read, in_boxes,"
         " reading as model_read, label as human_read, confidence, why, answer_state, guess, box, crop,"
         " how = 'typed' as corrected"
         " from answer_checked where (%s::uuid is null or child_id = %s::uuid) order by read_at, item_key",
@@ -285,6 +290,22 @@ def rebuild(conn, child_ids=None):
             (json.dumps(build(rows, route_above)), child),
         )
     return len(wanted & set(by_child))
+
+
+def refresh(conn):
+    """The notebook of every child a person has checked something of since it was written, rebuilt; returns how many.
+    Run after every check (`/capture/correct`, and `/capture/trusted` after a sign-off), so the notebook is the child's
+    as of the last check, not of the last paper read. The caller commits."""
+    stale = conn.execute(
+        "select distinct si.child_id from item_result r join capture c on c.id = r.capture_id"
+        " join sheet_instance si on si.id = c.sheet_instance_id"
+        " left join read_correction rc on rc.item_result_id = r.id"
+        " left join child_reading_profile p on p.child_id = si.child_id"
+        " where c.superseded_by is null and (r.state = 'confirmed' or rc.id is not null)"
+        "   and (p.id is null or p.updated_at < greatest(r.confirmed_at, rc.created_at))"
+    ).fetchall()
+    ids = [str(r["child_id"]) for r in stale]
+    return rebuild(conn, ids) if ids else 0
 
 
 def current(conn, child_id):

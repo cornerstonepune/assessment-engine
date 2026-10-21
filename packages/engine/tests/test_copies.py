@@ -424,3 +424,29 @@ def test_an_answer_read_wrong_and_judged_right_by_a_person_counts_once_as_right(
         )
     t = copy_scores.tally(conn, capture)
     assert (t["right"], t["right_waiting"], t["wrong"], t["blank"], t["waiting"]) == (2, 1, 1, 1, 4)
+
+
+def test_a_printed_copy_is_read_against_the_childs_own_floor_on_the_box_reader_never_below_the_readers(
+    conn, worksheet, tmp_path, monkeypatch
+):
+    """ADR 0032: the child's floor replaces the global one. On a printed paper the digit reader's floor (ADR 0035) was
+    used for every child, so on live, 21 Oct, 12 of 16 children whose readings were never 95% right at any confidence
+    had answers read at 90 settled alone. The child's floor on that reader (`box_floor`) raises it; it never lowers it."""
+    from engine.w3_read import profiles
+
+    tenant, code, ids, pdf = worksheet
+    _child(conn, tenant, "44", "Esha"), _child(conn, tenant, "45", "Farah")
+    stand_in_reader(conn, ids, monkeypatch)
+    floors = []
+    read = boxes.read_page
+    monkeypatch.setattr(
+        boxes, "read_page", lambda *a, **k: floors.append(a[5]["min_confidence"]) or read(*a, **k)
+    )
+    for name, box_floor, want in (("Esha", 95, 95.0), ("Farah", 70, 90.0)):
+        monkeypatch.setattr(
+            profiles, "current", lambda conn, child, f=box_floor: {"floor": 70, "box_floor": f}
+        )
+        floors.clear()
+        copies.read(conn, _scanned([pdf], tmp_path / f"{name}.pdf"), SECTION, [name], "test",
+                    pages_of=lambda c: len(pymupdf.open(pdf)))  # fmt: skip
+        assert floors and set(floors) == {want}, (box_floor, floors)
