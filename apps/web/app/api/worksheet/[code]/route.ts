@@ -1,7 +1,7 @@
 import { currentStaff } from "@/lib/auth";
 import { engineImage } from "@/lib/engine";
 
-const CODE = /^[RMX]\d{1,2}-[EMHA]\d{2,3}$/;
+const CODE = /^[RMX]\d{1,2}-[A-Z]\d{2,3}$/;
 
 /** A library worksheet as it prints (ADR 0026). The engine renders it the first time anyone asks
  *  and keeps it; this hands the PDF on to a signed-in member of staff, and to no one else. */

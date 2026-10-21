@@ -5,10 +5,10 @@ import type { LineLevel, LineTopic } from "@/lib/maker";
 
 type Line = { topic: string; skill: string; level: string; n: string };
 
-/** A skill's first level of the class's grade, Medium where it has one; else its first. */
-function firstLevel(levels: LineLevel[]): string {
+/** A skill's first level of the class's grade, the usual one (`level.usual`) where it has it; else its first. */
+function firstLevel(levels: LineLevel[], usual: string): string {
   const own = levels.filter((l) => !l.above);
-  return (own.find((l) => l.level === "Medium") ?? own[0] ?? levels[0])?.level ?? "";
+  return (own.find((l) => l.level === usual) ?? own[0] ?? levels[0])?.level ?? "";
 }
 
 /** A line from `skill~level~n`, under the topic its skill is in. */
@@ -22,8 +22,8 @@ function lineOf(topics: LineTopic[], v: string): Line {
 // that topic's skills, then its level, then how many questions, so one paper can take its lines from different topics.
 // Each line reaches the form as the maker has always read it, `s` (skill~level) and `n`. With `fill`, a topic chosen
 // above the lines fills them with that topic's skills at the class's grade (goals/ui2-assessments.yaml).
-export function MakerLines({ topics, start, fill = false, topic: chosen = "" }: {
-  topics: LineTopic[]; start: string[]; fill?: boolean; topic?: string;
+export function MakerLines({ topics, start, usual, fill = false, topic: chosen = "" }: {
+  topics: LineTopic[]; start: string[]; usual: string; fill?: boolean; topic?: string;
 }) {
   const [lines, setLines] = useState<Line[]>(() => start.map((v) => lineOf(topics, v)));
   const [topic, setTopic] = useState(chosen);
@@ -64,7 +64,7 @@ export function MakerLines({ topics, start, fill = false, topic: chosen = "" }: 
               aria-label={`Skill ${i + 1}`}
               value={l.skill}
               disabled={!l.topic}
-              onChange={(e) => set(i, { skill: e.target.value, level: firstLevel(skills.find((s) => s.code === e.target.value)?.levels ?? []) })}
+              onChange={(e) => set(i, { skill: e.target.value, level: firstLevel(skills.find((s) => s.code === e.target.value)?.levels ?? [], usual) })}
             >
               <option value="">{l.topic ? "Skill" : "Choose a topic first"}</option>
               {skills.map((s) => (

@@ -39,6 +39,10 @@ some one-time random effort". All backend first: B0–B4 (BUILD-ORDER.md), befor
 - **The rehearsal applies a new migration after live's rows arrive**, as `bin/update-live` does on live. Until now it
   applied it to the empty copy and then restored live's rows with their triggers (and so their keys) off, which could
   not show that live's rows satisfy a new key.
+- **B0c: a level's worksheet letter is a column, set by the seed** (`difficulty.letter`: E, M, H, A, one level's alone),
+  and the level a paper is at when nothing says otherwise is one config row, `level.usual`. The maths library
+  (`assess/placing.py`) keeps naming levels in its own rule for which level a question's shape belongs to (a straight
+  calculation at the hardest of the first three it fits, any other kind at the last): pure maths, outside the test.
 
 ## Rejected
 
@@ -53,3 +57,5 @@ some one-time random effort". All backend first: B0–B4 (BUILD-ORDER.md), befor
   reader by reader, and one mistake would change papers on the day.
 - **A CHECK listing the words, as before.** Adding a grade or a state would be a migration; the words, colours and
   order would still live in code.
+- **A level's letter as its initial, computed (B0c).** Easy, Medium, Hard and Advance each start with a different
+  letter, but a school adding "Expert" could not: its codes would clash with Easy's. The letter is written down instead.

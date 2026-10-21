@@ -3,14 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-21 — B2–B4 drafted for Nimish to lock (W1, gate 3); PR on `claude/b2-b4-scopes`, draft, no code
-- **Drafts in `docs/drafts/`** (b2-, b3-, b4-*.yaml, and `b2-b4-decisions.md`): goal, Nimish's words with the tests
-  that will prove them, the rehearsal, criteria. Out of `goals/` until their tests exist; `bin/check` passes.
-- **Measured:** 33 labels, 6 card kinds (inside one label), 178 levels, ~97 levels with examples to split, 514 mistake
-  links, 8 division mistakes on Multiplication facts, 61 registry links, no prerequisites anywhere, 46 rungs, 19 files
-  read the rung table. BUILD-ORDER's numbers hold.
-- **Open:** what one question type is; SF2a is parked, not built; who checks the split; where prerequisites come from;
-  the rename. None of B2–B4 builds beside B1.
+## 2026-10-20 — B0c built (W1, gate 3): the levels are read from their table; PR #228, draft, not deployed
+- **On `claude/b0c-levels-from-the-table`** (STATE.md "B0c"): no file outside `assess/` names a level; the worksheet
+  letter is `difficulty.letter`; "Medium" by default is the config row `level.usual`. Migration 20261121090000.
+- **Merged with B0b (main, f77fe70) at 63f35e5:** both kept; migrations in order (20261120 then 20261121); rules.json
+  regenerated, unchanged. Rehearsal on the merged branch green (run 39491988653): live already has B0b's migration,
+  B0c's applied on its 160,215 rows, no worksheet code changed.
+- **Merged with #232 (main, 37683c3):** the marking check and its test are now main's (#232 counts each answer by its
+  `rid`); the earlier port (d96972f) is gone. Main added no migration; B0c's 20261121090000 is still last.
+  `bin/engine done`: six PROVED, three criteria PASSED (suite 2577 passed); rehearsal run 39531106626 green.
+- **Next:** Nimish merges #228, then live is migrated and deployed; then B0d.
+
 ## 2026-10-20 — the 5 papers "counted twice" were never counted twice (W3); PR on `claude/marking-counts-once`, draft
 - **The check was wrong, not the data** (STATE.md "Marking counts each answer once"): their grid questions ask five
   answers each; the check counted questions. Now it counts answers; the same answer read twice still fails. No child's

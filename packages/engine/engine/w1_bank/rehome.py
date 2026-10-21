@@ -17,7 +17,7 @@ from collections import Counter
 
 from engine.assess import placing, tags, taxonomy
 from engine.assess.items import Item
-from engine.core import settings
+from engine.core import settings, vocabulary
 from engine.w1_bank import cases
 
 
@@ -82,11 +82,12 @@ def rehome(conn):
             (s["code"], level, s["rung_code"], s["version"], r["id"]),
         )
         moved[(s["code"], level)] += 1
+    hardest = vocabulary.levels(conn)[-1]  # where a question of any other kind sits (`placing`)
     for r, s in unlevelled:
         conn.execute(
-            "update item set skill_set_code = %s, difficulty = 'Advance', rung_code = %s, skill_set_version = %s"
+            "update item set skill_set_code = %s, difficulty = %s, rung_code = %s, skill_set_version = %s"
             " where id = %s",
-            (s["code"], s["rung_code"], s["version"], r["id"]),
+            (s["code"], hardest, s["rung_code"], s["version"], r["id"]),
         )
         conn.execute(
             "insert into item_feedback (tenant_id, item_id, actor, verdict, note) values (%s,%s,%s,'retire',%s)",

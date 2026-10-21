@@ -6,7 +6,7 @@ import { childrenSections, notYoursResponse } from "@/lib/scope";
 import { EngineDown, engineSend } from "@/lib/engine";
 import { isoWeek } from "@/lib/week";
 
-const CODE = /^[RMX]\d{1,2}-[EMHA]\d{2,3}$/;
+const CODE = /^[RMX]\d{1,2}-[A-Z]\d{2,3}$/;
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(request: Request, { params }: { params: Promise<{ code: string }> }) {

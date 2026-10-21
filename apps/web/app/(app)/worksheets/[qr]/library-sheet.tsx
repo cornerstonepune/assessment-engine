@@ -10,7 +10,7 @@ import { worksheetCases } from "@/lib/queries-taxonomy";
 import { libraryWorksheet, worksheetItems } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../library";
 
-export const LIBRARY_CODE = /^[RMX]\d{1,2}-[EMHA]\d{2,3}$/;
+export const LIBRARY_CODE = /^[RMX]\d{1,2}-[A-Z]\d{2,3}$/;
 
 const fmtDate = (d: string) =>
   new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
