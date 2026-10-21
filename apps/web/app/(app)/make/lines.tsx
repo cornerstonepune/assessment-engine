@@ -51,7 +51,7 @@ export function MakerLines({ topics, start, usual, fill = false, topic: chosen =
         const skills = topics.find((t) => t.code === l.topic)?.skills ?? [];
         const levels = skills.find((s) => s.code === l.skill)?.levels ?? [];
         return (
-          <div key={i} role="group" aria-label={`Line ${i + 1}`} className="grid grid-cols-[minmax(0,1fr)_88px] gap-2 border-t border-basalt/10 pt-2">
+          <div key={i} role="group" aria-label={`Line ${i + 1}`} className="grid grid-cols-[minmax(0,1fr)_112px] gap-2 border-t border-basalt/10 pt-2">
             <input type="hidden" name="s" value={l.skill && l.level ? `${l.skill}~${l.level}` : ""} />
             <select className="select col-span-2" aria-label={`Topic ${i + 1}`} value={l.topic} onChange={(e) => set(i, { topic: e.target.value, skill: "", level: "" })}>
               <option value="">Topic</option>

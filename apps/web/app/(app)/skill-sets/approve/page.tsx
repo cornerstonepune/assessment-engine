@@ -158,7 +158,7 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
                   ))}
                 </select>
               </label>
-              <button type="submit" className="btn">Show</button>
+              <button type="submit" className="btn secondary">Show</button>
               {narrowed ? <Link href="/skill-sets/approve" className="text-[13px]">Clear</Link> : null}
             </form>
 

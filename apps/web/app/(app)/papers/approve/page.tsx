@@ -248,7 +248,7 @@ async function ChildPaper({ r, back }: { r: WeekRow; back: string }) {
               <span className="label">Why</span>
               <input className="input" name="reason" maxLength={300} required />
             </label>
-            <button className="btn" type="submit">
+            <button className="btn secondary" type="submit">
               Change this child
             </button>
           </form>

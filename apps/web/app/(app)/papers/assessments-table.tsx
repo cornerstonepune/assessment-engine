@@ -57,6 +57,15 @@ export async function AssessmentsTable({
                 >
                   {assessmentTitle(a)}
                 </Link>
+                {/* on a phone where it stands is on the row itself; the wide columns are off to the side
+                    (goals/ux8d-phone-and-one-action.yaml) */}
+                <span data-testid="stage-on-row" className="mt-1 flex flex-wrap gap-1 md:hidden">
+                  {STAGES.filter((s) => a.by[s]).map((s) => (
+                    <Pill key={s} tone={STAGE_TONE[s]}>
+                      {a.by[s]} {STAGE_WORDS[s]}
+                    </Pill>
+                  ))}
+                </span>
               </td>
               <td className="whitespace-nowrap">{KIND_WORDS[a.kind] ?? a.kind}</td>
               <td className="whitespace-nowrap">
