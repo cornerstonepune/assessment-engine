@@ -18,8 +18,11 @@ says:
     proved_by: "packages/engine/tests/test_bank_fills.py::test_a_level_that_cannot_reach_its_target_says_exactly_why"
 scenarios: []
 criteria:
-  - name: a fresh bank fills every level under twenty seeds, with a tenth of the draws
-    run: cd packages/engine && BANK_FILL_SEEDS=20 uv run pytest -q -p no:cacheprovider tests/test_bank_fills.py
+  - name: a fresh bank fills every level under seeds 0 to 9, with a tenth of the draws
+    run: cd packages/engine && BANK_FILL_SEEDS=0:10 uv run pytest -q -p no:cacheprovider tests/test_bank_fills.py
+    expect: "passed"
+  - name: a fresh bank fills every level under seeds 10 to 19, with a tenth of the draws
+    run: cd packages/engine && BANK_FILL_SEEDS=10:20 uv run pytest -q -p no:cacheprovider tests/test_bank_fills.py -k fresh
     expect: "passed"
   - name: the bank as built meets every invariant, its units' targets among them
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_goal.py::test_every_invariant_holds

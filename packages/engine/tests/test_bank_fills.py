@@ -6,7 +6,8 @@ found its last few once in thousands of random draws, and its budget of draws so
 now end, when they run dry, on the list of every question it can be (`draw.listed`), in a random order.
 
 The proof draws a fresh bank, stored nowhere, under fixed seeds and with a tenth of a real build's draws: a level that
-fills like that fills with ten times the margin. `BANK_FILL_SEEDS` says how many seeds (the goal runs twenty)."""
+fills like that fills with ten times the margin. `BANK_FILL_SEEDS` says which seeds, `first:last` (CI runs 0:2; the goal
+runs twenty, ten at a time, each half inside the half hour a goal's command is given)."""
 
 import json
 import os
@@ -26,7 +27,7 @@ CASES = {
     c["code"]: c["match"]
     for c in json.loads((ROOT / "supabase/seed/taxonomy_cases.json").read_text())["taxonomy_cases"]
 }
-SEEDS = range(int(os.getenv("BANK_FILL_SEEDS", "2")))
+SEEDS = range(*map(int, os.getenv("BANK_FILL_SEEDS", "0:2").split(":")))
 TENTH = 200  # draws a question is given before its case is listed; a real build gives 2000 (`draw.level`)
 needs_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 

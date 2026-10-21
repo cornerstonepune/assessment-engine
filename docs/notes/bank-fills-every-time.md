@@ -81,7 +81,8 @@ and `bin/engine done bank-fills-every-time` (twenty seeds), pasted in the pull r
 ## Cost
 
 The new test adds about 3½ minutes to CI's engine job: two whole-bank seeds at about 85 s each, and about 20 s for the
-single-draw levels. The goal's own criterion runs twenty seeds, about 30 minutes.
+single-draw levels. The goal runs twenty seeds as two commands of ten (about 14 minutes each here), each inside the half hour `engine done`
+gives a command.
 
 ## Not done, and why
 
