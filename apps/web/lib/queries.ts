@@ -171,7 +171,7 @@ export async function tableCounts(): Promise<Record<string, number>> {
 export const RULE_WORDS: Record<string, string> = {
   band_default: "Not enough of their own work yet, so this is the starting level for their grade.",
   from_state: "From what this child's last papers showed.",
-  override: "A teacher set this by hand.",
+  override: "An educator set this by hand.",
 };
 
 // `classes`: the classes a person teaches, as `engine staff add --class` puts them (ADR 0073, D1); the coordinator's are every class.

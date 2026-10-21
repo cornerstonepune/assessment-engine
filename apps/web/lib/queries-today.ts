@@ -74,14 +74,17 @@ export type Week = { week: string; read: number; alone: number; person: number; 
 export type Trust = { trusted: number; kinds: number; nearest: { fmt: string; to_trust: number } | null };
 
 /** The answers read each ISO week, newest first, by where each stands (`answer_standing`, the one definition): settled
- *  by the engine alone, checked by a person, still waiting. The last eight weeks: two months is the trend. */
-export async function queueByWeek(): Promise<Week[]> {
+ *  by the engine alone, checked by a person, still waiting. The last eight weeks: two months is the trend. In the
+ *  person's classes, as the lines above it on Today count (goals/ux8a-numbers-true.yaml). */
+export async function queueByWeek(scope: Scope = EVERY_CLASS): Promise<Week[]> {
   return sql<Week[]>`
     select to_char(c.created_at, 'IYYY-"W"IW') as week, count(*)::int as read,
            count(*) filter (where s.standing = 'engine')::int as alone,
            count(*) filter (where s.standing = 'person')::int as person,
            count(*) filter (where s.standing = 'waiting')::int as waiting
     from answer_standing s join item_result r on r.id = s.item_result_id join capture c on c.id = r.capture_id
+    join sheet_instance si on si.id = c.sheet_instance_id left join child ch on ch.id = si.child_id
+    where ${inScope(scope, sql`coalesce(si.section, ch.section)`)}
     group by 1 order by 1 desc limit 8`;
 }
 

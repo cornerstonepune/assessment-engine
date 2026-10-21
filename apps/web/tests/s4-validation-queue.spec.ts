@@ -369,7 +369,7 @@ test("Capture & Mark says how the reader is doing, with the database's own numbe
       and (l.item_result_id is not null or (r.state = 'confirmed' and coalesce(r.raw_read::jsonb ->> 'why', '') <> ''))`;
   await page.goto("/capture");
   const panel = page.locator("section.panel", { has: page.getByRole("heading", { name: "How the reader is doing" }) });
-  await expect(panel.getByText(`Checked by a person: ${n.checked} answers.`)).toBeVisible();
+  await expect(panel.getByText(`In every class, people have checked ${n.checked} answers the reader read.`)).toBeVisible();
   // one table, by day first; each kind of question's standing is a click away (goals/u10-tables-read-straight.yaml)
   await expect(panel.getByRole("table")).toHaveCount(1);
   await panel.getByRole("button", { name: "By kind of question" }).click();
