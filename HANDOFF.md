@@ -9,8 +9,17 @@ is verified. This file only says where the last session stopped.
 - **Merged with B0b (main, f77fe70) at 63f35e5:** both kept; migrations in order (20261120 then 20261121); rules.json
   regenerated, unchanged. Rehearsal on the merged branch green (run 39491988653): live already has B0b's migration,
   B0c's applied on its 160,215 rows, no worksheet code changed.
-- **Carries L13's marking-check fix** (two files, d96972f) so the rehearsal reads live as L13's; no-op once #230 merges.
+- **Merged with #232 (main, 37683c3):** the marking check and its test are now main's (#232 counts each answer by its
+  `rid`); the earlier port (d96972f) is gone. Main added no migration; B0c's 20261121090000 is still last.
 - **Next:** Nimish merges #228 (alone or after #230), then live is migrated and deployed; then B0d.
+
+## 2026-10-20 — the 5 papers "counted twice" were never counted twice (W3); PR on `claude/marking-counts-once`, draft
+- **The check was wrong, not the data** (STATE.md "Marking counts each answer once"): their grid questions ask five
+  answers each; the check counted questions. Now it counts answers; the same answer read twice still fails. No child's
+  score or map moved; no repair on live needed.
+- **Also fixed:** a copy's score counted an answer read wrong, then judged right by a person, as both.
+- **Rehearsed green** on a copy of live (run 39480469879): the check says ok before and after the update.
+- **Next:** Nimish merges and deploys; then B0c once B0b is merged and live.
 
 ## 2026-10-20 — B0b built (W1, gate 3): grades read from the table; "G2+" is Grade 2; PR #229, draft, not deployed
 

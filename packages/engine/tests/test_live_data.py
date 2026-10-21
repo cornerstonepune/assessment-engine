@@ -1,5 +1,6 @@
 """`engine live data`: each check finds the disagreement it names, and the whole run cannot write."""
 
+import json
 import os
 import uuid
 
@@ -74,7 +75,8 @@ def test_an_answer_the_graph_has_not_read_fails_until_the_graph_is_rebuilt(conn)
     assert not live_data._stale_graph(conn)
 
 
-def test_a_paper_with_one_question_counted_twice_fails_and_names_the_paper(conn):
+def _paper(conn, responses):
+    """A paper of one printed question asking for `responses`, its tenant, item and sheet."""
     tenant = conn.execute(
         "insert into tenant (slug, name) values (%s, 't') returning id", (f"t-{uuid.uuid4()}",)
     )
@@ -84,8 +86,8 @@ def test_a_paper_with_one_question_counted_twice_fails_and_names_the_paper(conn)
     )
     item = conn.execute(
         "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses)"
-        " values (%s, 'K', 'T', 'R1', 'Procedural', 'bare_sum', '{}', '[]') returning id",
-        (tenant,),
+        " values (%s, 'K', 'T', 'R1', 'Procedural', 'bare_sum', '{}', %s) returning id",
+        (tenant, json.dumps([{"rid": r} for r in responses])),
     ).fetchone()["id"]
     template = conn.execute(
         "insert into sheet_template (tenant_id, band, level, week, item_ids) values (%s, 'G2', 'L0', 'w', %s)"
@@ -97,53 +99,44 @@ def test_a_paper_with_one_question_counted_twice_fails_and_names_the_paper(conn)
         " returning id",
         (tenant, template),
     ).fetchone()["id"]
-    file = "insert into capture (tenant_id, path, sheet_instance_id) values (%s, 'p', %s) returning id"
-    one = "insert into item_result (tenant_id, capture_id, item_id, rid, status) values (%s, %s, %s, 'ans', 'correct')"
-    conn.execute(one, (tenant, conn.execute(file, (tenant, sheet)).fetchone()["id"], item))
+    return tenant, item, sheet
+
+
+def _read(conn, tenant, item, sheet, rids):
+    """One scan of the paper, each of `rids` answered."""
+    capture = conn.execute(
+        "insert into capture (tenant_id, path, sheet_instance_id) values (%s, 'p', %s) returning id",
+        (tenant, sheet),
+    ).fetchone()["id"]
+    for rid in rids:
+        conn.execute(
+            "insert into item_result (tenant_id, capture_id, item_id, rid, status) values (%s, %s, %s, %s, 'correct')",
+            (tenant, capture, item, rid),
+        )
+
+
+def test_a_paper_with_one_question_counted_twice_fails_and_names_the_paper(conn):
+    tenant, item, sheet = _paper(conn, ["ans"])
+    _read(conn, tenant, item, sheet, ["ans"])
     assert not [p for p in live_data._marking(conn) if "CS00ffee" in p]
     # the same page scanned again and neither file marked as replacing the other
-    conn.execute(one, (tenant, conn.execute(file, (tenant, sheet)).fetchone()["id"], item))
+    _read(conn, tenant, item, sheet, ["ans"])
     assert [p for p in live_data._marking(conn) if "CS00ffee" in p] == [
-        "paper CS00ffee: 2 answers counted for 1 printed, 1 counted twice"
+        "paper CS00ffee: 2 answers counted for 1 asked by 1 questions printed, 1 counted twice"
     ]
 
 
-def test_a_question_asking_for_two_answers_is_two_answers_not_one_counted_twice(conn):
-    """Live, 16 Oct (rehearsal run 39464896455): 5 papers of 13 questions asking for 21 answers between them, each read
-    once, 21 results. The check counted questions and said 8 were counted twice. Each answer is counted once; the same
-    answer read on two live readings still fails."""
-    tenant = conn.execute(
-        "insert into tenant (slug, name) values (%s, 't') returning id", (f"t-{uuid.uuid4()}",)
-    ).fetchone()["id"]
-    conn.execute(
-        "insert into rung (tenant_id, code, band, descriptor) values (%s, 'R1', 'G2', 'd')", (tenant,)
-    )
-    item = conn.execute(
-        "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses)"
-        " values (%s, 'K', 'T', 'R1', 'Procedural', 'bare_sum', '{}',"
-        ' \'[{"rid": "q"}, {"rid": "r"}]\') returning id',
-        (tenant,),
-    ).fetchone()["id"]
-    template = conn.execute(
-        "insert into sheet_template (tenant_id, band, week, item_ids) values (%s, 'G2', 'w', %s) returning id",
-        (tenant, [item]),
-    ).fetchone()["id"]
-    sheet = conn.execute(
-        "insert into sheet_instance (tenant_id, qr_code, sheet_template_id) values (%s, 'CS00beef', %s)"
-        " returning id",
-        (tenant, template),
-    ).fetchone()["id"]
-    file = "insert into capture (tenant_id, path, sheet_instance_id) values (%s, 'p', %s) returning id"
-    one = "insert into item_result (tenant_id, capture_id, item_id, rid, status) values (%s, %s, %s, %s, 'correct')"
-    read = conn.execute(file, (tenant, sheet)).fetchone()["id"]
-    conn.execute(one, (tenant, read, item, "q"))
-    conn.execute(one, (tenant, read, item, "r"))
-    assert not [p for p in live_data._marking(conn) if "CS00beef" in p], (
-        "a quotient and a remainder are two answers"
-    )
-    conn.execute(one, (tenant, conn.execute(file, (tenant, sheet)).fetchone()["id"], item, "r"))
-    assert [p for p in live_data._marking(conn) if "CS00beef" in p] == [
-        "paper CS00beef: 3 answers counted for 2 printed, 1 counted twice"
+def test_each_answer_of_a_grid_question_counts_once_and_is_not_counted_twice(conn):
+    """2026-10-16.pdf: a grid question asks for five answers (`ans`, `s1`–`s4`), each its own result. Five results
+    for one printed question are five answers, each counted once — not four counted twice."""
+    grid = ["ans", "s1", "s2", "s3", "s4"]
+    tenant, item, sheet = _paper(conn, grid)
+    _read(conn, tenant, item, sheet, grid)
+    assert not [p for p in live_data._marking(conn) if "CS00ffee" in p]
+    # the grid's page scanned again, neither file replacing the other: now each of its answers counts twice
+    _read(conn, tenant, item, sheet, grid)
+    assert [p for p in live_data._marking(conn) if "CS00ffee" in p] == [
+        "paper CS00ffee: 10 answers counted for 5 asked by 1 questions printed, 5 counted twice"
     ]
 
 
