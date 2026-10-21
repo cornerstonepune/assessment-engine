@@ -1,3 +1,4 @@
+import { many } from "@/lib/needs-you";
 import Link from "@/components/link";
 import { Body, PageHeader, Panel, Pill, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
@@ -156,7 +157,7 @@ function HeldAt({ h }: { h: Held }) {
         {h.name} · {h.level}
       </Link>{" "}
       <span className="text-basalt/62">
-        — {h.questions} questions on {h.worksheets} worksheets:
+        — {many(h.questions, "question")} on {many(h.worksheets, "worksheet")}:
       </span>{" "}
       {h.codes.map((code) => (
         <Link key={code} href={`/worksheets/${code}`} className="mr-1 inline-block font-mono whitespace-nowrap">

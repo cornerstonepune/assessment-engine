@@ -104,7 +104,7 @@ test("Approve papers names the latest two weeks and folds the weeks before them"
 
 test("the parent reports waiting are narrowed by class", async ({ page }) => {
   await page.goto("/growth/reports");
-  const table = page.getByRole("table", { name: "Parent reports waiting on a person" });
+  const table = page.getByRole("table", { name: "Parent reports not up to date" });
   await expect(table).toBeVisible();
   const classes = page.getByRole("navigation", { name: "Class" });
   await expect(classes.getByRole("link", { name: /^Every class/ })).toHaveAttribute("aria-current", "page");

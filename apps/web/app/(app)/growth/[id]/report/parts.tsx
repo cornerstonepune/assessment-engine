@@ -126,7 +126,7 @@ export function GoingWell({
     items.push({
       key: "best",
       head: best.name,
-      body: `${plural(best.right, "right answer")} so far — the most of any skill set.`,
+      body: `${plural(best.right, "right answer")} so far — the most of any skill.`,
     });
   return (
     <ul className="grid gap-3" data-testid="going-well">
