@@ -5,7 +5,7 @@ import { sql } from "./db";
 // page names a type; a new one is an insert.
 
 export type QuestionKinds = {
-  /** A printed format's words: "column sum", "find the mistake". */
+  /** Each printed format's words, as a teacher says them. */
   words: Record<string, string>;
   /** Whether a printed format's questions print a sentence of their own, or a line drawn from their numbers. */
   ownWords: Record<string, boolean>;

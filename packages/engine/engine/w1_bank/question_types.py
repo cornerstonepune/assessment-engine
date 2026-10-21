@@ -112,6 +112,7 @@ def approve_command(
     """Approve one question type in every skill and level that uses it."""
     with db.connect() as conn:
         try:
+            had = state(conn, code)["approved"]
             s, said = approve(conn, code, by), words(conn, code)
         except (ValueError, LookupError) as e:
             typer.echo(str(e), err=True)
@@ -120,5 +121,5 @@ def approve_command(
             conn.rollback()
         else:
             conn.commit()
-    did = "would be approved" if dry_run else "approved"
+    did = "already approved" if had else "would be approved" if dry_run else "approved"
     typer.echo(f"{code} ({said}) {did} by {s['by']}")

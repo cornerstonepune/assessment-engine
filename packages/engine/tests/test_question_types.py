@@ -183,7 +183,14 @@ def test_the_coordinator_approves_a_type_with_one_command(conn):
         capture_output=True,
         text=True,
     )
-    assert done.returncode == 0 and "FTM" in done.stdout and "Test Coordinator" in done.stdout, done.stderr
+    # the copy has every type approved, as live has: approving again changes nothing and says who gave it
+    assert done.returncode == 0 and "FTM" in done.stdout and "already approved by" in done.stdout, done.stderr
+    nothing = subprocess.run(
+        [str(db.REPO_ROOT / "bin/engine"), "types", "approve", "NO.SUCH", "--by", "Test Coordinator"],
+        capture_output=True,
+        text=True,
+    )
+    assert nothing.returncode == 1 and "no question type NO.SUCH" in nothing.stderr
 
 
 def _level_holding(conn, code, also_other=True):
@@ -300,9 +307,10 @@ def test_a_new_type_is_an_insert_and_waits_for_approval(conn):
 
 # Where a type is named outside its row: its words, or a list of types to choose among. Drawing a column sum as a grid
 # is how that type prints, and stays code (CLAUDE.md: code where correctness is needed).
-LIST_OF_TYPES = re.compile(r"""(\[|\(|\{)\s*["'](bare_sum|column_grid|word_1step|missing_number)["']\s*,""")
+TYPES = r"""["'](bare_sum|column_grid|word_1step|word_2step|missing_number|find_mistake)["']"""
+LIST_OF_TYPES = re.compile(TYPES + r"\s*,\s*" + TYPES)  # two types in a row: a list to choose among
 WORDS = re.compile(
-    r"""["'](horizontal sum|column sum|one-step word problem|find the mistake|make both sides equal)["']"""
+    r""":\s*["'](horizontal sum|column sum|one-step word problem|find the mistake|make both sides equal)["']"""
 )
 EXEMPT = ("packages/engine/engine/assess/", "packages/engine/tests/", "apps/web/tests/")
 

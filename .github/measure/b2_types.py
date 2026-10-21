@@ -15,10 +15,10 @@ from engine.core import db
 from engine.w2_print import shelf
 
 NUMBERS = re.compile(r"^(ADD|SUB|MUL|DIV)\.(\dD\dD(\.REG\w*)?|MULTI\d*)$")
-web = Path(__file__).resolve().parents[2] / "apps/web/components/question.tsx"
 seeded = Path(__file__).resolve().parents[2] / "supabase/seed/question_types.json"
-SEEDED = {t["code"] for t in json.loads(seeded.read_text())["question_types"]} if seeded.exists() else set()
-KIND = set(re.findall(r"^  (\w+): \"", web.read_text().split("const KIND")[1].split("};")[0], re.M))
+TYPES = json.loads(seeded.read_text())["question_types"]
+SEEDED = {t["code"] for t in TYPES}
+KIND = {t["fmt"] for t in TYPES}  # the labels that have words (until B2, the website's `KIND`)
 
 
 def type_of(r):
@@ -49,6 +49,13 @@ with db.connect() as c:
         "select distinct d.value -> 'check' ->> 'format' as f from skill_set s, jsonb_each(s.difficulty) d"
     ).fetchall()
     closing = shelf.closing(c)
+    b2 = c.execute("select to_regclass('public.question_type') is not null as built").fetchone()["built"] and c.execute(
+        "select (select count(*) from question_type)::int as types,"
+        " (select count(*) from question_type_approval)::int as approved,"
+        " (select count(*) from skill_level_question_type)::int as links,"
+        " (select count(*) from item where status = 'active')::int as active,"
+        " (select count(*) from drawable_item)::int as drawable"
+    ).fetchone()
     ev = c.execute(
         "select count(*)::int as n, md5(coalesce(string_agg(e::text, '|' order by e.id), '')) as sum"
         " from evidence_event e"
@@ -85,4 +92,9 @@ print(f"types held that the seed has no row for: {sorted(set(uses) - SEEDED)} ·
 print(f"unconfirmed levels a class's paper may draw today: {len({(r['skill'], r['level']) for r in closing})}")
 for r in sorted({(r["skill"], r["level"], r["questions"]) for r in closing}):
     print(f"  unconfirmed, drawn today: {r[0]} {r[1]} questions {r[2]}")
+if b2:
+    print(
+        f"after B2: types {b2['types']}, approved {b2['approved']}, level x type links {b2['links']}"
+        f" · active questions {b2['active']}, a paper may draw {b2['drawable']}"
+    )
 print(f"evidence {ev['n']} rows, checksum {ev['sum']}")
