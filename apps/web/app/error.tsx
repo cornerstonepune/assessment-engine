@@ -20,10 +20,10 @@ export default function PageError({ error, retry }: { error: Error & { digest?: 
         </div>
         <div className="panel-body grid gap-3 text-[14px] leading-relaxed">
           <p>
-            The database did not answer in time, or the server hit a problem while building the page. Nothing you did
-            was lost, and nothing was changed.
+            The database did not answer in time, the engine is restarting, or the server hit a problem while building
+            the page. Nothing you did was lost, and nothing was changed.
           </p>
-          <p>Try again in a moment. If it keeps happening, tell Nimish the reference below.</p>
+          <p>Try again in a minute. If it keeps happening, tell Nimish the reference below.</p>
           <div className="flex flex-wrap items-center gap-3">
             <button className="btn" type="button" onClick={() => retry()}>
               Try again

@@ -23,14 +23,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends libglib2.0-0 li
 
 WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
-COPY engine ./engine
 ENV PATH="/app/.venv/bin:$PATH" ENGINE_POOL=1 PYTHONUNBUFFERED=1
 # The printed page a question-bank screen shows is drawn by Playwright, and so is a week's pack.
 # Without a browser in the image both answer 500 on the server while working on a laptop.
 RUN playwright install --with-deps chromium && rm -rf /var/lib/apt/lists/*
 # The digit reader's models (~135 MB) are fetched here, once, so the first scan does not wait on a download and a
 # server that cannot reach the model host still reads. Loading them is also the proof the reader starts at all.
+# Only the reader's own file comes in for it, so a change anywhere else in the engine keeps this layer and the one
+# above: every deploy to 21 Oct 2026 fetched the browser and the models again, 2.5 of its 3–6 minutes of build
+# (goals/l8-deploy-without-downtime.yaml).
+COPY engine/__init__.py engine/
+COPY engine/adapters/__init__.py engine/adapters/digits.py engine/adapters/
 RUN python -c "from engine.adapters import digits; digits._load()"
+COPY engine ./engine
 
 EXPOSE 8000
 CMD ["uvicorn", "engine.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
