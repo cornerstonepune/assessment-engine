@@ -13,6 +13,8 @@ import { ChecksPanel, type Check } from "../checks";
 import { confirmChild, resolveOne } from "../actions";
 import { deadline } from "@/lib/deadline";
 import { FocusPanel } from "./focus-panel";
+import { CHANGED } from "@/components/questions";
+import { readDraw } from "@/lib/next-paper";
 import { AnswerTable, fmtDate } from "./answers";
 import { RepeatedMistakes, TheirPapers } from "./panels";
 import { SkillsPanel } from "./skills-panel";
@@ -152,6 +154,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
           <Notice tone="neem">Approved in your name: paper {q.paper}. Print it from its page.</Notice>
         ) : null}
         {q.resolved ? <Notice tone="neem">Checked. What their answers show is rebuilt.</Notice> : null}
+        {q.changed ? <Notice tone="terracotta">{CHANGED}</Notice> : null}
         {q.error === "resolve" ? <Notice tone="terracotta">Pick right, wrong or blank. Nothing was changed.</Notice> : null}
 
         <div className="grid gap-[18px] xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -226,7 +229,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
           </div>
 
           <div className="grid content-start gap-[18px] self-start xl:sticky xl:top-6">
-            <FocusPanel childId={id} name={child.first_name} staff={staffNames} />
+            <FocusPanel childId={id} name={child.first_name} staff={staffNames} draw={readDraw(q.draw)} />
 
             <TheirPapers childId={id} sheets={sheets} read={read} failed={papers.length - read.length} staff={staffNames} />
 

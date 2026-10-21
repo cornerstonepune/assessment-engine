@@ -1,7 +1,8 @@
 import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
 import type { SkillSet } from "@/lib/queries";
-import { KINDS, repeatWords, type Batch, type MakerPlan, type PlannedPaper } from "@/lib/maker";
+import { batchQuery, KINDS, repeatWords, type Batch, type MakerPlan, type PlannedPaper } from "@/lib/maker";
+import { DifferentQuestions, Questions as AreaQuestions } from "@/components/questions";
 import { SkillLevelSelect } from "../../make/skill-level";
 import { makePapers } from "./actions";
 import { MakeButton } from "./make-button";
@@ -12,11 +13,7 @@ function Questions({ areas }: { areas: PlannedPaper["areas"] }) {
   return (
     <>
       {areas.map((a) => (
-        <ol key={`${a.skill_set}~${a.level}`} aria-label={`${a.name} · ${a.level}`} className="grid list-decimal gap-1 pl-5 text-[13px]">
-          {a.questions.map((x) => (
-            <li key={x.item_key}>{x.text}</li>
-          ))}
-        </ol>
+        <AreaQuestions key={`${a.skill_set}~${a.level}`} name={a.name} level={a.level} questions={a.questions} />
       ))}
     </>
   );
@@ -26,7 +23,8 @@ const paperWords = (p: PlannedPaper) => p.areas.map((a) => `${a.name} · ${a.lev
 
 // Every picked child's paper before anything is made (goals/m3-the-maker.yaml): what it holds, why, and each child
 // whose paper cannot be made with the engine's words. On each child's own next step, any child can be changed; the
-// papers are made in the educator's name only when every one can be.
+// papers are made in the educator's name only when every one can be. "Different questions" draws every paper again and
+// makes nothing; the papers made are the questions shown (goals/preview-before-print.yaml).
 export function ThePapers({ plan, batch, roll, sets, band, once }: {
   plan: MakerPlan; batch: Batch; roll: Child[]; sets: SkillSet[]; band: string; once: string;
 }) {
@@ -117,12 +115,19 @@ export function ThePapers({ plan, batch, roll, sets, band, once }: {
           See the papers with these changes
         </button>
       ) : null}
+      {n ? (
+        <div className="mt-3">
+          <DifferentQuestions href={`/papers/make?${batchQuery({ ...batch, draw: batch.draw + 1 })}`} />
+        </div>
+      ) : null}
       <form action={makePapers} className="mt-4 border-t border-basalt/10 pt-4">
         <input type="hidden" name="class" value={batch.section} />
         <input type="hidden" name="kind" value={batch.kind} />
         <input type="hidden" name="way" value={batch.way} />
         <input type="hidden" name="week" value={batch.week} />
         <input type="hidden" name="once" value={once} />
+        <input type="hidden" name="draw" value={batch.draw} />
+        <input type="hidden" name="seen" value={plan.seen} />
         {batch.children.map((c) => (
           <input key={c} type="hidden" name="c" value={c} />
         ))}

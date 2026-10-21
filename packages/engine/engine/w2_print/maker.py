@@ -23,6 +23,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 from engine.w2_print import focus_paper, pack, shelf
+from engine.w2_print import seen as shown
 
 KINDS = {"practice": "class practice", "assessment": "class assessment", "focus": "home assessment"}
 WAYS = ("same", "each", "own")
@@ -49,18 +50,19 @@ def _class(conn, section: str, children: list) -> list:
     return rows
 
 
-def _for_all(conn, kids, week: str, ask: list) -> dict:
+def _for_all(conn, kids, week: str, ask: list, draw: int = 0) -> dict:
     """One paper for every child: the areas asked for, filled first with questions none of them was given lately, then
     with those given longest ago (ADR 0080) — refused whole only when a level holds too few at all."""
     whose = [str(k["id"]) for k in kids]
-    rng = random.Random("|".join([week, *sorted(whose)]))
+    rng = random.Random("|".join([week, *sorted(whose), *([str(draw)] if draw else [])]))
     # the educator's choice decides, whatever the class's grade and whether it was taught it (L7, ADR 0081)
     return focus_paper.drawn(conn, whose, focus_paper._asked(conn, [], ask), rng)
 
 
-def plan(conn, section, children, week, kind, way, ask=None, changed=None) -> dict:
+def plan(conn, section, children, week, kind, way, ask=None, changed=None, draw=0) -> dict:
     """Each picked child's paper, question by question, in roll order, and each child whose paper cannot be made,
-    with why. Nothing is written. `changed`: {child: areas} an educator put in place of that child's own next step."""
+    with why. Nothing is written. `changed`: {child: areas} an educator put in place of that child's own next step.
+    `draw`: the educator's "different questions", every paper drawn again (goals/preview-before-print.yaml)."""
     if kind not in KINDS:
         raise ValueError(
             f"a paper is a class practice, a class assessment or a home assessment, not {kind!r}"
@@ -80,17 +82,17 @@ def plan(conn, section, children, week, kind, way, ask=None, changed=None) -> di
     if set(changed) - {str(k["id"]) for k in kids}:
         raise ValueError("a change names a child who is not picked")
     with shelf.one_batch():
-        return _plan(conn, kids, section, week, kind, way, ask, changed)
+        return _plan(conn, kids, section, week, kind, way, ask, changed, draw)
 
 
-def _plan(conn, kids, section, week, kind, way, ask, changed) -> dict:
-    shared = _for_all(conn, kids, week, ask) if way == "same" else None
+def _plan(conn, kids, section, week, kind, way, ask, changed, draw=0) -> dict:
+    shared = _for_all(conn, kids, week, ask, draw) if way == "same" else None
     papers, refused, taken = [], [], set()
     for k in kids:
         cid = str(k["id"])
         try:
             mine = changed.get(cid) or (ask if way == "each" else None)
-            p = shared or focus_paper.plan(conn, cid, week, mine, frozenset(taken))
+            p = shared or focus_paper.plan(conn, cid, week, mine, frozenset(taken), draw)
             if not p["n"]:
                 raise ValueError(NO_STEP)
         except ValueError as e:
@@ -105,16 +107,18 @@ def _plan(conn, kids, section, week, kind, way, ask, changed) -> dict:
     return {"section": section, "week": week, "kind": kind, "way": way, "papers": papers, "refused": refused}
 
 
-def make(conn, section, children, week, kind, way, by, ask=None, changed=None) -> dict:
+def make(conn, section, children, week, kind, way, by, ask=None, changed=None, draw=0, seen=None) -> dict:
     """`by` approves every paper `plan` shows, and each prints with its own code. Refused whole, naming each child
-    whose paper cannot be made, rather than printing some of the class."""
+    whose paper cannot be made, rather than printing some of the class, or when the papers are no longer the `draw`
+    the educator saw (`seen`, `seen.check`)."""
     if not by:
         raise ValueError("a paper is approved in a person's name")
     # one batch at a time for a child: two educators' clicks together cannot print a child's paper at the same instant
     conn.execute("select id from child where id = any(%s::uuid[]) order by id for update", (list(children),))
-    p = plan(conn, section, children, week, kind, way, ask, changed)
+    p = plan(conn, section, children, week, kind, way, ask, changed, draw)
     if p["refused"]:
         raise ValueError("; ".join(f"roll {r['roll_no']}: {r['why']}" for r in p["refused"]))
+    shown.check(p["papers"], seen)
     with sync_playwright() as pw:
         made = [
             focus_paper.print_paper(conn, x["child_id"], week, by, kind, x, HOW[x["chosen"]], pw)

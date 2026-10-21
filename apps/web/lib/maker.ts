@@ -1,6 +1,6 @@
 import { DatabaseSlow, deadline, PAGE_WAIT_MS } from "./deadline";
 import { EngineDown, engineSend } from "./engine";
-import { readArea, type Area } from "./next-paper";
+import { readArea, readDraw, type Area } from "./next-paper";
 import { type Difficulty, gradeOf, type Grades, levelsOf, type SkillSet, usesLevel } from "./queries";
 
 // The maker (goals/m3-the-maker.yaml): papers for any children of one class at once. The engine draws, checks and
@@ -37,6 +37,8 @@ export type Batch = {
   children: string[];
   areas: Area[];
   changed: Record<string, Change[]>;
+  /** "Different questions": every paper drawn again, making nothing (goals/preview-before-print.yaml); 0 the first */
+  draw: number;
 };
 
 /** The batch a form or an address describes — `class`, `kind`, `way`, the children `c`, the areas as whole `a`
@@ -62,6 +64,7 @@ export function readBatch(get: (k: string) => string[], week: string): Batch | n
     children: [],
     areas: way === "own" ? [] : areas.filter((a): a is Area => !!a),
     changed: way === "own" ? changed : {},
+    draw: readDraw(get("draw")[0]),
   };
   return forChildren(batch, get("c").filter((c) => UUID.test(c)));
 }
@@ -80,6 +83,7 @@ export function batchQuery(b: Batch): URLSearchParams {
   for (const c of b.children) q.append("c", c);
   for (const a of b.areas) q.append("a", `${a.skill_set}~${a.level}~${a.n}`);
   for (const [c, [a]] of Object.entries(b.changed)) q.append("x", `${c}~${a.skill_set}~${a.level}`);
+  if (b.draw) q.set("draw", String(b.draw));
   return q;
 }
 
@@ -105,7 +109,8 @@ export function repeatWords(areas: { seen_before?: number }[]): string | null {
   if (!n) return null;
   return `${n} of these ${n === 1 ? "question was" : "questions were"} seen before: the bank had no more fresh ones.`;
 }
-export type MakerPlan = { papers: PlannedPaper[]; refused: { child_id: string; roll_no: string; why: string }[] };
+/** `seen`: the engine's code for the papers shown, which making them names back, so they print as shown. */
+export type MakerPlan = { papers: PlannedPaper[]; refused: { child_id: string; roll_no: string; why: string }[]; seen: string };
 
 /** What the papers would hold, child by child, and each child whose paper cannot be made with why; or, when the
  *  batch cannot be made at all — or the engine does not answer in time — why, in words, on the maker itself rather
@@ -126,13 +131,14 @@ export async function planBatch(b: Batch): Promise<{ plan: MakerPlan } | { refus
 
 export type Made = { qrs: string[]; already: boolean };
 
-/** The papers made and approved in `by`'s name — once for this form's `once`, however often it is sent — or why not.
+/** The papers made and approved in `by`'s name, exactly the papers shown (`seen`) — once for this form's `once`,
+ *  however often it is sent — or why not: a batch whose questions changed since it was shown prints nothing.
  *  `unsure` when the engine did not answer: it may have made them after the website stopped waiting, so the same form
  *  is offered again, which makes them once or shows them made (code review, 2026-09-30). */
-export async function makeBatch(b: Batch, by: string, once: string): Promise<{ made: Made } | { why: string; unsure: boolean }> {
+export async function makeBatch(b: Batch, by: string, once: string, seen: string): Promise<{ made: Made } | { why: string; unsure: boolean }> {
   let res: Response;
   try {
-    res = await engineSend("/papers/make", { ...b, by, once });
+    res = await engineSend("/papers/make", { ...b, by, once, seen });
   } catch (e) {
     if (!(e instanceof EngineDown)) throw e;
     const why = `${e.message} It may only have been slow, and made them: make them again with this same form, which never makes them twice, or look in Papers.`;
