@@ -12,6 +12,8 @@ is verified. This file only says where the last session stopped.
 - **B0c merged into main and then into this branch** (merge commit cc2144f); inventory, rehome and the library's level
   list moved. **Next, once B0d (#231) merges:** merge main in, move prescribe, shelf, focus paper, focus, loaders'
   counts and the site's queries.ts with its pages; then the writers; then drop the blob one deploy later.
+- **Proved:** suite 2583 passed; rehearsal on a copy of live green (run 39539187766): live has 178 levels, all 178
+  approved, rows and blob agree on every one and draw the same questions, before and after update-live.
 - **Open for Nimish:** how a level's words split into a learning objective and "what it looks like" (kept whole now).
 
 ## 2026-10-20 — B0c built (W1, gate 3): the levels are read from their table; PR #228, draft, not deployed
