@@ -26,9 +26,9 @@ says:
   - words: "the maker answered \"The engine refused (502)\" while it did (Nimish saw it)"
     proved_by: packages/engine/tests/test_deploy.py::test_a_code_change_keeps_the_browser_and_the_readers_models
   - words: "the maker answered \"The engine refused (502)\" while it did (Nimish saw it)"
-    proved_by: apps/web/tests/l8-engine-restarting.spec.ts::a restarting engine is said in words while its door answers 502
+    proved_by: apps/web/tests/p3-the-engine-restarting.spec.ts::a restarting engine is said in words while its door answers 502
   - words: "the maker answered \"The engine refused (502)\" while it did (Nimish saw it)"
-    proved_by: apps/web/tests/l8-engine-restarting.spec.ts::a restarting engine is said in words while nothing answers at all
+    proved_by: apps/web/tests/p3-the-engine-restarting.spec.ts::a restarting engine is said in words while nothing answers at all
 manual:
   - "The first deploy after merging: its 'start the engine' step prints 'the standby answers on 8001', then 'the engine answers on 8000 on the new code; the standby is gone'. Caddy restarts once on that deploy only (its file changed), about a second."
   - "During that deploy, the engine's public /health answers 200 every time it is asked; watch-live opens no issue."

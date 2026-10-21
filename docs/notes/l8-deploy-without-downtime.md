@@ -52,7 +52,9 @@ the engine back at 04:42:12. I am not certain the engine also failed during the 
   `first`, try_duration 30 s, health `/health` every 2 s.
 - `cd packages/engine && uv run pytest -q tests/test_deploy.py`: 15 passed. The 8 new tests fail on main's
   Dockerfile, Caddyfile, deploy workflow and app.py (8 failed, 7 passed), and pass on this branch.
-- `apps/web/tests/l8-engine-restarting.spec.ts`, run alone: 3 passed. On main's `lib/engine.ts`: 2 failed, 1 passed.
+- `apps/web/tests/p3-the-engine-restarting.spec.ts` under the website's own Playwright config: 3 passed. On main's
+  `lib/engine.ts`: 2 failed, 1 passed. (First named `l8-…`, which matches no project in `playwright.config.ts`, so CI
+  ran none of it; renamed `p3-…`, the platform tests' prefix.)
 - `bin/check`: 28 passed.
 
 ## Handoff
