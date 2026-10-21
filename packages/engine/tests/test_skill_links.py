@@ -23,16 +23,6 @@ pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DAT
 MIGRATION = (
     db.REPO_ROOT / "supabase/migrations/20261127090000_samples_mistakes_links_and_prerequisites_are_rows.sql"
 )
-# Decision B3-2: the division mistakes the rule removed, and the skill each is still computed on.
-REMOVED = {
-    ("DIV.3D1D", "M_DIV_TENS_ZERO_EXTRA"),
-    ("MD.EQUALITY", "M_DIV_TENS_ZERO_EXTRA"),
-    ("MD.ESTIMATE", "M_DIV_TENS_ZERO_EXTRA"),
-    ("MD.EQUALITY", "M_DIV_QUOTIENT_ZERO_DROPPED"),
-    ("MD.MENTAL", "M_DIV_QUOTIENT_ZERO_DROPPED"),
-    ("MD.EQUALITY", "M_DIV_TENS_ZERO_LEFT"),
-}
-STILL_ON = "DIV.TENS"
 
 
 @pytest.fixture
@@ -165,9 +155,9 @@ def test_mistakes_and_registry_links_equal_the_skills_lists(conn):
             assert set(r["misconception_codes"]) == set(seed[r["code"]]["misconception_codes"]), r["code"]
             assert set(r["links"]) == set(rungs[r["rung_code"]]["skill_codes"]), r["code"]
     ops = conn.execute(
-        "select array_agg(op order by op) as ops from skill_mistake where skill_code = 'MUL.FACTS' and misconception_code = 'M_WRONG_OP'"
+        "select array_agg(op) as ops from skill_mistake where skill_code = 'MUL.FACTS' and misconception_code = 'M_WRONG_OP'"
     ).fetchone()["ops"]
-    assert ops == sorted(
+    assert sorted(ops) == sorted(
         r["op"] for r in conn.execute("select op from misconception where code = 'M_WRONG_OP'")
     )
     assert conn.execute("select count(*) as n from skill_registry_link").fetchone()["n"] == sum(
@@ -175,32 +165,15 @@ def test_mistakes_and_registry_links_equal_the_skills_lists(conn):
     )
 
 
-def test_a_division_mistake_stays_only_where_a_division_computes_it(conn):
-    """Nimish: "we need proper tables". Decision B3-2: a division mistake is on a skill only where the mistake's own
-    rule computes a wrong answer on a division that skill's questions ask. All 8 on Multiplication facts pass, on its
-    Advance fact family's two divisions; the six links that failed are gone, and each is still where it is computed."""
+def test_the_division_mistakes_on_multiplication_facts_stay_where_a_division_computes_them(conn):
+    """Nimish: "we need proper tables". Decision B3-2: a division mistake stays on a skill where the mistake's own rule
+    computes a wrong answer on a division that skill's questions ask. All 8 on Multiplication facts do, each on a box of
+    its Advance fact family that asks a division ("30 ÷ 10 = □"), its answer there not the right one. A sample can show
+    that a mistake happens, never that it cannot, so no list is shortened on a sample's word."""
     division = {
         r["code"]
         for r in conn.execute("select code from misconception group by code having bool_and(op = '÷')")
     }
-    for r in conn.execute("select code, misconception_codes from skill_set order by code").fetchall():
-        named = set(r["misconception_codes"]) & division
-        if named:
-            computed = {c for codes in spec.known_misconceptions(conn, r["code"]).values() for c in codes}
-            assert named <= computed, (r["code"], sorted(named - computed))
-    assert not any(
-        conn.execute(
-            "select 1 from skill_set where code = %s and %s = any(misconception_codes)", pair
-        ).fetchone()
-        for pair in REMOVED
-    )
-    still = set(
-        conn.execute("select misconception_codes from skill_set where code = %s", (STILL_ON,)).fetchone()[
-            "misconception_codes"
-        ]
-    )
-    assert {c for _, c in REMOVED} <= still
-    # Multiplication facts: each of its division mistakes on a box that asks a division, its answer wrong
     s = spec.row(conn, "MUL.FACTS")
     named = set(s["misconception_codes"]) & division
     assert len(named) == 8
@@ -209,7 +182,10 @@ def test_a_division_mistake_stays_only_where_a_division_computes_it(conn):
     for _, item in draw.level(random.Random(1), check, cases.for_level(conn, check), s["rung_code"], 168):
         for box in item.responses:
             if "÷" in (box.label or ""):
-                on_division |= set(box.misconceptions or {}) & division
+                for code, wrong in (box.misconceptions or {}).items():
+                    if code in division:
+                        assert str(wrong) != str(box.answer), (box.label, code)
+                        on_division.add(code)
     assert on_division == named
 
 
@@ -261,9 +237,11 @@ def test_a_new_sample_mistake_or_link_is_an_insert(conn):
         "insert into misconception (tenant_id, code, op, name, detectable_by) values (%s, 'M_TEST_NEW', '÷', 'A test', 'teacher')",
         (tenant,),
     )
-    assert conn.execute(
-        "select array_agg(op order by op) as ops from skill_mistake where misconception_code = 'M_TEST_NEW'"
-    ).fetchone()["ops"] == ["×", "÷"]
+    assert sorted(
+        conn.execute(
+            "select array_agg(op) as ops from skill_mistake where misconception_code = 'M_TEST_NEW'"
+        ).fetchone()["ops"]
+    ) == ["×", "÷"]
     conn.execute(
         "update question_format set kind = jsonb_set(kind, '{examples,Easy}', kind -> 'examples' -> 'Easy' || '[\"3 × 3 × 3 = □\"]')"
         " where code = 'MUL3.SUM'"

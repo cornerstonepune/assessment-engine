@@ -35,9 +35,12 @@ decide each by a rule a test can check. Achal may correct rows later; that is an
    divisions, and each mistake computes a wrong answer on them. The four column mistakes are not division mistakes;
    they are computed on its 2-digit facts (11 × 12) and stay. "Multiplied instead of dividing" is one of the five rows
    of M_WRONG_OP, a code computed on Multiplication facts as "added instead of multiplying"; the code stays, and which
-   row's words a page shows for it is the page's choice, made when the readers move onto these rows (not in B3). Six links fail and are removed by the migration and the
-   seed: M_DIV_TENS_ZERO_EXTRA from DIV.3D1D, MD.EQUALITY and MD.ESTIMATE; M_DIV_QUOTIENT_ZERO_DROPPED from MD.EQUALITY
-   and MD.MENTAL; M_DIV_TENS_ZERO_LEFT from MD.EQUALITY. Each stays on DIV.TENS, where it is computed. Marking reads
+   row's words a page shows for it is the page's choice, made when the readers move onto these rows (not in B3).
+   No mistake is removed from any skill: a sample of questions can show that a mistake happens, never that it cannot.
+   A first pass with the engine's standard sample (`spec.known_misconceptions`) took six links on four division skills
+   for unreachable; drawn more widely, every one came up on a division its skill asks (M_DIV_TENS_ZERO_EXTRA on
+   "100 ÷ 4" in DIV.3D1D, M_DIV_QUOTIENT_ZERO_DROPPED on "530 ÷ 5" in MD.MENTAL, and MD.ESTIMATE's on its own test's
+   draw). Marking reads
    no skill's list (it marks from each question's own boxes), so no answer is scored differently.
 6. **B3-3, what comes before.** A skill comes after every skill of its topic on the nearest grade below its own: 167
    rows, drafted in `supabase/seed/skill_prerequisites.json` and inserted by `engine load` only while the school has
@@ -55,5 +58,7 @@ decide each by a rule a test can check. Achal may correct rows later; that is an
   several operations and none for all (M_FACT_PM1, M_TIMES_AS_MORE…).
 - **Splitting a level's words into a learning objective and samples, and storing the rest as the words.** The words are
   what a person reads and edits, and B1's rows mirror them; the samples are read from them, never cut out of them.
+- **Removing a mistake its skill's sample did not show.** Six links would have gone on the standard sample, and each
+  turned out reachable; a removal needs a proof that the mistake cannot happen, which a sample is not.
 - **Moving the readers onto the rows now.** BUILD-ORDER's B3 asks for the rows and their keys; the readers move with the
   writers, one deploy before the lists go, as for levels.

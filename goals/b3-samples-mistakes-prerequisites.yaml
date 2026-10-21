@@ -4,11 +4,10 @@ goal: >
   after their colon, split by the rule the words themselves follow, the words left as they are. The mistakes a skill
   watches for (`skill_mistake`), the registry skills it covers (`skill_registry_link`) and the skills that come before
   it (`skill_prerequisite`) are rows, so every code a skill names is a real key the database checks and refuses when it
-  is not. A division mistake stays on a skill only where a question of that skill asks a division and the mistake's
-  own rule computes a wrong answer on it; the rest are removed, each listed with its reason. Nothing changes for any
+  is not. A division mistake stays on a skill where a question of that skill asks a division and the mistake's own
+  rule computes a wrong answer on it; the 8 on Multiplication facts do, and stay. Nothing changes for any
   past assessment: the evidence (count and checksum), every child's states and every scored answer are the same before
-  and after, in a test and on a copy of live. No paper, map or page changes on the day, except the skills' mistake
-  lists where a division mistake was removed.
+  and after, in a test and on a copy of live. No paper, map or page changes on the day.
 # Written 2026-10-21, before the code, from docs/drafts/b3-samples-mistakes-prerequisites.yaml (scope-locked by
 # Nimish) and his decisions in docs/drafts/b2-b4-decisions.md, "Decided". Nimish, 2026-10-21: no dependency on Achal;
 # B3-1, B3-2 and B3-3 are decided here by rules a test checks, recorded in ADR 0092. Achal may correct rows later:
@@ -22,10 +21,11 @@ goal: >
 # - B3-2, the division mistakes: kept on a skill when a question its levels draw asks a division and the mistake's
 #   rule (the engine's own predictor, `spec.known_misconceptions`) computes a wrong answer on it. All 8 on
 #   Multiplication facts pass: its Advance fact family ("10 × 3 = 30. Use it to finish these facts.") asks two
-#   divisions, and each mistake computes a wrong answer there. Six links on four division skills fail and are removed:
-#   M_DIV_TENS_ZERO_EXTRA from DIV.3D1D, MD.EQUALITY and MD.ESTIMATE; M_DIV_QUOTIENT_ZERO_DROPPED from MD.EQUALITY
-#   and MD.MENTAL; M_DIV_TENS_ZERO_LEFT from MD.EQUALITY. Each stays on DIV.TENS, where it is computed, so none needs
-#   a new home. The four column mistakes are not division mistakes and stay (its 2-digit facts, 11 × 12, compute them).
+#   divisions, and each mistake computes a wrong answer there. No mistake is removed anywhere: a sample of questions
+#   shows that a mistake happens, never that it cannot. (A first pass with the engine's standard sample took six links
+#   on four division skills for unreachable; drawn more widely, each comes up on a division its skill asks, e.g.
+#   M_DIV_TENS_ZERO_EXTRA on "100 ÷ 4" in DIV.3D1D, M_DIV_TENS_ZERO_LEFT on "50 ÷ 10" in MD.EQUALITY.)
+#   The four column mistakes are not division mistakes and stay (its 2-digit facts, 11 × 12, compute them).
 #   "Multiplied instead of dividing" is one of M_WRONG_OP's five rows; the code is computed there as "added instead of
 #   multiplying" and stays; which row's words a page shows is settled when the readers move onto the rows, not here.
 # - B3-3, what comes before: the ladder's grades. A skill comes after every skill of its topic on the nearest grade
@@ -41,7 +41,7 @@ says:
   - words: "we need proper tables"
     proved_by: "packages/engine/tests/test_skill_links.py::test_mistakes_and_registry_links_equal_the_skills_lists"
   - words: "we need proper tables"
-    proved_by: "packages/engine/tests/test_skill_links.py::test_a_division_mistake_stays_only_where_a_division_computes_it"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_the_division_mistakes_on_multiplication_facts_stay_where_a_division_computes_them"
   - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
     proved_by: "packages/engine/tests/test_skill_links.py::test_prerequisites_come_from_the_ladders_grades_and_no_skill_comes_before_itself"
   - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"

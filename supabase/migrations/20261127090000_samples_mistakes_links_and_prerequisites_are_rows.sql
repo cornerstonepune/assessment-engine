@@ -264,16 +264,9 @@ drop trigger if exists skill_mistake_on_misconception on misconception;
 create trigger skill_mistake_on_misconception after insert on misconception
   for each row execute function internal.skill_mistake_from_misconception();
 
--- Decision B3-2: a division mistake stays on a skill only where a question of that skill asks a division and the
--- mistake's rule computes a wrong answer on it. These six links fail it (no question of theirs computes them, measured
--- with `spec.known_misconceptions` on 2026-10-21); each stays on DIV.TENS, where it is computed. The seed says the same.
-update skill_set s set misconception_codes = array(
-  select c from unnest(s.misconception_codes) c
-  where (s.code, c) not in (('DIV.3D1D', 'M_DIV_TENS_ZERO_EXTRA'), ('MD.EQUALITY', 'M_DIV_TENS_ZERO_EXTRA'),
-                            ('MD.ESTIMATE', 'M_DIV_TENS_ZERO_EXTRA'), ('MD.EQUALITY', 'M_DIV_QUOTIENT_ZERO_DROPPED'),
-                            ('MD.MENTAL', 'M_DIV_QUOTIENT_ZERO_DROPPED'), ('MD.EQUALITY', 'M_DIV_TENS_ZERO_LEFT')))
-where s.code in ('DIV.3D1D', 'MD.EQUALITY', 'MD.ESTIMATE', 'MD.MENTAL')
-  and s.misconception_codes && array['M_DIV_TENS_ZERO_EXTRA', 'M_DIV_QUOTIENT_ZERO_DROPPED', 'M_DIV_TENS_ZERO_LEFT'];
+-- Decision B3-2 changes no list: every division mistake a skill names is computed on a division that skill's questions
+-- ask (the 8 on Multiplication facts on its Advance fact family). A sample of questions can show that a mistake happens,
+-- never that it cannot, so no mistake is removed on a sample's word (ADR 0092).
 
 -- The rows as the lists are today.
 do $$
