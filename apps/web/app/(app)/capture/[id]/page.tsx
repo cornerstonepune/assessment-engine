@@ -11,11 +11,10 @@ import { confirmPaper } from "../actions";
 import { AnswerCard, type Key, type Unnamed } from "./card";
 import { deadline } from "@/lib/deadline";
 import { EngineDown, engineGet } from "@/lib/engine";
+import { dateWords } from "@/lib/week";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> };
 
-const fmtDate = (d: string | null) =>
-  d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-") : "—";
 
 // A wrong answer no named mistake explains, with Jev's shortlist and every named mistake of its operation
 // (`GET /capture/{id}/mistakes`, ADR 0036). The engine down is not the page down: nothing is offered then.
@@ -90,7 +89,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
       <PageHeader
         stage={`Assessments · ${paper.section}`}
         title={`${paper.first_name} · ${paper.title ?? paper.paper}`}
-        sub={`Sat ${fmtDate(paper.date)}. ${answers.length} answers on ${paper.pages} page${paper.pages === 1 ? "" : "s"}. The engine read what it could and flagged the rest; nothing here reaches ${paper.first_name}'s ladder until you sign it off.`}
+        sub={`Sat ${dateWords(paper.date)}. ${answers.length} answers on ${paper.pages} page${paper.pages === 1 ? "" : "s"}. The engine read what it could and flagged the rest; nothing here reaches ${paper.first_name}'s ladder until you sign it off.`}
       />
       <Body>
         <p className="mb-4 flex flex-wrap gap-2">

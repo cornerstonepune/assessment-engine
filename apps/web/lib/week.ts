@@ -8,6 +8,15 @@ export function isoWeek(d = new Date()): string {
   return `${t.getUTCFullYear()}-W${String(n).padStart(2, "0")}`;
 }
 
+/** A date as every page says it (goals/ux7-phone-and-words.yaml): "21-Oct-2026"; no date is "—". A day alone
+ *  ("2026-10-21") is that day where the server is, never the day before. */
+export function dateWords(d: string | null | undefined): string {
+  if (!d) return "—";
+  return new Date(/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T00:00:00` : d)
+    .toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+    .replace(/ /g, "-");
+}
+
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** An ISO week said as a person says it, by its Monday: "2026-W41" is "week of 5 Oct". A week named any other way (a

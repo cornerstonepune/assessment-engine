@@ -20,20 +20,13 @@ import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { mayDecide } from "@/lib/decides";
 import { LevelApproval } from "./level-approval";
+import { dateWords } from "@/lib/week";
 
 type Props = {
   params: Promise<{ code: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 };
 
-const fmtDate = (d: string) =>
-  new Date(d)
-    .toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    })
-    .replace(/ /g, "-");
 
 // One skill as a teacher reads it: what the child can do, what that looks like at each level with a
 // real question from the bank, the kinds of question that test it, the mistakes it watches for, and
@@ -165,7 +158,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
               A level in another grade shows under that grade on the Curriculum too. Moving a level does not change its
               words, so the skill keeps its approval.
               {s.level_band_by && s.level_band_at
-                ? ` Last moved by ${s.level_band_by}, ${new Date(s.level_band_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}.`
+                ? ` Last moved by ${s.level_band_by}, ${dateWords(s.level_band_at)}.`
                 : null}
             </p>
           </Panel>
@@ -376,7 +369,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
 
         <p className="fact mt-[18px] text-[11px] text-basalt/50">
           {s.code} · {s.rung_code} · version {s.version} · last changed{" "}
-          {fmtDate(s.updated_at)}
+          {dateWords(s.updated_at)}
         </p>
       </Body>
     </>

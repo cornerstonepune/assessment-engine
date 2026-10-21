@@ -4,6 +4,7 @@ import { useState } from "react";
 import { kindWords } from "@/components/question";
 import { Pill } from "@/components/shell";
 import type { ReaderReport } from "@/lib/queries-read";
+import { dateWords } from "@/lib/week";
 
 // How the reader is doing, as one table (goals/u10-tables-read-straight.yaml). Nimish, 2026-09-30: "is there just one
 // view that we can have? It simply shows just one table, which can have a toggle around confidence levels, the date,
@@ -12,8 +13,6 @@ import type { ReaderReport } from "@/lib/queries-read";
 
 const share = (a: number, b: number) => (b ? Math.round((100 * a) / b) : null);
 const pct = (n: number | null) => (n === null ? "—" : `${n}%`);
-const day = (d: string) =>
-  new Date(`${d}T00:00:00`).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
 
 const VIEWS = [
   ["day", "By day"],
@@ -61,7 +60,7 @@ export function ReaderTable({ r }: { r: ReaderReport }) {
               <tbody>
                 {days.map((d) => (
                   <tr key={d.day}>
-                    <td className="fact whitespace-nowrap">{day(d.day)}</td>
+                    <td className="fact whitespace-nowrap">{dateWords(d.day)}</td>
                     <td className="num">{d.checked}</td>
                     <td className="num">{pct(d.now)}</td>
                     <td className="num">

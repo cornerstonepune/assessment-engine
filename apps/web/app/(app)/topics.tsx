@@ -2,6 +2,7 @@ import Link from "@/components/link";
 import { Panel } from "@/components/shell";
 import type { ClassTaught, Topic } from "@/lib/queries-people";
 import { switchTopic } from "./topic-actions";
+import { dateWords } from "@/lib/week";
 
 // Which topics each class has been taught, and who said so (goals/f1f-taught-per-class.yaml): an educator says it of
 // their own classes, the coordinator of any, in their own name; a class no one has spoken for follows the school's
@@ -109,7 +110,7 @@ export function Topics({ topics, me, open }: { topics: Topic[]; me: string; open
 
 /** Who said a class was taught: its own word, or the school's switch while no one has spoken for the class. */
 function said(c: ClassTaught): string {
-  if (c.own) return `said by ${c.by}${c.at ? `, ${c.at.slice(0, 10)}` : ""}`;
+  if (c.own) return `said by ${c.by}${c.at ? `, ${dateWords(c.at)}` : ""}`;
   return c.by ? `as the school's switch, by ${c.by}` : "as the school's rows say";
 }
 

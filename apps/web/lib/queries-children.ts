@@ -192,11 +192,13 @@ export function summary(name: string, assessed: (string | null)[], notYet: numbe
   for (const s of assessed) n[states.of(s).colour] += 1;
   const skills = (k: number) => `${k} skill${k === 1 ? "" : "s"}`;
   // the first count says "skill"; the rest are read against it
+  // each colour in its one word (goals/ux7-phone-and-words.yaml)
+  const cw = (c: Rag) => states.colours[c].count_words;
   const said = (
     [
-      ["red", "needs help on"],
-      ["amber", "is practising"],
-      ["green", "has got"],
+      ["red", `${cw("red")} on`],
+      ["amber", `is ${cw("amber")}`],
+      ["green", `is ${cw("green")} on`],
     ] as const
   )
     .filter(([c]) => n[c])

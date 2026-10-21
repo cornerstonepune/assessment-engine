@@ -1,6 +1,7 @@
 // The parent report as a parent reads it (goals/w4c-parent-report.yaml): a letter from the school, not a chart. The
 // words are the engine's draft, held to the facts; the counts beside them are the facts themselves. The draft names
 // the child "[child]"; the name is put in here, from pii, so no model ever saw it (rule 6).
+import { dateWords } from "@/lib/week";
 
 export type Example = {
   question: string;
@@ -51,13 +52,6 @@ export type Note = {
   written_at: string;
   stale: boolean;
 };
-
-const day = (d: string) =>
-  new Date(d).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
 
 function Dots({ right, of }: { right: number; of: number }) {
   if (of > 12) return null;
@@ -159,7 +153,7 @@ export function Letter({
           </div>
         </div>
         <div className="text-right text-[13px] text-basalt/70">
-          {f.from === f.to ? day(f.from) : `${day(f.from)} – ${day(f.to)}`}
+          {f.from === f.to ? dateWords(f.from) : `${dateWords(f.from)} – ${dateWords(f.to)}`}
           <br />
           {f.answers} answers, each checked by an educator
         </div>
@@ -285,7 +279,7 @@ export function Letter({
         </span>
         <span data-testid="approval">
           {note.approved_by
-            ? `Approved by ${approver ?? note.approved_by} on ${day(note.approved_at!)}`
+            ? `Approved by ${approver ?? note.approved_by} on ${dateWords(note.approved_at)}`
             : "Not yet approved"}
         </span>
       </footer>

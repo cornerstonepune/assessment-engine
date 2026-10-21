@@ -103,7 +103,7 @@ export default async function ReportCard({ params }: Props) {
               key={c}
               tone={RAG_TONE[c]}
               n={count(c)}
-              words={`skill set${count(c) === 1 ? "" : "s"} · ${c === "grey" ? "too few answers yet" : states.colours[c].words}`}
+              words={`skill set${count(c) === 1 ? "" : "s"} · ${states.colours[c].count_words}`}
             />
           ))}
         </div>

@@ -7,11 +7,10 @@ import { checkItem, checkQueue, held, toJudge, type CheckItem } from "@/lib/quer
 import { EngineDown, engineGet } from "@/lib/engine";
 import { correctRead, judgeOne } from "../actions";
 import type { Key } from "../[id]/card";
+import { dateWords } from "@/lib/week";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
-const fmtDate = (d: string | null) =>
-  d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-") : "—";
 
 // Why the engine is asking, in a sentence a teacher can act on — never the reader's own vocabulary.
 function whyHere(a: CheckItem, spot: boolean): string {
@@ -99,7 +98,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
         ) : (
           <Panel
             title={`${a.first_name} · question ${a.slot}`}
-            aside={`${a.paper_title ?? "paper"} · sat ${fmtDate(a.sat)}`}
+            aside={`${a.paper_title ?? "paper"} · sat ${dateWords(a.sat)}`}
           >
             <div className="grid gap-[18px] lg:grid-cols-[minmax(0,1fr)_380px]">
               <figure className="min-w-0">

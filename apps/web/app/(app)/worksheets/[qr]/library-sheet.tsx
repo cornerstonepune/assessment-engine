@@ -9,11 +9,10 @@ import { scopeOf } from "@/lib/scope";
 import { worksheetCases } from "@/lib/queries-taxonomy";
 import { libraryWorksheet, worksheetItems } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../library";
+import { dateWords } from "@/lib/week";
 
 export const LIBRARY_CODE = /^[RMX]\d{1,2}-[A-Z]\d{2,3}$/;
 
-const fmtDate = (d: string) =>
-  new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-");
 
 // One worksheet from the library: what it practises, its twelve questions as the child meets them
 // with their answers, and the printed paper one press away.
@@ -35,7 +34,7 @@ export async function LibraryWorksheetPage({ code }: { code: string }) {
       <Body>
         {w.retired_at ? (
           <Notice tone="terracotta">
-            Retired on {fmtDate(w.retired_at)}: a question on it left the bank, and a new worksheet replaced it. It is
+            Retired on {dateWords(w.retired_at)}: a question on it left the bank, and a new worksheet replaced it. It is
             kept so a paper already printed from it still matches its answers.
           </Notice>
         ) : null}
@@ -134,7 +133,7 @@ export async function LibraryWorksheetPage({ code }: { code: string }) {
               </div>
               <div>
                 <dt className="label mb-[3px]">Made</dt>
-                <dd>{fmtDate(w.created_at)}, from the bank&rsquo;s own checked questions</dd>
+                <dd>{dateWords(w.created_at)}, from the bank&rsquo;s own checked questions</dd>
               </div>
             </dl>
           </Panel>

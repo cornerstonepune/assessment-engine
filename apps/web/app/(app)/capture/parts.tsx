@@ -5,9 +5,9 @@ import { Panel, Pill } from "@/components/shell";
 import { many } from "@/lib/needs-you";
 import type { PaperRow, ReaderReport } from "@/lib/queries-read";
 import { ReaderTable } from "./reader-table";
+import { dateWords } from "@/lib/week";
 
-export const fmtDate = (d: string | null) =>
-  d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, "-") : "—";
+export const fmtDate = dateWords;
 
 /** A group of papers — a class, a child, a worksheet, everything — and where the answers on them stand. */
 export type Standing = {

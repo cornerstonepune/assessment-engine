@@ -35,7 +35,7 @@ const pagesSaid = (ps: number[]) => (ps.length === 1 ? `page ${ps[0]}` : `pages 
 /** The `n` files read last — those with a copy of the person's classes, or with none of any class's — newest first. */
 export async function lastScans(scope: Scope = EVERY_CLASS, n = 3): Promise<Scan[]> {
   const runs = await sql<{ id: string; trigger: string | null; when: string; status: Scan["status"]; error: string | null; copies: Copy[] }[]>`
-    select id, trigger, to_char(started_at at time zone 'Asia/Kolkata', 'DD Mon, HH24:MI') as when, status, error,
+    select id, trigger, to_char(started_at at time zone 'Asia/Kolkata', 'DD-Mon-YYYY HH24:MI') as when, status, error,
            coalesce(result -> 'copies', '[]'::jsonb) as copies
     from flow_run where flow = 'read-scan' order by started_at desc limit ${scope.classes ? 4 * n : n}`;
   const ids = [...new Set(runs.flatMap((r) => r.copies.flatMap((c) => (c.child_id ? [c.child_id] : []))))];
