@@ -12,14 +12,15 @@ export type Band = { words: string; check: Record<string, unknown> };
  *  1-digit has no Hard). */
 export const levelsOf = (s: { levels: Difficulty[] }) => s.levels;
 
-/** `levels` of a skill set row `s`, for a query to select: the levels its rule defines, in the table's order. A
+/** `levels` of a skill set row `s`, for a query to select: its level rows (`skill_level`), in the table's order. A
  *  function, so importing this file never touches the database. */
-export const levelsColumn = () => sql`coalesce((select array_agg(d.code order by d.ord) from difficulty d
-                                        where d.tenant_id = s.tenant_id and s.difficulty ? d.code), '{}') as levels`;
+export const levelsColumn = () => sql`coalesce((select array_agg(l.difficulty order by d.ord) from skill_level l
+                                        join difficulty d on d.tenant_id = l.tenant_id and d.code = l.difficulty
+                                        where l.tenant_id = s.tenant_id and l.skill_code = s.code), '{}') as levels`;
 
-/** The grade a skill's level belongs to: one grade each — named in `level_band`, else the skill's own. */
-export const gradeOf = (s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty) =>
-  s.level_band?.[d] ?? s.band;
+/** The grade a skill's level belongs to: one grade each, its row's (`skill_level.grade`), else the skill's own. */
+export const gradeOf = (s: { band: string; level_grade?: Partial<Record<Difficulty, string>> }, d: Difficulty) =>
+  s.level_grade?.[d] ?? s.band;
 
 export type Grade = { code: string; name: string; ord: number };
 /** The school's grades in their order, and each one's name and place (goals/b0b-grades-from-the-table.yaml). */
@@ -45,7 +46,7 @@ export async function gradeSpan(): Promise<string> {
 
 /** Whether a class or child of `band` uses this level: its own grade's levels and those of the grades below
  *  (goals/f1e-the-grade-plan.yaml) — as the engine gives and refuses them (`shelf._levels`). */
-export const usesLevel = (g: Grades, s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty, band: string) =>
+export const usesLevel = (g: Grades, s: { band: string; level_grade?: Partial<Record<Difficulty, string>> }, d: Difficulty, band: string) =>
   g.ord(gradeOf(s, d)) <= g.ord(band);
 
 export type SkillSet = {
@@ -61,14 +62,14 @@ export type SkillSet = {
   status: "draft" | "ratified";
   ratified_by: string | null;
   /** Each level whose questions a person approved, with who and when (goals/f1d-questions-approved-per-level.yaml). */
-  level_approved: Partial<Record<Difficulty, { by: string; at: string }>>;
+  approved: Partial<Record<Difficulty, { by: string; at: string }>>;
   updated_at: string;
   band: string;
-  /** The grade each level belongs to, where it is not the skill's own (`skill_set.level_band`). */
-  level_band: Partial<Record<Difficulty, string>>;
+  /** The grade each level belongs to (`skill_level.grade`). */
+  level_grade: Partial<Record<Difficulty, string>>;
   /** Who last moved a level to another grade, and when (goals/c1-whole-curriculum.yaml). */
-  level_band_by: string | null;
-  level_band_at: string | null;
+  moved_by: string | null;
+  moved_at: string | null;
   descriptor: string;
   skill_codes: string[];
   version: number;
@@ -94,8 +95,14 @@ export async function skillSets({
   const taught = section ? skillTaughtIn(sql`s.tenant_id`, sql`s.code`, section) : skillTaughtFor(scope, sql`s.tenant_id`, sql`s.code`);
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
-           s.misconception_codes, s.difficulty, ${levelsColumn()}, s.status, s.ratified_by, s.level_approved, s.updated_at, s.version,
-           r.band, coalesce(s.level_band, '{}'::jsonb) as level_band, s.level_band_by, s.level_band_at, r.descriptor, r.skill_codes, s.topic_code,
+           s.misconception_codes, public.skill_levels(s.tenant_id, s.code) as difficulty, ${levelsColumn()}, s.status, s.ratified_by,
+           coalesce((select jsonb_object_agg(l.difficulty, jsonb_build_object('by', l.confirmed_by, 'at', l.confirmed_at))
+                     from skill_level l where l.tenant_id = s.tenant_id and l.skill_code = s.code and l.confirmed_at is not null),
+                    '{}'::jsonb) as approved,
+           s.updated_at, s.version, r.band,
+           coalesce((select jsonb_object_agg(l.difficulty, l.grade) from skill_level l
+                     where l.tenant_id = s.tenant_id and l.skill_code = s.code), '{}'::jsonb) as level_grade,
+           s.level_band_by as moved_by, s.level_band_at as moved_at, r.descriptor, r.skill_codes, s.topic_code,
            t.name as topic_name, t.ord as topic_ord, ${taught} as taught,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select difficulty, count(*)::int as n from item

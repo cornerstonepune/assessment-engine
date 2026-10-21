@@ -136,8 +136,8 @@ export async function bankTotals(scope: Scope = EVERY_CLASS): Promise<{ active: 
            count(*) filter (where i.status = 'retired' and ${ofTaughtSkill(scope)})::int as retired
     from item i
     where i.source = 'generated'
-      and exists (select 1 from skill_set bs where bs.tenant_id = i.tenant_id and bs.code = i.skill_set_code
-                  and bs.difficulty ? i.difficulty)`;
+      and exists (select 1 from skill_level bl where bl.tenant_id = i.tenant_id and bl.skill_code = i.skill_set_code
+                  and bl.difficulty = i.difficulty)`;
   return t;
 }
 
@@ -248,7 +248,7 @@ export type QuestionPage = ItemRow & {
 // and which question took its place.
 export async function questionPage(key: string): Promise<QuestionPage | undefined> {
   const rows = await sql<QuestionPage[]>`
-    select ${itemColumns()}, r.band, s.difficulty -> i.difficulty ->> 'words' as level_words,
+    select ${itemColumns()}, r.band, l.looks_like as level_words,
            i.generator, i.skill_set_version, i.created_at,
            (select count(distinct x.child_id)::int from item_exposure x where x.item_id = i.id) as children,
            (select o.item_key from item o where o.id = i.corrected_from) as corrected_from_key,
@@ -259,7 +259,7 @@ export async function questionPage(key: string): Promise<QuestionPage | undefine
                      where t.source = 'library' and t.retired_at is null and i.id = any(t.item_ids)), '{}') as worksheets
     from item i
     join rung r on r.tenant_id = i.tenant_id and r.code = i.rung_code
-    left join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code
+    left join skill_level l on l.tenant_id = i.tenant_id and l.skill_code = i.skill_set_code and l.difficulty = i.difficulty
     left join lateral (select actor, note from item_feedback
                        where item_id = i.id and verdict = 'retire' order by created_at desc limit 1) f on true
     where i.item_key = current_item_key(${key}) and i.source = 'generated'`; // a key it had before leads to it (ADR 0053)

@@ -11,6 +11,7 @@ from engine.assess.items import Item, Response
 from engine.assess.layout import WORKING_LINES
 from engine.assess.pick import Sheet, sheet_id
 from engine.assess.render import render_sheet
+from engine.core import levels
 from engine.w1_bank import cases, kinds
 
 
@@ -40,14 +41,14 @@ def coverage(conn):
     # every level a skill in use defines — a skill may have fewer than four (1-digit − 1-digit has no Hard)
     rows = conn.execute(
         "select s.code, d.difficulty, coalesce(i.n, 0) as n,"
-        " coalesce((s.difficulty -> d.difficulty ->> 'min_items')::int, " + str(need) + ") as target"
+        " coalesce((l.rule ->> 'min_items')::int, " + str(need) + ") as target"
         " from skill_set s"
         " join (select tenant_id, code as difficulty, ord from difficulty) d on d.tenant_id = s.tenant_id"
+        " join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code and l.difficulty = d.difficulty"
         " left join ("
         "   select skill_set_code, difficulty, count(*) as n from item"
         "   where status = 'active' group by skill_set_code, difficulty"
         " ) i on i.skill_set_code = s.code and i.difficulty = d.difficulty"
-        " where s.difficulty ? d.difficulty"
         " order by s.code, d.ord"
     ).fetchall()
     return _within_what_it_can_make(conn, rows)
@@ -57,9 +58,7 @@ def _within_what_it_can_make(conn, rows):
     """A level whose kinds are rows (ADR 0075) counts the different questions it can make; its target is the smaller of
     its own and that, so it is filled to all it can make and never asked for repeats ("three numbers of 2 to 5 with a
     product up to 30" make 26). Every row says `can_make`: None where the level does not count."""
-    rules = {
-        r["code"]: r["difficulty"] for r in conn.execute("select code, difficulty from skill_set").fetchall()
-    }
+    rules = levels.every(conn)
     held = kinds.of(conn)
     out = []
     for r in rows:
