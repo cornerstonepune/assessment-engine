@@ -33,6 +33,10 @@ FILLED_TABLES = (
     "config",
     "skill_set",
     "skill_level",
+    "skill_level_sample",
+    "skill_mistake",
+    "skill_registry_link",
+    "skill_prerequisite",
     "subject",
     "topic",
     "question_format",
@@ -342,6 +346,17 @@ def _subjects(conn: db.Conn, t: db.Id) -> None:
         )
 
 
+def _prerequisites(conn: db.Conn, t: db.Id) -> None:
+    """What comes before each skill, drafted from the seed once: only while the school has none. After that the rows are
+    a person's, and a prerequisite they removed is never put back (B3-3, ADR 0092)."""
+    conn.execute(
+        "insert into skill_prerequisite (tenant_id, skill_code, before_code)"
+        " select %s, x.skill, x.after from jsonb_to_recordset(%s::jsonb) x(skill text, after text)"
+        " where not exists (select 1 from skill_prerequisite p where p.tenant_id = %s)",
+        (t, json.dumps(settings.seed("skill_prerequisites.json", "skill_prerequisites")), t),
+    )
+
+
 def load_all() -> dict[str, int]:
     with db.connect() as conn:
         t = _tenant(conn)
@@ -361,6 +376,7 @@ def load_all() -> dict[str, int]:
         topics.load(conn, t, settings.seed)
         question_formats.load(conn, t, settings.seed)
         asks.load(conn, t, settings.seed)
+        _prerequisites(conn, t)
         conn.commit()
         return db.counts(conn, FILLED_TABLES)
 

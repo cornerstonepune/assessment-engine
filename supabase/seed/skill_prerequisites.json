@@ -1,0 +1,673 @@
+{
+  "_note": "What comes before each skill (goals/b3-samples-mistakes-prerequisites.yaml, decision B3-3, ADR 0092): drafted from the ladder's grades, a skill after every skill of its topic on the nearest grade below its own. `engine load` inserts these once; after that the rows are a person's (Achal corrects them in the rows).",
+  "skill_prerequisites": [
+    {
+      "skill": "ADD.2D1D",
+      "after": "ADD.1D1D"
+    },
+    {
+      "skill": "ADD.2D1D",
+      "after": "SUB.1D1D"
+    },
+    {
+      "skill": "ADD.2D2D",
+      "after": "ADD.1D1D"
+    },
+    {
+      "skill": "ADD.2D2D",
+      "after": "SUB.1D1D"
+    },
+    {
+      "skill": "SUB.2D1D",
+      "after": "ADD.1D1D"
+    },
+    {
+      "skill": "SUB.2D1D",
+      "after": "SUB.1D1D"
+    },
+    {
+      "skill": "SUB.2D2D",
+      "after": "ADD.1D1D"
+    },
+    {
+      "skill": "SUB.2D2D",
+      "after": "SUB.1D1D"
+    },
+    {
+      "skill": "ADD.3D1D",
+      "after": "ADD.2D1D"
+    },
+    {
+      "skill": "ADD.3D1D",
+      "after": "ADD.2D2D"
+    },
+    {
+      "skill": "ADD.3D1D",
+      "after": "SUB.2D1D"
+    },
+    {
+      "skill": "ADD.3D1D",
+      "after": "SUB.2D2D"
+    },
+    {
+      "skill": "ADD.3D1D",
+      "after": "MENTAL.BRIDGE_EQ"
+    },
+    {
+      "skill": "ADD.3D1D",
+      "after": "EQUALITY.INVERSE"
+    },
+    {
+      "skill": "ADD.3D1D",
+      "after": "WORD.1_2STEP"
+    },
+    {
+      "skill": "ADD.3D1D",
+      "after": "REASON.FIND_MISTAKE"
+    },
+    {
+      "skill": "ADD.3D1D",
+      "after": "REASON.EXPLAIN"
+    },
+    {
+      "skill": "ADD.3D2D",
+      "after": "ADD.2D1D"
+    },
+    {
+      "skill": "ADD.3D2D",
+      "after": "ADD.2D2D"
+    },
+    {
+      "skill": "ADD.3D2D",
+      "after": "SUB.2D1D"
+    },
+    {
+      "skill": "ADD.3D2D",
+      "after": "SUB.2D2D"
+    },
+    {
+      "skill": "ADD.3D2D",
+      "after": "MENTAL.BRIDGE_EQ"
+    },
+    {
+      "skill": "ADD.3D2D",
+      "after": "EQUALITY.INVERSE"
+    },
+    {
+      "skill": "ADD.3D2D",
+      "after": "WORD.1_2STEP"
+    },
+    {
+      "skill": "ADD.3D2D",
+      "after": "REASON.FIND_MISTAKE"
+    },
+    {
+      "skill": "ADD.3D2D",
+      "after": "REASON.EXPLAIN"
+    },
+    {
+      "skill": "ADD.3D3D",
+      "after": "ADD.2D1D"
+    },
+    {
+      "skill": "ADD.3D3D",
+      "after": "ADD.2D2D"
+    },
+    {
+      "skill": "ADD.3D3D",
+      "after": "SUB.2D1D"
+    },
+    {
+      "skill": "ADD.3D3D",
+      "after": "SUB.2D2D"
+    },
+    {
+      "skill": "ADD.3D3D",
+      "after": "MENTAL.BRIDGE_EQ"
+    },
+    {
+      "skill": "ADD.3D3D",
+      "after": "EQUALITY.INVERSE"
+    },
+    {
+      "skill": "ADD.3D3D",
+      "after": "WORD.1_2STEP"
+    },
+    {
+      "skill": "ADD.3D3D",
+      "after": "REASON.FIND_MISTAKE"
+    },
+    {
+      "skill": "ADD.3D3D",
+      "after": "REASON.EXPLAIN"
+    },
+    {
+      "skill": "ADD.MANY",
+      "after": "ADD.2D1D"
+    },
+    {
+      "skill": "ADD.MANY",
+      "after": "ADD.2D2D"
+    },
+    {
+      "skill": "ADD.MANY",
+      "after": "SUB.2D1D"
+    },
+    {
+      "skill": "ADD.MANY",
+      "after": "SUB.2D2D"
+    },
+    {
+      "skill": "ADD.MANY",
+      "after": "MENTAL.BRIDGE_EQ"
+    },
+    {
+      "skill": "ADD.MANY",
+      "after": "EQUALITY.INVERSE"
+    },
+    {
+      "skill": "ADD.MANY",
+      "after": "WORD.1_2STEP"
+    },
+    {
+      "skill": "ADD.MANY",
+      "after": "REASON.FIND_MISTAKE"
+    },
+    {
+      "skill": "ADD.MANY",
+      "after": "REASON.EXPLAIN"
+    },
+    {
+      "skill": "SUB.3D1D",
+      "after": "ADD.2D1D"
+    },
+    {
+      "skill": "SUB.3D1D",
+      "after": "ADD.2D2D"
+    },
+    {
+      "skill": "SUB.3D1D",
+      "after": "SUB.2D1D"
+    },
+    {
+      "skill": "SUB.3D1D",
+      "after": "SUB.2D2D"
+    },
+    {
+      "skill": "SUB.3D1D",
+      "after": "MENTAL.BRIDGE_EQ"
+    },
+    {
+      "skill": "SUB.3D1D",
+      "after": "EQUALITY.INVERSE"
+    },
+    {
+      "skill": "SUB.3D1D",
+      "after": "WORD.1_2STEP"
+    },
+    {
+      "skill": "SUB.3D1D",
+      "after": "REASON.FIND_MISTAKE"
+    },
+    {
+      "skill": "SUB.3D1D",
+      "after": "REASON.EXPLAIN"
+    },
+    {
+      "skill": "SUB.3D2D",
+      "after": "ADD.2D1D"
+    },
+    {
+      "skill": "SUB.3D2D",
+      "after": "ADD.2D2D"
+    },
+    {
+      "skill": "SUB.3D2D",
+      "after": "SUB.2D1D"
+    },
+    {
+      "skill": "SUB.3D2D",
+      "after": "SUB.2D2D"
+    },
+    {
+      "skill": "SUB.3D2D",
+      "after": "MENTAL.BRIDGE_EQ"
+    },
+    {
+      "skill": "SUB.3D2D",
+      "after": "EQUALITY.INVERSE"
+    },
+    {
+      "skill": "SUB.3D2D",
+      "after": "WORD.1_2STEP"
+    },
+    {
+      "skill": "SUB.3D2D",
+      "after": "REASON.FIND_MISTAKE"
+    },
+    {
+      "skill": "SUB.3D2D",
+      "after": "REASON.EXPLAIN"
+    },
+    {
+      "skill": "SUB.3D3D",
+      "after": "ADD.2D1D"
+    },
+    {
+      "skill": "SUB.3D3D",
+      "after": "ADD.2D2D"
+    },
+    {
+      "skill": "SUB.3D3D",
+      "after": "SUB.2D1D"
+    },
+    {
+      "skill": "SUB.3D3D",
+      "after": "SUB.2D2D"
+    },
+    {
+      "skill": "SUB.3D3D",
+      "after": "MENTAL.BRIDGE_EQ"
+    },
+    {
+      "skill": "SUB.3D3D",
+      "after": "EQUALITY.INVERSE"
+    },
+    {
+      "skill": "SUB.3D3D",
+      "after": "WORD.1_2STEP"
+    },
+    {
+      "skill": "SUB.3D3D",
+      "after": "REASON.FIND_MISTAKE"
+    },
+    {
+      "skill": "SUB.3D3D",
+      "after": "REASON.EXPLAIN"
+    },
+    {
+      "skill": "ADD.4D",
+      "after": "ADD.3D1D"
+    },
+    {
+      "skill": "ADD.4D",
+      "after": "ADD.3D2D"
+    },
+    {
+      "skill": "ADD.4D",
+      "after": "ADD.3D3D"
+    },
+    {
+      "skill": "ADD.4D",
+      "after": "ADD.MANY"
+    },
+    {
+      "skill": "ADD.4D",
+      "after": "SUB.3D1D"
+    },
+    {
+      "skill": "ADD.4D",
+      "after": "SUB.3D2D"
+    },
+    {
+      "skill": "ADD.4D",
+      "after": "SUB.3D3D"
+    },
+    {
+      "skill": "ADD.4D",
+      "after": "MISSING.DIGIT"
+    },
+    {
+      "skill": "ADD.4D",
+      "after": "ESTIMATE.ROUND10"
+    },
+    {
+      "skill": "ADD.4D",
+      "after": "ESTIMATE.HUNDRED"
+    },
+    {
+      "skill": "SUB.4D",
+      "after": "ADD.3D1D"
+    },
+    {
+      "skill": "SUB.4D",
+      "after": "ADD.3D2D"
+    },
+    {
+      "skill": "SUB.4D",
+      "after": "ADD.3D3D"
+    },
+    {
+      "skill": "SUB.4D",
+      "after": "ADD.MANY"
+    },
+    {
+      "skill": "SUB.4D",
+      "after": "SUB.3D1D"
+    },
+    {
+      "skill": "SUB.4D",
+      "after": "SUB.3D2D"
+    },
+    {
+      "skill": "SUB.4D",
+      "after": "SUB.3D3D"
+    },
+    {
+      "skill": "SUB.4D",
+      "after": "MISSING.DIGIT"
+    },
+    {
+      "skill": "SUB.4D",
+      "after": "ESTIMATE.ROUND10"
+    },
+    {
+      "skill": "SUB.4D",
+      "after": "ESTIMATE.HUNDRED"
+    },
+    {
+      "skill": "MENTAL.BRIDGE_EQ",
+      "after": "ADD.1D1D"
+    },
+    {
+      "skill": "MENTAL.BRIDGE_EQ",
+      "after": "SUB.1D1D"
+    },
+    {
+      "skill": "EQUALITY.INVERSE",
+      "after": "ADD.1D1D"
+    },
+    {
+      "skill": "EQUALITY.INVERSE",
+      "after": "SUB.1D1D"
+    },
+    {
+      "skill": "MISSING.DIGIT",
+      "after": "ADD.2D1D"
+    },
+    {
+      "skill": "MISSING.DIGIT",
+      "after": "ADD.2D2D"
+    },
+    {
+      "skill": "MISSING.DIGIT",
+      "after": "SUB.2D1D"
+    },
+    {
+      "skill": "MISSING.DIGIT",
+      "after": "SUB.2D2D"
+    },
+    {
+      "skill": "MISSING.DIGIT",
+      "after": "MENTAL.BRIDGE_EQ"
+    },
+    {
+      "skill": "MISSING.DIGIT",
+      "after": "EQUALITY.INVERSE"
+    },
+    {
+      "skill": "MISSING.DIGIT",
+      "after": "WORD.1_2STEP"
+    },
+    {
+      "skill": "MISSING.DIGIT",
+      "after": "REASON.FIND_MISTAKE"
+    },
+    {
+      "skill": "MISSING.DIGIT",
+      "after": "REASON.EXPLAIN"
+    },
+    {
+      "skill": "STRATEGY.EFFICIENT",
+      "after": "ADD.3D1D"
+    },
+    {
+      "skill": "STRATEGY.EFFICIENT",
+      "after": "ADD.3D2D"
+    },
+    {
+      "skill": "STRATEGY.EFFICIENT",
+      "after": "ADD.3D3D"
+    },
+    {
+      "skill": "STRATEGY.EFFICIENT",
+      "after": "ADD.MANY"
+    },
+    {
+      "skill": "STRATEGY.EFFICIENT",
+      "after": "SUB.3D1D"
+    },
+    {
+      "skill": "STRATEGY.EFFICIENT",
+      "after": "SUB.3D2D"
+    },
+    {
+      "skill": "STRATEGY.EFFICIENT",
+      "after": "SUB.3D3D"
+    },
+    {
+      "skill": "STRATEGY.EFFICIENT",
+      "after": "MISSING.DIGIT"
+    },
+    {
+      "skill": "STRATEGY.EFFICIENT",
+      "after": "ESTIMATE.ROUND10"
+    },
+    {
+      "skill": "STRATEGY.EFFICIENT",
+      "after": "ESTIMATE.HUNDRED"
+    },
+    {
+      "skill": "ESTIMATE.ROUND10",
+      "after": "ADD.2D1D"
+    },
+    {
+      "skill": "ESTIMATE.ROUND10",
+      "after": "ADD.2D2D"
+    },
+    {
+      "skill": "ESTIMATE.ROUND10",
+      "after": "SUB.2D1D"
+    },
+    {
+      "skill": "ESTIMATE.ROUND10",
+      "after": "SUB.2D2D"
+    },
+    {
+      "skill": "ESTIMATE.ROUND10",
+      "after": "MENTAL.BRIDGE_EQ"
+    },
+    {
+      "skill": "ESTIMATE.ROUND10",
+      "after": "EQUALITY.INVERSE"
+    },
+    {
+      "skill": "ESTIMATE.ROUND10",
+      "after": "WORD.1_2STEP"
+    },
+    {
+      "skill": "ESTIMATE.ROUND10",
+      "after": "REASON.FIND_MISTAKE"
+    },
+    {
+      "skill": "ESTIMATE.ROUND10",
+      "after": "REASON.EXPLAIN"
+    },
+    {
+      "skill": "ESTIMATE.HUNDRED",
+      "after": "ADD.2D1D"
+    },
+    {
+      "skill": "ESTIMATE.HUNDRED",
+      "after": "ADD.2D2D"
+    },
+    {
+      "skill": "ESTIMATE.HUNDRED",
+      "after": "SUB.2D1D"
+    },
+    {
+      "skill": "ESTIMATE.HUNDRED",
+      "after": "SUB.2D2D"
+    },
+    {
+      "skill": "ESTIMATE.HUNDRED",
+      "after": "MENTAL.BRIDGE_EQ"
+    },
+    {
+      "skill": "ESTIMATE.HUNDRED",
+      "after": "EQUALITY.INVERSE"
+    },
+    {
+      "skill": "ESTIMATE.HUNDRED",
+      "after": "WORD.1_2STEP"
+    },
+    {
+      "skill": "ESTIMATE.HUNDRED",
+      "after": "REASON.FIND_MISTAKE"
+    },
+    {
+      "skill": "ESTIMATE.HUNDRED",
+      "after": "REASON.EXPLAIN"
+    },
+    {
+      "skill": "WORD.1_2STEP",
+      "after": "ADD.1D1D"
+    },
+    {
+      "skill": "WORD.1_2STEP",
+      "after": "SUB.1D1D"
+    },
+    {
+      "skill": "WORD.BUDGET",
+      "after": "ADD.3D1D"
+    },
+    {
+      "skill": "WORD.BUDGET",
+      "after": "ADD.3D2D"
+    },
+    {
+      "skill": "WORD.BUDGET",
+      "after": "ADD.3D3D"
+    },
+    {
+      "skill": "WORD.BUDGET",
+      "after": "ADD.MANY"
+    },
+    {
+      "skill": "WORD.BUDGET",
+      "after": "SUB.3D1D"
+    },
+    {
+      "skill": "WORD.BUDGET",
+      "after": "SUB.3D2D"
+    },
+    {
+      "skill": "WORD.BUDGET",
+      "after": "SUB.3D3D"
+    },
+    {
+      "skill": "WORD.BUDGET",
+      "after": "MISSING.DIGIT"
+    },
+    {
+      "skill": "WORD.BUDGET",
+      "after": "ESTIMATE.ROUND10"
+    },
+    {
+      "skill": "WORD.BUDGET",
+      "after": "ESTIMATE.HUNDRED"
+    },
+    {
+      "skill": "REASON.FIND_MISTAKE",
+      "after": "ADD.1D1D"
+    },
+    {
+      "skill": "REASON.FIND_MISTAKE",
+      "after": "SUB.1D1D"
+    },
+    {
+      "skill": "REASON.EXPLAIN",
+      "after": "ADD.1D1D"
+    },
+    {
+      "skill": "REASON.EXPLAIN",
+      "after": "SUB.1D1D"
+    },
+    {
+      "skill": "MUL.MODELS",
+      "after": "MUL.GROUPS"
+    },
+    {
+      "skill": "MUL.FACTS",
+      "after": "MUL.GROUPS"
+    },
+    {
+      "skill": "MUL.TENS",
+      "after": "MUL.MODELS"
+    },
+    {
+      "skill": "MUL.TENS",
+      "after": "MUL.FACTS"
+    },
+    {
+      "skill": "MUL.TENS",
+      "after": "MUL.THREE"
+    },
+    {
+      "skill": "MUL.TENS",
+      "after": "MUL.2D1D"
+    },
+    {
+      "skill": "MUL.THREE",
+      "after": "MUL.GROUPS"
+    },
+    {
+      "skill": "MUL.2D1D",
+      "after": "MUL.GROUPS"
+    },
+    {
+      "skill": "MUL.3D1D",
+      "after": "MUL.TENS"
+    },
+    {
+      "skill": "MUL.2D2D",
+      "after": "MUL.TENS"
+    },
+    {
+      "skill": "DIV.TENS",
+      "after": "MD.EQUALITY"
+    },
+    {
+      "skill": "DIV.3D1D",
+      "after": "MD.EQUALITY"
+    },
+    {
+      "skill": "MD.ESTIMATE",
+      "after": "MD.EQUALITY"
+    },
+    {
+      "skill": "MD.EQUALITY",
+      "after": "DIV.GROUPS"
+    },
+    {
+      "skill": "MD.EQUALITY",
+      "after": "DIV.FACTS"
+    },
+    {
+      "skill": "MD.EQUALITY",
+      "after": "DIV.2D1D"
+    },
+    {
+      "skill": "MD.EQUALITY",
+      "after": "MD.MENTAL"
+    },
+    {
+      "skill": "MD.EQUALITY",
+      "after": "MD.WORD"
+    },
+    {
+      "skill": "MD.MULTIPLES",
+      "after": "MUL.NTH"
+    }
+  ]
+}
