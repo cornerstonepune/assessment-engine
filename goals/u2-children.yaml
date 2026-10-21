@@ -17,7 +17,7 @@ says:
   - words: "the next paper proposed with an Approve button"
     proved_by: apps/web/tests/u2-children.spec.ts::the engine proposes the next paper and a teacher approves it, once, in their own name
   - words: "The teacher always approves"
-    proved_by: packages/engine/tests/test_focus_paper.py::test_the_paper_is_approved_in_the_name_of_whoever_made_it_and_only_once_a_week
+    proved_by: packages/engine/tests/test_focus_paper.py::test_the_paper_is_approved_in_the_name_of_whoever_made_it
   - words: "and their papers"
     proved_by: apps/web/tests/u2-children.spec.ts::a child's page lists every paper made for them or read from them, with its purpose and who approved it
 manual:

@@ -159,7 +159,8 @@ export default async function PapersPage({ searchParams }: Props) {
             aria-current={!f.stage ? "page" : undefined}>
             Every stage <span className="fact ml-1 opacity-70">{all}</span>
           </Link>
-          {STAGES.map((s) => (
+          {/* replaced is said only where there is one: a week with no home assessment made again shows no empty chip */}
+          {STAGES.filter((s) => s !== "replaced" || stages[s] || f.stage === s).map((s) => (
             <Link key={s} href={query(f, { stage: s })} className={`chip ${f.stage === s ? "on" : ""}`}
               aria-current={f.stage === s ? "page" : undefined}>
               {STAGE_WORDS[s][0].toUpperCase() + STAGE_WORDS[s].slice(1)} <span className="fact ml-1 opacity-70">{stages[s]}</span>

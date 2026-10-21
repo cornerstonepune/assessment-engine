@@ -60,6 +60,30 @@ def test_every_kind_the_maker_prints_is_read_back_onto_each_childs_own_copy(
         assert _counted(conn, child, mistake) == planted, f"{kind}: {qr}'s mistakes counted once signed off"
 
 
+def test_a_home_assessment_made_again_in_the_week_leaves_the_earlier_one_readable_as_itself(
+    conn, two, tmp_path, monkeypatch, every_kind_trusted
+):
+    """Nimish, 2026-10-21: an educator may make the week's home assessment again. A child who does the earlier paper
+    anyway is read and marked on that paper, by its own code, against its own questions."""
+    earlier = maker.make(conn, SECTION, two[:1], WEEK, "focus", "each", BY, ASK)["qrs"][0]
+    newer = maker.make(conn, SECTION, two[:1], WEEK, "focus", "each", BY, ASK)["qrs"][0]
+    assert newer != earlier
+    copy = _items(conn, earlier)
+    mistake, on = _planted(_slots(conn, copy["item_ids"]))
+    assert on, f"no question on {earlier} can show a mistake"
+    planted = _round(conn, copy["child_id"], earlier, copy["pdf_path"], copy["item_ids"], mistake,
+                     tmp_path / "earlier.pdf", monkeypatch, f"earlier home assessment, {earlier}")  # fmt: skip
+    assert _counted(conn, copy["child_id"], mistake) == planted, (
+        "the earlier paper's mistakes counted once signed off"
+    )
+    read = conn.execute(
+        "select si.qr_code from capture k join sheet_instance si on si.id = k.sheet_instance_id"
+        " where si.child_id = %s and si.week = %s and k.superseded_by is null",
+        (copy["child_id"], WEEK),
+    ).fetchall()
+    assert [r["qr_code"] for r in read] == [earlier], "read as the earlier paper, not the newer one"
+
+
 def test_a_copy_whose_printed_page_is_not_kept_is_named_with_why_and_the_rest_of_the_pile_is_read(
     conn,
     two,

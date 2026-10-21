@@ -13,7 +13,7 @@ made one of three ways:
 Every paper is drawn and printed as a child's home paper is (`focus_paper`): a template of its own, its own code, its
 questions recorded as seen, its kind, class and week on the copy, approved in the educator's name — so it lands in
 Papers and in the class's pack for that week and kind. `plan` writes nothing and is exactly what `make` prints. A home
-assessment is one a child a week, whoever chose it.
+assessment made again the same week replaces the earlier one as the week's (`focus_paper.approved`), whoever chose it.
 """
 
 import random
@@ -89,11 +89,6 @@ def _plan(conn, kids, section, week, kind, way, ask, changed) -> dict:
     for k in kids:
         cid = str(k["id"])
         try:
-            had = focus_paper.approved(conn, cid, week) if kind == "focus" else None
-            if had:
-                raise ValueError(
-                    f"already has this week's home assessment: {had['qr']} by {had['approved_by']}"
-                )
             mine = changed.get(cid) or (ask if way == "each" else None)
             p = shared or focus_paper.plan(conn, cid, week, mine, frozenset(taken))
             if not p["n"]:
@@ -115,7 +110,7 @@ def make(conn, section, children, week, kind, way, by, ask=None, changed=None) -
     whose paper cannot be made, rather than printing some of the class."""
     if not by:
         raise ValueError("a paper is approved in a person's name")
-    # one batch at a time for a child: two educators making papers together cannot both print a child's week
+    # one batch at a time for a child: two educators' clicks together cannot print a child's paper at the same instant
     conn.execute("select id from child where id = any(%s::uuid[]) order by id for update", (list(children),))
     p = plan(conn, section, children, week, kind, way, ask, changed)
     if p["refused"]:
