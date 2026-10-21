@@ -1,5 +1,5 @@
 import Link from "@/components/link";
-import { LIBRARY_CODE } from "../../worksheets/[qr]/library-sheet";
+import { LIBRARY_CODE, sheetWords } from "../../worksheets/[qr]/library-sheet";
 import { Body, NotYet, PageHeader, Panel, Pill } from "@/components/shell";
 import { levels } from "@/lib/levels";
 import { RULE_WORDS, tableCounts } from "@/lib/queries";
@@ -7,7 +7,7 @@ import { spareSheets, unplanned, weekPlan, weeks, type WeekRow } from "@/lib/que
 import { approvePack, overrideChild } from "./actions";
 import { deadline } from "@/lib/deadline";
 import { requireStaff } from "@/lib/auth";
-import { scopeOf } from "@/lib/scope";
+import { isMine, scopeOf } from "@/lib/scope";
 import { weekWords } from "@/lib/week";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -22,6 +22,15 @@ export default async function ApprovePage({ searchParams }: Props) {
   const scope = scopeOf(me);
   const q = await searchParams;
   const all = await deadline(weeks(scope));
+  // a link to a class's week that is not on the list (another educator's class, or a week with nothing made) says so,
+  // rather than opening another class's week unannounced (goals/ux8a-numbers-true.yaml)
+  const asked = q.section && q.week && q.kind ? { section: q.section, week: q.week, kind: q.kind } : null;
+  const notListed =
+    asked && !all.some((w) => w.section === asked.section && w.week === asked.week && w.kind === asked.kind)
+      ? `${asked.section} · ${weekWords(asked.week)} · ${asked.kind}: ${
+          isMine(scope, asked.section) ? "no papers have been made for it" : "not one of your classes"
+        }.`
+      : null;
 
   if (all.length === 0) {
     const c = await deadline(tableCounts());
@@ -29,6 +38,7 @@ export default async function ApprovePage({ searchParams }: Props) {
       <>
         <Header />
         <Body>
+          {notListed ? <Notice tone="terracotta">{notListed}</Notice> : null}
           <NotYet
             what={[
               "One row per child: the level they are set, and the reason it was chosen.",
@@ -90,6 +100,11 @@ export default async function ApprovePage({ searchParams }: Props) {
     <>
       <Header />
       <Body>
+        {notListed ? (
+          <Notice tone="terracotta">
+            {notListed} Showing {current.section} · {weekWords(current.week)} · {current.kind} instead.
+          </Notice>
+        ) : null}
         {q.approved ? <Notice tone="neem">Approved. The pack is marked printed.</Notice> : null}
         {q.changed ? <Notice tone="neem">Changed. That child keeps this level until you change it again.</Notice> : null}
         {q.error === "override" ? (
@@ -163,8 +178,7 @@ export default async function ApprovePage({ searchParams }: Props) {
                 <div className="flex flex-wrap gap-2">
                   {spares.map((s) => (
                     <Link key={s.qr_code} href={`/worksheets/${s.qr_code}`} className="chip">
-                      <span className="fact">{s.qr_code}</span> · {s.difficulty}
-                      {s.worksheet ? ` · ${s.worksheet}` : ""}
+                      {s.difficulty} · <span className="fact">printed code {s.qr_code}</span>
                     </Link>
                   ))}
                 </div>
@@ -218,15 +232,17 @@ async function ChildPaper({ r, back }: { r: WeekRow; back: string }) {
         </span>
       </td>
       <td className="fact whitespace-nowrap">
-        <Link href={`/worksheets/${r.qr_code}`}>{r.qr_code}</Link>
+        {/* the paper by what it is, its printed code only to match a page in hand (goals/ux8b-papers-named.yaml) */}
+        <Link href={`/worksheets/${r.qr_code}`}>See the paper</Link>
+        {/* which library worksheet it is, by its number at that level; an old paper's name is its own */}
         {r.worksheet ? (
           <>
             {" · "}
-            {/* only a library worksheet has a page of its own; an old paper's name is just its name */}
-            {LIBRARY_CODE.test(r.worksheet) ? <Link href={`/worksheets/${r.worksheet}`}>{r.worksheet}</Link> : r.worksheet}
+            {LIBRARY_CODE.test(r.worksheet) ? <Link href={`/worksheets/${r.worksheet}`}>{sheetWords(r.worksheet)}</Link> : r.worksheet}
           </>
         ) : null}
         <span className="block text-[11.5px] text-basalt/55">{r.print_status === "printed" ? "approved and printed" : "to approve"}</span>
+        <span className="block text-[11.5px] text-basalt/55">printed code {r.qr_code}</span>
       </td>
       <td>
         <details>
@@ -248,7 +264,7 @@ async function ChildPaper({ r, back }: { r: WeekRow; back: string }) {
               <span className="label">Why</span>
               <input className="input" name="reason" maxLength={300} required />
             </label>
-            <button className="btn" type="submit">
+            <button className="btn secondary" type="submit">
               Change this child
             </button>
           </form>

@@ -96,7 +96,9 @@ export default async function LibraryPage({ searchParams }: Props) {
         <Proposals />
         <div className="h-[18px]" />
         {stock ? null : (
-          <Panel title={`What is in the bank${gradeWords ? ` for ${gradeWords}` : ""}`} aside={`${n(mineGrid.reduce((a, r) => a + r.n, 0))} ready`}>
+          <Panel title={`What is in the bank${gradeWords ? ` for ${gradeWords}` : ""}`} aside={`${n(mineGrid.reduce((a, r) => a + r.n, 0))} ready, of the skills taught${scope.classes ? " in your classes" : ""}`}>
+            {/* Curriculum counts every skill of a grade, taught or not, so the two totals differ (goals/ux8c-one-word.yaml) */}
+            <p className="note mb-3">Only skills taught are counted here; Curriculum counts every skill of the grade, taught or not.</p>
             <div className="overflow-x-auto">
               <table className="grid" aria-label={`${gradeWords || "Every grade"}: questions by skill`}>
                 <thead>

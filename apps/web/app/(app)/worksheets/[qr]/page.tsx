@@ -5,10 +5,11 @@ import { Answers, kindWords, Mistakes, Question } from "@/components/question";
 import { questionKinds } from "@/lib/question-types";
 import { Body, PageHeader, Panel, Pill } from "@/components/shell";
 import { RULE_WORDS } from "@/lib/queries";
+import { KIND_WORDS } from "@/lib/queries-papers";
 import { sql } from "@/lib/db";
 import { mistakeBook, paperItems, printedPaper, type PrintedPaper } from "@/lib/queries-bank";
 import { deadline } from "@/lib/deadline";
-import { LIBRARY_CODE, LibraryWorksheetPage } from "./library-sheet";
+import { LIBRARY_CODE, LibraryWorksheetPage, sheetWords } from "./library-sheet";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
 import { isMine, paperSection, scopeOf } from "@/lib/scope";
@@ -42,8 +43,8 @@ export default async function PaperPage({ params }: Props) {
     <>
       <PageHeader
         stage="Assessments · a printed paper"
-        title={`Paper ${p.qr_code}`}
-        sub="The printed page, how it was made, and its answer key."
+        title={paperTitle(p)}
+        sub={`Printed code ${p.qr_code}: the printed page, how it was made, and its answer key.`}
       />
       <Body>
         <Link href={back} className="mb-4 inline-block text-[13px]">
@@ -123,11 +124,18 @@ export default async function PaperPage({ params }: Props) {
   );
 }
 
+// A paper by what it tests, never by its printed code (goals/ux8b-papers-named.yaml): a home assessment drawn for one
+// child, each area at its own level, by its kind.
+function paperTitle(p: PrintedPaper): string {
+  if (p.difficulty) return `${p.skill_set_name} · ${p.difficulty}`;
+  return p.areas ? "Home assessment" : p.skill_set_name;
+}
+
 // A paper's facts, in the order they happened, one line each.
 function facts(p: PrintedPaper): [string, ReactNode][] {
   const pool = p.pool.toLocaleString("en-IN");
   return [
-    ["For", p.roll_no ? `Roll ${p.roll_no} · ${p.section} · ${p.week ? weekWords(p.week) : ""} ${p.kind}` : "A spare copy, no name — for a late child or a spoilt page"],
+    ["For", p.roll_no ? forWords(p) : "A spare copy, no name — for a late child or a spoilt page"],
     [
       "Tests",
       <>
@@ -158,8 +166,8 @@ function facts(p: PrintedPaper): [string, ReactNode][] {
         `${p.n_items} ${p.how ?? "drawn for this child"} — none they had been given before`
       ) : p.worksheet ? (
         <>
-          Worksheet <Link href={`/worksheets/${p.worksheet}`}>{p.worksheet}</Link> from the library, one of {p.worksheets} at this
-          level —{" "}
+          <Link href={`/worksheets/${p.worksheet}`}>{sheetWords(p.worksheet).replace("sheet", "Sheet")}</Link> of the library&rsquo;s{" "}
+          {p.worksheets} at this level —{" "}
           {p.roll_no
             ? `never sat by this child, none of its ${p.n_items} questions seen in ${p.window_days} days, none on a classmate's paper this week`
             : "not given to a named child this week"}
@@ -183,11 +191,26 @@ function facts(p: PrintedPaper): [string, ReactNode][] {
           Approved by {p.approved_by}; replaced by <Link href={`/worksheets/${p.replaced_by}`}>{p.replaced_by}</Link>, this week&rsquo;s
           home assessment. A copy that comes back is still read and marked as this paper.
         </>
-      ) : p.print_status === "printed" ? (
-        `Approved by ${p.approved_by}`
       ) : (
-        "Waiting for a teacher to approve the pack"
+        STATUS_WORDS[p.print_status]?.(p.approved_by) ?? p.print_status
       ),
     ],
   ];
 }
+
+// Who a paper is for, each part said only when the paper has it: an older paper has no week and no kind
+// (goals/ux8a-numbers-true.yaml).
+function forWords(p: PrintedPaper): string {
+  const kind = p.kind ? KIND_WORDS[p.kind]?.toLowerCase() : null;
+  return [`Roll ${p.roll_no}`, p.section, p.week ? weekWords(p.week) : null, kind].filter(Boolean).join(" · ");
+}
+
+// Where a paper stands, by its print status: a paper that came back is read, never "waiting for approval".
+const by = (who: string | null) => (who ? ` by ${who}` : "");
+const STATUS_WORDS: Record<string, (approvedBy: string | null) => string> = {
+  new: () => "Waiting for an educator to approve it before it prints",
+  printed: (who) => `Approved${by(who)} and printed`,
+  with_teacher: (who) => `Approved${by(who)}; with the children`,
+  returned: (who) => (who ? `Approved${by(who)}; came back and was read` : "Came back and was read"),
+  void: () => "Withdrawn: it will not be printed",
+};

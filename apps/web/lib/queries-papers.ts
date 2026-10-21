@@ -20,6 +20,16 @@ export const STAGE_WORDS: Record<Stage, string> = {
   replaced: "replaced by a newer one",
 };
 
+/** A paper as a person names it, as the list below names it: the skill and level it tests, else the school's own title;
+ *  a home assessment, each area at its own level, by its kind; a worksheet's code only where nothing else names it
+ *  (goals/ux8b-papers-named.yaml). `t` is the query's alias for the paper's `sheet_template`. */
+export const paperName = (t: string) => sql`
+  coalesce((select s.name || ' · ' || ${sql(t)}.difficulty from skill_set s
+             where s.tenant_id = ${sql(t)}.tenant_id and s.code = ${sql(t)}.skill_set_code),
+           ${sql(t)}.key ->> 'title',
+           case when ${sql(t)}.source = 'focus' then 'Home assessment' end,
+           ${sql(t)}.code)`;
+
 /** A paper's kind in the school's words; `earlier` is a paper sat before our QR sheets, which has no kind. */
 export const KIND_WORDS: Record<string, string> = {
   practice: "Class practice",

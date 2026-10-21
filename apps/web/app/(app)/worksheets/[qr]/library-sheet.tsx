@@ -13,6 +13,8 @@ import { kindsInWords } from "../library";
 import { dateWords } from "@/lib/week";
 
 export const LIBRARY_CODE = /^[RMX]\d{1,2}-[A-Z]\d{2,3}$/;
+/** A library worksheet as a person says it: its number among its skill's at its level, "sheet 3" for R22-H03. */
+export const sheetWords = (code: string) => `sheet ${Number(code.split("-").pop()!.slice(1))}`;
 
 
 // One worksheet from the library: what it practises, its twelve questions as the child meets them
@@ -28,9 +30,9 @@ export async function LibraryWorksheetPage({ code }: { code: string }) {
   return (
     <>
       <PageHeader
-        stage={`Curriculum · Worksheets · ${g.name(w.band)} · ${w.skill} · ${w.difficulty}`}
-        title={`Worksheet ${w.code}`}
-        sub={w.outcome}
+        stage={`Curriculum · Worksheets · ${g.name(w.band)}`}
+        title={`${w.skill} · ${w.difficulty} · ${sheetWords(w.code)}`}
+        sub={`Worksheet ${w.code}. ${w.outcome}`}
       />
       <Body>
         {w.retired_at ? (

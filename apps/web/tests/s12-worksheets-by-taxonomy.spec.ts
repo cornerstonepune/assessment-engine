@@ -27,7 +27,7 @@ test("the library reads case by case, each case with the worksheets that hold it
   const sheet = a01.getByRole("link", { name: code, exact: true });
   await expect(sheet).toBeVisible();
   await sheet.click();
-  await expect(page.getByRole("heading", { name: `Worksheet ${code}` })).toBeVisible();
+  await expect(page.getByText(`Worksheet ${code}.`)).toBeVisible();
 
   // a pattern that questions at many levels show is named as that, not as a gap
   await page.goto("/worksheets/taxonomy");

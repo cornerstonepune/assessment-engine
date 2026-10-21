@@ -150,6 +150,8 @@ export function PaperTable({ rows, withChild = false }: { rows: PaperRow[]; with
 
 // Every check teaches the reader about that child (ADR 0032); this says what the checks so far add up to, so the effort
 // can be seen to pay, and whether the reader is getting better: one table, by day first (`ReaderTable`).
+// It is the reader's record, in every class: its trust in a kind of question is earned across the school (`kind_trust`),
+// so it is never narrowed to a person's classes, and it says so beside their own counts (goals/ux8a-numbers-true.yaml).
 const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "—");
 
 export async function ReaderPanel({ r }: { r: ReaderReport }) {
@@ -157,9 +159,9 @@ export async function ReaderPanel({ r }: { r: ReaderReport }) {
   const read = r.days.filter((d) => d.stood_behind > 0); // newest first
   const [latest, first] = [read[0], read[read.length - 1]];
   return (
-    <Panel title="How the reader is doing" label="How the reader is doing" aside={`from ${r.checked} answers people have checked`}>
+    <Panel title="How the reader is doing" label="How the reader is doing" aside={`from ${r.checked} answers checked, in every class`}>
       <p className="text-[15px] leading-snug">
-        Checked by a person: {r.checked} answers. The reader was right on {r.right} of the {r.stood_behind} it stood behind ({pct(r.right, r.stood_behind)}),
+        In every class, people have checked {r.checked} answers the reader read. The reader was right on {r.right} of the {r.stood_behind} it stood behind ({pct(r.right, r.stood_behind)}),
         wrong on {r.stood_behind - r.right}, and gave up on {r.gave_up}{r.gave_up ? ` (its guess was right on ${r.guess_right})` : ""}.
         {first && latest && first !== latest
           ? ` On the first papers it read (${fmtDate(first.day)}) it was right on ${pct(first.right, first.stood_behind)}; on the latest (${fmtDate(latest.day)}), ${pct(latest.right, latest.stood_behind)}.`

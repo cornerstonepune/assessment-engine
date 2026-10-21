@@ -46,25 +46,25 @@ export default async function WeekDeclaration({ params, searchParams }: Props) {
     <>
       <PageHeader
         stage="Assessments · make"
-        title={`${section} · this week`}
+        title={`${section} · what the class did this week`}
         sub={`This week, ${weekWords(week)}. Say in your own words what the class did; the engine proposes the skills it covered, and you confirm.`}
       />
       <Body>
-        {q.confirmed ? <Notice tone="neem">This week is declared in your name. Its papers are made from it.</Notice> : null}
+        {q.confirmed ? <Notice tone="neem">Saved in your name. This week&rsquo;s papers are made from it.</Notice> : null}
         {q.error ? <Notice tone="terracotta">{q.error}</Notice> : null}
         <div className="mb-[18px]">
           <Link href={`/make/${encodeURIComponent(section)}`} className="chip">
-            ← {section}&rsquo;s papers
+            ← {section} · home assessments
           </Link>
         </div>
         {now ? (
-          <Panel title="Declared for this week" aside={`by ${now.by}`}>
+          <Panel title="What the class did this week" aside={`said by ${now.by}`}>
             <p className="text-[14px]">{now.note || "No note."}</p>
             <p className="mt-2 text-[14px]">Skills: {now.skill_sets.join(", ")}</p>
           </Panel>
         ) : null}
         <div className="h-[18px]" />
-        <Panel title={now ? "Declare it again" : "What did the class do this week?"}>
+        <Panel title={now ? "Say it again" : "What did the class do this week?"}>
           <form method="get" className="grid gap-2">
             <textarea name="note" defaultValue={note} rows={3} maxLength={2000} className="input" placeholder="e.g. exchanging in 2-digit subtraction, and a few story sums" />
             <div>

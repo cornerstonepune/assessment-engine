@@ -69,13 +69,15 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
   const corrected = answers.filter((a) => a.human_read !== null);
   const pages = [...new Set(answers.map((a) => a.page))].sort((x, y) => x - y);
 
-  // One lane per skill this paper touches: what it says about the child, before anyone drills in.
-  const lanes = [...new Set(answers.map((a) => a.skill_code))].map((code) => {
-    const rows = answers.filter((a) => a.skill_code === code);
+  // One lane per skill this paper touches: what it says about the child, before anyone drills in. A lane is the
+  // question's skill, by the name every other page gives it (goals/ux8b-papers-named.yaml).
+  const lane = (a: CaptureAnswer) => a.set_name ?? skillName[a.skill_code] ?? a.skill_code;
+  const lanes = [...new Set(answers.map(lane))].map((name) => {
+    const rows = answers.filter((a) => lane(a) === name);
     const marked = rows.filter(settled);
     return {
-      code,
-      name: skillName[code] ?? code,
+      code: name,
+      name,
       rows,
       right: marked.filter((a) => a.status === "correct").length,
       marked: marked.length,
@@ -89,7 +91,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
       <PageHeader
         stage={`Assessments · ${paper.section}`}
         title={`${paper.first_name} · ${paper.title ?? paper.paper}`}
-        sub={`Sat ${dateWords(paper.date)}. ${answers.length} answers on ${paper.pages} page${paper.pages === 1 ? "" : "s"}. The engine read what it could and flagged the rest; nothing here reaches ${paper.first_name}'s ladder until you sign it off.`}
+        sub={`${paper.date ? `Sat ${dateWords(paper.date)}. ` : ""}${answers.length} answers on ${paper.pages} page${paper.pages === 1 ? "" : "s"}. The engine read what it could and flagged the rest; nothing here reaches ${paper.first_name}'s ladder until you sign it off.`}
       />
       <Body>
         <p className="mb-4 flex flex-wrap gap-2">

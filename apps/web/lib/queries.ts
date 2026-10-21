@@ -2,6 +2,7 @@ import { cache } from "react";
 import { sql, TENANT_SLUG } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { skillTaughtFor, skillTaughtIn } from "./taught";
+import { paperName } from "./queries-papers";
 
 /** A level's name, a row of `difficulty` (lib/levels.ts). */
 export type Difficulty = string;
@@ -41,7 +42,7 @@ export async function gradeSpan(): Promise<string> {
     select g.name from grade g join tenant t on t.id = g.tenant_id and t.slug = ${TENANT_SLUG}
     where exists (select 1 from rung r where r.tenant_id = g.tenant_id and r.band = g.code)
     order by g.ord`;
-  return [...new Set([rows[0]?.name, rows.at(-1)?.name])].filter(Boolean).join("–");
+  return [...new Set([rows[0]?.name, rows.at(-1)?.name])].filter(Boolean).join(" to ");
 }
 
 /** Whether a class or child of `band` uses this level: its own grade's levels and those of the grades below
@@ -171,7 +172,7 @@ export async function tableCounts(): Promise<Record<string, number>> {
 export const RULE_WORDS: Record<string, string> = {
   band_default: "Not enough of their own work yet, so this is the starting level for their grade.",
   from_state: "From what this child's last papers showed.",
-  override: "A teacher set this by hand.",
+  override: "An educator set this by hand.",
 };
 
 // `classes`: the classes a person teaches, as `engine staff add --class` puts them (ADR 0073, D1); the coordinator's are every class.
@@ -239,6 +240,8 @@ export type PendingResult = {
   paper: string;
   date: string | null;
   item_key: string;
+  /** The question's number on its page, as the paper prints it: never the bank's key. */
+  slot: string;
   question: string;
   answer: string | null;
   read: string;
@@ -259,8 +262,8 @@ export type PendingResult = {
 
 export async function pendingResults(id: string): Promise<PendingResult[]> {
   return sql<PendingResult[]>`
-    select r.id, coalesce(t.key ->> 'title', t.code) as paper, coalesce(t.key ->> 'date', c.created_at::date::text) as date,
-           i.item_key, coalesce(i.spec ->> 'question', i.stem) as question, result_response(i.responses, r.rid) ->> 'answer' as answer,
+    select r.id, ${paperName("t")} as paper, coalesce(t.key ->> 'date', c.created_at::date::text) as date,
+           i.item_key, result_slot(i.item_key, r.raw_read::jsonb) as slot, coalesce(i.spec ->> 'question', i.stem) as question, result_response(i.responses, r.rid) ->> 'answer' as answer,
            r.capture_id, si.id as paper_id,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
@@ -286,6 +289,8 @@ export type Evidence = {
   date: string | null;
   paper: string;
   item_key: string;
+  /** The question's number on its page, as the paper prints it: never the bank's key. */
+  slot: string;
   question: string;
   answer: string | null;
   read: string;
@@ -300,7 +305,8 @@ export type Evidence = {
 // opened up to the work it rests on.
 export async function childEvidence(id: string): Promise<Evidence[]> {
   return sql<Evidence[]>`
-    select coalesce(i.rung_code, e.rung_code) as rung_code, e.skill_code, t.key ->> 'date' as date, coalesce(t.key ->> 'title', t.code) as paper, i.item_key,
+    select coalesce(i.rung_code, e.rung_code) as rung_code, e.skill_code, t.key ->> 'date' as date, ${paperName("t")} as paper, i.item_key,
+           result_slot(i.item_key, r.raw_read::jsonb) as slot,
            coalesce(i.spec ->> 'question', i.stem) as question,
            coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,

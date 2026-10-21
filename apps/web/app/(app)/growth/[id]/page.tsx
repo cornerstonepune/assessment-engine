@@ -182,7 +182,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
                         />
                         <div className="min-w-0">
                           <div className="label">
-                            {fmtDate(p.date)} · {p.paper} · page {p.page} · question {p.item_key.split("/").pop()}
+                            {fmtDate(p.date)} · {p.paper} · page {p.page} · question {p.slot}
                           </div>
                           <div className="mt-1 text-[14px] leading-snug">{p.question}</div>
                           <div className="mt-2 flex flex-wrap items-baseline gap-x-2 text-[13px]">
@@ -215,7 +215,8 @@ export default async function ChildPage({ params, searchParams }: Props) {
                   <AnswerTable rows={machine} names={names} />
                   <form action={confirmChild} className="mt-4">
                     <input type="hidden" name="child_id" value={id} />
-                    <button className="btn" type="submit">
+                    {/* the page's one main action is the home assessment's approval; this is outlined (goals/ux8d-phone-and-one-action.yaml) */}
+                    <button className="btn secondary" type="submit">
                       Sign off {machine.length} {machine.length === 1 ? "answer" : "answers"} as {me.name}
                     </button>
                     <p className="note mt-2">

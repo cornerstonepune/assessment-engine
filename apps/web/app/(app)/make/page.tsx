@@ -1,3 +1,4 @@
+import { many } from "@/lib/needs-you";
 import { redirect } from "next/navigation";
 import Link from "@/components/link";
 import { Body, PageHeader, Panel } from "@/components/shell";
@@ -39,6 +40,8 @@ export default async function MakePapers() {
                   <th className="num">Children</th>
                   <th className="num">Proposed</th>
                   <th className="num">Approved</th>
+                  {/* the rest of the class, so a zero above says why (goals/ux8b-papers-named.yaml) */}
+                  <th className="num">Not enough checked work yet</th>
                   <th></th>
                 </tr>
               </thead>
@@ -53,6 +56,9 @@ export default async function MakePapers() {
                     </td>
                     <td className="num" data-n="approved">
                       {c.approved}
+                    </td>
+                    <td className="num" data-n="too-few">
+                      {c.children - c.proposed - c.approved}
                     </td>
                     <td>
                       <Link href={`/make/${encodeURIComponent(c.section)}`}>Open</Link>
@@ -77,7 +83,7 @@ export default async function MakePapers() {
                     <Link href={`/papers/approve?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`}>
                       {p.section} · {weekWords(p.week)} · {p.kind === "assessment" ? "class assessment" : "class practice"}
                     </Link>{" "}
-                    <span className="text-basalt/62">— {p.n} papers</span>
+                    <span className="text-basalt/62">— {many(p.n, "paper")}</span>
                   </li>
                 ))}
               </ul>

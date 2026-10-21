@@ -55,7 +55,9 @@ test.beforeAll(async () => {
   }
   // three read papers, once: Asha's with two answers waiting, Bina's with nothing waiting, Dev's signed off
   const ws = await sql<{ id: string; item_ids: string[]; title: string }[]>`
-    select id, item_ids, coalesce(key ->> 'title', code) as title from sheet_template
+    -- a paper is named by its skill and level (goals/ux8b-papers-named.yaml)
+    select id, item_ids, (select s.name || ' · ' || t.difficulty from skill_set s where s.code = t.skill_set_code) as title
+    from sheet_template t
     where source = 'library' and retired_at is null and band = 'G2' and cardinality(item_ids) >= 3
     order by code limit 3`;
   const reads = {
