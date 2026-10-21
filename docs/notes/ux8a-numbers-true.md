@@ -13,7 +13,11 @@ audit in `docs/notes/ux8-every-screen.md` (#253): its findings 1–5, the number
   nothing of why.
 - After the change: `npx playwright test tests/u44-numbers-true.spec.ts tests/s4-validation-queue.spec.ts
   tests/u42-curriculum-for-the-educator.spec.ts`: 28 passed. tsc and eslint clean.
-- `bin/engine done ux8a-numbers-true`: RESULT_PENDING
+- `bin/engine done ux8a-numbers-true` (2026-10-21, on a fresh `bin/testdb fresh` database): all six of Nimish's
+  sentences PROVED; "every page still holds": 292 passed (11.0 min); `bin/check`: 28 passed. NOT DONE only because
+  the work is not on main or live yet. A first run on a database the suite had already filled twice failed u15 and u26:
+  Today lists the first five class packs, and their own packs had fallen into "and N more". On a fresh one, as CI
+  builds, both pass.
 
 ## Handoff
 
