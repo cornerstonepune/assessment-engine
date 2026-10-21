@@ -11,6 +11,13 @@ on:
     branches: [main]
   pull_request:
 
+# A pull request's newer push cancels its older run: the engine's shards take 14 of the jobs GitHub runs at once (20 on
+# its free plan), and two runs of one branch queued each other (2026-10-21). Every run on main finishes, since
+# migrate.yml and deploy-engine.yml start from each.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   # The engine's checks that need no database, beside the shards rather than before them.
   engine-checks:
@@ -124,9 +131,7 @@ jobs:
           for k in $(seq "$SHARDS"); do mv "../../shards/engine-shard-$k" "../../shards/$k" 2>/dev/null || true; done
           ../../bin/ci-shard check "$SHARDS" ../../shards
       - name: the whole suite's coverage, against the floor
-        run: |
-          uv run coverage combine --keep ../../shards/*/coverage.data
-          uv run coverage report --skip-covered
+        run: uv run coverage combine --keep ../../shards/*/coverage.data && uv run coverage report --skip-covered
       - name: every engine job passed
         if: always()
         run: |
