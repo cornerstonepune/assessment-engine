@@ -6,7 +6,7 @@ import { deciding, mustBeMine } from "@/lib/decides";
 import { childSection, resultSection } from "@/lib/scope";
 import { sql } from "@/lib/db";
 import { engineSend, markWhatTrustSettles } from "@/lib/engine";
-import { makePaper } from "@/lib/next-paper";
+import { makePaper, readDraw } from "@/lib/next-paper";
 
 const UUID = /^[0-9a-f-]{36}$/;
 
@@ -43,16 +43,21 @@ export async function resolveOne(formData: FormData): Promise<void> {
 
 /** A teacher approves the child's next paper, proposed from their own ladder (goals/s11-focus-paper.yaml,
  *  u2-children.yaml), or makes a new one in place of the week's (goals/home-assessment-remake.yaml). The engine
- *  proposes and prints; this is the approval, in the person's name. */
+ *  proposes and prints the questions the teacher saw (goals/preview-before-print.yaml); this is the approval, in the
+ *  person's name. */
 export async function approveNextPaper(formData: FormData): Promise<void> {
   const me = await deciding("home_papers");
   const id = String(formData.get("child_id") ?? "");
   const week = String(formData.get("week") ?? "");
   const replaces = String(formData.get("replaces") ?? "") || undefined;
-  if (!UUID.test(id) || !/^\d{4}-W\d{2}$/.test(week)) redirect("/growth");
+  const draw = readDraw(String(formData.get("draw") ?? ""));
+  const seen = String(formData.get("seen") ?? "");
+  if (!UUID.test(id) || !/^\d{4}-W\d{2}$/.test(week) || !seen) redirect("/growth");
   mustBeMine(me, "home_papers", [await childSection(id)]);
-  const qr = await makePaper(id, week, me.email, undefined, replaces);
+  const { qr, changed } = await makePaper(id, week, me.email, { draw, seen }, undefined, replaces);
   revalidatePath(`/growth/${id}`);
+  // the questions shown are no longer what would print: nothing printed, and the page shows them as they are now
+  if (changed) redirect(`/growth/${id}?draw=${draw}&changed=1`);
   // a colleague's click made a newer one first (or this one was clicked twice): the page shows who approved it
   redirect(qr ? `/growth/${id}?paper=${qr}` : `/growth/${id}`);
 }

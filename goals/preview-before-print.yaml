@@ -1,0 +1,41 @@
+name: preview-before-print
+goal: >
+  Before anything prints, an educator sees a paper's questions on screen, as they will appear, each under its skill and
+  level: per child, or once for a paper shared by the whole class. From there they print it, or ask for different
+  questions. Asking for different questions makes nothing: no sheet, no code, no approval, no question marked seen.
+  Printing after a preview prints exactly the questions previewed, never a fresh draw; when the paper would no longer be
+  those questions (a paper was made for the child meanwhile), nothing prints and the page says so. Every place a paper
+  is made from the website has this step: the home assessment on the child's page, a class's home assessments, a paper
+  chosen for one child, and Make papers.
+# Written 2026-10-21, before the code. The once-a-week lock went that morning (goals/home-assessment-remake.yaml); its
+# cause — an educator can see a paper's questions only by printing it — is this goal.
+# Not here: a library worksheet's questions are fixed, and its own page shows the worksheet before it prints for
+# children; a class's weekly pack is assembled first and approved on /papers/approve, child by child.
+says:
+  - words: "a teacher can only see the assessment when they print. They click on print just to see the assessment"
+    proved_by: apps/web/tests/p4-preview-before-print.spec.ts::the child's page shows the home assessment's questions before it prints, and different questions make no paper
+  - words: "a teacher can only see the assessment when they print"
+    proved_by: apps/web/tests/p4-preview-before-print.spec.ts::a class's home assessments show each child's questions before approval, and different questions make no paper
+  - words: "a teacher can only see the assessment when they print"
+    proved_by: apps/web/tests/p4-preview-before-print.spec.ts::a paper chosen for one child and Make papers show different questions without making a paper, and print the ones shown
+  - words: "after the printing is done, they feel like the assessment is not good"
+    proved_by: packages/engine/tests/test_seen.py::test_a_preview_and_different_questions_write_no_rows
+  - words: "that preview before printing starts"
+    proved_by: packages/engine/tests/test_seen.py::test_printing_after_a_preview_prints_exactly_the_questions_previewed
+  - words: "that preview before printing starts"
+    proved_by: packages/engine/tests/test_seen.py::test_a_class_batch_prints_exactly_the_papers_previewed_after_different_questions
+  - words: "that preview before printing starts"
+    proved_by: packages/engine/tests/test_seen.py::test_a_paper_whose_questions_changed_since_they_were_seen_is_refused_and_nothing_prints
+manual:
+  - "On live, once merged: open a child's page, read the home assessment's questions, press \"Different questions\" and see others; Assessments shows no new paper. Then approve it, and its printed page holds the questions last shown."
+scenarios: []
+criteria:
+  - name: a preview writes nothing; printing after it prints what it showed, or nothing
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_seen.py tests/test_focus_paper.py tests/test_maker.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

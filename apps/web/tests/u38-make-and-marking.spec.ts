@@ -143,10 +143,12 @@ test("each child waiting for a home assessment is one line with one next step, t
   await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Works on", "Why", "Next step"]);
   expect(await names(table.locator("tbody tr"))).toEqual(["Asha", "Bina", "Chetan"]);
   const cells = (who: string) => table.locator("tbody tr").filter({ hasText: who }).locator("td");
-  // what it works on opens the paper as it will print; the count every paper shares is not said on every line
+  // what it works on opens the paper as it will print; the count every paper shares is not said on every line, and its
+  // questions fold under it (goals/preview-before-print.yaml)
   await expect(cells("Asha").nth(2)).toContainText("2-digit − 2-digit");
   await expect(cells("Asha").nth(2).getByRole("link")).toHaveAttribute("href", new RegExp(`^/api/see/${kids.Asha}\\?week=`));
-  await expect(cells("Asha").nth(2)).not.toContainText("questions");
+  await expect(cells("Asha").nth(2)).not.toContainText(/\d+ questions/);
+  await expect(cells("Asha").nth(2).getByText("Its questions")).toBeVisible();
   // the why: the score, the rule and the mistake, never cut short, in two lines at most at a laptop's width
   await expect(cells("Asha").nth(3)).toContainText("the same mistake more than once: Subtracts the smaller digit");
   expect(await lines(cells("Asha").nth(3))).toBeLessThanOrEqual(2);

@@ -42,23 +42,25 @@ export async function proposedHomePapers(week = isoWeek(), scope: Scope = EVERY_
 }
 
 export type Proposal = {
-  areas: { name: string; level: string; why: string; questions: unknown[] }[];
+  areas: { name: string; level: string; why: string; questions: { item_key: string; text: string }[] }[];
+  /** the engine's code for the questions shown, which the approval names back (goals/preview-before-print.yaml) */
+  seen: string;
   approved: { qr: string; approved_by: string; replaced: string[] } | null;
 };
 
 export type ClassChild = { id: string; roll_no: string; first_name: string; proposal: Proposal };
 
-/** A class's children with the home paper the engine proposes for each, or the one already approved. Names come
- *  through pii.read_child, which logs who asked. */
-export async function classHome(section: string, actor: string, week = isoWeek()): Promise<ClassChild[]> {
+/** A class's children with the home paper the engine proposes for each — in the draw asked for (`draws`, by child:
+ *  "Different questions") — or the one already approved. Names come through pii.read_child, which logs who asked. */
+export async function classHome(section: string, actor: string, week = isoWeek(), draws: Record<string, number> = {}): Promise<ClassChild[]> {
   const children = await sql<{ id: string; roll_no: string; first_name: string }[]>`
     select c.id, c.roll_no, p.first_name from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active and c.section = ${section}
     order by roll_order(c.roll_no), c.roll_no`;
   return Promise.all(
     children.map(async (c) => {
-      const res = await engineGet(`/child/${c.id}/focus?week=${week}`);
-      const proposal = res.ok ? ((await res.json()) as Proposal) : { areas: [], approved: null };
+      const res = await engineGet(`/child/${c.id}/focus?week=${week}&draw=${draws[c.id] ?? 0}`);
+      const proposal = res.ok ? ((await res.json()) as Proposal) : { areas: [], seen: "", approved: null };
       return { ...c, proposal };
     }),
   );

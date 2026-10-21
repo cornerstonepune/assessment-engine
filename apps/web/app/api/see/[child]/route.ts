@@ -1,9 +1,10 @@
 // A child's paper exactly as it will print, before anyone approves it: the home paper the engine proposes, or,
-// with `a` (skill~level~n, repeated), the paper a teacher is choosing. The engine renders it and saves nothing.
+// with `a` (skill~level~n, repeated), the paper a teacher is choosing; `draw`, the different questions they asked for.
+// The engine renders it and saves nothing.
 import { currentStaff } from "@/lib/auth";
 import { childSection, isMine, notYoursResponse, scopeOf } from "@/lib/scope";
 import { EngineDown, engineGet, engineSend } from "@/lib/engine";
-import { readArea } from "@/lib/next-paper";
+import { readArea, readDraw } from "@/lib/next-paper";
 
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -16,10 +17,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ chil
   if (!ID.test(child) || !week) return new Response("no such paper", { status: 404 });
   if (!isMine(scopeOf(me), await childSection(child))) return notYoursResponse();
   const areas = q.getAll("a").map(readArea).filter((a) => a !== null);
+  const draw = readDraw(q.get("draw"));
   try {
     const res = areas.length
-      ? await engineSend(`/child/${child}/paper/plan.pdf`, { week, by: me.email, areas })
-      : await engineGet(`/child/${child}/focus/paper.pdf?week=${encodeURIComponent(week)}&by=${encodeURIComponent(me.email)}`);
+      ? await engineSend(`/child/${child}/paper/plan.pdf`, { week, by: me.email, areas, draw })
+      : await engineGet(`/child/${child}/focus/paper.pdf?week=${encodeURIComponent(week)}&by=${encodeURIComponent(me.email)}&draw=${draw}`);
     if (!res.ok) {
       const why = ((await res.json().catch(() => ({}))) as { detail?: string }).detail;
       return new Response(why ?? "the engine could not make the paper", { status: res.status });
