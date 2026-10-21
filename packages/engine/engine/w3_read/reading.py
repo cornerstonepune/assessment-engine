@@ -125,7 +125,11 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
         if (
             second
         ):  # the page of the file this image is, never the paper's: a copy may start at its third page
-            readings, proposed = second_reader.propose(conn, readings, path, file_page, notes, cfg)
+            # ADR 0091: a second opinion on the box reader's guesses, once its row turns it on
+            opinion = second_reader.switched_on(conn)
+            readings, proposed = second_reader.propose(
+                conn, readings, path, file_page, notes, cfg, None, opinion
+            )
             note = "; ".join(n for n in (how, proposed) if n)
         flagged = sum(1 for r in readings.values() if r["answer_state"] != "written")
         out.append(

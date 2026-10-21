@@ -23,8 +23,11 @@ says:
     proved_by: packages/engine/tests/test_second_reader.py::test_the_eval_of_the_second_opinion_reads_again_only_what_the_box_reader_guessed
   - words: "\"yes\", to: \"should the second reader also give a second opinion where the box reader already guessed? Today it only helps where the first reader saw nothing, and on printed papers that never happens.\""
     proved_by: apps/web/tests/s4-validation-queue.spec.ts::where the two readers disagree, both readings are shown, on the queue and on the paper
+  - words: "\"yes\", to: \"should the second reader also give a second opinion where the box reader already guessed? Today it only helps where the first reader saw nothing, and on printed papers that never happens.\""
+    proved_by: packages/engine/tests/test_second_reader.py::test_the_second_opinion_is_off_until_its_row_turns_it_on
 manual:
-  - "Actions → engine eval → purpose read_with_examples, on this branch: the second reader scored on every answer the box reader guessed that a person has checked, on live (rule 7). Its result is in docs/notes/second-reader-every-guess.md and DECISIONS-LOG.md."
+  - "Set a model key in the live engine (ANTHROPIC_API_KEY in the server's .env, then Actions → deploy engine). On 21 Oct every second-reader call on live failed for want of it."
+  - "Actions → engine eval → purpose read_with_examples, on this branch: the second reader scored on every answer the box reader guessed that a person has checked, on live (rule 7). Its result is in docs/notes/second-reader-every-guess.md and DECISIONS-LOG.md; then, if it earns it, read.second_opinion set to 1."
 scenarios: []
 criteria:
   - name: the second reader gives its opinion where the box reader guessed, and only proposes

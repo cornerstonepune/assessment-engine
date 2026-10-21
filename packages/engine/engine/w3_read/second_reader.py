@@ -53,6 +53,12 @@ def ask(conn, target, n_answers, samples):
     return answers + [""] * (n_answers - len(answers))
 
 
+def switched_on(conn):
+    """Whether the second opinion is on (`read.second_opinion`, ADR 0091): off until its eval is scored on live."""
+    row = conn.execute("select value from threshold where key = 'read.second_opinion'").fetchone()
+    return bool(row and row["value"])
+
+
 def _groups(readings, second_opinion=True):
     """The doubted readings of a page, grouped by the region they share (one question's answers),
     each member in slot order. A question whose answer is not a number is a person's to type. A reading the box reader

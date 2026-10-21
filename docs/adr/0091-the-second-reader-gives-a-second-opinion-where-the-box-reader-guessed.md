@@ -29,9 +29,22 @@ what the box reader guessed.**
 4. Unchanged from ADR 0032 and ADR 0019: the second reader never settles an answer, and it is shown no question and no
    right answer: only the child's samples, the crop and how many answers it holds. A reading the box reader stood
    behind is never sent to it, so no answer that settles alone today waits because of it.
-5. Measured before it is on: `engine read guess --eval --second-opinion`, and on live by Actions → engine eval →
-   read_with_examples (`.github/measure/second_opinion.py`), which scores this branch's code on every checked answer the
-   box reader guessed.
+5. **Off until it is measured** (rule 7): the threshold row `read.second_opinion` is 0. It is scored by
+   `engine read guess --eval --second-opinion`, and on live by Actions → engine eval → read_with_examples
+   (`.github/measure/second_opinion.py`), which scores this branch's code on every checked answer the box reader
+   guessed. A call that fails is counted apart (`failed`), never as a wrong reading.
+
+## Measured on live, 21 Oct (engine eval runs 39603709261, 39605855114)
+
+- 34 printed papers read in boxes (26 Sep–16 Oct), 421 answers. The box reader guessed on 116 of them: about 3.4 per
+  paper, one model call each. All 116 already waited for a person; none was settled without a person's word. **A second
+  opinion sends no more answers to a person**: it changes what the person is shown.
+- The box reader's guess was right on 82 of the 116 and wrong on 34. The 34 are the most a second opinion could catch.
+- The second reader could not be scored: the live engine has no model key ("ANTHROPIC_API_KEY is not set"; the
+  fallback models failed too), so all 116 calls failed and Rs 0 was spent. Its last guess on live was 29 Sep. Until a
+  key is set, the second reader does nothing on live, for what the first reader gave up on as much as for this.
+- Cost, approximate: its 49 calls that worked cost Rs 0.28 on average (Rs 0.73 at most), about 3,000 tokens in. At
+  3.4 calls a paper that is roughly Rs 1 a paper.
 
 ## Rejected
 

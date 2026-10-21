@@ -292,3 +292,10 @@ def test_the_eval_of_the_second_opinion_reads_again_only_what_the_box_reader_gue
     said[0.0] = None
     t = second_reader.evaluate(conn, {}, [paper["child"]], second_opinion=True)
     assert (t["n"], t["right"], t["failed"], t["opinion"]["n"]) == (1, 1, 1, 1)
+
+
+def test_the_second_opinion_is_off_until_its_row_turns_it_on(conn):
+    # rule 7: off until its eval is scored on live; a row turns it on, never code
+    assert second_reader.switched_on(conn) is False
+    conn.execute("update threshold set value = 1 where key = 'read.second_opinion'")
+    assert second_reader.switched_on(conn) is True
