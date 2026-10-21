@@ -20,7 +20,9 @@ with db.connect() as c:
         "select count(distinct c.id) as papers, count(*) as answers,"
         f" count(*) filter (where {OPINION}) as box_guesses,"
         f" count(distinct (c.id, r.raw_read::jsonb ->> 'box')) filter (where {OPINION}) as calls,"
-        f" count(*) filter (where {OPINION} and r.status not in ('unreadable', 'needs_teacher')) as box_guesses_settled_alone,"
+        # a person's word on it (typed, or the one-click guess) is a read_correction; marking re-marks the status after it
+        f" count(*) filter (where {OPINION} and not exists (select 1 from read_correction rc where rc.item_result_id = r.id)"
+        "   and r.state = 'confirmed') as box_guesses_settled_with_no_persons_word,"
         " min(c.created_at)::date as first, max(c.created_at)::date as last"
         " from item_result r join capture c on c.id = r.capture_id"
         " where c.superseded_by is null and r.raw_read::jsonb ? 'boxes'"
