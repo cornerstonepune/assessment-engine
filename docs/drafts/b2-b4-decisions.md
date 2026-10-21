@@ -1,5 +1,31 @@
 # B2–B4: what must be decided before each can be locked
 
+## Decided — Nimish, 2026-10-21
+
+Nimish put `scope-locked` on these drafts and chose "A": each recommendation below stands as the decision. Asked
+"nothing will change for any of the past assessments, scoring etc. right?", the answer is a check, not a promise:
+
+- **Past results are unchanged, proved at every step.** B2, B3 and B4 each carry a test, and its rehearsal on a copy of
+  live, that the evidence rows (count and checksum), every child's states and every scored answer are the same before
+  and after. A step whose check differs does not ship.
+- **B2's approval gate never blocks a paper that can be made today.** Every format already on a paper, or already
+  approved level by level, starts approved; only a new type waits for the coordinator.
+
+| # | Decision |
+|---|---|
+| B2-1 | A question type is a format as ADR 0077 settled; the 33 labels are the words each type shows |
+| B2-2 | B2 builds the approval table, the gate and an engine command to approve; the approval page waits (no new screen) |
+| B2-3 | Achal: words for `word_budget`; whether chunking and long division are types of their own |
+| B2-4 | The coordinator approves a new type |
+| B3-1 | Achal checks the split of each level's examples, the 13 unclean ones first |
+| B3-2 | Achal confirms or removes the 8 division mistakes, "Multiplied instead of dividing" and the 4 column ones |
+| B3-3 | Prerequisites start from the ladder's order; Achal corrects them |
+| B4-1 | Rename `skill_set` → `skill` and the registry's `skill` → `registry_skill`, in two deploys, registry first |
+| B4-2 | Evidence keeps its column `rung_code`; no row is rewritten |
+| B4-3 | "No file reads rung" means the `rung` table; the maths library's word stays |
+
+Still open: B2-3, B3-1, B3-2 and B3-3's corrections wait on Achal. B3 cannot finish until he answers.
+
 Drafts: `b2-question-types-are-rows.yaml`, `b3-samples-mistakes-prerequisites.yaml`, `b4-the-rung-folded-in.yaml`
 (this folder). Numbers measured on the seed and code on 2026-10-21; where BUILD-ORDER differs, it says so below.
 
