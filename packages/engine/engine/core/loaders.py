@@ -32,6 +32,7 @@ FILLED_TABLES = (
     "threshold",
     "config",
     "skill_set",
+    "skill_level",
     "subject",
     "topic",
     "question_format",
@@ -334,10 +335,10 @@ def _skill_sets(conn: db.Conn, t: db.Id) -> None:
 def _subjects(conn: db.Conn, t: db.Id) -> None:
     for s in settings.seed("subjects.json", "subjects"):
         conn.execute(
-            "insert into subject (tenant_id, code, name, verifier, mark_mode) values (%s,%s,%s,%s,%s)"
-            " on conflict (tenant_id, code) do update set name=excluded.name,"
+            "insert into subject (tenant_id, code, name, label, verifier, mark_mode) values (%s,%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set name=excluded.name, label=excluded.label,"
             " verifier=excluded.verifier, mark_mode=excluded.mark_mode, updated_at=now()",
-            (t, s["code"], s["name"], s.get("verifier"), s.get("mark_mode", "lookup")),
+            (t, s["code"], s["name"], s.get("label"), s.get("verifier"), s.get("mark_mode", "lookup")),
         )
 
 

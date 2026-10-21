@@ -8,6 +8,7 @@ import { childEvidence, childHeader, childPapers, grades, misconceptionNames, pe
 import { childSheets, childSkills, classLatest, firstStep, repeatedMistakes, summary } from "@/lib/queries-children";
 import { ColourKeyLine } from "@/components/colour-key";
 import { checkHref, checkLevel, colourRules } from "@/lib/colours";
+import { childStates } from "@/lib/states";
 import { ChecksPanel, type Check } from "../checks";
 import { confirmChild, resolveOne } from "../actions";
 import { deadline } from "@/lib/deadline";
@@ -28,7 +29,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   if (!isMine(scopeOf(me), await deadline(childSection(id)))) return <NotYours what="This child's class" />;
   const q = await searchParams;
-  const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff, rules, report, g] = await deadline(Promise.all([
+  const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff, rules, report, g, states] = await deadline(Promise.all([
     childHeader(id, me.email),
     childSkills(id),
     childEvidence(id),
@@ -41,6 +42,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
     colourRules(),
     reportOf(id),
     grades(),
+    childStates(),
   ]));
   if (!child) notFound();
 
@@ -55,7 +57,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
   // the child (goals/u11-colours-said.yaml); one check a skill, where a rung that tests two skills gave it two lines
   // (code review, 2026-09-30)
   const unplaced = [
-    ...skills.filter((s) => s.n_events > 0 && (s.state ?? "not_enough_yet") === "not_enough_yet"),
+    ...skills.filter((s) => s.n_events > 0 && !states.of(s.state).enough),
     ...skills.filter((s) => s.n_events === 0),
   ].filter((s, i, all) => all.findIndex((x) => x.code === s.code) === i);
   const checks: Check[] = unplaced.map((s) => {
@@ -133,7 +135,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
           </Link>
         </nav>
         <p data-testid="summary" className="mb-2 max-w-[760px] text-[16px] leading-snug">
-          {summary(child.first_name, shown, notYet)}
+          {summary(child.first_name, shown, notYet, states)}
         </p>
         {waiting ? (
           <p className="mb-4 text-[13.5px]">
@@ -154,11 +156,11 @@ export default async function ChildPage({ params, searchParams }: Props) {
 
         <div className="grid gap-[18px] xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="grid content-start gap-[18px]">
-            <SkillsPanel skills={skills} answers={evidence} names={names} />
+            <SkillsPanel skills={skills} answers={evidence} names={names} states={states} />
 
             <ChecksPanel title={`Checks that would place ${child.first_name}`} unanswered="not assessed yet" checks={checks} />
 
-            <ColourKeyLine rules={rules} />
+            <ColourKeyLine rules={rules} states={states} />
 
             <RepeatedMistakes rows={mistakes} opens={new Set(evidence.map((e) => `${e.rung_code}|${e.skill_code}`))} />
 

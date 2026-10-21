@@ -1,6 +1,6 @@
 {
   "own_loop": {
     "done": "bin/engine done <goal>",
-    "handoff": "HANDOFF.md"
+    "handoff": "docs/notes/README.md"
   }
 }

@@ -8271,6 +8271,19 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## B0d — a child's states and the subject are read from rows (2026-10-20, ADR 0086)
+
+- **Built (`goals/b0d-states-and-subject-from-tables.yaml`):** migration 20261122090000 adds to `child_state` a column
+  for each rule the code's lists held (`enough`, `severity`, `move_up`, `nearly`, `card_group`, `why`), the table
+  `state_colour` (each colour's words), and `subject.label` ("Maths"). The engine reads them through
+  `core/vocabulary.states`; the website through `lib/states.ts` and `lib/subject.ts`. A prescription's strand is its
+  skill set's topic's subject.
+- **Proved to change nothing:** `tests/test_states_and_subject.py` holds main's old lists and checks the rows give each;
+  it failed first, then passed. No state or subject is named in the engine or the website.
+- **Rehearsal on a copy of live (run 39474127831):** the migration applied on 160,215 rows with no error.
+- **Merged with B0c (main, 861e624):** `vocabulary.py`, `shelf.py`, `colours.ts`, `test_focus.py` keep both — levels
+  from `difficulty`, states from `child_state`. Proofs: see the PR comment (`bin/engine done`).
+
 ## B0c — the four levels are read from `difficulty` everywhere (2026-10-20, ADR 0084)
 
 - **Built (`goals/b0c-levels-from-the-table.yaml`, PR #228):** every reader outside the maths library takes the levels'
@@ -8329,45 +8342,6 @@ one child on live.
 - **Rehearsed on a copy of live (run 39480469879, 784f54b):** "copied: 63 tables, 160215 rows, every count equal to
   live"; `engine live data` before the update: `ok    Marking counts each printed question once`, and again after
   `bin/update-live`'s steps (the copy after, must be clean: every check ok).
-
-## B1 — a skill's levels are rows (`skill_level`), kept equal to the blob; the first readers moved (2026-10-21, ADR 0087)
-
-- **Built (`goals/b1-levels-are-rows.yaml`, scope not yet locked):** migration 20261123090000 makes `skill_level`, one
-  row per skill and level, keyed into `skill_set`, `difficulty` and `grade`, holding the level's words (`looks_like`),
-  its rule (everything else of the blob entry), its grade (named in `level_band`, else its rung's) and who approved it
-  and when; `skill_level_version` files a level's earlier words and rule, only that level's, and the migration carries
-  each level's history out of `skill_set_version` once. A trigger on `skill_set` (and on a rung's grade) keeps the rows
-  equal to the blob whoever writes; nobody else may write them. `learning_objective` waits empty (the split is B3's).
-- **Measured on the seed:** 178 levels, 178 rows · G1 16 · G2 63 · G3 55 · G4 44 · approved 0 and 0 (a fresh build has
-  no approvals). `bin/engine levels check`: words, rule, grade and approval equal on every level, and 4 questions drawn
-  from each of the 178 levels on seed 1 from rows and blob, identical.
-- **Readers moved:** the generator's spec (`spec.row`, `spec.read`, so `bank.fill`, `fill_native`, `refill`, the mistake
-  list), `cases.holds`/`placed`, `review`, `story_shape.placed`, `week_note.options`, `audit`, `references`, `legacy`, the
-  item_generate eval; on the website the bank's totals, a question's level words, the home counts and the people page's
-  "reaches". After B0c (#228) merged into main (861e624), main was merged in here (cc2144f, a merge commit) and
-  `inventory.coverage`, `rehome.shaped` and the worksheet library's level list moved too. **Left for after B0d merges**
-  (PR #231 rewrites them): `prescribe`, `shelf`, `focus_paper`, `focus`, `loaders`' counts, and the website's
-  `queries.ts` with the curriculum, children, worksheets, papers/approve and skill-set pages that read through it. The writers (the site's edit, approval and move, the loader,
-  `engine ratify`, `cases` bringing levels to the seed) still write the blob, by design (ADR 0087).
-- **A fresh build from this branch and one from main differ by one level, by chance:** 28,698 questions and 2,737
-  worksheets here, 28,696 and 2,736 on main, all on SUB.3D2D Advance's case S33 (9 questions here, 7 on main; every
-  other case of every level equal). S33 has few questions left once Hard has taken its 44, and the bank looks for them
-  with fresh randomness each build: main's own code on main's own database finds 6 on seed 0 and none on seeds 1–7.
-  The level's rule is the same from rows and blob (`engine levels check`), so this is the bank's chance, not B1.
-- **Rehearsed on a copy of live (run 39539187766 on 3a2e376, green):** "copied: 63 tables, 160215 rows, every count
-  equal to live"; `applying 20261121090000_the_levels_are_read_from_the_table.sql` (B0c) then
-  `applying 20261123090000_the_levels_are_rows.sql` with no error. `engine levels check` before and after update-live:
-  "178 levels in the blob, 178 rows · grades G1 16 · G2 63 · G3 55 · G4 44", "approved: 178 in the blob, 178 in the
-  rows", "drawn on seed 1: 178 levels, 4 questions each", "the rows and the blob agree on every level". Live's count
-  is the seed's: 178. The copy after the update clean (`engine live data`, `engine audit`: every check ok).
-- **Whole engine suite** on a database built from every migration (B0c's and B1's in order): 2583 passed, 2 skipped.
-  (This container's Chromium was older than Playwright asked for; pointed at the installed one, outside the repo.)
-- **`bin/engine done b1-levels-are-rows`:** all six sentences PROVED; four criteria PASSED (18 passed; `levels check`
-  agree; suite 2583 passed, 2 skipped; bin/check 28 passed); NOT DONE for the manual rehearsal line (run green above)
-  and not being live.
-- **Checks:** `tests/test_skill_level.py` failed first (no `engine.checks.levels`), then 6 passed: keys refuse a level
-  or grade that is no row; the rows give back the blob; same draws; a blob write reaches the rows; a level's own
-  history, carried on first run; a moved reader reads the row even where the blob says otherwise.
 
 ## B0b — grades are read from the `grade` table; every grade a row holds is a key; "G2+" is Grade 2 (2026-10-20, ADR 0085)
 

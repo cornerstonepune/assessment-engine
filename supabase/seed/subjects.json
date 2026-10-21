@@ -3,6 +3,7 @@
     {
       "code": "NUM",
       "name": "Mathematics — Number",
+      "label": "Maths",
       "verifier": "maths",
       "mark_mode": "lookup"
     }

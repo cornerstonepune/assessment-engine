@@ -78,7 +78,8 @@ function Dots({ right, of }: { right: number; of: number }) {
 export function nextStep(next: Facts["next"], name: string): string | null {
   if (!next) return null;
   const skill = next.skill.toLowerCase();
-  return next.why?.startsWith("secure")
+  // the facts' own sentence for a set secure already (`parent_facts.facts`), as against one still being practised
+  return next.why?.startsWith("secure already")
     ? `${name} is secure at ${skill}, so the educator moves on to harder questions of it (${next.level}).`
     : `The educator gives ${name} more questions of ${skill}, at ${next.level}, until it is secure.`;
 }
@@ -112,6 +113,7 @@ export function Letter({
   name,
   section,
   band,
+  subject,
   approver,
 }: {
   note: Note;
@@ -119,6 +121,8 @@ export function Letter({
   section: string;
   /** The child's grade's code: a section named for it is not said twice. */
   band: string;
+  /** What the report is of (skill_set → topic → subject): "Maths". */
+  subject: string;
   approver: string | null;
 }) {
   const put = (t: string) => t.replaceAll("[child]", name);
@@ -145,7 +149,7 @@ export function Letter({
       <header className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-basalt pb-4">
         <div>
           <div className="label !tracking-[0.12em]">
-            Cornerstone School, Pune · Maths report
+            Cornerstone School, Pune · {subject} report
           </div>
           <h1 className="mt-2 font-heading text-[30px] leading-tight">
             {name}

@@ -15,12 +15,13 @@ import pytest
 from engine.checks import levels as check
 from engine.core import db, levels, loaders
 from engine.w1_bank import spec
+from engine.w2_print import shelf
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
 MIGRATION = db.REPO_ROOT / "supabase" / "migrations" / "20261123090000_the_levels_are_rows.sql"
 SKILL = "SUB.2D2D"
-# The readers moved to the rows. The rest are in code B0d (PR #231) is changing, and move once it merges.
+# The readers moved to the rows; the writers stay on the blob, kept equal by the trigger (ADR 0087).
 MOVED = [
     "packages/engine/engine/w1_bank/spec.py",
     "packages/engine/engine/w1_bank/cases.py",
@@ -34,9 +35,25 @@ MOVED = [
     "packages/engine/engine/w1_bank/inventory.py",
     "packages/engine/engine/w1_bank/rehome.py",
     "packages/engine/engine/w2_print/library.py",
+    "packages/engine/engine/w2_print/prescribe.py",
+    "packages/engine/engine/w2_print/shelf.py",
+    "packages/engine/engine/w2_print/focus_paper.py",
+    "packages/engine/engine/assess/focus.py",
     "apps/web/lib/queries-bank.ts",
     "apps/web/lib/queries-people.ts",
     "apps/web/lib/workflows.ts",
+    "apps/web/lib/queries.ts",
+    "apps/web/lib/queries-curriculum.ts",
+    "apps/web/lib/queries-children.ts",
+    "apps/web/lib/queries-worksheets.ts",
+    "apps/web/lib/queries-taxonomy.ts",
+    "apps/web/lib/maker.ts",
+    "apps/web/app/(app)/curriculum-table.tsx",
+    "apps/web/app/(app)/worksheets/page.tsx",
+    "apps/web/app/(app)/worksheets/[qr]/page.tsx",
+    "apps/web/app/(app)/papers/approve/page.tsx",
+    "apps/web/app/(app)/skill-sets/[code]/page.tsx",
+    "apps/web/app/(app)/skill-sets/[code]/level-approval.tsx",
 ]
 # a read of the blob: its levels selected, walked or asked after; its grades; its approvals; a skill selected whole
 BLOB = re.compile(
@@ -208,6 +225,24 @@ def test_the_moved_readers_read_the_rows_not_the_blob(conn):
     )
     assert blob.fetchone()["w"] != "Read from the row."
     assert levels.every(conn)[SKILL]["Easy"]["words"] == "Read from the row."
+    # a level approved and moved to another grade in its row alone: the papers' shelf sees both
+    top = conn.execute("select code from grade order by ord desc limit 1").fetchone()["code"]
+    conn.execute("set local session_replication_role = replica")
+    conn.execute(
+        "update skill_level set confirmed_by = 'row', confirmed_at = now(), grade = %s"
+        " where skill_code = %s and difficulty = 'Easy'",
+        (top, SKILL),
+    )
+    conn.execute("update skill_set set level_approved = '{}' where code = %s", (SKILL,))
+    conn.execute("set local session_replication_role = origin")
+    assert "Easy" in shelf.approved_levels(conn)[SKILL]
+    own = conn.execute(
+        "select r.band from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
+        " where s.code = %s",
+        (SKILL,),
+    ).fetchone()["band"]
+    assert "Easy" not in shelf._read_levels(conn, own)[SKILL]
+    assert "Easy" in shelf._read_levels(conn, None)[SKILL]
     # the writers still write the blob (the seed's levels, an approval of every level), and read what they write;
     # nothing else in a moved file reads it
     writers = {
@@ -216,6 +251,8 @@ def test_the_moved_readers_read_the_rows_not_the_blob(conn):
             "\"update skill_set set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', %s::text,"
             ' \'at\', now()))"\n        " from jsonb_object_keys(difficulty) k), updated_at = now()"'
         ],
+        # who last moved a level to another grade is the skill's record (goals/c1-whole-curriculum.yaml), not a level's
+        "queries.ts": ["s.level_band_by as moved_by, s.level_band_at as moved_at"],
     }
     for f in MOVED:
         text = (db.REPO_ROOT / f).read_text()

@@ -6,6 +6,7 @@ thing a person found reading the drafts on live (2026-09-28, v1-v6).
 
 import json
 import re
+from collections.abc import Iterable
 
 # every form a parent could read: "problems" slipped past "problem" on the first eval (2026-09-28)
 BANNED = (
@@ -64,7 +65,8 @@ NAMES_NOTHING = {"subtraction", "addition", "multiplication", "division", "sum",
 IMPROVED = re.compile(r"\b(improv\w*|grow\w*|grew|better|progress\w*)\b", re.IGNORECASE)
 DIGITS = {"one": "1", "two": "2", "three": "3", "four": "4", "five": "5"}
 CODE = re.compile(r"\b(M_[A-Z0-9_]+|[RX]\d{1,2}|[A-Z]{2,}\.[A-Z0-9_.]*[A-Z0-9])\b")
-PLAIN_CAPS = {"I", "Cornerstone", "School", "Pune", "Grade", "Maths", "Math"}
+# a subject's own word ("Maths") is its `subject.label` row's, passed in as `subject_words` (ADR 0086)
+PLAIN_CAPS = {"I", "Cornerstone", "School", "Pune", "Grade"}
 
 
 def _words(text):
@@ -165,8 +167,15 @@ def _coins(t):
     return []
 
 
-def check(f, d):
-    """What the words say that the facts do not, or that the school does not say — [] when nothing."""
+def subject_words(conn) -> set[str]:
+    """The words a letter may write a subject by, capitalised like a name: each subject's label, or its name."""
+    rows = conn.execute("select coalesce(label, name) as label from subject")
+    return {w for r in rows for w in re.findall(r"[A-Za-z]+", r["label"])}
+
+
+def check(f, d, subject_words: Iterable[str] = ()):
+    """What the words say that the facts do not, or that the school does not say — [] when nothing. `subject_words`
+    are the school's own words for its subjects (`subject_words(conn)`)."""
     problems = []
     want = [x["id"] for k in ("can_do", "nearly", "improving") for x in f[k]]
     got = [c["id"] for c in d["can_do"]]
@@ -203,7 +212,7 @@ def check(f, d):
     # the dates head the letter; their digits (2026, 09, 25) are not numbers the words may use
     held = numbers_in(json.dumps({k: v for k, v in f.items() if k not in ("from", "to")}, ensure_ascii=False))
     numbers = held[0] | held[1]
-    words = set(re.findall(r"[A-Za-z]+", known)) | PLAIN_CAPS
+    words = set(re.findall(r"[A-Za-z]+", known)) | PLAIN_CAPS | set(subject_words)
     for t in _texts(d):
         digits, spelled = numbers_in(t)
         # counting in tens aloud ("ten, twenty, thirty"), "a hundred", "a thousand" is the words of counting, not a

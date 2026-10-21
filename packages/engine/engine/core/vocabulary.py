@@ -25,13 +25,47 @@ def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
             " on conflict (tenant_id, code) do update set ord=excluded.ord, letter=excluded.letter, updated_at=now()",
             (tenant, d["code"], i, d["letter"]),
         )
+    for i, c in enumerate(seed("vocabulary.json", "state_colours")):
+        conn.execute(
+            "insert into state_colour (tenant_id, code, ord, words, count_words) values (%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set ord=excluded.ord, words=excluded.words,"
+            " count_words=excluded.count_words, updated_at=now()",
+            (tenant, c["code"], i, c["words"], c["count_words"]),
+        )
     for i, s in enumerate(seed("vocabulary.json", "child_states")):
         conn.execute(
-            "insert into child_state (tenant_id, code, ord, words, colour, needs_work) values (%s,%s,%s,%s,%s,%s)"
+            "insert into child_state (tenant_id, code, ord, words, colour, needs_work, enough, severity, move_up,"
+            " nearly, card_group, why) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             " on conflict (tenant_id, code) do update set ord=excluded.ord, words=excluded.words,"
-            " colour=excluded.colour, needs_work=excluded.needs_work, updated_at=now()",
-            (tenant, s["code"], i, s["words"], s["colour"], s["needs_work"]),
+            " colour=excluded.colour, needs_work=excluded.needs_work, enough=excluded.enough,"
+            " severity=excluded.severity, move_up=excluded.move_up, nearly=excluded.nearly,"
+            " card_group=excluded.card_group, why=excluded.why, updated_at=now()",
+            (
+                tenant,
+                s["code"],
+                i,
+                s["words"],
+                s["colour"],
+                s["needs_work"],
+                s["enough"],
+                s["severity"],
+                s["move_up"],
+                s["nearly"],
+                s["card_group"],
+                s["why"],
+            ),
         )
+
+
+def states(conn: db.Conn) -> list[dict[str, Any]]:
+    """The school's states of a child's map, weakest first, each with every rule about it (ADR 0086): what a next
+    paper works on (`needs_work`), what waits on too few answers (`enough`), what is ready to move up, what may be
+    nearly secure, its group on the class card, the reason a paper prints. Code reads these, never names a state."""
+    return conn.execute(
+        "select code, ord, words, colour, needs_work, enough, severity, move_up, nearly, card_group, why"
+        " from child_state where tenant_id = (select id from tenant where slug = %s) order by ord",
+        (db.tenant_slug(),),
+    ).fetchall()
 
 
 def levels(conn: db.Conn) -> tuple[str, ...]:

@@ -1,7 +1,6 @@
 import { cache } from "react";
 import { sql, TENANT_SLUG } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
-import { RAG, RAG_TONE } from "./rag";
 import { skillTaughtFor, skillTaughtIn } from "./taught";
 
 /** A level's name, a row of `difficulty` (lib/levels.ts). */
@@ -13,14 +12,15 @@ export type Band = { words: string; check: Record<string, unknown> };
  *  1-digit has no Hard). */
 export const levelsOf = (s: { levels: Difficulty[] }) => s.levels;
 
-/** `levels` of a skill set row `s`, for a query to select: the levels its rule defines, in the table's order. A
+/** `levels` of a skill set row `s`, for a query to select: its level rows (`skill_level`), in the table's order. A
  *  function, so importing this file never touches the database. */
-export const levelsColumn = () => sql`coalesce((select array_agg(d.code order by d.ord) from difficulty d
-                                        where d.tenant_id = s.tenant_id and s.difficulty ? d.code), '{}') as levels`;
+export const levelsColumn = () => sql`coalesce((select array_agg(l.difficulty order by d.ord) from skill_level l
+                                        join difficulty d on d.tenant_id = l.tenant_id and d.code = l.difficulty
+                                        where l.tenant_id = s.tenant_id and l.skill_code = s.code), '{}') as levels`;
 
-/** The grade a skill's level belongs to: one grade each — named in `level_band`, else the skill's own. */
-export const gradeOf = (s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty) =>
-  s.level_band?.[d] ?? s.band;
+/** The grade a skill's level belongs to: one grade each, its row's (`skill_level.grade`), else the skill's own. */
+export const gradeOf = (s: { band: string; level_grade?: Partial<Record<Difficulty, string>> }, d: Difficulty) =>
+  s.level_grade?.[d] ?? s.band;
 
 export type Grade = { code: string; name: string; ord: number };
 /** The school's grades in their order, and each one's name and place (goals/b0b-grades-from-the-table.yaml). */
@@ -46,7 +46,7 @@ export async function gradeSpan(): Promise<string> {
 
 /** Whether a class or child of `band` uses this level: its own grade's levels and those of the grades below
  *  (goals/f1e-the-grade-plan.yaml) — as the engine gives and refuses them (`shelf._levels`). */
-export const usesLevel = (g: Grades, s: { band: string; level_band?: Partial<Record<Difficulty, string>> }, d: Difficulty, band: string) =>
+export const usesLevel = (g: Grades, s: { band: string; level_grade?: Partial<Record<Difficulty, string>> }, d: Difficulty, band: string) =>
   g.ord(gradeOf(s, d)) <= g.ord(band);
 
 export type SkillSet = {
@@ -62,14 +62,14 @@ export type SkillSet = {
   status: "draft" | "ratified";
   ratified_by: string | null;
   /** Each level whose questions a person approved, with who and when (goals/f1d-questions-approved-per-level.yaml). */
-  level_approved: Partial<Record<Difficulty, { by: string; at: string }>>;
+  approved: Partial<Record<Difficulty, { by: string; at: string }>>;
   updated_at: string;
   band: string;
-  /** The grade each level belongs to, where it is not the skill's own (`skill_set.level_band`). */
-  level_band: Partial<Record<Difficulty, string>>;
+  /** The grade each level belongs to (`skill_level.grade`). */
+  level_grade: Partial<Record<Difficulty, string>>;
   /** Who last moved a level to another grade, and when (goals/c1-whole-curriculum.yaml). */
-  level_band_by: string | null;
-  level_band_at: string | null;
+  moved_by: string | null;
+  moved_at: string | null;
   descriptor: string;
   skill_codes: string[];
   version: number;
@@ -95,8 +95,14 @@ export async function skillSets({
   const taught = section ? skillTaughtIn(sql`s.tenant_id`, sql`s.code`, section) : skillTaughtFor(scope, sql`s.tenant_id`, sql`s.code`);
   return sql<SkillSet[]>`
     select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
-           s.misconception_codes, s.difficulty, ${levelsColumn()}, s.status, s.ratified_by, s.level_approved, s.updated_at, s.version,
-           r.band, coalesce(s.level_band, '{}'::jsonb) as level_band, s.level_band_by, s.level_band_at, r.descriptor, r.skill_codes, s.topic_code,
+           s.misconception_codes, public.skill_levels(s.tenant_id, s.code) as difficulty, ${levelsColumn()}, s.status, s.ratified_by,
+           coalesce((select jsonb_object_agg(l.difficulty, jsonb_build_object('by', l.confirmed_by, 'at', l.confirmed_at))
+                     from skill_level l where l.tenant_id = s.tenant_id and l.skill_code = s.code and l.confirmed_at is not null),
+                    '{}'::jsonb) as approved,
+           s.updated_at, s.version, r.band,
+           coalesce((select jsonb_object_agg(l.difficulty, l.grade) from skill_level l
+                     where l.tenant_id = s.tenant_id and l.skill_code = s.code), '{}'::jsonb) as level_grade,
+           s.level_band_by as moved_by, s.level_band_at as moved_at, r.descriptor, r.skill_codes, s.topic_code,
            t.name as topic_name, t.ord as topic_ord, ${taught} as taught,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select difficulty, count(*)::int as n from item
@@ -120,13 +126,16 @@ export async function skillSet(code: string, scope: Scope = EVERY_CLASS): Promis
 
 export type Skill = { code: string; name: string; description: string; rungs: string[] };
 
-export async function numSkills(): Promise<Skill[]> {
+/** The registry's skills a skill set practises — each reached through its rung, the way to its topic and so to its
+ *  subject — with the rungs that carry it. */
+export async function setSkills(): Promise<Skill[]> {
   return sql<Skill[]>`
     select k.code, k.name, k.description,
            coalesce(array_agg(r.code order by r.ladder_order) filter (where r.code is not null), '{}') as rungs
     from skill k
     left join rung r on r.tenant_id = k.tenant_id and k.code = any(r.skill_codes)
-    where k.domain = 'NUM'
+    where exists (select 1 from skill_set ss join rung sr on sr.tenant_id = ss.tenant_id and sr.code = ss.rung_code
+                  where ss.tenant_id = k.tenant_id and k.code = any(sr.skill_codes))
     group by k.code, k.name, k.description
     order by k.code`;
 }
@@ -175,16 +184,6 @@ export async function staffList(): Promise<Staff[]> {
 }
 
 // ---- Child Growth: what confirmed evidence says about one child, and what still waits for a person.
-
-// Each state's words; its colour is lib/rag.ts's, so the ladder, the class grid and Today agree.
-export const STATE_WORDS: Record<string, { words: string; tone: "neem" | "bamboo" | "terracotta" | "monsoon" }> = {
-  not_enough_yet: { words: "not enough yet", tone: RAG_TONE[RAG.not_enough_yet] },
-  patterned_error: { words: "repeating mistake", tone: RAG_TONE[RAG.patterned_error] },
-  emerging: { words: "under half right", tone: RAG_TONE[RAG.emerging] },
-  practising: { words: "practising", tone: RAG_TONE[RAG.practising] },
-  secure: { words: "secure", tone: RAG_TONE[RAG.secure] },
-  stretch_ready: { words: "ready to move up", tone: RAG_TONE[RAG.stretch_ready] },
-};
 
 export type ChildRow = {
   id: string;

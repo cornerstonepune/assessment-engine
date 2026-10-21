@@ -789,7 +789,7 @@ def test_a_skill_set_is_secure_only_when_every_skill_of_it_the_child_answered_is
             "select state from child_skill_state where child_id = %s and rung_code = 'R21'", (child,)
         )
     }
-    assert states & set(report.STRONG) and states - set(report.STRONG), (
+    assert states & set(report.strong_states(conn)) and states - set(report.strong_states(conn)), (
         "the set no longer mixes; this test reads nothing"
     )
 

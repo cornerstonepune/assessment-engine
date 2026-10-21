@@ -2,6 +2,7 @@ import { requireStaff } from "@/lib/auth";
 import { Shell } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { counts, needsYou } from "@/lib/needs-you";
+import { subjectOf } from "@/lib/subject";
 import { gradeSpan } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,10 @@ export const dynamic = "force-dynamic";
 // page, the count of what waits in each tab: Today's own list (goals/ui1-menu-and-today.yaml).
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const me = await requireStaff();
-  const [lines, span] = await deadline(Promise.all([needsYou(me), gradeSpan()]));
-  return <Shell me={me} waiting={counts(lines)} grades={span}>{children}</Shell>;
+  const [lines, span, subject] = await deadline(Promise.all([needsYou(me), gradeSpan(), subjectOf()]));
+  return (
+    <Shell me={me} waiting={counts(lines)} grades={span} subject={subject}>
+      {children}
+    </Shell>
+  );
 }

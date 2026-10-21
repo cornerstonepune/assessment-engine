@@ -132,7 +132,7 @@ test("a click anywhere on a child's row opens the child, and any column sorts th
   const sorted = (label: string) => table.locator("th", { hasText: label });
   await page.locator(`details[data-class="${SECTION}"] summary`).click();
   await table.getByRole("link", { name: "Secure", exact: true }).click();
-  await expect(page).toHaveURL(/sort=secure/);
+  await expect(page).toHaveURL(/sort=green/);
   await expect(sorted("Secure")).toHaveAttribute("aria-sort", "descending");
   expect((await mine()).slice(0, 2).sort()).toEqual([ids.Asha, ids.Chetan].sort()); // one secure skill each, then none
   expect((await mine())[2]).toBe(ids.Bina);

@@ -18,11 +18,16 @@ export async function curriculum(scope: Scope): Promise<{ subject: string; skill
       from sheet_template t
       where t.source = 'library' and t.retired_at is null
       group by t.skill_set_code, t.difficulty`,
-    sql<{ name: string }[]>`select name from subject order by code limit 1`,
+    // the subject of the skill sets' topics (skill_set → topic → subject); one tree holds one today
+    sql<{ name: string }[]>`
+      select su.name from subject su
+      where exists (select 1 from skill_set ss join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
+                    where t.tenant_id = su.tenant_id and t.subject_code = su.code)
+      order by su.code limit 1`,
   ]);
   const by = new Map<string, Record<string, string[]>>();
   for (const s of sheets) by.set(s.code, { ...(by.get(s.code) ?? {}), [s.level]: s.codes });
-  return { subject: subject?.name ?? "Mathematics", skills: sets.map((s) => ({ ...s, sheets: by.get(s.code) ?? {} })) };
+  return { subject: subject?.name ?? "", skills: sets.map((s) => ({ ...s, sheets: by.get(s.code) ?? {} })) };
 }
 
 /** One row of the curriculum table (goals/u12-curriculum-table.yaml): a grade, its subject, a topic or a skill, with

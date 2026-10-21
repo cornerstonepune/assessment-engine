@@ -3,18 +3,13 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-21 — B1 built (W1, gate 3): a skill's levels are rows (`skill_level`); PR on `claude/b1-levels-are-rows`, draft
-- **What it is** (STATE.md "B1", ADR 0087): one row per skill and level, with its level, grade, words, rule and
-  approval, and its own history. The blob on `skill_set` is still what the site and loader write; a trigger keeps the
-  rows equal to it. `bin/engine levels check` proves they agree and draw the same questions on one seed.
-- **Readers moved:** the generator and the mistake list (via `spec`), cases, review, story shape, week note, audit,
-  references, legacy; on the site the bank, a question's page, the home counts, the people page.
-- **B0c merged into main and then into this branch** (merge commit cc2144f); inventory, rehome and the library's level
-  list moved. **Next, once B0d (#231) merges:** merge main in, move prescribe, shelf, focus paper, focus, loaders'
-  counts and the site's queries.ts with its pages; then the writers; then drop the blob one deploy later.
-- **Proved:** suite 2583 passed; rehearsal on a copy of live green (run 39539187766): live has 178 levels, all 178
-  approved, rows and blob agree on every one and draw the same questions, before and after update-live.
-- **Open for Nimish:** how a level's words split into a learning objective and "what it looks like" (kept whole now).
+## 2026-10-21 — B0d (W1, gate 3): a child's states and the subject are read from rows; PR #231, not deployed
+- **On `claude/b0d-states-and-subject`** (STATE.md "B0d", ADR 0086, migration 20261122090000): every rule about a state
+  is a column of `child_state`; each colour's words are `state_colour` rows; a subject has a `label` ("Maths").
+- **Merged with B0c (main, 861e624):** both kept — levels from `difficulty` (`vocabulary.levels`/`letters`, `lib/levels.ts`),
+  states from `child_state` (`vocabulary.states`, `shelf.rule`'s `lagging`). B0d's migration is last.
+- **Next:** Nimish merges #231; then B1.
+- **Still open:** the children-table sort keys are now `amber` / `green`: an old bookmarked sort opens unsorted.
 
 ## 2026-10-20 — B0c built (W1, gate 3): the levels are read from their table; PR #228, draft, not deployed
 - **On `claude/b0c-levels-from-the-table`** (STATE.md "B0c"): no file outside `assess/` names a level; the worksheet

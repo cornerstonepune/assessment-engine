@@ -16,7 +16,11 @@ from datetime import date
 from engine.adapters import llm
 from engine.core import db
 from engine.w4_close import parent_review
-from engine.w4_close.parent_check import check, numbers_in  # noqa: F401 — the words held to the facts
+from engine.w4_close.parent_check import (  # noqa: F401 — the words held to the facts
+    check,
+    numbers_in,
+    subject_words,
+)
 from engine.w4_close.parent_facts import facts  # every fact the report may state, from the signed-off answers
 
 PURPOSE = "parent_report"
@@ -49,7 +53,7 @@ def draft(conn, child_id, ask=None, version=None, review_version=None):
             out = ask(
                 conn, PURPOSE, {"grade": f["grade"], "facts": told, "fix": fix}, meta=meta, version=version
             )
-            problems = check(f, out)
+            problems = check(f, out, subject_words(conn))
             # what a sentence means only a reader holds: v7-v12 each passed the check and still said "mastered" of a
             # skill only improving, and made thirty-five a three-digit number
             problems = problems or parent_review.review(conn, f, out, ask=ask, version=review_version)
@@ -177,7 +181,7 @@ def edit(conn, child_id, note_id, words, by):
     if not row or row["approved_by"]:
         raise LookupError("no report waiting for approval with that id")
     f = json.loads(row["body"])["facts"]
-    problems = check(f, words)
+    problems = check(f, words, subject_words(conn))
     if problems:
         raise ValueError(problems)
     return conn.execute(

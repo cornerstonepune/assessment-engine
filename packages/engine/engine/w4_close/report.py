@@ -8,10 +8,14 @@ Wrong answers no named mistake explains are counted per skill, never spread. Nex
 that the papers hold must be in the report, and nothing he called strong may be faulty in it.
 """
 
-from engine.core import mistake_names
+from engine.core import mistake_names, vocabulary
 from engine.w2_print import focus_paper
 
-STRONG = ("secure", "stretch_ready")
+
+def strong_states(conn) -> tuple:
+    """The states a set is strong in: enough answers, and nothing a next paper must work on (`child_state`, ADR 0086)."""
+    return tuple(s["code"] for s in vocabulary.states(conn) if s["enough"] and not s["needs_work"])
+
 
 WRONG = """
 select coalesce(e.item_result_id, e.id) as answer, e.skill_code, e.misconception_codes, e.observed_at, i.item_key, i.fmt, i.stem, i.spec, i.responses,
@@ -51,6 +55,7 @@ def build(conn, child_id, since=None):
         " from child_skill_state where child_id = %s",
         (child_id,),
     ).fetchall()
+    strong_in = strong_states(conn)
     strong = sorted(
         (
             {
@@ -63,7 +68,7 @@ def build(conn, child_id, since=None):
                 "answered": s["n_events"],
             }
             for s in states
-            if s["state"] in STRONG
+            if s["state"] in strong_in
         ),
         key=lambda r: (r["skill_set"] or "~", r["skill_code"]),
     )
