@@ -14,6 +14,17 @@ is verified. This file only says where the last session stopped.
   on it), then the writers, then drop the blob one deploy later.
 - **Open for Nimish:** how a level's words split into a learning objective and "what it looks like" (kept whole now).
 
+## 2026-10-20 — B0c built (W1, gate 3): the levels are read from their table; PR #228, draft, not deployed
+- **On `claude/b0c-levels-from-the-table`** (STATE.md "B0c"): no file outside `assess/` names a level; the worksheet
+  letter is `difficulty.letter`; "Medium" by default is the config row `level.usual`. Migration 20261121090000.
+- **Merged with B0b (main, f77fe70) at 63f35e5:** both kept; migrations in order (20261120 then 20261121); rules.json
+  regenerated, unchanged. Rehearsal on the merged branch green (run 39491988653): live already has B0b's migration,
+  B0c's applied on its 160,215 rows, no worksheet code changed.
+- **Merged with #232 (main, 37683c3):** the marking check and its test are now main's (#232 counts each answer by its
+  `rid`); the earlier port (d96972f) is gone. Main added no migration; B0c's 20261121090000 is still last.
+  `bin/engine done`: six PROVED, three criteria PASSED (suite 2577 passed); rehearsal run 39531106626 green.
+- **Next:** Nimish merges #228, then live is migrated and deployed; then B0d.
+
 ## 2026-10-20 — the 5 papers "counted twice" were never counted twice (W3); PR on `claude/marking-counts-once`, draft
 - **The check was wrong, not the data** (STATE.md "Marking counts each answer once"): their grid questions ask five
   answers each; the check counted questions. Now it counts answers; the same answer read twice still fails. No child's

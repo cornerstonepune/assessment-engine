@@ -1,5 +1,5 @@
 import { sql } from "./db";
-import { DIFFICULTIES } from "./queries";
+import { levels } from "./levels";
 
 // What each colour means, and the check that places a child the colours cannot yet say anything about
 // (goals/u11-colours-said.yaml). Nimish, 2026-09-30: "The clarity of what each of the colors means has not been very
@@ -19,15 +19,17 @@ export type ColourRules = {
   /** Questions in a check that places a child: enough for the colour to be decided, and for the green share to show
    *  (five for four in five). */
   checkSize: number;
+  /** The school's levels, easiest first (`difficulty`). */
+  order: string[];
 };
 
 export async function colourRules(): Promise<ColourRules> {
-  const [r] = await sql<{ min_events: number; min_obs: number; promote: number; demote: number; levels: Record<string, string> }[]>`
+  const [[r], { order }] = await Promise.all([sql<{ min_events: number; min_obs: number; promote: number; demote: number; levels: Record<string, string> }[]>`
     select coalesce((select value from threshold where key = 'state.min_events'), 3)::float as min_events,
            coalesce((select value from threshold where key = 'state.min_observers'), 2)::float as min_obs,
            coalesce((select value from threshold where key = 'next_sheet.promote_at'), 0.8)::float as promote,
            coalesce((select value from threshold where key = 'next_sheet.demote_below'), 0.5)::float as demote,
-           coalesce((select value from config where key = 'prescribe.band_default'), '{}'::jsonb) as levels`;
+           coalesce((select value from config where key = 'prescribe.band_default'), '{}'::jsonb) as levels`, levels()]);
   // the fewest answers in which the green share can show: 1 wrong in 5 is 80%; rounded before the ceiling, as 1/(1−0.8)
   // is 5.000000000000001 in floating point
   const forShare = Math.ceil(Number((1 / (1 - r.promote)).toFixed(6)));
@@ -38,6 +40,7 @@ export async function colourRules(): Promise<ColourRules> {
     demote: r.demote,
     levels: r.levels,
     checkSize: Math.max(r.min_events, forShare),
+    order,
   };
 }
 
@@ -45,7 +48,7 @@ export async function colourRules(): Promise<ColourRules> {
  *  skill's easiest. */
 export function checkLevel(rules: ColourRules, band: string, defined: string[]): string {
   const start = rules.levels[band];
-  return start && defined.includes(start) ? start : (DIFFICULTIES.find((l) => defined.includes(l)) ?? start ?? DIFFICULTIES[0]);
+  return start && defined.includes(start) ? start : (rules.order.find((l) => defined.includes(l)) ?? start ?? rules.order[0]);
 }
 
 /** One line of a check: a skill, its level, how many questions. */

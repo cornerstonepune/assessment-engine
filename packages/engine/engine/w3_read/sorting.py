@@ -20,7 +20,7 @@ from engine.assess import mark
 from engine.w3_read import render_pdf
 
 OURS = re.compile(r"^CS[0-9A-F]{6}$")
-WORKSHEET = re.compile(r"^[RMX]\d{1,2}-[EMHA]\d{2,3}$")  # the library's codes, as the website checks them
+WORKSHEET = re.compile(r"^[RMX]\d{1,2}-[A-Z]\d{2,3}$")  # the library's codes, as the website checks them
 
 
 _QR = zxingcpp.BarcodeFormats(zxingcpp.BarcodeFormat.QRCode)

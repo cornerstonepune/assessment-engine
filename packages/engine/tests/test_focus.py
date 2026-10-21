@@ -45,7 +45,13 @@ CATALOG = [
     },
     {"code": "REASON.EXPLAIN", "rung": "X1", "order": None, "own": "NUM.PRB.03", "skills": {"NUM.PRB.03"}},
 ]
-RULE = {"most": 3, "reach": 2, "easy_below": 0.5}
+RULE = {
+    "most": 3,
+    "reach": 2,
+    "easy_below": 0.5,
+    "order": ("Easy", "Medium", "Hard", "Advance"),
+    "usual": "Medium",
+}
 
 
 def row(skill, rung, state, right, answered, mistake=None):

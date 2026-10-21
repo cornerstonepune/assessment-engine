@@ -1,0 +1,35 @@
+name: b0c-levels-from-the-table
+goal: >
+  The four levels' names, order and worksheet letters are read from `difficulty` everywhere: the engine, the website
+  and the database's own functions. The level a paper is at when nothing says otherwise ("Medium") is one config row,
+  `level.usual`, where four files each wrote it. A test fails if any file outside the maths library names a level, or
+  writes the letters of the worksheet codes. No paper, worksheet code or child's map changes: the next level a child's
+  answers call for, and the letter in every worksheet code, are what they were.
+# Written 2026-10-20, before the code. BUILD-ORDER row B0c; Nimish approved "all backend first" (B0–B4) on the audit in
+# claude.ai/code/artifact/71c2aaf5-06c1-49b7-bcd5-2e6761154e9e (Backend tab §3, §7). ADR 0084.
+says:
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_levels.py::test_no_file_outside_the_maths_library_names_a_level"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_levels.py::test_no_database_function_names_a_level"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_levels.py::test_the_order_and_the_letters_are_the_tables"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_levels.py::test_a_level_added_is_a_row_the_engine_takes"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_levels.py::test_the_next_level_is_what_it_was"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_levels.py::test_every_worksheet_code_keeps_its_letter"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: the levels are the table's, and nothing a child or educator sees moved
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_levels.py tests/test_vocabulary.py tests/test_focus.py tests/test_focus_paper.py tests/test_week.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
