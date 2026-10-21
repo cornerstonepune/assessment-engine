@@ -53,6 +53,7 @@ WEB_CALLS = {
     "skill_taught_in",  # whether a class has been taught a skill: the one rule (goals/t1-topics-are-operations.yaml)
     "say_taught",  # a person's word that a class has (or has not) been taught a topic or one skill of it
     "checks_to_trust",
+    "skill_levels",  # a skill's levels as one object, built from their rows (goals/b1-levels-are-rows.yaml)
 }
 
 

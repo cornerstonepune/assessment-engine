@@ -23,6 +23,10 @@
   and approvals from the rows), `queries-children.ts` (the levels a grade uses), `queries-worksheets.ts` (a
   worksheet's level words), `queries-taxonomy.ts` (where a case is set), and the curriculum, children, worksheets,
   papers/approve and skill-set pages that read through them. `tests/test_skill_level.py`'s guard names every one.
+- **The site may call `skill_levels`** (migration 20261124090000): CI's browser job on 4a19318 failed on 43 pages
+  with "permission denied for function skill_levels"; 20261123090000 had granted it to the engine's role alone (our
+  functions answer only whom a migration names, 20261019090000). `test_roles.py` now lists it among the site's calls:
+  failed first, passes after the grant; as `app_web` on the fresh build, 46 skills' levels read.
 - **Left on the blob, by design (ADR 0087):** the writers (the site's edit, approval and move, the loader, `engine
   ratify`, `cases` bringing levels to the seed), and "who last moved a level, when" (`level_band_by`/`_at`), which is
   the skill's record and has no column on a level's row.
