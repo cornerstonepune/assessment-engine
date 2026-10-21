@@ -5,17 +5,22 @@ import { NotYours } from "@/components/not-yours";
 import { isMine, scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { staffList } from "@/lib/queries";
-import { seeHref } from "@/lib/next-paper";
+import { readDraw, seeHref } from "@/lib/next-paper";
+import { CHANGED, Questions } from "@/components/questions";
 import { classHome, type ClassChild } from "@/lib/queries-make";
 import { classPacksWaiting } from "@/lib/queries-today";
 import { isoWeek, weekWords } from "@/lib/week";
 import { approveHome } from "../actions";
 
-type Props = { params: Promise<{ section: string }>; searchParams: Promise<Record<string, string | undefined>> };
+type Props = { params: Promise<{ section: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 // One class's home papers for the week (goals/ux5b-make-and-marking.yaml): each child still waiting is one line — the
 // one skill the engine proposes, why, and one next step: approve it, or choose one where the engine has nothing to go on.
-// The paper is seen from what it works on; the children already approved fold under one line.
+// Each paper's questions are on the line before anything prints, and "Different questions" draws others for that child
+// alone, making nothing (goals/preview-before-print.yaml); approving prints the questions shown. The address carries
+// each child's draw as `draw=<child>~<n>`. The children already approved fold under one line.
 export default async function ClassHomePapers({ params, searchParams }: Props) {
   const me = await requireStaff();
   const [{ section: raw }, q] = await Promise.all([params, searchParams]);
@@ -23,7 +28,18 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
   const scope = scopeOf(me);
   if (!isMine(scope, section)) return <NotYours what={section} />;
   const week = isoWeek();
-  const [children, staff, packs] = await deadline(Promise.all([classHome(section, me.email, week), staffList(), classPacksWaiting(scope)]));
+  const draws: Record<string, number> = {};
+  for (const d of [q.draw ?? []].flat()) {
+    const [child, n] = d.split("~");
+    if (child && readDraw(n)) draws[child] = readDraw(n);
+  }
+  // "Different questions" for one child: every other child keeps the questions on screen
+  const differentFor = (id: string) => {
+    const next = new URLSearchParams();
+    for (const [c, n] of Object.entries({ ...draws, [id]: (draws[id] ?? 0) + 1 })) next.append("draw", `${c}~${n}`);
+    return `/make/${encodeURIComponent(section)}?${next}`;
+  };
+  const [children, staff, packs] = await deadline(Promise.all([classHome(section, me.email, week, draws), staffList(), classPacksWaiting(scope)]));
   const name = Object.fromEntries(staff.map((s) => [s.email, s.name]));
   const waiting = children.filter((c) => !c.proposal.approved);
   const approved = children.flatMap((c) => (c.proposal.approved ? [{ ...c, done: c.proposal.approved }] : []));
@@ -38,10 +54,15 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
       <PageHeader
         stage="Assessments · make"
         title={`${section} · home assessments`}
-        sub={`This week, ${weekWords(week)}. Each child's home assessment works on one skill from their own map. Approve them, or choose a different one for any child.`}
+        sub={`This week, ${weekWords(week)}. Each child's home assessment works on one skill from their own map; its questions are on its line before anything prints. Approve them, ask for different questions, or choose a different one for any child.`}
       />
       <Body>
-        {q.approved ? <Notice tone="neem">Approved {q.approved}, in your name. They print as each child&rsquo;s home assessment.</Notice> : null}
+        {one(q.approved) ? <Notice tone="neem">Approved {one(q.approved)}, in your name. They print as each child&rsquo;s home assessment.</Notice> : null}
+        {one(q.changed) ? (
+          <Notice tone="terracotta">
+            {one(q.changed)} not printed. {CHANGED}
+          </Notice>
+        ) : null}
         <div className="mb-[18px] flex flex-wrap items-center gap-3">
           {scope.classes?.length === 1 ? null : (
             <Link href="/make" className="chip">
@@ -56,7 +77,11 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
               <input type="hidden" name="week" value={week} />
               <input type="hidden" name="section" value={section} />
               {proposed.map((c) => (
-                <input key={c.id} type="hidden" name="child_id" value={c.id} />
+                <span key={c.id} hidden>
+                  <input type="hidden" name="child_id" value={c.id} />
+                  <input type="hidden" name="draw" value={draws[c.id] ?? 0} />
+                  <input type="hidden" name="seen" value={c.proposal.seen} />
+                </span>
               ))}
               <button className="btn" type="submit">
                 Approve all {proposed.length}
@@ -92,17 +117,23 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
                   {waiting.map((c) => {
                     const a = c.proposal.areas[0];
                     return (
-                      <tr key={c.id}>
+                      <tr key={c.id} data-child={c.id}>
                         <td className="fact">{c.roll_no}</td>
                         <td>
                           <Link href={`/growth/${c.id}`}>{c.first_name}</Link>
                         </td>
                         <td className="sm:min-w-[9rem]">
                           {a ? (
-                            <a href={seeHref(c.id, week)} target="_blank" rel="noreferrer">
-                              {a.name} · {a.level}
-                              {each ? null : ` · ${a.questions.length} questions`}
-                            </a>
+                            <>
+                              <a href={seeHref(c.id, week, [], draws[c.id] ?? 0)} target="_blank" rel="noreferrer">
+                                {a.name} · {a.level}
+                                {each ? null : ` · ${a.questions.length} questions`}
+                              </a>
+                              <details className="mt-1">
+                                <summary className="cursor-pointer text-[13px]">Its questions</summary>
+                                <Questions name={a.name} level={a.level} questions={a.questions} />
+                              </details>
+                            </>
                           ) : (
                             <span className="text-basalt/62">Not enough checked work yet</span>
                           )}
@@ -115,10 +146,15 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
                                 <input type="hidden" name="week" value={week} />
                                 <input type="hidden" name="section" value={section} />
                                 <input type="hidden" name="child_id" value={c.id} />
+                                <input type="hidden" name="draw" value={draws[c.id] ?? 0} />
+                                <input type="hidden" name="seen" value={c.proposal.seen} />
                                 <button className="cursor-pointer font-semibold text-terracotta underline-offset-2 hover:underline" type="submit">
                                   Approve
                                 </button>
                               </form>
+                              <Link href={differentFor(c.id)} className="mt-1 block text-[12.5px]">
+                                Different questions
+                              </Link>
                               <Link href={custom(c)} className="mt-1 block text-[12.5px]">
                                 or choose another
                               </Link>

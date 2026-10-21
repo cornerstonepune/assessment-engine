@@ -37,11 +37,18 @@ def a_child(conn, section=None):
     return child
 
 
+WAITED = {
+    "correct": "read as a right answer; a person checks every answer of this kind until the reader is trusted on it",
+    "wrong": "read as a wrong answer; a person checks every wrong answer before it counts",
+    "blank": "read as blank; a person checks every blank before it counts",
+}
+
+
 def a_read_paper(conn, answers, path="scan.pdf", paper="TEST-P1", fmt="column"):
     """One child's paper, read: a child, the worksheet it was printed from, its copy, the scan and one answer per
     entry of `answers`. Each entry is a dict of `status` (correct / wrong / blank / needs_teacher), `read` (what
-    the reader took the child to have written), and optionally `state` (candidate / confirmed) and `typed` (a
-    person's correction of the reading). → {"child", "capture", "results": [item_result ids, in order]}."""
+    the reader took the child to have written), and optionally `state` (candidate / confirmed), `typed` (a
+    person's correction of the reading) and `why` (the reason it waited; a confirmed answer's is marking's hold). → {"child", "capture", "results": [item_result ids, in order]}."""
     t = tenant(conn)
     tag = uuid.uuid4().hex[:6].upper()
     child = a_child(conn, f"ROWS-{tag}")
@@ -74,7 +81,9 @@ def a_read_paper(conn, answers, path="scan.pdf", paper="TEST-P1", fmt="column"):
             ),
         ).fetchone()["id"]
         state = "blank" if a["status"] == "blank" else "written"
-        raw = {"child_answer": a["read"], "answer_state": state, "confidence": 95.0, "why": ""}
+        # an answer a person signed off had waited for them, as marking holds every answer until its kind is trusted
+        why = a.get("why", WAITED.get(a["status"], "") if a.get("state") == "confirmed" else "")
+        raw = {"child_answer": a["read"], "answer_state": state, "confidence": 95.0, "why": why}
         res = conn.execute(
             "insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status, state)"
             " values (%s, %s, %s, 'a', %s, %s, %s) returning id",

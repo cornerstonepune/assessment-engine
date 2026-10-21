@@ -12,6 +12,9 @@ import postgres from "postgres";
 const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
 const SECTION = "U10-TEST";
 
+// a signed-off answer is a check only once it waited for a person (ADR 0090): these waited for their kind's trust
+const WAITED = "read as a right answer; a person checks every answer of this kind until the reader is trusted on it";
+
 /** Two days of checked answers, made once and kept: on 1 August the reader read two answers and a person put one right
  *  (half right); on 2 August it read two and both stood (all right) — so 2 August is 50 points up on 1 August. */
 async function twoDays() {
@@ -45,7 +48,7 @@ async function twoDays() {
                 ${sql.json({ op: "-", a: 62, b: 27 })}, ${sql.json([{ rid: "a", answer: 35 }])}, 'legacy') returning id`;
       const [{ id: result }] = await sql<{ id: string }[]>`
         insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status, state)
-        values (${tenant}, ${cap}, ${item}, 'a', ${JSON.stringify({ child_answer: read })}, ${typed === "34" ? "wrong" : "correct"}, 'confirmed')
+        values (${tenant}, ${cap}, ${item}, 'a', ${JSON.stringify({ child_answer: read, why: WAITED })}, ${typed === "34" ? "wrong" : "correct"}, 'confirmed')
         returning id`;
       if (typed) {
         await sql`insert into read_correction (tenant_id, child_id, capture_id, item_result_id, model_read, human_read, misconception_codes, by)

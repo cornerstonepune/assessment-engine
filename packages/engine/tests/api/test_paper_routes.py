@@ -46,7 +46,15 @@ def child(conn):
 def test_a_teacher_previews_a_paper_then_it_prints_in_their_name(client, child, conn):
     plan = client.post(f"/child/{child}/paper/plan", headers=HEADERS, json=ASK)
     assert plan.status_code == 200 and plan.json()["n"] == 4
-    made = client.post(f"/child/{child}/paper", headers=HEADERS, json={**ASK, "by": "teacher@school.test"})
+    by = {"by": "teacher@school.test"}
+    assert client.post(f"/child/{child}/paper", headers=HEADERS, json={**ASK, **by}).status_code == 422, (
+        "nothing prints that was not shown first (goals/preview-before-print.yaml)"
+    )
+    other = client.post(f"/child/{child}/paper", headers=HEADERS, json={**ASK, **by, "seen": "0" * 16})
+    assert other.status_code == 412, "questions other than the ones shown never print"
+    made = client.post(
+        f"/child/{child}/paper", headers=HEADERS, json={**ASK, **by, "seen": plan.json()["seen"]}
+    )
     assert made.status_code == 200, made.text
     row = conn.execute(
         "select kind, approved_by from sheet_instance where qr_code = %s", (made.json()["qr"],)

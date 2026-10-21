@@ -27,6 +27,7 @@ from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
 from engine.core import db, mistake_names, roster, settings, vocabulary
 from engine.w1_bank.inventory import item_from_row
+from engine.w2_print import seen as shown
 from engine.w2_print.assemble import _qr
 from engine.w2_print.shelf import _levels, _once, catalog, home_length, rule
 
@@ -205,17 +206,18 @@ def home_area(conn, child_id: str, states: list | None = None) -> list:
     return [_where_it_shows(conn, a, levels) for a in focus.home(states, taught, rule(conn), levels)]
 
 
-def plan(conn, child_id: str, week: str, ask: list | None = None, taken=()) -> dict:
+def plan(conn, child_id: str, week: str, ask: list | None = None, taken=(), draw: int = 0) -> dict:
     """The areas and the questions for a paper for this child; nothing is written. Without `ask`, the home paper
     the graph proposes; with it, the areas a teacher asked for — refused, never padded, when the bank holds too
-    few questions the child has not seen. `taken`: questions already on another child's paper of the same batch."""
+    few questions the child has not seen. `taken`: questions already on another child's paper of the same batch.
+    `draw`: the educator's "different questions", the same areas drawn again (goals/preview-before-print.yaml)."""
     states = _states(conn, child_id)
     if ask:
         chosen = _asked(conn, states, ask)
     else:
         n = home_length(conn)
         chosen = [(a, n) for a in home_area(conn, child_id, states)]
-    rng = random.Random(f"{child_id}|{week}")
+    rng = random.Random(f"{child_id}|{week}" + (f"|{draw}" if draw else ""))
     return {
         "child_id": child_id,
         "week": week,
@@ -289,19 +291,28 @@ def approved(conn, child_id: str, week: str) -> dict | None:
 
 
 def make(
-    conn, child_id: str, week: str, actor: str, ask: list | None = None, replaces: str | None = None
+    conn,
+    child_id: str,
+    week: str,
+    actor: str,
+    ask: list | None = None,
+    replaces: str | None = None,
+    draw: int = 0,
+    seen: str | None = None,
 ) -> dict:
     """`actor` approves the plan: it prints as this child's paper, its QR, its questions seen, and names them.
     Made again the same week, the newest is the week's home assessment (`approved`): `replaces` is the one the
     educator saw (None: none), and a click that saw an older one is refused, so two clicks together print one paper.
-    A teacher may ask for as many custom papers as the bank can fill."""
+    A teacher may ask for as many custom papers as the bank can fill. It prints the `draw` the educator saw, and only
+    while it is still the questions they saw (`seen`, `seen.check`)."""
     # one approval at a time per child, so two teachers clicking together cannot both print a paper at once
     conn.execute("select id from child where id = %s for update", (child_id,))
     kind = "custom" if ask else "focus"
     now = None if ask else approved(conn, child_id, week)
     if now and now["qr"] != replaces:
         raise ValueError(f"this week's home assessment was just made: {now['qr']} by {now['approved_by']}")
-    p, _ = _planned(conn, child_id, week, ask)
+    p, _ = _planned(conn, child_id, week, ask, draw)
+    shown.check([p], seen)
     return {**print_paper(conn, child_id, week, actor, kind, p, HOW[kind]), "areas": p["areas"]}
 
 
@@ -340,8 +351,8 @@ def print_paper(conn, child_id: str, week: str, actor: str, kind: str, p: dict, 
     return {"qr": qr, "pdf_path": str(pdf), "pages": key["pages"], "questions": len(ids)}
 
 
-def _planned(conn, child_id, week, ask):
-    p = plan(conn, child_id, week, ask)
+def _planned(conn, child_id, week, ask, draw=0):
+    p = plan(conn, child_id, week, ask, draw=draw)
     ids = [q["id"] for a in p["areas"] for q in a["questions"]]
     if not ids:
         raise ValueError(NOTHING)
@@ -366,10 +377,10 @@ def heading(kind, areas, name, how=None):
     return f"{title}: " + " · ".join(areas), f"{name or title} · {title}, {how or HOW[kind]}"
 
 
-def preview(conn, child_id: str, week: str, actor: str, ask: list | None = None) -> bytes:
+def preview(conn, child_id: str, week: str, actor: str, ask: list | None = None, draw: int = 0) -> bytes:
     """The paper `make` would print now, as PDF bytes, before anyone approves it: the same plan, the same page,
     its QR `PREVIEW`. Nothing is written — no sheet, no QR, no question marked seen."""
-    p, ids = _planned(conn, child_id, week, ask)
+    p, ids = _planned(conn, child_id, week, ask, draw)
     with tempfile.TemporaryDirectory() as tmp:
         _render(conn, child_id, week, actor, "custom" if ask else "focus", p, ids, PREVIEW, tmp)
         return (Path(tmp) / f"{PREVIEW}.pdf").read_bytes()
