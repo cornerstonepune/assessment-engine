@@ -20,6 +20,15 @@ Each line names the command that proves it; outputs are this session's, on a fre
   tests/m2-make-papers.spec.ts tests/m4-the-maker.spec.ts tests/m5-every-kind-draws.spec.ts
   tests/s7-paper-from-library.spec.ts` → `23 passed`.
 - `bin/check` → `28 passed`, lint clean.
+- The route tests now preview before they print; a print with no `seen` is refused (422), one with another paper's `seen`
+  is refused (412) — `uv run pytest -q tests/api/` → `83 passed`.
+- The class's home assessments still say the shared count once — `npx playwright test tests/u38-make-and-marking.spec.ts
+  tests/u2-children.spec.ts` → `13 passed`.
+- CI on `ccb3802`: engine `2609 passed, 2 skipped … in 1955.00s (0:32:35)`; browser, web green.
+- `bin/engine done preview-before-print` → all seven of Nimish's sentences PROVED; criteria: the paper tests `39 passed`,
+  `bin/check` `28 passed`; the whole suite "timed out after 1800s" there, because the suite takes 32 minutes on CI and
+  longer here — the same criterion on every goal, not raised. CI above is the whole suite's own run. Report: NOT DONE on
+  that line alone.
 
 ## Handoff
 
