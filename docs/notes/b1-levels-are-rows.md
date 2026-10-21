@@ -38,6 +38,12 @@
   data`, `engine audit`: every check ok). Whole suite then: 2583 passed, 2 skipped.
 - **Checks:** the moved-readers test failed on the old `shelf.py` (`approved_levels` missed a level approved in its
   row alone) and passes on the new; B1's tests and the loader's: 18 passed.
+- **Whole engine suite after the merge**, on a database built from every migration (`bin/testdb fresh`): 2588
+  passed, 2 skipped, 1 failed — `test_focus_paper`'s level-order check, which held the blob's key order (Easy, Hard,
+  Medium, Advance: Postgres sorts an object's keys by length). The shelf now gives a skill's levels in the school's
+  order (`difficulty.ord`); the papers use them as a set, so no paper moves. The test now says the school's order;
+  that file, the maker's, the loader's and B1's: 51 passed. `bin/check`: 28 passed. (This container's Chromium was
+  older than Playwright asked for; pointed at the installed one, outside the repo.)
 
 ## Handoff
 
