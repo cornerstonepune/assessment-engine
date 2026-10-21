@@ -8,9 +8,7 @@
  * kept; the papers the test makes are removed.
  */
 import { expect, test, type Page } from "@playwright/test";
-import { randomBytes } from "node:crypto";
 import postgres from "postgres";
-import { isoWeek } from "../lib/week";
 import { TEST_STAFF } from "./global-setup";
 import { aLine } from "./rows";
 
@@ -201,17 +199,15 @@ test("a choice changed after the papers are seen stops Make until they are seen 
 
 test("a batch the engine refuses comes back as the educator chose it, the children they picked", async ({ page }) => {
   const form = await seen(page, /Home assessment/);
-  // between seeing and making, Asha is given this week's home assessment elsewhere
-  const [{ tenant }] = await sql<{ tenant: string }[]>`select id as tenant from tenant limit 1`;
-  const [{ id: template }] = await sql<{ id: string }[]>`
-    insert into sheet_template (tenant_id, band, week, item_ids, source, child_id)
-    values (${tenant}, 'G2', ${isoWeek()}, '{}', 'focus', ${ids.Asha}) returning id`;
-  await sql`
-    insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, section, kind, print_status, approved_by)
-    values (${tenant}, ${`CS${randomBytes(3).toString("hex").toUpperCase()}`}, ${template}, ${ids.Asha}, ${isoWeek()}, ${SECTION},
-            'focus', 'printed', 'someone@school.test')`;
-  await page.getByRole("button", { name: "Make and approve 2 home assessment papers" }).click();
-  await expect(page.getByText("already has this week's home assessment").first()).toBeVisible();
+  // between seeing and making, Asha leaves the roll (a second home assessment in a week is no longer refused:
+  // goals/home-assessment-remake.yaml), so the batch is refused whole
+  await sql`update child set active = false where id = ${ids.Asha}`;
+  try {
+    await page.getByRole("button", { name: "Make and approve 2 home assessment papers" }).click();
+    await expect(page.getByText("pick children who are on the roll").first()).toBeVisible();
+  } finally {
+    await sql`update child set active = true where id = ${ids.Asha}`;
+  }
   // Chetan stays unticked and unplanned: a refused batch came back planned for the whole class
   await expect(form.getByRole("checkbox", { name: "Chetan" })).not.toBeChecked();
   await expect(form.getByRole("checkbox", { name: "Bina" })).toBeChecked();

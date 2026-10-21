@@ -92,6 +92,7 @@ test("a home assessment is made again the same week and the newest is the week's
   const first = new URL(page.url()).searchParams.get("paper")!;
   const panel = page.getByRole("region", { name: "Home assessment" });
   await panel.getByRole("button", { name: "Make a new home assessment" }).click();
+  await expect(page).toHaveURL(/\?paper=CS[0-9A-F]{6}$/);
   await expect(page).not.toHaveURL(new RegExp(`paper=${first}$`));
   const second = new URL(page.url()).searchParams.get("paper")!;
   expect(second).toMatch(/^CS[0-9A-F]{6}$/);
@@ -100,6 +101,7 @@ test("a home assessment is made again the same week and the newest is the week's
   await expect(panel.getByRole("link", { name: second })).toBeVisible();
   await expect(panel.locator("[data-replaced]")).toContainText(`Replaced this week: ${first}`);
   await panel.getByRole("button", { name: "Make a new home assessment" }).click();
+  await expect(page).not.toHaveURL(new RegExp(`paper=${second}$`));
   const third = new URL(page.url()).searchParams.get("paper")!;
   expect(new Set([first, second, third]).size).toBe(3);
   await expect(panel.locator("[data-replaced]")).toContainText(`${second}, ${first}`);
