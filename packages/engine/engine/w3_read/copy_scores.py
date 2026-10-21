@@ -10,13 +10,14 @@ from engine.w3_read import copies
 
 def tally(conn, capture_id) -> dict:
     """What the engine made of one copy's answers: settled right, and waiting for a person as read right,
-    read wrong, read blank or not read at all — the reason each waits is its own (`marking.mark_read`)."""
+    read wrong, read blank or not read at all — the reason each waits is its own (`marking.mark_read`). Each answer is
+    in one count: one read wrong or blank that a person judged right is right."""
     return conn.execute(
         "select count(*) filter (where status = 'correct') as right,"
         " count(*) filter (where status <> 'correct' and raw_read::jsonb ->> 'why' like 'read as a right%%')"
         "   as right_waiting,"
-        " count(*) filter (where raw_read::jsonb ->> 'why' like 'read as a wrong%%') as wrong,"
-        " count(*) filter (where raw_read::jsonb ->> 'why' like 'read as blank%%') as blank,"
+        " count(*) filter (where status <> 'correct' and raw_read::jsonb ->> 'why' like 'read as a wrong%%') as wrong,"
+        " count(*) filter (where status <> 'correct' and raw_read::jsonb ->> 'why' like 'read as blank%%') as blank,"
         " count(*) filter (where status <> 'correct') as waiting"
         " from item_result where capture_id = %s",
         (capture_id,),
