@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""The engine's tests cut across CI's parallel runners, and the proof that every test still ran exactly once.
+The standard library only; CI's engine shards call it (.github/workflows/ci.yml, goals/ci-engine-shards.yaml):
+
+  bin/ci-shard pick K N collected.txt durations.json   the test ids runner K of N runs, in the suite's order
+  bin/ci-shard check N DIR                              every runner saw the same suite, the shards split it
+                                                        exactly, each ran every test it was given and left its
+                                                        coverage data
+  bin/ci-shard durations report.xml …                   the seconds each test file took, for durations.json;
+                                                        a file over CUT seconds, each of its tests
+
+Files are dealt slowest first, each to the runner with the least so far, so the runners finish together. A file
+stays whole on one runner, its tests in their order, unless durations.json times its tests one by one: then each
+of them is dealt on its own. That is for the few files longer than a runner's share (test_copies.py took 5 minutes
+of the 29 on 2026-10-21), and only where their tests share nothing costlier than a connection. Every runner runs
+its tests in the suite's own order. A file or test the durations do not name yet counts as an average one; a stale
+durations file can only make the runners finish unevenly, never drop a test, since `check` holds the cut to the
+collection itself.
+"""
+
+import json
+import sys
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+
+KEPT = ("collected.txt", "assigned.txt", "report.xml", "coverage.data")
+CUT = 120  # seconds: a file longer than this is timed, and dealt, test by test
+
+
+def collected(path):
+    """The test ids `pytest --collect-only -q` printed, in its order."""
+    return [line.strip() for line in Path(path).read_text().splitlines() if "::" in line]
+
+
+def by_file(ids):
+    files = {}
+    for i in ids:
+        files.setdefault(i.split("::")[0], []).append(i)
+    return files
+
+
+def _mean(xs):
+    return sum(xs) / len(xs) if xs else 1.0
+
+
+def units(ids, seconds):
+    """→ [(seconds, ids)]: each file whole, or each of its tests alone where the durations time them one by one."""
+    usual = _mean([v for k, v in seconds.items() if "::" not in k])
+    out = []
+    for f, tests in by_file(ids).items():
+        timed = {k: v for k, v in seconds.items() if k.startswith(f + "::")}
+        if timed:
+            out += [(timed.get(i, _mean(list(timed.values()))), [i]) for i in tests]
+        else:
+            out.append((seconds.get(f, usual), tests))
+    return out
+
+
+def deal(ids, seconds, n):
+    """→ n lists of ids, slowest unit first, each to the runner with the least time so far; each list in the suite's
+    order."""
+    order = {i: k for k, i in enumerate(ids)}
+    load, shards = [0.0] * n, [[] for _ in range(n)]
+    for secs, tests in sorted(units(ids, seconds), key=lambda u: (-u[0], u[1][0])):
+        k = load.index(min(load))
+        load[k] += secs
+        shards[k] += tests
+    return [sorted(s, key=order.__getitem__) for s in shards]
+
+
+def ran(report):
+    """How many tests a junit report says ran: passed, failed, errored and skipped alike."""
+    root = ET.parse(report).getroot()
+    suites = [root] if root.tag == "testsuite" else root.iter("testsuite")
+    return sum(int(s.get("tests", 0)) for s in suites)
+
+
+def check(n, folder):
+    """→ the problems, none if the shards ran the whole suite once. Each shard k left in folder/k/:
+    collected.txt (the whole suite as it collected it), assigned.txt (its cut), report.xml (what ran) and
+    coverage.data. A shard's coverage missing would let the floor be read off the others alone (2026-10-21: a
+    shard whose tests failed uploaded none, and the combined total fell 0.7 points with nothing saying why)."""
+    shards = [Path(folder) / str(k) for k in range(1, n + 1)]
+    missing = [f"no {f} from {s}" for s in shards for f in KEPT if not (s / f).exists()]
+    if missing:
+        return missing
+    suites = [collected(s / "collected.txt") for s in shards]
+    problems = [f"shard {k} collected a different suite" for k, s in enumerate(suites, 1) if s != suites[0]]
+    whole, given, seen = set(suites[0]), [], {}
+    for k, s in enumerate(shards, 1):
+        cut = collected(s / "assigned.txt")
+        given += cut
+        if ran(s / "report.xml") != len(cut):
+            problems.append(f"shard {k} was given {len(cut)} tests and ran {ran(s / 'report.xml')}")
+        for i in cut:
+            seen.setdefault(i, []).append(k)
+    problems += [f"{i} ran in shards {ks}" for i, ks in seen.items() if len(ks) > 1]
+    problems += [f"{i} is in no shard" for i in sorted(whole - set(given))]
+    problems += [f"{i} is in a shard and not in the suite" for i in sorted(set(given) - whole)]
+    return problems
+
+
+def _test_id(case):
+    """A junit test case's pytest id: its file, its class if it has one, its name with any parameters."""
+    f, classname = case.get("file"), case.get("classname", "")
+    module = f.removesuffix(".py").replace("/", ".")
+    within = classname.removeprefix(module).strip(".")
+    return "::".join([f, *within.split(".")] if within else [f]) + "::" + case.get("name")
+
+
+def durations(reports, cut=CUT):
+    """→ {test file: seconds}, summed over every test case (setup and teardown in), from xunit1 reports; a file
+    over `cut` seconds as each of its tests instead."""
+    files, tests = {}, {}
+    for r in reports:
+        for case in ET.parse(r).getroot().iter("testcase"):
+            if case.get("file"):
+                t = float(case.get("time", 0))
+                files[case.get("file")] = files.get(case.get("file"), 0.0) + t
+                tests[_test_id(case)] = t
+    out = {f: round(s, 2) for f, s in files.items() if s <= cut}
+    out |= {i: round(s, 2) for i, s in tests.items() if files[i.split("::")[0]] > cut}
+    return dict(sorted(out.items()))
+
+
+def main(argv):
+    match argv:
+        case ["pick", k, n, ids, secs]:
+            print("\n".join(deal(collected(ids), json.loads(Path(secs).read_text()), int(n))[int(k) - 1]))
+        case ["check", n, folder]:
+            problems = check(int(n), folder)
+            for p in problems[:50]:
+                print(p, file=sys.stderr)
+            if problems:
+                return 1
+            total = sum(len(collected(Path(folder) / str(k) / "assigned.txt")) for k in range(1, int(n) + 1))
+            print(f"every one of the {total} tests ran once, across {n} shards")
+        case ["durations", *reports] if reports:
+            print(json.dumps(durations(reports), indent=1))
+        case _:
+            print(__doc__, file=sys.stderr)
+            return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
