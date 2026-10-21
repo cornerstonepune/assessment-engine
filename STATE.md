@@ -8298,6 +8298,14 @@ one child on live.
   rows; live already holds B0b's migration, so only 20261121090000 applied; `library build` made 0, retired 0; the copy
   after clean. `bin/engine done` again: six sentences PROVED, criteria 1 and 3 PASSED, the whole suite timed out at
   1800 s here (CI runs it).
+- **Merged with #232 (main, 37683c3) at 80aebcf:** the marking check (`live_data._marking`) and its test are main's; this
+  branch's port of L13's check is gone. Main added no migration; a fresh database from all 82 migrations (B0c's
+  20261121090000 last) built cleanly; rules.json unchanged. `bin/check` 28 passed; level, grade, rules, live-data,
+  copies, vocabulary and library tests 86 passed. `bin/engine done b0c-levels-from-the-table`: six sentences PROVED; all
+  three criteria PASSED, the whole suite 2577 passed, 2 skipped in 1673 s; NOT DONE for not being on main or live.
+  Rehearsal run 39531106626 on 80aebcf green: 160,215 rows copied; live at 20261120090000, so only 20261121090000
+  applied; `library build` made 0, retired 0; the copy after: 19 invariants, 0 violations; `ok Marking counts each
+  printed question once`.
 
 ## Marking counts each answer once: the check counted questions, not answers (2026-10-20, W3)
 

@@ -11,7 +11,8 @@ is verified. This file only says where the last session stopped.
   B0c's applied on its 160,215 rows, no worksheet code changed.
 - **Merged with #232 (main, 37683c3):** the marking check and its test are now main's (#232 counts each answer by its
   `rid`); the earlier port (d96972f) is gone. Main added no migration; B0c's 20261121090000 is still last.
-- **Next:** Nimish merges #228 (alone or after #230), then live is migrated and deployed; then B0d.
+  `bin/engine done`: six PROVED, three criteria PASSED (suite 2577 passed); rehearsal run 39531106626 green.
+- **Next:** Nimish merges #228, then live is migrated and deployed; then B0d.
 
 ## 2026-10-20 — the 5 papers "counted twice" were never counted twice (W3); PR on `claude/marking-counts-once`, draft
 - **The check was wrong, not the data** (STATE.md "Marking counts each answer once"): their grid questions ask five
