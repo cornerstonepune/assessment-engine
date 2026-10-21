@@ -33,14 +33,31 @@ numbers written as a name, else the template (decision B2-1). Command: `.github/
 
 ## Verified
 
-Phase 1 (no B1 yet):
+On a database built fresh from this branch (`bin/testdb fresh`, 2026-10-21) unless said otherwise.
 
+- `bin/engine done b2-question-types-are-rows` → every one of Nimish's 11 sentences `PROVED`; criteria: the types,
+  links, seed and migration `23 passed`; every path that makes a paper `83 passed`; `bin/check` `28 passed`; the whole
+  suite `timed out after 1800s` here (this container takes 52 min), so it is proved by the next line and CI. `NOT DONE`
+  only for what is not live: the branch is not on main, the live database was not asked.
+- `uv run pytest -q` (whole engine suite) → `5 failed, 2595 passed`; the 5 then fixed and `27 passed`
+  (tests/test_approval.py, test_rules.py, test_spec.py, test_level_approval.py, test_provenance.py). Here the browser is
+  the container's own (`PLAYWRIGHT_BROWSERS_PATH` pointed at /opt/pw-browsers' headless shell); without it every page
+  render errors, which is this container, not the code. CI `engine` on PR #240 → success.
 - `bin/check` → `28 passed`.
-- `uv run pytest tests/test_question_types.py` on the fresh seed → `11 failed`: no `question_type` table, no gate,
-  no migration yet. The tests are written before the code.
-- `bin/engine past` on the fresh seed → `evidence 0 rows checksum d41d8cd98f…` (no child there).
+- Rehearse update-live on this branch (run 39564332907, success, the copy clean):
+  - `engine past` before the migrations, after them and after update-live, all three equal: evidence 1740 rows
+    `8f69097f…`, states 274 `8ef89d8c…`, scored answers 12545 `4e36e878…`.
+  - after B2: types 74, approved 74, level × type links 394; active questions 43840, a paper may draw 43512. The 328
+    between are the earlier papers' questions (the seed's 17 papers hold exactly 328), which no paper draws; the next
+    rehearsal counts the bank's own questions alone.
+- CI `browser` on PR #240 failed on `permission denied for function skill_levels` — B1's, fixed on B1 (eb2c132) and
+  merged here; re-run on the new head.
 
 ## Handoff
 
-- In flight: phase 2 waits for B1 to bring in B0d, then builds on `skill_level`.
+- Live: nothing. In flight: PR #240 (draft), built on B1 (#234), which merges first; then main merges here.
+- Next: once #234 merges, merge main, CI green, mark #240 ready.
+- Decision for Nimish: the skills' `formats` list stays only as the generator's input (146 of 178 levels); move it
+  into each level's rule with B3/B4, or leave it (ADR 0088).
 - Open: B2-3 (Achal): words for `word_budget`; whether chunking and long division are types of their own.
+- Visible on the day: the library page's kind chips sort by their words and include chunking and long division.
