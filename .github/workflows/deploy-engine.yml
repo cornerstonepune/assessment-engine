@@ -121,6 +121,22 @@ jobs:
           git archive --format=tar HEAD | $S 'tar -x -C ~/assessment-engine.new'
           # the server's own settings go across to the new copy; they are never in git
           $S 'cp ~/assessment-engine/.env ~/assessment-engine.new/.env && rm -rf ~/assessment-engine && mv ~/assessment-engine.new ~/assessment-engine'
+      - name: the model key, from the repository's secret
+        if: steps.plan.outputs.go == 'yes'
+        env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}", ANTHROPIC_API_KEY: "${{ secrets.ANTHROPIC_API_KEY }}" }
+        # The key lived only in the server's .env, put there by hand; from 29 Sep it was not there, and every call the
+        # second reader made failed quietly for three weeks ("ANTHROPIC_API_KEY is not set", PR #248). It now lives in
+        # the repository's secret, and each deploy writes it into .env. It goes over ssh on stdin, never on a command
+        # line that a log or `ps` would show. A server without it is said on the run, not found weeks later.
+        run: |
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            printf '%s' "$ANTHROPIC_API_KEY" | $S 'k=$(cat); f=~/assessment-engine/.env
+              { grep -v "^ANTHROPIC_API_KEY=" "$f"; printf "ANTHROPIC_API_KEY=%s\n" "$k"; } > "$f.tmp"
+              chmod 600 "$f.tmp" && mv "$f.tmp" "$f"'
+          fi
+          $S 'grep -q "^ANTHROPIC_API_KEY=." ~/assessment-engine/.env' \
+            || echo "::warning::the server has no ANTHROPIC_API_KEY: every model call fails. Add the repository secret ANTHROPIC_API_KEY, then deploy again."
       - name: wait for scans being read
         if: steps.plan.outputs.go == 'yes'
         env: { HOST: "${{ secrets.LIGHTSAIL_HOST }}" }
