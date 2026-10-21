@@ -5,12 +5,13 @@ would close are named to Nimish, read from live: for every class on the roll, ea
 (taught in the class, its grade's or below) whose questions the coordinator has not approved. Nothing is written.
 """
 
+import contextlib
 import os
 
 import pytest
 
 from engine.core import db
-from engine.w2_print import shelf
+from engine.w2_print import cli_week, shelf
 from tests.test_cli import run
 
 BY = "F1G Coordinator"
@@ -58,14 +59,18 @@ def test_each_class_is_told_the_levels_its_papers_would_lose(conn):
     assert (medium["grade"], medium["questions"]) == ("G2", n)
 
 
-def test_the_command_lists_them_and_writes_nothing():
-    """`engine week unapproved`, run against live from anywhere, names what would close and changes nothing."""
-    if not os.getenv("DATABASE_URL"):
-        pytest.skip("needs DATABASE_URL (see .env.example)")
-    with db.connect() as c:
-        before = c.execute("select count(*) as n, max(updated_at) as at from skill_set").fetchone()
+def test_the_command_lists_them_and_writes_nothing(conn, monkeypatch):
+    """`engine week unapproved`, run against live from anywhere, names what would close and changes nothing. The
+    command is handed this test's connection, so it sees the class made here and nothing is committed: it once named
+    a class only when another test had left one on the copy, and on a database of its own named none."""
+    _class(conn, "F1G-COMMAND", "G2")
+    monkeypatch.setattr(cli_week.db, "connect", contextlib.contextmanager(lambda: (yield conn)))
+    expected = [r for r in shelf.closing(conn) if r["class"] == "F1G-COMMAND"]
+    before = conn.execute("select count(*) as n, max(updated_at) as at from skill_set").fetchone()
     r = run("week", "unapproved")
     assert r.exit_code == 0, r.output_plain
     assert "would close" in r.output_plain
-    with db.connect() as c:
-        assert c.execute("select count(*) as n, max(updated_at) as at from skill_set").fetchone() == before
+    lines = [line for line in r.output_plain.splitlines() if "F1G-COMMAND" in line]
+    assert expected and len(lines) == len(expected)
+    assert all(any(e["skill"] in line and e["level"] in line for line in lines) for e in expected)
+    assert conn.execute("select count(*) as n, max(updated_at) as at from skill_set").fetchone() == before
