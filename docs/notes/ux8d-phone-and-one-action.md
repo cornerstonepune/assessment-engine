@@ -11,7 +11,10 @@ audit in `docs/notes/ux8-every-screen.md` (#253): its findings 18 and 23–25.
   "Why" off a phone's screen; "How m"; "Grade 1–Grade 4".
 - After the change: u47, u43, u13, m4, screens and the maker's tests: all passed but u15, which fails only on a database
   the suite has already filled (its own class pack falls past Today's first five). On a fresh one it passes.
-- `bin/engine done ux8d-phone-and-one-action`: RESULT_DONE
+- `bin/engine done ux8d-phone-and-one-action` (2026-10-21, on a fresh database): all four of Nimish's sentences PROVED;
+  "every page still holds": 290 passed (11.7 min); `bin/check`: 28 passed. NOT DONE only because the work is not on
+  main or live yet. A first run failed u22: a second copy of the stage, hidden on a wide screen, was still the name
+  cell's text. On a phone the columns a row's copies repeat now fold away instead, and nothing is shown twice.
 
 ## Handoff
 
@@ -22,7 +25,7 @@ audit in `docs/notes/ux8-every-screen.md` (#253): its findings 18 and 23–25.
     action is approving the home assessment).
   - On a phone (under 768 px wide): buttons and chips at least 44 px tall; toggles, fields, tick boxes and a table's
     one link at least 24 px. One rule in `globals.css`, not page by page.
-  - On a phone, Assessments shows where an assessment stands under its name, and a class's home assessments show the
+  - On a phone, Assessments folds Kind, Class, Copies and Score so where an assessment stands sits beside its name, and a class's home assessments show the
     reason under what each child works on.
   - The one-child paper's number field is wide enough for "How many"; the menu says "Grade 1 to Grade 4".
 - **Database:** none.
