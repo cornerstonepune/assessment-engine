@@ -46,7 +46,7 @@ test("a worksheet of each new skill opens with its twelve questions and prints",
       order by difficulty, variant limit 1`;
     expect(ws, `${skill} has worksheets`).toBeTruthy();
     await page.goto(`/worksheets/${ws.code}`);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Worksheet ${ws.code}`);
+    await expect(page.getByText(`Worksheet ${ws.code}.`)).toBeVisible();
     await expect(page.getByRole("table", { name: "Questions and answers" }).locator("tbody tr")).toHaveCount(12);
     const pdf = await page.request.get(`/api/worksheet/${ws.code}`);
     expect(pdf.status(), ws.code).toBe(200);

@@ -70,7 +70,7 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
             </Link>
           )}
           <Link href={`/make/${encodeURIComponent(section)}/week`} className="chip">
-            This week&rsquo;s declaration
+            What the class did this week
           </Link>
           {proposed.length ? (
             <form action={approveHome}>

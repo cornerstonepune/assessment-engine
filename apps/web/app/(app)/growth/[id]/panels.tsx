@@ -73,7 +73,7 @@ export function TheirPapers({
                     {s.approved_by
                       ? `approved by ${staff[s.approved_by] ?? s.approved_by}${s.approved_at ? ` on ${fmtDate(s.approved_at)}` : ""}`
                       : s.print_status === "new"
-                        ? "waiting for a teacher to approve"
+                        ? "waiting for an educator to approve"
                         : "done before papers were approved here"}
                     {s.n_results ? ` · ${s.n_confirmed} of ${s.n_results} answers checked` : ""}
                   </div>

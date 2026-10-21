@@ -282,7 +282,7 @@ test("a child's page lists every paper made for them or read from them, with its
   for (const r of rows) {
     const it = papers.getByRole("listitem").filter({ hasText: r.qr_code });
     await expect(it).toContainText(r.kind === "focus" ? "their home assessment" : "class practice");
-    await expect(it).toContainText(r.approved_by ? `approved by ${TEST_STAFF.name}` : "waiting for a teacher to approve");
+    await expect(it).toContainText(r.approved_by ? `approved by ${TEST_STAFF.name}` : "waiting for an educator to approve");
   }
 });
 
