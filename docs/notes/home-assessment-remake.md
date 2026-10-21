@@ -5,7 +5,19 @@ another the same week. "There should not be any lock … remove that constraint 
 
 ## Verified
 
-Filled from this session's runs below; each line names the command that proves it.
+- The four new engine tests fail on main, on the lock itself ("already has this week's home assessment"), and pass here.
+  `cd packages/engine && uv run pytest -q tests/test_focus_paper.py tests/test_maker.py tests/test_read_back.py`
+  On main: 4 failed, 37 passed. On this branch: 41 passed (2026-10-21).
+- The whole engine suite. `cd packages/engine && uv run pytest -q`: 2586 passed, 2 skipped, in 37 min on a cloud
+  container. Inside `bin/engine done` that is past its 30-minute limit there, so the criterion reads "timed out". CI's
+  engine job ran the same suite green on e9b6f91 in 21 min.
+- The pages. `cd apps/web && npx playwright test tests/s11-focus-paper.spec.ts tests/m4-the-maker.spec.ts
+  tests/u16-assessments.spec.ts tests/u9-papers.spec.ts tests/u37-papers-grouped.spec.ts tests/u38-make-and-marking.spec.ts
+  tests/u1-today.spec.ts tests/m2-make-papers.spec.ts tests/u33-one-count.spec.ts tests/u2-children.spec.ts
+  tests/s7-paper-from-library.spec.ts`: 52 passed. CI browser job green on e9b6f91.
+- `bin/check`: 28 passed.
+- `bin/engine done home-assessment-remake`: all five of Nimish's sentences PROVED; the whole-suite criterion timed out
+  on the container, as above.
 
 ## Handoff
 
