@@ -8,7 +8,7 @@ Then `ARCHITECTURE.md` — it settles what runs what, and where n8n is. Then `SP
 Both implement `docs/sources/assessment-workflow-v1.md`, the twelve-node workflow agreed with
 Aseem and Achal. **When any of them disagree, the workflow wins** — its decisions were taken
 with the school and are not to be re-derived. Then `STATE.md` (what is verified true) and `HANDOFF.md` (what the last
-session left). This file is the constitution; `BUILD-ORDER.md` is the sequence; `SPEC.md` is the
+session left), both frozen on 2026-10-21, and the newest files in `docs/notes/`, which carry both since. This file is the constitution; `BUILD-ORDER.md` is the sequence; `SPEC.md` is the
 design; `docs/adr/` is why.
 
 ## The organism
@@ -79,8 +79,8 @@ files already over are frozen at their size in the map and may only shrink.
    enter git or a log. Prompts receive images, not names.
 7. **Every model output ships with an eval.** New prompt version → `engine eval <purpose>` →
    score recorded → only then active.
-8. **Every "works" is a command.** `STATE.md` lists each claim with the command that proves it
-   and its last output. No claim without a check.
+8. **Every "works" is a command.** A branch's note in `docs/notes/` (before 2026-10-21, `STATE.md`) lists each
+   claim with the command that proves it and its last output. No claim without a check.
 9. **Migrations only.** Schema changes are numbered files in `supabase/migrations/`. No manual
    DDL, ever, on any environment.
 10. **Reuse before write.** The prototype's `assess/` is the engine. Extend it; do not rewrite it.
@@ -137,7 +137,9 @@ The school's words win elsewhere too: "exchange / regroup", never "borrow"; "edu
   moved, or it did nothing.
 - Non-trivial change → plan first; a chunk starts only with 3–5 machine-checkable success criteria.
 - Tests before implementation for anything with a branch, a loop, a parser, or a money/safety path.
-- Commit boundary → update `STATE.md` and `HANDOFF.md`; a rejected alternative → an ADR.
+- Commit boundary → update the branch's own note, `docs/notes/<goal name>.md` (`docs/notes/README.md`); never
+  edit `STATE.md` or `HANDOFF.md` on a branch, since two branches writing one file conflict on every merge; a
+  rejected alternative → an ADR.
 - Verification before any claim of done: run it, paste the output.
 - Baseline and ratchet: today's debt is frozen; no new type errors, ≥ 80 % coverage on changed
   code, RLS on every table, no PII in logs.
