@@ -33,6 +33,8 @@ Nimish asked whether ADR 0032 is really happening. Measured on live, read only (
 - **Leaving the rebuild to the next read.** The next read got a fresh notebook either way. But the stored notebook,
   the one the report and anyone checking reads, was wrong between papers, and that is how this audit found it stale.
 - **Applying the Textract floor to the digit reader.** The two readers' confidences are on different scales (ADR 0035).
-- **Counting a paper sign-off as a check of every answer on it.** Growth signs off all of a child's papers in one
-  click. An answer nobody was asked about can only say "right", so counting it raises the reader's score with no
+- **Counting a paper sign-off as a check of every answer on it.** A sign-off (`confirm_results`) confirms only the
+  answers the engine had already settled; every answer that waited is settled in the queue, which leaves the person's
+  own row (`read_correction`, "typed" here), and that still counts. Growth signs off all of a child's papers in one
+  click. An answer nobody was asked about can only say "right", so counting it raised the reader's score with no
   person's word behind it.
