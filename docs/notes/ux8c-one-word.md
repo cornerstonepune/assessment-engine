@@ -12,7 +12,9 @@ audit in `docs/notes/ux8-every-screen.md` (#253): its findings 11–14 and 19–
   "skill sets").
 - After the change, with the tests it touches: `npx playwright test tests/u46-one-word.spec.ts
   tests/u40-taught-said-on-its-row.spec.ts tests/u6-report-card.spec.ts` and eleven more: all passed.
-- `bin/engine done ux8c-one-word`: RESULT_DONE
+- `bin/engine done ux8c-one-word` (2026-10-21, on a fresh database): all five of Nimish's sentences PROVED; "every page
+  still holds": 291 passed (10.9 min); `bin/check`: 28 passed. NOT DONE only because the work is not on main or live
+  yet.
 
 ## Handoff
 
