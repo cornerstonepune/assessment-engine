@@ -10,6 +10,7 @@ number times 10, 100 or 1000. Every other pair is two numbers of their digits, n
 import random
 from typing import Any
 
+from . import md_tags as MT
 from . import taxonomy
 
 LISTED = 20000  # pairs: 3 digits by 2 is 81 hundred
@@ -35,12 +36,13 @@ def table(alt: dict[str, Any]) -> bool:
     return alt.get("fact") == "YES" or "fact_table" in alt or "fact_swapped" in alt
 
 
-def _span(d: int, zero_ok: bool) -> range:
+def span(d: int, zero_ok: bool) -> range:
+    """Every number of `d` digits a drawing may use: 0 only where the case is about a zero."""
     return range(0 if (d == 1 and zero_ok) else (1 if d == 1 else 10 ** (d - 1)), 10**d)
 
 
 def _number(rng: random.Random, d: int, zero_ok: bool) -> int:
-    return rng.choice(_span(d, zero_ok))
+    return rng.choice(span(d, zero_ok))
 
 
 def numbers(
@@ -70,11 +72,18 @@ def every(alt: dict[str, Any], about: set[str], d1: int, d2: int) -> list[tuple[
         return [(t, n) for t in tables for n in range(lo, 13)]
 
     def side(d: int) -> list[int]:
-        return sorted(
-            {x * 10**z for z in (range(d) if round_ok(alt) else [0]) for x in _span(d - z, zero_ok)}
-        )
+        return sorted({x * 10**z for z in (range(d) if round_ok(alt) else [0]) for x in span(d - z, zero_ok)})
 
     xs, ys = side(d1), side(d2)
+    want = alt.get("place_value_factor")
+    factors = [n for n, v in MT.POWERS.items() if want is not None and taxonomy.holds(want, v)]
+    if factors and not any(taxonomy.holds(want, v) for v in ROUND if v not in MT.POWERS.values()):
+        # × 10, 100 or 1000 itself: one number is the factor, the other any of its digits (TP05, × 100 of a number
+        # with a zero inside, is 180 of the million pairs of numbers to 3 digits, and a draw finds one in thousands)
+        return sorted(
+            {(a, f) for f in factors if f in ys for a in xs}
+            | {(f, b) for f in factors if f in xs for b in ys}
+        )
     return [(a, b) for a in xs for b in ys] if len(xs) * len(ys) <= LISTED else None
 
 

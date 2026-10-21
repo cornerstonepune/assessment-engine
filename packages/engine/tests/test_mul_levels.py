@@ -275,7 +275,7 @@ WHOLE = [(s, lv) for s in FIVE for lv in LEVELS if "min_items" in SETS[s]["diffi
 def test_a_level_whose_target_is_all_it_holds_is_filled_to_the_last_question(skill, level):
     """`min_items` is everything a level holds once the levels beside it hold theirs, so its fill must find the last
     question too. MUL.2D1D Easy's 3 × 21 turns up once in about 3,000 random draws, and CI's bank stopped at 66 of 69
-    (2026-10-09): a case that runs dry is now listed whole (`draw._rest`), so three questions held back are found
+    (2026-10-09): a case that runs dry is now listed whole (`draw.listed`), so three questions held back are found
     whatever the random draws do."""
     check = _check(skill, level)
     matches = _matches(check)
@@ -284,7 +284,7 @@ def test_a_level_whose_target_is_all_it_holds_is_filled_to_the_last_question(ski
         it.item_id
         for c in check["cases"]
         for way in K.ways(matches[c], methods)  # each case in every method its level prints it in (ADR 0055)
-        for it in draw._rest(way, check, "R9", 10**6, set())
+        for it in draw.listed(way, check, "R9") or []
     }
     assert len(whole) >= SETS[skill]["difficulty"][level]["min_items"], (skill, level, len(whole))
     held_back = sorted(whole)[:3]

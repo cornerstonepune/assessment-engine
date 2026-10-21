@@ -1,0 +1,32 @@
+name: bank-fills-every-time
+goal: >
+  Every level of the question bank reaches its target on every build, whatever its random draws: a fresh bank, drawn
+  under twenty different seeds with a tenth of a real build's draws, leaves no level short, so CI never again fails on
+  "every unit meets its target" by luck. When a case's draws run dry, the rest is taken from the list of every question
+  that case can be, in a random order, so the questions stay as varied as before. A level that truly cannot reach its
+  target says why, case by case: how many it is short, what it can make at all, and how many of those the bank holds.
+# Written 2026-10-21, before the fix. The failures: ADD.2D1D Hard 172 of 175 on #235, SUB.3D2D Advance (S33) while #234
+# was built; main passed at the same commit. Measured first in docs/notes/bank-fills-every-time.md.
+says:
+  - words: "the system should keep on working towards it till 100% accuracy is achieved"
+    proved_by: "packages/engine/tests/test_bank_fills.py::test_a_fresh_bank_fills_every_level_to_its_target_under_every_seed"
+  - words: "the system should keep on working towards it till 100% accuracy is achieved"
+    proved_by: "packages/engine/tests/test_bank_fills.py::test_a_level_its_cases_barely_hold_fills_even_with_one_draw_a_question"
+  - words: "the system should keep on working towards it till 100% accuracy is achieved"
+    proved_by: "packages/engine/tests/test_bank_fills.py::test_the_list_of_a_case_is_every_question_it_can_be"
+  - words: "the system should keep on working towards it till 100% accuracy is achieved"
+    proved_by: "packages/engine/tests/test_bank_fills.py::test_a_level_that_cannot_reach_its_target_says_exactly_why"
+scenarios: []
+criteria:
+  - name: a fresh bank fills every level under twenty seeds, with a tenth of the draws
+    run: cd packages/engine && BANK_FILL_SEEDS=20 uv run pytest -q -p no:cacheprovider tests/test_bank_fills.py
+    expect: "passed"
+  - name: the bank as built meets every invariant, its units' targets among them
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_goal.py::test_every_invariant_holds
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
