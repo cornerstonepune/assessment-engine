@@ -81,3 +81,39 @@ test("a child's page says which areas the home assessment works on and why, and 
     join sheet_template st on st.id = si.sheet_template_id where si.qr_code = ${qr}`;
   expect(made.n).toBe(12);
 });
+
+// Nimish, 2026-10-21 (goals/home-assessment-remake.yaml): an educator sees the paper only once it prints, and may not
+// like it — "There should not be any lock". They make another; the newest is the week's, the earlier named as replaced.
+test("a home assessment is made again the same week and the newest is the week's", async ({ page }) => {
+  await clearUp(child);
+  await page.goto(`/growth/${child}`);
+  await page.getByRole("button", { name: "Approve this home assessment" }).click();
+  await expect(page).toHaveURL(/\?paper=CS[0-9A-F]{6}$/);
+  const first = new URL(page.url()).searchParams.get("paper")!;
+  const panel = page.getByRole("region", { name: "Home assessment" });
+  await panel.getByRole("button", { name: "Make a new home assessment" }).click();
+  await expect(page).not.toHaveURL(new RegExp(`paper=${first}$`));
+  const second = new URL(page.url()).searchParams.get("paper")!;
+  expect(second).toMatch(/^CS[0-9A-F]{6}$/);
+  // the newest is the week's; the earlier, in one line, as replaced — never as waiting
+  await expect(panel.getByText("this week’s home assessment")).toBeVisible();
+  await expect(panel.getByRole("link", { name: second })).toBeVisible();
+  await expect(panel.locator("[data-replaced]")).toContainText(`Replaced this week: ${first}`);
+  await panel.getByRole("button", { name: "Make a new home assessment" }).click();
+  const third = new URL(page.url()).searchParams.get("paper")!;
+  expect(new Set([first, second, third]).size).toBe(3);
+  await expect(panel.locator("[data-replaced]")).toContainText(`${second}, ${first}`);
+  // the earlier paper's own page says so, and it is kept, approved and readable by its code
+  await page.goto(`/worksheets/${first}`);
+  await expect(page.getByText(`replaced by ${third}`)).toBeVisible();
+  const kept = await sql<{ qr_code: string; print_status: string }[]>`
+    select qr_code, print_status from sheet_instance where child_id = ${child} and kind = 'focus' order by created_at`;
+  expect(kept.map((r) => [r.qr_code, r.print_status])).toEqual([first, second, third].map((q) => [q, "printed"]));
+  // Make papers and Today count the child once: one home assessment, the newest
+  await page.goto("/make");
+  const row = page.getByRole("table", { name: "Home assessments this week" }).getByRole("row").filter({ hasText: SECTION });
+  await expect(row.locator('[data-n="approved"]')).toHaveText("1");
+  // the Papers list: the two earlier copies replaced, the newest with the child
+  await page.goto(`/papers?child=${child}`);
+  await expect(page.getByText("replaced by a newer one").first()).toBeVisible();
+});

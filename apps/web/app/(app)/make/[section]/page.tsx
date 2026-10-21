@@ -154,6 +154,11 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
                         <Link href={`/worksheets/${c.done.qr}`} className="fact">
                           {c.done.qr}
                         </Link>
+                        {c.done.replaced.length ? <span className="note"> · replaces {c.done.replaced.join(", ")}</span> : null}
+                      </td>
+                      <td>
+                        {/* made again as often as an educator likes: the newest is the week's (goals/home-assessment-remake.yaml) */}
+                        <Link href={`/growth/${c.id}`}>Make a new one</Link>
                       </td>
                     </tr>
                   ))}

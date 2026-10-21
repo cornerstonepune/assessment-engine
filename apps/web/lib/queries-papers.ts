@@ -5,7 +5,9 @@ import { EVERY_CLASS, inScope, type Scope } from "./scope";
 // with the right filtration and all, and a good view". Where each answer stands is the engine's (item_result, and the
 // same rule as `answer_standing`); this only counts it per paper.
 
-export const STAGES = ["made", "printed", "scanned", "checked", "signed off"] as const;
+// `replaced`: a home assessment made again the same week, never read — the newest is the week's
+// (goals/home-assessment-remake.yaml); one that comes back is read, and stands where its answers stand
+export const STAGES = ["made", "printed", "scanned", "checked", "signed off", "replaced"] as const;
 export type Stage = (typeof STAGES)[number];
 
 /** Each stage said as the work it waits for (goals/ui2-assessments.yaml); the stored names stay the filter's values. */
@@ -15,6 +17,7 @@ export const STAGE_WORDS: Record<Stage, string> = {
   scanned: "to check",
   checked: "to sign off",
   "signed off": "done",
+  replaced: "replaced by a newer one",
 };
 
 /** A paper's kind in the school's words; `earlier` is a paper sat before our QR sheets, which has no kind. */
@@ -70,7 +73,10 @@ const papersCte = () => sql`
            coalesce(t.key ->> 'date', si.created_at::date::text) as day, si.created_at,
            coalesce(ss.name || coalesce(' · ' || t.difficulty, ''), t.key ->> 'title', drawn.title, t.code, t.batch_id,
                     si.qr_code) as title,
-           case when not a.read then case when si.print_status = 'new' then 'made' else 'printed' end
+           case when not a.read and si.kind = 'focus' and exists (
+                  select 1 from sheet_instance n where n.kind = 'focus' and n.child_id = si.child_id
+                    and n.week = si.week and n.created_at > si.created_at and n.print_status <> 'void') then 'replaced'
+                when not a.read then case when si.print_status = 'new' then 'made' else 'printed' end
                 when a.n = 0 or a.waiting > 0 then 'scanned'
                 when a.candidate > 0 then 'checked'
                 else 'signed off' end as stage,
@@ -223,7 +229,8 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
                               'printed', count(*) filter (where stage = 'printed' and not spare),
                               'scanned', count(*) filter (where stage = 'scanned'),
                               'checked', count(*) filter (where stage = 'checked'),
-                              'signed off', count(*) filter (where stage = 'signed off')) as by,
+                              'signed off', count(*) filter (where stage = 'signed off'),
+                              'replaced', count(*) filter (where stage = 'replaced')) as by,
            sum(waiting)::int as waiting,
            coalesce(sum("right") filter (where stage in ('checked', 'signed off')), 0)::int as "right",
            coalesce(sum(scored) filter (where stage in ('checked', 'signed off')), 0)::int as scored

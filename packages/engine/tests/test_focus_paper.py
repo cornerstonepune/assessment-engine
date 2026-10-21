@@ -143,19 +143,55 @@ def test_a_paper_a_teacher_asks_for_is_seen_before_it_is_approved_and_one_the_ba
         focus_paper.preview(conn, child, WEEK, "t", [{"skill_set": "SUB.1D1D", "level": "Hard", "n": 5}])
 
 
-def test_the_paper_is_approved_in_the_name_of_whoever_made_it_and_only_once_a_week(conn, child):
-    """The engine proposes; a person's click approves and prints it (BUILD-ORDER, U2). The approval names them,
-    and a second approval in the same week is refused rather than printing a second next paper."""
+def test_the_paper_is_approved_in_the_name_of_whoever_made_it(conn, child):
+    """The engine proposes; a person's click approves and prints it (BUILD-ORDER, U2). The approval names them."""
     made = focus_paper.make(conn, child, WEEK, actor="teacher@school.test")
     inst = conn.execute(
         "select print_status, approved_by, approved_at from sheet_instance where qr_code = %s", (made["qr"],)
     ).fetchone()
     assert inst["approved_by"] == "teacher@school.test" and inst["approved_at"] is not None
     assert inst["print_status"] == "printed"
-    with pytest.raises(ValueError, match=made["qr"]):
-        focus_paper.make(conn, child, WEEK, actor="teacher@school.test")
     assert focus_paper.approved(conn, child, WEEK)["qr"] == made["qr"]
     assert focus_paper.approved(conn, child, "another-week") is None
+
+
+def test_a_second_and_a_third_home_assessment_are_made_in_the_same_week_and_the_newest_is_the_weeks(
+    conn, child
+):
+    """Nimish, 2026-10-21: an educator sees the paper only once it prints, and may not like it — "remove that
+    constraint". Each remake is a new paper with new questions; the newest is the week's, the earlier ones are kept
+    (append-only), named as replaced, and still printed."""
+    made = []
+    for n in range(3):
+        seen = made[-1]["qr"] if made else None
+        made.append(focus_paper.make(conn, child, WEEK, actor=f"educator{n}@school.test", replaces=seen))
+    qrs = [m["qr"] for m in made]
+    assert len(set(qrs)) == 3, "three papers, three codes"
+    week = focus_paper.approved(conn, child, WEEK)
+    assert week["qr"] == qrs[2] and week["approved_by"] == "educator2@school.test", "the newest is the week's"
+    assert week["replaced"] == [qrs[1], qrs[0]], "the earlier ones, newest first"
+    kept = conn.execute(
+        "select qr_code, print_status from sheet_instance where qr_code = any(%s)", (qrs,)
+    ).fetchall()
+    assert {r["qr_code"]: r["print_status"] for r in kept} == dict.fromkeys(qrs, "printed"), (
+        "none deleted or voided"
+    )
+    given = [{q["id"] for a in m["areas"] for q in a["questions"]} for m in made]
+    assert not given[2] & given[1] and not given[1] & given[0], (
+        "a remake draws questions the child was not given"
+    )
+
+
+def test_two_clicks_that_saw_the_same_paper_print_one_new_paper_not_two(conn, child):
+    """The lock stays for clicks that collide: a click says which paper it saw, and once a colleague's click has made
+    a newer one, the second is refused, naming the paper just made, rather than printing a second."""
+    first = focus_paper.make(conn, child, WEEK, actor="a@school.test")["qr"]
+    second = focus_paper.make(conn, child, WEEK, actor="b@school.test", replaces=first)["qr"]
+    with pytest.raises(ValueError, match=second):
+        focus_paper.make(conn, child, WEEK, actor="c@school.test", replaces=first)
+    with pytest.raises(ValueError, match=second):
+        focus_paper.make(conn, child, WEEK, actor="c@school.test")
+    assert focus_paper.approved(conn, child, WEEK)["replaced"] == [first]
 
 
 def test_a_teacher_asks_for_any_skills_at_any_levels_and_how_many_and_the_engine_makes_it(conn, child):

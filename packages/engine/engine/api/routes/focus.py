@@ -15,6 +15,7 @@ router = APIRouter(dependencies=[Depends(require_engine_key)])
 class MakeFocus(BaseModel):
     week: str
     by: str
+    replaces: str | None = None  # the week's home assessment the educator saw, if one was made
 
 
 class Area(BaseModel):
@@ -49,9 +50,10 @@ def focus_plan(child_id: str, week: str, conn=Depends(get_conn, scope="function"
 
 @router.post("/child/{child_id}/focus")
 def focus_make(child_id: str, body: MakeFocus, conn=Depends(get_conn, scope="function")) -> dict:
-    """`by` approves that plan: it prints as the child's paper, with its QR, in their name; once a week."""
+    """`by` approves that plan: it prints as the child's paper, with its QR, in their name; made again the same
+    week, the newest is the week's."""
     try:
-        made = focus_paper.make(conn, _child(child_id), body.week, body.by)
+        made = focus_paper.make(conn, _child(child_id), body.week, body.by, replaces=body.replaces)
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e)) from None
     return {"qr": made["qr"], "pages": made["pages"], "questions": made["questions"]}
