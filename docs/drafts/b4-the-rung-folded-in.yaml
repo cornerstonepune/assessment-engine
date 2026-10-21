@@ -1,0 +1,49 @@
+# DRAFT, not locked. Moves to goals/b4-the-rung-folded-in.yaml when Nimish locks it and its tests are written. Open
+# decisions: docs/drafts/b2-b4-decisions.md, section B4. Last of the backend steps: waits for B1, B2 and B3.
+#
+# Measured on the seed, schema and code, 2026-10-21 (main at 37683c3):
+# - 46 rungs, exactly one per skill (46 skills, 46 different rung codes), each with a grade (G1–G4), a ladder order,
+#   a description and its registry codes (moved to `skill_registry_link` in B3).
+# - 7 tables carry `rung_code`: skill_set, skill_set_version, item, coverage_target, evidence_event,
+#   child_skill_state, class_card. Three of them (skill_set, item, coverage_target) are keys into `rung`;
+#   evidence_event's is plain text the database never checks.
+# - 19 files outside the tests query the `rung` table (12 in the engine, 7 in the website); 37 name `rung_code`
+#   (24 engine, 13 website); n8n none. The maths library uses "rung" as a parameter's name in 33 files without
+#   reading the table.
+# - The rename (decision B1 of the audit) is still open: `skill` is today the registry's table (read by name in at
+#   least 3 engine files) and `skill_set` the school's skill (62 files).
+name: b4-the-rung-folded-in
+goal: >
+  The rung's grade, order and description are on the skill, and its code is the skill's permanent second code, so
+  every answer and piece of evidence already recorded points at a skill without being rewritten. No file reads the
+  `rung` table, and it is gone. The skill table and the registry's are renamed as Nimish decided. Evidence is
+  untouched: its row count and checksum are equal before and after, and every child's map and every paper are the same.
+says:
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_each_skill_holds_its_rungs_grade_order_and_description"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_every_rung_code_on_record_is_a_skills_second_code"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_no_file_reads_the_rung_table"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_the_tables_carry_the_names_nimish_chose"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_evidence_count_and_checksum_equal_before_and_after"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_every_childs_map_and_paper_is_the_same_before_and_after"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive, evidence's row count and checksum are printed before and after and are equal, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: the fold, the rename and evidence untouched
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_rung_folded.py tests/test_graph.py tests/test_class_card.py tests/test_loaders.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: every page still shows the same — the website's suite
+    run: cd apps/web && npx playwright test
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

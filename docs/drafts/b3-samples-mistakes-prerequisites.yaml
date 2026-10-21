@@ -1,0 +1,54 @@
+# DRAFT, not locked. Moves to goals/b3-samples-mistakes-prerequisites.yaml when Nimish locks it and its tests are
+# written. Open decisions: docs/drafts/b2-b4-decisions.md, section B3. Samples wait for B1 (skill_level); the other
+# three tables wait too (one schema change at a time, and B1 rewrites the same seed file and loader).
+#
+# Measured on the seed, 2026-10-21 (main at 37683c3):
+# - Card examples: 11, across 5 of the 6 card kinds (MUL3.STORY has none).
+# - Levels: 178. About 97 end in "statement: examples" text (a sentence, a colon, then sums), giving about 200
+#   examples by splitting on commas. At least 13 of those levels do not split cleanly (a sum "found wrong", "and why",
+#   "the cost of 8 boxes at ₹16", semicolons between examples). These counts are from a rough rule and are
+#   approximate; the split rule itself is decision B3-1.
+# - Mistakes: 514 skill × mistake links, 127 different codes, every one already a row among the 146 in
+#   misconceptions.json. So on the seed nothing is broken today; the table makes the database refuse a bad code.
+# - Multiplication facts (MUL.FACTS) lists 21 mistakes: the 8 division mistakes BUILD-ORDER names (all M_DIV_…),
+#   plus M_WRONG_OP, whose words are "Multiplied instead of dividing" — a 9th that reads wrong on a multiplication
+#   skill — and 4 column-method mistakes (carry first, column-wise, placeholder, one row) on single-digit facts.
+# - Registry links: 61, from the 46 rungs' `skill_codes`; every rung has at least one.
+# - Prerequisites: none anywhere in the seed or the code. Today only the ladder's order says what comes before.
+name: b3-samples-mistakes-prerequisites
+goal: >
+  A level's samples are rows (`skill_level_sample`): the card examples, and each example in a level's "statement:
+  examples" text, split by a rule Achal has checked, the statement left as the level's words. The mistakes a skill
+  watches for (`skill_mistake`), the registry skills it covers (`skill_registry_link`) and the skills that come before
+  it (`skill_prerequisite`) are rows, so every code a skill names is a real key the database checks. Achal has
+  confirmed or removed each division mistake on Multiplication facts. No paper, map or page changes on the day, except
+  where Achal removed a mistake.
+says:
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_every_card_example_and_level_example_is_a_sample_row"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_each_split_level_reads_back_to_its_old_words"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_every_code_a_skill_names_is_a_key_the_database_checks"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_mistakes_and_registry_links_equal_the_old_lists"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_multiplication_facts_names_only_the_mistakes_achal_confirmed"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_a_prerequisite_is_a_row_and_no_skill_comes_before_itself"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_a_new_sample_mistake_or_link_is_an_insert"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive, every mistake and registry code live's skills name is a row, and the copy comes back clean."
+  - "Achal has read the split of every level's examples (a list the engine writes for him, one line per level) and said yes or corrected it."
+scenarios: []
+criteria:
+  - name: the samples, mistakes, links and prerequisites agree with the seed and the old lists
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_skill_links.py tests/test_loaders.py tests/test_misconceptions.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
