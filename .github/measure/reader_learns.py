@@ -113,6 +113,18 @@ with db.connect() as c:
         " count(*) filter (where r.raw_read::jsonb ->> 'guess_by' like 'read_with_examples%%') as guesses_offered,"
         " max(c.created_at) filter (where r.raw_read::jsonb ->> 'guess_by' like 'read_with_examples%%') as last_guess_on_a_paper_read"
         " from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null"))
+    # the second reader is asked only where the first doubted its reading and offered no guess (`second_reader._groups`)
+    show("readings since 1 Oct the reader doubted, by whether it offered its own guess", c.execute(
+        "select count(*) filter (where coalesce(r.raw_read::jsonb ->> 'guess', '') <> ''"
+        "   and coalesce(r.raw_read::jsonb ->> 'guess_by', '') = '') as first_readers_guess,"
+        " count(*) filter (where r.raw_read::jsonb ->> 'guess_by' like 'read_with_examples%%') as second_readers_guess,"
+        " count(*) filter (where coalesce(r.raw_read::jsonb ->> 'guess', '') = '') as no_guess,"
+        " count(*) filter (where coalesce(r.raw_read::jsonb ->> 'guess', '') = '' and r.raw_read::jsonb -> 'box' is null)"
+        "   as no_guess_and_no_box"
+        " from item_result r join capture c on c.id = r.capture_id"
+        " where c.superseded_by is null and c.created_at >= '2026-10-01'"
+        "   and coalesce(r.raw_read::jsonb ->> 'why', '') <> '' and r.raw_read::jsonb ->> 'why' not like 'read as%%'"
+        "   and r.raw_read::jsonb ->> 'why' not like '%%not a number%%' and r.raw_read::jsonb ->> 'why' not like 'this child%%'"))
     show("the rows the loop reads", c.execute(
         "select key, value from threshold where key in ('read.route_above_overturn', 'marking.agreement_gate',"
         " 'marking.agreement_window', 'marking.spot_check_rate', 'read.auto_confirm_above') order by key"))
