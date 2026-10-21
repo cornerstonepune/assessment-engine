@@ -8271,6 +8271,19 @@ one child on live.
   class's pages show.
 - **Checks:** u40 failed first (no button on the row), then passed; with u12, u17, u19, u24, u30, u31: 24 passed.
 
+## B0d — a child's states and the subject are read from rows (2026-10-20, ADR 0086)
+
+- **Built (`goals/b0d-states-and-subject-from-tables.yaml`):** migration 20261122090000 adds to `child_state` a column
+  for each rule the code's lists held (`enough`, `severity`, `move_up`, `nearly`, `card_group`, `why`), the table
+  `state_colour` (each colour's words), and `subject.label` ("Maths"). The engine reads them through
+  `core/vocabulary.states`; the website through `lib/states.ts` and `lib/subject.ts`. A prescription's strand is its
+  skill set's topic's subject.
+- **Proved to change nothing:** `tests/test_states_and_subject.py` holds main's old lists and checks the rows give each;
+  it failed first, then passed. No state or subject is named in the engine or the website.
+- **Rehearsal on a copy of live (run 39474127831):** the migration applied on 160,215 rows with no error.
+- **Merged with B0c (main, 861e624):** `vocabulary.py`, `shelf.py`, `colours.ts`, `test_focus.py` keep both — levels
+  from `difficulty`, states from `child_state`. Proofs: see the PR comment (`bin/engine done`).
+
 ## B0c — the four levels are read from `difficulty` everywhere (2026-10-20, ADR 0084)
 
 - **Built (`goals/b0c-levels-from-the-table.yaml`, PR #228):** every reader outside the maths library takes the levels'

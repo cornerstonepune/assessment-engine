@@ -3,6 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-21 — B0d (W1, gate 3): a child's states and the subject are read from rows; PR #231, not deployed
+- **On `claude/b0d-states-and-subject`** (STATE.md "B0d", ADR 0086, migration 20261122090000): every rule about a state
+  is a column of `child_state`; each colour's words are `state_colour` rows; a subject has a `label` ("Maths").
+- **Merged with B0c (main, 861e624):** both kept — levels from `difficulty` (`vocabulary.levels`/`letters`, `lib/levels.ts`),
+  states from `child_state` (`vocabulary.states`, `shelf.rule`'s `lagging`). B0d's migration is last.
+- **Next:** Nimish merges #231; then B1.
+- **Still open:** the children-table sort keys are now `amber` / `green`: an old bookmarked sort opens unsorted.
+
 ## 2026-10-20 — B0c built (W1, gate 3): the levels are read from their table; PR #228, draft, not deployed
 - **On `claude/b0c-levels-from-the-table`** (STATE.md "B0c"): no file outside `assess/` names a level; the worksheet
   letter is `difficulty.letter`; "Medium" by default is the config row `level.usual`. Migration 20261121090000.

@@ -23,15 +23,6 @@ export type MapNode = {
   blank: number;
 };
 
-const WEAKEST_FIRST = [
-  "patterned_error",
-  "emerging",
-  "practising",
-  "secure",
-  "stretch_ready",
-  "not_enough_yet",
-];
-
 /** The skill sets taught in the child's class (goals/f1f-taught-per-class.yaml), of the child's grade and the grades
  *  either side, and any other a signed-off answer of theirs landed on — each with the graph's state (the weakest of its
  *  skills, as the class card places a child) and the child's answers on it in the three signals: right, wrong (with or
@@ -42,8 +33,9 @@ export async function skillMap(id: string): Promise<MapNode[]> {
     with me as (select band from child where id = ${id}::uuid),
     st as (
       select s.rung_code,
-             (array_agg(s.state order by array_position(${WEAKEST_FIRST}::text[], s.state)))[1] as state
+             (array_agg(s.state order by cs.ord))[1] as state
       from child_skill_state s join rung r on r.code = s.rung_code
+      join child_state cs on cs.tenant_id = s.tenant_id and cs.code = s.state -- weakest first, as its rows order it
       where s.child_id = ${id}::uuid and s.skill_code = any(r.skill_codes) and s.n_events > 0
       group by s.rung_code),
     -- each signed-off answer once (answer_placed), not once per skill its question tests

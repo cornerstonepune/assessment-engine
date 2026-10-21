@@ -3,8 +3,8 @@
 Pure: no database. The graph (`child_skill_state`, one row per skill per rung) already says how a child
 stands; this answers one question — which few areas next, and at what level:
 
-- an area the child lags in is a row in a lagging state: a repeated mistake, fewer than half right, or
-  not yet four in five. Weakest first, at most `rule["most"]`.
+- an area the child lags in is a row in a lagging state, `rule["lagging"]`, weakest first (the states a next paper
+  works on, read from `child_state` by the caller: ADR 0086). At most `rule["most"]`.
 - an area is one skill set of the bank: the set on the row's rung that is for the row's skill; else the
   nearest set for that skill within `rule["reach"]` rungs; else a set on the rung whose questions use the
   skill. So subtraction mistakes on an addition rung are worked on as subtraction.
@@ -18,8 +18,6 @@ strongest skill, one level up, as `rule["stretch"]` says for its state (Nimish, 
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import cast
-
-LAGGING = ("patterned_error", "emerging", "practising")
 
 
 @dataclass(frozen=True)
@@ -52,17 +50,17 @@ def skill_set_for(skill_code, rung_code, catalog, reach):
     return None
 
 
-def _weakness(a):
-    return (LAGGING.index(a.state), a.right / a.answered if a.answered else 0.0, a.skill_set)
+def _weakness(a: Area, lagging: tuple[str, ...]) -> tuple[int, float, str]:
+    return (lagging.index(a.state), a.right / a.answered if a.answered else 0.0, a.skill_set)
 
 
 def areas(states, catalog, rule, levels=None):
     """The areas to work on, weakest first. `states` are the child's graph rows. `levels`, when given, is the
     levels of each skill set this child may be given: a lagging child's level is the hardest of those no harder
     than the one their share calls for, and a skill set with none is not theirs to work on."""
-    best = {}
+    best, lagging = {}, tuple[str, ...](rule["lagging"])
     for s in states:
-        if s["state"] not in LAGGING:
+        if s["state"] not in lagging:
             continue
         code = skill_set_for(s["skill_code"], s["rung_code"], catalog, rule["reach"])
         if not code:
@@ -84,9 +82,9 @@ def areas(states, catalog, rule, levels=None):
             s["state"],
         )
         key = (code, s["skill_code"])
-        if key not in best or _weakness(area) < _weakness(best[key]):
+        if key not in best or _weakness(area, lagging) < _weakness(best[key], lagging):
             best[key] = area
-    return sorted(best.values(), key=_weakness)[: rule["most"]]
+    return sorted(best.values(), key=lambda a: _weakness(a, lagging))[: rule["most"]]
 
 
 def _at_most(level, defined, order: Sequence[str]):

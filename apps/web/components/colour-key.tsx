@@ -1,6 +1,7 @@
 import { TONE_BG } from "@/components/shell";
 import type { ColourRules } from "@/lib/colours";
-import { RAG_TONE, RAG_WORDS, type Rag } from "@/lib/rag";
+import { RAG_TONE, type Rag } from "@/lib/rag";
+import type { States } from "@/lib/states";
 
 const pc = (x: number) => `${Math.round(x * 100)}%`;
 
@@ -24,7 +25,7 @@ export function Swatch({ colour, label }: { colour: Rag; label?: string }) {
 // What each colour means (goals/u11-colours-said.yaml): when a skill is that colour, in the rule's own numbers, and what
 // the engine does about it. The order is the rule's (`rebuild_child_skill_state`): too few answers is grey before
 // anything else; a mistake that repeats is red whatever the share right.
-export function ColourKey({ rules }: { rules: ColourRules }) {
+export function ColourKey({ rules, states }: { rules: ColourRules; states: States }) {
   const rows: [Rag, string, string][] = [
     [
       "red",
@@ -64,7 +65,7 @@ export function ColourKey({ rules }: { rules: ColourRules }) {
                 <td className="whitespace-nowrap">
                   <span className="inline-flex items-center gap-2 font-medium">
                     <Swatch colour={c} />
-                    {RAG_WORDS[c]}
+                    {states.colours[c].words}
                   </span>
                 </td>
                 <td>{when}</td>
@@ -80,22 +81,22 @@ export function ColourKey({ rules }: { rules: ColourRules }) {
 
 // The key folded to one line (goals/ux3-children-grouped.yaml): each colour's swatch and word, opening to the whole key.
 // On a phone the words fold away too and the swatches' own marks say the colour.
-export function ColourKeyLine({ rules }: { rules: ColourRules }) {
+export function ColourKeyLine({ rules, states }: { rules: ColourRules; states: States }) {
   return (
     <details data-colour-key className="group">
       <summary className="flex cursor-pointer list-none items-center gap-x-3 whitespace-nowrap text-[12.5px] text-basalt/75 [&::-webkit-details-marker]:hidden">
         {(["red", "amber", "green", "grey"] as Rag[]).map((c) => (
           <span key={c} className="inline-flex items-center gap-1.5">
-            <Swatch colour={c} label={RAG_WORDS[c]} />
+            <Swatch colour={c} label={states.colours[c].words} />
             <span aria-hidden="true" className="max-sm:hidden">
-              {RAG_WORDS[c]}
+              {states.colours[c].words}
             </span>
           </span>
         ))}
         <span className="text-basalt underline">What each colour means</span>
       </summary>
       <div className="mt-3">
-        <ColourKey rules={rules} />
+        <ColourKey rules={rules} states={states} />
       </div>
     </details>
   );

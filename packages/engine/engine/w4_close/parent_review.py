@@ -20,7 +20,7 @@ import re
 from engine.adapters import jev, llm
 from engine.core import db
 from engine.w4_close.parent_check import _texts as texts
-from engine.w4_close.parent_check import check
+from engine.w4_close.parent_check import check, subject_words
 
 PURPOSE = "parent_review"
 PARTS = ("claims", "skills", "mistakes", "home")
@@ -188,10 +188,11 @@ def evaluate(conn, version=None, ask=None, gold=None, jev_ask=None, jev_version=
     seen = {"sentences": 0, "unsure": 0, "read_by_model": 0}
     out = {"version": version, "jev_version": jev_version, "n": 0, "bad": 0, "caught": 0, "by_code": 0,
            "false_flags": 0, "misses": [], "wrong": []}  # fmt: skip
+    subjects = subject_words(conn) if conn else ()  # the gold set is scored with no database too
     for c in gold["cases"]:
         out["n"] += 1
         out["bad"] += len(c["bad"])
-        sent_back = check(c["facts"], c["draft"])
+        sent_back = check(c["facts"], c["draft"], subjects)
         if sent_back:
             out["by_code"] += len(c["bad"])
             out["caught"] += len(c["bad"])

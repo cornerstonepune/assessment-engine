@@ -5,7 +5,7 @@ import { Bar, Body, Notice, PageHeader, Panel, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
 import { isMine, paperSection, scopeOf } from "@/lib/scope";
-import { misconceptionNames, numSkills } from "@/lib/queries";
+import { misconceptionNames, setSkills } from "@/lib/queries";
 import { paperAnswers, paperHeader, sameChildPapers, type CaptureAnswer } from "@/lib/queries-read";
 import { confirmPaper } from "../actions";
 import { AnswerCard, type Key, type Unnamed } from "./card";
@@ -54,7 +54,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
     paperHeader(id, me.email),
     paperAnswers(id),
     misconceptionNames(),
-    numSkills(),
+    setSkills(),
     sameChildPapers(id),
     unnamedOn(id),
     keysOn(id),

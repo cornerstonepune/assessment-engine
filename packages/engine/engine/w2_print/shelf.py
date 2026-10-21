@@ -42,7 +42,7 @@ def home_length(conn) -> int:
 
 def rule(conn) -> dict:
     """How far from its rung an area may be worked on, the stretch level for each strong state, where the easiest level
-    ends, the levels in order and the usual one — all rows."""
+    ends, the levels in order and the usual one, and which states lag, weakest first — all rows."""
     return _once("rule", lambda: _rule(conn))
 
 
@@ -50,6 +50,7 @@ def _rule(conn) -> dict:
     r = dict(settings.config(conn, "focus"))
     r["easy_below"] = settings.threshold(conn, "next_sheet.demote_below", 0.5)
     r["order"], r["usual"] = vocabulary.levels(conn), settings.config(conn, "level.usual")
+    r["lagging"] = tuple(s["code"] for s in vocabulary.states(conn) if s["needs_work"])
     return r
 
 

@@ -25,10 +25,10 @@ export type ColourRules = {
 
 export async function colourRules(): Promise<ColourRules> {
   const [[r], { order }] = await Promise.all([sql<{ min_events: number; min_obs: number; promote: number; demote: number; levels: Record<string, string> }[]>`
-    select coalesce((select value from threshold where key = 'state.min_events'), 3)::float as min_events,
-           coalesce((select value from threshold where key = 'state.min_observers'), 2)::float as min_obs,
-           coalesce((select value from threshold where key = 'next_sheet.promote_at'), 0.8)::float as promote,
-           coalesce((select value from threshold where key = 'next_sheet.demote_below'), 0.5)::float as demote,
+    select (select value from threshold where key = 'state.min_events')::float as min_events,
+           (select value from threshold where key = 'state.min_observers')::float as min_obs,
+           (select value from threshold where key = 'next_sheet.promote_at')::float as promote,
+           (select value from threshold where key = 'next_sheet.demote_below')::float as demote,
            coalesce((select value from config where key = 'prescribe.band_default'), '{}'::jsonb) as levels`, levels()]);
   // the fewest answers in which the green share can show: 1 wrong in 5 is 80%; rounded before the ceiling, as 1/(1−0.8)
   // is 5.000000000000001 in floating point

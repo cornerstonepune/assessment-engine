@@ -10,6 +10,7 @@ import { childSection, isMine, scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { EngineDown, engineGet } from "@/lib/engine";
 import { childHeader, staffList } from "@/lib/queries";
+import { subjectOf } from "@/lib/subject";
 import { approveParentReport, writeParentReport } from "../../actions";
 import { PrintButton } from "../report/print-button";
 import { Letter, type Note } from "./letter";
@@ -75,6 +76,11 @@ export default async function ParentReport({ params, searchParams }: Props) {
   const approver = note?.approved_by
     ? (staff.find((s) => s.email === note.approved_by)?.name ?? null)
     : null;
+  // the subject the letter heads with: that of the skill sets it is about (skill_set → topic → subject)
+  const f = note?.facts;
+  const subject = f
+    ? await deadline(subjectOf([...f.can_do, ...f.nearly, ...f.improving, ...(f.next ? [f.next] : [])].map((s) => s.id)))
+    : "";
 
   return (
     <>
@@ -193,6 +199,7 @@ export default async function ParentReport({ params, searchParams }: Props) {
             name={name}
             section={child.section}
             band={child.band}
+            subject={subject}
             approver={approver}
           />
         ) : typeof got !== "string" ? (

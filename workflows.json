@@ -267,7 +267,7 @@
       "engine/assess/equality.py": 127,
       "engine/assess/estimate.py": 16,
       "engine/assess/evaluate.py": 63,
-      "engine/assess/focus.py": 112,
+      "engine/assess/focus.py": 106,
       "engine/assess/geometry.py": 20,
       "engine/assess/graph.py": 26,
       "engine/assess/items.py": 359,

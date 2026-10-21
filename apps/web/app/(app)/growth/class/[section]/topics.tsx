@@ -2,17 +2,19 @@ import Link from "@/components/link";
 import { Swatch } from "@/components/colour-key";
 import { NEED } from "@/lib/profile";
 import { stepKey, type GridChild, type Step } from "@/lib/queries-children";
-import { rag, type Rag } from "@/lib/rag";
+import type { Rag } from "@/lib/rag";
+import type { States } from "@/lib/states";
 
 // A class against its topics (goals/ui4b2-class-by-topic.yaml): its children down the side, across the top each topic
 // someone in the class has answers in, each cell counting that child's skills in it by where the graph's states put
 // them — every count in words beside its mark, the cell the colour of what needs help first. A topic's name opens the
 // class against that topic's skills alone, in this table's place (goals/ux4-class-and-child.yaml). Counted here from the
 // class's own grid, never decided here.
-const WORDS: Record<Rag, string> = { red: "needs help", amber: "practising", green: "secure", grey: "too few answers" };
 const ORDER: Rag[] = ["red", "amber", "green", "grey"];
 
-export function TopicGrid({ section, steps, kids }: { section: string; steps: Step[]; kids: GridChild[] }) {
+export function TopicGrid({ section, steps, kids, states }: { section: string; steps: Step[]; kids: GridChild[]; states: States }) {
+  // each count in a count's words, the colour's own (`state_colour.count_words`)
+  const words = (r: Rag) => states.colours[r].count_words;
   const topics = [...new Map(steps.map((s) => [s.topic_code, s.topic_name])).entries()];
   if (!topics.length) return null;
   return (
@@ -38,7 +40,7 @@ export function TopicGrid({ section, steps, kids }: { section: string; steps: St
                 </Link>
               </td>
               {topics.map(([code, name]) => {
-                const n = count(c, steps.filter((s) => s.topic_code === code));
+                const n = count(c, steps.filter((s) => s.topic_code === code), states);
                 const shown = ORDER.filter((r) => n[r]);
                 return (
                   <td
@@ -51,8 +53,8 @@ export function TopicGrid({ section, steps, kids }: { section: string; steps: St
                       <span className="grid gap-1">
                         {shown.map((r) => (
                           <span key={r} className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                            <Swatch colour={r} label={`${c.first_name}, ${name}: ${n[r]} ${WORDS[r]}`} />
-                            {n[r]} {WORDS[r]}
+                            <Swatch colour={r} label={`${c.first_name}, ${name}: ${n[r]} ${words(r)}`} />
+                            {n[r]} {words(r)}
                           </span>
                         ))}
                       </span>
@@ -71,11 +73,11 @@ export function TopicGrid({ section, steps, kids }: { section: string; steps: St
 }
 
 /** A child's skills in a topic counted by colour: those they have answered, each where its state puts it. */
-function count(c: GridChild, steps: Step[]): Record<Rag, number> {
+function count(c: GridChild, steps: Step[], states: States): Record<Rag, number> {
   const n: Record<Rag, number> = { red: 0, amber: 0, green: 0, grey: 0 };
   for (const s of steps) {
     const got = c.states[stepKey(s)];
-    if (got?.n_events) n[rag(got.state)] += 1;
+    if (got?.n_events) n[states.of(got.state).colour] += 1;
   }
   return n;
 }
