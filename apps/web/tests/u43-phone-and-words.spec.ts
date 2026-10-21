@@ -60,6 +60,12 @@ test.beforeAll(async ({ browser }) => {
       reads: [{ status: "correct", read: "1" }, { status: "needs_teacher", read: "7" }],
     });
   }
+  // Asha's parent report, written: its date shows on her page and on the reports page (its letter, an empty draft, is
+  // not read: the parent page is read for Bina, who has none)
+  const [{ n: notes }] = await sql<{ n: number }[]>`select count(*)::int as n from parent_note where child_id = ${kids.Asha}`;
+  if (!notes) {
+    await sql`insert into parent_note (tenant_id, child_id, week, body) values (${tenant}, ${kids.Asha}, ${THIS}, '{"facts": {}, "draft": {}}')`;
+  }
   // Asha's home assessment and the class's practice paper, this week
   await sql`delete from sheet_instance where qr_code in ${sql([QR.home, QR.spare])}`;
   await sql`
@@ -102,7 +108,7 @@ test.beforeAll(async ({ browser }) => {
     `/growth/class/${SECTION}`,
     `/growth/${kids.Asha}`,
     `/growth/${kids.Asha}/report`,
-    `/growth/${kids.Asha}/parent`,
+    `/growth/${kids.Bina}/parent`,
     `/growth/${kids.Bina}`,
     "/growth/reports",
   ];
@@ -113,6 +119,8 @@ test.beforeAll(async ({ browser }) => {
   }
 });
 test.afterAll(async () => {
+  // this week's papers go; the class and its read paper stay (evidence is append-only)
+  await sql`delete from sheet_instance where qr_code in ${sql([QR.home, QR.spare])}`;
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
                                where s ->> 'email' <> ${EDUCATOR.email})
@@ -141,6 +149,7 @@ async function signedIn(browser: Browser): Promise<Page> {
 async function look(page: Page, path: string): Promise<Seen> {
   await page.goto(path);
   await expect(page.getByRole("heading", { level: 1 }).first(), path).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 }).first(), `${path} could not load`).not.toHaveText("This page could not load");
   return page.evaluate((path) => {
     const h1 = document.querySelector("main h1");
     const r = h1?.getBoundingClientRect();

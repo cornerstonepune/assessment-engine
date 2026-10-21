@@ -20,8 +20,9 @@ export function dateWords(d: string | null | undefined): string {
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** An ISO week said as a person says it, by its Monday: "2026-W41" is "week of 5 Oct". A week named any other way (a
- *  test's own, an old paper's) is shown as it is: it names no dates to say. */
-export function weekWords(week: string): string {
+ *  test's own, an old paper's) is shown as it is: it names no dates to say; a paper with none is "no week". */
+export function weekWords(week: string | null): string {
+  if (!week) return "no week";
   const m = /^(\d{4})-W(\d{2})$/.exec(week);
   if (!m) return week;
   // week 1 is the one holding 4 January; its Monday is the Monday on or before it

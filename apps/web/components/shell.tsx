@@ -27,15 +27,15 @@ export function Shell({ me, waiting, grades, subject, children }: { me: Session;
         <Nav items={NAV.map((it) => ({ ...it, count: waiting[it.label] }))} />
         <Account me={me} grades={grades} subject={subject} className="mt-auto hidden pt-8 md:block" />
       </aside>
-      <main className="flex min-w-0 flex-1 flex-col">
-        {children}
-        <Account me={me} grades={grades} subject={subject} className="bg-basalt px-5 py-4 md:hidden print:hidden" />
-      </main>
+      <main className="flex min-w-0 flex-1 flex-col">{children}</main>
+      <footer className="bg-basalt px-5 py-4 md:hidden print:hidden">
+        <Account me={me} grades={grades} subject={subject} />
+      </footer>
     </div>
   );
 }
 
-function Account({ me, grades, subject, className }: { me: Session; grades: string; subject: string; className: string }) {
+function Account({ me, grades, subject, className }: { me: Session; grades: string; subject: string; className?: string }) {
   return (
     <div className={className}>
       {/* the engineering map is the coordinator's: an educator's menu holds the school's work alone */}
