@@ -6,7 +6,7 @@ import { dateWords } from "@/lib/week";
 /** One level's approval on its card (goals/f1d-questions-approved-per-level.yaml): who approved its questions and when,
  *  or — for the coordinator — the button that approves this level alone; an educator reads who it waits for. */
 export function LevelApproval({ s, d, mayApprove }: { s: SkillSet; d: Difficulty; mayApprove: boolean }) {
-  const done = s.level_approved?.[d];
+  const done = s.approved?.[d];
   if (done) {
     return (
       <Pill tone="neem">

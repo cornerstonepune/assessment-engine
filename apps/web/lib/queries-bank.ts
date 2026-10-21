@@ -58,7 +58,7 @@ export type ItemRow = {
 };
 
 /** `scope`: the classes whose taught topics the bank shows (goals/f1f-taught-per-class.yaml); every class unless said.
- *  `grades`: only questions at a level of one of these grades (the level's own grade, `level_band`, else its skill's);
+ *  `grades`: only questions at a level of one of these grades (its row's grade, `skill_level.grade`);
  *  none is every grade (goals/ux6-curriculum-for-the-educator.yaml). */
 export type ItemFilter = { set?: string; difficulty?: string; fmt?: string; status?: string; find?: string; scope?: Scope; grades?: string[] };
 
@@ -83,9 +83,8 @@ const inBank = (f: ItemFilter) => sql`
   ${f.set ? sql`and i.skill_set_code = ${f.set}` : sql``}
   ${f.difficulty ? sql`and i.difficulty = ${f.difficulty}` : sql``}
   ${f.fmt ? sql`and i.fmt = ${f.fmt}` : sql``}
-  ${f.grades?.length ? sql`and exists (select 1 from skill_set gs join rung gr on gr.tenant_id = gs.tenant_id and gr.code = gs.rung_code
-                                      where gs.tenant_id = i.tenant_id and gs.code = i.skill_set_code
-                                        and coalesce(gs.level_band ->> i.difficulty, gr.band) = any(${f.grades}))` : sql``}
+  ${f.grades?.length ? sql`and exists (select 1 from skill_level gl where gl.tenant_id = i.tenant_id and gl.skill_code = i.skill_set_code
+                                      and gl.difficulty = i.difficulty and gl.grade = any(${f.grades}))` : sql``}
   ${f.find ? sql`and (i.stem ilike ${containing(f.find)} or i.spec ->> 'text' ilike ${containing(f.find)})` : sql``}`;
 
 // Each with the library worksheets it is on, in use (ADR 0026) — the bank's list shows the tie.
@@ -108,8 +107,8 @@ export type BankRow = {
   code: string;
   name: string;
   band: string;
-  /** The grade each level belongs to, where it is not the skill's own (`gradeOf`). */
-  level_band: Partial<Record<Difficulty, string>>;
+  /** The grade each level belongs to (`skill_level.grade`, read by `gradeOf`). */
+  level_grade: Partial<Record<Difficulty, string>>;
   fmts: string[];
   counts: Partial<Record<Difficulty, number>>;
 };
@@ -122,7 +121,9 @@ export async function bankGrid(scope: Scope = EVERY_CLASS): Promise<BankRow[]> {
       select skill_set_code, difficulty, fmt, count(*)::int as n from item
       where source = 'generated' and status = 'active' group by 1, 2, 3
     )
-    select s.code, s.name, r.band, coalesce(s.level_band, '{}'::jsonb) as level_band,
+    select s.code, s.name, r.band,
+           coalesce((select jsonb_object_agg(l.difficulty, l.grade) from skill_level l
+                     where l.tenant_id = s.tenant_id and l.skill_code = s.code), '{}'::jsonb) as level_grade,
            coalesce((select array_agg(distinct b.fmt order by b.fmt) from b where b.skill_set_code = s.code), '{}') as fmts,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select b.difficulty, sum(b.n)::int as n from b where b.skill_set_code = s.code
@@ -143,8 +144,8 @@ export async function bankTotals(scope: Scope = EVERY_CLASS): Promise<{ active: 
            count(*) filter (where i.status = 'retired' and ${ofTaughtSkill(scope)})::int as retired
     from item i
     where i.source = 'generated'
-      and exists (select 1 from skill_set bs where bs.tenant_id = i.tenant_id and bs.code = i.skill_set_code
-                  and bs.difficulty ? i.difficulty)`;
+      and exists (select 1 from skill_level bl where bl.tenant_id = i.tenant_id and bl.skill_code = i.skill_set_code
+                  and bl.difficulty = i.difficulty)`;
   return t;
 }
 
@@ -255,7 +256,7 @@ export type QuestionPage = ItemRow & {
 // and which question took its place.
 export async function questionPage(key: string): Promise<QuestionPage | undefined> {
   const rows = await sql<QuestionPage[]>`
-    select ${itemColumns()}, r.band, s.difficulty -> i.difficulty ->> 'words' as level_words,
+    select ${itemColumns()}, r.band, l.looks_like as level_words,
            i.generator, i.skill_set_version, i.created_at,
            (select count(distinct x.child_id)::int from item_exposure x where x.item_id = i.id) as children,
            (select o.item_key from item o where o.id = i.corrected_from) as corrected_from_key,
@@ -266,7 +267,7 @@ export async function questionPage(key: string): Promise<QuestionPage | undefine
                      where t.source = 'library' and t.retired_at is null and i.id = any(t.item_ids)), '{}') as worksheets
     from item i
     join rung r on r.tenant_id = i.tenant_id and r.code = i.rung_code
-    left join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code
+    left join skill_level l on l.tenant_id = i.tenant_id and l.skill_code = i.skill_set_code and l.difficulty = i.difficulty
     left join lateral (select actor, note from item_feedback
                        where item_id = i.id and verdict = 'retire' order by created_at desc limit 1) f on true
     where i.item_key = current_item_key(${key}) and i.source = 'generated'`; // a key it had before leads to it (ADR 0053)

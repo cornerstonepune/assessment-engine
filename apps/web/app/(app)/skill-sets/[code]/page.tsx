@@ -157,8 +157,8 @@ export default async function SkillPage({ params, searchParams }: Props) {
             <p className="note mt-2">
               A level in another grade shows under that grade on the Curriculum too. Moving a level does not change its
               words, so the skill keeps its approval.
-              {s.level_band_by && s.level_band_at
-                ? ` Last moved by ${s.level_band_by}, ${dateWords(s.level_band_at)}.`
+              {s.moved_by && s.moved_at
+                ? ` Last moved by ${s.moved_by}, ${dateWords(s.moved_at)}.`
                 : null}
             </p>
           </Panel>

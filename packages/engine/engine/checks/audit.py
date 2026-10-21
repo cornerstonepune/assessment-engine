@@ -12,7 +12,7 @@ test that happens to notice it. What this file does NOT check is, by definition,
 
 from engine.assess import bands, verify
 from engine.assess import misconceptions as M
-from engine.core import db, references
+from engine.core import db, levels, references
 from engine.w1_bank import cases, inventory, labels, spec
 
 PREDICTOR_CODES = {c for table in (M.ADD_PREDICTORS, M.SUB_PREDICTORS, M.MULTI_PREDICTORS) for c in table}
@@ -20,8 +20,8 @@ PREDICTOR_CODES = {c for table in (M.ADD_PREDICTORS, M.SUB_PREDICTORS, M.MULTI_P
 
 def _skill_sets(conn):
     return conn.execute(
-        "select code, rung_code, status, formats, difficulty, misconception_codes as curated"
-        " from skill_set order by code"
+        f"select s.code, s.rung_code, s.status, s.formats, {levels.LEVELS} as difficulty,"
+        " s.misconception_codes as curated from skill_set s order by s.code"
     ).fetchall()
 
 

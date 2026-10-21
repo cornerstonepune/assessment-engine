@@ -72,15 +72,13 @@ const curriculum = (page: Page) => page.getByRole("table", { name: "The curricul
 const number = (s: string) => Number(s.replace(/[^\d]/g, "") || 0);
 
 /** The questions an educator's class can be given of its own grade: generated, active, of a skill taught in the class,
- *  at a level whose grade is the class's. */
+ *  at a level whose row's grade is the class's. */
 async function gradeQuestions(): Promise<number> {
   const [{ n }] = await sql<{ n: number }[]>`
     select count(*)::int as n from item i
-    join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code
-    join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-    where i.source = 'generated' and i.status = 'active' and s.difficulty ? i.difficulty
-      and coalesce(s.level_band ->> i.difficulty, r.band) = ${grade.code}
-      and skill_taught_in(s.tenant_id, s.code, ${MINE})`;
+    join skill_level l on l.tenant_id = i.tenant_id and l.skill_code = i.skill_set_code and l.difficulty = i.difficulty
+    where i.source = 'generated' and i.status = 'active' and l.grade = ${grade.code}
+      and skill_taught_in(i.tenant_id, i.skill_set_code, ${MINE})`;
   return n;
 }
 
@@ -126,9 +124,9 @@ test("the question bank opens on the educator's grade, every grade one tap away"
   const keys = await questions.locator("table tbody tr td:first-child a").evaluateAll((as) => as.map((a) => a.getAttribute("href")!.replace("/library/", "")));
   expect(keys.length).toBeGreaterThan(0);
   const off = await sql<{ item_key: string }[]>`
-    select i.item_key from item i join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code
-    join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-    where i.item_key = any(${keys}) and coalesce(s.level_band ->> i.difficulty, r.band) <> ${grade.code}`;
+    select i.item_key from item i
+    join skill_level l on l.tenant_id = i.tenant_id and l.skill_code = i.skill_set_code and l.difficulty = i.difficulty
+    where i.item_key = any(${keys}) and l.grade <> ${grade.code}`;
   expect(off.map((r) => r.item_key), "a question of another grade").toEqual([]);
   await questions.getByRole("link", { name: "Every grade", exact: true }).click();
   await expect(questions.locator(".panel-head")).not.toContainText(grade.name);

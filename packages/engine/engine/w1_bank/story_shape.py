@@ -187,8 +187,8 @@ def placed(conn, case):
     return [
         (r["code"], r["level"])
         for r in conn.execute(
-            "select s.code, l.key as level from skill_set s, jsonb_each(s.difficulty) l"
-            " where l.value->'check'->'cases' ? %s order by s.code, l.key",
+            "select skill_code as code, difficulty as level from skill_level"
+            " where rule->'check'->'cases' ? %s order by 1, 2",
             (case,),
         )
     ]

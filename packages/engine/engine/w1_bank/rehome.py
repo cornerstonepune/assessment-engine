@@ -17,7 +17,7 @@ from collections import Counter
 
 from engine.assess import placing, tags, taxonomy
 from engine.assess.items import Item
-from engine.core import settings, vocabulary
+from engine.core import levels, settings, vocabulary
 from engine.w1_bank import cases
 
 
@@ -33,7 +33,9 @@ def replaced(seed=None):
 def shaped(conn):
     """The skills that have a shape, with their levels' checks and rung."""
     return placing.shaped(
-        conn.execute("select code, rung_code, version, difficulty from skill_set order by code").fetchall()
+        conn.execute(
+            f"select s.code, s.rung_code, s.version, {levels.LEVELS} as difficulty from skill_set s order by s.code"
+        ).fetchall()
     )
 
 

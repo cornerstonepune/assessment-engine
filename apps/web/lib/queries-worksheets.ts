@@ -16,17 +16,17 @@ export type WorksheetRow = {
 };
 
 /** `scope`: the classes whose taught skills it lists, every class unless said; `grades`: only worksheets at a level of
- *  these grades (the level's own, else its skill's), none being every grade (goals/ux6-curriculum-for-the-educator.yaml). */
+ *  these grades (its row's grade, `skill_level.grade`), none being every grade (goals/ux6-curriculum-for-the-educator.yaml). */
 export type WorksheetFilter = { set?: string; level?: string; scope?: Scope; grades?: string[] };
 
 // A library worksheet of a skill taught in some class: what the page's total counts, so its pager and its list count
 // the same worksheets (goals/ux2-one-count-one-thing.yaml) — never one of a skill since replaced, which no list shows.
 const live = (f: WorksheetFilter) => sql`
   t.source = 'library' and t.retired_at is null
-  and exists (select 1 from skill_set ls join rung lr on lr.tenant_id = ls.tenant_id and lr.code = ls.rung_code
-              where ls.tenant_id = t.tenant_id and ls.code = t.skill_set_code
-              and ${skillTaughtFor(f.scope ?? EVERY_CLASS, sql`ls.tenant_id`, sql`ls.code`)}
-              ${f.grades?.length ? sql`and coalesce(ls.level_band ->> t.difficulty, lr.band) = any(${f.grades})` : sql``})
+  and exists (select 1 from skill_set ls where ls.tenant_id = t.tenant_id and ls.code = t.skill_set_code
+              and ${skillTaughtFor(f.scope ?? EVERY_CLASS, sql`ls.tenant_id`, sql`ls.code`)})
+  ${f.grades?.length ? sql`and exists (select 1 from skill_level wl where wl.tenant_id = t.tenant_id and wl.skill_code = t.skill_set_code
+                                      and wl.difficulty = t.difficulty and wl.grade = any(${f.grades}))` : sql``}
   ${f.set ? sql`and t.skill_set_code = ${f.set}` : sql``}
   ${f.level ? sql`and t.difficulty = ${f.level}` : sql``}`;
 
@@ -76,9 +76,10 @@ export async function libraryWorksheet(code: string): Promise<LibraryWorksheet |
   const rows = await sql<LibraryWorksheet[]>`
     select t.code, t.skill_set_code, coalesce(s.name, t.skill_set_code) as skill, s.code is not null as skill_live,
            coalesce(s.learning_objective, '') as outcome, t.band, t.difficulty,
-           s.difficulty -> t.difficulty ->> 'words' as level_words, t.created_at, t.retired_at
+           l.looks_like as level_words, t.created_at, t.retired_at
     -- a worksheet printed from a skill set since replaced (ADR 0034) still opens, under the name it was made for
     from sheet_template t left join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
+    left join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code and l.difficulty = t.difficulty
     where t.source = 'library' and t.code = ${code}`;
   return rows[0];
 }
