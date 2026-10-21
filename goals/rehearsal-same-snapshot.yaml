@@ -1,0 +1,27 @@
+name: rehearsal-same-snapshot
+goal: >
+  The rehearsal of update-live copies live and compares every table's count on the copy with live's count in the very
+  snapshot the dump was taken from, so educators making papers while it runs cannot fail it, and a row missing from
+  the copy, or one too many, still does. Live is only read.
+# Written 2026-10-21, before the code. Run 39562277664 on #234 (B1) failed twice: `sheet_template` went from 7982 to
+# 7995 between live's dump and live's count, minutes later, in school hours. Every backend step (B0–B4, BUILD-ORDER.md)
+# is rehearsed this way first.
+says:
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_live_copy.py::test_a_paper_made_while_the_copy_is_made_does_not_fail_it"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_live_copy.py::test_a_row_missing_from_the_copy_still_fails"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_live_copy.py::test_an_extra_row_on_the_copy_still_fails"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_live_copy.py::test_live_is_only_read"
+manual:
+  - "Actions → rehearse update-live, during school hours: the step \"the copy's rows, every one of live's\" ends \"every count equal to live's snapshot\"."
+scenarios: []
+criteria:
+  - name: the copy is compared with live in one snapshot
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_live_copy.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -1,10 +1,11 @@
 # `bin/update-live`'s data steps rehearsed on a copy of live, before a person runs them on live.
 #
 # The copy is built in this runner from the repository's migrations, then filled with every live row
-# (pg_dump, read only), and each count is compared with live's. The whole sequence runs on the copy and
-# its checks must come back clean (`engine live data`), then every child's home paper is listed as Make
-# papers would propose it. Live itself is only read: `bin/update-live`, run by a person, changes it.
-# The copy dies with the runner; nothing is kept.
+# (pg_dump, read only), and each count is compared with live's in the very snapshot the dump was taken
+# from (`engine live copy`). The whole sequence runs on the copy and its checks must come back clean
+# (`engine live data`), then every child's home paper is listed as Make papers would propose it.
+# Live itself is only read: `bin/update-live`, run by a person, changes it. The copy dies
+# with the runner; nothing is kept.
 # Children's names are in the rows (`pii`) but nothing here prints one: the commands print codes, counts,
 # sections and roll numbers.
 #
@@ -53,20 +54,15 @@ jobs:
           psql "$COPY" -q -v ON_ERROR_STOP=1 -c "create schema supabase_migrations; create table supabase_migrations.schema_migrations (version text primary key);"
           psql "$LIVE" -tAc "select version from supabase_migrations.schema_migrations" | psql "$COPY" -q -v ON_ERROR_STOP=1 -c "copy supabase_migrations.schema_migrations from stdin"
       - name: the copy's rows, every one of live's
+        env: { DATABASE_URL: "${{ env.COPY }}" }
         run: |
           tables="select schemaname || '.' || tablename from pg_tables where schemaname in ('public', 'pii') order by 1"
           psql "$COPY" -tAc "$tables" | LC_ALL=C sort > /tmp/copy.tables
           psql "$LIVE" -tAc "$tables" | LC_ALL=C sort > /tmp/live.tables
           extra=$(LC_ALL=C comm -13 /tmp/copy.tables /tmp/live.tables)
           if [ -n "$extra" ]; then echo "::error::on live and not on the copy: $(echo $extra)"; exit 1; fi
-          psql "$COPY" -q -v ON_ERROR_STOP=1 -c "do \$\$ begin execute (select 'truncate table ' || string_agg(format('%I.%I', schemaname, tablename), ', ') || ' cascade' from pg_tables where schemaname in ('public', 'pii')); end \$\$;"
-          pg_dump "$LIVE" --format=custom --data-only --no-owner --no-privileges $(LC_ALL=C comm -12 /tmp/copy.tables /tmp/live.tables | sed 's/^/--table=/') --file=/tmp/live.dump
-          pg_restore --data-only --disable-triggers --no-owner --no-privileges --exit-on-error --dbname="$COPY" /tmp/live.dump
-          rm /tmp/live.dump
-          LC_ALL=C comm -12 /tmp/copy.tables /tmp/live.tables | while read t; do echo "$t $(psql "$LIVE" -tAc "select count(*) from $t")"; done > /tmp/live.counts
-          LC_ALL=C comm -12 /tmp/copy.tables /tmp/live.tables | while read t; do echo "$t $(psql "$COPY" -tAc "select count(*) from $t")"; done > /tmp/copy.counts
-          diff /tmp/live.counts /tmp/copy.counts
-          echo "copied: $(wc -l < /tmp/live.counts) tables, $(awk '{s+=$2} END {print s}' /tmp/copy.counts) rows, every count equal to live"
+          # live's counts are read in the snapshot pg_dump dumps, so papers made meanwhile cannot part them (engine/checks/live_copy.py)
+          bin/engine live copy
       # Every grade live's rows hold, before the migrations make each a key into `grade` (ADR 0085): a grade no row of
       # `grade` holds stops the migration below, and this says which. Codes and counts only.
       - name: the grades live's rows hold
