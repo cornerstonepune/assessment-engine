@@ -143,8 +143,9 @@ def _where_it_shows(conn, area, levels) -> focus.Area:
     if not area.mistake:
         return area
     defined = levels.get(area.skill_set, ())
-    at = focus.LEVELS.index(area.level)
-    up, down = focus.LEVELS[at:], focus.LEVELS[:at][::-1]
+    order = rule(conn)["order"]
+    at = order.index(area.level)
+    up, down = order[at:], order[:at][::-1]
     order = [d for d in (*up, *down) if d in defined]
     rows = {
         level: conn.execute(

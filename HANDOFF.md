@@ -3,20 +3,32 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
-## 2026-10-20 — B0d built (W1, gate 3): a child's states and the subject are read from rows; draft PR, not deployed
+## 2026-10-21 — B0d (W1, gate 3): a child's states and the subject are read from rows; PR #231, not deployed
+- **On `claude/b0d-states-and-subject`** (STATE.md "B0d", ADR 0086, migration 20261122090000): every rule about a state
+  is a column of `child_state`; each colour's words are `state_colour` rows; a subject has a `label` ("Maths").
+- **Merged with B0c (main, 861e624):** both kept — levels from `difficulty` (`vocabulary.levels`/`letters`, `lib/levels.ts`),
+  states from `child_state` (`vocabulary.states`, `shelf.rule`'s `lagging`). B0d's migration is last.
+- **Next:** Nimish merges #231; then B1.
+- **Still open:** the children-table sort keys are now `amber` / `green`: an old bookmarked sort opens unsorted.
 
-- **On `claude/b0d-states-and-subject`** (STATE.md "B0d"): every rule about a state is a column of `child_state`
-  (enough, severity, move_up, nearly, card_group, why); each colour's words are `state_colour` rows; a subject has a
-  `label` ("Maths"). Prescriptions take their strand from the skill set's topic's subject; the three headings read it.
-  Migration 20261122090000; ADR 0086. A test fails if any file names a state or a subject.
-- **Ran beside B0b and B0c.** Their migrations may redefine B0a's `internal.school_vocabulary`; this one does not (it adds
-  `internal.school_states`, fired first by name). Merge main in before the PR is ready, and again after either merges.
-  Shared lines likely to conflict: `components/shell.tsx` ("Grade 1–4 · {subject}"), `lib/queries.ts`, the seed.
-- **Next:** Nimish merges B0b–B0d; then B1 (levels become rows).
-- **Still open:** the children-table sort keys in the address are now `amber` / `green` (were `practising` /
-  `secure`): an old bookmarked sort opens unsorted.
-- **This container's browser:** the pinned Playwright wants Chromium 1243; only 1194 is installed. A private
-  `PLAYWRIGHT_BROWSERS_PATH` linking 1194 ran every printing test locally.
+## 2026-10-20 — B0c built (W1, gate 3): the levels are read from their table; PR #228, draft, not deployed
+- **On `claude/b0c-levels-from-the-table`** (STATE.md "B0c"): no file outside `assess/` names a level; the worksheet
+  letter is `difficulty.letter`; "Medium" by default is the config row `level.usual`. Migration 20261121090000.
+- **Merged with B0b (main, f77fe70) at 63f35e5:** both kept; migrations in order (20261120 then 20261121); rules.json
+  regenerated, unchanged. Rehearsal on the merged branch green (run 39491988653): live already has B0b's migration,
+  B0c's applied on its 160,215 rows, no worksheet code changed.
+- **Merged with #232 (main, 37683c3):** the marking check and its test are now main's (#232 counts each answer by its
+  `rid`); the earlier port (d96972f) is gone. Main added no migration; B0c's 20261121090000 is still last.
+  `bin/engine done`: six PROVED, three criteria PASSED (suite 2577 passed); rehearsal run 39531106626 green.
+- **Next:** Nimish merges #228, then live is migrated and deployed; then B0d.
+
+## 2026-10-20 — the 5 papers "counted twice" were never counted twice (W3); PR on `claude/marking-counts-once`, draft
+- **The check was wrong, not the data** (STATE.md "Marking counts each answer once"): their grid questions ask five
+  answers each; the check counted questions. Now it counts answers; the same answer read twice still fails. No child's
+  score or map moved; no repair on live needed.
+- **Also fixed:** a copy's score counted an answer read wrong, then judged right by a person, as both.
+- **Rehearsed green** on a copy of live (run 39480469879): the check says ok before and after the update.
+- **Next:** Nimish merges and deploys; then B0c once B0b is merged and live.
 
 ## 2026-10-20 — B0b built (W1, gate 3): grades read from the table; "G2+" is Grade 2; PR #229, draft, not deployed
 

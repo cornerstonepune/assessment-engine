@@ -1,5 +1,5 @@
 {
-  "_note": "The school's words for its grades, its four levels and the states of a child's map (ADR 0084). Each list is in its order. Pre-school names are the school's own, from the titles of its developmental updates (registry.json). A child state's colour is its red / amber / green / grey on the website (apps/web/lib/rag.ts); needs_work is whether a next paper works on it (rag.ts NEEDS_WORK). The migration 20261119090000 inserts these same rows for every school, there now or added later; tests/test_vocabulary.py keeps the two equal.",
+  "_note": "The school's words for its grades, its four levels and the states of a child's map (ADR 0084). Each list is in its order. Pre-school names are the school's own, from the titles of its developmental updates (registry.json). A child state's colour is its red / amber / green / grey on the website (apps/web/lib/rag.ts); needs_work is whether a next paper works on it (rag.ts NEEDS_WORK). A level's letter is the one in its worksheet codes (R5-M03), one level's alone (migration 20261121090000). The migration 20261119090000 inserts these same rows for every school, there now or added later; tests/test_vocabulary.py keeps the two equal.",
   "grades": [
     {"code": "PG", "name": "PG"},
     {"code": "N", "name": "Nursery"},
@@ -17,10 +17,10 @@
     {"code": "G10", "name": "Grade 10"}
   ],
   "difficulties": [
-    {"code": "Easy"},
-    {"code": "Medium"},
-    {"code": "Hard"},
-    {"code": "Advance"}
+    {"code": "Easy", "letter": "E"},
+    {"code": "Medium", "letter": "M"},
+    {"code": "Hard", "letter": "H"},
+    {"code": "Advance", "letter": "A"}
   ],
   "_states_note": "B0d (ADR 0086): every rule about a state is a column. enough: false for the one state that waits on too few answers. severity: the children table counts a skill set as its most severe skill. move_up: ready to move up a level. nearly: a set in it may be nearly secure (parent report). card_group: its group on Friday's class card (reteach groups by the mistake). why: the reason a paper prints, {threshold.key} said as that row's share in words. A state's colour is a row of state_colours: words in a key or legend, count_words in a count. The migration 20261122090000 inserts these same rows for every school; tests/test_states_and_subject.py keeps them equal to the code's old answers.",
   "child_states": [

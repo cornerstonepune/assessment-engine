@@ -8274,30 +8274,74 @@ one child on live.
 ## B0d — a child's states and the subject are read from rows (2026-10-20, ADR 0086)
 
 - **Built (`goals/b0d-states-and-subject-from-tables.yaml`):** migration 20261122090000 adds to `child_state` a column
-  for each rule the code's lists held — `enough`, `severity`, `move_up`, `nearly`, `card_group`, `why` (the paper's
-  reason, `{next_sheet.promote_at}` said in words from the row) — and `state_colour` (each colour's key and count
-  words; a state's colour is a key into it), and `subject.label` ("Maths"). The engine reads them through
+  for each rule the code's lists held (`enough`, `severity`, `move_up`, `nearly`, `card_group`, `why`), the table
+  `state_colour` (each colour's words), and `subject.label` ("Maths"). The engine reads them through
   `core/vocabulary.states`; the website through `lib/states.ts` and `lib/subject.ts`. A prescription's strand is its
   skill set's topic's subject.
-- **Proved to change nothing:** `tests/test_states_and_subject.py` holds the lists from main (RAG, RAG_WORDS, the
-  topic counts' words, STATE_WORDS, LAGGING, PROPOSABLE, STRONG, the card's GROUPS and ORDER, the children table's
-  CASE, WHY) and checks the rows give each; it failed first (`vocabulary has no attribute 'states'`, 63 files' names
-  found), then 6 passed. The scan finds no state or subject named in `packages/engine/engine` or `apps/web/{app,lib,components}`.
-- **Whole engine suite, local Postgres 16 from `bin/testdb fresh` + this migration:** 2377 passed, 126 failed, 58
-  errors at first. Every one of those 184 then passed (184 passed, 2 skipped) with Playwright pointed at the
-  container's Chromium 1194 (the pinned Playwright wants 1243): they were the browser, and two of mine — `rules.json`
-  lacked the four new keys (`engine live rules --write --url <local>`), and the parent-review eval runs with no database.
-- **Website:** `npx tsc --noEmit` and `npx eslint --max-warnings 0` clean. The children table's sort keys are now
-  `amber` / `green` (u8 spec updated). Browser specs: CI.
-- **CI on 36be8d4 (run 39474159174): green** — engine (the whole suite, on CI's own browser), web, every browser spec.
-- **Rehearsal on a copy of live (run 39474127831):** "copied: 63 tables, 160215 rows, every count equal to live", then
-  `applying 20261122090000_states_and_subject_are_rows.sql` with no error, so every live row satisfies the new keys. The
-  run is red only on "Marking counts each printed question once" (CS2A6B23, CSCE3E2C, CSA4999D, CSB8ACB3: 21 for 13;
-  CS6A1049: 9): live's data, failing before any update step and identically on main (B0a, above).
-- **`bin/engine done b0d-states-and-subject-from-tables` on 36be8d4, in this container:** all four sentences PROVED;
-  "the rows, the scan and the old answers agree" PASSED (22 passed); bin/check PASSED (28 passed); the whole suite
-  timed out at `engine done`'s 1800 s here (its printing tests alone took 21 min on this container) — CI ran the same
-  suite green. NOT DONE otherwise only for the manual rehearsal line and not being live.
+- **Proved to change nothing:** `tests/test_states_and_subject.py` holds main's old lists and checks the rows give each;
+  it failed first, then passed. No state or subject is named in the engine or the website.
+- **Rehearsal on a copy of live (run 39474127831):** the migration applied on 160,215 rows with no error.
+- **Merged with B0c (main, 861e624):** `vocabulary.py`, `shelf.py`, `colours.ts`, `test_focus.py` keep both — levels
+  from `difficulty`, states from `child_state`. Proofs: see the PR comment (`bin/engine done`).
+
+## B0c — the four levels are read from `difficulty` everywhere (2026-10-20, ADR 0084)
+
+- **Built (`goals/b0c-levels-from-the-table.yaml`, PR #228):** every reader outside the maths library takes the levels'
+  names and order from `difficulty`: the engine (`vocabulary.levels` / `letters`: prescribe, library codes, the bank's
+  coverage, rehome, the home paper's level via `shelf.rule`), the website (`lib/levels.ts`; a skill's own levels as
+  `levels`, ordered in SQL; every page, form and query that listed or ordered them) and `next_difficulty` (steps along
+  the table's order, so a fifth level is reachable). Migration 20261121090000: `difficulty.letter` (E, M, H, A from the
+  seed, unique per school) and the config row `level.usual` ("Medium", where four files each wrote it).
+  `assess/placing.py` still names levels: the maths library's own rule, outside the test.
+- **Rejected:** the letter computed as the level's initial; B0a's test adding "Expert" failed on it (clashes with Easy).
+- **Checks:** `tests/test_levels.py` failed first (every file and `next_difficulty` listed; no `vocabulary.levels`; no
+  `letter`); the ten next-level cases passed before and after. CI on 55bef20: engine (whole suite), web and browser
+  green. Rehearsal run 39471842250: the migration applied on 160,215 of live's rows, `library build` made 0 and retired
+  0; it then stopped at `live data` on the 16 Oct papers (main fails the same way). L13's check (d96972f) ported in
+  55bef20; rehearsal run 39473436188 green end to end.
+- **`bin/engine done b0c-levels-from-the-table`** (local copy): all six sentences PROVED; criteria 1 and 3 PASSED; the
+  whole-suite criterion timed out at 1800 s in this container; run directly here it is 2571 passed, 2 skipped
+  in 1884 s (the slowest are the reader's and the invariants', untouched here), and green on CI in 20 min; NOT DONE
+  also for not being on main or live.
+- **Merged with B0b (63f35e5):** main's grades (`grades()`) and this branch's levels (`levels()`) both kept; `topicLines`
+  / `lineTopics` take the grades and the usual level; the curriculum walks `grade`'s rows in `difficulty`'s order. A
+  fresh database from all 82 migrations (B0b's 20261120090000, then B0c's 20261121090000) applied cleanly; `engine
+  live rules --write` on it gave the merged rules.json unchanged (271 rules). `bin/check` 28 passed; web `tsc` and
+  eslint clean; level/grade/library/rules tests 155 passed. Rehearsal run 39491988653 on 63f35e5 green: copied 160,215
+  rows; live already holds B0b's migration, so only 20261121090000 applied; `library build` made 0, retired 0; the copy
+  after clean. `bin/engine done` again: six sentences PROVED, criteria 1 and 3 PASSED, the whole suite timed out at
+  1800 s here (CI runs it).
+- **Merged with #232 (main, 37683c3) at 80aebcf:** the marking check (`live_data._marking`) and its test are main's; this
+  branch's port of L13's check is gone. Main added no migration; a fresh database from all 82 migrations (B0c's
+  20261121090000 last) built cleanly; rules.json unchanged. `bin/check` 28 passed; level, grade, rules, live-data,
+  copies, vocabulary and library tests 86 passed. `bin/engine done b0c-levels-from-the-table`: six sentences PROVED; all
+  three criteria PASSED, the whole suite 2577 passed, 2 skipped in 1673 s; NOT DONE for not being on main or live.
+  Rehearsal run 39531106626 on 80aebcf green: 160,215 rows copied; live at 20261120090000, so only 20261121090000
+  applied; `library build` made 0, retired 0; the copy after: 19 invariants, 0 violations; `ok Marking counts each
+  printed question once`.
+
+## Marking counts each answer once: the check counted questions, not answers (2026-10-20, W3)
+
+- **Which reading:** the check was wrong; no answer was counted twice. Measured on live through the engine's API
+  (`GET /read/scan/2026-10-16.pdf/copies`, `/capture/{id}/readings`): each of the five papers has one live reading.
+  CS2A6B23, CSCE3E2C, CSA4999D, CSB8ACB3 print 13 questions, two of them grids asking five answers each (`ans`,
+  `s1`–`s4`): 11 + 10 = 21 results, every one a different question and answer. CS6A1049 (roll 1, page 1 not scanned):
+  one grid and 4 others, 9 results. `_marking` compared results with distinct *questions* (13), so each grid's four
+  extra cells read as "counted twice". No child's score or map was affected.
+- **Fixed (`goals/l13-marking-counts-each-answer-once.yaml`):** `live_data._marking` counts the answers each printed
+  question asks for (its `responses`, at least one) and calls twice only the same question *and* answer (`rid`) on two
+  live readings of one paper. `test_each_answer_of_a_grid_question_counts_once_and_is_not_counted_twice` failed first
+  with live's own words ("5 answers counted for 1 questions printed, 4 counted twice"), then passed; the page scanned
+  twice still fails.
+- **Seen on the way, fixed too:** a copy's score (`copy_scores.tally`) counted an answer read wrong or blank that a
+  person then judged right as right *and* wrong: roll 1 of that scan showed 6 right, 5 wrong of 9 answers.
+  `test_an_answer_read_wrong_and_judged_right_by_a_person_counts_once_as_right` failed first (wrong 2, blank 2), then
+  passed.
+- **`bin/engine done l13-marking-counts-each-answer-once`:** three sentences PROVED, criteria PASSED (7 passed, 1 skipped;
+  bin/check 28 passed); NOT DONE for the manual rehearsal line and not being live.
+- **Rehearsed on a copy of live (run 39480469879, 784f54b):** "copied: 63 tables, 160215 rows, every count equal to
+  live"; `engine live data` before the update: `ok    Marking counts each printed question once`, and again after
+  `bin/update-live`'s steps (the copy after, must be clean: every check ok).
 
 ## B0b — grades are read from the `grade` table; every grade a row holds is a key; "G2+" is Grade 2 (2026-10-20, ADR 0085)
 

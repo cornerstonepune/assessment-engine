@@ -11,7 +11,6 @@ import { switchTopic } from "./topic-actions";
 // that, there is sub. It just flows like that." A row opens the rows under it; a grade with one subject opens both, so a
 // click on a grade shows its topics and a click on a topic its skills. The columns are the same at every depth.
 
-const LEVELS = ["Easy", "Medium", "Hard", "Advance"] as const;
 const n = (x: number) => x.toLocaleString("en-IN");
 const INDENT = ["pl-[14px]", "pl-[34px]", "pl-[54px]", "pl-[74px]"];
 
@@ -48,7 +47,8 @@ function NotTaught({ row, say }: { row: CurriculumRow; say: boolean }) {
   );
 }
 
-export function CurriculumTable({ rows, say = false }: { rows: CurriculumRow[]; say?: boolean }) {
+/** `levels`: the school's levels in order, the columns (lib/levels.ts). */
+export function CurriculumTable({ rows, levels, say = false }: { rows: CurriculumRow[]; levels: string[]; say?: boolean }) {
   const [open, setOpen] = useState<Set<string>>(new Set());
   const under = (id: string) => rows.filter((r) => r.parent === id);
   const toggle = (id: string) =>
@@ -93,7 +93,7 @@ export function CurriculumTable({ rows, say = false }: { rows: CurriculumRow[]; 
               <th>Grade · subject · topic · skill</th>
               <th className="num">Questions</th>
               <th className="num">Worksheets</th>
-              {LEVELS.map((d) => (
+              {levels.map((d) => (
                 <th key={d} className="num">
                   {d}
                 </th>
@@ -145,7 +145,7 @@ export function CurriculumTable({ rows, say = false }: { rows: CurriculumRow[]; 
                 <td className="num">
                   {r.href ? <Link href={`${r.href}#worksheets`}>{n(r.worksheets)}</Link> : n(r.worksheets)}
                 </td>
-                {LEVELS.map((d) => (
+                {levels.map((d) => (
                   <td key={d} className="num" data-level={d} title={r.words?.[d]}>
                     {r.levels[d] == null ? (
                       <span className="text-basalt/35">—</span>

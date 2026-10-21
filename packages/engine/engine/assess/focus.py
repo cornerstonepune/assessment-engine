@@ -8,13 +8,16 @@ stands; this answers one question — which few areas next, and at what level:
 - an area is one skill set of the bank: the set on the row's rung that is for the row's skill; else the
   nearest set for that skill within `rule["reach"]` rungs; else a set on the rung whose questions use the
   skill. So subtraction mistakes on an addition rung are worked on as subtraction.
-- its level follows how often the child was right: below `rule["easy_below"]` Easy, otherwise Medium.
+- its level follows how often the child was right: below `rule["easy_below"]` the easiest of `rule["order"]` (the
+  school's levels, from its table), otherwise `rule["usual"]`.
 
 A home paper (`home`) is one area, never a mix: the weakest. A child who lags nowhere is stretched instead — their
 strongest skill, one level up, as `rule["stretch"]` says for its state (Nimish, 2026-09-23: "Stretch too").
 """
 
+from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import cast
 
 
 @dataclass(frozen=True)
@@ -63,9 +66,10 @@ def areas(states, catalog, rule, levels=None):
         if not code:
             continue
         share = s["n_correct"] / s["n_events"] if s["n_events"] else 0.0
-        level = "Easy" if share < rule["easy_below"] else "Medium"
+        order = cast(Sequence[str], rule["order"])
+        level = order[0] if share < rule["easy_below"] else cast(str, rule["usual"])
         if levels is not None:
-            level = _at_most(level, levels.get(code, ())) or _easiest(levels.get(code, ()))
+            level = _at_most(level, levels.get(code, ()), order) or _easiest(levels.get(code, ()), order)
             if not level:
                 continue
         area = Area(
@@ -83,18 +87,15 @@ def areas(states, catalog, rule, levels=None):
     return sorted(best.values(), key=lambda a: _weakness(a, lagging))[: rule["most"]]
 
 
-LEVELS = ("Easy", "Medium", "Hard", "Advance")  # the school's own four, in order
-
-
-def _at_most(level, defined):
+def _at_most(level, defined, order: Sequence[str]):
     """The hardest level a skill set defines that is no harder than `level`; None when it defines none."""
-    below = [d for d in LEVELS[: LEVELS.index(level) + 1] if d in defined]
+    below = [d for d in order[: order.index(level) + 1] if d in defined]
     return below[-1] if below else None
 
 
-def _easiest(defined):
+def _easiest(defined, order: Sequence[str]):
     """The easiest level a skill set defines, or None."""
-    return next((d for d in LEVELS if d in defined), None)
+    return next((d for d in order if d in defined), None)
 
 
 def home(states, catalog, rule, levels):
@@ -107,7 +108,7 @@ def home(states, catalog, rule, levels):
     for s in states:
         target = rule["stretch"].get(s["state"])
         code = target and skill_set_for(s["skill_code"], s["rung_code"], catalog, rule["reach"])
-        level = code and _at_most(target, levels.get(code, ()))
+        level = code and _at_most(target, levels.get(code, ()), cast(Sequence[str], rule["order"]))
         if code and level:
             area = Area(code, s["skill_code"], level, s["n_correct"], s["n_events"], None, s["state"])
             strong.append(area)

@@ -21,9 +21,9 @@ def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
         )
     for i, d in enumerate(seed("vocabulary.json", "difficulties")):
         conn.execute(
-            "insert into difficulty (tenant_id, code, ord) values (%s,%s,%s)"
-            " on conflict (tenant_id, code) do update set ord=excluded.ord, updated_at=now()",
-            (tenant, d["code"], i),
+            "insert into difficulty (tenant_id, code, ord, letter) values (%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set ord=excluded.ord, letter=excluded.letter, updated_at=now()",
+            (tenant, d["code"], i, d["letter"]),
         )
     for i, c in enumerate(seed("vocabulary.json", "state_colours")):
         conn.execute(
@@ -66,3 +66,16 @@ def states(conn: db.Conn) -> list[dict[str, Any]]:
         " from child_state where tenant_id = (select id from tenant where slug = %s) order by ord",
         (db.tenant_slug(),),
     ).fetchall()
+
+
+def levels(conn: db.Conn) -> tuple[str, ...]:
+    """The school's levels, easiest first: what every reader outside the maths library takes their names and order
+    from (goals/b0c-levels-from-the-table.yaml)."""
+    return tuple(r["code"] for r in conn.execute("select code from difficulty order by ord").fetchall())
+
+
+def letters(conn: db.Conn) -> dict[str, str]:
+    """Each level's letter in a worksheet code (R5-M03): a column of its row, one level's alone. A level with none yet
+    has no worksheets until the seed gives it one."""
+    rows = conn.execute("select code, letter from difficulty where letter is not null").fetchall()
+    return {r["code"]: r["letter"] for r in rows}

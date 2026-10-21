@@ -386,3 +386,41 @@ def test_a_childs_kept_pdf_that_records_no_boxes_gives_way_to_the_layout_the_pag
     assert printed_paper.read_from(None, None, gone, "c") is None, (
         "but its own: not read, and said why (`copies`)"
     )
+
+
+def test_an_answer_read_wrong_and_judged_right_by_a_person_counts_once_as_right(conn):
+    """2026-10-16.pdf, roll 1: an answer the reader read as wrong and a person then judged right was counted both
+    right and wrong, so the copy said 6 right and 5 wrong of 9 answers. Each answer is in one count."""
+    tenant = conn.execute(
+        "insert into tenant (slug, name) values (%s, 't') returning id", (f"t-{uuid.uuid4()}",)
+    ).fetchone()["id"]
+    conn.execute(
+        "insert into rung (tenant_id, code, band, descriptor) values (%s, 'R1', 'G2', 'd')", (tenant,)
+    )
+    capture = conn.execute(
+        "insert into capture (tenant_id, path) values (%s, 'p') returning id", (tenant,)
+    ).fetchone()["id"]
+    read = [  # (status, the engine's verdict)
+        (
+            "correct",
+            "read as a wrong answer; a person checks every wrong answer before it counts",
+        ),  # judged right
+        ("wrong", "read as a wrong answer; a person checks every wrong answer before it counts"),
+        ("correct", "read as blank; a person checks every blank before it counts"),  # judged right
+        ("needs_teacher", "read as blank; a person checks every blank before it counts"),
+        ("needs_teacher", "read as a right answer; a person checks every answer of this kind"),
+        ("needs_teacher", "under the confidence floor"),
+    ]
+    for n, (status, why) in enumerate(read):
+        item = conn.execute(
+            "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses)"
+            " values (%s, %s, 'T', 'R1', 'Procedural', 'bare_sum', '{}', '[]') returning id",
+            (tenant, f"K{n}"),
+        ).fetchone()["id"]
+        conn.execute(
+            "insert into item_result (tenant_id, capture_id, item_id, rid, status, raw_read)"
+            " values (%s, %s, %s, 'ans', %s, %s)",
+            (tenant, capture, item, status, json.dumps({"why": why})),
+        )
+    t = copy_scores.tally(conn, capture)
+    assert (t["right"], t["right_waiting"], t["wrong"], t["blank"], t["waiting"]) == (2, 1, 1, 1, 4)
