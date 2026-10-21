@@ -46,6 +46,17 @@ def test_the_floor_rises_to_where_this_childs_readings_are_right():
     assert profiles.build(sure)["floor"] == 70  # nothing below 90 was ever wrong
 
 
+def test_a_childs_floor_on_the_box_reader_is_measured_on_that_readers_readings_alone():
+    """The two readers' confidences are on different scales (ADR 0035): a child read well by the region reader and badly
+    in the boxes of a printed paper has a floor on each, measured on its own readings."""
+    region = [checked(confidence=96) for _ in range(12)]
+    in_boxes = [checked(confidence=96, in_boxes=True, model_read="1", human_read="7") for _ in range(6)]
+    in_boxes += [checked(confidence=96, in_boxes=True) for _ in range(6)]
+    notes = profiles.build(region + in_boxes)
+    assert (notes["floor"], notes["box_floor"]) == (70, 95)
+    assert profiles.build(region)["box_floor"] == 70  # under ten checks in boxes: the default
+
+
 def test_the_floor_is_the_default_until_ten_checks_and_95_when_nothing_qualifies():
     assert profiles.build([checked(confidence=96, model_read="1", human_read="7")] * 5)["floor"] == 70
     wrong_everywhere = [
@@ -208,6 +219,39 @@ def test_a_signed_off_answer_counts_as_the_reader_being_right(conn):
     assert (
         len(rows) == 1 and not rows[0]["corrected"] and rows[0]["human_read"] == rows[0]["model_read"] != ""
     )
+
+
+def test_an_answer_signed_off_that_no_person_was_shown_is_not_a_check(conn):
+    """Signed off with its paper, an answer the reader settled alone (no reason it waited) was counted as the reader
+    being right: 85 such answers on live, 21 Oct. Only what waited for a person is a check of the reader."""
+    signed = {"status": "correct", "read": "35", "state": "confirmed"}
+    paper = a_read_paper(
+        conn, [signed, {**signed, "why": ""}]
+    )  # the first waited for a person, as marking holds it
+    shown, alone = paper["results"]
+    checked_ids = {str(r["item_result_id"]) for r in profiles.checked_rows(conn, paper["child"])}
+    assert str(shown) in checked_ids and str(alone) not in checked_ids
+
+
+def test_a_check_rebuilds_the_notebook_of_the_child_checked_and_no_other(conn):
+    """ADR 0032: every check rebuilds that child's notebook. On live, 21 Oct, all 16 notebooks were older than their
+    child's last check — the 16 Oct papers' 87 typed answers among them — because a notebook was rebuilt only when the
+    child's next paper was read."""
+    from engine.w3_read import marking
+
+    one = a_read_paper(conn, [{"status": "needs_teacher", "read": "17"}])
+    other = a_read_paper(conn, CHECKED)
+    profiles.rebuild(conn, [other["child"]])
+    # the other child's notebook is as of its last check: a refresh leaves it exactly as it is
+    conn.execute(
+        "update child_reading_profile set notes = '{\"left\": true}' where child_id = %s", (other["child"],)
+    )
+    assert profiles.for_child(conn, one["child"]) == {}
+    marking.correct(conn, one["results"][0], "47", "tester@example.org")
+    assert profiles.refresh(conn) >= 1
+    notes = profiles.for_child(conn, one["child"])
+    assert notes["checked"] == 1 and notes["confusions"] == {"1>4": 1}
+    assert profiles.for_child(conn, other["child"]) == {"left": True}
 
 
 def test_kind_trust_is_the_last_fifty_checks_of_each_kind_against_the_gate(conn):

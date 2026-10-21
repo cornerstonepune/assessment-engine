@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 from engine.api import deps
 from engine.api.app import app
 from engine.core import db
-from engine.w3_read import again, keys, legacy, marking, naming
+from engine.w3_read import again, keys, legacy, marking, naming, profiles
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -240,6 +240,23 @@ def test_a_correction_the_engine_refuses_is_a_409_with_its_reason_not_a_500(clie
         },
     )
     assert r.status_code == 409 and "no answer" in r.json()["detail"]
+
+
+def test_every_check_rebuilds_the_notebooks_it_made_stale_correction_and_sign_off_alike(client, monkeypatch):
+    """ADR 0032: every check rebuilds that child's notebook. The website corrects through /capture/correct and, after a
+    sign-off, asks /capture/trusted; both rebuild every notebook a check has made stale (`profiles.refresh`)."""
+    calls = []
+    monkeypatch.setattr(profiles, "refresh", lambda conn: calls.append("refresh") or 1)
+    monkeypatch.setattr(again, "trusted", lambda conn: calls.append("trusted") or 0)
+    monkeypatch.setattr(
+        marking,
+        "correct",
+        lambda conn, rid, read, by: {"status": "correct", "codes": [], "was": "4", "now": read},
+    )
+    assert client.post("/capture/trusted", headers=HEADERS).json() == {"marked_again": 0}
+    body = {"result_id": "r1", "human_read": "44", "by": "tester@example.org"}
+    assert client.post("/capture/correct", headers=HEADERS, json=body).status_code == 200
+    assert calls == ["trusted", "refresh", "trusted", "refresh"]
 
 
 # ---- the right answer (goals/s26-the-right-answer-shown-and-corrected.yaml)

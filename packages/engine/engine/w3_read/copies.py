@@ -17,11 +17,11 @@ from pathlib import Path
 import pymupdf
 
 from engine.core import db, roster
-from engine.w3_read import boxes, checked, legacy, marking, printed_paper, read_eval, render_pdf, sorting
+from engine.w3_read import boxes, checked, legacy, marking, printed_paper, render_pdf, sorting
 
 # Where the school's scans live, on this Mac and on the server alike (`deploy/compose.server.yml` mounts only this):
 # a copy cut anywhere else can be read here but never shown on the approval screens.
-CUT = Path(read_eval.ASSESSMENTS).expanduser() / "copies"
+CUT = Path(db.ASSESSMENTS).expanduser() / "copies"
 WAS_CUT = (
     db.REPO_ROOT / "data" / "scans"
 )  # where the first copies were cut, 2026-09-24; moved on their next read

@@ -105,8 +105,10 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
             # a tick or a sentence is not a number: the digit reader is never handed it, a person reads it
             people = {k for k, r in on_page.items() if r.get("kind", "digits") not in lists.READ}
             img, frame = render_pdf.photo(path, file_page)
-            # the digit reader's own floor (ADR 0035): a child's notebook floor was measured on Textract's scale
+            # the digit reader's own floor (ADR 0035), raised to this child's measured on that reader's readings
+            # (`box_floor`): the child's floor from Textract's readings is on another scale. It only ever rises.
             floor = digits.settings(conn)
+            floor["min_confidence"] = max(floor["min_confidence"], float(notes.get("box_floor") or 0))
             readings = boxes.read_page(
                 img, page_no, paper["printed"], paper["geometry"], wanted, {**cfg, **floor}, frame=frame,
                 keep=crops.keeper(path, page_no), for_a_person=people,

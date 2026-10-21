@@ -22,7 +22,7 @@ from engine.core import db
 from engine.w3_read import legacy, marking, profiles, reread, stencil
 
 GOLD = db.REPO_ROOT / "supabase" / "seed" / "read_gold.json"
-ASSESSMENTS = "~/cornerstone/assessments"
+ASSESSMENTS = db.ASSESSMENTS
 
 
 def gold_sheets(conn=None):
