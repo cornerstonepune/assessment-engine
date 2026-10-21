@@ -11,7 +11,7 @@ on:
     branches: [main]
   pull_request:
 
-# A pull request's newer push cancels its older run: the engine's shards take 14 of the jobs GitHub runs at once (20 on
+# A pull request's newer push cancels its older run: the engine's shards take 12 of the jobs GitHub runs at once (20 on
 # its free plan), and two runs of one branch queued each other (2026-10-21). Every run on main finishes, since
 # migrate.yml and deploy-engine.yml start from each.
 concurrency:
@@ -48,11 +48,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      # SHARDS below must be this list's length
-      matrix: { shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] }
+      # SHARDS below, here and in the engine job, must be this list's length; 12 runners finish their tests together at
+      # the slowest single test (149 s), and more would only wait on it (docs/notes/ci-engine-shards.md)
+      matrix: { shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
     defaults: { run: { working-directory: packages/engine } }
     env:
-      SHARDS: 14
+      SHARDS: 12
       OUT: ${{ github.workspace }}/shard
       # the tests refuse any database that is not on this machine (conftest.py, core/db.py)
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
@@ -100,10 +101,13 @@ jobs:
           [ -s "$OUT/assigned.txt" ] || { echo "::error::shard ${{ matrix.shard }} has no tests: fewer files than shards"; exit 1; }
           echo "$(wc -l <"$OUT/assigned.txt") tests here"
       # The coverage floor is the whole suite's, so it is applied once, to every shard's data combined (the engine job).
-      - run: >-
-          uv run pytest -q --cov=engine --cov-report= --cov-fail-under=0
-          -o junit_family=xunit1 --junitxml="$OUT/report.xml" "@$OUT/assigned.txt"
-      - run: mv .coverage "$OUT/coverage.data"
+      # The data is kept when a test fails too: the engine job refuses to combine without every shard's.
+      - run: |
+          rc=0
+          uv run pytest -q --cov=engine --cov-report= --cov-fail-under=0 \
+            -o junit_family=xunit1 --junitxml="$OUT/report.xml" "@$OUT/assigned.txt" || rc=$?
+          mv .coverage "$OUT/coverage.data" || true
+          exit "$rc"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -119,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: packages/engine } }
     env:
-      SHARDS: 14
+      SHARDS: 12
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
