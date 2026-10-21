@@ -13,7 +13,7 @@
 import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
-import { aClass } from "./rows";
+import { aClass, aWaitingSkill } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -26,6 +26,7 @@ const SALT = "00112233445566778899aabbccddeeff";
 let mine: Record<string, string>;
 let other: Record<string, string>;
 let draft: string;
+let putBack: () => Promise<void>;
 let sheet: string;
 
 test.beforeAll(async () => {
@@ -41,12 +42,14 @@ test.beforeAll(async () => {
     insert into ask (tenant_id, code, ord, for_role, question, drafted, source)
     select id, ${ASK}, 999, 'coordinator', 'Is this the coordinator''s to answer?', 'Yes.', 'u32' from tenant limit 1
     on conflict do nothing`;
-  [{ code: draft }] = await sql<{ code: string }[]>`select code from skill_set where status <> 'ratified' order by code limit 1`;
+  [{ code: draft }] = await sql<{ code: string }[]>`select code from skill_set order by code limit 1`;
+  putBack = await aWaitingSkill(sql, draft);
   [{ code: sheet }] = await sql<{ code: string }[]>`
     select code from sheet_template
     where band = 'G2' and retired_at is null and code ~ '^[RMX][0-9]{1,2}-[EMHA][0-9]{2,3}$' order by code limit 1`;
 });
 test.afterAll(async () => {
+  await putBack?.();
   await sql`delete from ask where code = ${ASK}`;
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s

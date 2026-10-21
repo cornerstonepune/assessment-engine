@@ -9,6 +9,7 @@
  */
 import { expect, type Page, test } from "@playwright/test";
 import postgres from "postgres";
+import { aWaitingSkill } from "./rows";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
 test.afterAll(async () => sql.end());
@@ -113,9 +114,10 @@ test("the skills waiting for approval are counted once, though a skill shows und
     join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
     join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and ss.taught
     cross join jsonb_object_keys(ss.difficulty) as d
-    where ss.status <> 'ratified' and r.band = 'G2' and ss.level_band = '{}'::jsonb
+    where r.band = 'G2' and ss.level_band = '{}'::jsonb
     group by ss.code having count(*) >= 2 order by ss.code limit 1`;
-  expect(skill, "no waiting Grade 2 skill with two levels to show under two grades").toBeTruthy();
+  expect(skill, "no Grade 2 skill with two levels to show under two grades").toBeTruthy();
+  const putBack = await aWaitingSkill(sql, skill.code);
   await sql`update skill_set set level_band = ${sql.json({ [skill.easiest]: "G1" })} where code = ${skill.code}`;
   try {
     await page.goto("/");
@@ -130,5 +132,6 @@ test("the skills waiting for approval are counted once, though a skill shows und
     await expect(page.getByText(/waits? for approval\./)).toContainText(`${n} ${n === 1 ? "skill waits" : "skills wait"}`);
   } finally {
     await sql`update skill_set set level_band = '{}'::jsonb where code = ${skill.code}`;
+    await putBack();
   }
 });

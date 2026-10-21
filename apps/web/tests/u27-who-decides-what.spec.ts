@@ -9,7 +9,7 @@
 import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
-import { aClass } from "./rows";
+import { aClass, aWaitingSkill } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -22,6 +22,7 @@ const SALT = "00112233445566778899aabbccddeeff";
 let mine: Record<string, string>;
 let other: Record<string, string>;
 let draft: string;
+let putBack: () => Promise<void>;
 
 test.beforeAll(async () => {
   mine = await aClass(sql, MINE, "G2", ["Esha", "Farhan"]);
@@ -49,9 +50,11 @@ test.beforeAll(async () => {
         values (${tenant}, ${id}, ${WEEK}, 'band_default', 'ADD.2D1D', 'Easy', 'practice', ${paper})`;
     }
   }
-  [{ code: draft }] = await sql<{ code: string }[]>`select code from skill_set where status = 'draft' order by code limit 1`;
+  [{ code: draft }] = await sql<{ code: string }[]>`select code from skill_set order by code limit 1`;
+  putBack = await aWaitingSkill(sql, draft);
 });
 test.afterAll(async () => {
+  await putBack?.();
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
                                where s ->> 'email' <> ${EDUCATOR.email})
