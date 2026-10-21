@@ -137,6 +137,8 @@ export type CaptureAnswer = {
   // so: the first reader below its floor, or the second reader shown this child's own answers.
   guess: string | null;
   guess_by: string | null;
+  // ADR 0091: where the box reader guessed, what the second reader read when it did not agree ("" for nothing).
+  second_read: string | null;
 };
 
 // A wrong or a blank the engine read but may not settle alone (ADR 0029): a reading for a person to
@@ -168,6 +170,7 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
            r.raw_read::jsonb ->> 'answer_state' as answer_state,
            nullif(r.raw_read::jsonb ->> 'why', '') as why,
            nullif(r.raw_read::jsonb ->> 'guess_by', '') as guess_by,
+           r.raw_read::jsonb ->> 'second_read' as second_read,
            (r.raw_read::jsonb ->> 'confidence')::numeric as confidence,
            case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
                 then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
@@ -317,6 +320,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
            r.raw_read::jsonb ->> 'answer_state' as answer_state,
            nullif(r.raw_read::jsonb ->> 'why', '') as why,
            nullif(r.raw_read::jsonb ->> 'guess_by', '') as guess_by,
+           r.raw_read::jsonb ->> 'second_read' as second_read,
            (r.raw_read::jsonb ->> 'confidence')::numeric as confidence,
            case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
                 then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,

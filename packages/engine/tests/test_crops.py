@@ -99,8 +99,9 @@ def test_a_checked_answer_has_one_label_its_crop_and_the_day_it_was_read(
     conn, child, tmp_path, monkeypatch, every_kind_trusted
 ):
     """Nimish: "Even the ones that you have marked as right and right, we are validating them also. Is this data
-    going to be used in a constructive way?" A typed reading is the label; a sign-off keeps the reader's reading as
-    the label; a Right/Wrong judgement is not a reading, so it labels nothing (ADR 0027)."""
+    going to be used in a constructive way?" A typed reading is the label; a Right/Wrong judgement is not a reading, so
+    it labels nothing (ADR 0027). An answer the reader settled alone and a person signed off with the paper was never
+    shown to anyone, so it is not a check of the reader (ADR 0090): a right answer that waits is checked in the queue."""
     capture, ids = _read_the_paper(conn, child, tmp_path, monkeypatch)
     crop = "~/cornerstone/assessments/crops/paper/p1-2.png"
     conn.execute(
@@ -118,8 +119,7 @@ def test_a_checked_answer_has_one_label_its_crop_and_the_day_it_was_read(
     assert (typed["label"], typed["how"], typed["crop"]) == ("75", "typed", crop)
     assert typed["read_on"] is not None and typed["fmt"]
     assert "legacy/TEST-PAPER/3" not in got, "a judgement is not a reading"
-    signed = [r for k, r in got.items() if r["how"] == "signed off"]
-    assert signed and all(r["label"] == r["reading"] for r in signed)
+    assert [k for k, r in got.items() if r["how"] == "signed off"] == [], "settled alone, then signed off"
     # the engine's notebook counts from the same rows
     assert {r["item_result_id"] for r in profiles.checked_rows(conn, child)} == {
         r["item_result_id"] for r in got.values()

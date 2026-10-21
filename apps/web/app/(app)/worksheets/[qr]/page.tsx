@@ -127,7 +127,7 @@ export default async function PaperPage({ params }: Props) {
 function facts(p: PrintedPaper): [string, ReactNode][] {
   const pool = p.pool.toLocaleString("en-IN");
   return [
-    ["For", p.roll_no ? `Roll ${p.roll_no} · ${p.section} · ${p.week} ${p.kind}` : "A spare copy, no name — for a late child or a spoilt page"],
+    ["For", p.roll_no ? `Roll ${p.roll_no} · ${p.section} · ${p.week ? weekWords(p.week) : ""} ${p.kind}` : "A spare copy, no name — for a late child or a spoilt page"],
     [
       "Tests",
       <>

@@ -65,7 +65,7 @@ export function ColourKey({ rules, states }: { rules: ColourRules; states: State
                 <td className="whitespace-nowrap">
                   <span className="inline-flex items-center gap-2 font-medium">
                     <Swatch colour={c} />
-                    {states.colours[c].words}
+                    {states.colours[c].count_words}
                   </span>
                 </td>
                 <td>{when}</td>
@@ -87,9 +87,9 @@ export function ColourKeyLine({ rules, states }: { rules: ColourRules; states: S
       <summary className="flex cursor-pointer list-none items-center gap-x-3 whitespace-nowrap text-[12.5px] text-basalt/75 [&::-webkit-details-marker]:hidden">
         {(["red", "amber", "green", "grey"] as Rag[]).map((c) => (
           <span key={c} className="inline-flex items-center gap-1.5">
-            <Swatch colour={c} label={states.colours[c].words} />
+            <Swatch colour={c} label={states.colours[c].count_words} />
             <span aria-hidden="true" className="max-sm:hidden">
-              {states.colours[c].words}
+              {states.colours[c].count_words}
             </span>
           </span>
         ))}

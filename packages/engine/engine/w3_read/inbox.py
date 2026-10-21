@@ -14,9 +14,9 @@ import urllib.request
 from pathlib import Path
 
 from engine.core import db
-from engine.w3_read import copies, read_eval
+from engine.w3_read import copies
 
-INBOX = Path(read_eval.ASSESSMENTS).expanduser() / "inbox"
+INBOX = Path(db.ASSESSMENTS).expanduser() / "inbox"
 FLOW = "read-scan"
 # a Drive link as people paste it: /file/d/<id>/view, open?id=<id>, uc?id=<id>&export=download
 _DRIVE = re.compile(r"(?:/file/d/|[?&]id=)([A-Za-z0-9_-]{20,})")

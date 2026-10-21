@@ -174,7 +174,7 @@ export function SkillMap({ nodes, band, states }: { nodes: MapNode[]; band: stri
         {placed.map((n) => {
           const c = n.state ? states.of(n.state).colour : "none";
           const answered = n.right + n.wrong + n.wrong_working;
-          const words = n.state ? states.colours[states.of(n.state).colour].words : "not assessed yet";
+          const words = n.state ? states.colours[states.of(n.state).colour].count_words : "not assessed yet";
           return (
             <g key={n.code} data-node={n.code} data-rag={n.state ? c : "none"}>
               <title>{`${n.name} — ${words}${n.objective ? `. ${n.objective}` : ""}`}</title>
@@ -223,7 +223,7 @@ export function SkillMap({ nodes, band, states }: { nodes: MapNode[]; band: stri
 }
 
 export function MapKey({ states, rules }: { states: States; rules: ColourRules }) {
-  const w = (c: Rag) => states.colours[c].words;
+  const w = (c: Rag) => states.colours[c].count_words;
   const keys: [string, string, boolean?][] = [
     ["var(--neem)", `${w("green")} — secure, or ready to move up`],
     ["var(--bamboo)", w("amber")],

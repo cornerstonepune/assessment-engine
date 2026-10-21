@@ -1,0 +1,44 @@
+name: ux7-phone-and-words
+goal: >
+  On a phone, every page's heading is in the top 120 px, and no action is off-screen: the page never scrolls sideways,
+  and every button, field and link outside a table's own scroll sits inside the screen's width. Dates, weeks, grades and
+  states each use one word and one format everywhere: a date is "21-Oct-2026"; a week is "week of 19 Oct", never
+  "2026-W43"; a grade is its name ("Grade 2"), never its code alone; and each colour of a child's standing is said in
+  one word from its row, the same in a key as in a count.
+# Written 2026-10-21, before the code: slice UX7 of BUILD-ORDER ("Inserted now: topics are operations, and every page is
+# the educator's own"); Nimish said "go" to UX6 and UX7 the same day. Measured first on a fresh test database, every page
+# as an educator and as the coordinator, at 400 px (STATE.md "UI audit, 2026-10-15" is the audit this slices):
+#   - dates in three formats: "21-Oct-2026" on eight pages, "21 Oct" on a skill's page, "2026-10-21" on Curriculum's
+#     taught list and the asks;
+#   - weeks raw as "2026-W43" on home assessments, a class's week and a paper's page, as "week of 19 Oct" elsewhere;
+#   - a grade as "G2" in the bank's grade column, "Grade 2" elsewhere;
+#   - a child's green standing "got it" in every key and "secure" in every count, grey "not enough yet" and "too few
+#     answers", and three pages writing their own words for grey instead of the row's.
+# The date format is the one most pages already use and u10 already reads. A colour has two words in its row
+# (`state_colour.words` and `count_words`); a page says it with `count_words` only, so no seed changes: the rows stay as
+# they are and the pages stop choosing between them. A table's columns may scroll inside the table itself (its frame
+# is on screen, the scroll is the table's), as Children's did in UX3; nothing else may.
+# A row's own prose is the row's: an ask's question as the seed words it ("the 24 September paper") is not a date the
+# site prints, and no seed changes in this slice.
+says:
+  - words: "Most of the pages just have a long list for no reason."
+    proved_by: "apps/web/tests/u43-phone-and-words.spec.ts::on a phone, every page's heading is in the top 120 px"
+  - words: "They should have the right set of columns which are important."
+    proved_by: "apps/web/tests/u43-phone-and-words.spec.ts::on a phone, no action is off-screen"
+  - words: "It should be teacher-specific."
+    proved_by: "apps/web/tests/u43-phone-and-words.spec.ts::a date is one format on every page"
+  - words: "It should be teacher-specific."
+    proved_by: "apps/web/tests/u43-phone-and-words.spec.ts::a week is one format on every page"
+  - words: "It should be teacher-specific."
+    proved_by: "apps/web/tests/u43-phone-and-words.spec.ts::a grade is one word on every page"
+  - words: "It should be teacher-specific."
+    proved_by: "apps/web/tests/u43-phone-and-words.spec.ts::a child's standing is one word on every page"
+manual: []
+scenarios: []
+criteria:
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

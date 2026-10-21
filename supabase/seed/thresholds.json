@@ -74,6 +74,12 @@
    "description": "A (child, format) pair overturned by the validator more often than this routes to the queue even above auto_confirm_above"
   },
   {
+   "key": "read.second_opinion",
+   "value": 0,
+   "unit": "switch",
+   "description": "ADR 0091: the second reader also reads again what the box reader guessed, and a disagreement waits with both readings. 0 until its eval is scored on live (rule 7): on 21 Oct the live engine had no model key, so every call failed and nothing could be scored. 1 turns it on"
+  },
+  {
    "key": "marking.agreement_gate",
    "value": 0.95,
    "unit": "proportion",

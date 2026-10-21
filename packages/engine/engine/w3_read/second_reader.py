@@ -1,10 +1,14 @@
-"""ADR 0032 — a second reader for what the first gave up on.
+"""ADR 0032 — a second reader for what the first gave up on; ADR 0091 — and a second opinion where the box reader guessed.
 
 The vision model is shown this child's own confirmed handwriting (the notebook's samples, re-cut from
 the scans on this machine) and the crop the first reader could not settle, and says what it reads
 there. It never settles an answer — ADR 0019's reason stands, a model that knows arithmetic must not be
 the one that settles a digit — it proposes: the one-click guess a person confirms. It is not shown the
 question, for the same reason. It ships with its eval (`engine read guess --eval`, rule 7).
+
+Where the box reader of a printed paper offered its own guess, the second reader reads the crop too. If the two agree,
+the answer waits for a person exactly as before; if not, it waits with both readings, the box reader's still the
+one-click guess (`second_read`, and the reason says what the second reader read).
 """
 
 from pathlib import Path
@@ -49,40 +53,89 @@ def ask(conn, target, n_answers, samples):
     return answers + [""] * (n_answers - len(answers))
 
 
-def _groups(readings):
+def switched_on(conn):
+    """Whether the second opinion is on (`read.second_opinion`, ADR 0091): off until its eval is scored on live."""
+    row = conn.execute("select value from threshold where key = 'read.second_opinion'").fetchone()
+    return bool(row and row["value"])
+
+
+def _groups(readings, second_opinion=True):
     """The doubted readings of a page, grouped by the region they share (one question's answers),
-    each member in slot order. A question whose answer is not a number is a person's to type."""
+    each member in slot order. A question whose answer is not a number is a person's to type. A reading the box reader
+    guessed is asked about too (ADR 0091), unless `second_opinion` is off; one already given a guess or an opinion by
+    the second reader is not asked again."""
     groups = {}
     for slot, r in readings.items():
         why = r.get("why") or ""
-        if not profiles.doubted(why) or r.get("guess") or not r.get("box") or profiles.never_read(why):
+        if not profiles.doubted(why) or not r.get("box") or profiles.never_read(why):
+            continue
+        if r.get("guess_by") or "second_read" in r:
+            continue
+        if r.get("guess") and not (second_opinion and "boxes" in r):
             continue
         groups.setdefault(tuple(r["box"]), []).append(slot)
     return {box: sorted(members) for box, members in groups.items()}
 
 
-def propose(conn, readings, path, file_page, notes, cfg, exclude_capture=None):
-    """The page's doubted readings, each given the second reader's guess. One call per question; a
-    call that fails leaves that question's readings as they were and says so in the note."""
-    groups = _groups(readings)
+def _opinion(r, answer, k):
+    """A reading the box reader guessed, read again: agreed, it is as it was; not, it carries both readings."""
+    if profiles._norm(answer) == profiles._norm(r["guess"]):
+        return r
+    said = f"the second reader, shown {k} of the child's answers, read {answer or 'nothing'}"
+    return {**r, "why": f"{r['why']}; {said}", "second_read": answer}
+
+
+def propose(conn, readings, path, file_page, notes, cfg, exclude_capture=None, second_opinion=True):
+    """The page's doubted readings, each given the second reader's guess, or its opinion where the box reader guessed.
+    One call per question; a call that fails leaves that question's readings as they were and says so in the note."""
+    groups = _groups(readings, second_opinion)
     if not groups:
         return readings, ""
     samples = examples(conn, notes, cfg, exclude_capture)
-    out, failed = dict(readings), 0
+    out, failed, opinions, agreed = dict(readings), 0, 0, 0
     for box, members in groups.items():
         try:
             answers = ask(conn, crop_of(path, file_page, box, cfg), len(members), samples)
         except llm.LLMError:
             failed += 1
             continue
+        opinions += any(out[slot].get("guess") for slot in members)
         for slot, answer in zip(members, answers):
+            if out[slot].get("guess"):
+                out[slot] = _opinion(out[slot], answer, len(samples))
+                agreed += "second_read" not in out[slot]
+                continue
             out[slot] = {
                 **out[slot],
                 "guess": answer,
                 "guess_by": f"{PURPOSE} with {len(samples)} of the child's answers",
             }
-    note = f"second reader: {len(groups) - failed} of {len(groups)} questions given a guess, {len(samples)} samples shown"
-    return out, note
+    given = f"{len(groups) - failed} of {len(groups)} questions given a guess"
+    if opinions:
+        given = f"{len(groups) - failed} of {len(groups)} questions given a second opinion, {agreed} agreed"
+    return out, f"second reader: {given}, {len(samples)} samples shown"
+
+
+def opinion_tally(seen):
+    """[(the box reader's guess, the second reader's, what the person typed)] → what a second opinion would have done:
+    agreed with the box reader, caught its wrong guess, raised a false alarm on a right one, or missed with it."""
+    t = dict.fromkeys(
+        ("n", "box_right", "second_right", "agreed", "agreed_right", "caught", "caught_right"), 0
+    )
+    t |= {"false_alarm": 0, "missed": 0}
+    for box, second, truth in seen:
+        box, second, truth = profiles._norm(box), profiles._norm(second), profiles._norm(truth)
+        agree = box == second
+        t["n"] += 1
+        t["box_right"] += box == truth
+        t["second_right"] += second == truth
+        t["agreed"] += agree
+        t["agreed_right"] += agree and box == truth
+        t["caught"] += not agree and box != truth
+        t["caught_right"] += not agree and box != truth and second == truth
+        t["false_alarm"] += not agree and box == truth
+        t["missed"] += agree and box != truth
+    return t
 
 
 # ---------------------------------------------------------------- the answers already waiting, and the eval
@@ -123,14 +176,15 @@ def backfill(conn, cfg, child_ids=None):
     guessed = asked = 0
     for (capture_id, page), rows in by_page.items():
         readings = {_slot(r, "id"): read for r, read in rows}
-        if not _groups(readings):
+        if not _groups(readings, second_opinion=False):
             continue
         first = rows[0][0]
         if not Path(first["path"]).expanduser().exists():
             continue
         notes = profiles.current(conn, first["child_id"])
-        got, _ = propose(conn, readings, first["path"], page if first["file_pages"] > 1 else 1, notes, cfg)
-        asked += len(_groups(readings))
+        file_page = page if first["file_pages"] > 1 else 1
+        got, _ = propose(conn, readings, first["path"], file_page, notes, cfg, second_opinion=False)
+        asked += len(_groups(readings, second_opinion=False))
         for r, read in rows:
             new = got[_slot(r, "id")]
             if new.get("guess") and new != read:
@@ -139,10 +193,24 @@ def backfill(conn, cfg, child_ids=None):
     return guessed, asked
 
 
-def evaluate(conn, cfg, child_ids=None):
+def _box_guesses(conn, ids):
+    """Of these answers, the ones read in the boxes of a printed paper whose guess is the box reader's own."""
+    return {
+        str(r["id"])
+        for r in conn.execute(
+            "select id from item_result where id = any(%s::uuid[]) and raw_read::jsonb ? 'boxes'"
+            " and coalesce(raw_read::jsonb ->> 'guess', '') <> '' and coalesce(raw_read::jsonb ->> 'guess_by', '') = ''",
+            (ids,),
+        ).fetchall()
+    }
+
+
+def evaluate(conn, cfg, child_ids=None, second_opinion=False):
     """The eval (rule 7): every answer a person has settled that the first reader gave up on, guessed
     again by the second reader shown that child's notebook built WITHOUT the paper under test, and
-    scored against what the person said. Returns the tally and the model spend."""
+    scored against what the person said. Returns the tally and the model spend. With `second_opinion`
+    (ADR 0091), only the answers the box reader guessed, and `opinion` says what a second opinion would have
+    done to each (`opinion_tally`)."""
     rows = [
         r
         for r in profiles.checked_rows(conn)
@@ -152,13 +220,16 @@ def evaluate(conn, cfg, child_ids=None):
         and (not child_ids or str(r["child_id"]) in {str(c) for c in child_ids})
         and Path(r["path"]).expanduser().exists()
     ]
+    if second_opinion:
+        own = _box_guesses(conn, [str(r["item_result_id"]) for r in rows])
+        rows = [r for r in rows if str(r["item_result_id"]) in own]
     by_child = {}
     for r in profiles.checked_rows(conn):
         by_child.setdefault(str(r["child_id"]), []).append(r)
     from engine.w3_read import external
 
     spent = external.spend_today(conn)
-    tally = {"n": 0, "right": 0, "by_kind": {}, "details": []}
+    tally, seen = {"n": 0, "right": 0, "failed": 0, "by_kind": {}, "details": []}, []
     by_page = {}
     for r in rows:
         by_page.setdefault((str(r["capture_id"]), r["file_page"]), []).append(r)
@@ -178,7 +249,12 @@ def evaluate(conn, cfg, child_ids=None):
             exclude_capture=capture_id,
         )
         for r in group:
-            guess = got[_slot(r, "item_result_id")].get("guess", "")
+            if not got[_slot(r, "item_result_id")].get(
+                "guess_by"
+            ):  # the call failed: no reading, not a wrong one
+                tally["failed"] += 1
+                continue
+            guess = got[_slot(r, "item_result_id")]["guess"]
             right = profiles._norm(guess) == profiles._norm(r["human_read"])
             k = tally["by_kind"].setdefault(r["fmt"], {"n": 0, "right": 0})
             k["n"] += 1
@@ -188,5 +264,8 @@ def evaluate(conn, cfg, child_ids=None):
             tally["details"].append(
                 (r["paper"], r["item_key"].rsplit("/", 1)[-1], r["human_read"], guess, right)
             )
+            seen.append((r["guess"], guess, r["human_read"]))
+    if second_opinion:
+        tally["opinion"] = opinion_tally(seen)
     tally["spend_inr"] = external.spend_today(conn) - spent
     return tally

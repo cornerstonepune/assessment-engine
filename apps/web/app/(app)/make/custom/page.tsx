@@ -6,7 +6,8 @@ import { NotYours } from "@/components/not-yours";
 import { childSection, isMine, scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { engineSend } from "@/lib/engine";
-import { readArea, seeHref, type Area } from "@/lib/next-paper";
+import { customHref, readArea, readDraw, seeHref, type Area } from "@/lib/next-paper";
+import { CHANGED, DifferentQuestions, Questions } from "@/components/questions";
 import { levels } from "@/lib/levels";
 import { lineTopics, repeatWords } from "@/lib/maker";
 import { grades, skillSets } from "@/lib/queries";
@@ -16,14 +17,15 @@ import { approveCustom } from "../actions";
 import { MakerLines } from "../lines";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
-type Plan = { areas: { skill_set: string; name: string; level: string; seen_before: number; questions: { item_key: string; text: string }[] }[] };
+type Plan = { seen: string; areas: { skill_set: string; name: string; level: string; seen_before: number; questions: { item_key: string; text: string }[] }[] };
 
 const ROWS = 4; // lines on the form: a paper of up to four skills
 const all = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []);
 
 // A paper a teacher chooses for one child (goals/m1-make-papers.yaml): any skills, a level each, how many
 // questions, each line a topic first (ADR 0081). The engine draws them from the bank — first those the child was not
-// given lately, then those given longest ago (ADR 0080) — and the teacher sees every question before approving.
+// given lately, then those given longest ago (ADR 0080) — and the teacher sees every question before approving, asks for
+// different ones as often as they like (`draw`), and approving prints the ones shown (goals/preview-before-print.yaml).
 export default async function CustomPaper({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
@@ -45,10 +47,11 @@ export default async function CustomPaper({ searchParams }: Props) {
     ...s.map((v, i) => (v && n[i] ? readArea(`${v}~${n[i]}`) : null)),
   ].filter((a): a is Area => !!a);
   const week = isoWeek();
+  const draw = readDraw(all(q.draw)[0]);
   let plan: Plan | null = null;
   let refused = "";
   if (areas.length) {
-    const res = await engineSend(`/child/${id}/paper/plan`, { week, areas });
+    const res = await engineSend(`/child/${id}/paper/plan`, { week, areas, draw });
     if (res.ok) plan = (await res.json()) as Plan;
     else refused = ((await res.json().catch(() => ({}))) as { detail?: unknown }).detail?.toString() ?? `The engine refused (${res.status}).`;
   }
@@ -88,6 +91,7 @@ export default async function CustomPaper({ searchParams }: Props) {
 
           <section aria-label="The paper">
             <Panel title="The paper" aside={plan ? `${plan.areas.reduce((t, a) => t + a.questions.length, 0)} questions` : undefined}>
+              {all(q.changed).length ? <Notice tone="terracotta">{CHANGED}</Notice> : null}
               {refused ? <Notice tone="terracotta">{refused}</Notice> : null}
               {plan ? (
                 <>
@@ -96,11 +100,7 @@ export default async function CustomPaper({ searchParams }: Props) {
                       <h3 className="mb-1 text-[14px]">
                         {a.name} · {a.level}
                       </h3>
-                      <ol aria-label={`${a.name} · ${a.level}`} className="grid list-decimal gap-1 pl-5 text-[13px]">
-                        {a.questions.map((x) => (
-                          <li key={x.item_key}>{x.text}</li>
-                        ))}
-                      </ol>
+                      <Questions name={a.name} level={a.level} questions={a.questions} />
                     </div>
                   ))}
                   {repeatWords(plan.areas) ? <p className="note mb-3">{repeatWords(plan.areas)}</p> : null}
@@ -110,12 +110,17 @@ export default async function CustomPaper({ searchParams }: Props) {
                     {areas.map((a) => (
                       <input key={`${a.skill_set}~${a.level}`} type="hidden" name="a" value={`${a.skill_set}~${a.level}~${a.n}`} />
                     ))}
-                    <button className="btn" type="submit">
-                      Approve and print
-                    </button>{" "}
-                    <a href={seeHref(id, week, areas)} target="_blank" rel="noreferrer" className="ml-3">
-                      See it as it will print
-                    </a>
+                    <input type="hidden" name="draw" value={draw} />
+                    <input type="hidden" name="seen" value={plan.seen} />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button className="btn" type="submit">
+                        Approve and print
+                      </button>
+                      <DifferentQuestions href={customHref(id, areas, draw + 1)} />
+                      <a href={seeHref(id, week, areas, draw)} target="_blank" rel="noreferrer" className="ml-1">
+                        See it as it will print
+                      </a>
+                    </div>
                   </form>
                 </>
               ) : !refused ? (

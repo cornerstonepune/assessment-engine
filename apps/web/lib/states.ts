@@ -16,7 +16,8 @@ export type ChildState = {
   nearly: boolean;
 };
 
-/** A colour's own words: in a key or a legend ("got it"), and in a count of skills ("3 secure"). */
+/** A colour's own words. A page says a colour with `count_words` alone, in a key as in a count ("3 secure"), so one
+ *  colour is one word everywhere (goals/ux7-phone-and-words.yaml); `words` is the row's older key word. */
 export type ColourWords = { words: string; count_words: string };
 
 export type States = {
@@ -24,6 +25,8 @@ export type States = {
   /** A skill's state; a skill with none yet is in the one state of too few answers. */
   of: (code: string | null | undefined) => ChildState;
   colours: Record<Rag, ColourWords>;
+  /** A skill's state in words: its own, or, with too few answers to say anything, its colour's — one word for it. */
+  say: (code: string | null | undefined) => string;
 };
 
 export async function childStates(): Promise<States> {
@@ -33,10 +36,13 @@ export async function childStates(): Promise<States> {
   ]);
   const by = new Map(list.map((s) => [s.code, s]));
   const fewest = list.find((s) => !s.enough)!;
+  const of = (code: string | null | undefined) => (code && by.get(code)) || fewest;
+  const said = Object.fromEntries(colours.map((c) => [c.code, { words: c.words, count_words: c.count_words }])) as Record<Rag, ColourWords>;
   return {
     list,
-    of: (code) => (code && by.get(code)) || fewest,
-    colours: Object.fromEntries(colours.map((c) => [c.code, { words: c.words, count_words: c.count_words }])) as Record<Rag, ColourWords>,
+    of,
+    colours: said,
+    say: (code) => (of(code).enough ? of(code).words : said[of(code).colour].count_words),
   };
 }
 

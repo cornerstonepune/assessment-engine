@@ -8,8 +8,8 @@ from pydantic import BaseModel
 
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.api.idempotency import derive_key, run_idempotent
-from engine.api.routes.focus import Area
-from engine.w2_print import maker
+from engine.api.routes.focus import Area, Draw
+from engine.w2_print import maker, seen
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -30,11 +30,13 @@ class Batch(BaseModel):
     children: list[uuid.UUID]
     areas: list[Area] = []
     changed: dict[uuid.UUID, list[Change]] = {}
+    draw: int = Draw  # "different questions": every paper drawn again (goals/preview-before-print.yaml)
 
 
 class MakeBatch(Batch):
     by: str
     once: str  # the form's own token: the same form sent twice makes its papers once
+    seen: str  # the papers the educator saw (`seen.of`): they print only as they were shown
 
 
 def _args(b: Batch) -> tuple:
@@ -45,10 +47,11 @@ def _args(b: Batch) -> tuple:
 
 @router.post("/papers/plan")
 def papers_plan(body: Batch, conn=Depends(get_conn, scope="function")) -> dict:
-    """Each picked child's paper, question by question, and each child whose paper cannot be made, with why.
-    Writes nothing."""
+    """Each picked child's paper, question by question, each child whose paper cannot be made, with why, and the
+    code that names the papers shown (`seen`). Writes nothing."""
     try:
-        return maker.plan(conn, *_args(body))
+        p = maker.plan(conn, *_args(body), draw=body.draw)
+        return {**p, "seen": seen.of(p["papers"])}
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e)) from None
 
@@ -63,10 +66,14 @@ def papers_make(
     section, children, week, kind, way, ask, changed = _args(body)
 
     def run():
-        return maker.make(conn, section, children, week, kind, way, body.by, ask, changed)
+        return maker.make(
+            conn, section, children, week, kind, way, body.by, ask, changed, body.draw, body.seen
+        )
 
     try:
         result, already = run_idempotent(conn, tenant_id, "papers_make", derive_key(request), request, run)
+    except seen.Changed as e:
+        raise HTTPException(status_code=412, detail=str(e)) from None
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e)) from None
     return {**result, "already": already}

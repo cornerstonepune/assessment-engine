@@ -46,7 +46,10 @@ async function educator(browser: Browser): Promise<Page> {
 const grade2 = async (page: Page) => {
   await page.goto("/");
   const table = page.getByRole("table", { name: "The curriculum, grade by grade" });
-  await table.getByRole("button", { name: "Grade 2", exact: true }).click();
+  // an educator's Curriculum opens on their grade already (goals/ux6-curriculum-for-the-educator.yaml); the coordinator's opens it
+  const grade = table.getByRole("button", { name: "Grade 2", exact: true });
+  if ((await grade.getAttribute("aria-expanded")) !== "true") await grade.click();
+  await expect(grade).toHaveAttribute("aria-expanded", "true");
   return table;
 };
 

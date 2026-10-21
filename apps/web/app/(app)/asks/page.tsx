@@ -4,6 +4,7 @@ import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { type Ask, asks, ROLE_WORDS } from "@/lib/queries-people";
 import { answerAsk } from "./actions";
+import { dateWords } from "@/lib/week";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -44,7 +45,7 @@ export default async function Asks({ searchParams }: Props) {
                     <li key={a.code}>
                       <b>{a.question}</b>
                       <span className="block text-basalt/70">
-                        {a.answer === "agreed" ? "Agreed as drafted" : "Corrected"} by {a.answered_by}, {a.answered_at?.slice(0, 10)}
+                        {a.answer === "agreed" ? "Agreed as drafted" : "Corrected"} by {a.answered_by}, {dateWords(a.answered_at)}
                       </span>
                       {a.correction ? <span className="block">It should say: {a.correction}</span> : null}
                     </li>

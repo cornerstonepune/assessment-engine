@@ -33,10 +33,10 @@ export type EngineRoutes = {
   "POST /capture/mistake": { result_id: string; code: string; by: string; proposed?: unknown[][] };
   "POST /capture/trusted": null;
   "POST /card/{section}/{week}/confirm": { by: string };
-  "POST /child/{child_id}/focus": { week: string; by: string; replaces?: string | null };
-  "POST /child/{child_id}/paper": { week: string; areas: { skill_set: string; level: string; n: number }[]; by: string };
-  "POST /child/{child_id}/paper/plan": { week: string; areas: { skill_set: string; level: string; n: number }[] };
-  "POST /child/{child_id}/paper/plan.pdf": { week: string; areas: { skill_set: string; level: string; n: number }[]; by: string };
+  "POST /child/{child_id}/focus": { week: string; by: string; replaces?: string | null; draw?: number; seen: string };
+  "POST /child/{child_id}/paper": { week: string; areas: { skill_set: string; level: string; n: number }[]; draw?: number; by: string; seen: string };
+  "POST /child/{child_id}/paper/plan": { week: string; areas: { skill_set: string; level: string; n: number }[]; draw?: number };
+  "POST /child/{child_id}/paper/plan.pdf": { week: string; areas: { skill_set: string; level: string; n: number }[]; draw?: number; by: string };
   "POST /child/{child_id}/parent-report": { by: string };
   "POST /child/{child_id}/parent-report/{note_id}/approve": { by: string };
   "POST /child/{child_id}/parent-report/{note_id}/edit": { by: string; draft: Record<string, unknown> };
@@ -46,8 +46,8 @@ export type EngineRoutes = {
   "POST /ingest": { path: string; paper_code: string; child_id: string; actor: string; pages?: number[] | null; masks?: Record<string, number> | null; narrative?: boolean };
   "POST /mark": { child_id: string };
   "POST /paper/key": { result_id: string; answer: string; by: string };
-  "POST /papers/make": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]>; by: string; once: string };
-  "POST /papers/plan": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]> };
+  "POST /papers/make": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]>; draw?: number; by: string; once: string; seen: string };
+  "POST /papers/plan": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]>; draw?: number };
   "POST /read/file": { url: string; actor: string; again?: boolean };
   "POST /week/approve": { section: string; week: string; kind?: string; by: string };
   "POST /week/assemble": { section: string; week: string; kind?: string };

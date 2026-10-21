@@ -7,7 +7,8 @@ import { bankGrid, bankTotals, itemCount, items } from "@/lib/queries-bank";
 import { deadline } from "@/lib/deadline";
 import { Proposals } from "./proposals";
 import { requireStaff } from "@/lib/auth";
-import { scopeOf } from "@/lib/scope";
+import { gradesOf, scopeOf } from "@/lib/scope";
+import { gradeOf, grades } from "@/lib/queries";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -20,7 +21,12 @@ export default async function LibraryPage({ searchParams }: Props) {
   const find = q.find?.trim().slice(0, 80) || undefined;
   // the questions of what the person's classes have been taught (goals/f1f-taught-per-class.yaml)
   const scope = scopeOf(me);
-  const filter = { set: q.set, difficulty: q.difficulty, fmt: q.fmt, status: q.status, find, scope };
+  // it opens on the person's own grade, every grade one tap away; the coordinator's on every grade
+  // (goals/ux6-curriculum-for-the-educator.yaml)
+  const [mine, g] = await deadline(Promise.all([gradesOf(scope), grades()]));
+  const shown = q.grade === "all" ? [] : mine;
+  const gradeWords = shown.map((b) => g.name(b)).join(" and ");
+  const filter = { set: q.set, difficulty: q.difficulty, fmt: q.fmt, status: q.status, find, scope, grades: shown };
   const page = Math.max(1, Math.trunc(Number(q.page)) || 1);
   const [grid, totals, total, rows, { order }, { words }] = await deadline(Promise.all([
     bankGrid(scope),
@@ -30,6 +36,13 @@ export default async function LibraryPage({ searchParams }: Props) {
     levels(),
     questionKinds(),
   ]));
+  // the stock — each level's count, the removed, every grade's skills — is the coordinator's; an educator reads one count
+  // per skill, of the levels of the grade shown
+  const stock = me.role === "coordinator";
+  const ofGrade = (r: (typeof grid)[number]) => order.filter((d) => !shown.length || shown.includes(gradeOf(r, d)));
+  const mineGrid = grid
+    .map((r) => ({ ...r, n: ofGrade(r).reduce((a, d) => a + (r.counts[d] ?? 0), 0), at: ofGrade(r) }))
+    .filter((r) => r.at.length && r.n);
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   const chosen = grid.find((r) => r.code === q.set);
   const kinds = chosen?.fmts ?? [...new Set(grid.flatMap((r) => r.fmts))];
@@ -82,61 +95,89 @@ export default async function LibraryPage({ searchParams }: Props) {
         ) : null}
         <Proposals />
         <div className="h-[18px]" />
-        <Panel title="What is in the bank" aside={`${n(totals.active)} ready · ${n(totals.retired)} removed`}>
-          <div className="overflow-x-auto">
-            <table className="grid" aria-label="Questions by skill set and level">
-              <thead>
-                <tr>
-                  <th>Skill set</th>
-                  <th className="num">Grade</th>
-                  <th>Kinds of question</th>
-                  {order.map((d) => (
-                    <th key={d} className="num">
-                      {d}
-                    </th>
-                  ))}
-                  <th className="num">All</th>
-                </tr>
-              </thead>
-              <tbody>
-                {grid.map((r) => (
-                  <tr key={r.code} className={r.code === q.set ? "bg-bamboo/12" : undefined}>
-                    <td className="min-w-[220px]">
-                      <Link href={link({ set: r.code, difficulty: undefined, fmt: undefined })}>{r.name}</Link>
-                    </td>
-                    <td className="num fact">{r.band}</td>
-                    <td className="min-w-[180px] text-[12px] text-basalt/62">
-                      {r.fmts.map((f) => kindWords(words, f)).join(" · ")}
-                    </td>
-                    {order.map((d) => {
-                      const on = r.code === q.set && d === q.difficulty;
-                      return (
-                        <td key={d} className="num">
-                          <Link
-                            href={link({ set: r.code, difficulty: d, fmt: undefined })}
-                            aria-label={`${r.name}, ${d}: ${r.counts[d] ?? 0} questions`}
-                            className={on ? "font-semibold text-terracotta" : undefined}
-                          >
-                            {n(r.counts[d] ?? 0)}
-                          </Link>
-                        </td>
-                      );
-                    })}
-                    <td className="num">{n(order.reduce((a, d) => a + (r.counts[d] ?? 0), 0))}</td>
+        {stock ? null : (
+          <Panel title={`What is in the bank${gradeWords ? ` for ${gradeWords}` : ""}`} aside={`${n(mineGrid.reduce((a, r) => a + r.n, 0))} ready`}>
+            <div className="overflow-x-auto">
+              <table className="grid" aria-label={`${gradeWords || "Every grade"}: questions by skill`}>
+                <thead>
+                  <tr>
+                    <th>Skill</th>
+                    <th>Kinds of question</th>
+                    <th className="num">Questions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="note mt-3">
-            Each paper is drawn from one cell. <Link href="/worksheets">See a real paper with its QR code →</Link>
-          </p>
-        </Panel>
+                </thead>
+                <tbody>
+                  {mineGrid.map((r) => (
+                    <tr key={r.code} className={r.code === q.set ? "bg-bamboo/12" : undefined}>
+                      <td className="min-w-[180px]">
+                        <Link href={link({ set: r.code, difficulty: undefined, fmt: undefined })}>{r.name}</Link>
+                      </td>
+                      <td className="text-[12px] text-basalt/62">{r.fmts.map((f) => kindWords(words, f)).join(" · ")}</td>
+                      <td className="num">{n(r.n)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        )}
+        {stock ? (
+          <Panel title="What is in the bank" aside={`${n(totals.active)} ready · ${n(totals.retired)} removed`}>
+            <div className="overflow-x-auto">
+              <table className="grid" aria-label="Questions by skill set and level">
+                <thead>
+                  <tr>
+                    <th>Skill set</th>
+                    <th className="num">Grade</th>
+                    <th>Kinds of question</th>
+                    {order.map((d) => (
+                      <th key={d} className="num">
+                        {d}
+                      </th>
+                    ))}
+                    <th className="num">All</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {grid.map((r) => (
+                    <tr key={r.code} className={r.code === q.set ? "bg-bamboo/12" : undefined}>
+                      <td className="min-w-[220px]">
+                        <Link href={link({ set: r.code, difficulty: undefined, fmt: undefined })}>{r.name}</Link>
+                      </td>
+                      <td className="num whitespace-nowrap">{g.name(r.band)}</td>
+                      <td className="min-w-[180px] text-[12px] text-basalt/62">
+                        {r.fmts.map((f) => kindWords(words, f)).join(" · ")}
+                      </td>
+                      {order.map((d) => {
+                        const on = r.code === q.set && d === q.difficulty;
+                        return (
+                          <td key={d} className="num">
+                            <Link
+                              href={link({ set: r.code, difficulty: d, fmt: undefined })}
+                              aria-label={`${r.name}, ${d}: ${r.counts[d] ?? 0} questions`}
+                              className={on ? "font-semibold text-terracotta" : undefined}
+                            >
+                              {n(r.counts[d] ?? 0)}
+                            </Link>
+                          </td>
+                        );
+                      })}
+                      <td className="num">{n(order.reduce((a, d) => a + (r.counts[d] ?? 0), 0))}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="note mt-3">
+              Each paper is drawn from one cell. <Link href="/worksheets">See a real paper with its QR code →</Link>
+            </p>
+          </Panel>
+        ) : null}
 
         <section id="questions" className="mt-[18px] scroll-mt-4">
           <Panel
             label="Questions"
-            title={`${chosen ? `${chosen.name}${q.difficulty ? ` · ${q.difficulty}` : ""}` : "Every question"}${find ? `, with “${find}”` : ""}`}
+            title={`${chosen ? `${chosen.name}${q.difficulty ? ` · ${q.difficulty}` : ""}` : gradeWords ? `${gradeWords}'s questions` : "Every question"}${find ? `, with “${find}”` : ""}`}
             aside={
               total
                 ? `${n((page - 1) * PER_PAGE + 1)}–${n(Math.min(page * PER_PAGE, total))} of ${n(total)}`
@@ -145,7 +186,7 @@ export default async function LibraryPage({ searchParams }: Props) {
           >
             {/* a question found by its words, within the choices already made: they ride along as hidden fields */}
             <form role="search" aria-label="Find a question" action="/library#questions" className="mb-4 flex flex-wrap items-end gap-2">
-              {(["set", "difficulty", "fmt", "status"] as const).map((k) =>
+              {(["set", "difficulty", "fmt", "status", "grade"] as const).map((k) =>
                 q[k] ? <input key={k} type="hidden" name={k} value={q[k]} /> : null,
               )}
               <label className="field min-w-[260px] flex-1">
@@ -156,6 +197,12 @@ export default async function LibraryPage({ searchParams }: Props) {
                 Find
               </button>
             </form>
+            {mine.length ? (
+              <div className="mb-3 flex flex-wrap gap-2">
+                {chip("grade", undefined, mine.map((b) => g.name(b)).join(" and "))}
+                {chip("grade", "all", "Every grade")}
+              </div>
+            ) : null}
             <div className="mb-3 flex flex-wrap gap-2">
               {chip("difficulty", undefined, "Any level")}
               {order.map((d) => chip("difficulty", d, d))}

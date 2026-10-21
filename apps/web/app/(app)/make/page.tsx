@@ -5,7 +5,7 @@ import { deadline } from "@/lib/deadline";
 import { grades } from "@/lib/queries";
 import { homeByClass } from "@/lib/queries-make";
 import { classPacksWaiting } from "@/lib/queries-today";
-import { isoWeek } from "@/lib/week";
+import { isoWeek, weekWords } from "@/lib/week";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 
@@ -24,7 +24,7 @@ export default async function MakePapers() {
         sub="Each child's home assessment for the week — one skill, from their own map, or one you choose for them. Nothing prints until you approve it."
       />
       <Body>
-        <Panel title="Home assessments this week" aside={isoWeek()}>
+        <Panel title="Home assessments this week" aside={weekWords(isoWeek())}>
           <p className="note mb-3">
             One skill per child, never a mix: the weakest they are working on, at a level where their mistake can show; a
             child with nothing red or amber is stretched one level up on their strongest skill. Open a class to approve,
@@ -75,7 +75,7 @@ export default async function MakePapers() {
                 {packs.map((p) => (
                   <li key={`${p.section}|${p.week}|${p.kind}`}>
                     <Link href={`/papers/approve?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`}>
-                      {p.section} · {p.week} · {p.kind === "assessment" ? "class assessment" : "class practice"}
+                      {p.section} · {weekWords(p.week)} · {p.kind === "assessment" ? "class assessment" : "class practice"}
                     </Link>{" "}
                     <span className="text-basalt/62">— {p.n} papers</span>
                   </li>

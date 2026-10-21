@@ -20,6 +20,17 @@ export function scopeOf(me: Pick<Session, "role" | "classes">): Scope {
   };
 }
 
+/** The grades of the person's own classes, in the school's order (`class_band`, the one rule): what Curriculum, the bank
+ *  and the worksheets open on (goals/ux6-curriculum-for-the-educator.yaml). None for every class: the coordinator's
+ *  pages, and those of an educator linked to no class, open on no one grade. */
+export async function gradesOf(scope: Scope): Promise<string[]> {
+  if (!scope.classes) return [];
+  const rows = await sql<{ band: string }[]>`
+    select distinct class_band(tenant_id, section) as band, grade_ord(tenant_id, class_band(tenant_id, section)) as ord
+    from child where active and section = any(${scope.classes}) order by 2`;
+  return rows.map((r) => r.band);
+}
+
 /** A where-clause piece: the class in `section` is one of the scope's (always true for every class). */
 export const inScope = (scope: Scope, section: ReturnType<typeof sql>) =>
   scope.classes ? sql`${section} = any(${scope.classes})` : sql`true`;

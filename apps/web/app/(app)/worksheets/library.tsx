@@ -4,7 +4,8 @@ import { Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { questionKinds } from "@/lib/question-types";
 import { levels } from "@/lib/levels";
-import { skillSets } from "@/lib/queries";
+import { gradeOf, grades, skillSets } from "@/lib/queries";
+import { gradesOf, type Scope } from "@/lib/scope";
 import { libraryTotal, worksheetCount, worksheets } from "@/lib/queries-worksheets";
 
 const PER_PAGE = 50;
@@ -18,19 +19,25 @@ export function kindsInWords(kinds: Record<string, number> | null, words: Record
 
 type Q = Record<string, string | undefined>;
 
-// Every question in the bank is on a numbered worksheet (ADR 0026). The grid is every skill at every
-// level with its worksheets; a count opens that list, and a worksheet opens its own page.
-export async function Library({ q }: { q: Q }) {
-  const [{ order }, { words }] = await Promise.all([levels(), questionKinds()]);
-  const filter = { set: q.set, level: order.find((d) => d === q.level) };
+// Every question in the bank is on a numbered worksheet (ADR 0026). The grid is every taught skill at every level with its
+// worksheets; a count opens that list, and a worksheet opens its own page. It opens on the person's own grade, its levels
+// alone, every grade one tap away (goals/ux6-curriculum-for-the-educator.yaml).
+export async function Library({ q, scope }: { q: Q; scope: Scope }) {
+  const [{ order }, { words }, mine, g] = await deadline(Promise.all([levels(), questionKinds(), gradesOf(scope), grades()]));
+  const inGrades = q.grade === "all" ? [] : mine;
+  const gradeWords = inGrades.map((b) => g.name(b)).join(" and ");
+  const filter = { set: q.set, level: order.find((d) => d === q.level), scope, grades: inGrades };
   const page = Math.max(1, Number(q.page) || 1);
-  const [sets, rows, total, library] = await deadline(
-    Promise.all([skillSets(), worksheets(filter, PER_PAGE, (page - 1) * PER_PAGE), worksheetCount(filter), libraryTotal()]),
+  const [taught, rows, total, library] = await deadline(
+    Promise.all([skillSets({ scope }), worksheets(filter, PER_PAGE, (page - 1) * PER_PAGE), worksheetCount(filter), libraryTotal()]),
   );
-  const all = sets.reduce((n, s) => n + Object.values(s.worksheets).reduce<number>((a, b) => a + (b ?? 0), 0), 0);
+  // a level of another grade is a dash, and a skill with no level of the grade shown is not a row
+  const ofGrade = (s: (typeof taught)[number], d: string) => !inGrades.length || inGrades.includes(gradeOf(s, d));
+  const sets = taught.filter((s) => order.some((d) => ofGrade(s, d) && s.worksheets[d]));
+  const all = sets.reduce((n, s) => n + order.reduce((a, d) => a + (ofGrade(s, d) ? (s.worksheets[d] ?? 0) : 0), 0), 0);
   const link = (p: Q) => {
     const next = new URLSearchParams(
-      Object.entries({ set: filter.set, level: filter.level, ...p }).filter(([, v]) => v) as [string, string][],
+      Object.entries({ set: filter.set, level: filter.level, grade: q.grade, ...p }).filter(([, v]) => v) as [string, string][],
     );
     return `/worksheets?${next}#library`;
   };
@@ -39,8 +46,8 @@ export async function Library({ q }: { q: Q }) {
   return (
     <section id="library" className="scroll-mt-6">
       <Panel
-        title="Worksheet library"
-        aside={`${all.toLocaleString("en-IN")} worksheets of the skills taught, of the library's ${library.toLocaleString("en-IN")} · every question in the bank is on one`}
+        title={gradeWords ? `Worksheet library · ${gradeWords}` : "Worksheet library"}
+        aside={`${all.toLocaleString("en-IN")} worksheets of the skills taught${gradeWords ? ` in ${gradeWords}` : ""}, of the library's ${library.toLocaleString("en-IN")} · every question in the bank is on one`}
       >
         <p className="mb-3">
           <Link href="/worksheets/taxonomy" className="chip">
@@ -74,12 +81,16 @@ export async function Library({ q }: { q: Q }) {
                   </td>
                   {order.map((d) => (
                     <td key={d} className="num">
-                      <Link
-                        href={link({ set: s.code, level: d, page: undefined })}
-                        aria-label={`${s.name}, ${d}: ${s.worksheets[d] ?? 0} worksheets`}
-                      >
-                        {s.worksheets[d] ?? 0}
-                      </Link>
+                      {ofGrade(s, d) ? (
+                        <Link
+                          href={link({ set: s.code, level: d, page: undefined })}
+                          aria-label={`${s.name}, ${d}: ${s.worksheets[d] ?? 0} worksheets`}
+                        >
+                          {s.worksheets[d] ?? 0}
+                        </Link>
+                      ) : (
+                        <span className="text-basalt/35">—</span>
+                      )}
                     </td>
                   ))}
                 </tr>
@@ -88,7 +99,17 @@ export async function Library({ q }: { q: Q }) {
           </table>
         </div>
 
-        <div className="mt-[18px] flex flex-wrap items-center gap-2" aria-label="Show worksheets for">
+        {mine.length ? (
+          <div className="mt-[18px] flex flex-wrap items-center gap-2" aria-label="Show worksheets of">
+            <Link href={link({ grade: undefined, page: undefined })} className={`chip ${q.grade === "all" ? "" : "on"}`}>
+              {mine.map((b) => g.name(b)).join(" and ")}
+            </Link>
+            <Link href={link({ grade: "all", page: undefined })} className={`chip ${q.grade === "all" ? "on" : ""}`}>
+              Every grade
+            </Link>
+          </div>
+        ) : null}
+        <div className="mt-3 flex flex-wrap items-center gap-2" aria-label="Show worksheets for">
           <Link href={link({ level: undefined, page: undefined })} className={`chip ${filter.level ? "" : "on"}`}>
             Every level
           </Link>
@@ -103,7 +124,7 @@ export async function Library({ q }: { q: Q }) {
           ))}
           {filter.set ? (
             <Link
-              href={`/worksheets?${new URLSearchParams(filter.level ? { level: filter.level } : {})}#library`}
+              href={link({ set: undefined, page: undefined })}
               className="chip"
             >
               {shown} ✕

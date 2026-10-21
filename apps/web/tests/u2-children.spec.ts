@@ -177,7 +177,7 @@ test("a child's page opens on one plain sentence that counts what their answers 
       where s.child_id = ${ids.Asha}::uuid and s.rung_code = r.code and s.n_events > 0)`;
   await page.goto(`/growth/${ids.Asha}`);
   await expect(page.getByTestId("summary")).toHaveText(
-    `Asha needs help on 1 skill, is practising 1 and has got 1; 1 skill has too few answers to say; ${notYet} skill${notYet === 1 ? "" : "s"} of the grade not assessed yet.`,
+    `Asha needs help on 1 skill, is practising 1 and is secure on 1; 1 skill has too few answers to say; ${notYet} skill${notYet === 1 ? "" : "s"} of the grade not assessed yet.`,
   );
   // the sentence counts the skills shown beneath it, one line each
   const shown = page.getByRole("region", { name: "What their answers show" });
@@ -265,7 +265,14 @@ test("a child's page lists every paper made for them or read from them, with its
 }) => {
   // the child's next paper, approved in the engine by the test's teacher unless the test before did it on the page
   const [had] = await sql`select 1 from sheet_instance where child_id = ${ids.Asha}::uuid and kind = 'focus'`;
-  if (!had) await engine(`/child/${ids.Asha}/focus`, { week: isoWeek(), by: TEST_STAFF.email });
+  if (!had) {
+    // printed only as shown (goals/preview-before-print.yaml): the plan's code for its questions goes back with it
+    const plan = await fetch(`http://127.0.0.1:${ENGINE_PORT}/child/${ids.Asha}/focus?week=${isoWeek()}`, {
+      headers: { "X-Engine-Key": process.env.E2E_ENGINE_KEY! },
+    });
+    const { seen } = (await plan.json()) as { seen: string };
+    await engine(`/child/${ids.Asha}/focus`, { week: isoWeek(), by: TEST_STAFF.email, seen });
+  }
   const rows = await sql<{ qr_code: string; kind: string; approved_by: string | null }[]>`
     select qr_code, kind, approved_by from sheet_instance where child_id = ${ids.Asha}::uuid`;
   expect(rows.map((r) => r.kind).sort()).toEqual(["focus", "practice"]);

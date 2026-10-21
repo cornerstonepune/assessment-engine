@@ -148,7 +148,7 @@ function TopicSkills({ section, steps, kids, states }: { section: string; steps:
 
 function Cell({ step, got, states }: { step: Step; got?: { state: string; n_events: number; n_correct: number }; states: States }) {
   const colour = states.of(got?.state).colour;
-  const said = `${step.skill_name} — ${got?.n_events ? `${got.n_correct} of ${got.n_events} right, ${states.of(got.state).words}` : "no answers yet"}`;
+  const said = `${step.skill_name} — ${got?.n_events ? `${got.n_correct} of ${got.n_events} right, ${states.say(got.state)}` : "no answers yet"}`;
   return (
     <td data-col={stepKey(step)} data-rag={colour} title={said} className="num">
       {got?.n_events ? (

@@ -6,6 +6,7 @@ import { deadline } from "@/lib/deadline";
 import { classWords } from "@/lib/needs-you";
 import { grades } from "@/lib/queries";
 import { reportsWaiting, reportWords } from "@/lib/queries-reports";
+import { dateWords } from "@/lib/week";
 
 // Parent reports (goals/ui4b1-child-by-topic.yaml): every child whose report waits on a person, in one list — out of
 // date first, then written and waiting to be approved, then not yet written — each name opening the report, where it
@@ -79,7 +80,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
                         <td>
                           <Pill tone={tone}>{short}</Pill>
                         </td>
-                        <td className="num fact">{r.report.note?.written ?? <span className="text-basalt/35">—</span>}</td>
+                        <td className="num fact">{r.report.note ? dateWords(r.report.note.written) : <span className="text-basalt/35">—</span>}</td>
                       </tr>
                     );
                   })}
