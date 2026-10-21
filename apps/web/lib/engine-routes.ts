@@ -49,6 +49,7 @@ export type EngineRoutes = {
   "POST /papers/make": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]>; draw?: number; by: string; once: string; seen: string };
   "POST /papers/plan": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]>; draw?: number };
   "POST /read/file": { url: string; actor: string; again?: boolean };
+  "POST /read/upload": null;
   "POST /week/approve": { section: string; week: string; kind?: string; by: string };
   "POST /week/assemble": { section: string; week: string; kind?: string };
   "POST /week/declaration": { section: string; week: string; note?: string; skill_sets: string[]; by: string; proposed?: Record<string, unknown>[] };
