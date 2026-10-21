@@ -117,7 +117,7 @@ function ClassGroup({ section, kids, open, sort, href }: {
                   {/* the one link of the row, stretched over all of it: a click anywhere opens the child */}
                   <Link
                     href={`/growth/${r.id}`}
-                    className="font-medium text-basalt no-underline after:absolute after:inset-0 after:content-['']"
+                    className="font-medium after:absolute after:inset-0 after:content-['']"
                   >
                     {r.first_name}
                   </Link>
@@ -248,7 +248,8 @@ export default async function ChildrenPage({ searchParams }: Props) {
           })}
           <p className="note">
             From checked papers only{topic ? `, in ${topic.name} alone` : ", across every topic switched on"}. &ldquo;Needs help on&rdquo; is
-            the child&rsquo;s red skill (a dot in red) where they have one, else their amber one, with the mistake they repeat there.
+            a skill the child is at &ldquo;{states.colours.red.count_words}&rdquo; on where they have one, else one they are at
+            &ldquo;{states.colours.amber.count_words}&rdquo; on, with the mistake they repeat there; its dot is that colour.
             &ldquo;Waiting on you&rdquo; is their answers the reader could not settle. A parent report shows here only when it waits to be
             approved or is out of date.
           </p>

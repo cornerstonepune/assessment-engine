@@ -1,0 +1,42 @@
+name: ux8c-one-word
+goal: >
+  One thing is said one way. Curriculum's grade rows say a topic is "not taught yet at this grade", true beside the panel
+  that counts a topic taught when any of its skills is, and the one action is "Say it is taught" wherever it shows. The
+  parent reports page says it lists reports not up to date, and never calls a report no one has written "waiting on a
+  person". The question bank says its total counts the skills taught in the person's classes, and that Curriculum's counts
+  every skill. Today says what the reader can settle in an educator's words. A child's state is said by its own words, a
+  skill is a skill on the report card, a count has its noun ("1 question"), and a child's name looks like the link it is.
+# Written 2026-10-21, before the code: slice UX8c of the audit of every maths screen (docs/notes/ux8-every-screen.md,
+# findings 11-14 and 19-22). Measured first, as an educator of a Grade 2 class, on a fresh test database:
+#   - Curriculum: "Not taught yet" listed Division, Multiples & factors and Number sense, and Grade 2's Multiplication row
+#     said "not taught yet" with a "Mark taught" button; the panel's own button said "Say it is taught";
+#   - Parent reports: "Waiting on a person ... 4 to write", while Today said nothing waits under Children;
+#   - the question bank: "5,807 ready" for Grade 2, Curriculum 8,572, nothing said why;
+#   - Today: "The reader is trusted on 0 of 4 kinds of question it has read; the nearest, sum (earlier paper), needs 44
+#     more right checks";
+#   - Children's note: "the child's red skill (a dot in red) ... else their amber one", beside a key saying "needs help"
+#     and "practising"; a child's name dark, where every other page's are links;
+#   - the report card: "skill set · secure", "2 of 13 skill sets assessed"; the taxonomy page: "1 questions on 1
+#     worksheets".
+# Whether a report no one has written yet is a person's work (Today and the menu would count it) is Nimish's to decide; a
+# job writes reports too (.github/workflows/write-reports.yml). Until then the page says what it lists, and no more.
+says:
+  - words: "making sure that every screen and every other representation is thought through well: it's clear"
+    proved_by: "apps/web/tests/u46-one-word.spec.ts::Curriculum says taught one way: a grade's topic row is that grade's, and the one action has one name"
+  - words: "it's clear, it's accurate"
+    proved_by: "apps/web/tests/u46-one-word.spec.ts::the parent reports page says what it lists: reports not up to date, never 'waiting on a person' for one no one has written"
+  - words: "it's accurate"
+    proved_by: "apps/web/tests/u46-one-word.spec.ts::the question bank says what its total counts, beside Curriculum's"
+  - words: "it's clear"
+    proved_by: "apps/web/tests/u46-one-word.spec.ts::Today says what the reader can settle in an educator's words"
+  - words: "every other representation is thought through well"
+    proved_by: "apps/web/tests/u46-one-word.spec.ts::one word for one thing: a state by its own words, a skill as a skill, a count with its noun"
+manual: []
+scenarios: []
+criteria:
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -103,7 +103,7 @@ export default async function ReportCard({ params }: Props) {
               key={c}
               tone={RAG_TONE[c]}
               n={count(c)}
-              words={`skill set${count(c) === 1 ? "" : "s"} · ${states.colours[c].count_words}`}
+              words={`skill${count(c) === 1 ? "" : "s"} · ${states.colours[c].count_words}`}
             />
           ))}
         </div>
@@ -113,7 +113,7 @@ export default async function ReportCard({ params }: Props) {
           <Panel
             title="Skill map"
             label="Skill map panel"
-            aside={`${assessed.length} of ${nodes.length} skill sets assessed`}
+            aside={`${assessed.length} of the ${nodes.length} skills on this map assessed`}
           >
             <SkillMap nodes={nodes} band={child.band} states={states} />
             <MapKey states={states} rules={rules} />

@@ -25,7 +25,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
       <PageHeader
         stage="Children · parent reports"
         title="Parent reports"
-        sub="Every child whose parent report waits on a person: out of date first, then written and waiting for approval, then not yet written though answers of theirs are signed off. A name opens the report."
+        sub="Every child whose parent report is not up to date: out of date first, then written and waiting for approval, then not written yet though answers of theirs are signed off. A name opens the report."
       />
       <Body>
         <Link href="/growth" className="chip mb-[18px] inline-block">
@@ -52,12 +52,12 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
           <Notice tone="neem">Every child&rsquo;s report is written, approved and up to date.</Notice>
         ) : (
           <Panel
-            label="Parent reports waiting"
-            title="Waiting on a person"
+            label="Parent reports not up to date"
+            title="Not up to date"
             aside={`${n("out of date")} out of date · ${n("to approve")} to approve · ${n("to write")} to write`}
           >
             <div className="overflow-x-auto">
-              <table className="grid" aria-label="Parent reports waiting on a person">
+              <table className="grid" aria-label="Parent reports not up to date">
                 <thead>
                   <tr>
                     <th>Child</th>

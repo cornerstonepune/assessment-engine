@@ -1,3 +1,4 @@
+import { many } from "@/lib/needs-you";
 import { redirect } from "next/navigation";
 import Link from "@/components/link";
 import { Body, PageHeader, Panel } from "@/components/shell";
@@ -82,7 +83,7 @@ export default async function MakePapers() {
                     <Link href={`/papers/approve?section=${encodeURIComponent(p.section)}&week=${encodeURIComponent(p.week)}&kind=${p.kind}`}>
                       {p.section} · {weekWords(p.week)} · {p.kind === "assessment" ? "class assessment" : "class practice"}
                     </Link>{" "}
-                    <span className="text-basalt/62">— {p.n} papers</span>
+                    <span className="text-basalt/62">— {many(p.n, "paper")}</span>
                   </li>
                 ))}
               </ul>
