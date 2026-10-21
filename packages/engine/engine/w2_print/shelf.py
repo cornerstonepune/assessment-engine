@@ -68,11 +68,11 @@ def _catalog(conn, section, every=False) -> list[dict]:
         "select s.code, s.rung_code, r.ladder_order,"
         # its own skill is the one its rung declares first (`rung.skill_codes`): a count of its questions' skills made
         # equal groups, whose every question adds and multiplies, Addition by the alphabet. None while it has no
-        # question, so no paper is drawn from a skill set with nothing in it
-        " case when exists (select 1 from item i where i.skill_set_code = s.code and i.status = 'active')"
+        # question a paper may draw (`drawable_item`), so no paper is drawn from a skill set with nothing in it
+        " case when exists (select 1 from drawable_item i where i.skill_set_code = s.code)"
         "   then r.skill_codes[1] end as own,"
-        " (select coalesce(array_agg(distinct x), '{}') from item i, unnest(i.skill_codes) x"
-        "   where i.skill_set_code = s.code and i.status = 'active') as skills"
+        " (select coalesce(array_agg(distinct x), '{}') from drawable_item i, unnest(i.skill_codes) x"
+        "   where i.skill_set_code = s.code) as skills"
         " from skill_set s left join rung r on r.code = s.rung_code and r.tenant_id = s.tenant_id"
         " where %s or skill_taught_in(s.tenant_id, s.code, %s)",
         (every, section),

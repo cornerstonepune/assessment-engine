@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "@/components/link";
-import { Answers, KIND, Question } from "@/components/question";
+import { Answers, kindWords, Question } from "@/components/question";
+import { questionKinds } from "@/lib/question-types";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { requireStaff } from "@/lib/auth";
@@ -19,8 +20,8 @@ const fmtDate = (d: string) =>
 // with their answers, and the printed paper one press away.
 export async function LibraryWorksheetPage({ code }: { code: string }) {
   const me = await requireStaff();
-  const [w, questions, cases, kids, g] = await deadline(
-    Promise.all([libraryWorksheet(code), worksheetItems(code), worksheetCases(code), childrenOnRoll(me.email, scopeOf(me)), grades()]),
+  const [w, questions, cases, kids, g, { words }] = await deadline(
+    Promise.all([libraryWorksheet(code), worksheetItems(code), worksheetCases(code), childrenOnRoll(me.email, scopeOf(me)), grades(), questionKinds()]),
   );
   if (!w) notFound();
   const kinds = questions.reduce<Record<string, number>>((a, q) => ({ ...a, [q.fmt]: (a[q.fmt] ?? 0) + 1 }), {});
@@ -85,7 +86,7 @@ export async function LibraryWorksheetPage({ code }: { code: string }) {
                         <Answers it={it} />
                       </td>
                       <td className="align-top text-[12.5px] whitespace-nowrap text-basalt/70">
-                        {KIND[it.fmt] ?? it.fmt}
+                        {kindWords(words, it.fmt)}
                       </td>
                     </tr>
                   ))}
@@ -111,7 +112,7 @@ export async function LibraryWorksheetPage({ code }: { code: string }) {
               </div>
               <div>
                 <dt className="label mb-[3px]">Kinds of question</dt>
-                <dd>{kindsInWords(kinds)}</dd>
+                <dd>{kindsInWords(kinds, words)}</dd>
               </div>
               <div>
                 <dt className="label mb-[3px]">Taxonomy cases</dt>

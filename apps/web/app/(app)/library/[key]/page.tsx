@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { notFound } from "next/navigation";
-import { Answers, KIND, mistakeOf, printsItsWording } from "@/components/question";
+import { Answers, kindWords, mistakeOf } from "@/components/question";
+import { questionKinds } from "@/lib/question-types";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { mistakeBook, questionPage, type QuestionPage } from "@/lib/queries-bank";
 import { correctItem, flagItem } from "../actions";
@@ -18,11 +19,11 @@ export default async function QuestionScreen({ params, searchParams }: Props) {
   await requireStaff();
   const [{ key }, q] = await Promise.all([params, searchParams]);
   if (!/^[A-Za-z0-9._-]+$/.test(key)) notFound();
-  const [it, book] = await deadline(Promise.all([questionPage(key), mistakeBook()]));
+  const [it, book, qk] = await deadline(Promise.all([questionPage(key), mistakeBook(), questionKinds()]));
   if (!it) notFound();
 
   const live = it.status === "active";
-  const kind = KIND[it.fmt] ?? it.fmt;
+  const kind = kindWords(qk.words, it.fmt);
   const caught = it.responses.flatMap((r) =>
     Object.entries(r.misconceptions ?? {}).map(([code, wrong]) => ({ code, wrong, mistake: mistakeOf(book, code, it.spec.op) })),
   );
@@ -121,7 +122,7 @@ export default async function QuestionScreen({ params, searchParams }: Props) {
               </dl>
             </Panel>
 
-            {live && printsItsWording(it.fmt) ? (
+            {live && qk.ownWords[it.fmt] !== false ? (
               <Panel title="Correct the wording">
                 <form action={correctItem} className="grid gap-3">
                   <input type="hidden" name="item_key" value={it.item_key} />

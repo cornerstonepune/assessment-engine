@@ -1,5 +1,6 @@
 import Link from "@/components/link";
-import { Answers, KIND, Question } from "@/components/question";
+import { Answers, kindWords, Question } from "@/components/question";
+import { questionKinds } from "@/lib/question-types";
 import { Body, PageHeader, Panel } from "@/components/shell";
 import { levels } from "@/lib/levels";
 import { bankGrid, bankTotals, itemCount, items } from "@/lib/queries-bank";
@@ -21,12 +22,13 @@ export default async function LibraryPage({ searchParams }: Props) {
   const scope = scopeOf(me);
   const filter = { set: q.set, difficulty: q.difficulty, fmt: q.fmt, status: q.status, find, scope };
   const page = Math.max(1, Math.trunc(Number(q.page)) || 1);
-  const [grid, totals, total, rows, { order }] = await deadline(Promise.all([
+  const [grid, totals, total, rows, { order }, { words }] = await deadline(Promise.all([
     bankGrid(scope),
     bankTotals(scope),
     itemCount(filter),
     items(filter, PER_PAGE, (page - 1) * PER_PAGE),
     levels(),
+    questionKinds(),
   ]));
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   const chosen = grid.find((r) => r.code === q.set);
@@ -104,7 +106,7 @@ export default async function LibraryPage({ searchParams }: Props) {
                     </td>
                     <td className="num fact">{r.band}</td>
                     <td className="min-w-[180px] text-[12px] text-basalt/62">
-                      {r.fmts.map((f) => KIND[f] ?? f).join(" · ")}
+                      {r.fmts.map((f) => kindWords(words, f)).join(" · ")}
                     </td>
                     {order.map((d) => {
                       const on = r.code === q.set && d === q.difficulty;
@@ -160,9 +162,10 @@ export default async function LibraryPage({ searchParams }: Props) {
             </div>
             <div className="mb-3 flex flex-wrap gap-2">
               {chip("fmt", undefined, "Any kind")}
-              {Object.keys(KIND)
-                .filter((f) => kinds.includes(f))
-                .map((f) => chip("fmt", f, KIND[f]))}
+              {kinds
+                .map((f) => [f, kindWords(words, f)])
+                .sort((a, b) => a[1].localeCompare(b[1]))
+                .map(([f, w]) => chip("fmt", f, w))}
             </div>
             <div className="mb-4 flex flex-wrap items-center gap-2">
               {chip("status", undefined, "Ready to print")}
@@ -200,7 +203,7 @@ export default async function LibraryPage({ searchParams }: Props) {
                         <td>
                           <Answers it={it} />
                         </td>
-                        <td className="min-w-[110px] text-[12.5px]">{KIND[it.fmt] ?? it.fmt}</td>
+                        <td className="min-w-[110px] text-[12.5px]">{kindWords(words, it.fmt)}</td>
                         <td className="text-[12.5px]">
                           {it.worksheets.length ? (
                             <span className="flex flex-wrap gap-x-2">

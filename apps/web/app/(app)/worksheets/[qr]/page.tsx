@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "@/components/link";
 import { notFound, redirect } from "next/navigation";
-import { Answers, KIND, Mistakes, Question } from "@/components/question";
+import { Answers, kindWords, Mistakes, Question } from "@/components/question";
+import { questionKinds } from "@/lib/question-types";
 import { Body, PageHeader, Panel, Pill } from "@/components/shell";
 import { RULE_WORDS } from "@/lib/queries";
 import { sql } from "@/lib/db";
@@ -31,7 +32,9 @@ export default async function PaperPage({ params }: Props) {
     notFound();
   }
   if (!isMine(scopeOf(me), await deadline(paperSection({ qr })))) return <NotYours what="This paper's class" />;
-  const [p, questions, book] = await deadline(Promise.all([printedPaper(qr), paperItems(qr), mistakeBook()]));
+  const [p, questions, book, { words }] = await deadline(
+    Promise.all([printedPaper(qr), paperItems(qr), mistakeBook(), questionKinds()]),
+  );
   if (!p) notFound();
   const back = p.section && p.week ? `/papers/approve?section=${p.section}&week=${p.week}&kind=${p.kind}` : "/papers";
 
@@ -101,7 +104,7 @@ export default async function PaperPage({ params }: Props) {
                           <Question it={it} />
                         </Link>
                       </td>
-                      <td className="text-[12.5px]">{KIND[it.fmt] ?? it.fmt}</td>
+                      <td className="text-[12.5px]">{kindWords(words, it.fmt)}</td>
                       <td>
                         <Answers it={it} />
                       </td>

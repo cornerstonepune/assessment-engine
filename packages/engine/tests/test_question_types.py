@@ -14,7 +14,7 @@ from collections import defaultdict
 
 import pytest
 
-from engine.assess import focus
+from engine.assess import focus, render
 from engine.checks import past
 from engine.core import db
 from engine.w1_bank import question_types
@@ -87,13 +87,17 @@ def test_every_label_card_kind_and_library_type_is_one_row(conn):
     for r in rows.values():
         by_label[r["fmt"]].add(r["words"])
     assert all(len(w) == 1 for w in by_label.values()), {k: v for k, v in by_label.items() if len(v) > 1}
+    # a type prints its own words unless the maths library draws its line from its numbers
+    assert {c for c, r in rows.items() if not r["own_words"]} == {
+        c for c, r in rows.items() if r["fmt"] in render.DRAWN_FROM_NUMBERS
+    }
 
 
 @NEEDS_DB
 def test_every_level_uses_the_same_types_before_and_after(conn):
     """Nimish: "we need proper tables". Which types a level uses is rows (`skill_level_question_type`), keys into
-    `skill_level` and `question_type`; they are exactly the types its questions were made in, and no reader is left
-    on the skills' `formats` lists."""
+    `skill_level` and `question_type`; they are exactly the types its questions were made in, and nothing reads
+    which types a level uses from the skills' `formats` lists any more."""
     links = defaultdict(set)
     for r in conn.execute("select skill_code, difficulty, question_type from skill_level_question_type"):
         links[(r["skill_code"], r["difficulty"])].add(r["question_type"])
@@ -107,12 +111,24 @@ def test_every_level_uses_the_same_types_before_and_after(conn):
         )
     }
     assert {"skill_level", "question_type"} <= fks, fks
+    # The skill's list stays only as what the generator makes a level's plain sums in where the level names no format of
+    # its own (146 of 178 levels): the bank, its prompts and cases, the check that each listed format can be made, and
+    # B1's comparison of rows and blob. Nothing else asks it which types a level uses.
+    makers = {
+        "packages/engine/engine/w1_bank/bank.py",
+        "packages/engine/engine/w1_bank/spec.py",
+        "packages/engine/engine/w1_bank/cases.py",
+        "packages/engine/engine/checks/audit.py",
+        "packages/engine/engine/checks/levels.py",
+        "packages/engine/engine/core/loaders.py",
+    }
     readers = [
-        str(p.relative_to(db.REPO_ROOT))
+        rel
         for root in ("packages/engine/engine", "apps/web/app", "apps/web/lib", "apps/web/components")
         for p in (db.REPO_ROOT / root).rglob("*")
         if p.suffix in (".py", ".ts", ".tsx")
-        and re.search(r"\bs\.formats\b|\[\"formats\"\]|\bformats &&", p.read_text())
+        and (rel := str(p.relative_to(db.REPO_ROOT))) not in makers
+        and re.search(r"""(\.|\[")formats\b|\bformats &&|, formats,""", p.read_text())
     ]
     assert readers == [], readers
 
@@ -268,7 +284,7 @@ def test_a_new_type_is_an_insert_and_waits_for_approval(conn):
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     conn.execute(
         "insert into question_type (tenant_id, code, fmt, words, reaches, marked)"
-        " values (%s, 'WP1.NEW', 'word_1step', 'one-step word problem', 'printed', 'computable')",
+        " values (%s, 'WP1.NEW', 'word_1step', 'one-step word problem', 'printed', '{computable}')",
         (tenant,),
     )
     conn.execute(
@@ -360,7 +376,7 @@ def test_every_type_already_in_use_starts_approved(conn):
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     conn.execute(
         "insert into question_type (tenant_id, code, fmt, words, reaches, marked)"
-        " values (%s, 'UNUSED.TYPE', 'equation', 'make both sides equal', 'printed', 'computable')",
+        " values (%s, 'UNUSED.TYPE', 'equation', 'make both sides equal', 'printed', '{computable}')",
         (tenant,),
     )
     conn.execute("delete from question_type_approval")

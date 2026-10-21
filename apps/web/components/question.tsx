@@ -4,58 +4,18 @@ import { Chunking, DivisionLayout, LongDivision } from "@/components/methods";
 import { Drawn, Grid, Lattice, Stem } from "@/components/pictures";
 import type { ItemResponse, ItemRow, Mistake } from "@/lib/queries-bank";
 
-// The kinds of question the bank holds, in the words a teacher uses, keyed by `item.fmt`. A label
-// lives beside the renderer that draws its question: a new kind needs both, so they arrive together.
-export const KIND: Record<string, string> = {
-  column_grid: "column sum",
-  bare_sum: "horizontal sum",
-  missing_number: "missing number",
-  word_1step: "one-step word problem",
-  word_2step: "two-step word problem",
-  estimate_then_calc: "estimate, then work out",
-  efficient_method: "quickest method",
-  explain_claim: "explain a claim", // judged true or not, or shown wrong by multiplying back (C08)
-  find_mistake: "find the mistake",
-  number_wall: "number wall",
-  balance_scale: "balance the scales",
-  number_line_jumps: "number line",
-  missing_digit: "missing digit",
-  equation: "make both sides equal",
-  fact_family: "fact family",
-  inverse_check: "check with the inverse",
-  choose_estimate: "closest estimate",
-  possible_answer: "could it be right?",
-  odd_even: "odd or even",
-  break_apart: "tens, then ones",
-  tally: "tally marks",
-  equal_groups: "equal groups",
-  skip_counting: "skip counting",
-  multiplication_square: "multiplication square",
-  repeated_subtraction: "repeated subtraction",
-  partitioning: "partitioning",
-  grid_method: "grid method",
-  expanded_columns: "expanded columns",
-  lattice: "lattice",
-  chunking: "chunking",
-  long_division: "long division",
-  multiples: "multiples and factors", // a list in any order, a multiple or not, divisible by 2, 3, 5 and 10
-  card: "from the school's examples", // a kind of question that is a row (`question_format`, ADR 0075)
-};
-
-// The kinds of question on the school's own papers, read before our printed sheets; the bank's are `KIND`'s.
+// The kinds of question on the school's own papers, read before our printed sheets; the bank's are rows
+// (`question_type`, `lib/question-types.ts`).
 const EARLIER: Record<string, string> = {
   legacy_bare: "sum (earlier paper)",
   legacy_missing: "missing number (earlier paper)",
   legacy_word: "word problem (earlier paper)",
   legacy_text: "written answer (earlier paper)",
 };
-/** A kind of question (`item.fmt`) in the school's words: the bank's, an earlier paper's, or its own name spelt out. */
-export const kindWords = (fmt: string) => KIND[fmt] ?? EARLIER[fmt] ?? fmt.replace(/_/g, " ");
-
-// Kinds that print their own sentence. The other three draw their printed line from their numbers
-// alone, so there is no wording to correct — the engine refuses it (`engine/question.py`); this only
-// decides whether the page offers it.
-export const printsItsWording = (fmt: string) => !["bare_sum", "column_grid", "missing_number"].includes(fmt);
+/** A kind of question (`item.fmt`) in the school's words: the bank's (`questionKinds().words`), an earlier paper's, or
+ *  its own name spelt out. */
+export const kindWords = (words: Record<string, string>, fmt: string) =>
+  words[fmt] ?? EARLIER[fmt] ?? fmt.replace(/_/g, " ");
 
 const SIGN: Record<string, string> = { "-": "−", "*": "×" };
 const sign = (op?: string) => (op ? (SIGN[op] ?? op) : "");

@@ -1,7 +1,8 @@
 import Link from "@/components/link";
-import { KIND } from "@/components/question";
+import { kindWords } from "@/components/question";
 import { Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
+import { questionKinds } from "@/lib/question-types";
 import { levels } from "@/lib/levels";
 import { skillSets } from "@/lib/queries";
 import { libraryTotal, worksheetCount, worksheets } from "@/lib/queries-worksheets";
@@ -9,9 +10,9 @@ import { libraryTotal, worksheetCount, worksheets } from "@/lib/queries-workshee
 const PER_PAGE = 50;
 
 /** "3 column sums · 3 word problems" — what a worksheet holds, by kind, in words. */
-export function kindsInWords(kinds: Record<string, number> | null): string {
+export function kindsInWords(kinds: Record<string, number> | null, words: Record<string, string>): string {
   return Object.entries(kinds ?? {})
-    .map(([fmt, n]) => `${n} ${KIND[fmt] ?? fmt}`)
+    .map(([fmt, n]) => `${n} ${kindWords(words, fmt)}`)
     .join(" · ");
 }
 
@@ -20,7 +21,7 @@ type Q = Record<string, string | undefined>;
 // Every question in the bank is on a numbered worksheet (ADR 0026). The grid is every skill at every
 // level with its worksheets; a count opens that list, and a worksheet opens its own page.
 export async function Library({ q }: { q: Q }) {
-  const { order } = await levels();
+  const [{ order }, { words }] = await Promise.all([levels(), questionKinds()]);
   const filter = { set: q.set, level: order.find((d) => d === q.level) };
   const page = Math.max(1, Number(q.page) || 1);
   const [sets, rows, total, library] = await deadline(
@@ -128,7 +129,7 @@ export async function Library({ q }: { q: Q }) {
                   </td>
                   <td className="min-w-[180px]">{w.skill}</td>
                   <td className="num">{w.difficulty}</td>
-                  <td className="text-[12.5px] text-basalt/70">{kindsInWords(w.kinds)}</td>
+                  <td className="text-[12.5px] text-basalt/70">{kindsInWords(w.kinds, words)}</td>
                 </tr>
               ))}
             </tbody>
