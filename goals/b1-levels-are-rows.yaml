@@ -1,0 +1,40 @@
+name: b1-levels-are-rows
+goal: >
+  A skill's levels are rows: `skill_level`, one per skill and level (178 in the seed), each with its level (a key into
+  `difficulty`), its grade (a key into `grade`), what it looks like, its rule for drawing questions, and who approved it
+  and when; every change to what a level asks is filed as that level's own version. The rows are filled from the levels
+  blob by a numbered migration and kept equal to it while the blob is still written, so for every skill and level the
+  question generator draws exactly the same questions from the rows as from the blob on the same seed, and the counts of
+  levels, grades and approvals are equal before and after. The readers move to the rows; the blob stays readable for
+  one deploy after them. No paper, map or page changes on the day.
+# Written 2026-10-21, before the code. Nimish approved "all backend first" (B0–B4, BUILD-ORDER.md) on the audit in
+# claude.ai/code/artifact/71c2aaf5-06c1-49b7-bcd5-2e6761154e9e (Backend, sections 5 and 7). ADR 0084; how the blob and the rows stay equal, ADR 0087.
+says:
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_level.py::test_every_level_is_a_row_with_keys_the_database_checks"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_level.py::test_the_rows_hold_what_the_blob_holds_grades_and_approvals_counted_equal"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_level.py::test_the_generator_draws_the_same_questions_from_the_rows_as_from_the_blob"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_skill_level.py::test_a_change_to_the_blob_is_a_change_to_the_rows_whoever_writes_it"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_skill_level.py::test_a_level_keeps_its_own_version_history"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_skill_level.py::test_the_moved_readers_read_the_rows_not_the_blob"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive, and `engine levels check` says the rows and the blob agree on every level, before and after update-live."
+scenarios: []
+criteria:
+  - name: the rows, their keys, their history, and the same questions drawn from rows and blob
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_skill_level.py tests/test_loaders.py
+    expect: "passed"
+  - name: the rows and the blob agree, level by level, on the database the engine reads
+    run: bin/engine levels check
+    expect: "agree"
+  - name: no paper and no child's map moved — the engine's whole suite, the papers drawn on fixed seeds included
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

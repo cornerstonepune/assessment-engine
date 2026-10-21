@@ -22,12 +22,12 @@ export type TaxonomyCase = {
 export async function taxonomyMap(): Promise<TaxonomyCase[]> {
   return sql<TaxonomyCase[]>`
     with set_at as (
-      select c.code, jsonb_agg(jsonb_build_object('set', s.code, 'name', s.name, 'level', d.key)
+      select c.code, jsonb_agg(jsonb_build_object('set', s.code, 'name', s.name, 'level', l.difficulty)
                                order by s.code, o.ord) as places
       from skill_set s
-      cross join lateral jsonb_each(s.difficulty) d
-      left join difficulty o on o.tenant_id = s.tenant_id and o.code = d.key
-      cross join lateral jsonb_array_elements_text(coalesce(d.value -> 'check' -> 'cases', '[]'::jsonb)) c(code)
+      join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code
+      left join difficulty o on o.tenant_id = s.tenant_id and o.code = l.difficulty
+      cross join lateral jsonb_array_elements_text(coalesce(l.rule -> 'check' -> 'cases', '[]'::jsonb)) c(code)
       group by c.code
     ),
     held as materialized (

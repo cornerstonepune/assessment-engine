@@ -15,7 +15,7 @@ import random
 
 from engine.adapters import llm
 from engine.assess import words as W
-from engine.core import db
+from engine.core import db, levels
 
 REVIEWERS = ("pedagogy_review", "language_review")
 SAMPLE_FRACTION = 0.05
@@ -70,9 +70,7 @@ def review_unit(conn, code, difficulty, reviewer, fraction=SAMPLE_FRACTION, seed
     """
     if reviewer not in REVIEWERS:
         raise ValueError(f"unknown reviewer {reviewer!r}; expected one of {', '.join(REVIEWERS)}")
-    s = conn.execute("select * from skill_set where code = %s", (code,)).fetchone()
-    if not s:
-        raise ValueError(f"no skill set {code!r}")
+    s = levels.skill(conn, code)
     if difficulty not in s["difficulty"]:
         raise ValueError(f"{code} has no difficulty {difficulty!r}")
 
@@ -148,7 +146,7 @@ def evaluate(conn, reviewer, gold):
 
     got, meta, cost = {}, {}, 0.0
     for (code, difficulty), group in groups.items():
-        s = conn.execute("select * from skill_set where code = %s", (code,)).fetchone()
+        s = levels.skill(conn, code)
         band = conn.execute("select band from rung where code = %s", (s["rung_code"],)).fetchone()["band"]
         variables = {
             "skill_set": {

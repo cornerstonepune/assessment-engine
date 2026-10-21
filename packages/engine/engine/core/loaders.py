@@ -32,6 +32,7 @@ FILLED_TABLES = (
     "threshold",
     "config",
     "skill_set",
+    "skill_level",
     "subject",
     "topic",
     "question_format",

@@ -8,7 +8,8 @@ from engine.adapters.llm import LLMError
 from engine.assess import graph
 from engine.checks.cli_check import register as register_checks
 from engine.checks.cli_live import live_app
-from engine.core import asks, db, loaders, references
+from engine.checks.levels import levels_app
+from engine.core import asks, db, levels, loaders, references
 from engine.core.cli_staff import register as register_staff
 from engine.w1_bank import bank, mistake_guess, review, spec, story_eval, story_shape
 from engine.w1_bank.cli_bank import bank_app
@@ -43,6 +44,7 @@ app.add_typer(library_app, name="library")
 app.add_typer(gold_app, name="gold")
 app.add_typer(card_app, name="card")
 app.add_typer(report_app, name="report")
+app.add_typer(levels_app, name="levels")
 register_staff(app)
 register_checks(app)
 
@@ -149,7 +151,9 @@ def _eval_item_generate(n: int, only: str) -> None:
     """item_generate: questions the validator accepted of those the model returned, per skill set and level."""
     total_ok = total = 0
     with db.connect() as conn:
-        sets = conn.execute("select code, difficulty from skill_set order by code").fetchall()
+        sets = conn.execute(
+            f"select s.code, {levels.LEVELS} as difficulty from skill_set s order by s.code"
+        ).fetchall()
         for s in sets:
             if only and s["code"] != only:
                 continue

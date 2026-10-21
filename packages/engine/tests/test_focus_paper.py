@@ -284,11 +284,12 @@ def test_each_level_belongs_to_one_grade_and_a_child_meets_only_their_own_grade_
     g1, g2 = shelf._levels(conn, "G1")[s["code"]], shelf._levels(conn, "G2")[s["code"]]
     assert "Easy" in g1 and "Hard" not in g1 and "Advance" not in g1
     assert {"Easy", "Hard"} <= set(g2), "a Grade 2 child may still be given the levels Grade 1 teaches"
-    assert shelf._levels(conn)[s["code"]] == tuple(
-        conn.execute("select difficulty from skill_set where code = %s", (s["code"],)).fetchone()[
-            "difficulty"
-        ]
-    )
+    # with no grade, every level the skill defines, in the school's order (the `difficulty` table's)
+    defined = conn.execute("select difficulty from skill_set where code = %s", (s["code"],)).fetchone()[
+        "difficulty"
+    ]
+    order = [r["code"] for r in conn.execute("select code from difficulty order by ord")]
+    assert shelf._levels(conn)[s["code"]] == tuple(d for d in order if d in defined)
 
 
 def test_every_paper_made_for_a_child_prints_as_a_home_assessment_and_says_who_chose_it():

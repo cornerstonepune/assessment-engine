@@ -131,14 +131,15 @@ def _dealt(questions, n, kind_order, count, rnd):
 
 def _levels(conn, only=None):
     """Every skill at every level — or just `only`, a (skill set, level) pair — each with the grade it is taught in:
-    a level moved to another grade than its skill's (`skill_set.level_band`) prints as that grade's."""
+    a level moved to another grade than its skill's (`skill_level.grade`) prints as that grade's."""
     code, difficulty = only or (None, None)
     return conn.execute(
-        "select s.code, s.rung_code, s.formats, coalesce(s.level_band ->> d.key, r.band) as band, d.key as difficulty"
+        "select s.code, s.rung_code, s.formats, l.grade as band, l.difficulty"
         " from skill_set s"
-        " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code, jsonb_object_keys(s.difficulty) d(key)"
-        " where (%s::text is null or s.code = %s) and (%s::text is null or d.key = %s)"
-        " order by r.ladder_order nulls last, s.code, d.key",
+        " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
+        " join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code"
+        " where (%s::text is null or s.code = %s) and (%s::text is null or l.difficulty = %s)"
+        " order by r.ladder_order nulls last, s.code, l.difficulty",
         (code, code, difficulty, difficulty),
     ).fetchall()
 
