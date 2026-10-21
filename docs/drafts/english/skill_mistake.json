@@ -1,0 +1,1564 @@
+{
+ "skill_mistakes": [
+  {
+   "misconception_code": "M_ENG_E_KEPT",
+   "skill_code": "EN3.SPELL.VERBEND"
+  },
+  {
+   "misconception_code": "M_ENG_NO_DOUBLE",
+   "skill_code": "EN3.SPELL.VERBEND"
+  },
+  {
+   "misconception_code": "M_ENG_Y_KEPT",
+   "skill_code": "EN3.SPELL.VERBEND"
+  },
+  {
+   "misconception_code": "M_ENG_ES_MISSED",
+   "skill_code": "EN3.SPELL.VERBEND"
+  },
+  {
+   "misconception_code": "M_ENG_SOUND_LOOKS",
+   "skill_code": "EN3.PHON.SOUNDS"
+  },
+  {
+   "misconception_code": "M_ENG_SOUND_USUAL",
+   "skill_code": "EN3.PHON.SOUNDS"
+  },
+  {
+   "misconception_code": "M_ENG_HOMOPHONE_SWAP",
+   "skill_code": "EN3.PHON.SIGHT"
+  },
+  {
+   "misconception_code": "M_ENG_NEAR_SWAP",
+   "skill_code": "EN3.PHON.SIGHT"
+  },
+  {
+   "misconception_code": "M_ENG_SIGHT_GUESS",
+   "skill_code": "EN3.PHON.SIGHT"
+  },
+  {
+   "misconception_code": "M_ENG_CHUNK_PART_DROPPED",
+   "skill_code": "EN3.PHON.CHUNK"
+  },
+  {
+   "misconception_code": "M_ENG_CHUNK_START_GUESS",
+   "skill_code": "EN3.PHON.CHUNK"
+  },
+  {
+   "misconception_code": "M_ENG_DGE_GE_SWAP",
+   "skill_code": "EN3.SPELL.CONSONANT"
+  },
+  {
+   "misconception_code": "M_ENG_J_AT_END",
+   "skill_code": "EN3.SPELL.CONSONANT"
+  },
+  {
+   "misconception_code": "M_ENG_CK_K_SWAP",
+   "skill_code": "EN3.SPELL.CONSONANT"
+  },
+  {
+   "misconception_code": "M_ENG_C_K_START",
+   "skill_code": "EN3.SPELL.CONSONANT"
+  },
+  {
+   "misconception_code": "M_ENG_Y_KEPT",
+   "skill_code": "EN3.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_E_DROPPED_EARLY",
+   "skill_code": "EN3.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_JOIN_LETTER_DROPPED",
+   "skill_code": "EN3.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_AFFIX_MEANING",
+   "skill_code": "EN3.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_SUFFIX_SHORT",
+   "skill_code": "EN3.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_HOMOPHONE_SWAP",
+   "skill_code": "EN3.SPELL.HOMOPHONE"
+  },
+  {
+   "misconception_code": "M_ENG_TO_TOO",
+   "skill_code": "EN3.SPELL.HOMOPHONE"
+  },
+  {
+   "misconception_code": "M_ENG_RIGHT_WRITE",
+   "skill_code": "EN3.SPELL.HOMOPHONE"
+  },
+  {
+   "misconception_code": "M_ENG_CORRECT_OVER",
+   "skill_code": "EN3.SPELL.HOMOPHONE"
+  },
+  {
+   "misconception_code": "M_ENG_COMPOUND_SPACE",
+   "skill_code": "EN3.SPELL.TRICKY"
+  },
+  {
+   "misconception_code": "M_ENG_COMPOUND_PART_DROPPED",
+   "skill_code": "EN3.SPELL.TRICKY"
+  },
+  {
+   "misconception_code": "M_ENG_SPELL_AS_SAID",
+   "skill_code": "EN3.SPELL.TRICKY"
+  },
+  {
+   "misconception_code": "M_ENG_SILENT_LETTER_MISSED",
+   "skill_code": "EN3.SPELL.TRICKY"
+  },
+  {
+   "misconception_code": "M_ENG_ROOT_WRONG_CHUNK",
+   "skill_code": "EN4.PHON.READNEW"
+  },
+  {
+   "misconception_code": "M_ENG_ROOT_AFFIX_LEFT",
+   "skill_code": "EN4.PHON.READNEW"
+  },
+  {
+   "misconception_code": "M_ENG_ROOT_LETTER_LOST",
+   "skill_code": "EN4.PHON.READNEW"
+  },
+  {
+   "misconception_code": "M_ENG_AFFIX_MEANING_MISSED",
+   "skill_code": "EN4.PHON.READNEW"
+  },
+  {
+   "misconception_code": "M_ENG_STRESS_FIRST_GUESS",
+   "skill_code": "EN4.PHON.STRESS"
+  },
+  {
+   "misconception_code": "M_ENG_STRESS_WEAK_PICKED",
+   "skill_code": "EN4.PHON.STRESS"
+  },
+  {
+   "misconception_code": "M_ENG_STRESS_STRONG_FOR_WEAK",
+   "skill_code": "EN4.PHON.STRESS"
+  },
+  {
+   "misconception_code": "M_ENG_STRESS_NOUN_VERB",
+   "skill_code": "EN4.PHON.STRESS"
+  },
+  {
+   "misconception_code": "M_ENG_HOMOPHONE_SOUND_ONLY",
+   "skill_code": "EN4.PHON.SIGHT"
+  },
+  {
+   "misconception_code": "M_ENG_NEAR_HOMOPHONE_SWAP",
+   "skill_code": "EN4.PHON.SIGHT"
+  },
+  {
+   "misconception_code": "M_ENG_LOOKALIKE_LETTERS",
+   "skill_code": "EN4.PHON.SIGHT"
+  },
+  {
+   "misconception_code": "M_ENG_SILENT_LETTER_DROPPED",
+   "skill_code": "EN4.SPELL.SILENT"
+  },
+  {
+   "misconception_code": "M_ENG_SHORT_U_AS_U",
+   "skill_code": "EN4.SPELL.SILENT"
+  },
+  {
+   "misconception_code": "M_ENG_W_VOWEL_AS_SAID",
+   "skill_code": "EN4.SPELL.SILENT"
+  },
+  {
+   "misconception_code": "M_ENG_ES_MISSED",
+   "skill_code": "EN4.SPELL.PLURAL"
+  },
+  {
+   "misconception_code": "M_ENG_Y_KEPT",
+   "skill_code": "EN4.SPELL.PLURAL"
+  },
+  {
+   "misconception_code": "M_ENG_Y_CHANGED_AFTER_VOWEL",
+   "skill_code": "EN4.SPELL.PLURAL"
+  },
+  {
+   "misconception_code": "M_ENG_F_KEPT",
+   "skill_code": "EN4.SPELL.PLURAL"
+  },
+  {
+   "misconception_code": "M_ENG_O_ES_MISSED",
+   "skill_code": "EN4.SPELL.PLURAL"
+  },
+  {
+   "misconception_code": "M_ENG_PREFIX_MISSPELT",
+   "skill_code": "EN4.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_SUFFIX_SPELT_AS_SAID",
+   "skill_code": "EN4.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_ION_ATION_MIXED",
+   "skill_code": "EN4.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_E_KEPT",
+   "skill_code": "EN4.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_Y_KEPT",
+   "skill_code": "EN4.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_THERE_FOR_THEIR",
+   "skill_code": "EN4.SPELL.THEIR"
+  },
+  {
+   "misconception_code": "M_ENG_THEIR_FOR_THERE",
+   "skill_code": "EN4.SPELL.THEIR"
+  },
+  {
+   "misconception_code": "M_ENG_THEYRE_MISSED",
+   "skill_code": "EN4.SPELL.THEIR"
+  },
+  {
+   "misconception_code": "M_ENG_YOUR_YOURE_SWAP",
+   "skill_code": "EN4.SPELL.THEIR"
+  },
+  {
+   "misconception_code": "M_ENG_OUGH_BY_SOUND",
+   "skill_code": "EN4.SPELL.OUGH"
+  },
+  {
+   "misconception_code": "M_ENG_OUGH_AUGH_SWAP",
+   "skill_code": "EN4.SPELL.OUGH"
+  },
+  {
+   "misconception_code": "M_ENG_EAR_BY_SOUND",
+   "skill_code": "EN4.SPELL.OUGH"
+  },
+  {
+   "misconception_code": "M_ENG_SORT_BY_LETTERS",
+   "skill_code": "EN4.SPELL.OUGH"
+  },
+  {
+   "misconception_code": "M_ENG_RULE_ODD_WRONG",
+   "skill_code": "EN4.SPELL.RULE"
+  },
+  {
+   "misconception_code": "M_ENG_RULE_OVERUSED",
+   "skill_code": "EN4.SPELL.RULE"
+  },
+  {
+   "misconception_code": "M_ENG_NO_DOUBLE",
+   "skill_code": "EN4.SPELL.RULE"
+  },
+  {
+   "misconception_code": "M_ENG_Y_KEPT",
+   "skill_code": "EN4.SPELL.RULE"
+  },
+  {
+   "misconception_code": "M_ENG_E_KEPT",
+   "skill_code": "EN4.SPELL.RULE"
+  },
+  {
+   "misconception_code": "M_ENG_SPELT_AS_SAID",
+   "skill_code": "EN4.SPELL.TRICKY"
+  },
+  {
+   "misconception_code": "M_ENG_SYLLABLE_DROPPED",
+   "skill_code": "EN4.SPELL.TRICKY"
+  },
+  {
+   "misconception_code": "M_ENG_IE_EI_SWAP",
+   "skill_code": "EN4.SPELL.TRICKY"
+  },
+  {
+   "misconception_code": "M_ENG_DOUBLE_LETTER_WRONG",
+   "skill_code": "EN4.SPELL.TRICKY"
+  },
+  {
+   "misconception_code": "M_ENG_ROOT_LOOKALIKE",
+   "skill_code": "EN4.SPELL.ROOT"
+  },
+  {
+   "misconception_code": "M_ENG_ROOT_CHANGED",
+   "skill_code": "EN4.SPELL.ROOT"
+  },
+  {
+   "misconception_code": "M_ENG_ROOT_MEANING_WRONG",
+   "skill_code": "EN4.SPELL.ROOT"
+  },
+  {
+   "misconception_code": "M_ENG_ABC_STOPS_EARLY",
+   "skill_code": "EN3.VOCAB.ABC"
+  },
+  {
+   "misconception_code": "M_ENG_ABC_LETTER_SLIP",
+   "skill_code": "EN3.VOCAB.ABC"
+  },
+  {
+   "misconception_code": "M_ENG_TOPIC_MIXUP",
+   "skill_code": "EN3.VOCAB.TOPIC"
+  },
+  {
+   "misconception_code": "M_ENG_TOPIC_OTHER",
+   "skill_code": "EN3.VOCAB.TOPIC"
+  },
+  {
+   "misconception_code": "M_ENG_TOPIC_EVERYDAY",
+   "skill_code": "EN3.VOCAB.TOPIC"
+  },
+  {
+   "misconception_code": "M_ENG_CONTEXT_GUESS",
+   "skill_code": "EN3.VOCAB.CONTEXT"
+  },
+  {
+   "misconception_code": "M_ENG_CONTEXT_NEARBY",
+   "skill_code": "EN3.VOCAB.CONTEXT"
+  },
+  {
+   "misconception_code": "M_ENG_CONTEXT_LOOKALIKE",
+   "skill_code": "EN3.VOCAB.CONTEXT"
+  },
+  {
+   "misconception_code": "M_ENG_SYN_OPPOSITE",
+   "skill_code": "EN3.VOCAB.SYNONYM"
+  },
+  {
+   "misconception_code": "M_ENG_SYN_RELATED",
+   "skill_code": "EN3.VOCAB.SYNONYM"
+  },
+  {
+   "misconception_code": "M_ENG_SYN_WRONG_SENSE",
+   "skill_code": "EN3.VOCAB.SYNONYM"
+  },
+  {
+   "misconception_code": "M_ENG_DESC_MARKS_NOUN",
+   "skill_code": "EN3.VOCAB.DESCRIBE"
+  },
+  {
+   "misconception_code": "M_ENG_DESC_MARKS_VERB",
+   "skill_code": "EN3.VOCAB.DESCRIBE"
+  },
+  {
+   "misconception_code": "M_ENG_DESC_MISSES_ONE",
+   "skill_code": "EN3.VOCAB.DESCRIBE"
+  },
+  {
+   "misconception_code": "M_ENG_DESC_DULL_WORD",
+   "skill_code": "EN3.VOCAB.DESCRIBE"
+  },
+  {
+   "misconception_code": "M_ENG_SOUND_ACTION",
+   "skill_code": "EN3.VOCAB.SOUNDWORD"
+  },
+  {
+   "misconception_code": "M_ENG_SOUND_NAMES_SOUND",
+   "skill_code": "EN3.VOCAB.SOUNDWORD"
+  },
+  {
+   "misconception_code": "M_ENG_SOUND_WRONG_SOURCE",
+   "skill_code": "EN3.VOCAB.SOUNDWORD"
+  },
+  {
+   "misconception_code": "M_ENG_OPENER_TIME_PLACE",
+   "skill_code": "EN3.VOCAB.OPENER"
+  },
+  {
+   "misconception_code": "M_ENG_OPENER_MANNER",
+   "skill_code": "EN3.VOCAB.OPENER"
+  },
+  {
+   "misconception_code": "M_ENG_OPENER_NO_LINK",
+   "skill_code": "EN3.VOCAB.OPENER"
+  },
+  {
+   "misconception_code": "M_ENG_OPENER_NO_COMMA",
+   "skill_code": "EN3.VOCAB.OPENER"
+  },
+  {
+   "misconception_code": "M_ENG_SAYVERB_MISMATCH",
+   "skill_code": "EN3.VOCAB.SAYVERB"
+  },
+  {
+   "misconception_code": "M_ENG_SAYVERB_NOT_SPEECH",
+   "skill_code": "EN3.VOCAB.SAYVERB"
+  },
+  {
+   "misconception_code": "M_ENG_SAYVERB_FEELING",
+   "skill_code": "EN3.VOCAB.SAYVERB"
+  },
+  {
+   "misconception_code": "M_ENG_ALPHA_FIRST_ONLY",
+   "skill_code": "EN4.VOCAB.ABC"
+  },
+  {
+   "misconception_code": "M_ENG_ALPHA_STOPS_EARLY",
+   "skill_code": "EN4.VOCAB.ABC"
+  },
+  {
+   "misconception_code": "M_ENG_ALPHA_SHORT_LAST",
+   "skill_code": "EN4.VOCAB.ABC"
+  },
+  {
+   "misconception_code": "M_ENG_GUIDE_WORDS_MISREAD",
+   "skill_code": "EN4.VOCAB.ABC"
+  },
+  {
+   "misconception_code": "M_ENG_TOPIC_GENERAL_WORD",
+   "skill_code": "EN4.VOCAB.TOPIC"
+  },
+  {
+   "misconception_code": "M_ENG_TOPIC_NEAR_MISS",
+   "skill_code": "EN4.VOCAB.TOPIC"
+  },
+  {
+   "misconception_code": "M_ENG_CONTEXT_LOOKALIKE",
+   "skill_code": "EN4.VOCAB.CONTEXT"
+  },
+  {
+   "misconception_code": "M_ENG_CONTEXT_OPPOSITE",
+   "skill_code": "EN4.VOCAB.CONTEXT"
+  },
+  {
+   "misconception_code": "M_ENG_CONTEXT_FITS_SCENE",
+   "skill_code": "EN4.VOCAB.CONTEXT"
+  },
+  {
+   "misconception_code": "M_ENG_CONTEXT_WRONG_CLASS",
+   "skill_code": "EN4.VOCAB.CONTEXT"
+  },
+  {
+   "misconception_code": "M_ENG_SYN_STILL_PLAIN",
+   "skill_code": "EN4.VOCAB.SYNONYM"
+  },
+  {
+   "misconception_code": "M_ENG_SYN_WRONG_FIT",
+   "skill_code": "EN4.VOCAB.SYNONYM"
+  },
+  {
+   "misconception_code": "M_ENG_SYN_COPIES_PLAIN",
+   "skill_code": "EN4.VOCAB.SYNONYM"
+  },
+  {
+   "misconception_code": "M_ENG_SYN_CHANGES_MEANING",
+   "skill_code": "EN4.VOCAB.SYNONYM"
+  },
+  {
+   "misconception_code": "M_ENG_SHADES_REVERSED",
+   "skill_code": "EN4.VOCAB.SHADES"
+  },
+  {
+   "misconception_code": "M_ENG_SHADES_MIDDLE_SWAPPED",
+   "skill_code": "EN4.VOCAB.SHADES"
+  },
+  {
+   "misconception_code": "M_ENG_SHADES_TOO_STRONG",
+   "skill_code": "EN4.VOCAB.SHADES"
+  },
+  {
+   "misconception_code": "M_ENG_SHADES_TOO_WEAK",
+   "skill_code": "EN4.VOCAB.SHADES"
+  },
+  {
+   "misconception_code": "M_ENG_SIMILE_ANY_LIKE",
+   "skill_code": "EN4.VOCAB.FIGURE"
+  },
+  {
+   "misconception_code": "M_ENG_ALLIT_CONFUSED",
+   "skill_code": "EN4.VOCAB.FIGURE"
+  },
+  {
+   "misconception_code": "M_ENG_FIGURE_PART_MARKED",
+   "skill_code": "EN4.VOCAB.FIGURE"
+  },
+  {
+   "misconception_code": "M_ENG_FIGURE_LITERAL",
+   "skill_code": "EN4.VOCAB.FIGURE"
+  },
+  {
+   "misconception_code": "M_ENG_FIGURE_NAMES_ONLY",
+   "skill_code": "EN4.VOCAB.FIGURE"
+  },
+  {
+   "misconception_code": "M_ENG_SIMILE_MISFIT",
+   "skill_code": "EN4.VOCAB.WRITEFIGURE"
+  },
+  {
+   "misconception_code": "M_ENG_SIMILE_NO_LIKE_AS",
+   "skill_code": "EN4.VOCAB.WRITEFIGURE"
+  },
+  {
+   "misconception_code": "M_ENG_ALLIT_BROKEN",
+   "skill_code": "EN4.VOCAB.WRITEFIGURE"
+  },
+  {
+   "misconception_code": "M_ENG_VERB_PLAIN_KEPT",
+   "skill_code": "EN4.VOCAB.VERBCHOICE"
+  },
+  {
+   "misconception_code": "M_ENG_VERB_WRONG_MOOD",
+   "skill_code": "EN4.VOCAB.VERBCHOICE"
+  },
+  {
+   "misconception_code": "M_ENG_VERB_ADVERB_INSTEAD",
+   "skill_code": "EN4.VOCAB.VERBCHOICE"
+  },
+  {
+   "misconception_code": "M_ENG_VERB_MEANING_ONLY",
+   "skill_code": "EN4.VOCAB.VERBCHOICE"
+  },
+  {
+   "misconception_code": "M_ENG_SHORT_SOUNDALIKE",
+   "skill_code": "EN3.PHON.SHORTFORM"
+  },
+  {
+   "misconception_code": "M_ENG_SHORT_WRONG_WORDS",
+   "skill_code": "EN3.PHON.SHORTFORM"
+  },
+  {
+   "misconception_code": "M_ENG_SHORT_LETTER",
+   "skill_code": "EN3.PHON.SHORTFORM"
+  },
+  {
+   "misconception_code": "M_ENG_APOS_PLACE",
+   "skill_code": "EN3.PHON.SHORTFORM"
+  },
+  {
+   "misconception_code": "M_ENG_APOS_MISSING",
+   "skill_code": "EN3.PHON.SHORTFORM"
+  },
+  {
+   "misconception_code": "M_ENG_APOS_MISSING",
+   "skill_code": "EN3.PUNCT.APOSTROPHE"
+  },
+  {
+   "misconception_code": "M_ENG_APOS_PLACE",
+   "skill_code": "EN3.PUNCT.APOSTROPHE"
+  },
+  {
+   "misconception_code": "M_ENG_APOS_KEPT_LETTERS",
+   "skill_code": "EN3.PUNCT.APOSTROPHE"
+  },
+  {
+   "misconception_code": "M_ENG_SHORT_SOUNDALIKE",
+   "skill_code": "EN3.PUNCT.APOSTROPHE"
+  },
+  {
+   "misconception_code": "M_ENG_END_STOP_ONLY",
+   "skill_code": "EN3.PUNCT.END"
+  },
+  {
+   "misconception_code": "M_ENG_QWORD_QUESTION",
+   "skill_code": "EN3.PUNCT.END"
+  },
+  {
+   "misconception_code": "M_ENG_END_RUN_ON",
+   "skill_code": "EN3.PUNCT.END"
+  },
+  {
+   "misconception_code": "M_ENG_TYPE_BY_MARK",
+   "skill_code": "EN3.GRAM.SENTTYPE"
+  },
+  {
+   "misconception_code": "M_ENG_TYPE_COMMAND_STATEMENT",
+   "skill_code": "EN3.GRAM.SENTTYPE"
+  },
+  {
+   "misconception_code": "M_ENG_QWORD_QUESTION",
+   "skill_code": "EN3.GRAM.SENTTYPE"
+  },
+  {
+   "misconception_code": "M_ENG_SPEECH_NARRATOR_INSIDE",
+   "skill_code": "EN3.PUNCT.SPEECH"
+  },
+  {
+   "misconception_code": "M_ENG_SPEECH_PART",
+   "skill_code": "EN3.PUNCT.SPEECH"
+  },
+  {
+   "misconception_code": "M_ENG_SPEECH_MARK_OUTSIDE",
+   "skill_code": "EN3.PUNCT.SPEECH"
+  },
+  {
+   "misconception_code": "M_ENG_SPEECH_REPORTED",
+   "skill_code": "EN3.PUNCT.SPEECH"
+  },
+  {
+   "misconception_code": "M_ENG_WRITE_WRONG_TYPE",
+   "skill_code": "EN3.GRAM.WRITETYPE"
+  },
+  {
+   "misconception_code": "M_ENG_WRITE_QUESTION_ORDER",
+   "skill_code": "EN3.GRAM.WRITETYPE"
+  },
+  {
+   "misconception_code": "M_ENG_END_STOP_ONLY",
+   "skill_code": "EN3.GRAM.WRITETYPE"
+  },
+  {
+   "misconception_code": "M_ENG_TENSE_TIME_CLUE",
+   "skill_code": "EN4.GRAM.TENSE"
+  },
+  {
+   "misconception_code": "M_ENG_TENSE_IRREGULAR_ED",
+   "skill_code": "EN4.GRAM.TENSE"
+  },
+  {
+   "misconception_code": "M_ENG_TENSE_WILL_FORM",
+   "skill_code": "EN4.GRAM.TENSE"
+  },
+  {
+   "misconception_code": "M_ENG_TENSE_SHIFT",
+   "skill_code": "EN4.GRAM.TENSE"
+  },
+  {
+   "misconception_code": "M_ENG_TENSE_SPEECH_FLATTENED",
+   "skill_code": "EN4.GRAM.TENSE"
+  },
+  {
+   "misconception_code": "M_ENG_AGREE_IS_ARE",
+   "skill_code": "EN4.GRAM.AGREE"
+  },
+  {
+   "misconception_code": "M_ENG_AGREE_WAS_WERE",
+   "skill_code": "EN4.GRAM.AGREE"
+  },
+  {
+   "misconception_code": "M_ENG_AGREE_HAS_HAVE",
+   "skill_code": "EN4.GRAM.AGREE"
+  },
+  {
+   "misconception_code": "M_ENG_AGREE_NEAREST_NOUN",
+   "skill_code": "EN4.GRAM.AGREE"
+  },
+  {
+   "misconception_code": "M_ENG_CONNECT_WRONG_MEANING",
+   "skill_code": "EN4.GRAM.CONNECT"
+  },
+  {
+   "misconception_code": "M_ENG_CONNECT_NOT_CONNECTIVE",
+   "skill_code": "EN4.GRAM.CONNECT"
+  },
+  {
+   "misconception_code": "M_ENG_CONNECT_MISSED",
+   "skill_code": "EN4.GRAM.CONNECT"
+  },
+  {
+   "misconception_code": "M_ENG_CONNECT_COMMA_ONLY",
+   "skill_code": "EN4.GRAM.CONNECT"
+  },
+  {
+   "misconception_code": "M_ENG_QUANT_MUCH_MANY",
+   "skill_code": "EN4.GRAM.QUANT"
+  },
+  {
+   "misconception_code": "M_ENG_QUANT_SINGULAR_PLURAL",
+   "skill_code": "EN4.GRAM.QUANT"
+  },
+  {
+   "misconception_code": "M_ENG_QUANT_FEW_LITTLE",
+   "skill_code": "EN4.GRAM.QUANT"
+  },
+  {
+   "misconception_code": "M_ENG_QUANT_MEANING",
+   "skill_code": "EN4.GRAM.QUANT"
+  },
+  {
+   "misconception_code": "M_ENG_ADVERB_ADJECTIVE",
+   "skill_code": "EN4.GRAM.ADVERB"
+  },
+  {
+   "misconception_code": "M_ENG_ADVERB_PHRASE_PART",
+   "skill_code": "EN4.GRAM.ADVERB"
+  },
+  {
+   "misconception_code": "M_ENG_ADVERB_GROUP",
+   "skill_code": "EN4.GRAM.ADVERB"
+  },
+  {
+   "misconception_code": "M_ENG_ADVERB_LY_ONLY",
+   "skill_code": "EN4.GRAM.ADVERB"
+  },
+  {
+   "misconception_code": "M_ENG_ADVERB_VAGUE",
+   "skill_code": "EN4.GRAM.ADVERB"
+  },
+  {
+   "misconception_code": "M_ENG_END_RUN_ON",
+   "skill_code": "EN4.PUNCT.END"
+  },
+  {
+   "misconception_code": "M_ENG_END_COMMA_SPLICE",
+   "skill_code": "EN4.PUNCT.END"
+  },
+  {
+   "misconception_code": "M_ENG_END_QUESTION_MARK",
+   "skill_code": "EN4.PUNCT.END"
+  },
+  {
+   "misconception_code": "M_ENG_END_NO_CAPITAL",
+   "skill_code": "EN4.PUNCT.END"
+  },
+  {
+   "misconception_code": "M_ENG_END_NO_EXCLAMATION",
+   "skill_code": "EN4.PUNCT.END"
+  },
+  {
+   "misconception_code": "M_ENG_COMMA_LIST_MISSING",
+   "skill_code": "EN4.PUNCT.COMMA"
+  },
+  {
+   "misconception_code": "M_ENG_COMMA_OPENER_MISSING",
+   "skill_code": "EN4.PUNCT.COMMA"
+  },
+  {
+   "misconception_code": "M_ENG_COMMA_NAME_MISSING",
+   "skill_code": "EN4.PUNCT.COMMA"
+  },
+  {
+   "misconception_code": "M_ENG_COMMA_EVERYWHERE",
+   "skill_code": "EN4.PUNCT.COMMA"
+  },
+  {
+   "misconception_code": "M_ENG_COMMA_MEANING",
+   "skill_code": "EN4.PUNCT.COMMA"
+  },
+  {
+   "misconception_code": "M_ENG_SPEECH_MARK_OUTSIDE",
+   "skill_code": "EN4.PUNCT.SPEECH"
+  },
+  {
+   "misconception_code": "M_ENG_SPEECH_MARKS_MISSING",
+   "skill_code": "EN4.PUNCT.SPEECH"
+  },
+  {
+   "misconception_code": "M_ENG_SPEECH_FULL_STOP_BEFORE_SAID",
+   "skill_code": "EN4.PUNCT.SPEECH"
+  },
+  {
+   "misconception_code": "M_ENG_SPEECH_NO_COMMA",
+   "skill_code": "EN4.PUNCT.SPEECH"
+  },
+  {
+   "misconception_code": "M_ENG_SPEECH_NEW_LINE",
+   "skill_code": "EN4.PUNCT.SPEECH"
+  },
+  {
+   "misconception_code": "M_ENG_POSS_NO_APOSTROPHE",
+   "skill_code": "EN4.PUNCT.POSSESS"
+  },
+  {
+   "misconception_code": "M_ENG_POSS_WRONG_PLACE",
+   "skill_code": "EN4.PUNCT.POSSESS"
+  },
+  {
+   "misconception_code": "M_ENG_POSS_PLURAL_S_S",
+   "skill_code": "EN4.PUNCT.POSSESS"
+  },
+  {
+   "misconception_code": "M_ENG_POSS_PLAIN_PLURAL",
+   "skill_code": "EN4.PUNCT.POSSESS"
+  },
+  {
+   "misconception_code": "M_ENG_POSS_IRREGULAR",
+   "skill_code": "EN4.PUNCT.POSSESS"
+  },
+  {
+   "misconception_code": "M_ENG_READ_NEAR_MISS",
+   "skill_code": "EN3.READ.FIND"
+  },
+  {
+   "misconception_code": "M_ENG_READ_OWN_IDEA",
+   "skill_code": "EN3.READ.FIND"
+  },
+  {
+   "misconception_code": "M_ENG_READ_WORD_MATCH",
+   "skill_code": "EN3.READ.FIND"
+  },
+  {
+   "misconception_code": "M_ENG_CHAR_WRONG_DETAIL",
+   "skill_code": "EN3.READ.CHARACTER"
+  },
+  {
+   "misconception_code": "M_ENG_CHAR_OTHER_ONE",
+   "skill_code": "EN3.READ.CHARACTER"
+  },
+  {
+   "misconception_code": "M_ENG_CHAR_NO_EXPLAIN",
+   "skill_code": "EN3.READ.CHARACTER"
+  },
+  {
+   "misconception_code": "M_ENG_CHAR_OWN_IDEA",
+   "skill_code": "EN3.READ.CHARACTER"
+  },
+  {
+   "misconception_code": "M_ENG_ORDER_AS_PRINTED",
+   "skill_code": "EN3.READ.ORDER"
+  },
+  {
+   "misconception_code": "M_ENG_ORDER_SWAP",
+   "skill_code": "EN3.READ.ORDER"
+  },
+  {
+   "misconception_code": "M_ENG_CAUSE_REVERSED",
+   "skill_code": "EN3.READ.ORDER"
+  },
+  {
+   "misconception_code": "M_ENG_CAUSE_UNLINKED",
+   "skill_code": "EN3.READ.ORDER"
+  },
+  {
+   "misconception_code": "M_ENG_BLURB_TITLE_ONLY",
+   "skill_code": "EN3.READ.BLURB"
+  },
+  {
+   "misconception_code": "M_ENG_BLURB_OWN_TASTE",
+   "skill_code": "EN3.READ.BLURB"
+  },
+  {
+   "misconception_code": "M_ENG_BLURB_GENRE_MIXED",
+   "skill_code": "EN3.READ.BLURB"
+  },
+  {
+   "misconception_code": "M_ENG_BLURB_NO_DETAIL",
+   "skill_code": "EN3.READ.BLURB"
+  },
+  {
+   "misconception_code": "M_ENG_INDEX_WRONG_LINE",
+   "skill_code": "EN3.READ.INDEX"
+  },
+  {
+   "misconception_code": "M_ENG_INDEX_WRONG_ENTRY",
+   "skill_code": "EN3.READ.INDEX"
+  },
+  {
+   "misconception_code": "M_ENG_INDEX_ONE_PAGE_ONLY",
+   "skill_code": "EN3.READ.INDEX"
+  },
+  {
+   "misconception_code": "M_ENG_INDEX_WRONG_TOOL",
+   "skill_code": "EN3.READ.INDEX"
+  },
+  {
+   "misconception_code": "M_ENG_MAIN_DETAIL",
+   "skill_code": "EN3.READ.MAIN"
+  },
+  {
+   "misconception_code": "M_ENG_MAIN_FIRST_LINE",
+   "skill_code": "EN3.READ.MAIN"
+  },
+  {
+   "misconception_code": "M_ENG_MAIN_TOO_WIDE",
+   "skill_code": "EN3.READ.MAIN"
+  },
+  {
+   "misconception_code": "M_ENG_MAIN_RETELL",
+   "skill_code": "EN3.READ.MAIN"
+  },
+  {
+   "misconception_code": "M_ENG_INFER_LITERAL",
+   "skill_code": "EN3.READ.INFER"
+  },
+  {
+   "misconception_code": "M_ENG_INFER_ONE_CLUE",
+   "skill_code": "EN3.READ.INFER"
+  },
+  {
+   "misconception_code": "M_ENG_INFER_OUTSIDE",
+   "skill_code": "EN3.READ.INFER"
+  },
+  {
+   "misconception_code": "M_ENG_THEME_PLOT",
+   "skill_code": "EN3.READ.THEME"
+  },
+  {
+   "misconception_code": "M_ENG_THEME_DETAIL",
+   "skill_code": "EN3.READ.THEME"
+  },
+  {
+   "misconception_code": "M_ENG_THEME_SURFACE",
+   "skill_code": "EN3.READ.THEME"
+  },
+  {
+   "misconception_code": "M_ENG_COMPARE_ONE",
+   "skill_code": "EN3.READ.COMPARE"
+  },
+  {
+   "misconception_code": "M_ENG_COMPARE_SAME_DIFF",
+   "skill_code": "EN3.READ.COMPARE"
+  },
+  {
+   "misconception_code": "M_ENG_COMPARE_MIXED",
+   "skill_code": "EN3.READ.COMPARE"
+  },
+  {
+   "misconception_code": "M_ENG_PREDICT_NO_CLUE",
+   "skill_code": "EN3.READ.PREDICT"
+  },
+  {
+   "misconception_code": "M_ENG_PREDICT_RETELL",
+   "skill_code": "EN3.READ.PREDICT"
+  },
+  {
+   "misconception_code": "M_ENG_PREDICT_NO_REASON",
+   "skill_code": "EN3.READ.PREDICT"
+  },
+  {
+   "misconception_code": "M_ENG_STEP_SKIPPED",
+   "skill_code": "EN3.READ.INSTRUCT"
+  },
+  {
+   "misconception_code": "M_ENG_STEP_ORDER",
+   "skill_code": "EN3.READ.INSTRUCT"
+  },
+  {
+   "misconception_code": "M_ENG_STEP_WORD",
+   "skill_code": "EN3.READ.INSTRUCT"
+  },
+  {
+   "misconception_code": "M_ENG_OPINION_AS_FACT",
+   "skill_code": "EN3.READ.FACTOPINION"
+  },
+  {
+   "misconception_code": "M_ENG_FACT_AS_OPINION",
+   "skill_code": "EN3.READ.FACTOPINION"
+  },
+  {
+   "misconception_code": "M_ENG_OPINION_WORD",
+   "skill_code": "EN3.READ.FACTOPINION"
+  },
+  {
+   "misconception_code": "M_ENG_FIND_WRONG_PART",
+   "skill_code": "EN4.READ.FIND"
+  },
+  {
+   "misconception_code": "M_ENG_FIND_OWN_IDEA",
+   "skill_code": "EN4.READ.FIND"
+  },
+  {
+   "misconception_code": "M_ENG_FIND_ONE_PLACE",
+   "skill_code": "EN4.READ.FIND"
+  },
+  {
+   "misconception_code": "M_ENG_CHAR_ACTION_ONLY",
+   "skill_code": "EN4.READ.CHARACTER"
+  },
+  {
+   "misconception_code": "M_ENG_CHAR_OFF_TARGET",
+   "skill_code": "EN4.READ.CHARACTER"
+  },
+  {
+   "misconception_code": "M_ENG_CHAR_NO_QUOTE",
+   "skill_code": "EN4.READ.CHARACTER"
+  },
+  {
+   "misconception_code": "M_ENG_CHAR_NO_EXPLAIN",
+   "skill_code": "EN4.READ.CHARACTER"
+  },
+  {
+   "misconception_code": "M_ENG_STAGE_PROBLEM_RESOLUTION",
+   "skill_code": "EN4.READ.STAGES"
+  },
+  {
+   "misconception_code": "M_ENG_STAGE_OPENING_BUILDUP",
+   "skill_code": "EN4.READ.STAGES"
+  },
+  {
+   "misconception_code": "M_ENG_STAGE_ENDING_RESOLUTION",
+   "skill_code": "EN4.READ.STAGES"
+  },
+  {
+   "misconception_code": "M_ENG_STAGE_TEXT_ORDER",
+   "skill_code": "EN4.READ.STAGES"
+  },
+  {
+   "misconception_code": "M_ENG_KEY_DETAIL",
+   "skill_code": "EN4.READ.KEYWORDS"
+  },
+  {
+   "misconception_code": "M_ENG_KEY_FIRST_WORDS",
+   "skill_code": "EN4.READ.KEYWORDS"
+  },
+  {
+   "misconception_code": "M_ENG_KEY_WHOLE_SENTENCE",
+   "skill_code": "EN4.READ.KEYWORDS"
+  },
+  {
+   "misconception_code": "M_ENG_SKIM_DETAIL",
+   "skill_code": "EN4.READ.SKIM"
+  },
+  {
+   "misconception_code": "M_ENG_SKIM_TOO_WIDE",
+   "skill_code": "EN4.READ.SKIM"
+  },
+  {
+   "misconception_code": "M_ENG_SKIM_WORD_MATCH",
+   "skill_code": "EN4.READ.SKIM"
+  },
+  {
+   "misconception_code": "M_ENG_LINK_CONTENT",
+   "skill_code": "EN4.READ.LINKS"
+  },
+  {
+   "misconception_code": "M_ENG_LINK_WRONG_JOB",
+   "skill_code": "EN4.READ.LINKS"
+  },
+  {
+   "misconception_code": "M_ENG_LINK_MISSES_PHRASE",
+   "skill_code": "EN4.READ.LINKS"
+  },
+  {
+   "misconception_code": "M_ENG_INFER_LITERAL",
+   "skill_code": "EN4.READ.INFER"
+  },
+  {
+   "misconception_code": "M_ENG_INFER_UNSUPPORTED",
+   "skill_code": "EN4.READ.INFER"
+  },
+  {
+   "misconception_code": "M_ENG_INFER_CLUE",
+   "skill_code": "EN4.READ.INFER"
+  },
+  {
+   "misconception_code": "M_ENG_PREDICT_UNLINKED",
+   "skill_code": "EN4.READ.PREDICT"
+  },
+  {
+   "misconception_code": "M_ENG_PREDICT_RETELL",
+   "skill_code": "EN4.READ.PREDICT"
+  },
+  {
+   "misconception_code": "M_ENG_PREDICT_WILD",
+   "skill_code": "EN4.READ.PREDICT"
+  },
+  {
+   "misconception_code": "M_ENG_THEME_PLOT",
+   "skill_code": "EN4.READ.THEME"
+  },
+  {
+   "misconception_code": "M_ENG_THEME_ONE_TEXT",
+   "skill_code": "EN4.READ.THEME"
+  },
+  {
+   "misconception_code": "M_ENG_THEME_SURFACE",
+   "skill_code": "EN4.READ.THEME"
+  },
+  {
+   "misconception_code": "M_ENG_CONTEXT_TODAY",
+   "skill_code": "EN4.READ.CONTEXT"
+  },
+  {
+   "misconception_code": "M_ENG_CONTEXT_NO_DIFFERENCE",
+   "skill_code": "EN4.READ.CONTEXT"
+  },
+  {
+   "misconception_code": "M_ENG_CONTEXT_PLACE_TIME",
+   "skill_code": "EN4.READ.CONTEXT"
+  },
+  {
+   "misconception_code": "M_ENG_VIEW_SPEECH_I",
+   "skill_code": "EN4.READ.VIEWPOINT"
+  },
+  {
+   "misconception_code": "M_ENG_VIEW_NAMED",
+   "skill_code": "EN4.READ.VIEWPOINT"
+  },
+  {
+   "misconception_code": "M_ENG_VIEW_HE_SHE",
+   "skill_code": "EN4.READ.VIEWPOINT"
+  },
+  {
+   "misconception_code": "M_ENG_VIEW_WRONG_WORD",
+   "skill_code": "EN4.READ.VIEWPOINT"
+  },
+  {
+   "misconception_code": "M_ENG_RESPOND_NO_LINK",
+   "skill_code": "EN4.READ.RESPOND"
+  },
+  {
+   "misconception_code": "M_ENG_RESPOND_RETELL",
+   "skill_code": "EN4.READ.RESPOND"
+  },
+  {
+   "misconception_code": "M_ENG_RESPOND_NO_REASON",
+   "skill_code": "EN4.READ.RESPOND"
+  },
+  {
+   "misconception_code": "M_ENG_OPINION_AS_FACT",
+   "skill_code": "EN4.READ.FACTOPINION"
+  },
+  {
+   "misconception_code": "M_ENG_FACT_AS_OPINION",
+   "skill_code": "EN4.READ.FACTOPINION"
+  },
+  {
+   "misconception_code": "M_ENG_OPINION_WORD_MISSED",
+   "skill_code": "EN4.READ.FACTOPINION"
+  },
+  {
+   "misconception_code": "M_ENG_WORDCLASS_NOUN_VERB",
+   "skill_code": "EN3.GRAM.NOUNVERB"
+  },
+  {
+   "misconception_code": "M_ENG_WORDCLASS_PRONOUN",
+   "skill_code": "EN3.GRAM.NOUNVERB"
+  },
+  {
+   "misconception_code": "M_ENG_WORDCLASS_ADJ",
+   "skill_code": "EN3.GRAM.NOUNVERB"
+  },
+  {
+   "misconception_code": "M_ENG_PREP_PLACE_TIME",
+   "skill_code": "EN3.GRAM.PREP"
+  },
+  {
+   "misconception_code": "M_ENG_PREP_WRONG_MEANING",
+   "skill_code": "EN3.GRAM.PREP"
+  },
+  {
+   "misconception_code": "M_ENG_PREP_NOT_PREP",
+   "skill_code": "EN3.GRAM.PREP"
+  },
+  {
+   "misconception_code": "M_ENG_TENSE_CLUE_MISSED",
+   "skill_code": "EN3.GRAM.TENSE"
+  },
+  {
+   "misconception_code": "M_ENG_TENSE_SHIFT",
+   "skill_code": "EN3.GRAM.TENSE"
+  },
+  {
+   "misconception_code": "M_ENG_TENSE_SORT_ENDING",
+   "skill_code": "EN3.GRAM.TENSE"
+  },
+  {
+   "misconception_code": "M_ENG_IRREG_ADDS_ED",
+   "skill_code": "EN3.GRAM.IRREGULAR"
+  },
+  {
+   "misconception_code": "M_ENG_IRREG_PARTICIPLE",
+   "skill_code": "EN3.GRAM.IRREGULAR"
+  },
+  {
+   "misconception_code": "M_ENG_IRREG_WRONG_PARTNER",
+   "skill_code": "EN3.GRAM.IRREGULAR"
+  },
+  {
+   "misconception_code": "M_ENG_JOIN_WRONG_LINK",
+   "skill_code": "EN3.GRAM.JOIN"
+  },
+  {
+   "misconception_code": "M_ENG_JOIN_SO_BECAUSE",
+   "skill_code": "EN3.GRAM.JOIN"
+  },
+  {
+   "misconception_code": "M_ENG_JOIN_AND_CHAIN",
+   "skill_code": "EN3.GRAM.JOIN"
+  },
+  {
+   "misconception_code": "M_ENG_JOIN_KEEPS_STOP",
+   "skill_code": "EN3.GRAM.JOIN"
+  },
+  {
+   "misconception_code": "M_ENG_PLAN_FULL_SENTENCES",
+   "skill_code": "EN3.WRITE.PLAN"
+  },
+  {
+   "misconception_code": "M_ENG_PLAN_WRONG_BOX",
+   "skill_code": "EN3.WRITE.PLAN"
+  },
+  {
+   "misconception_code": "M_ENG_PLAN_POINT_MISSING",
+   "skill_code": "EN3.WRITE.PLAN"
+  },
+  {
+   "misconception_code": "M_ENG_DESC_LIST",
+   "skill_code": "EN3.WRITE.DESCRIBE"
+  },
+  {
+   "misconception_code": "M_ENG_DESC_ONE_SENSE",
+   "skill_code": "EN3.WRITE.DESCRIBE"
+  },
+  {
+   "misconception_code": "M_ENG_DESC_GENERAL_WORDS",
+   "skill_code": "EN3.WRITE.DESCRIBE"
+  },
+  {
+   "misconception_code": "M_ENG_DESC_TELLS_EVENTS",
+   "skill_code": "EN3.WRITE.DESCRIBE"
+  },
+  {
+   "misconception_code": "M_ENG_TABLE_WRONG_BOX",
+   "skill_code": "EN3.WRITE.TABLE"
+  },
+  {
+   "misconception_code": "M_ENG_TABLE_NOT_FROM_TEXT",
+   "skill_code": "EN3.WRITE.TABLE"
+  },
+  {
+   "misconception_code": "M_ENG_TABLE_WHOLE_SENTENCE",
+   "skill_code": "EN3.WRITE.TABLE"
+  },
+  {
+   "misconception_code": "M_ENG_SEQ_OUT_OF_ORDER",
+   "skill_code": "EN3.WRITE.SEQUENCE"
+  },
+  {
+   "misconception_code": "M_ENG_SEQ_AND_THEN",
+   "skill_code": "EN3.WRITE.SEQUENCE"
+  },
+  {
+   "misconception_code": "M_ENG_SEQ_STEP_MISSING",
+   "skill_code": "EN3.WRITE.SEQUENCE"
+  },
+  {
+   "misconception_code": "M_ENG_SCRIPT_SPEECH_MARKS",
+   "skill_code": "EN3.WRITE.PLAYSCRIPT"
+  },
+  {
+   "misconception_code": "M_ENG_SCRIPT_NO_DIRECTION",
+   "skill_code": "EN3.WRITE.PLAYSCRIPT"
+  },
+  {
+   "misconception_code": "M_ENG_SCRIPT_PAST_DIRECTION",
+   "skill_code": "EN3.WRITE.PLAYSCRIPT"
+  },
+  {
+   "misconception_code": "M_ENG_SCRIPT_RETELLS",
+   "skill_code": "EN3.WRITE.PLAYSCRIPT"
+  },
+  {
+   "misconception_code": "M_ENG_IMPROVE_VAGUE",
+   "skill_code": "EN3.WRITE.IMPROVE"
+  },
+  {
+   "misconception_code": "M_ENG_IMPROVE_SAME_WEAKNESS",
+   "skill_code": "EN3.WRITE.IMPROVE"
+  },
+  {
+   "misconception_code": "M_ENG_IMPROVE_SPELLING_ONLY",
+   "skill_code": "EN3.WRITE.IMPROVE"
+  },
+  {
+   "misconception_code": "M_ENG_REVIEW_RETELLS",
+   "skill_code": "EN3.WRITE.REVIEW"
+  },
+  {
+   "misconception_code": "M_ENG_REVIEW_NO_REASON",
+   "skill_code": "EN3.WRITE.REVIEW"
+  },
+  {
+   "misconception_code": "M_ENG_REVIEW_NO_SUMMARY",
+   "skill_code": "EN3.WRITE.REVIEW"
+  },
+  {
+   "misconception_code": "M_ENG_PROOF_MISSED",
+   "skill_code": "EN3.WRITE.PROOFREAD"
+  },
+  {
+   "misconception_code": "M_ENG_PROOF_CHANGES_RIGHT_WORD",
+   "skill_code": "EN3.WRITE.PROOFREAD"
+  },
+  {
+   "misconception_code": "M_ENG_PROOF_GRAMMAR_MISSED",
+   "skill_code": "EN3.WRITE.PROOFREAD"
+  },
+  {
+   "misconception_code": "M_ENG_DESC_LIST",
+   "skill_code": "EN4.WRITE.DESCRIBE"
+  },
+  {
+   "misconception_code": "M_ENG_DESC_ONE_SENSE",
+   "skill_code": "EN4.WRITE.DESCRIBE"
+  },
+  {
+   "misconception_code": "M_ENG_DESC_TELLS_EVENTS",
+   "skill_code": "EN4.WRITE.DESCRIBE"
+  },
+  {
+   "misconception_code": "M_ENG_END_UNFIT",
+   "skill_code": "EN4.WRITE.ENDING"
+  },
+  {
+   "misconception_code": "M_ENG_END_RETELL",
+   "skill_code": "EN4.WRITE.ENDING"
+  },
+  {
+   "misconception_code": "M_ENG_END_SUDDEN",
+   "skill_code": "EN4.WRITE.ENDING"
+  },
+  {
+   "misconception_code": "M_ENG_NOTE_COPY_SENTENCE",
+   "skill_code": "EN4.WRITE.NOTES"
+  },
+  {
+   "misconception_code": "M_ENG_NOTE_WRONG_BOX",
+   "skill_code": "EN4.WRITE.NOTES"
+  },
+  {
+   "misconception_code": "M_ENG_NOTE_MINOR_DETAIL",
+   "skill_code": "EN4.WRITE.NOTES"
+  },
+  {
+   "misconception_code": "M_ENG_SEQ_ORDER",
+   "skill_code": "EN4.WRITE.SEQUENCE"
+  },
+  {
+   "misconception_code": "M_ENG_SEQ_AND_THEN",
+   "skill_code": "EN4.WRITE.SEQUENCE"
+  },
+  {
+   "misconception_code": "M_ENG_SEQ_WRONG_LINK",
+   "skill_code": "EN4.WRITE.SEQUENCE"
+  },
+  {
+   "misconception_code": "M_ENG_SCRIPT_SPEECH_MARKS",
+   "skill_code": "EN4.WRITE.PLAYSCRIPT"
+  },
+  {
+   "misconception_code": "M_ENG_SCRIPT_NO_DIRECTION",
+   "skill_code": "EN4.WRITE.PLAYSCRIPT"
+  },
+  {
+   "misconception_code": "M_ENG_SCRIPT_NARRATOR",
+   "skill_code": "EN4.WRITE.PLAYSCRIPT"
+  },
+  {
+   "misconception_code": "M_ENG_PLAN_WRONG_FRAME",
+   "skill_code": "EN4.WRITE.PLAN"
+  },
+  {
+   "misconception_code": "M_ENG_PLAN_FULL_TEXT",
+   "skill_code": "EN4.WRITE.PLAN"
+  },
+  {
+   "misconception_code": "M_ENG_NOTE_WRONG_BOX",
+   "skill_code": "EN4.WRITE.PLAN"
+  },
+  {
+   "misconception_code": "M_ENG_PROFILE_NO_EVIDENCE",
+   "skill_code": "EN4.WRITE.PROFILE"
+  },
+  {
+   "misconception_code": "M_ENG_PROFILE_LOOKS_ONLY",
+   "skill_code": "EN4.WRITE.PROFILE"
+  },
+  {
+   "misconception_code": "M_ENG_NOTE_WRONG_BOX",
+   "skill_code": "EN4.WRITE.PROFILE"
+  },
+  {
+   "misconception_code": "M_ENG_NOTE_COPY_SENTENCE",
+   "skill_code": "EN4.WRITE.PROFILE"
+  },
+  {
+   "misconception_code": "M_ENG_VIEW_NO_REASON",
+   "skill_code": "EN4.WRITE.VIEWPOINT"
+  },
+  {
+   "misconception_code": "M_ENG_VIEW_OUT_OF_ROLE",
+   "skill_code": "EN4.WRITE.VIEWPOINT"
+  },
+  {
+   "misconception_code": "M_ENG_VIEW_DESCRIBES_ONLY",
+   "skill_code": "EN4.WRITE.VIEWPOINT"
+  },
+  {
+   "misconception_code": "M_ENG_VIEW_NO_REASON",
+   "skill_code": "EN4.WRITE.ARGUE"
+  },
+  {
+   "misconception_code": "M_ENG_ARGUE_WRONG_TONE",
+   "skill_code": "EN4.WRITE.ARGUE"
+  },
+  {
+   "misconception_code": "M_ENG_ARGUE_VIEW_CHANGES",
+   "skill_code": "EN4.WRITE.ARGUE"
+  },
+  {
+   "misconception_code": "M_ENG_PROOF_MISSED_APOS",
+   "skill_code": "EN4.WRITE.PROOFREAD"
+  },
+  {
+   "misconception_code": "M_ENG_PROOF_MISSED_SPELL",
+   "skill_code": "EN4.WRITE.PROOFREAD"
+  },
+  {
+   "misconception_code": "M_ENG_PROOF_MISSED_GRAMMAR",
+   "skill_code": "EN4.WRITE.PROOFREAD"
+  },
+  {
+   "misconception_code": "M_ENG_PROOF_CHANGED_CORRECT",
+   "skill_code": "EN4.WRITE.PROOFREAD"
+  },
+  {
+   "misconception_code": "M_ENG_IMPROVE_VAGUE",
+   "skill_code": "EN4.WRITE.IMPROVE"
+  },
+  {
+   "misconception_code": "M_ENG_IMPROVE_SAME_WEAKNESS",
+   "skill_code": "EN4.WRITE.IMPROVE"
+  },
+  {
+   "misconception_code": "M_ENG_IMPROVE_NEW_ERROR",
+   "skill_code": "EN4.WRITE.IMPROVE"
+  },
+  {
+   "misconception_code": "M_ENG_FICTION_SWAPPED",
+   "skill_code": "EN3.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_FACTS_IN_STORY",
+   "skill_code": "EN3.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_ANIMALS_FICTION",
+   "skill_code": "EN3.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_SHELF_BY_TITLE",
+   "skill_code": "EN3.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_STORY_SHAPE",
+   "skill_code": "EN3.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_FICTION_SWAPPED",
+   "skill_code": "EN4.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_STORY_SHAPE",
+   "skill_code": "EN4.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_SHELF_BY_TITLE",
+   "skill_code": "EN4.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_LABEL_WRONG_PART",
+   "skill_code": "EN4.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_STORY_ON_SUBJECT_SHELF",
+   "skill_code": "EN4.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_GENRE_ONE_CLUE",
+   "skill_code": "EN3.TEXT.GENRE"
+  },
+  {
+   "misconception_code": "M_ENG_GENRE_ANIMAL_FABLE",
+   "skill_code": "EN3.TEXT.GENRE"
+  },
+  {
+   "misconception_code": "M_ENG_GENRE_RETELLS",
+   "skill_code": "EN3.TEXT.GENRE"
+  },
+  {
+   "misconception_code": "M_ENG_GENRE_ONE_CLUE",
+   "skill_code": "EN4.TEXT.GENRE"
+  },
+  {
+   "misconception_code": "M_ENG_GENRE_ANIMAL_FABLE",
+   "skill_code": "EN4.TEXT.GENRE"
+  },
+  {
+   "misconception_code": "M_ENG_GENRE_RETELLS",
+   "skill_code": "EN4.TEXT.GENRE"
+  },
+  {
+   "misconception_code": "M_ENG_GENRE_COMPARE_ONE_SIDE",
+   "skill_code": "EN4.TEXT.GENRE"
+  },
+  {
+   "misconception_code": "M_ENG_PURPOSE_MIXUP",
+   "skill_code": "EN3.TEXT.NONFICTION"
+  },
+  {
+   "misconception_code": "M_ENG_PURPOSE_TOPIC",
+   "skill_code": "EN3.TEXT.NONFICTION"
+  },
+  {
+   "misconception_code": "M_ENG_FEATURE_JOB",
+   "skill_code": "EN3.TEXT.NONFICTION"
+  },
+  {
+   "misconception_code": "M_ENG_ENGAGE_FACT",
+   "skill_code": "EN3.TEXT.NONFICTION"
+  },
+  {
+   "misconception_code": "M_ENG_STORY_SHAPE",
+   "skill_code": "EN3.TEXT.NONFICTION"
+  },
+  {
+   "misconception_code": "M_ENG_HEADING_TITLE",
+   "skill_code": "EN3.TEXT.FEATURES"
+  },
+  {
+   "misconception_code": "M_ENG_STAGE_SPOKEN",
+   "skill_code": "EN3.TEXT.FEATURES"
+  },
+  {
+   "misconception_code": "M_ENG_LIST_ORDER",
+   "skill_code": "EN3.TEXT.FEATURES"
+  },
+  {
+   "misconception_code": "M_ENG_FEATURE_JOB",
+   "skill_code": "EN3.TEXT.FEATURES"
+  },
+  {
+   "misconception_code": "M_ENG_FEATURE_WRONG_TYPE",
+   "skill_code": "EN4.TEXT.FEATURES"
+  },
+  {
+   "misconception_code": "M_ENG_STAGE_SPOKEN",
+   "skill_code": "EN4.TEXT.FEATURES"
+  },
+  {
+   "misconception_code": "M_ENG_LIST_ORDER",
+   "skill_code": "EN4.TEXT.FEATURES"
+  },
+  {
+   "misconception_code": "M_ENG_HEADING_TITLE",
+   "skill_code": "EN4.TEXT.FEATURES"
+  },
+  {
+   "misconception_code": "M_ENG_PARA_BY_WORD",
+   "skill_code": "EN3.TEXT.PARAGRAPH"
+  },
+  {
+   "misconception_code": "M_ENG_HEADING_TOO_NARROW",
+   "skill_code": "EN3.TEXT.PARAGRAPH"
+  },
+  {
+   "misconception_code": "M_ENG_PARA_BY_WORD",
+   "skill_code": "EN4.TEXT.PARAGRAPH"
+  },
+  {
+   "misconception_code": "M_ENG_HEADING_TOO_NARROW",
+   "skill_code": "EN4.TEXT.PARAGRAPH"
+  },
+  {
+   "misconception_code": "M_ENG_PARA_ODD_KEPT",
+   "skill_code": "EN4.TEXT.PARAGRAPH"
+  },
+  {
+   "misconception_code": "M_ENG_PERSUADE_FACT_ONLY",
+   "skill_code": "EN4.TEXT.PERSUADE"
+  },
+  {
+   "misconception_code": "M_ENG_PERSUADE_PURPOSE",
+   "skill_code": "EN4.TEXT.PERSUADE"
+  },
+  {
+   "misconception_code": "M_ENG_PERSUADE_NAMES_ONLY",
+   "skill_code": "EN4.TEXT.PERSUADE"
+  },
+  {
+   "misconception_code": "M_ENG_PERSUADE_TRUSTS_ADVERT",
+   "skill_code": "EN4.TEXT.PERSUADE"
+  }
+ ]
+}

@@ -1,0 +1,2389 @@
+{
+ "objective_coverage": [
+  {
+   "objective": "3Rw.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Word structure (phonics)",
+   "on_paper": true,
+   "skills": [
+    "EN3.PHON.SOUNDS"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rw.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Word structure (phonics)",
+   "on_paper": true,
+   "skills": [
+    "EN3.PHON.SHORTFORM"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rw.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Word structure (phonics)",
+   "on_paper": true,
+   "skills": [
+    "EN3.PHON.CHUNK"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rw.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Word structure (phonics)",
+   "on_paper": true,
+   "skills": [
+    "EN3.PHON.SIGHT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ww.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN3.SPELL.CONSONANT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ww.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN3.SPELL.VERBEND"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ww.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN3.SPELL.AFFIX"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ww.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN3.SPELL.HOMOPHONE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ww.05",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN3.SPELL.TRICKY"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ww.06",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": false,
+   "skills": [],
+   "observed": "a habit over time"
+  },
+  {
+   "objective": "3Rv.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.CONTEXT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rv.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.SYNONYM"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rv.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.ABC"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rv.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.DESCRIBE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rv.05",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.SAYVERB"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rv.06",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.OPENER"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rv.07",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.SOUNDWORD"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wv.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.TOPIC"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wv.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.SYNONYM"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wv.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.SAYVERB"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wv.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.OPENER"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wv.05",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.DESCRIBE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wv.06",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.SOUNDWORD"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wv.07",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": false,
+   "skills": [],
+   "observed": "a habit over time"
+  },
+  {
+   "objective": "3Rg.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.SENTTYPE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rg.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.SENTTYPE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rg.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.PHON.SHORTFORM"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rg.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.PUNCT.SPEECH"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rg.05",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.SENTTYPE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rg.06",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.JOIN"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rg.07",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.NOUNVERB"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rg.08",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.NOUNVERB"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rg.09",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.PREP"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rg.10",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.TENSE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rg.11",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.IRREGULAR"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wg.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.PUNCT.END"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wg.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.PUNCT.APOSTROPHE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wg.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.PUNCT.SPEECH"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wg.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.WRITETYPE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wg.05",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.JOIN"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wg.06",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.TENSE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wg.07",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.IRREGULAR"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wg.08",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN3.GRAM.PREP"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rs.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.ORDER"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rs.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.TEXT.FEATURES"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rs.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.TEXT.FEATURES"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Rs.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.OPENER"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ws.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.WRITE.SEQUENCE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ws.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.TEXT.PARAGRAPH"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ws.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.VOCAB.OPENER"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ws.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.TEXT.FEATURES"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.TEXT.FICTION"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": false,
+   "skills": [],
+   "observed": "range of reading over a term"
+  },
+  {
+   "objective": "3Ri.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.TEXT.GENRE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": false,
+   "skills": [],
+   "observed": "range of reading over a term"
+  },
+  {
+   "objective": "3Ri.05",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.TEXT.NONFICTION"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.06",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.FIND"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.07",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.MAIN"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.08",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.CHARACTER"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.09",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.INSTRUCT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.10",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.INFER"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.11",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.PREDICT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.12",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.INFER"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.13",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.FACTOPINION"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.14",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.FIND"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.15",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.INDEX"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wc.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": false,
+   "skills": [],
+   "observed": "extended writing"
+  },
+  {
+   "objective": "3Wc.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.WRITE.PLAN"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wc.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.WRITE.DESCRIBE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wc.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.WRITE.PLAYSCRIPT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wc.05",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": false,
+   "skills": [],
+   "observed": "extended writing"
+  },
+  {
+   "objective": "3Wc.06",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": false,
+   "skills": [],
+   "observed": "extended writing"
+  },
+  {
+   "objective": "3Ri.16",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.FIND"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ri.17",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.THEME"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ra.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Appreciation and reflection",
+   "on_paper": false,
+   "skills": [],
+   "observed": "enjoyment and choice"
+  },
+  {
+   "objective": "3Ra.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Appreciation and reflection",
+   "on_paper": false,
+   "skills": [],
+   "observed": "read aloud"
+  },
+  {
+   "objective": "3Ra.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Appreciation and reflection",
+   "on_paper": true,
+   "skills": [
+    "EN3.WRITE.REVIEW"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ra.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Appreciation and reflection",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.BLURB"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Ra.05",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Reading",
+   "substrand": "Appreciation and reflection",
+   "on_paper": true,
+   "skills": [
+    "EN3.READ.COMPARE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wp.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Presentation and reflection",
+   "on_paper": false,
+   "skills": [],
+   "observed": "handwriting"
+  },
+  {
+   "objective": "3Wp.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Presentation and reflection",
+   "on_paper": true,
+   "skills": [
+    "EN3.WRITE.TABLE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wp.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Presentation and reflection",
+   "on_paper": false,
+   "skills": [],
+   "observed": "on screen"
+  },
+  {
+   "objective": "3Wp.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Presentation and reflection",
+   "on_paper": true,
+   "skills": [
+    "EN3.WRITE.IMPROVE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3Wp.05",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Writing",
+   "substrand": "Presentation and reflection",
+   "on_paper": true,
+   "skills": [
+    "EN3.WRITE.PROOFREAD"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "3SLm.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Making yourself understood",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLm.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Making yourself understood",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLm.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Making yourself understood",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLm.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Making yourself understood",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLm.05",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Making yourself understood",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLs.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Showing understanding",
+   "on_paper": false,
+   "skills": [],
+   "observed": "listening"
+  },
+  {
+   "objective": "3SLs.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Showing understanding",
+   "on_paper": false,
+   "skills": [],
+   "observed": "listening"
+  },
+  {
+   "objective": "3SLg.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Group work and discussion",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLg.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Group work and discussion",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLg.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Group work and discussion",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLg.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Group work and discussion",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLp.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Performance",
+   "on_paper": false,
+   "skills": [],
+   "observed": "read aloud"
+  },
+  {
+   "objective": "3SLp.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Performance",
+   "on_paper": false,
+   "skills": [],
+   "observed": "read aloud"
+  },
+  {
+   "objective": "3SLp.03",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Performance",
+   "on_paper": false,
+   "skills": [],
+   "observed": "read aloud"
+  },
+  {
+   "objective": "3SLp.04",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Performance",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLp.05",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Performance",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLr.01",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Reflection and evaluation",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "3SLr.02",
+   "stage": 3,
+   "grade": "G3",
+   "strand": "Speaking and Listening",
+   "substrand": "Reflection and evaluation",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4Rw.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Word structure (phonics)",
+   "on_paper": true,
+   "skills": [
+    "EN4.PHON.READNEW"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rw.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Word structure (phonics)",
+   "on_paper": true,
+   "skills": [
+    "EN4.PHON.STRESS"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rw.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Word structure (phonics)",
+   "on_paper": true,
+   "skills": [
+    "EN4.PHON.SIGHT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ww.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN4.SPELL.SILENT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ww.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN4.SPELL.PLURAL"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ww.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN4.SPELL.AFFIX"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ww.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN4.SPELL.ROOT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ww.05",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN4.SPELL.THEIR"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ww.06",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN4.SPELL.OUGH"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ww.07",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN4.SPELL.RULE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ww.08",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": true,
+   "skills": [
+    "EN4.SPELL.TRICKY"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ww.09",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Word structure (spelling)",
+   "on_paper": false,
+   "skills": [],
+   "observed": "a habit over time"
+  },
+  {
+   "objective": "4Rv.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.CONTEXT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rv.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.SPELL.ROOT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rv.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.SYNONYM"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rv.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.ABC"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rv.05",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.VERBCHOICE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rv.06",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.SHADES"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rv.07",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.FIGURE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rv.08",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.FIGURE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wv.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.TOPIC"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wv.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.SYNONYM"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wv.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.SHADES"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wv.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.VERBCHOICE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wv.05",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": true,
+   "skills": [
+    "EN4.VOCAB.WRITEFIGURE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wv.06",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Vocabulary and language",
+   "on_paper": false,
+   "skills": [],
+   "observed": "a habit over time"
+  },
+  {
+   "objective": "4Rg.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.PUNCT.COMMA"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rg.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.PUNCT.COMMA",
+    "EN4.PUNCT.POSSESS"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rg.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.PUNCT.SPEECH"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rg.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.CONNECT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rg.05",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.CONNECT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rg.06",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.QUANT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rg.07",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.ADVERB"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rg.08",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.ADVERB"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rg.09",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.TENSE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rg.10",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.AGREE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wg.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.PUNCT.END"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wg.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.PUNCT.COMMA"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wg.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.PUNCT.POSSESS"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wg.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.PUNCT.SPEECH"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wg.05",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.CONNECT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wg.06",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.TENSE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wg.07",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.TENSE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wg.08",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.AGREE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wg.09",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.QUANT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wg.10",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Grammar and punctuation",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.ADVERB"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rs.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.STAGES"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rs.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.TEXT.FEATURES"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rs.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.TEXT.PARAGRAPH"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Rs.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.LINKS"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ws.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.WRITE.SEQUENCE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ws.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.TEXT.PARAGRAPH"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ws.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.GRAM.CONNECT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ws.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Structure of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.TEXT.FEATURES"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.TEXT.FICTION"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": false,
+   "skills": [],
+   "observed": "range of reading over a term"
+  },
+  {
+   "objective": "4Ri.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.TEXT.GENRE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": false,
+   "skills": [],
+   "observed": "range of reading over a term"
+  },
+  {
+   "objective": "4Ri.05",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.TEXT.PERSUADE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.06",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.FIND"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.07",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.KEYWORDS"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.08",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.CHARACTER"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.09",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.INFER"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.10",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.PREDICT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.11",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.INFER"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.12",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.FACTOPINION"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.13",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.SKIM"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wc.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": false,
+   "skills": [],
+   "observed": "extended writing"
+  },
+  {
+   "objective": "4Wc.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.WRITE.PLAN"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wc.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.WRITE.PROFILE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wc.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.WRITE.DESCRIBE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wc.05",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.WRITE.ENDING"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wc.06",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.WRITE.VIEWPOINT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wc.07",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.WRITE.PLAYSCRIPT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wc.08",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": false,
+   "skills": [],
+   "observed": "extended writing"
+  },
+  {
+   "objective": "4Wc.09",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": false,
+   "skills": [],
+   "observed": "extended writing"
+  },
+  {
+   "objective": "4Wc.10",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Creation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.WRITE.ARGUE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.14",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.FIND"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.15",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.FIND"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.16",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.THEME"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ri.17",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Interpretation of texts",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.VIEWPOINT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ra.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Appreciation and reflection",
+   "on_paper": false,
+   "skills": [],
+   "observed": "enjoyment and choice"
+  },
+  {
+   "objective": "4Ra.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Appreciation and reflection",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.RESPOND"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Ra.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Appreciation and reflection",
+   "on_paper": false,
+   "skills": [],
+   "observed": "enjoyment and choice"
+  },
+  {
+   "objective": "4Ra.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Reading",
+   "substrand": "Appreciation and reflection",
+   "on_paper": true,
+   "skills": [
+    "EN4.READ.CONTEXT"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wp.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Presentation and reflection",
+   "on_paper": false,
+   "skills": [],
+   "observed": "handwriting"
+  },
+  {
+   "objective": "4Wp.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Presentation and reflection",
+   "on_paper": true,
+   "skills": [
+    "EN4.WRITE.NOTES"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wp.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Presentation and reflection",
+   "on_paper": false,
+   "skills": [],
+   "observed": "on screen"
+  },
+  {
+   "objective": "4Wp.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Presentation and reflection",
+   "on_paper": true,
+   "skills": [
+    "EN4.WRITE.IMPROVE"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4Wp.05",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Writing",
+   "substrand": "Presentation and reflection",
+   "on_paper": true,
+   "skills": [
+    "EN4.WRITE.PROOFREAD"
+   ],
+   "observed": null
+  },
+  {
+   "objective": "4SLm.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Making yourself understood",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLm.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Making yourself understood",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLm.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Making yourself understood",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLm.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Making yourself understood",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLm.05",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Making yourself understood",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLs.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Showing understanding",
+   "on_paper": false,
+   "skills": [],
+   "observed": "listening"
+  },
+  {
+   "objective": "4SLg.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Group work and discussion",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLg.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Group work and discussion",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLg.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Group work and discussion",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLg.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Group work and discussion",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLp.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Performance",
+   "on_paper": false,
+   "skills": [],
+   "observed": "read aloud"
+  },
+  {
+   "objective": "4SLp.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Performance",
+   "on_paper": false,
+   "skills": [],
+   "observed": "read aloud"
+  },
+  {
+   "objective": "4SLp.03",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Performance",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLp.04",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Performance",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLr.01",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Reflection and evaluation",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  },
+  {
+   "objective": "4SLr.02",
+   "stage": 4,
+   "grade": "G4",
+   "strand": "Speaking and Listening",
+   "substrand": "Reflection and evaluation",
+   "on_paper": false,
+   "skills": [],
+   "observed": "spoken"
+  }
+ ]
+}
