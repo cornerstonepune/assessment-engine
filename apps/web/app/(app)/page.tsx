@@ -20,7 +20,7 @@ export default async function CurriculumPage({ searchParams }: Props) {
   const q = await searchParams;
   // every skill waiting counts, taught or not: one is approved before its topic is switched on (goals/ny1-needs-you.yaml)
   const scope = scopeOf(me);
-  const [{ rows }, waiting, all, mayApprove, maySay] = await deadline(
+  const [{ rows, order }, waiting, all, mayApprove, maySay] = await deadline(
     Promise.all([curriculumRows(scope), skillsWaiting(), topics(scope), mayDecide(me, "skills"), mayDecide(me, "topics")]),
   );
   // said of a topic (every skill in it) or of one skill of it (goals/t1-topics-are-operations.yaml)
@@ -66,7 +66,7 @@ export default async function CurriculumPage({ searchParams }: Props) {
           </Link>
         </p>
         <Topics topics={all} me={me.name} open={q.skills && q.in ? { topic: q.skills, section: q.in } : null} />
-        <CurriculumTable rows={rows} say={maySay} />
+        <CurriculumTable rows={rows} levels={order} say={maySay} />
       </Body>
     </>
   );

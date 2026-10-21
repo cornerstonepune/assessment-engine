@@ -148,17 +148,17 @@ async function refusal(res: Response, otherwise: string): Promise<string> {
 }
 
 /** A class's default assessment on a topic (goals/ui2-assessments.yaml): the topic's skills at the class's grade, in
- *  the ladder's order and as many as a paper has lines, each at Medium where it has one, else its first level, the
+ *  the ladder's order and as many as a paper has lines, each at `usual` where it has it, else its first level, the
  *  paper's length shared between them — as whole areas, `skill~level~n`, which the educator then sees and can change.
  *  Nimish, 2026-10-11: "I can choose a class, I can choose the topic, and then it generates the default assessments". */
-export function topicLines(g: Grades, sets: SkillSet[], topic: string, band: string, length: number | null, lines: number): string[] {
+export function topicLines(g: Grades, sets: SkillSet[], topic: string, band: string, length: number | null, lines: number, usual: string): string[] {
   const here = sets.filter((x) => x.topic_code === topic && x.band === band).slice(0, lines);
   if (!here.length || !length) return [];
   const each = Math.max(1, Math.round(length / here.length));
-  // Medium where the class's grade uses it, else the first level it uses (goals/f1e-the-grade-plan.yaml)
+  // the usual level (`level.usual`) where the class's grade uses it, else the first level it uses (goals/f1e-the-grade-plan.yaml)
   return here.flatMap((x) => {
     const usable = levelsOf(x).filter((d) => usesLevel(g, x, d, band));
-    return usable.length ? [`${x.code}~${usable.includes("Medium") ? "Medium" : usable[0]}~${each}`] : [];
+    return usable.length ? [`${x.code}~${usable.includes(usual) ? usual : usable[0]}~${each}`] : [];
   });
 }
 
@@ -173,7 +173,7 @@ export type LineTopic = { code: string; name: string; skills: LineSkill[]; fill:
 /** Every topic, each with every skill in it, for a class of `band` (goals/l7-a-line-is-topic-skill-level-number.yaml,
  *  ADR 0081): an educator may choose any of them, taught in the class or not, whatever the grade. The skills the
  *  class's grade uses come first. `sets` are every skill set, each saying whether the class was taught it. */
-export function lineTopics(g: Grades, sets: SkillSet[], band: string, length: number | null, lines: number): LineTopic[] {
+export function lineTopics(g: Grades, sets: SkillSet[], band: string, length: number | null, lines: number, usual: string): LineTopic[] {
   const topics = new Map<string, { name: string; ord: number }>();
   for (const x of sets) if (x.topic_code && !topics.has(x.topic_code)) topics.set(x.topic_code, { name: x.topic_name ?? x.topic_code, ord: x.topic_ord ?? 0 });
   const usable = (x: SkillSet) => levelsOf(x).some((d) => usesLevel(g, x, d, band));
@@ -189,6 +189,6 @@ export function lineTopics(g: Grades, sets: SkillSet[], band: string, length: nu
         note: [usable(x) ? "" : g.name(lowest(x)), x.taught ? "" : "not taught yet"].filter(Boolean).join(" · "),
         levels: levelsOf(x).map((d) => ({ level: d, n: x.counts[d] ?? 0, above: usesLevel(g, x, d, band) ? null : g.name(gradeOf(x, d)) })),
       }));
-      return { code, name: t.name, skills, fill: topicLines(g, taught, code, band, length, lines) };
+      return { code, name: t.name, skills, fill: topicLines(g, taught, code, band, length, lines, usual) };
     });
 }

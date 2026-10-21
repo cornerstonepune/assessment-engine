@@ -66,6 +66,7 @@
  "difficulty.difficulty_pkey": "PRIMARY KEY (id)",
  "difficulty.difficulty_tenant_id_code_key": "UNIQUE (tenant_id, code)",
  "difficulty.difficulty_tenant_id_fkey": "FOREIGN KEY (tenant_id) REFERENCES tenant(id) ON DELETE CASCADE",
+ "difficulty.difficulty_tenant_id_letter_key": "UNIQUE (tenant_id, letter)",
  "domain.domain_pkey": "PRIMARY KEY (id)",
  "domain.domain_tenant_id_code_key": "UNIQUE (tenant_id, code)",
  "domain.domain_tenant_id_fkey": "FOREIGN KEY (tenant_id) REFERENCES tenant(id) ON DELETE CASCADE",

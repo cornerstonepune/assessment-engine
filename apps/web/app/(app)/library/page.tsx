@@ -1,7 +1,7 @@
 import Link from "@/components/link";
 import { Answers, KIND, Question } from "@/components/question";
 import { Body, PageHeader, Panel } from "@/components/shell";
-import { DIFFICULTIES } from "@/lib/queries";
+import { levels } from "@/lib/levels";
 import { bankGrid, bankTotals, itemCount, items } from "@/lib/queries-bank";
 import { deadline } from "@/lib/deadline";
 import { Proposals } from "./proposals";
@@ -21,11 +21,12 @@ export default async function LibraryPage({ searchParams }: Props) {
   const scope = scopeOf(me);
   const filter = { set: q.set, difficulty: q.difficulty, fmt: q.fmt, status: q.status, find, scope };
   const page = Math.max(1, Math.trunc(Number(q.page)) || 1);
-  const [grid, totals, total, rows] = await deadline(Promise.all([
+  const [grid, totals, total, rows, { order }] = await deadline(Promise.all([
     bankGrid(scope),
     bankTotals(scope),
     itemCount(filter),
     items(filter, PER_PAGE, (page - 1) * PER_PAGE),
+    levels(),
   ]));
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   const chosen = grid.find((r) => r.code === q.set);
@@ -55,8 +56,8 @@ export default async function LibraryPage({ searchParams }: Props) {
         <Panel title="What the bank is">
           <div className="grid max-w-[820px] gap-2 text-[14px] leading-relaxed">
             <p>
-              The question bank is every question the engine has made and checked: {n(totals.bank)} today, at Easy, Medium,
-              Hard and Advance. {n(totals.active)} of them are of the {grid.length} skills taught in a class, the ones a
+              The question bank is every question the engine has made and checked: {n(totals.bank)} today, at{" "}
+              {order.slice(0, -1).join(", ")} and {order.at(-1)}. {n(totals.active)} of them are of the {grid.length} skills taught in a class, the ones a
               child can be given now; they are the ones below.
             </p>
             <p>
@@ -87,7 +88,7 @@ export default async function LibraryPage({ searchParams }: Props) {
                   <th>Skill set</th>
                   <th className="num">Grade</th>
                   <th>Kinds of question</th>
-                  {DIFFICULTIES.map((d) => (
+                  {order.map((d) => (
                     <th key={d} className="num">
                       {d}
                     </th>
@@ -105,7 +106,7 @@ export default async function LibraryPage({ searchParams }: Props) {
                     <td className="min-w-[180px] text-[12px] text-basalt/62">
                       {r.fmts.map((f) => KIND[f] ?? f).join(" · ")}
                     </td>
-                    {DIFFICULTIES.map((d) => {
+                    {order.map((d) => {
                       const on = r.code === q.set && d === q.difficulty;
                       return (
                         <td key={d} className="num">
@@ -119,7 +120,7 @@ export default async function LibraryPage({ searchParams }: Props) {
                         </td>
                       );
                     })}
-                    <td className="num">{n(DIFFICULTIES.reduce((a, d) => a + (r.counts[d] ?? 0), 0))}</td>
+                    <td className="num">{n(order.reduce((a, d) => a + (r.counts[d] ?? 0), 0))}</td>
                   </tr>
                 ))}
               </tbody>
@@ -155,7 +156,7 @@ export default async function LibraryPage({ searchParams }: Props) {
             </form>
             <div className="mb-3 flex flex-wrap gap-2">
               {chip("difficulty", undefined, "Any level")}
-              {DIFFICULTIES.map((d) => chip("difficulty", d, d))}
+              {order.map((d) => chip("difficulty", d, d))}
             </div>
             <div className="mb-3 flex flex-wrap gap-2">
               {chip("fmt", undefined, "Any kind")}

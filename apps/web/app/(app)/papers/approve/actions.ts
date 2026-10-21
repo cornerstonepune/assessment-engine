@@ -6,7 +6,7 @@ import { deciding, mustBeMine } from "@/lib/decides";
 import { prescriptionSection } from "@/lib/scope";
 import { sql } from "@/lib/db";
 import { EngineDown, engineSend } from "@/lib/engine";
-import { DIFFICULTIES } from "@/lib/queries";
+import { levels } from "@/lib/levels";
 
 const BACK = (f: FormData) => {
   const back = String(f.get("back") ?? "/papers/approve");
@@ -23,7 +23,7 @@ export async function overrideChild(formData: FormData): Promise<void> {
   const back = BACK(formData);
   if (!/^[0-9a-f-]{36}$/.test(id)) redirect(back);
   mustBeMine(me, "class_papers", [await prescriptionSection(id)]);
-  if (!DIFFICULTIES.includes(difficulty as never) || !reason) redirect(`${back}&error=override`);
+  if (!(await levels()).order.includes(difficulty) || !reason) redirect(`${back}&error=override`);
 
   await sql`
     update prescription set difficulty = ${difficulty}, rule_fired = 'override',

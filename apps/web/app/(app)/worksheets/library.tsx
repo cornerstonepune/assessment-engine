@@ -2,7 +2,8 @@ import Link from "@/components/link";
 import { KIND } from "@/components/question";
 import { Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
-import { DIFFICULTIES, skillSets } from "@/lib/queries";
+import { levels } from "@/lib/levels";
+import { skillSets } from "@/lib/queries";
 import { libraryTotal, worksheetCount, worksheets } from "@/lib/queries-worksheets";
 
 const PER_PAGE = 50;
@@ -19,12 +20,13 @@ type Q = Record<string, string | undefined>;
 // Every question in the bank is on a numbered worksheet (ADR 0026). The grid is every skill at every
 // level with its worksheets; a count opens that list, and a worksheet opens its own page.
 export async function Library({ q }: { q: Q }) {
-  const filter = { set: q.set, level: DIFFICULTIES.find((d) => d === q.level) };
+  const { order } = await levels();
+  const filter = { set: q.set, level: order.find((d) => d === q.level) };
   const page = Math.max(1, Number(q.page) || 1);
   const [sets, rows, total, library] = await deadline(
     Promise.all([skillSets(), worksheets(filter, PER_PAGE, (page - 1) * PER_PAGE), worksheetCount(filter), libraryTotal()]),
   );
-  const all = sets.reduce((n, s) => n + Object.values(s.worksheets).reduce((a, b) => a + (b ?? 0), 0), 0);
+  const all = sets.reduce((n, s) => n + Object.values(s.worksheets).reduce<number>((a, b) => a + (b ?? 0), 0), 0);
   const link = (p: Q) => {
     const next = new URLSearchParams(
       Object.entries({ set: filter.set, level: filter.level, ...p }).filter(([, v]) => v) as [string, string][],
@@ -54,7 +56,7 @@ export async function Library({ q }: { q: Q }) {
             <thead>
               <tr>
                 <th>What the child can do</th>
-                {DIFFICULTIES.map((d) => (
+                {order.map((d) => (
                   <th key={d} className="num">
                     {d}
                   </th>
@@ -69,7 +71,7 @@ export async function Library({ q }: { q: Q }) {
                       {s.learning_objective}
                     </Link>
                   </td>
-                  {DIFFICULTIES.map((d) => (
+                  {order.map((d) => (
                     <td key={d} className="num">
                       <Link
                         href={link({ set: s.code, level: d, page: undefined })}
@@ -89,7 +91,7 @@ export async function Library({ q }: { q: Q }) {
           <Link href={link({ level: undefined, page: undefined })} className={`chip ${filter.level ? "" : "on"}`}>
             Every level
           </Link>
-          {DIFFICULTIES.map((d) => (
+          {order.map((d) => (
             <Link
               key={d}
               href={link({ level: d, page: undefined })}

@@ -6,7 +6,7 @@ fired, because a teacher who disagrees needs something to disagree with.
 """
 
 from engine.assess import graph
-from engine.core import db, settings
+from engine.core import db, settings, vocabulary
 
 RULES = {
     "band_default": "not enough of their own work yet, so this is the starting level for their grade",
@@ -34,7 +34,7 @@ def for_class(conn, section: str, week: str, skill_set: str, kind: str = "practi
     for c in children:
         difficulty, rule, targets = graph.next_difficulty(conn, c["id"], skill_set)
         if difficulty is None:
-            difficulty = defaults.get(c["band"], "Medium")
+            difficulty = defaults.get(c["band"]) or settings.config(conn, "level.usual")
             rule = "band_default"
         row = conn.execute(
             "insert into prescription (tenant_id, child_id, week, kind, skill_set_code, difficulty,"
@@ -73,8 +73,9 @@ def override(conn, prescription_id: str, difficulty: str, by: str, reason: str) 
     override and leaves the row alone."""
     if not reason.strip():
         raise ValueError("an override needs a reason")
-    if difficulty not in graph.ORDER:
-        raise ValueError(f"{difficulty!r} is not one of {', '.join(graph.ORDER)}")
+    levels = vocabulary.levels(conn)
+    if difficulty not in levels:
+        raise ValueError(f"{difficulty!r} is not one of {', '.join(levels)}")
     conn.execute(
         "update prescription set difficulty = %s, rule_fired = 'override', override_by = %s,"
         " override_reason = %s, updated_at = now() where id = %s",

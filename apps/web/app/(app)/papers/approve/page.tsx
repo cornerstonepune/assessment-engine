@@ -1,7 +1,8 @@
 import Link from "@/components/link";
 import { LIBRARY_CODE } from "../../worksheets/[qr]/library-sheet";
 import { Body, NotYet, PageHeader, Panel, Pill } from "@/components/shell";
-import { DIFFICULTIES, RULE_WORDS, tableCounts } from "@/lib/queries";
+import { levels } from "@/lib/levels";
+import { RULE_WORDS, tableCounts } from "@/lib/queries";
 import { spareSheets, unplanned, weekPlan, weeks, type WeekRow } from "@/lib/queries-approve";
 import { approvePack, overrideChild } from "./actions";
 import { deadline } from "@/lib/deadline";
@@ -203,7 +204,8 @@ const approveWords = (papers: number, spares: number) =>
 const noPaper = (r: WeekRow) => r.no_paper ?? "the class's papers are not made yet";
 
 /** One child's line: who, the level they are set and why, the paper they were handed, and a change of level. */
-function ChildPaper({ r, back }: { r: WeekRow; back: string }) {
+async function ChildPaper({ r, back }: { r: WeekRow; back: string }) {
+  const { order } = await levels();
   return (
     <tr data-child={r.child_id}>
       <td className="fact">{r.roll_no}</td>
@@ -235,7 +237,7 @@ function ChildPaper({ r, back }: { r: WeekRow; back: string }) {
             <label className="field">
               <span className="label">New level</span>
               <select className="select" name="difficulty" defaultValue={r.difficulty}>
-                {DIFFICULTIES.map((d) => (
+                {order.map((d) => (
                   <option key={d} value={d}>
                     {d}
                   </option>
