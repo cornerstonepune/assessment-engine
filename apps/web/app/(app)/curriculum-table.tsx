@@ -21,7 +21,9 @@ function NotTaught({ row, say }: { row: CurriculumRow; say: boolean }) {
   const classes = say && row.topic ? (row.untaught ?? []) : [];
   return (
     <>
-      <Pill tone="monsoon">not taught yet</Pill>
+      {/* a topic's row is its skills of this grade: the topic may be taught at another grade, as the panel above says
+          (goals/ux8c-one-word.yaml) */}
+      <Pill tone="monsoon">{row.skill ? "not taught yet" : "not taught yet at this grade"}</Pill>
       {classes.length ? (
         <form action={switchTopic} className="inline-flex items-center gap-1">
           <input type="hidden" name="code" value={row.topic} />
@@ -39,7 +41,7 @@ function NotTaught({ row, say }: { row: CurriculumRow; say: boolean }) {
             </select>
           )}
           <button type="submit" className="chip whitespace-nowrap text-[12px]">
-            {classes.length === 1 ? `Mark taught in ${classes[0]}` : "Mark taught"}
+            {classes.length === 1 ? `Say it is taught in ${classes[0]}` : "Say it is taught"}
           </button>
         </form>
       ) : null}
