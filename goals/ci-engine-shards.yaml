@@ -1,0 +1,27 @@
+name: ci-engine-shards
+goal: >
+  The engine's tests run on parallel runners, so the engine's part of CI on a pull request finishes in under ten
+  minutes, where one runner took 37 (2026-10-21). The same tests run, each exactly once: CI fails if any test drops
+  out of every shard, runs in two, or a shard runs fewer than it was given. Coverage is still measured on the whole
+  suite combined and held to the same floor in pyproject.toml. Deploys still wait on one "engine" result.
+# Written 2026-10-21, before the workflow changed. Nimish said "go" to speeding CI up the same day. The timings, before
+# and after, are in docs/notes/ci-engine-shards.md.
+says:
+  - words: "I think we have become quite slow"
+    proved_by: "packages/engine/tests/test_ci_shard.py::test_the_slowest_files_go_to_different_runners_and_the_loads_are_even"
+  - words: "I think we have become quite slow"
+    proved_by: "packages/engine/tests/test_ci_shard.py::test_every_test_lands_in_exactly_one_shard_and_no_file_is_cut"
+  - words: "I think we have become quite slow"
+    proved_by: "packages/engine/tests/test_ci_shard.py::test_the_check_fails_when_a_test_is_in_no_shard"
+  - words: "I think we have become quite slow"
+    proved_by: "packages/engine/tests/test_ci_shard.py::test_the_check_fails_when_a_shard_ran_fewer_than_it_was_given"
+manual:
+  - "On the pull request's CI run: the engine shards and the engine job end under ten minutes after the run starts, the engine job prints \"every one of the N tests ran once\" with N the suite's count, and its coverage total matches main's."
+scenarios: []
+criteria:
+  - name: the cut and its check
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_ci_shard.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
