@@ -114,11 +114,13 @@ roles; D is 1280 px, P is 390 px.
   Is "carry" right for addition, or should it read "regroup"? (Achal's words, rows, not code.)
 - D2. Should an educator see the 30 drafted questions and the taxonomy page, or only the coordinator?
 - D3. Remove the `/home` placeholder and point step N11's screen at Home assessments (`/make`)?
+- D4. Is a parent report no one has written yet a person's work, so Today and the menu count it, or the report-writing
+  job's (`.github/workflows/write-reports.yml`)? Until then the reports page says what it lists (UX8c).
 
 ## Handoff
 
 - **Live:** nothing; this branch carries the audit only.
-- **Next:** UX8a (numbers true and the person's own: 1–5), UX8b (a paper named by what it tests: 9, 10, 17), UX8c (one
-  meaning per word: 11–14, 19–22), UX8d (phone and one primary action: 18, 23–25). Each a goal file, a failing
-  Playwright test per finding first, its own pull request from main.
-- **Blocked:** D1–D3 above; finding 6 needs one query on live.
+- **The fixes, each its own pull request from main:** UX8a, numbers true and the person's own (findings 1–5): #255.
+  UX8b, a paper named by what it tests (9, 10, 17): #256. UX8c, one meaning per word (11–14, 19–22) and UX8d, phone
+  and one main action (18, 23–25): their own pull requests, each with its goal and a test per finding that failed first.
+- **Blocked:** D1–D4 above; finding 6 needs one query on live.
