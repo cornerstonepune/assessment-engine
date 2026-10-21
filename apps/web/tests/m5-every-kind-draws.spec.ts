@@ -7,10 +7,17 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { aClass } from "./rows";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const BROKEN = /\bundefined\b|\bNaN\b|\bnull\b|\[object Object\]/;
 const CODE = /\bM_[A-Z_]+\b|\b[A-Z]{2,}\.[A-Z0-9_.]+\b/;
+
+// A topic switched on is taught in each class that has not said otherwise (`skill_taught_in`), so its questions show
+// only where a class is on the roll: the class is this spec's own, as a fresh copy has none (`bin/testdb fresh`).
+test.beforeAll(async () => {
+  await aClass(sql, "M5-TEST", "G2", ["Asha"]);
+});
 
 test.afterAll(async () => {
   await sql.end();

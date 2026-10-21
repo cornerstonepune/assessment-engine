@@ -57,6 +57,14 @@ On a database built fresh from this branch (`bin/testdb fresh`, 2026-10-21) unle
   `bin/testdb fresh` approves every level, as live, so nothing closed. The test now withdraws one level itself
   (ADD.2D1D keeps Easy), as its sibling test and the testdb comment say a test must. Proof:
   `bin/testdb fresh <url>` then `uv run pytest -q tests/test_levels_closing.py` → `2 passed`.
+- `m5-every-kind-draws` and `s2-skill-map` failed on a database fresh from `bin/testdb fresh` and passed on a used
+  one; main's do the same run alone. Cause: a skill is taught in a class (`skill_taught_in`), and a fresh copy has no
+  class on the roll, so nothing is taught — m5's Question bank listed no question, and s2's skill page showed "Not
+  taught yet" beside "Saved" (two `status` notices). They passed only after another spec had left a class. Each now
+  makes its own class (`aClass`, M5-TEST, S2-TEST); every assertion kept. Proof, on a copy fresh from this branch
+  and again on it used: `npx playwright test m5-every-kind-draws s2-skill-map` → `7 passed`, both times;
+  `uv run pytest -q tests/test_question_types.py tests/test_levels_closing.py tests/test_approval.py tests/test_spec.py`
+  → `28 passed`.
 
 ## Handoff
 
