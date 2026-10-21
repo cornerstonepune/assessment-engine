@@ -1,8 +1,9 @@
 // The child's home assessment, chosen from their own ladder (goals/s11-focus-paper.yaml, u2-children.yaml). The engine
 // proposes (`w2_print/focus_paper.py`): this reads its plan and shows it in plain words — which areas, at what
 // level, why; its questions are one press away, on the paper as it prints ("See the paper"). A teacher approves it
-// with one button, which prints it in their name. Once a week: an approved paper is shown with who approved it, and
-// no second one is offered.
+// with one button, which prints it in their name. Made again the same week (Nimish, 2026-10-21: "There should not be
+// any lock"), the newest is the week's: shown with who approved it, the earlier ones named as replaced in one line, and
+// a new one is offered.
 import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
 import { sql } from "@/lib/db";
@@ -14,7 +15,7 @@ import { fmtDate } from "./answers";
 
 type Question = { item_key: string; text: string; fmt: string; shows_mistake: boolean };
 type Area = { skill_set: string; name: string; level: string; right: number; answered: number; why: string; questions: Question[] };
-type Approved = { qr: string; approved_by: string | null; approved_at: string | null };
+type Approved = { qr: string; approved_by: string | null; approved_at: string | null; replaced: string[] };
 type Plan = { week: string; areas: Area[]; n: number; approved: Approved | null };
 
 async function plan(childId: string, week: string): Promise<Plan | string> {
@@ -38,20 +39,36 @@ export async function FocusPanel({ childId, name, staff }: { childId: string; na
   const week = isoWeek();
   const [p, days] = await Promise.all([plan(childId, week), windowDays()]);
   return (
-    <Panel title={TITLE} label={TITLE} aside={typeof p === "string" || p.approved ? undefined : `${p.n} questions`}>
+    <Panel title={TITLE} label={TITLE} aside={typeof p === "string" ? undefined : `${p.n} questions`}>
+      {typeof p === "string" ? null : p.approved ? (
+        <div className="mb-4 text-[13.5px]">
+          <p>
+            Approved by {staff[p.approved.approved_by ?? ""] ?? p.approved.approved_by}
+            {p.approved.approved_at ? ` on ${fmtDate(p.approved.approved_at)}` : ""}: this week&rsquo;s home assessment,{" "}
+            <Link href={`/worksheets/${p.approved.qr}`}>{p.approved.qr}</Link>. See it and print it from its page, or make a
+            new one below.
+          </p>
+          {p.approved.replaced.length ? (
+            <p className="note mt-1" data-replaced="">
+              Replaced this week:{" "}
+              {p.approved.replaced.map((qr, i) => (
+                <span key={qr}>
+                  {i ? ", " : ""}
+                  <Link href={`/worksheets/${qr}`}>{qr}</Link>
+                </span>
+              ))}
+              . A copy of one that comes back is still read and marked as that paper.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
       {typeof p === "string" ? (
         <p className="note">{p}</p>
-      ) : p.approved ? (
-        <p className="text-[13.5px]">
-          Approved by {staff[p.approved.approved_by ?? ""] ?? p.approved.approved_by}
-          {p.approved.approved_at ? ` on ${fmtDate(p.approved.approved_at)}` : ""}: this week&rsquo;s home assessment,{" "}
-          <Link href={`/worksheets/${p.approved.qr}`}>{p.approved.qr}</Link>. See it and print it from its page; the next
-          one is proposed next week, from what this one shows.
-        </p>
       ) : p.areas.length === 0 ? (
         <p className="note">Nothing to work on yet: no skill where {name} lags on the checked papers.</p>
       ) : (
         <>
+          {p.approved ? <p className="mb-2 text-[13.5px] font-semibold">A new one would work on</p> : null}
           <ol className="grid gap-4" aria-label="Areas the home assessment works on">
             {p.areas.map((a) => (
               <li key={a.skill_set} className="text-[13.5px]">
@@ -72,12 +89,18 @@ export async function FocusPanel({ childId, name, staff }: { childId: string; na
           <form action={approveNextPaper} className="mt-4">
             <input type="hidden" name="child_id" value={childId} />
             <input type="hidden" name="week" value={week} />
-            <button className="btn" type="submit">Approve this home assessment</button>{" "}
+            {/* the paper this click replaces: a colleague's newer one made meanwhile turns it away, never two at once */}
+            <input type="hidden" name="replaces" value={p.approved?.qr ?? ""} />
+            <button className="btn" type="submit">
+              {p.approved ? "Make a new home assessment" : "Approve this home assessment"}
+            </button>{" "}
             <a href={seeHref(childId, week)} target="_blank" rel="noreferrer" className="btn secondary ml-2">
               See the home assessment
             </a>
             <p className="note mt-2">
-              Approving prints it in your name as {name}&rsquo;s home assessment for this week.{" "}
+              {p.approved
+                ? `Making it prints it in your name as ${name}\u2019s home assessment for this week, in place of ${p.approved.qr}, with questions ${name} has not been given. `
+                : `Approving prints it in your name as ${name}\u2019s home assessment for this week. `}
               <Link href={`/make/custom?child=${childId}`}>Choose a different home assessment</Link>
             </p>
           </form>

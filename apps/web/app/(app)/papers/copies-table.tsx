@@ -9,11 +9,12 @@ export const STAGE_TONE: Record<Stage, "neem" | "bamboo" | "terracotta" | "monso
   scanned: "terracotta",
   checked: "bamboo",
   "signed off": "neem",
+  replaced: "monsoon",
 };
 
 // Where a paper's work is: its answers once it is read, the page itself before.
 export const opens = (p: PaperListRow) =>
-  p.stage === "made" || p.stage === "printed" ? `/worksheets/${encodeURIComponent(p.qr)}` : `/capture/${p.id}`;
+  p.stage === "made" || p.stage === "printed" || p.stage === "replaced" ? `/worksheets/${encodeURIComponent(p.qr)}` : `/capture/${p.id}`;
 
 // An assessment's copies (goals/ux5-papers-grouped.yaml): one row each in roll order, its child opening the paper where
 // its work is; the spares, not yet written on, one line under them — they go with the pack and wait for no one.

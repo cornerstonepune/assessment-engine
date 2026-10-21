@@ -26,8 +26,10 @@ export async function homeByClass(week = isoWeek(), scope: Scope = EVERY_CLASS):
              where s.child_id = c.id and cs.enough))::int as proposed,
            count(h.qr_code)::int as approved
     from child c
+    -- the week's home assessment is the newest; one made again is still one child's (goals/home-assessment-remake.yaml)
     left join lateral (select qr_code from sheet_instance si
-                       where si.child_id = c.id and si.kind = 'focus' and si.week = ${week} limit 1) h on true
+                       where si.child_id = c.id and si.kind = 'focus' and si.week = ${week}
+                       order by si.created_at desc limit 1) h on true
     where c.active and ${inScope(scope, sql`c.section`)}
     group by c.tenant_id, c.section
     order by class_band(c.tenant_id, c.section), c.section`;
@@ -41,7 +43,7 @@ export async function proposedHomePapers(week = isoWeek(), scope: Scope = EVERY_
 
 export type Proposal = {
   areas: { name: string; level: string; why: string; questions: unknown[] }[];
-  approved: { qr: string; approved_by: string } | null;
+  approved: { qr: string; approved_by: string; replaced: string[] } | null;
 };
 
 export type ClassChild = { id: string; roll_no: string; first_name: string; proposal: Proposal };

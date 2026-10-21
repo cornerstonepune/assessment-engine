@@ -3,13 +3,13 @@ import { EngineDown, engineSend } from "./engine";
 export type Area = { skill_set: string; level: string; n: number };
 
 /** A child's paper, approved in the teacher's name: the engine makes and prints it (`w2_print/focus_paper.py`) —
- *  the home paper it proposes, or, with `areas`, the paper the teacher chose. A home paper already approved this
- *  week — a second click, or a colleague first — is not an error: null, and the page shows who did.
- *  Not a server action: it takes the approver's name, which only a signed-in action may supply from its session. */
-export async function makePaper(childId: string, week: string, by: string, areas?: Area[]): Promise<string | null> {
+ *  the home paper it proposes, or, with `areas`, the paper the teacher chose. `replaces` is the week's home paper the
+ *  teacher saw, if any: one made since — a second click, or a colleague first — is not an error: null, and the page
+ *  shows who did. Not a server action: it takes the approver's name, which only a signed-in action may supply. */
+export async function makePaper(childId: string, week: string, by: string, areas?: Area[], replaces?: string): Promise<string | null> {
   const res = areas
     ? await engineSend(`/child/${childId}/paper`, { week, by, areas })
-    : await engineSend(`/child/${childId}/focus`, { week, by });
+    : await engineSend(`/child/${childId}/focus`, { week, by, ...(replaces ? { replaces } : {}) });
   if (res.status === 409 && !areas) return null;
   if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}): ${await res.text()}. Nothing was printed.`);
   return ((await res.json()) as { qr: string }).qr;

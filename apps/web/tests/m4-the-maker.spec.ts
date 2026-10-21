@@ -8,9 +8,7 @@
  * kept; the papers the test makes are removed.
  */
 import { expect, test, type Page } from "@playwright/test";
-import { randomBytes } from "node:crypto";
 import postgres from "postgres";
-import { isoWeek } from "../lib/week";
 import { TEST_STAFF } from "./global-setup";
 import { aLine } from "./rows";
 
@@ -200,22 +198,27 @@ test("a choice changed after the papers are seen stops Make until they are seen 
 });
 
 test("a batch the engine refuses comes back as the educator chose it, the children they picked", async ({ page }) => {
-  const form = await seen(page, /Home assessment/);
-  // between seeing and making, Asha is given this week's home assessment elsewhere
-  const [{ tenant }] = await sql<{ tenant: string }[]>`select id as tenant from tenant limit 1`;
-  const [{ id: template }] = await sql<{ id: string }[]>`
-    insert into sheet_template (tenant_id, band, week, item_ids, source, child_id)
-    values (${tenant}, 'G2', ${isoWeek()}, '{}', 'focus', ${ids.Asha}) returning id`;
-  await sql`
-    insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, section, kind, print_status, approved_by)
-    values (${tenant}, ${`CS${randomBytes(3).toString("hex").toUpperCase()}`}, ${template}, ${ids.Asha}, ${isoWeek()}, ${SECTION},
-            'focus', 'printed', 'someone@school.test')`;
-  await page.getByRole("button", { name: "Make and approve 2 home assessment papers" }).click();
-  await expect(page.getByText("already has this week's home assessment").first()).toBeVisible();
-  // Chetan stays unticked and unplanned: a refused batch came back planned for the whole class
-  await expect(form.getByRole("checkbox", { name: "Chetan" })).not.toBeChecked();
-  await expect(form.getByRole("checkbox", { name: "Bina" })).toBeChecked();
+  await clearUp();
+  await page.goto(`/papers/make?class=${SECTION}`);
+  const form = page.getByRole("form", { name: "Choose the papers" });
+  await form.getByRole("radio", { name: /Home assessment/ }).check();
+  await form.getByRole("radio", { name: /Each child's own next step/ }).check();
+  await form.getByRole("checkbox", { name: "Chetan" }).uncheck();
+  await form.getByRole("button", { name: "See the papers" }).click();
   await expect(page.locator('table[aria-label="Each child\'s paper"] tbody tr')).toHaveCount(2);
+  // between seeing and making, Asha's map is cleared, so she has no next step and her paper is refused (a second home
+  // assessment in a week no longer is: goals/home-assessment-remake.yaml); the map is derived, and rebuilt after
+  await sql`delete from child_skill_state where child_id = ${ids.Asha}`;
+  try {
+    await page.getByRole("button", { name: "Make and approve 2 home assessment papers" }).click();
+    await expect(page.getByText("no next step to go on yet").first()).toBeVisible();
+    // Chetan stays unticked and unplanned: a refused batch came back planned for the whole class
+    await expect(form.getByRole("checkbox", { name: "Chetan" })).not.toBeChecked();
+    await expect(form.getByRole("checkbox", { name: "Bina" })).toBeChecked();
+    await expect(page.locator('table[aria-label="Each child\'s paper"] tbody tr')).toHaveCount(2);
+  } finally {
+    await sql`select rebuild_child_skill_state(${ids.Asha}::uuid)`;
+  }
 });
 
 test("an engine that does not answer is said on the maker, and the same form sent again makes the papers once", async ({ page }) => {

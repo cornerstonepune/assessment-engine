@@ -42,16 +42,18 @@ export async function resolveOne(formData: FormData): Promise<void> {
 }
 
 /** A teacher approves the child's next paper, proposed from their own ladder (goals/s11-focus-paper.yaml,
- *  u2-children.yaml). The engine proposes and prints; this is the approval, in the person's name. */
+ *  u2-children.yaml), or makes a new one in place of the week's (goals/home-assessment-remake.yaml). The engine
+ *  proposes and prints; this is the approval, in the person's name. */
 export async function approveNextPaper(formData: FormData): Promise<void> {
   const me = await deciding("home_papers");
   const id = String(formData.get("child_id") ?? "");
   const week = String(formData.get("week") ?? "");
+  const replaces = String(formData.get("replaces") ?? "") || undefined;
   if (!UUID.test(id) || !/^\d{4}-W\d{2}$/.test(week)) redirect("/growth");
   mustBeMine(me, "home_papers", [await childSection(id)]);
-  const qr = await makePaper(id, week, me.email);
+  const qr = await makePaper(id, week, me.email, undefined, replaces);
   revalidatePath(`/growth/${id}`);
-  // already approved this week (a second click, or a colleague first): the page shows who approved it
+  // a colleague's click made a newer one first (or this one was clicked twice): the page shows who approved it
   redirect(qr ? `/growth/${id}?paper=${qr}` : `/growth/${id}`);
 }
 
