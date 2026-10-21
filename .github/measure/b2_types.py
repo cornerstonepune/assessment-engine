@@ -53,8 +53,8 @@ with db.connect() as c:
         "select (select count(*) from question_type)::int as types,"
         " (select count(*) from question_type_approval)::int as approved,"
         " (select count(*) from skill_level_question_type)::int as links,"
-        " (select count(*) from item where status = 'active')::int as active,"
-        " (select count(*) from drawable_item)::int as drawable"
+        " (select count(*) from item where status = 'active' and source = 'generated')::int as active,"
+        " (select count(*) from drawable_item where source = 'generated')::int as drawable"
     ).fetchone()
     ev = c.execute(
         "select count(*)::int as n, md5(coalesce(string_agg(e::text, '|' order by e.id), '')) as sum"
@@ -95,6 +95,6 @@ for r in sorted({(r["skill"], r["level"], r["questions"]) for r in closing}):
 if b2:
     print(
         f"after B2: types {b2['types']}, approved {b2['approved']}, level x type links {b2['links']}"
-        f" · active questions {b2['active']}, a paper may draw {b2['drawable']}"
+        f" · the bank's active questions {b2['active']}, a paper may draw {b2['drawable']}"
     )
 print(f"evidence {ev['n']} rows, checksum {ev['sum']}")
