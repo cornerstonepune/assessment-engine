@@ -110,6 +110,8 @@ test("a paper that came back and was read says so, never that it waits for appro
 
 test("a paper's line says who it is for in words: never null, a home assessment by its name", async ({ page }) => {
   await page.goto(`/worksheets/${QR.signed}`);
+  // the page itself first: a "not" passes at once on the loading screen
+  await expect(page.locator("main")).toContainText(`Roll 1 · ${MINE}`);
   await expect(page.locator("main")).not.toContainText(/\bnull\b|\bundefined\b/);
   await page.goto(`/worksheets/${QR.home}`);
   await expect(page.locator("main")).toContainText(/home assessment/i);
