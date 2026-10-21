@@ -84,6 +84,29 @@ with db.connect() as c:
         " left join checks k on k.child_id = si.child_id left join child_reading_profile p on p.child_id = si.child_id"
         " left join reads rd on rd.child_id = si.child_id"
         " where c.created_at::date = '2026-10-16' and c.superseded_by is null"))
+    show("the kinds notebooks route to a person", c.execute(
+        "select k as fmt, count(*) as notebooks from child_reading_profile, jsonb_array_elements_text(notes -> 'route') k"
+        " group by 1 order by 1"))
+    # the next read uses the notebook: a reading holding a digit this child has had confused twice is flagged (`profiles.apply`)
+    show("readings since 1 Oct holding a digit the child's notebook says is confused", c.execute(
+        "select count(*) filter (where r.raw_read::jsonb ->> 'why' like 'this child%%') as flagged_by_notebook,"
+        # the reader stood behind it (no doubt of its own, or only marking's hold) and the notebook did not flag it
+        " count(*) filter (where coalesce(r.raw_read::jsonb ->> 'why', '') = '' or r.raw_read::jsonb ->> 'why' like 'read as%%')"
+        "   as stood_behind_not_flagged,"
+        " count(*) filter (where (coalesce(r.raw_read::jsonb ->> 'why', '') = '' or r.raw_read::jsonb ->> 'why' like 'read as%%')"
+        "   and r.raw_read::jsonb ? 'boxes') as of_them_read_in_boxes"
+        " from item_result r join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id"
+        " join child_reading_profile p on p.child_id = si.child_id"
+        " where c.superseded_by is null and c.created_at >= '2026-10-01'"
+        "   and coalesce(nullif(r.raw_read::jsonb ->> 'child_answer', ''), r.raw_read::jsonb ->> 'guess', '') <> ''"
+        "   and exists (select 1 from jsonb_each_text(p.notes -> 'confusions') e where e.value::int >= 2"
+        "     and position(split_part(e.key, '>', 1) in coalesce(nullif(r.raw_read::jsonb ->> 'child_answer', ''),"
+        "       r.raw_read::jsonb ->> 'guess')) > 0)"))
+    # what a child's floor is measured on: the region reader's readings or the box reader's (ADR 0035)
+    show("checks by reader", c.execute(
+        "select case when r.raw_read::jsonb ? 'boxes' then 'in boxes' else 'by region' end as reader, count(*) as checks,"
+        " min(a.read_on) as first, max(a.read_on) as last"
+        " from answer_checked a join item_result r on r.id = a.item_result_id where not a.never_read group by 1"))
     show("the second reader", c.execute(
         "select (select string_agg(version || case when active then ' active' else '' end, ', ')"
         "   from prompt where purpose = 'read_with_examples') as prompt_versions,"
