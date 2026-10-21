@@ -66,3 +66,11 @@ On a database built fresh from this branch (`bin/testdb fresh`, 2026-10-21) unle
   into each level's rule with B3/B4, or leave it (ADR 0088).
 - Open: B2-3 (Achal): words for `word_budget`; whether chunking and long division are types of their own.
 - Visible on the day: the library page's kind chips sort by their words and include chunking and long division.
+- The migration is `20261126100000_question_types_are_rows.sql`, renamed from `20261125090000`: live already records
+  main's `20261126090000`, and `supabase db push` (what migrate live runs) refuses a local migration older than the
+  newest one live recorded ("Found local migration files to be inserted before the last migration on remote
+  database", supabase/cli `findPendingMigrations`) unless given `--include-all`. The two touch nothing in common
+  (`answer_checked` vs the question-type tables). Proof on a database built fresh from this branch (2026-10-21):
+  `uv run pytest -q tests/test_question_types.py tests/test_loaders.py tests/test_focus_paper.py tests/test_maker.py
+  tests/test_library.py tests/test_handout.py tests/test_week.py tests/test_card_bank.py` → `108 passed`;
+  `bin/check` → `28 passed`.
