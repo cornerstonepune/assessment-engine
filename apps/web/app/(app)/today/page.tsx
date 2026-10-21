@@ -17,6 +17,9 @@ export default async function Today() {
   const me = await requireStaff();
   const scope = scopeOf(me);
   const [lines, weeks, trust, { words }] = await deadline(Promise.all([needsYou(me), queueByWeek(scope), trustNow(), questionKinds()]));
+  // the one loud colour, once (design-system/PRINCIPLES.md): the first thing that waits, in Today's order, is the page's
+  // main action; every other line's is outlined (goals/ux8d-phone-and-one-action.yaml)
+  const first = TODAY_ORDER.flatMap((t) => lines[t]).find((l) => l.waits && l.href && l.action);
   return (
     <>
       <PageHeader stage="Today" title="Today" sub="Everything that waits on a person, under the tab where it is done. Each line opens the place to do it." />
@@ -30,7 +33,9 @@ export default async function Today() {
           <section key={tab} aria-label={tab} className="mb-6">
             <h2 className="label mb-2">{tab}</h2>
             {lines[tab].length ? (
-              <div className="panel divide-y divide-basalt/12">{lines[tab].map((l) => <Row key={l.title} line={l} />)}</div>
+              <div className="panel divide-y divide-basalt/12">
+                {lines[tab].map((l) => <Row key={l.title} line={l} primary={l === first} />)}
+              </div>
             ) : (
               <p className="note">Nothing waits here.</p>
             )}
@@ -48,7 +53,7 @@ const FIRST = 5;
 
 /** One kind of thing that waits: how many, what it is, and where it is done — or, for class packs and parent reports,
  *  each one of them as its own link. */
-function Row({ line }: { line: Line }) {
+function Row({ line, primary }: { line: Line; primary: boolean }) {
   return (
     <section data-testid="line" data-waits={line.waits ? "yes" : "no"} aria-label={line.title} className="grid gap-x-4 gap-y-1 p-4 md:grid-cols-[64px_minmax(0,1fr)_auto] md:items-start">
       <span data-testid="count" className={`font-heading text-[26px] leading-none tabular-nums ${line.waits ? "" : "text-basalt/55"}`}>
@@ -74,7 +79,7 @@ function Row({ line }: { line: Line }) {
         ) : null}
       </div>
       {line.href && line.action ? (
-        <Link href={line.href} className={`btn self-start ${line.waits ? "" : "secondary"}`}>
+        <Link href={line.href} className={`btn self-start ${primary ? "" : "secondary"}`}>
           {line.action}
         </Link>
       ) : null}

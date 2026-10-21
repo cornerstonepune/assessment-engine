@@ -42,7 +42,7 @@ export async function gradeSpan(): Promise<string> {
     select g.name from grade g join tenant t on t.id = g.tenant_id and t.slug = ${TENANT_SLUG}
     where exists (select 1 from rung r where r.tenant_id = g.tenant_id and r.band = g.code)
     order by g.ord`;
-  return [...new Set([rows[0]?.name, rows.at(-1)?.name])].filter(Boolean).join("–");
+  return [...new Set([rows[0]?.name, rows.at(-1)?.name])].filter(Boolean).join(" to ");
 }
 
 /** Whether a class or child of `band` uses this level: its own grade's levels and those of the grades below
