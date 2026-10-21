@@ -62,7 +62,7 @@ def read_guess(
                 )
             typer.echo(
                 f"  {t['right']} of {t['n']} guessed right ({_pct(t['right'], t['n'])}) on what the reader gave up on"
-                f" · model spend Rs {t['spend_inr']:.2f}"
+                f" · {t['failed']} not read (the model call failed) · model spend Rs {t['spend_inr']:.2f}"
             )
             if o := t.get("opinion"):
                 typer.echo(

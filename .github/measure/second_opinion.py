@@ -35,6 +35,16 @@ with db.connect() as c:
         " from flow_run where flow = 'read_with_examples' and status = 'ok' and cost_inr is not null"
     ).fetchall():
         print("  " + json.dumps(dict(r), default=str))
+    # why a call failed, today: an eval that reads nothing must say why (21 Oct: 116 of 116 calls failed, spend Rs 0)
+    print("-- the second reader's calls today, by outcome")
+    for r in c.execute(
+        "select status, left(coalesce(error, ''), 240) as error, count(*) as n from flow_run"
+        " where flow = 'read_with_examples' and started_at::date = current_date group by 1, 2 order by 3 desc limit 8"
+    ).fetchall():
+        print("  " + json.dumps(dict(r), default=str))
+    budget = c.execute("select value from threshold where key = 'llm.daily_budget_inr'").fetchone()
+    spent = c.execute("select coalesce(sum(cost_inr), 0) as n from flow_run where started_at::date = current_date").fetchone()
+    print("  " + json.dumps({"daily_budget_inr": budget and budget["value"], "spent_today_inr": spent["n"]}, default=str))
     print("-- the eval: the second reader on every checked answer the box reader guessed, notebook without its paper")
     t = evaluate(c, ocr.settings(c), None, second_opinion=True)  # noqa: F821 — defined by second_reader.py, above
     c.commit()  # the flow_run rows of what it spent, and nothing else

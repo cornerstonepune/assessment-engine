@@ -223,7 +223,7 @@ def evaluate(conn, cfg, child_ids=None, second_opinion=False):
     from engine.w3_read import external
 
     spent = external.spend_today(conn)
-    tally, seen = {"n": 0, "right": 0, "by_kind": {}, "details": []}, []
+    tally, seen = {"n": 0, "right": 0, "failed": 0, "by_kind": {}, "details": []}, []
     by_page = {}
     for r in rows:
         by_page.setdefault((str(r["capture_id"]), r["file_page"]), []).append(r)
@@ -243,7 +243,12 @@ def evaluate(conn, cfg, child_ids=None, second_opinion=False):
             exclude_capture=capture_id,
         )
         for r in group:
-            guess = got[_slot(r, "item_result_id")].get("guess", "")
+            if not got[_slot(r, "item_result_id")].get(
+                "guess_by"
+            ):  # the call failed: no reading, not a wrong one
+                tally["failed"] += 1
+                continue
+            guess = got[_slot(r, "item_result_id")]["guess"]
             right = profiles._norm(guess) == profiles._norm(r["human_read"])
             k = tally["by_kind"].setdefault(r["fmt"], {"n": 0, "right": 0})
             k["n"] += 1

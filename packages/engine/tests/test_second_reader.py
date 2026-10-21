@@ -274,6 +274,8 @@ def test_the_eval_of_the_second_opinion_reads_again_only_what_the_box_reader_gue
 
     def generate(conn, purpose, variables, images=()):
         asked.append(images[-1])
+        if said[images[-1]] is None:
+            raise llm.LLMError("all models unavailable")
         return {"answers": [said[images[-1]]], "sure": 0.6}
 
     monkeypatch.setattr(llm, "generate", generate)
@@ -285,4 +287,8 @@ def test_the_eval_of_the_second_opinion_reads_again_only_what_the_box_reader_gue
     }  # fmt: skip
     # without it, the eval is today's: every answer the first reader did not stand behind, the ink with no number too
     today = second_reader.evaluate(conn, {}, [paper["child"]])
-    assert today["n"] == 4 and "opinion" not in today
+    assert today["n"] == 4 and today["failed"] == 0 and "opinion" not in today
+    # a call that fails is no reading: counted apart, never scored as a wrong one
+    said[0.0] = None
+    t = second_reader.evaluate(conn, {}, [paper["child"]], second_opinion=True)
+    assert (t["n"], t["right"], t["failed"], t["opinion"]["n"]) == (1, 1, 1, 1)
