@@ -55,6 +55,9 @@ the engine back at 04:42:12. I am not certain the engine also failed during the 
 - `apps/web/tests/p3-the-engine-restarting.spec.ts` under the website's own Playwright config: 3 passed. On main's
   `lib/engine.ts`: 2 failed, 1 passed. (First named `l8-…`, which matches no project in `playwright.config.ts`, so CI
   ran none of it; renamed `p3-…`, the platform tests' prefix.)
+- CI's full engine suite on 2cc3231: 1 failed, 2590 passed. `test_legacy.py::test_a_deploy_enters_every_paper_again_as_its_file_now_says`
+  found the engine's start by `docker compose` in its step, which is now `bash switch.sh`; it finds that instead
+  (reproduced failing, then passing). The 178 failures of a local run were this sandbox's (no browser for Playwright).
 - `bin/check`: 28 passed.
 
 ## Handoff
