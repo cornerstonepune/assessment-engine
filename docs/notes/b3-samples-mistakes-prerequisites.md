@@ -34,8 +34,12 @@
 
 - **Live:** nothing; B3 is not deployed. Nimish merges, then `bin/update-live` migrates live and loads the prerequisites.
 - **In flight:** PR #251, CI and the rehearsal on the latest head.
-- **Next:** when B2 (#240) merges, merge main in: `checks/past.py` is the same file; `cli_check.py`, `rules.json` and
-  the rehearsal workflow touch neighbouring lines and need a hand merge.
+- **B2 merged in (2026-10-21):** `cli_check.py`, `rules.json` and `loaders.py` hand-merged keeping both sides; B2's
+  question-type loader moved to `core/question_formats.py` (`load_types`), same place in the load order, so
+  `loaders.py` stays under its 400-line ceiling. Migrations already sort B2 (20261125) before B3 (20261127). On a
+  fresh `bin/testdb fresh`: `engine load --check` unchanged on a second run; `engine live rules --url <it>` 0 drifted;
+  test_question_types, test_approval, test_skill_links, test_levels_closing, test_loaders, test_rules and neighbours
+  138 passed.
 - **Open for Achal (rows, not blockers):** the 58 levels' pieces left in words (`bin/engine links check --words`), and the
   167 prerequisites.
 - **Not B3:** the readers move onto these rows with the writers; until then a page may show M_WRONG_OP in any of its

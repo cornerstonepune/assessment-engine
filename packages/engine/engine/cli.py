@@ -11,8 +11,9 @@ from engine.checks.cli_live import live_app
 from engine.checks.levels import levels_app
 from engine.core import asks, db, levels, loaders, references
 from engine.core.cli_staff import register as register_staff
-from engine.w1_bank import bank, mistake_guess, review, spec, story_eval, story_shape
+from engine.w1_bank import bank, mistake_guess, review, spec, story_eval, story_keys, story_shape
 from engine.w1_bank.cli_bank import bank_app
+from engine.w1_bank.question_types import types_app
 from engine.w2_print.cli_library import library_app
 from engine.w2_print.cli_week import week_app
 from engine.w3_read.cli_gold import gold_app
@@ -44,6 +45,7 @@ app.add_typer(library_app, name="library")
 app.add_typer(gold_app, name="gold")
 app.add_typer(card_app, name="card")
 app.add_typer(report_app, name="report")
+app.add_typer(types_app, name="types")
 app.add_typer(levels_app, name="levels")
 register_staff(app)
 register_checks(app)
@@ -231,8 +233,10 @@ def eval_(
                     r["code"]
                     for r in conn.execute(
                         "select distinct on (eval_type, has_words) code from ("
-                        "  select code, eval_type, (formats && array['word_1step','word_2step']) as has_words"
-                        "  from skill_set) x order by eval_type, has_words, code"
+                        "  select s.code, s.eval_type, exists (select 1 from skill_level_question_type x"
+                        "    where x.tenant_id = s.tenant_id and x.skill_code = s.code and x.question_type = any(%s))"
+                        "    as has_words from skill_set s) x order by eval_type, has_words, code",
+                        (list(story_keys.KINDS),),
                     ).fetchall()
                 ]
             )

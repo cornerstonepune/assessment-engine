@@ -4,6 +4,7 @@ import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { kindWords } from "@/components/question";
+import { questionKinds } from "@/lib/question-types";
 import { type Line, needsYou, TODAY_ORDER } from "@/lib/needs-you";
 import { queueByWeek, type Trust, trustNow, type Week } from "@/lib/queries-today";
 import { weekWords } from "@/lib/week";
@@ -15,7 +16,7 @@ import { weekWords } from "@/lib/week";
 export default async function Today() {
   const me = await requireStaff();
   const scope = scopeOf(me);
-  const [lines, weeks, trust] = await deadline(Promise.all([needsYou(me), queueByWeek(), trustNow()]));
+  const [lines, weeks, trust, { words }] = await deadline(Promise.all([needsYou(me), queueByWeek(), trustNow(), questionKinds()]));
   return (
     <>
       <PageHeader stage="Today" title="Today" sub="Everything that waits on a person, under the tab where it is done. Each line opens the place to do it." />
@@ -35,7 +36,7 @@ export default async function Today() {
             )}
           </section>
         ))}
-        <Shrinking weeks={weeks} trust={trust} />
+        <Shrinking weeks={weeks} trust={trust} words={words} />
       </Body>
     </>
   );
@@ -83,14 +84,14 @@ function Row({ line }: { line: Line }) {
 
 // Whether checking pays (goals/ny2-the-queue-shrinks.yaml): each week's answers, how many a person had to check, and how
 // near the reader is to settling a kind of question alone. Every wrong and blank still waits for a person (ADR 0029).
-function Shrinking({ weeks, trust }: { weeks: Week[]; trust: Trust }) {
+function Shrinking({ weeks, trust, words }: { weeks: Week[]; trust: Trust; words: Record<string, string> }) {
   const title = "Is the queue shrinking?";
   return (
     <section aria-label={title} className="panel mb-6 p-4">
       <h2 className="font-heading text-[17px]">{title}</h2>
       <p className="mt-1 text-[13.5px] leading-snug">
         The reader is trusted on {trust.kinds ? `${trust.trusted} of ${trust.kinds}` : "none of the"} kinds of question it has read
-        {trust.nearest ? `; the nearest, ${kindWords(trust.nearest.fmt)}, needs ${trust.nearest.to_trust} more right ${trust.nearest.to_trust === 1 ? "check" : "checks"}` : ""}. A trusted kind&apos;s
+        {trust.nearest ? `; the nearest, ${kindWords(words, trust.nearest.fmt)}, needs ${trust.nearest.to_trust} more right ${trust.nearest.to_trust === 1 ? "check" : "checks"}` : ""}. A trusted kind&apos;s
         right answers settle without a person; every wrong and every blank still waits for one.
       </p>
       {weeks.length ? (

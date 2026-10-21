@@ -3,6 +3,7 @@
 import Link from "@/components/link";
 import { Panel, Pill } from "@/components/shell";
 import { many } from "@/lib/needs-you";
+import { questionKinds } from "@/lib/question-types";
 import type { PaperRow, ReaderReport } from "@/lib/queries-read";
 import { ReaderTable } from "./reader-table";
 import { dateWords } from "@/lib/week";
@@ -151,7 +152,8 @@ export function PaperTable({ rows, withChild = false }: { rows: PaperRow[]; with
 // can be seen to pay, and whether the reader is getting better: one table, by day first (`ReaderTable`).
 const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "—");
 
-export function ReaderPanel({ r }: { r: ReaderReport }) {
+export async function ReaderPanel({ r }: { r: ReaderReport }) {
+  const { words } = await questionKinds();
   const read = r.days.filter((d) => d.stood_behind > 0); // newest first
   const [latest, first] = [read[0], read[read.length - 1]];
   return (
@@ -165,7 +167,7 @@ export function ReaderPanel({ r }: { r: ReaderReport }) {
         Every check you make teaches it how that child writes; a kind of question is settled by the reader alone only once it has matched you{" "}
         {Math.round(r.bar * 100)}% of the time over the last {r.window} checks. By kind of question says how many more right checks each still needs.
       </p>
-      {r.days.length || r.kinds.length || r.bands.length ? <ReaderTable r={r} /> : null}
+      {r.days.length || r.kinds.length || r.bands.length ? <ReaderTable r={r} words={words} /> : null}
     </Panel>
   );
 }

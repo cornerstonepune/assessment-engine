@@ -32,7 +32,7 @@ test("every kind of × and ÷ question the bank holds is drawn with its numbers,
     for (const { set, fmt } of pairs) {
       if (!pickable.has(set)) {
         // the kinds an educator can pick, on the skill set's page with none picked: only their chips carry a kind, and
-        // only a kind with a name in the school's words (`KIND`) has one
+        // only a kind with a name in the school's words (`question_type.words`) has one
         await page.goto(`/library?set=${set}#questions`);
         // read once the page has streamed in, not at its frame
         await expect(page.locator("#questions")).toBeVisible();

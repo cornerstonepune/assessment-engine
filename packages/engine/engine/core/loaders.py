@@ -40,6 +40,7 @@ FILLED_TABLES = (
     "subject",
     "topic",
     "question_format",
+    "question_type",
     "ask",
     "grade",
     "difficulty",
@@ -373,6 +374,7 @@ def load_all() -> dict[str, int]:
             _subjects,
         ):
             step(conn, t)
+        question_formats.load_types(conn, t, settings.seed)
         topics.load(conn, t, settings.seed)
         question_formats.load(conn, t, settings.seed)
         asks.load(conn, t, settings.seed)

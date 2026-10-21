@@ -123,6 +123,9 @@ jobs:
       - name: "SF2 measured: what a format is, and what each starting rule would take off papers"
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: cd packages/engine && uv run python ../../.github/measure/sf2_formats.py
+      - name: "B2 measured: the question types in use, their levels and approvals, labels without words"
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: cd packages/engine && uv run python ../../.github/measure/b2_types.py
       - name: rehearse on the copy — bin/update-live steps 4-6
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: |
@@ -142,6 +145,9 @@ jobs:
       - name: "SF2 measured: the same, after update-live"
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: cd packages/engine && uv run python ../../.github/measure/sf2_kinds.py && uv run python ../../.github/measure/sf2_formats.py
+      - name: "B2 measured: the same, after update-live"
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: cd packages/engine && uv run python ../../.github/measure/b2_types.py
       - name: answers still on a rung no skill holds (their questions; no names)
         if: always()
         run: |

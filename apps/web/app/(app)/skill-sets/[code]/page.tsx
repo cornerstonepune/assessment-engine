@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "@/components/link";
-import { Answers, KIND, mistakeOf, Question } from "@/components/question";
+import { Answers, kindWords, mistakeOf, Question } from "@/components/question";
+import { questionKinds } from "@/lib/question-types";
 import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { levels } from "@/lib/levels";
@@ -37,7 +38,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   const [{ code }, q] = await Promise.all([params, searchParams]);
   const level = (await levels()).order.find((d) => d === q.level);
   const everyLevel = q.level === "all";
-  const [all, examples, kinds, caught, book, sheets, g] = await deadline(
+  const [all, examples, kinds, caught, book, sheets, g, { words }] = await deadline(
     Promise.all([
       skillSets({ untaught: true, scope: scopeOf(me) }),
       levelExamples(code),
@@ -46,6 +47,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
       mistakeBook(),
       worksheets({ set: code, level }, 200, 0),
       grades(),
+      questionKinds(),
     ]),
   );
   // a skill whose topic is not taught yet opens too, to be read and approved before it is switched on (goals/ny1-needs-you.yaml)
@@ -239,7 +241,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                   {kinds.map((k) => (
                     <tr key={k.fmt}>
                       <td className="whitespace-nowrap">
-                        {KIND[k.fmt] ?? k.fmt}
+                        {kindWords(words, k.fmt)}
                       </td>
                       <td>
                         <Link
@@ -350,7 +352,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                           </td>
                           <td className="num">{w.difficulty}</td>
                           <td className="text-[12.5px] text-basalt/70">
-                            {kindsInWords(w.kinds)}
+                            {kindsInWords(w.kinds, words)}
                           </td>
                         </tr>
                       ))}
