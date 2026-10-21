@@ -7,7 +7,7 @@ import { spareSheets, unplanned, weekPlan, weeks, type WeekRow } from "@/lib/que
 import { approvePack, overrideChild } from "./actions";
 import { deadline } from "@/lib/deadline";
 import { requireStaff } from "@/lib/auth";
-import { scopeOf } from "@/lib/scope";
+import { isMine, scopeOf } from "@/lib/scope";
 import { weekWords } from "@/lib/week";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -22,6 +22,15 @@ export default async function ApprovePage({ searchParams }: Props) {
   const scope = scopeOf(me);
   const q = await searchParams;
   const all = await deadline(weeks(scope));
+  // a link to a class's week that is not on the list (another educator's class, or a week with nothing made) says so,
+  // rather than opening another class's week unannounced (goals/ux8a-numbers-true.yaml)
+  const asked = q.section && q.week && q.kind ? { section: q.section, week: q.week, kind: q.kind } : null;
+  const notListed =
+    asked && !all.some((w) => w.section === asked.section && w.week === asked.week && w.kind === asked.kind)
+      ? `${asked.section} · ${weekWords(asked.week)} · ${asked.kind}: ${
+          isMine(scope, asked.section) ? "no papers have been made for it" : "not one of your classes"
+        }.`
+      : null;
 
   if (all.length === 0) {
     const c = await deadline(tableCounts());
@@ -29,6 +38,7 @@ export default async function ApprovePage({ searchParams }: Props) {
       <>
         <Header />
         <Body>
+          {notListed ? <Notice tone="terracotta">{notListed}</Notice> : null}
           <NotYet
             what={[
               "One row per child: the level they are set, and the reason it was chosen.",
@@ -90,6 +100,11 @@ export default async function ApprovePage({ searchParams }: Props) {
     <>
       <Header />
       <Body>
+        {notListed ? (
+          <Notice tone="terracotta">
+            {notListed} Showing {current.section} · {weekWords(current.week)} · {current.kind} instead.
+          </Notice>
+        ) : null}
         {q.approved ? <Notice tone="neem">Approved. The pack is marked printed.</Notice> : null}
         {q.changed ? <Notice tone="neem">Changed. That child keeps this level until you change it again.</Notice> : null}
         {q.error === "override" ? (

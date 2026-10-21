@@ -15,7 +15,7 @@ import { weekWords } from "@/lib/week";
 export default async function Today() {
   const me = await requireStaff();
   const scope = scopeOf(me);
-  const [lines, weeks, trust] = await deadline(Promise.all([needsYou(me), queueByWeek(), trustNow()]));
+  const [lines, weeks, trust] = await deadline(Promise.all([needsYou(me), queueByWeek(scope), trustNow()]));
   // the one loud colour, once (design-system/PRINCIPLES.md): the first thing that waits, in Today's order, is the page's
   // main action; every other line's is outlined (goals/ux8d-phone-and-one-action.yaml)
   const first = TODAY_ORDER.flatMap((t) => lines[t]).find((l) => l.waits && l.href && l.action);

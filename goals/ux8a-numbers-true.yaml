@@ -1,0 +1,42 @@
+name: ux8a-numbers-true
+goal: >
+  Every number a page shows is true and is the person's own. An educator's Today counts its queue in their classes, as
+  the line above it does, and Marking says the reader's record is every class's where it sits beside their own counts. A
+  child's paper says where it stands (waiting for approval, printed, with the children, came back and read) and who it is
+  for in words, never "null" or the engine's word for its kind. Curriculum counts a child under the grade of the level
+  they answered. A link to a class's week that is not on the list says so, rather than showing another class's week.
+# Written 2026-10-21, before the code: slice UX8a of the audit of every maths screen (docs/notes/ux8-every-screen.md,
+# findings 1-5). Measured first on a fresh test database with the whole browser suite run, as an educator of two Grade 2
+# classes:
+#   - Today: "3" answers to check, and "27" still waiting in "Is the queue shrinking?" (every class's);
+#   - Marking: "0 checked by a person" in its counts, "Checked by a person: 12 answers" in the reader's panel;
+#   - every paper that came back (print_status 'returned') said "Waiting for a teacher to approve the pack";
+#   - an older paper's "For" line read "Roll 1 · U38-CLASS · null";
+#   - Curriculum's Grade 1 row said 4 of the class's children assessed: two Grade 2 skills file their Easy level under
+#     Grade 1, and a child counted under every grade their skill touches;
+#   - /papers/approve with a class and week not on the list showed the first class's week, without a word.
+# The reader's record stays the whole school's: its trust in a kind of question is earned across every class
+# (`kind_trust`), so narrowing it would misstate it; the panel says whose it is instead. A child's answer with no question
+# behind it (none on live: every engine path ties an answer to a paper) counts under its skill's own grade.
+says:
+  - words: "making sure that every screen and every other representation is thought through well: it's clear, it's accurate"
+    proved_by: "apps/web/tests/u44-numbers-true.spec.ts::Today's queue counts the educator's own classes, as the line above it does"
+  - words: "it's clear, it's accurate"
+    proved_by: "apps/web/tests/u44-numbers-true.spec.ts::Marking says the reader's record is every class's, where it sits beside the educator's own counts"
+  - words: "it's accurate"
+    proved_by: "apps/web/tests/u44-numbers-true.spec.ts::a paper that came back and was read says so, never that it waits for approval"
+  - words: "every other representation is thought through well"
+    proved_by: "apps/web/tests/u44-numbers-true.spec.ts::a paper's line says who it is for in words: never null, a home assessment by its name"
+  - words: "it's accurate"
+    proved_by: "apps/web/tests/u44-numbers-true.spec.ts::Curriculum counts a child under the grade of the level they answered"
+  - words: "clickability is fine"
+    proved_by: "apps/web/tests/u44-numbers-true.spec.ts::a link to a class's week that is not on the list says so, and shows nothing of another class"
+manual: []
+scenarios: []
+criteria:
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
