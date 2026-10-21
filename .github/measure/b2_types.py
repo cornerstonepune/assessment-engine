@@ -6,6 +6,7 @@ A type (decision B2-1, ADR 0077): the printed format where the template is only 
 Nothing is written. Codes and counts only; no child is named.
 """
 
+import json
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -15,6 +16,8 @@ from engine.w2_print import shelf
 
 NUMBERS = re.compile(r"^(ADD|SUB|MUL|DIV)\.(\dD\dD(\.REG\w*)?|MULTI\d*)$")
 web = Path(__file__).resolve().parents[2] / "apps/web/components/question.tsx"
+seeded = Path(__file__).resolve().parents[2] / "supabase/seed/question_types.json"
+SEEDED = {t["code"] for t in json.loads(seeded.read_text())["question_types"]} if seeded.exists() else set()
 KIND = set(re.findall(r"^  (\w+): \"", web.read_text().split("const KIND")[1].split("};")[0], re.M))
 
 
@@ -78,6 +81,7 @@ print(f"labels the bank holds {len(fmts)} · in the skills' lists {len(listed)} 
 print(f"  held or listed, no words: {sorted((fmts | listed) - KIND)}")
 print(f"  words, held by no question: {sorted(KIND - fmts)} · words, on no list: {sorted(KIND - listed)}")
 print(f"  a level's own format, no words: {sorted({r['f'] for r in level_formats if r['f']} - KIND)}")
+print(f"types held that the seed has no row for: {sorted(set(uses) - SEEDED)} · seed rows held nowhere: {sorted(SEEDED - set(uses))}")
 print(f"unconfirmed levels a class's paper may draw today: {len({(r['skill'], r['level']) for r in closing})}")
 for r in sorted({(r["skill"], r["level"], r["questions"]) for r in closing}):
     print(f"  unconfirmed, drawn today: {r[0]} {r[1]} questions {r[2]}")
