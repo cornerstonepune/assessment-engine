@@ -176,6 +176,18 @@ function facts(p: PrintedPaper): [string, ReactNode][] {
         ? `${p.qr_code} on every page. It points to this record: the child, the questions and their answers.`
         : `${p.qr_code} on every page. It points to this record: the questions and their answers. The child writes their name.`,
     ],
-    ["Status", p.print_status === "printed" ? `Approved by ${p.approved_by}` : "Waiting for a teacher to approve the pack"],
+    [
+      "Status",
+      p.replaced_by ? (
+        <>
+          Approved by {p.approved_by}; replaced by <Link href={`/worksheets/${p.replaced_by}`}>{p.replaced_by}</Link>, this week&rsquo;s
+          home assessment. A copy that comes back is still read and marked as this paper.
+        </>
+      ) : p.print_status === "printed" ? (
+        `Approved by ${p.approved_by}`
+      ) : (
+        "Waiting for a teacher to approve the pack"
+      ),
+    ],
   ];
 }

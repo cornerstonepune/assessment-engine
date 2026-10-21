@@ -1449,7 +1449,7 @@ def test_a_deploy_enters_every_paper_again_as_its_file_now_says():
         and "/app/supabase/seed/papers/*.json" in runs[papers[0]]
         and "|| exit 1" in runs[papers[0]]
     )
-    assert papers[0] > next(i for i, r in enumerate(runs) if "docker compose" in r), (
+    assert papers[0] > next(i for i, r in enumerate(runs) if "bash switch.sh" in r), (
         "after the engine is on the new code"
     )
     assert "../supabase/seed:/app/supabase/seed:ro" in (root / "deploy/compose.server.yml").read_text()

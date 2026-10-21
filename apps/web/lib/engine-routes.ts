@@ -33,7 +33,7 @@ export type EngineRoutes = {
   "POST /capture/mistake": { result_id: string; code: string; by: string; proposed?: unknown[][] };
   "POST /capture/trusted": null;
   "POST /card/{section}/{week}/confirm": { by: string };
-  "POST /child/{child_id}/focus": { week: string; by: string };
+  "POST /child/{child_id}/focus": { week: string; by: string; replaces?: string | null };
   "POST /child/{child_id}/paper": { week: string; areas: { skill_set: string; level: string; n: number }[]; by: string };
   "POST /child/{child_id}/paper/plan": { week: string; areas: { skill_set: string; level: string; n: number }[] };
   "POST /child/{child_id}/paper/plan.pdf": { week: string; areas: { skill_set: string; level: string; n: number }[]; by: string };

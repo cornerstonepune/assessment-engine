@@ -281,24 +281,30 @@ def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
 
 
 def approved(conn, child_id: str, week: str) -> dict | None:
-    """The next paper already approved for this child this week: its QR, who approved it and when."""
-    row = conn.execute(
+    """This week's home assessment for this child: the newest made, its QR, who approved it and when, and the QRs of
+    the earlier ones it replaced, newest first. Nimish, 2026-10-21: an educator makes it again as often as they like;
+    an earlier paper is kept and still reads as itself."""
+    rows = conn.execute(
         "select qr_code as qr, approved_by, approved_at from sheet_instance"
-        " where child_id = %s and week = %s and kind = 'focus' order by created_at limit 1",
+        " where child_id = %s and week = %s and kind = 'focus' order by created_at desc, id desc",
         (child_id, week),
-    ).fetchone()
-    return dict(row) if row else None
+    ).fetchall()
+    return {**rows[0], "replaced": [r["qr"] for r in rows[1:]]} if rows else None
 
 
-def make(conn, child_id: str, week: str, actor: str, ask: list | None = None) -> dict:
+def make(
+    conn, child_id: str, week: str, actor: str, ask: list | None = None, replaces: str | None = None
+) -> dict:
     """`actor` approves the plan: it prints as this child's paper, its QR, its questions seen, and names them.
-    One home paper a week; a teacher may ask for as many custom papers as the bank can fill."""
-    # one approval at a time per child, so two teachers clicking together cannot both print this week's paper
+    Made again the same week, the newest is the week's home assessment (`approved`): `replaces` is the one the
+    educator saw (None: none), and a click that saw an older one is refused, so two clicks together print one paper.
+    A teacher may ask for as many custom papers as the bank can fill."""
+    # one approval at a time per child, so two teachers clicking together cannot both print a paper at once
     conn.execute("select id from child where id = %s for update", (child_id,))
     kind = "custom" if ask else "focus"
-    had = None if ask else approved(conn, child_id, week)
-    if had:
-        raise ValueError(f"this week's next paper is already approved: {had['qr']} by {had['approved_by']}")
+    now = None if ask else approved(conn, child_id, week)
+    if now and now["qr"] != replaces:
+        raise ValueError(f"this week's home assessment was just made: {now['qr']} by {now['approved_by']}")
     p, _ = _planned(conn, child_id, week, ask)
     return {**print_paper(conn, child_id, week, actor, kind, p, HOW[kind]), "areas": p["areas"]}
 
@@ -315,9 +321,10 @@ def print_paper(conn, child_id: str, week: str, actor: str, kind: str, p: dict, 
     ).fetchone()["id"]
     qr = _qr(template, child_id, week, kind)
     instance = conn.execute(
+        # made again the same week, the newest is the week's: its moment is the click's own, not its transaction's
         "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, section, kind,"
-        " print_status, printed_at, approved_by, approved_at)"
-        " values (%s,%s,%s,%s,%s,%s,%s,'printed',now(),%s,now()) returning id",
+        " print_status, printed_at, approved_by, approved_at, created_at)"
+        " values (%s,%s,%s,%s,%s,%s,%s,'printed',now(),%s,now(),clock_timestamp()) returning id",
         (child["tenant_id"], qr, template, child_id, week, child["section"], kind, actor),
     ).fetchone()["id"]
     conn.execute(

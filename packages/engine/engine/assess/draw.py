@@ -19,9 +19,11 @@ is printed that way: in a line, in columns, in the division layout, or in a writ
 shares (ADR 0055, 0063).
 """
 
+import itertools
 import math
 import random
-from typing import Any
+from collections.abc import Iterator
+from typing import Any, cast
 
 from . import bands, tags, taxonomy, verify
 from . import divide_kinds as DK
@@ -41,6 +43,7 @@ from . import written as WR
 PLAIN = ("bare_sum", "column_grid")
 # every kind a straight calculation is printed in
 STRAIGHT = tuple(dict.fromkeys((*PLAIN, *WR.KINDS.values())))
+SUMS_LISTED = 100_000  # pairs of a sum's digits: 3 by 2 is 81,000; 3 by 3 (810,000) is only ever drawn
 POSITIONS = {
     "FIRST_OPERAND": "a",
     "SECOND_OPERAND": "b",
@@ -194,19 +197,28 @@ def _paired(rng: random.Random, alt: dict[str, Any], check: dict[str, Any], rung
         return None  # numbers this kind cannot use (7 × 7 has no fact family of four): drawn again
 
 
+def _straight(alt: dict[str, Any]) -> bool:
+    """A straight calculation: in a line or in columns, or in the one written method it names (`_set_out`)."""
+    fmts = set(K.fmts(alt))
+    return fmts <= set(STRAIGHT) and bool(fmts & set(PLAIN) or isinstance(alt.get("method"), str))
+
+
+def _of_many(alt: dict[str, Any]) -> bool:
+    """A straight case of three or more numbers, or a friendly pair (`_many`); a × case reads `carry_max` of one."""
+    return alt.get("operation") != "MUL" and (
+        ("num_operands" in alt and any(taxonomy.holds(alt["num_operands"], n) for n in (3, 4, 5)))
+        or "carry_max" in alt
+        or alt.get("shape") == "FRIENDLY_PAIRS"
+    )
+
+
 def one(rng: random.Random, match: Any, check: dict[str, Any], rung: str, k: int = 0) -> I.Item | None:
     """One candidate for a case, or None when this attempt's numbers are not that case. `k` counts the
     questions kept so far; where the case does not fix the layout, even is in columns, odd in a line."""
     alt = rng.choice(K.alternatives(match))
     fmts = set(K.fmts(alt))
-    # a straight calculation: in a line or in columns, or in the one written method it names (`_set_out`)
-    if fmts <= set(STRAIGHT) and (fmts & set(PLAIN) or isinstance(alt.get("method"), str)):
-        many = alt.get("operation") != "MUL" and (  # a × case reads `carry_max` of one multiplication
-            ("num_operands" in alt and any(taxonomy.holds(alt["num_operands"], n) for n in (3, 4, 5)))
-            or "carry_max" in alt
-            or alt.get("shape") == "FRIENDLY_PAIRS"
-        )
-        it = (_many if many else _plain)(rng, alt, check, rung, k)
+    if _straight(alt):
+        it = (_many if _of_many(alt) else _plain)(rng, alt, check, rung, k)
     elif fmts == {"missing_number"}:
         it = _missing(rng, alt, check, rung, k)
     elif len(fmts) == 1 and (
@@ -229,39 +241,83 @@ def _some(
         if it is not None and it.item_id not in seen:
             seen.add(it.item_id)
             out.append(it)
-    return out if len(out) == want else out + _rest(match, check, rung, want - len(out), seen)
+    return out if len(out) == want else out + _rest(rng, match, check, rung, want - len(out), seen)
 
 
-def _every(alt: dict[str, Any], check: dict[str, Any], op: str) -> list[tuple[int, int]]:
-    """Every pair a straight × or ÷ case can be (`draw_times.every`, `draw_divide.every`); none past what can be
-    listed."""
+def _every(alt: dict[str, Any], check: dict[str, Any], op: str) -> list[tuple[int, int]] | None:
+    """Every pair a straight case of two numbers can be (`draw_times.every`, `draw_divide.every`, and every pair of a
+    sum's digits); None past what can be listed."""
     if op == "÷":  # its defaults kept in the listing; the method it is printed in still has its own say
         return [(a, b) for a, b in DD.every(alt, K.pairs(alt, check, op)) if P.sets_out(alt, a, b)]
     about = taxonomy.keys(alt)
-    ranges = [T.every(alt, about, d1, d2) for d1, d2 in K.pairs(alt, check, op)]
-    pairs = [] if None in ranges else [p for r in ranges if r for p in r]
-    return [(a, b) for a, b in pairs if P.usable(op, a, b, about, check, alt)]
+    zero_ok = "zero_operand" in about
+    ranges = [
+        T.every(alt, about, d1, d2) if op == "×" else _sums(T.span(d1, zero_ok), T.span(d2, zero_ok))
+        for d1, d2 in K.pairs(alt, check, op)
+    ]
+    if None in ranges:
+        return None
+    return [(a, b) for r in ranges if r for a, b in r if P.usable(op, a, b, about, check, alt)]
 
 
-def _rest(match: Any, check: dict[str, Any], rung: str, want: int, seen: set[str]) -> list[I.Item]:
-    """What a × or ÷ case still holds when its draws run dry, read from every pair it can be: dry is then a fact, not
-    2000 misses in a row. A range too large to list, and other kinds', keep the misses."""
-    out: list[I.Item] = []
-    for alt in [
-        x
-        for x in K.alternatives(match)
-        if x.get("operation") in ("MUL", "DIV") and set(K.fmts(x)) <= set(STRAIGHT)
-    ]:
-        op = K.OPS[alt["operation"]]
-        for a, b, k in [(a, b, k) for a, b in _every(alt, check, op) for k in (0, 1)]:
-            # both layouts: a level that does not fix one prints either
-            it = _set_out(alt, check, rung, k, op, a, b)
-            if it.item_id not in seen and taxonomy.matches(match, it.fmt, tags.derive(it)):
-                seen.add(it.item_id)
-                out.append(it)
-                if len(out) == want:
-                    return out
-    return out
+def _sums(xs: range, ys: range) -> list[tuple[int, int]] | None:
+    """Every pair of a sum's or a difference's digits, or None past what can be listed."""
+    return [(a, b) for a in xs for b in ys] if len(xs) * len(ys) <= SUMS_LISTED else None
+
+
+def _ops(alt: dict[str, Any], check: dict[str, Any]) -> list[str]:
+    """Every operation a case can be drawn in (`draw_case.op` picks one): its own, or its level's."""
+    named = alt.get("operation")
+    if named is None:
+        ops: Any = check.get("op", ["+", "-"])
+        return list(cast(list[str], ops)) if isinstance(ops, list) else [ops]
+    return [K.OPS[k] for k in K.OPS if taxonomy.holds(named, k)]
+
+
+Listing = list[tuple[dict[str, Any], str, int, int, int]]
+
+
+def _listing(match: Any, check: dict[str, Any]) -> tuple[Listing, bool]:
+    """Every (conditions, operation, a, b, layout) the straight calculations of two numbers in a case can be printed
+    with, both layouts where the level fixes neither, and whether that is the whole case: not where it has another
+    kind, or a range too large to list."""
+    rows: Listing = []
+    whole = True
+    for alt in K.alternatives(match):
+        listable = _straight(alt) and not _of_many(alt)
+        pairs = {op: _every(alt, check, op) for op in _ops(alt, check)} if listable else {}
+        whole = whole and bool(pairs) and None not in pairs.values()
+        rows += [(alt, op, a, b, k) for op, got in pairs.items() for a, b in got or [] for k in (0, 1)]
+    return rows, whole
+
+
+def _new(match: Any, check: dict[str, Any], rung: str, rows: Listing, seen: set[str]) -> Iterator[I.Item]:
+    """The questions `rows` print that are the case, as measured, and not yet in `seen`; each one added to it."""
+    for alt, op, a, b, k in rows:
+        it = _set_out(alt, check, rung, k, op, a, b)
+        if it.item_id not in seen and taxonomy.matches(match, it.fmt, tags.derive(it)):
+            seen.add(it.item_id)
+            yield it
+
+
+def listed(match: Any, check: dict[str, Any], rung: str) -> list[I.Item] | None:
+    """Every different question a case can be on its level, or None where that cannot be listed (`_listing`): what a
+    level that falls short is measured against."""
+    rows, whole = _listing(match, check)
+    return list(_new(match, check, rung, rows, set())) if whole else None
+
+
+def _rest(
+    rng: random.Random, match: Any, check: dict[str, Any], rung: str, want: int, seen: set[str]
+) -> list[I.Item]:
+    """What a straight case of two numbers still holds when its draws run dry, read from every pair it can be, in a
+    random order: dry is then a fact, not 2000 misses in a row, and the last questions found are as varied as the
+    first (ADD.2D1D Hard's three cases hold 180 questions for its 175, and the last few turned up about once in 1,600
+    draws, so a build now and then ended a few short: CI, 2026-10-21). A range too large to list, and other kinds',
+    keep the misses."""
+    rows, _ = _listing(match, check)
+    rng.shuffle(rows)
+    return list(itertools.islice(_new(match, check, rung, rows, seen), want))
 
 
 def split(want: int, ways: int) -> list[int]:

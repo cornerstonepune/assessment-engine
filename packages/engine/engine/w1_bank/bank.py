@@ -75,7 +75,7 @@ def _sampled(check, formats, n, seed):
     return out
 
 
-def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=None, offline=False):
+def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=None, offline=False, rng=None):
     """`after_batch` is called once per model call — the CLI passes conn.commit so a long fill
     keeps what it has and its flow_run rows are visible while it runs. `on_reject(candidate,
     problems)` lets the CLI show why items fall; tests pass neither. `offline` swaps the model for
@@ -103,8 +103,9 @@ def fill(conn, code, difficulty, n, dry_run=False, after_batch=None, on_reject=N
     # regroups — competing for a single pool of (a, b) pairs and starving whichever fills second.
     band_formats = [check["format"]] if check.get("format") in SAMPLER_FORMATS else list(s["formats"])
     # A random base, not counts["asked"]: a fixed seed restarts the same sequence on every fresh
-    # call, so a second fill meant to top a unit up would only rediscover its own earlier items.
-    seed_base = random.randrange(10**9)
+    # call, so a second fill meant to top a unit up would only rediscover its own earlier items. A caller's own `rng`
+    # (a seeded build) draws the base instead.
+    seed_base = (rng or random).randrange(10**9)
     while counts["accepted"] < n and counts["asked"] < 3 * n:
         ask = min(BATCH, n - counts["accepted"])
         if offline:
@@ -221,7 +222,7 @@ def _insert(
     return row is not None
 
 
-def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
+def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None, rng=None):
     """Chunk B of W1 gate 2: a skill set whose format has no place in the model-candidate
     pipeline (mental strategies, word problems, budgets, estimation, efficient method) filled
     straight from its own generator in `assess/items.py`, keyed by `check['format']`."""
@@ -242,8 +243,8 @@ def fill_native(conn, code, difficulty, n, dry_run=False, after_batch=None):
     # Real (OS-seeded) randomness, not a seed derived from (code, difficulty, tries): a fixed
     # seed would make every fresh call retrace the same sequence from its first attempt, so a
     # second call meant to top up an already-filled unit would just rediscover what the first
-    # call already inserted, never reaching new content.
-    rng = random.Random()
+    # call already inserted, never reaching new content. A caller's own `rng` (a seeded build) is used as given.
+    rng = rng or random.Random()
     listed, limit = None, n * 8
     if fmt == "card":
         # A kind that is a row lists every question its level can make (ADR 0075): the level is filled from that list

@@ -1,5 +1,17 @@
 # The engine's only public door. ENGINE_HOST is <server-ip-with-dashes>.sslip.io, which resolves to
 # the server's own address, so Caddy can obtain a certificate for it with no domain to buy.
+#
+# Two places the engine can answer (goals/l8-deploy-without-downtime.yaml): 8000, the engine; 8001, the standby a
+# deploy starts beside it (deploy/switch.sh). Every request goes to the first one whose /health answered, so while a
+# deploy replaces the engine the standby answers instead, and a request that finds neither waits up to 30 seconds for
+# one, rather than failing at once as it did on every deploy to 21 Oct 2026 ("The engine refused (502)").
 {$ENGINE_HOST} {
-	reverse_proxy 127.0.0.1:8000
+	reverse_proxy 127.0.0.1:8000 127.0.0.1:8001 {
+		lb_policy first
+		lb_try_duration 30s
+		lb_try_interval 250ms
+		health_uri /health
+		health_interval 2s
+		health_timeout 5s
+	}
 }

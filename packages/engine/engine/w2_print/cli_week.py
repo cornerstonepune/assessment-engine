@@ -111,7 +111,8 @@ def week_focus(
     with db.connect() as conn:
         child = str(roster.find(conn, section, first_name, by or "cli"))
         if make:
-            p = focus_paper.make(conn, child, week, by)
+            now = focus_paper.approved(conn, child, week)  # made again from here, it replaces the week's
+            p = focus_paper.make(conn, child, week, by, replaces=now["qr"] if now else None)
             conn.commit()
         else:
             p = focus_paper.plan(conn, child, week)

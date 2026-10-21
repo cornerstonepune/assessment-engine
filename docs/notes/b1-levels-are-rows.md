@@ -27,6 +27,15 @@
   with "permission denied for function skill_levels"; 20261123090000 had granted it to the engine's role alone (our
   functions answer only whom a migration names, 20261019090000). `test_roles.py` now lists it among the site's calls:
   failed first, passes after the grant; as `app_web` on the fresh build, 46 skills' levels read.
+- **CI on c728e35** (main merged in again, with #241's one-snapshot rehearsal and #237's bank fix; run
+  39581630007): engine 2589 passed, 2 skipped, coverage 85.9%; browser and web green.
+- **Rehearsed on a copy of live, after B0d (run 39581724538 on c728e35, green):** "copied: 64 tables, 163666 rows,
+  every count equal to live's snapshot"; `applying 20261123090000_the_levels_are_rows.sql` then `applying
+  20261124090000_the_site_reads_a_skills_levels_from_their_rows.sql`. `engine levels check` before and after
+  update-live: "178 levels in the blob, 178 rows · grades G1 16 · G2 63 · G3 55 · G4 44", "approved: 178 in the blob,
+  178 in the rows", "drawn on seed 1: 178 levels, 4 questions each, from rows and blob", "the rows and the blob agree
+  on every level"; the copy after the update clean. (Two runs at 07:29 and 07:34 UTC on 4a19318 had stopped at the
+  copy, because live grew between its dump and its count; #241 counts both in one snapshot.)
 - **Left on the blob, by design (ADR 0087):** the writers (the site's edit, approval and move, the loader, `engine
   ratify`, `cases` bringing levels to the seed), and "who last moved a level, when" (`level_band_by`/`_at`), which is
   the skill's record and has no column on a level's row.
@@ -52,6 +61,7 @@
 ## Handoff
 
 - **Live:** nothing; B1 is not deployed. Nimish merges #234, then `bin/update-live` migrates live.
-- **In flight:** #234 — B0d and the notes rule merged in (merge commit), the waiting readers moved.
+- **In flight:** #234, ready for review: B0d and the notes rule merged in (merge commit), the waiting readers
+  moved, the site's grant added; CI and the rehearsal green on c728e35.
 - **Next:** the writers move onto the rows; then the blob is dropped one deploy after.
 - **Open for Nimish:** how a level's words split into a learning objective and "what it looks like" (kept whole now).

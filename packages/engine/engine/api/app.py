@@ -4,6 +4,7 @@ model, runs it through `run_idempotent`, and shapes the result. No route contain
 every decision is the function it calls, which is also what the CLI calls, which is also what the
 tests in `tests/` already cover. This file only wires."""
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -15,11 +16,13 @@ from engine.api.routes import bank, capture, card, children, focus, graph, libra
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # a run going when the engine stopped ran in the process that stopped: say so on it
-    try:
-        runs.orphaned()
-    except Exception:  # no database at start (tests, a first boot): nothing was running
-        pass
+    # a run going when the engine stopped ran in the process that stopped: say so on it. Not in the standby a deploy
+    # starts beside a serving engine (deploy/switch.sh): a run going then is that engine's, and still going.
+    if not os.getenv("ENGINE_STANDBY"):
+        try:
+            runs.orphaned()
+        except Exception:  # no database at start (tests, a first boot): nothing was running
+            pass
     yield
 
 
