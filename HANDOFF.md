@@ -9,9 +9,9 @@ is verified. This file only says where the last session stopped.
   rows equal to it. `bin/engine levels check` proves they agree and draw the same questions on one seed.
 - **Readers moved:** the generator and the mistake list (via `spec`), cases, review, story shape, week note, audit,
   references, legacy; on the site the bank, a question's page, the home counts, the people page.
-- **Next, once B0c (#228) and B0d (#231) merge:** merge main in, then move the readers they rewrite (inventory, rehome,
-  library, prescribe, shelf, focus paper, sorting, graph, focus, loaders' counts; the site's queries.ts and the pages
-  on it), then the writers, then drop the blob one deploy later.
+- **B0c merged into main and then into this branch** (merge commit cc2144f); inventory, rehome and the library's level
+  list moved. **Next, once B0d (#231) merges:** merge main in, move prescribe, shelf, focus paper, focus, loaders'
+  counts and the site's queries.ts with its pages; then the writers; then drop the blob one deploy later.
 - **Open for Nimish:** how a level's words split into a learning objective and "what it looks like" (kept whole now).
 
 ## 2026-10-20 — B0c built (W1, gate 3): the levels are read from their table; PR #228, draft, not deployed

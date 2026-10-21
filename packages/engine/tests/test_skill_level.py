@@ -20,7 +20,7 @@ pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DAT
 
 MIGRATION = db.REPO_ROOT / "supabase" / "migrations" / "20261123090000_the_levels_are_rows.sql"
 SKILL = "SUB.2D2D"
-# The readers moved to the rows. The rest touch code B0c and B0d (PRs #228, #231) are changing, and move once those merge.
+# The readers moved to the rows. The rest are in code B0d (PR #231) is changing, and move once it merges.
 MOVED = [
     "packages/engine/engine/w1_bank/spec.py",
     "packages/engine/engine/w1_bank/cases.py",
@@ -31,6 +31,9 @@ MOVED = [
     "packages/engine/engine/core/references.py",
     "packages/engine/engine/w3_read/legacy.py",
     "packages/engine/engine/cli.py",
+    "packages/engine/engine/w1_bank/inventory.py",
+    "packages/engine/engine/w1_bank/rehome.py",
+    "packages/engine/engine/w2_print/library.py",
     "apps/web/lib/queries-bank.ts",
     "apps/web/lib/queries-people.ts",
     "apps/web/lib/workflows.ts",

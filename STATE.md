@@ -8344,10 +8344,16 @@ one child on live.
 - **Readers moved:** the generator's spec (`spec.row`, `spec.read`, so `bank.fill`, `fill_native`, `refill`, the mistake
   list), `cases.holds`/`placed`, `review`, `story_shape.placed`, `week_note.options`, `audit`, `references`, `legacy`, the
   item_generate eval; on the website the bank's totals, a question's level words, the home counts and the people page's
-  "reaches". **Left for after B0c/B0d merge** (PRs #228, #231 rewrite them): `inventory`, `rehome`, `library`,
-  `prescribe`, `shelf`, `focus_paper`, `sorting`, `graph`, `focus`, `loaders`, and the website's `queries.ts`, curriculum,
-  children, worksheets, papers/approve and skill-set pages. The writers (the site's edit, approval and move, the loader,
+  "reaches". After B0c (#228) merged into main (861e624), main was merged in here (cc2144f, a merge commit) and
+  `inventory.coverage`, `rehome.shaped` and the worksheet library's level list moved too. **Left for after B0d merges**
+  (PR #231 rewrites them): `prescribe`, `shelf`, `focus_paper`, `focus`, `loaders`' counts, and the website's
+  `queries.ts` with the curriculum, children, worksheets, papers/approve and skill-set pages that read through it. The writers (the site's edit, approval and move, the loader,
   `engine ratify`, `cases` bringing levels to the seed) still write the blob, by design (ADR 0087).
+- **A fresh build from this branch and one from main differ by one level, by chance:** 28,698 questions and 2,737
+  worksheets here, 28,696 and 2,736 on main, all on SUB.3D2D Advance's case S33 (9 questions here, 7 on main; every
+  other case of every level equal). S33 has few questions left once Hard has taken its 44, and the bank looks for them
+  with fresh randomness each build: main's own code on main's own database finds 6 on seed 0 and none on seeds 1–7.
+  The level's rule is the same from rows and blob (`engine levels check`), so this is the bank's chance, not B1.
 - **Checks:** `tests/test_skill_level.py` failed first (no `engine.checks.levels`), then 6 passed: keys refuse a level
   or grade that is no row; the rows give back the blob; same draws; a blob write reaches the rows; a level's own
   history, carried on first run; a moved reader reads the row even where the blob says otherwise.
