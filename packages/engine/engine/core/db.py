@@ -25,6 +25,8 @@ def _repo_root_for(this_file: Path) -> Path:
 
 
 REPO_ROOT = _repo_root_for(Path(__file__))
+# where the school's scans and what is cut from them live, beside the repository and never in it (rule 6)
+ASSESSMENTS = "~/cornerstone/assessments"
 if (REPO_ROOT / ".env").exists():
     load_dotenv(REPO_ROOT / ".env")
 

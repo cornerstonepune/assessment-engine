@@ -7,9 +7,9 @@ Crops stay beside the scans, never in the database or the repository (rule 6).
 
 from pathlib import Path
 
-from engine.w3_read import read_eval
+from engine.core import db
 
-CROPS = Path(read_eval.ASSESSMENTS).expanduser() / "crops"
+CROPS = Path(db.ASSESSMENTS).expanduser() / "crops"
 
 
 def keeper(scan, page_no):
