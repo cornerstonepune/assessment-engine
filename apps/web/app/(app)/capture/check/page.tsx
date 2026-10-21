@@ -132,6 +132,10 @@ export default async function CheckAnswers({ searchParams }: Props) {
                   <p>
                     The engine read <strong className="fact">{a.read || "nothing"}</strong>.
                   </p>
+                ) : a.second_read !== null ? (
+                  <p>
+                    Two readers disagree. The reader thinks the child wrote <strong className="fact">{a.guess}</strong>; the second reader, shown the child&rsquo;s own answers, reads <strong className="fact">{a.second_read || "nothing"}</strong>. Look at the photograph.
+                  </p>
                 ) : a.guess && a.guess_by ? (
                   <p>
                     The second reader, shown {a.guess_by.match(/with (\d+)/)?.[1] ?? "some"} of the child&rsquo;s own answers, thinks the child wrote{" "}
