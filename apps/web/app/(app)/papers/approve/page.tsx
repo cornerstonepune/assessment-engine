@@ -226,9 +226,8 @@ async function ChildPaper({ r, back }: { r: WeekRow; back: string }) {
             {LIBRARY_CODE.test(r.worksheet) ? <Link href={`/worksheets/${r.worksheet}`}>{sheetWords(r.worksheet)}</Link> : r.worksheet}
           </>
         ) : null}
-        <span className="block text-[11.5px] text-basalt/55">
-          {r.print_status === "printed" ? "approved and printed" : "to approve"} · printed code {r.qr_code}
-        </span>
+        <span className="block text-[11.5px] text-basalt/55">{r.print_status === "printed" ? "approved and printed" : "to approve"}</span>
+        <span className="block text-[11.5px] text-basalt/55">printed code {r.qr_code}</span>
       </td>
       <td>
         <details>
