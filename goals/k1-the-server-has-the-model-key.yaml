@@ -1,0 +1,18 @@
+name: k1-the-server-has-the-model-key
+goal: >
+  The live engine always has the model key. It is kept in the repository's secret ANTHROPIC_API_KEY, and every deploy
+  writes it into the server's settings without it appearing in any log; a deploy to a server still without it says so
+  on the run. Measured first (PR #248): from 29 Sep the server had no key, and all 116 second-reader calls on live
+  failed ("ANTHROPIC_API_KEY is not set") with nothing telling anyone.
+# Written 2026-10-21, before the code. Nimish, 2026-10-21: "I'll give you the Claude API key", then "write the key step".
+says:
+  - words: "write the key step"
+    proved_by: packages/engine/tests/test_deploy.py::test_the_model_key_reaches_the_server_from_the_repositorys_secret
+manual:
+  - "Nimish adds the repository secret ANTHROPIC_API_KEY (Settings → Secrets and variables → Actions)."
+  - "The first deploy after merging shows no 'the server has no ANTHROPIC_API_KEY' warning on its 'the model key' step."
+scenarios: []
+criteria:
+  - name: the key step is as the test says
+    run: cd packages/engine && uv run pytest -q tests/test_deploy.py
+    expect: "passed"

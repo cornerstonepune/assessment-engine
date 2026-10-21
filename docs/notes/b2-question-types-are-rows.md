@@ -52,6 +52,11 @@ On a database built fresh from this branch (`bin/testdb fresh`, 2026-10-21) unle
     rehearsal counts the bank's own questions alone.
 - CI `browser` on PR #240 failed on `permission denied for function skill_levels` — B1's, fixed on B1 (eb2c132) and
   merged here; re-run on the new head.
+- CI `engine shard 2` on 006b7ee (PR merge with main 4151df2) failed `test_levels_closing.py::test_the_command_lists_them_and_writes_nothing`:
+  main's c5cfcac made it read a class it creates, and counted on a fresh database having an unapproved level; B2's
+  `bin/testdb fresh` approves every level, as live, so nothing closed. The test now withdraws one level itself
+  (ADD.2D1D keeps Easy), as its sibling test and the testdb comment say a test must. Proof:
+  `bin/testdb fresh <url>` then `uv run pytest -q tests/test_levels_closing.py` → `2 passed`.
 
 ## Handoff
 

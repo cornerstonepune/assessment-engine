@@ -11,21 +11,22 @@ on:
     branches: [main]
   pull_request:
 
+# A pull request's newer push cancels its older run: the engine's shards take 12 of the jobs GitHub runs at once (20 on
+# its free plan), and two runs of one branch queued each other (2026-10-21). Every run on main finishes, since
+# migrate.yml and deploy-engine.yml start from each.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  engine:
+  # The engine's checks that need no database, beside the shards rather than before them.
+  engine-checks:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: packages/engine } }
-    env:
-      # the tests refuse any database that is not on this machine (conftest.py, core/db.py)
-      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
-      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
     steps:
       # the whole history, for the ratchet below to read the baselines of the commit this change starts from
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      # Postgres 17 from the PostgreSQL apt repository, no container image: two registries' anonymous-pull limits
-      # stopped every job before its first step (Docker Hub 2026-10-09, AWS's copy 2026-10-15). See bin/ci-postgres.
-      - run: ../../bin/ci-postgres
       - uses: astral-sh/setup-uv@v5
       # The server builds with `uv sync --frozen`, which installs the lockfile and nothing else. A
       # lock missing boto3 passed every check here (a fresh resolve found it) and the deployed
@@ -38,6 +39,41 @@ jobs:
       # complexity limits, the coverage floor); a change may tighten each number and never loosen it
       # (goals/p1-the-gates-hold.yaml). The base is the pull request's, or the commit main was at before a push.
       - run: uv run engine ratchet --base "${{ github.event.pull_request.base.sha || github.event.before }}"
+
+  # The engine's tests, cut across runners by file (bin/ci-shard), each with its own database built afresh: one
+  # runner took 37 minutes on 2026-10-21, 31 of them tests (goals/ci-engine-shards.yaml, docs/notes/ci-engine-shards.md).
+  # A file stays whole on one runner, so its module fixtures and its tests' order are as they were.
+  engine-shard:
+    name: engine shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # SHARDS below, here and in the engine job, must be this list's length; 12 runners finish their tests together at
+      # the slowest single test (149 s), and more would only wait on it (docs/notes/ci-engine-shards.md)
+      matrix: { shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
+    defaults: { run: { working-directory: packages/engine } }
+    env:
+      SHARDS: 12
+      OUT: ${{ github.workspace }}/shard
+      # the tests refuse any database that is not on this machine (conftest.py, core/db.py)
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+    steps:
+      # the whole history, as the single runner had it
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      # Postgres 17 from the PostgreSQL apt repository, no container image: two registries' anonymous-pull limits
+      # stopped every job before its first step (Docker Hub 2026-10-09, AWS's copy 2026-10-15). See bin/ci-postgres.
+      - run: ../../bin/ci-postgres
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --extra dev
+      # The database is built from this repository alone (`bin/testdb fresh`: every migration, the seed, the question
+      # bank and the worksheet library), a fresh draw of the bank on every runner. It takes about six minutes, nearly
+      # all `engine bank refill` on one core, so it starts first and the steps below run beside it.
+      - name: the test database, started
+        run: |
+          mkdir -p "$OUT"
+          ( ../../bin/testdb fresh "$DATABASE_URL" >"$RUNNER_TEMP/testdb.log" 2>&1; echo $? >"$RUNNER_TEMP/testdb.rc" ) &
       # A paper is printed through Chromium (assess/render.py); the test that scans printed papers needs it.
       - run: uv run playwright install --with-deps chromium
       # The digit reader's models (ADR 0035, ~135 MB): test_digits and test_boxes run the real reader.
@@ -51,9 +87,60 @@ jobs:
         with:
           path: data/spine_sources
           key: spine-sources-${{ hashFiles('docs/spine/sources/official_documents.json') }}
-      - run: ../../bin/testdb fresh "$DATABASE_URL"
-      # Coverage below the floor in pyproject.toml ([tool.coverage.report] fail_under) fails the run.
-      - run: uv run pytest -q --cov=engine --cov-report=term:skip-covered
+      - name: the test database, built
+        run: |
+          while [ ! -f "$RUNNER_TEMP/testdb.rc" ]; do sleep 2; done
+          cat "$RUNNER_TEMP/testdb.log"
+          exit "$(cat "$RUNNER_TEMP/testdb.rc")"
+      # Every runner collects the whole suite on its own database, and takes its cut of it; the engine job below
+      # checks the cuts together are the suite, each test in one.
+      - name: this shard's tests
+        run: |
+          uv run pytest --collect-only -q >"$OUT/collected.txt"
+          ../../bin/ci-shard pick ${{ matrix.shard }} "$SHARDS" "$OUT/collected.txt" ../../.github/ci-durations.json >"$OUT/assigned.txt"
+          [ -s "$OUT/assigned.txt" ] || { echo "::error::shard ${{ matrix.shard }} has no tests: fewer files than shards"; exit 1; }
+          echo "$(wc -l <"$OUT/assigned.txt") tests here"
+      # The coverage floor is the whole suite's, so it is applied once, to every shard's data combined (the engine job).
+      # The data is kept when a test fails too: the engine job refuses to combine without every shard's.
+      - run: |
+          rc=0
+          uv run pytest -q --cov=engine --cov-report= --cov-fail-under=0 \
+            -o junit_family=xunit1 --junitxml="$OUT/report.xml" "@$OUT/assigned.txt" || rc=$?
+          mv .coverage "$OUT/coverage.data" || true
+          exit "$rc"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: engine-shard-${{ matrix.shard }}
+          path: shard/
+          retention-days: 7
+
+  # The one pass or fail for the engine, under the name the single job had: every shard green, every test run exactly
+  # once across them, and coverage below the floor in pyproject.toml ([tool.coverage.report] fail_under) fails it.
+  engine:
+    needs: [engine-checks, engine-shard]
+    if: always()
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: packages/engine } }
+    env:
+      SHARDS: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --extra dev
+      - uses: actions/download-artifact@v4
+        with: { pattern: engine-shard-*, path: shards }
+      - name: every test ran, and ran once
+        run: |
+          for k in $(seq "$SHARDS"); do mv "../../shards/engine-shard-$k" "../../shards/$k" 2>/dev/null || true; done
+          ../../bin/ci-shard check "$SHARDS" ../../shards
+      - name: the whole suite's coverage, against the floor
+        run: uv run coverage combine --keep ../../shards/*/coverage.data && uv run coverage report --skip-covered
+      - name: every engine job passed
+        if: always()
+        run: |
+          echo 'checks: ${{ needs.engine-checks.result }}, shards: ${{ needs.engine-shard.result }}'
+          [ "${{ needs.engine-checks.result }}" = success ] && [ "${{ needs.engine-shard.result }}" = success ]
 
   web:
     runs-on: ubuntu-latest
