@@ -198,20 +198,27 @@ test("a choice changed after the papers are seen stops Make until they are seen 
 });
 
 test("a batch the engine refuses comes back as the educator chose it, the children they picked", async ({ page }) => {
-  const form = await seen(page, /Home assessment/);
-  // between seeing and making, Asha leaves the roll (a second home assessment in a week is no longer refused:
-  // goals/home-assessment-remake.yaml), so the batch is refused whole
-  await sql`update child set active = false where id = ${ids.Asha}`;
+  await clearUp();
+  await page.goto(`/papers/make?class=${SECTION}`);
+  const form = page.getByRole("form", { name: "Choose the papers" });
+  await form.getByRole("radio", { name: /Home assessment/ }).check();
+  await form.getByRole("radio", { name: /Each child's own next step/ }).check();
+  await form.getByRole("checkbox", { name: "Chetan" }).uncheck();
+  await form.getByRole("button", { name: "See the papers" }).click();
+  await expect(page.locator('table[aria-label="Each child\'s paper"] tbody tr')).toHaveCount(2);
+  // between seeing and making, Asha's map is cleared, so she has no next step and her paper is refused (a second home
+  // assessment in a week no longer is: goals/home-assessment-remake.yaml); the map is derived, and rebuilt after
+  await sql`delete from child_skill_state where child_id = ${ids.Asha}`;
   try {
     await page.getByRole("button", { name: "Make and approve 2 home assessment papers" }).click();
-    await expect(page.getByText("pick children who are on the roll").first()).toBeVisible();
+    await expect(page.getByText("no next step to go on yet").first()).toBeVisible();
+    // Chetan stays unticked and unplanned: a refused batch came back planned for the whole class
+    await expect(form.getByRole("checkbox", { name: "Chetan" })).not.toBeChecked();
+    await expect(form.getByRole("checkbox", { name: "Bina" })).toBeChecked();
+    await expect(page.locator('table[aria-label="Each child\'s paper"] tbody tr')).toHaveCount(2);
   } finally {
-    await sql`update child set active = true where id = ${ids.Asha}`;
+    await sql`select rebuild_child_skill_state(${ids.Asha}::uuid)`;
   }
-  // Chetan stays unticked and unplanned: a refused batch came back planned for the whole class
-  await expect(form.getByRole("checkbox", { name: "Chetan" })).not.toBeChecked();
-  await expect(form.getByRole("checkbox", { name: "Bina" })).toBeChecked();
-  await expect(page.locator('table[aria-label="Each child\'s paper"] tbody tr')).toHaveCount(2);
 });
 
 test("an engine that does not answer is said on the maker, and the same form sent again makes the papers once", async ({ page }) => {
