@@ -8,6 +8,7 @@ questions — one worksheet's worth — thin below that, missing at none.
 from collections import Counter, defaultdict
 
 from engine.assess import cards, stale, taxonomy, verify, words
+from engine.core import levels
 from engine.w1_bank import kinds
 
 
@@ -120,7 +121,7 @@ def holds(conn):
     holds it, empty when it does (`outside_their_level`, and `refill.reinstate` for a retired one)."""
     regions = {
         (s["code"], band): spec.get("check", {})
-        for s in conn.execute("select code, difficulty from skill_set").fetchall()
+        for s in conn.execute(f"select s.code, {levels.LEVELS} as difficulty from skill_set s").fetchall()
         for band, spec in s["difficulty"].items()
     }
     case_matches = matches(conn)
@@ -152,7 +153,7 @@ def placed(conn):
     row = conn.execute("select value from config where key = 'taxonomy.across_levels'").fetchone()
     across = set((row["value"] if row else {}).get("sections", []))
     named = defaultdict(list)
-    for s in conn.execute("select code, difficulty from skill_set order by code"):
+    for s in conn.execute(f"select s.code, {levels.LEVELS} as difficulty from skill_set s order by s.code"):
         for level, spec in s["difficulty"].items():
             check = spec.get("check", {})
             for c in [*check.get("cases", []), *check.get("methods", [])]:

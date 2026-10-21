@@ -8294,6 +8294,28 @@ one child on live.
   live"; `engine live data` before the update: `ok    Marking counts each printed question once`, and again after
   `bin/update-live`'s steps (the copy after, must be clean: every check ok).
 
+## B1 — a skill's levels are rows (`skill_level`), kept equal to the blob; the first readers moved (2026-10-21, ADR 0087)
+
+- **Built (`goals/b1-levels-are-rows.yaml`, scope not yet locked):** migration 20261123090000 makes `skill_level`, one
+  row per skill and level, keyed into `skill_set`, `difficulty` and `grade`, holding the level's words (`looks_like`),
+  its rule (everything else of the blob entry), its grade (named in `level_band`, else its rung's) and who approved it
+  and when; `skill_level_version` files a level's earlier words and rule, only that level's, and the migration carries
+  each level's history out of `skill_set_version` once. A trigger on `skill_set` (and on a rung's grade) keeps the rows
+  equal to the blob whoever writes; nobody else may write them. `learning_objective` waits empty (the split is B3's).
+- **Measured on the seed:** 178 levels, 178 rows · G1 16 · G2 63 · G3 55 · G4 44 · approved 0 and 0 (a fresh build has
+  no approvals). `bin/engine levels check`: words, rule, grade and approval equal on every level, and 4 questions drawn
+  from each of the 178 levels on seed 1 from rows and blob, identical.
+- **Readers moved:** the generator's spec (`spec.row`, `spec.read`, so `bank.fill`, `fill_native`, `refill`, the mistake
+  list), `cases.holds`/`placed`, `review`, `story_shape.placed`, `week_note.options`, `audit`, `references`, `legacy`, the
+  item_generate eval; on the website the bank's totals, a question's level words, the home counts and the people page's
+  "reaches". **Left for after B0c/B0d merge** (PRs #228, #231 rewrite them): `inventory`, `rehome`, `library`,
+  `prescribe`, `shelf`, `focus_paper`, `sorting`, `graph`, `focus`, `loaders`, and the website's `queries.ts`, curriculum,
+  children, worksheets, papers/approve and skill-set pages. The writers (the site's edit, approval and move, the loader,
+  `engine ratify`, `cases` bringing levels to the seed) still write the blob, by design (ADR 0087).
+- **Checks:** `tests/test_skill_level.py` failed first (no `engine.checks.levels`), then 6 passed: keys refuse a level
+  or grade that is no row; the rows give back the blob; same draws; a blob write reaches the rows; a level's own
+  history, carried on first run; a moved reader reads the row even where the blob says otherwise.
+
 ## B0b — grades are read from the `grade` table; every grade a row holds is a key; "G2+" is Grade 2 (2026-10-20, ADR 0085)
 
 - **Built (`goals/b0b-grades-from-the-table.yaml`, PR #229):** the website reads the grades once a request (`grades()`,

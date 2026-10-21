@@ -21,7 +21,7 @@ from engine.adapters import llm
 from engine.assess import bands, draw
 from engine.assess import misconceptions as M
 from engine.assess import operations as O
-from engine.core import db
+from engine.core import db, levels
 from engine.w1_bank import cases, kinds
 
 MISCONCEPTION_PROMPT = "misconception_list"
@@ -33,21 +33,20 @@ SAMPLE_PER_CASE = 8
 
 
 def row(conn, code):
-    s = conn.execute("select * from skill_set where code = %s", (code,)).fetchone()
-    if not s:
-        raise ValueError(f"no skill set {code!r}")
-    return s
+    """A skill set, its levels read from their rows (`skill_level`, goals/b1-levels-are-rows.yaml)."""
+    return levels.skill(conn, code)
 
 
 def read(conn, code, difficulty):
     """One band's spec as the item-generation prompt's input, built only from rows: skill set, rung, school philosophy, misconceptions."""
     s = conn.execute(
-        "select s.*, r.band, r.skill_codes from skill_set s"
+        f"select s.*, r.band, r.skill_codes, {levels.LEVELS} as levels from skill_set s"
         " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code where s.code = %s",
         (code,),
     ).fetchone()
     if not s:
         raise ValueError(f"no skill set {code!r}")
+    s = levels.swap(s)
     band = s["difficulty"].get(difficulty)
     if not band:
         raise ValueError(f"{code} has no difficulty {difficulty!r}; it has {', '.join(s['difficulty'])}")

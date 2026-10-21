@@ -3,6 +3,17 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-21 — B1 built (W1, gate 3): a skill's levels are rows (`skill_level`); PR on `claude/b1-levels-are-rows`, draft
+- **What it is** (STATE.md "B1", ADR 0087): one row per skill and level, with its level, grade, words, rule and
+  approval, and its own history. The blob on `skill_set` is still what the site and loader write; a trigger keeps the
+  rows equal to it. `bin/engine levels check` proves they agree and draw the same questions on one seed.
+- **Readers moved:** the generator and the mistake list (via `spec`), cases, review, story shape, week note, audit,
+  references, legacy; on the site the bank, a question's page, the home counts, the people page.
+- **Next, once B0c (#228) and B0d (#231) merge:** merge main in, then move the readers they rewrite (inventory, rehome,
+  library, prescribe, shelf, focus paper, sorting, graph, focus, loaders' counts; the site's queries.ts and the pages
+  on it), then the writers, then drop the blob one deploy later.
+- **Open for Nimish:** how a level's words split into a learning objective and "what it looks like" (kept whole now).
+
 ## 2026-10-20 — the 5 papers "counted twice" were never counted twice (W3); PR on `claude/marking-counts-once`, draft
 - **The check was wrong, not the data** (STATE.md "Marking counts each answer once"): their grid questions ask five
   answers each; the check counted questions. Now it counts answers; the same answer read twice still fails. No child's
