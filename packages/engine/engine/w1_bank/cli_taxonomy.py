@@ -87,10 +87,12 @@ def register(bank_app: typer.Typer) -> None:
 
             retired, redrawn, added = refill.refill(conn, after_level=said)
             conn.commit()
-        typer.echo(
-            f"  retired {sum(retired.values())} questions outside their level · {sum(redrawn.values())} answered in"
-            f" one place, drawn again · added {sum(added.values())}"
-        )
+            # a level still short says why, case by case, above the line that sums the run up
+            typer.echo(
+                "".join(f"  {line}\n" for line in refill.why_any_is_short(conn))
+                + f"  retired {sum(retired.values())} questions outside their level · {sum(redrawn.values())} answered"
+                f" in one place, drawn again · added {sum(added.values())}"
+            )
 
 
 def _per_taxonomy(rows, where) -> None:

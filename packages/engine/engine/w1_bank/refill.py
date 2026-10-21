@@ -200,11 +200,7 @@ def _drawn_up(conn, code, difficulty, target, rng=None):
     if check.get("cases"):
         matches = cases.for_level(conn, check)
         have, total = _held_per_way(conn, code, difficulty, check, matches)
-        share = math.ceil(target / len(check["cases"]))
-        quotas = {
-            c: [max(0, k - h) for k, h in zip(draw.split(share, len(held)), held, strict=True)]
-            for c, held in have.items()
-        }
+        quotas = shortfall(check, matches, target, have)
         want = max(0, target - total)
         if not want and not any(map(sum, quotas.values())):
             return 0
@@ -219,10 +215,68 @@ def _drawn_up(conn, code, difficulty, target, rng=None):
     from engine.assess import bands
 
     if check.get("format") in bands.NATIVE_GENERATORS:
-        counts, _ = bank.fill_native(conn, code, difficulty, target - total)
+        counts, _ = bank.fill_native(conn, code, difficulty, target - total, rng=rng)
     else:
-        counts, _, _ = bank.fill(conn, code, difficulty, target - total, offline=True)
+        counts, _, _ = bank.fill(conn, code, difficulty, target - total, offline=True, rng=rng)
     return counts["accepted"]
+
+
+def shortfall(check, matches, target, have=None):
+    """{case: what it is still short of in each way the level prints it}: its fair share of `target`, dealt over the
+    ways, less what the level holds (`_held_per_way`; nothing, in a fresh bank)."""
+    methods = [matches[m] for m in check.get("methods", [])]
+    have = have or {c: [0] * len(K.ways(matches[c], methods)) for c in check["cases"]}
+    share = math.ceil(target / len(check["cases"]))
+    return {
+        c: [max(0, k - h) for k, h in zip(draw.split(share, len(held)), held, strict=True)]
+        for c, held in have.items()
+    }
+
+
+def why_short(conn, code, difficulty, target):
+    """Why a level holds fewer than `target` questions, in words, or nothing when it does not: each case short of its
+    share, with what it can make at all and how many of those the bank already holds (none is drawn twice, on any
+    level, retired or not); or that a case's or a generator's questions cannot be listed, so only its draws looked."""
+    _, s, check = spec(conn, code, difficulty)
+    n = conn.execute(
+        "select count(*) as n from item where status = 'active' and skill_set_code = %s and difficulty = %s",
+        (code, difficulty),
+    ).fetchone()["n"]
+    if n >= target:
+        return []
+    head = f"{code} {difficulty} holds {n} of {target}"
+    if not check.get("cases"):
+        return [
+            f"{head}: its generator ({check.get('format')}) cannot be listed, and its draws found no new question"
+        ]
+    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    keys = {r["item_key"] for r in conn.execute("select item_key from item where tenant_id = %s", (tenant,))}
+    matches = cases.for_level(conn, check)
+    have, _ = _held_per_way(conn, code, difficulty, check, matches)
+    ways = {c: K.ways(matches[c], [matches[m] for m in check.get("methods", [])]) for c in check["cases"]}
+    lines = [head + ":"]
+    for c, short in shortfall(check, matches, target, have).items():
+        for way, k in [(w, k) for w, k in zip(ways[c], short, strict=True) if k]:
+            made = draw.listed(way, check, s["rung_code"])
+            if made is None:
+                lines.append(
+                    f"  {c}: {k} short; its questions cannot be listed, and its draws found no new one"
+                )
+            else:
+                held = sum(it.item_id in keys for it in made)
+                lines.append(
+                    f"  {c}: {k} short; it can make {len(made)} questions and the bank holds {held} of them"
+                )
+    return lines
+
+
+def why_any_is_short(conn):
+    """`why_short` for every level, in the order the bank fills them: nothing when every level holds its target."""
+    return [
+        line
+        for r in inventory.coverage(conn)
+        for line in why_short(conn, r["code"], r["difficulty"], r["target"])
+    ]
 
 
 def refill(conn, rng=None, after_level=None):
