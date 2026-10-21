@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "@/components/link";
+import { sheetWords } from "../../worksheets/[qr]/library-sheet";
 import { Answers, KIND, mistakeOf, Question } from "@/components/question";
 import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
@@ -344,7 +345,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                           <td className="whitespace-nowrap">
                             {/* named by its level and number; the code printed on the sheet beside it */}
                             <Link href={`/worksheets/${w.code}`}>
-                              {w.difficulty} · sheet {Number(w.code.split("-").pop()!.slice(1))}
+                              {w.difficulty} · {sheetWords(w.code)}
                             </Link>{" "}
                             <span className="fact text-[11px] text-basalt/45">{w.code}</span>
                           </td>

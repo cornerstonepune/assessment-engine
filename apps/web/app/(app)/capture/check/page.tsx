@@ -98,7 +98,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
         ) : (
           <Panel
             title={`${a.first_name} · question ${a.slot}`}
-            aside={`${a.paper_title ?? "paper"} · sat ${dateWords(a.sat)}`}
+            aside={`${a.paper_title ?? "paper"}${a.sat ? ` · sat ${dateWords(a.sat)}` : ""}`}
           >
             <div className="grid gap-[18px] lg:grid-cols-[minmax(0,1fr)_380px]">
               <figure className="min-w-0">

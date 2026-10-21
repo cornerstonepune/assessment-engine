@@ -73,7 +73,9 @@ test("a child's page says which areas the home assessment works on and why, and 
   await expect(page).toHaveURL(/\?paper=CS[0-9A-F]{6}$/);
   const qr = new URL(page.url()).searchParams.get("paper")!;
   await page.getByRole("region", { name: "Home assessment" }).getByRole("link", { name: qr }).click();
-  await expect(page.getByRole("heading", { name: `Paper ${qr}` })).toBeVisible();
+  // named by what it is, its printed code beneath (goals/ux8b-papers-named.yaml)
+  await expect(page.getByRole("heading", { level: 1 })).not.toContainText(qr);
+  await expect(page.getByText(`Printed code ${qr}`)).toBeVisible();
   // in the engine's own words for how it was chosen, kept on the paper (goals/p0-the-maker-makes-what-it-shows.yaml)
   await expect(page.getByText("12 chosen from their own checked papers")).toBeVisible();
   const [made] = await sql<{ n: number }[]>`

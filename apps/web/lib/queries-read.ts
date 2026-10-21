@@ -8,6 +8,7 @@
  */
 import { sql } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
+import { paperName } from "./queries-papers";
 
 // ---- the approval queue. One row per paper a child sat, and every answer on it.
 //
@@ -45,7 +46,7 @@ export type PaperRow = {
 
 const paperRows = (where: ReturnType<typeof sql>, actor: string) => sql<PaperRow[]>`
   select si.id, si.child_id, p.first_name, ch.section, ch.roll_no, t.batch_id as paper,
-         coalesce(t.key ->> 'title', t.code) as title, t.key ->> 'date' as date,
+         ${paperName("t")} as title, t.key ->> 'date' as date,
          coalesce(jsonb_array_length(t.key -> 'pages'), 1) as pages,
          (select count(*)::int from capture c
            where c.sheet_instance_id = si.id and c.superseded_by is null) as files,
@@ -103,6 +104,8 @@ export async function sameChildPapers(id: string): Promise<{ id: string }[]> {
 
 export type CaptureAnswer = {
   id: string;
+  /** The skill the question tests, by the name every other page gives it; null on a question no skill holds. */
+  set_name: string | null;
   capture_id: string;
   slot: string;
   n: number | null;
@@ -164,6 +167,7 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
            coalesce(i.spec ->> 'question', i.stem) as question, result_part(i.responses, r.rid) as part,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
+           (select ss.name from skill_set ss where ss.tenant_id = i.tenant_id and ss.code = i.skill_set_code) as set_name,
            operation_sign(i.spec ->> 'op') as op, i.mistake_skills,
            coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            r.raw_read::jsonb ->> 'child_answer' as read,
@@ -314,6 +318,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
            coalesce(i.spec ->> 'question', i.stem) as question, result_part(i.responses, r.rid) as part,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
+           (select ss.name from skill_set ss where ss.tenant_id = i.tenant_id and ss.code = i.skill_set_code) as set_name,
            operation_sign(i.spec ->> 'op') as op, i.mistake_skills,
            coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            r.raw_read::jsonb ->> 'child_answer' as read,
@@ -326,7 +331,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
                 then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
            r.status, r.state, r.working_shown, r.misconception_codes,
            k.human_read, k.by as corrected_by,
-           si.id as paper_id, p.first_name, coalesce(t.key ->> 'title', t.code) as paper_title, t.key ->> 'date' as sat,
+           si.id as paper_id, p.first_name, ${paperName("t")} as paper_title, t.key ->> 'date' as sat,
            nullif(r.raw_read::jsonb ->> 'guess', '') as guess
     from item_result r
     join capture c on c.id = r.capture_id

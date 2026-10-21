@@ -4,6 +4,7 @@ import type { Rag } from "./rag";
 import type { States } from "./states";
 import { reportState, type ReportState } from "./queries-reports";
 import { skillTaughtIn } from "./taught";
+import { paperName } from "./queries-papers";
 
 // Children (goals/u2-children.yaml): a grade's classes, a class as its children against every step, and what a
 // child's page adds to the graph — the mistakes that repeat and every paper made for or read from the child. The
@@ -295,7 +296,7 @@ export type ChildSheet = {
 /** Every paper made for the child or read from them, newest first: its purpose, who approved it, what was read. */
 export async function childSheets(id: string): Promise<ChildSheet[]> {
   return sql<ChildSheet[]>`
-    select si.id, si.qr_code, si.kind, coalesce(si.week, st.week) as week, coalesce(st.key ->> 'title', st.code) as title,
+    select si.id, si.qr_code, si.kind, coalesce(si.week, st.week) as week, ${paperName("st")} as title,
            st.key ->> 'date' as date, si.print_status, si.approved_by, si.approved_at,
            (select count(*)::int from item_result r join capture c on c.id = r.capture_id
              where c.sheet_instance_id = si.id and c.superseded_by is null) as n_results,

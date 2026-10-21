@@ -1,0 +1,40 @@
+name: ux8b-papers-named
+goal: >
+  A paper is named by what it tests. On every page an educator opens a paper from (marking, a read paper, checking its
+  answers, the child's page, the paper's own page, the class's papers to approve) it is its skill and level, "2-digit +
+  2-digit · Medium", never a worksheet's code; its printed code shows only as small text, to match a page in hand. A
+  skill has one name: the marking page's lanes are the skills every other page names. A paper with no date says nothing
+  of one. A link is named as the page it opens, and that page's way back names where it goes. A class's home
+  assessments say why a child has none.
+# Written 2026-10-21, before the code: slice UX8b of the audit of every maths screen (docs/notes/ux8-every-screen.md,
+# findings 9, 10 and 17). Measured first, as an educator of a Grade 2 class, on a fresh test database:
+#   - "Paper CS38A001" (a paper's heading), "Asha · R16-A01" (a read paper), Marking's paper column "R16-A01", the check
+#     page's "R16-A01 · sat —", a child's papers "R16-A03", the approve page's "CS370A01 · R21-H01";
+#   - worksheet R16-A01 named "Equality, inverse and checking" on its page, "Mental maths & missing-number equations"
+#     (the registry's word for its first skill) on the marking page;
+#   - a read paper with no date: "Sat —.";
+#   - "This week's declaration" opened a page titled "U38-CLASS · this week" whose way back said "U38-CLASS's papers";
+#   - Home assessments: U37-CLASS, 5 children, 0 proposed, 0 approved, and nothing said why.
+# One name, in one place (`paperName` in lib/queries-papers.ts), in the order the Assessments list already used (skill
+# and level, then the school's own title). A library worksheet's own page keeps its code as small text: there it is the
+# sheet's name in the library. The bank's and the worksheet library's lists are out of this slice.
+says:
+  - words: "making sure that every screen and every other representation is thought through well: it's clear"
+    proved_by: "apps/web/tests/u45-papers-named.spec.ts::a paper is named by what it tests on every page an educator opens it from"
+  - words: "every other representation is thought through well"
+    proved_by: "apps/web/tests/u45-papers-named.spec.ts::one skill has one name: the marking page's lanes are the skills every other page names"
+  - words: "it's clear, it's accurate"
+    proved_by: "apps/web/tests/u45-papers-named.spec.ts::a paper with no date says nothing of one"
+  - words: "clickability is fine"
+    proved_by: "apps/web/tests/u45-papers-named.spec.ts::a link is named as the page it opens, and that page's way back names where it goes"
+  - words: "it's clear"
+    proved_by: "apps/web/tests/u45-papers-named.spec.ts::a class's home assessments say why a child has none: every child is counted in one column"
+manual: []
+scenarios: []
+criteria:
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

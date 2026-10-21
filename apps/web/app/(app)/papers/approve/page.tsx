@@ -1,5 +1,5 @@
 import Link from "@/components/link";
-import { LIBRARY_CODE } from "../../worksheets/[qr]/library-sheet";
+import { LIBRARY_CODE, sheetWords } from "../../worksheets/[qr]/library-sheet";
 import { Body, NotYet, PageHeader, Panel, Pill } from "@/components/shell";
 import { levels } from "@/lib/levels";
 import { RULE_WORDS, tableCounts } from "@/lib/queries";
@@ -163,8 +163,7 @@ export default async function ApprovePage({ searchParams }: Props) {
                 <div className="flex flex-wrap gap-2">
                   {spares.map((s) => (
                     <Link key={s.qr_code} href={`/worksheets/${s.qr_code}`} className="chip">
-                      <span className="fact">{s.qr_code}</span> · {s.difficulty}
-                      {s.worksheet ? ` · ${s.worksheet}` : ""}
+                      {s.difficulty} · <span className="fact">printed code {s.qr_code}</span>
                     </Link>
                   ))}
                 </div>
@@ -218,15 +217,18 @@ async function ChildPaper({ r, back }: { r: WeekRow; back: string }) {
         </span>
       </td>
       <td className="fact whitespace-nowrap">
-        <Link href={`/worksheets/${r.qr_code}`}>{r.qr_code}</Link>
+        {/* the paper by what it is, its printed code only to match a page in hand (goals/ux8b-papers-named.yaml) */}
+        <Link href={`/worksheets/${r.qr_code}`}>See the paper</Link>
+        {/* which library worksheet it is, by its number at that level; an old paper's name is its own */}
         {r.worksheet ? (
           <>
             {" · "}
-            {/* only a library worksheet has a page of its own; an old paper's name is just its name */}
-            {LIBRARY_CODE.test(r.worksheet) ? <Link href={`/worksheets/${r.worksheet}`}>{r.worksheet}</Link> : r.worksheet}
+            {LIBRARY_CODE.test(r.worksheet) ? <Link href={`/worksheets/${r.worksheet}`}>{sheetWords(r.worksheet)}</Link> : r.worksheet}
           </>
         ) : null}
-        <span className="block text-[11.5px] text-basalt/55">{r.print_status === "printed" ? "approved and printed" : "to approve"}</span>
+        <span className="block text-[11.5px] text-basalt/55">
+          {r.print_status === "printed" ? "approved and printed" : "to approve"} · printed code {r.qr_code}
+        </span>
       </td>
       <td>
         <details>
