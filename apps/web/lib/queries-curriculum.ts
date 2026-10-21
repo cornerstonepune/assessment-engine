@@ -69,17 +69,28 @@ export type CurriculumRow = {
 export async function curriculumRows(scope: Scope): Promise<{ subject: string; rows: CurriculumRow[]; order: string[] }> {
   const [{ subject, skills }, reached, taught, untaught, { order }, g] = await Promise.all([
     curriculum(scope),
-    sql<{ code: string; kids: string[] }[]>`
-      select ss.code, array_agg(distinct s.child_id::text) as kids
+    // a child assessed on a skill (the graph's word, `child_skill_state`) counts under the grade of each level they answered
+    // it at: a skill whose Easy level the school files under Grade 1 is not Grade 1's for a child who answered at Medium
+    // (goals/ux8a-numbers-true.yaml). An answer with no question behind it has no level, and counts under the skill's grade.
+    sql<{ code: string; grade: string; kids: string[] }[]>`
+      select ss.code, a.grade, array_agg(distinct s.child_id::text) as kids
       from child_skill_state s join child c on c.id = s.child_id and c.active
       join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
-      where s.n_events > 0 and ${inScope(scope, sql`c.section`)} group by ss.code`,
+      join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
+      cross join lateral (
+        select distinct coalesce(l.grade, r.band) as grade
+        from evidence_placed e
+        left join item_result ir on ir.id = e.item_result_id
+        left join item i on i.id = ir.item_id and i.skill_set_code = ss.code
+        left join skill_level l on l.tenant_id = ss.tenant_id and l.skill_code = ss.code and l.difficulty = i.difficulty
+        where e.child_id = s.child_id and e.placed_rung = s.rung_code and e.confirmed_by is not null) a
+      where s.n_events > 0 and ${inScope(scope, sql`c.section`)} group by ss.code, a.grade`,
     taughtByGrade(scope),
     untaughtByGrade(scope),
     schoolLevels(),
     grades(),
   ]);
-  const kids = new Map(reached.map((r) => [r.code, r.kids]));
+  const kids = new Map(reached.map((r) => [`${r.grade}|${r.code}`, r.kids]));
   const rows: CurriculumRow[] = [];
   const sum = (xs: CurriculumRow[], k: "questions" | "worksheets") => xs.reduce((n, x) => n + x[k], 0);
   const levelSums = (xs: CurriculumRow[]) =>
@@ -119,12 +130,12 @@ export async function curriculumRows(scope: Scope): Promise<{ subject: string; r
             worksheets: levels.reduce((n, d) => n + (s.worksheets[d] ?? 0), 0),
             levels: Object.fromEntries(order.map((d) => [d, levels.includes(d) ? (s.counts[d] ?? 0) : null])),
             words: Object.fromEntries(levels.map((d) => [d, s.difficulty[d].words])),
-            children: kids.get(s.code)?.length ?? 0,
-            assessed: kids.has(s.code) ? 1 : 0,
+            children: kids.get(`${band}|${s.code}`)?.length ?? 0,
+            assessed: kids.has(`${band}|${s.code}`) ? 1 : 0,
             skills: 1,
           };
         });
-      const reach = new Set(group.filter((s) => s.topic_code === t.topic_code).flatMap((s) => kids.get(s.code) ?? []));
+      const reach = new Set(group.filter((s) => s.topic_code === t.topic_code).flatMap((s) => kids.get(`${band}|${s.code}`) ?? []));
       reach.forEach((k) => all.add(k));
       const topic: CurriculumRow = {
         id,
