@@ -1,0 +1,31 @@
+name: home-assessment-remake
+goal: >
+  An educator makes a child's home assessment again in the same week, as often as they like. The newest is the week's
+  home assessment everywhere it is shown or counted: the child's page, Make papers, Today and Papers. The earlier ones
+  are never deleted; each is named as replaced in one line, and a copy of one that comes back is still read and marked
+  as that paper, by its own code. Two clicks together still print one paper, not two. No past result changes.
+# Written 2026-10-21, before the code. Urgent: it blocked two educators that day.
+says:
+  - words: "they are not able to generate a new assessment for the same week. There should not be any lock"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_a_second_and_a_third_home_assessment_are_made_in_the_same_week_and_the_newest_is_the_weeks
+  - words: "There should not be any lock"
+    proved_by: packages/engine/tests/test_maker.py::test_each_childs_own_is_their_next_step_and_an_educator_can_change_one_child
+  - words: "after the printing is done, they feel like the assessment is not good. The system is not allowing them to make a new assessment, so remove that constraint ASAP"
+    proved_by: apps/web/tests/s11-focus-paper.spec.ts::a home assessment is made again the same week and the newest is the week's
+  - words: "remove that constraint ASAP"
+    proved_by: packages/engine/tests/test_read_back.py::test_a_home_assessment_made_again_in_the_week_leaves_the_earlier_one_readable_as_itself
+  - words: "remove that constraint ASAP"
+    proved_by: packages/engine/tests/test_focus_paper.py::test_two_clicks_that_saw_the_same_paper_print_one_new_paper_not_two
+manual:
+  - "On live, once merged: open a child's page, approve the home assessment, then press \"Make a new home assessment\"; the page names the new one as this week's and the first as replaced."
+scenarios: []
+criteria:
+  - name: a second and a third paper in a week, the newest the week's, an earlier one read as itself, two clicks one paper
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_focus_paper.py tests/test_maker.py tests/test_read_back.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

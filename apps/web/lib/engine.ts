@@ -29,6 +29,23 @@ export type BodyOf<P extends string, R extends Route = Route> = R extends `POST 
 
 export class EngineDown extends Error {}
 
+/** What a person is told while the engine cannot be reached: a deploy restarts it, and its door (Caddy, on the server)
+ *  answers 502, 503 or 504 with no engine behind it, or nothing answers at all (goals/l8-deploy-without-downtime.yaml).
+ *  The engine's own routes never answer those three, so a page that asked still sees every answer the engine gives. */
+export const ENGINE_RESTARTING = "The engine is restarting. Try again in a minute.";
+const DOOR_WITHOUT_ENGINE = new Set([502, 503, 504]);
+
+async function reached(call: Promise<Response>): Promise<Response> {
+  let res: Response;
+  try {
+    res = await call;
+  } catch {
+    throw new EngineDown(ENGINE_RESTARTING);
+  }
+  if (DOOR_WITHOUT_ENGINE.has(res.status)) throw new EngineDown(ENGINE_RESTARTING);
+  return res;
+}
+
 function key(): string {
   const k = process.env.ENGINE_KEY;
   if (!k) throw new EngineDown("ENGINE_KEY is not set, so this app cannot reach the engine.");
@@ -40,15 +57,13 @@ function key(): string {
 const ENGINE_WAIT_MS = 30_000;
 
 export async function engineGet(path: GetPath): Promise<Response> {
-  try {
-    return await fetch(`${base()}${path}`, {
+  return reached(
+    fetch(`${base()}${path}`, {
       headers: { "X-Engine-Key": key() },
       cache: "no-store",
       signal: AbortSignal.timeout(ENGINE_WAIT_MS),
-    });
-  } catch {
-    throw new EngineDown(`The engine is not answering on ${base()}.`);
-  }
+    }),
+  );
 }
 
 /** An image the engine makes or reads off the school's disk — a scan, a paper as printed, one
@@ -91,17 +106,15 @@ function said(headline: string, detail = ""): Response {
 /** A POST whose whole answer the caller reads, status and body — for a call where a refusal is
  *  itself the answer, such as the engine saying in words why it would not take a correction. */
 export async function engineSend<P extends PostPath>(path: P, body: BodyOf<P>): Promise<Response> {
-  try {
-    return await fetch(`${base()}${path}`, {
+  return reached(
+    fetch(`${base()}${path}`, {
       method: "POST",
       headers: { "X-Engine-Key": key(), "content-type": "application/json" },
       body: JSON.stringify(body),
       cache: "no-store",
       signal: AbortSignal.timeout(ENGINE_WAIT_MS),
-    });
-  } catch {
-    throw new EngineDown(`The engine is not answering on ${base()}. Start it and try again.`);
-  }
+    }),
+  );
 }
 
 export async function enginePost<P extends PostPath>(path: P, body: BodyOf<P>): Promise<unknown> {

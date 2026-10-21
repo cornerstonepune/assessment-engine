@@ -115,3 +115,139 @@ def test_a_bad_deploy_is_undone_by_naming_an_earlier_commit():
     sha = spec["jobs"]["deploy"]["env"]["SHA"]
     assert "inputs.commit" in sha and sha.index("inputs.commit") < sha.index("github.sha")
     assert spec["jobs"]["deploy"]["steps"][0]["with"]["ref"] == "${{ env.SHA }}"
+
+
+# goals/l8-deploy-without-downtime.yaml. Every deploy to 21 Oct 2026 stopped the engine, then started the new one: 23–31
+# seconds of "The engine refused (502)" (measured on the deploy engine runs' own logs, docs/notes/l8-…md).
+SWITCH = db.REPO_ROOT / "deploy" / "switch.sh"
+FAKES = {
+    # every call written down; `docker exec deploy-caddy-1 cat …` answers with the Caddyfile the folder holds
+    "docker": 'echo "docker $*" >> "$LOG"\n'
+    'if [ "$1 $2" = "exec deploy-caddy-1" ]; then cat "$CADDY_SEES"; fi\n',
+    # /health answers 200, except on a port named in DOWN
+    "curl": 'url="${@: -1}"; port="${url#http://127.0.0.1:}"; port="${port%%/*}"\n'
+    'case " $DOWN " in *" $port "*) echo "curl $port 000" >> "$LOG"; printf 000 ;;'
+    ' *) echo "curl $port 200" >> "$LOG"; printf 200 ;; esac\n',
+    "sleep": "",
+}
+
+
+def _switch(tmp_path, down="", caddy_sees=None):
+    """deploy/switch.sh run as the server runs it, with docker, curl and sleep that only write down what they were asked
+    → (exit code, every call in order)."""
+    import os
+    import subprocess
+
+    bin_ = tmp_path / "bin"
+    bin_.mkdir()
+    for name, body in FAKES.items():
+        (bin_ / name).write_text("#!/usr/bin/env bash\n" + body)
+        (bin_ / name).chmod(0o755)
+    log = tmp_path / "calls"
+    log.touch()
+    seen = tmp_path / "caddy-sees"
+    seen.write_text(caddy_sees if caddy_sees is not None else (SWITCH.parent / "Caddyfile").read_text())
+    env = {**os.environ, "PATH": f"{bin_}:{os.environ['PATH']}", "LOG": str(log), "DOWN": down, "TRIES": "3"}
+    env["CADDY_SEES"] = str(seen)
+    done = subprocess.run(["bash", str(SWITCH)], cwd=SWITCH.parent, env=env, capture_output=True, text=True)
+    return done.returncode, log.read_text().splitlines()
+
+
+def _at(calls, start):
+    return next(i for i, c in enumerate(calls) if c.startswith(start))
+
+
+def test_the_new_engine_answers_beside_the_old_before_the_old_is_replaced(tmp_path):
+    code, calls = _switch(tmp_path)
+    assert code == 0, calls
+    built = _at(calls, "docker compose -f compose.server.yml build engine")
+    standby = _at(calls, "docker compose -f compose.server.yml run -d --no-deps --name deploy-engine-standby")
+    answered = _at(calls, "curl 8001 200")
+    replaced = _at(
+        calls, "docker compose -f compose.server.yml up -d --no-deps --no-build --force-recreate engine"
+    )
+    back = _at(calls, "curl 8000 200")
+    gone = _at(calls, "docker stop --time 900 deploy-engine-standby")
+    assert built < standby < answered < replaced < back < gone, calls
+    assert "-p 127.0.0.1:8001:8000 -e ENGINE_STANDBY=1 engine" in calls[standby]
+    assert not any("force-recreate caddy" in c for c in calls), "Caddy restarted with a file it already reads"
+
+
+def test_a_new_engine_that_never_answers_leaves_the_old_one_serving(tmp_path):
+    code, calls = _switch(tmp_path, down="8001")
+    assert code == 1
+    assert not any(" up " in c and c.endswith(" engine") for c in calls), "the old engine was replaced anyway"
+    assert calls[-1] == "docker rm -f deploy-engine-standby", calls
+
+
+def test_a_new_engine_on_8000_that_never_answers_leaves_the_standby_serving(tmp_path):
+    code, calls = _switch(tmp_path, down="8000")
+    assert code == 1
+    assert not any("deploy-engine-standby" in c for c in calls[_at(calls, "curl 8001 200") :]), calls
+
+
+def test_a_changed_caddyfile_is_read_by_a_new_caddy_before_anything_moves(tmp_path):
+    code, calls = _switch(tmp_path, caddy_sees="{$ENGINE_HOST} {\n\treverse_proxy 127.0.0.1:8000\n}\n")
+    assert code == 0, calls
+    assert _at(calls, "docker compose -f compose.server.yml up -d --no-deps --force-recreate caddy") < _at(
+        calls, "docker compose -f compose.server.yml run"
+    )
+
+
+def test_the_door_sends_each_request_to_whichever_engine_answers():
+    """Caddy holds both places the engine can answer and asks each for /health; a request goes to the first that
+    answered, and one that finds neither waits for one instead of failing at once. `caddy adapt --validate` on the
+    caddy:2 image passed on this file (docs/notes/l8-deploy-without-downtime.md)."""
+    caddy = (SWITCH.parent / "Caddyfile").read_text()
+    proxy = re.search(r"reverse_proxy ([^{]+)\{(.*?)\}", caddy, re.S)
+    assert proxy[1].split() == ["127.0.0.1:8000", "127.0.0.1:8001"]
+    said = dict(line.split(None, 1) for line in proxy[2].strip().splitlines())
+    assert said["lb_policy"] == "first" and said["health_uri"] == "/health"
+    assert said["lb_try_duration"] == "30s", "a request finding no engine fails at once"
+    ports = _load(SWITCH.parent / "compose.server.yml")["services"]["engine"]["ports"]
+    assert ports == ["127.0.0.1:8000:8000"]
+
+
+def test_a_deploy_switches_engines_instead_of_restarting_the_one():
+    (job,) = _load(WORKFLOWS / "deploy-engine.yml")["jobs"].values()
+    start = next(s for s in job["steps"] if s.get("name") == "start the engine")["run"]
+    assert "bash switch.sh" in start and "up -d --build" not in start
+
+
+def test_a_code_change_keeps_the_browser_and_the_readers_models():
+    """Each deploy fetched Chromium (57 s) and the reader's models (37 s) again and wrote them out (52 s), because the
+    whole engine was copied in above them. Only the reader's own file is now, and it reads nothing else of the engine."""
+    runtime = (db.REPO_ROOT / "packages" / "engine" / "Dockerfile").read_text().split(" AS runtime", 1)[1]
+    lines = [ln for ln in runtime.splitlines() if ln and not ln.startswith("#")]
+    at = {
+        key: next(i for i, ln in enumerate(lines) if key in ln)
+        for key in ("playwright install", "digits._load()")
+    }
+    code = lines.index("COPY engine ./engine")
+    assert at["playwright install"] < code and at["digits._load()"] < code, lines
+    copied = [ln for ln in lines[: at["digits._load()"]] if ln.startswith("COPY engine")]
+    assert copied == [
+        "COPY engine/__init__.py engine/",
+        "COPY engine/adapters/__init__.py engine/adapters/digits.py engine/adapters/",
+    ]
+    reader = (db.REPO_ROOT / "packages" / "engine" / "engine" / "adapters" / "digits.py").read_text()
+    assert not re.search(r"^\s*(from|import) engine", reader, re.M), (
+        "the reader needs more of the engine than is copied"
+    )
+
+
+def test_a_standby_leaves_the_serving_engines_runs_alone(monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from engine.api import app as engine_app
+
+    marked = []
+    monkeypatch.setattr(engine_app.runs, "orphaned", lambda: marked.append(1))
+    monkeypatch.setenv("ENGINE_STANDBY", "1")
+    with TestClient(engine_app.app):
+        pass
+    assert marked == [], "the standby marked the serving engine's runs as dead"
+    monkeypatch.delenv("ENGINE_STANDBY")
+    with TestClient(engine_app.app):
+        pass
+    assert marked == [1], "an engine starting after one stopped no longer marks the runs that died with it"

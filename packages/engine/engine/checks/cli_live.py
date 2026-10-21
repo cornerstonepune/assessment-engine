@@ -5,7 +5,7 @@ import shutil
 
 import typer
 
-from engine.checks import live, rules, watch
+from engine.checks import live, live_copy, rules, watch
 from engine.checks import live_data as live_data_module
 from engine.core import db
 
@@ -58,6 +58,25 @@ def live_homes(
     for section, roll, what in rows:
         typer.echo(f"  {section:<6}{roll:>4}  {what}")
     typer.echo(f"  {len(rows)} children · {sum('×' in w for _, _, w in rows)} with a proposed paper")
+
+
+@live_app.command("copy")
+def live_copy_cmd(
+    live_url: str = typer.Option(
+        ..., "--live", envvar="LIVE", help="live's address, only read; default $LIVE"
+    ),
+    copy_url: str = typer.Option(..., "--copy", envvar="COPY", help="the copy's address; default $COPY"),
+) -> None:
+    """Every live row onto the copy, from one snapshot of live, and every table's count on the copy checked against
+    that same snapshot's. Exits 1 on any table that differs. Prints tables and counts, never an address."""
+    live_counts, wrong = live_copy.copy(live_url, copy_url)
+    for w in wrong:
+        typer.echo(f"  differs: {w}")
+    if wrong:
+        raise typer.Exit(1)
+    typer.echo(
+        f"copied: {len(live_counts)} tables, {sum(live_counts.values())} rows, every count equal to live's snapshot"
+    )
 
 
 @live_app.command("watch")

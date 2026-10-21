@@ -165,6 +165,7 @@ export type PrintedPaper = {
   window_days: number;
   worksheet: string | null; // the library worksheet it is, when it came from the library
   worksheets: number; // how many worksheets the library holds at its level
+  replaced_by: string | null; // the newer home assessment made in its place the same week, if one was
 };
 
 // One printed paper — a library worksheet handed to a child, or one generated before step 7 — and the facts of how it was made: who it is for (roll number only — the
@@ -184,7 +185,10 @@ export async function printedPaper(qr: string): Promise<PrintedPaper | undefined
               and w.skill_set_code = st.skill_set_code and w.difficulty = st.difficulty) as worksheets,
            (select count(*)::int from item i where i.status = 'active' and i.source = 'generated'
               and i.skill_set_code = st.skill_set_code and i.difficulty = st.difficulty) as pool,
-           (select t.value::int from threshold t where t.key = 'exposure.days') as window_days
+           (select t.value::int from threshold t where t.key = 'exposure.days') as window_days,
+           (select n.qr_code from sheet_instance n where si.kind = 'focus' and n.kind = 'focus' and n.child_id = si.child_id
+              and n.week = si.week and n.created_at > si.created_at and n.print_status <> 'void'
+            order by n.created_at desc limit 1) as replaced_by
     from sheet_instance si
     join sheet_template st on st.id = si.sheet_template_id
     left join skill_set s on s.tenant_id = st.tenant_id and s.code = st.skill_set_code

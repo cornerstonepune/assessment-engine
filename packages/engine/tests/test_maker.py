@@ -279,10 +279,10 @@ def test_each_childs_own_is_their_next_step_and_an_educator_can_change_one_child
     made = maker.make(conn, SECTION, picked, WEEK, "focus", "own", BY, changed=change)
     labels = [_text(maker.pdf(conn, [qr])) for qr in made["qrs"]]
     assert "chosen from their own checked papers" in labels[0] and "chosen by their educator" in labels[1]
-    again = maker.plan(conn, SECTION, [kids["weak"]], WEEK, "focus", "own")
-    assert again["papers"] == [] and made["qrs"][0] in again["refused"][0]["why"], (
-        "one home assessment a week"
-    )
+    # Nimish, 2026-10-21: an educator who does not like the paper they printed makes another, the same week
+    again = maker.make(conn, SECTION, [kids["weak"]], WEEK, "focus", "own", BY)
+    week = focus_paper.approved(conn, kids["weak"], WEEK)
+    assert week["qr"] == again["qrs"][0] and week["replaced"] == [made["qrs"][0]], "the newest is the week's"
     with pytest.raises(ValueError, match="each child's own"):
         maker.plan(conn, SECTION, picked, WEEK, "practice", "each", EASY, changed=change)
 

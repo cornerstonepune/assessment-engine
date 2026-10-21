@@ -10,7 +10,7 @@ import { type Difficulty, gradeOf, type Grades, levelsOf, type SkillSet, usesLev
 export const KINDS: [string, string, string][] = [
   ["practice", "Class practice", "Sat in class, to practise."],
   ["assessment", "Class assessment", "Sat in class, to see what is secure."],
-  ["focus", "Home assessment", "Sent home. One a child a week."],
+  ["focus", "Home assessment", "Sent home. Made again, the newest is the week\u2019s."],
 ];
 
 /** The three ways to make them. Nimish, 2026-09-30: "the same skill paper for multiple children", "individual papers

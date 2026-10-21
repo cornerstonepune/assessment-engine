@@ -159,7 +159,9 @@ jobs:
                   && echo "carried $(find ~/cornerstone/data -type f | wc -l) files across" \
                   || echo "the old container had no data folder"
               fi'
-          $S "cd ~/assessment-engine/deploy && sudo ENGINE_HOST=$ENGINE_HOST HOME=/home/ubuntu PACKS_AS_RECORDED='${PACKS:-/unused/packs}' docker compose -f compose.server.yml up -d --build"
+          # the new engine answers beside the old before the old is replaced, so the engine never goes away
+          # (deploy/switch.sh, goals/l8-deploy-without-downtime.yaml)
+          $S "cd ~/assessment-engine/deploy && sudo ENGINE_HOST=$ENGINE_HOST HOME=/home/ubuntu PACKS_AS_RECORDED='${PACKS:-/unused/packs}' bash switch.sh"
           for _ in $(seq 60); do
             if [ "$(curl -s -o /dev/null -w '%{http_code}' "https://$ENGINE_HOST/health")" = 200 ]; then
               echo "the engine is online at https://$ENGINE_HOST ($(git rev-parse --short HEAD))"
