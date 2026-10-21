@@ -34,12 +34,14 @@ export async function AssessmentsTable({
       <thead>
         <tr>
           <th>Assessment</th>
-          <th>Kind</th>
-          <th>Class</th>
-          <th className="num">Copies</th>
+          {/* on a phone where an assessment stands sits beside its name: the columns the row's own copies repeat fold away
+              (goals/ux8d-phone-and-one-action.yaml) */}
+          <th className="max-md:hidden">Kind</th>
+          <th className="max-md:hidden">Class</th>
+          <th className="num max-md:hidden">Copies</th>
           <th>Where they stand</th>
           <th className="num">Waiting</th>
-          <th className="num">Score</th>
+          <th className="num max-md:hidden">Score</th>
         </tr>
       </thead>
       <tbody>
@@ -57,26 +59,17 @@ export async function AssessmentsTable({
                 >
                   {assessmentTitle(a)}
                 </Link>
-                {/* on a phone where it stands is on the row itself; the wide columns are off to the side
-                    (goals/ux8d-phone-and-one-action.yaml) */}
-                <span data-testid="stage-on-row" className="mt-1 flex flex-wrap gap-1 md:hidden">
-                  {STAGES.filter((s) => a.by[s]).map((s) => (
-                    <Pill key={s} tone={STAGE_TONE[s]}>
-                      {a.by[s]} {STAGE_WORDS[s]}
-                    </Pill>
-                  ))}
-                </span>
               </td>
-              <td className="whitespace-nowrap">{KIND_WORDS[a.kind] ?? a.kind}</td>
-              <td className="whitespace-nowrap">
+              <td className="whitespace-nowrap max-md:hidden">{KIND_WORDS[a.kind] ?? a.kind}</td>
+              <td className="whitespace-nowrap max-md:hidden">
                 {a.section ? (a.band ? classWords(g, a.band, a.section) : a.section) : <span className="text-basalt/45">—</span>}
               </td>
-              <td className="num fact whitespace-nowrap">
+              <td className="num fact whitespace-nowrap max-md:hidden">
                 {a.copies}
                 {a.spares ? <span className="block text-[11.5px] text-basalt/55">and {a.spares} spare</span> : null}
               </td>
               <td>
-                <span className="flex flex-wrap gap-1">
+                <span data-testid="stage-on-row" className="flex flex-wrap gap-1">
                   {STAGES.filter((s) => a.by[s]).map((s) => (
                     <Pill key={s} tone={STAGE_TONE[s]}>
                       {a.by[s]} {STAGE_WORDS[s]}
@@ -85,7 +78,7 @@ export async function AssessmentsTable({
                 </span>
               </td>
               <td className="num">{a.waiting ? a.waiting : <span className="text-basalt/45">—</span>}</td>
-              <td className="num whitespace-nowrap">{a.scored ? `${a.right} of ${a.scored}` : <span className="text-basalt/45">—</span>}</td>
+              <td className="num whitespace-nowrap max-md:hidden">{a.scored ? `${a.right} of ${a.scored}` : <span className="text-basalt/45">—</span>}</td>
             </tr>,
             open ? (
               <tr key={`${key}|copies`} data-copies={key}>
