@@ -96,11 +96,14 @@ export async function classRoll(section: string, actor: string): Promise<{ id: s
 }
 
 
-/** The levels of skill set `ss` (on its rung `r`) that a grade uses: its own grade's and those below
- *  (goals/f1e-the-grade-plan.yaml) — the engine's rule, so a check is never offered at a level a paper would refuse. */
+/** The levels of skill set `ss` that a grade uses: its own grade's and those below, each level's grade its row's
+ *  (`skill_level.grade`, goals/f1e-the-grade-plan.yaml) — the engine's rule, so a check is never offered at a level a
+ *  paper would refuse. */
 const levelsUsedBy = (band: ReturnType<typeof sql>) => sql`array(
-  select k from jsonb_object_keys(ss.difficulty) k
-  where coalesce(grade_ord(ss.tenant_id, coalesce(ss.level_band ->> k, r.band)), -1) <= grade_ord(ss.tenant_id, ${band}))`;
+  select l.difficulty from skill_level l join difficulty d on d.tenant_id = l.tenant_id and d.code = l.difficulty
+  where l.tenant_id = ss.tenant_id and l.skill_code = ss.code
+    and coalesce(grade_ord(l.tenant_id, l.grade), -1) <= grade_ord(ss.tenant_id, ${band})
+  order by d.ord)`;
 
 /** A class against the skills it has been assessed on (goals/v2-what-answers-show.yaml): one column per taught skill
  *  any child in the class has a checked answer on, in the shared tree's order — topic by topic, easy to hard — and

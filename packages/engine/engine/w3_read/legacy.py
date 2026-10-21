@@ -18,7 +18,7 @@ from engine.adapters import llm, ocr
 from engine.assess import equation, placing, tags
 from engine.assess import misconceptions as M
 from engine.assess.items import Item
-from engine.core import db
+from engine.core import db, levels
 from engine.w3_read import checked, paper_file, reading, render_pdf
 from engine.w3_read.marking import _MINUS, normalise_answer, response_of, verdicts
 
@@ -38,7 +38,7 @@ def parse_expr(text):
 
 def where_they_go(conn):
     """The skills, the taxonomy's cases, each rung's skills and each operation's: what `rung_for` and `skill_for` read."""
-    skills = conn.execute("select code, rung_code, difficulty from skill_set").fetchall()
+    skills = [levels.swap(r) for r in conn.execute(levels.SKILLS)]
     cases = {r["code"]: r["match"] for r in conn.execute("select code, match from taxonomy_case")}
     return (
         skills,

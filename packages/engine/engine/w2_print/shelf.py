@@ -91,7 +91,7 @@ def _catalog(conn, section, every=False) -> list[dict]:
 
 def _levels(conn, band=None) -> dict:
     """{skill set: its levels}. With a child's band, only the levels of that child's grade or below: each level
-    belongs to one grade (`skill_set.level_band`, else the skill's own), and a child is never given a level of a
+    belongs to one grade (`skill_level.grade`), and a child is never given a level of a
     grade above their own — a Grade 1 child meets 2-digit + 1-digit only at the levels Grade 1 teaches."""
     return _once(("levels", band), lambda: _read_levels(conn, band))
 
@@ -100,27 +100,28 @@ def _read_levels(conn, band) -> dict:
     out = {}
     for r in conn.execute(
         # a grade's place is its row's order (`grade_ord`), never a number read from its code: "G10" is not Grade 1
-        "select s.code, s.difficulty, grade_ord(s.tenant_id, %(band)s) as mine,"
-        " (select jsonb_object_agg(k, coalesce(grade_ord(s.tenant_id, coalesce(s.level_band ->> k, r.band)), -1))"
-        "  from jsonb_object_keys(s.difficulty) k) as ords"
-        " from skill_set s left join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code",
+        "select s.code, grade_ord(s.tenant_id, %(band)s) as mine,"
+        " coalesce((select jsonb_agg(jsonb_build_array(l.difficulty, coalesce(grade_ord(l.tenant_id, l.grade), -1))"
+        "  order by d.ord) from skill_level l join difficulty d on d.tenant_id = l.tenant_id and d.code = l.difficulty"
+        "  where l.tenant_id = s.tenant_id and l.skill_code = s.code), '[]') as levels"
+        " from skill_set s",
         {"band": band},
     ):
-        defined = tuple(r["difficulty"] or {})
-        if band is not None:
-            defined = tuple(d for d in defined if r["mine"] is not None and r["ords"][d] <= r["mine"])
+        defined = tuple(
+            d for d, ord_ in r["levels"] if band is None or (r["mine"] is not None and ord_ <= r["mine"])
+        )
         out[r["code"]] = defined
     return out
 
 
 def approved_levels(conn) -> dict:
-    """{skill set: the levels whose questions the coordinator has approved} (`skill_set.level_approved`,
+    """{skill set: the levels whose questions the coordinator has approved} (`skill_level.confirmed_at`,
     goals/f1d-questions-approved-per-level.yaml): the levels a paper may draw on once F1g ships
     (goals/f1g-approval-gates-papers.yaml)."""
-    return {
-        r["code"]: set(r["level_approved"] or {})
-        for r in conn.execute("select code, level_approved from skill_set")
-    }
+    out: dict = {r["code"]: set() for r in conn.execute("select code from skill_set")}
+    for r in conn.execute("select skill_code, difficulty from skill_level where confirmed_at is not null"):
+        out[r["skill_code"]].add(r["difficulty"])
+    return out
 
 
 def closing(conn) -> list[dict]:

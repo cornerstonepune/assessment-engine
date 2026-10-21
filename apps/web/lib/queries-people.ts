@@ -42,11 +42,10 @@ export async function topics(scope: Scope = EVERY_CLASS): Promise<Topic[]> {
                                'code', s.code, 'name', s.name, 'taught', skill_taught_in(s.tenant_id, s.code, k.section),
                                'own', cs.section is not null, 'by', coalesce(cs.taught_by, s.taught_by),
                                'at', coalesce(cs.taught_at, s.taught_at)::text,
-                               'reaches', exists (select 1 from jsonb_object_keys(s.difficulty) lvl
-                                                  where grade_ord(s.tenant_id, coalesce(s.level_band ->> lvl, r.band)) <= grade_ord(s.tenant_id, k.band))
+                               'reaches', exists (select 1 from skill_level l where l.tenant_id = s.tenant_id and l.skill_code = s.code
+                                                  and grade_ord(l.tenant_id, l.grade) <= grade_ord(s.tenant_id, k.band))
                              ) order by s.code), '[]')
                       from skill_set s
-                      left join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
                       left join class_skill cs on cs.tenant_id = s.tenant_id and cs.skill_set_code = s.code
                                               and cs.section = k.section
                       where s.tenant_id = t.tenant_id and s.topic_code = t.code)) order by k.section), '[]')

@@ -35,9 +35,8 @@ def orphans() -> dict[str, list[str]]:
             "skill_set bands sharing one region": [
                 f"{r['code']} {r['bands']}"
                 for r in conn.execute(
-                    "select code, string_agg(level, '=' order by level) as bands from ("
-                    "  select code, key as level, value->'check' as region"
-                    "  from skill_set, jsonb_each(difficulty)) x"
+                    "select skill_code as code, string_agg(difficulty, '=' order by difficulty) as bands from ("
+                    "  select skill_code, difficulty, rule->'check' as region from skill_level) x"
                     " group by code, region having count(*) > 1 order by code"
                 ).fetchall()
             ],
