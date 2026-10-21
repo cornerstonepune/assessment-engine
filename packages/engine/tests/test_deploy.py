@@ -251,3 +251,20 @@ def test_a_standby_leaves_the_serving_engines_runs_alone(monkeypatch):
     with TestClient(engine_app.app):
         pass
     assert marked == [1], "an engine starting after one stopped no longer marks the runs that died with it"
+
+
+def test_the_model_key_reaches_the_server_from_the_repositorys_secret():
+    """From 29 Sep the server's .env had no ANTHROPIC_API_KEY and every model call failed quietly for three weeks
+    (PR #248). Each deploy now writes the repository's secret into .env, over ssh on stdin so no log or command line
+    carries it, and a server still without it is a warning on the run (goals/k1-the-server-has-the-model-key.yaml)."""
+    steps = _load(WORKFLOWS / "deploy-engine.yml")["jobs"]["deploy"]["steps"]
+    names = [s.get("name", "") for s in steps]
+    step = steps[names.index("the model key, from the repository's secret")]
+    assert names.index("the model key, from the repository's secret") < names.index("start the engine")
+    assert step["if"] == GATED
+    assert step["env"]["ANTHROPIC_API_KEY"] == "${{ secrets.ANTHROPIC_API_KEY }}"
+    script = step["run"]
+    assert "printf '%s' \"$ANTHROPIC_API_KEY\" | $S" in script, "the key goes on stdin"
+    assert 'echo "$ANTHROPIC_API_KEY' not in script and '$S "' not in script, "the key on a command line"
+    assert 'grep -v "^ANTHROPIC_API_KEY="' in script, "an old key line is replaced, not doubled"
+    assert "::warning::the server has no ANTHROPIC_API_KEY" in script
