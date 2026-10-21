@@ -1,6 +1,6 @@
 # Score a prompt on the server, where the model's key is (CLAUDE.md rule 7: a new prompt version is scored before it
 # is made active). Run by hand; it reads the live rows and writes only the flow_run rows of what it spent. The inputs
-# are a fixed list, so this runs `engine eval` and nothing else.
+# are a fixed list, so this runs `engine eval`, or the second reader's measure, and nothing else.
 name: engine eval
 
 on:
@@ -9,7 +9,9 @@ on:
       purpose:
         description: "the prompt to score"
         type: choice
-        options: [parent_report, parent_review, mistake_guess, story_shape, week_skills]
+        # read_with_examples: the second reader's opinion where the box reader guessed (ADR 0091), measured with the code of
+        # the branch this is run on, piped into the engine (.github/measure/second_opinion.py); the versions are ignored
+        options: [parent_report, parent_review, mistake_guess, story_shape, week_skills, read_with_examples]
       version:
         description: "its version, active or not (Jev's decisions score their active version)"
         type: choice
@@ -31,6 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - uses: actions/checkout@v4  # read_with_examples only: the second reader and its measure, from this branch
       - name: a way in
         env:
           KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"
@@ -49,4 +52,9 @@ jobs:
           JEV: "${{ inputs.jev_version }}"
         run: |
           S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 ubuntu@$HOST"
+          if [ "$PURPOSE" = read_with_examples ]; then
+            cat packages/engine/engine/w3_read/second_reader.py .github/measure/second_opinion.py |
+              $S 'sudo docker exec -i deploy-engine-1 python -'
+            exit
+          fi
           $S "sudo docker exec deploy-engine-1 engine eval $PURPOSE --version $VERSION --review-version $REVIEW --jev-version $JEV"

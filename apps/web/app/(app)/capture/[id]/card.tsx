@@ -22,6 +22,9 @@ function reading(a: CaptureAnswer): string {
   // reading the child's own notebook doubts says why; the second reader's guess says who made it.
   if (reason.includes("until the reader is trusted"))
     return `The reader read ${a.read} and marks it right. This kind of question is not yet trusted (${reason.match(/\(([^)]*)\)$/)?.[1] ?? "not enough checks yet"}), so a person confirms it.`;
+  // ADR 0091: the two readers disagree, and both readings are shown; the person says which, or what else, it is.
+  if (a.second_read !== null)
+    return `Two readers disagree. The reader reads ${a.guess}; the second reader, shown the child's own answers, reads ${a.second_read || "nothing"}. Look at the photograph and say what the child wrote.`;
   if (reason.startsWith("this child's")) return `The reader read ${a.guess}, but ${reason}.`;
   if (a.guess && a.guess_by)
     return `The reader could not settle this (${reason}). The second reader, shown ${a.guess_by.match(/with (\d+)/)?.[1] ?? "some"} of the child's own answers, reads it as ${a.guess}.`;

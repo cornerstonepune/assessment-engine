@@ -40,6 +40,9 @@ def read_guess(
     eval_: bool = typer.Option(
         False, "--eval", help="score the second reader on what people have typed; write nothing"
     ),
+    second_opinion: bool = typer.Option(
+        False, "--second-opinion", help="with --eval: only the answers the box reader guessed (ADR 0091)"
+    ),
 ) -> None:
     """The second reader, shown each child's own handwriting, guesses what the first gave up on:
     every waiting answer gets its one-click guess. --eval scores it instead (rule 7)."""
@@ -47,7 +50,7 @@ def read_guess(
         cfg = ocr.settings(conn)
         ids = _ids(conn, section, child)
         if eval_:
-            t = second_reader.evaluate(conn, cfg, ids)
+            t = second_reader.evaluate(conn, cfg, ids, second_opinion)
             conn.commit()  # the model calls are spend, recorded whatever the score
             for paper, k, want, guess, right in t["details"]:
                 typer.echo(
@@ -61,6 +64,13 @@ def read_guess(
                 f"  {t['right']} of {t['n']} guessed right ({_pct(t['right'], t['n'])}) on what the reader gave up on"
                 f" · model spend Rs {t['spend_inr']:.2f}"
             )
+            if o := t.get("opinion"):
+                typer.echo(
+                    f"  second opinion on {o['n']} box guesses: box reader right {o['box_right']}, second reader right"
+                    f" {o['second_right']} · agreed {o['agreed']} ({o['agreed_right']} right) · caught {o['caught']} wrong"
+                    f" guesses ({o['caught_right']} with the right reading) · false alarms {o['false_alarm']}"
+                    f" · missed {o['missed']}"
+                )
             return
         guessed, asked = second_reader.backfill(conn, cfg, ids)
         conn.commit()

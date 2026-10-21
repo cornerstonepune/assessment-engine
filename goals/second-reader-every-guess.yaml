@@ -1,0 +1,41 @@
+name: second-reader-every-guess
+goal: >
+  Where the box reader of a printed paper did not stand behind its reading but offered a guess, the second reader reads
+  the same crop again, shown only that child's own confirmed answers. If the two agree, the answer waits for a person
+  exactly as it did before. If they disagree, it waits for a person with both readings shown, the box reader's still the
+  one-click guess. The second reader never settles an answer and is never shown the question or its answer. Before it
+  is switched on, it is scored on the answers people have already checked: what it would have caught, what it would
+  have raised for nothing, and what it costs per paper.
+# Written 2026-10-21, before the code. PR #244 (docs/notes/reader-learns-audit.md, "Handoff") asked Nimish whether the
+# second reader should also give a second opinion where the box reader already guessed; since 1 Oct the box reader had
+# guessed on all 8 doubted readings, so the second reader was asked about none. Nimish, 21 Oct 11:45 UTC: "yes".
+# ADR 0091 amends ADR 0032 §4.
+says:
+  - words: "\"yes\", to: \"should the second reader also give a second opinion where the box reader already guessed? Today it only helps where the first reader saw nothing, and on printed papers that never happens.\""
+    proved_by: packages/engine/tests/test_second_reader.py::test_a_box_readers_guess_below_trust_is_read_again_by_the_second_reader_with_the_childs_own_samples
+  - words: "\"yes\", to: \"should the second reader also give a second opinion where the box reader already guessed? Today it only helps where the first reader saw nothing, and on printed papers that never happens.\""
+    proved_by: packages/engine/tests/test_second_reader.py::test_when_the_two_readers_agree_the_answer_follows_todays_path_unchanged
+  - words: "\"yes\", to: \"should the second reader also give a second opinion where the box reader already guessed? Today it only helps where the first reader saw nothing, and on printed papers that never happens.\""
+    proved_by: packages/engine/tests/test_second_reader.py::test_when_the_two_readers_disagree_it_goes_to_a_person_with_both_readings_shown
+  - words: "\"yes\", to: \"should the second reader also give a second opinion where the box reader already guessed? Today it only helps where the first reader saw nothing, and on printed papers that never happens.\""
+    proved_by: packages/engine/tests/test_second_reader.py::test_the_second_reader_never_settles_an_answer_and_is_never_shown_the_question_or_the_right_answer
+  - words: "\"yes\", to: \"should the second reader also give a second opinion where the box reader already guessed? Today it only helps where the first reader saw nothing, and on printed papers that never happens.\""
+    proved_by: packages/engine/tests/test_second_reader.py::test_the_eval_of_the_second_opinion_reads_again_only_what_the_box_reader_guessed
+  - words: "\"yes\", to: \"should the second reader also give a second opinion where the box reader already guessed? Today it only helps where the first reader saw nothing, and on printed papers that never happens.\""
+    proved_by: apps/web/tests/s4-validation-queue.spec.ts::where the two readers disagree, both readings are shown, on the queue and on the paper
+manual:
+  - "Actions → engine eval → purpose read_with_examples, on this branch: the second reader scored on every answer the box reader guessed that a person has checked, on live (rule 7). Its result is in docs/notes/second-reader-every-guess.md and DECISIONS-LOG.md."
+scenarios: []
+criteria:
+  - name: the second reader gives its opinion where the box reader guessed, and only proposes
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_second_reader.py tests/test_profiles.py tests/test_every_answer.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
+  - name: the queue and the paper show both readings where the readers disagree
+    run: cd apps/web && npx playwright test tests/s4-validation-queue.spec.ts
+    expect: "passed"

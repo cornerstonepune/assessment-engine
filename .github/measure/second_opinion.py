@@ -1,0 +1,39 @@
+"""The second reader's second opinion, measured on live before it is switched on (ADR 0091, rule 7). Run by
+engine-eval.yml (purpose read_with_examples) inside the engine, appended to this branch's
+packages/engine/engine/w3_read/second_reader.py, so `evaluate` below is the code under review, not the deployed one.
+It writes only the flow_run rows of what the model calls spent. Counts only: never a child's name, an answer or a scan
+(rule 6)."""
+
+import json
+
+from engine.adapters import ocr
+from engine.core import db
+
+# an answer read in the boxes of a printed paper that the box reader did not stand behind but guessed (`_groups`)
+OPINION = """coalesce(r.raw_read::jsonb ->> 'why', '') <> '' and r.raw_read::jsonb ->> 'why' not like 'read as%%'
+  and r.raw_read::jsonb ->> 'why' not like '%%not a number%%' and r.raw_read::jsonb ? 'box'
+  and coalesce(r.raw_read::jsonb ->> 'guess', '') <> '' and coalesce(r.raw_read::jsonb ->> 'guess_by', '') = ''"""
+
+with db.connect() as c:
+    print("-- printed papers read in their boxes: what a second opinion would have asked about, per paper")
+    for r in c.execute(
+        "select count(distinct c.id) as papers, count(*) as answers,"
+        f" count(*) filter (where {OPINION}) as box_guesses,"
+        f" count(distinct (c.id, r.raw_read::jsonb ->> 'box')) filter (where {OPINION}) as calls,"
+        f" count(*) filter (where {OPINION} and r.status not in ('unreadable', 'needs_teacher')) as box_guesses_settled_alone,"
+        " min(c.created_at)::date as first, max(c.created_at)::date as last"
+        " from item_result r join capture c on c.id = r.capture_id"
+        " where c.superseded_by is null and r.raw_read::jsonb ? 'boxes'"
+    ).fetchall():
+        print("  " + json.dumps(dict(r), default=str))
+    print("-- what one call of the second reader has cost")
+    for r in c.execute(
+        "select count(*) as calls, round(avg(cost_inr), 3) as avg_inr, round(max(cost_inr), 3) as max_inr,"
+        " round(avg(tokens_in)) as avg_tokens_in, min(started_at)::date as first, max(started_at)::date as last"
+        " from flow_run where flow = 'read_with_examples' and status = 'ok' and cost_inr is not null"
+    ).fetchall():
+        print("  " + json.dumps(dict(r), default=str))
+    print("-- the eval: the second reader on every checked answer the box reader guessed, notebook without its paper")
+    t = evaluate(c, ocr.settings(c), None, second_opinion=True)  # noqa: F821 — defined by second_reader.py, above
+    c.commit()  # the flow_run rows of what it spent, and nothing else
+    print("  " + json.dumps({k: v for k, v in t.items() if k != "details"}, default=str))
