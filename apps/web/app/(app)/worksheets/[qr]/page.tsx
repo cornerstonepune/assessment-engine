@@ -9,7 +9,7 @@ import { KIND_WORDS } from "@/lib/queries-papers";
 import { sql } from "@/lib/db";
 import { mistakeBook, paperItems, printedPaper, type PrintedPaper } from "@/lib/queries-bank";
 import { deadline } from "@/lib/deadline";
-import { LIBRARY_CODE, LibraryWorksheetPage } from "./library-sheet";
+import { LIBRARY_CODE, LibraryWorksheetPage, sheetWords } from "./library-sheet";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
 import { isMine, paperSection, scopeOf } from "@/lib/scope";
@@ -43,8 +43,8 @@ export default async function PaperPage({ params }: Props) {
     <>
       <PageHeader
         stage="Assessments · a printed paper"
-        title={`Paper ${p.qr_code}`}
-        sub="The printed page, how it was made, and its answer key."
+        title={paperTitle(p)}
+        sub={`Printed code ${p.qr_code}: the printed page, how it was made, and its answer key.`}
       />
       <Body>
         <Link href={back} className="mb-4 inline-block text-[13px]">
@@ -124,6 +124,13 @@ export default async function PaperPage({ params }: Props) {
   );
 }
 
+// A paper by what it tests, never by its printed code (goals/ux8b-papers-named.yaml): a home assessment drawn for one
+// child, each area at its own level, by its kind.
+function paperTitle(p: PrintedPaper): string {
+  if (p.difficulty) return `${p.skill_set_name} · ${p.difficulty}`;
+  return p.areas ? "Home assessment" : p.skill_set_name;
+}
+
 // A paper's facts, in the order they happened, one line each.
 function facts(p: PrintedPaper): [string, ReactNode][] {
   const pool = p.pool.toLocaleString("en-IN");
@@ -159,8 +166,8 @@ function facts(p: PrintedPaper): [string, ReactNode][] {
         `${p.n_items} ${p.how ?? "drawn for this child"} — none they had been given before`
       ) : p.worksheet ? (
         <>
-          Worksheet <Link href={`/worksheets/${p.worksheet}`}>{p.worksheet}</Link> from the library, one of {p.worksheets} at this
-          level —{" "}
+          <Link href={`/worksheets/${p.worksheet}`}>{sheetWords(p.worksheet).replace("sheet", "Sheet")}</Link> of the library&rsquo;s{" "}
+          {p.worksheets} at this level —{" "}
           {p.roll_no
             ? `never sat by this child, none of its ${p.n_items} questions seen in ${p.window_days} days, none on a classmate's paper this week`
             : "not given to a named child this week"}

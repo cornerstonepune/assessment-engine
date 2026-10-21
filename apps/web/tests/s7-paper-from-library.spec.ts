@@ -72,17 +72,21 @@ test("the week's list names the worksheet each child was given", async ({ page }
   await page.goto(LIST);
   for (const r of rows) {
     expect(r.worksheet).toMatch(/^R\d+-[EMHA]\d{2}$/);
-    await expect(page.getByRole("link", { name: r.worksheet, exact: true })).toBeVisible();
+    // by its number at its level, linked to it, never by its code (goals/ux8b-papers-named.yaml)
+    await expect(
+      page.getByRole("row").filter({ hasText: `printed code ${r.qr_code}` }).locator(`a[href="/worksheets/${r.worksheet}"]`),
+    ).toHaveText(/^sheet \d+$/);
   }
 });
 
 test("a paper says which worksheet it is, and that worksheet's own page opens from it", async ({ page }) => {
   const [r] = await papers();
   await page.goto(`/worksheets/${r.qr_code}`);
-  await expect(page.getByText("from the library, one of")).toBeVisible();
-  await page.getByRole("link", { name: r.worksheet, exact: true }).click();
+  // by its sheet number, linked to the worksheet (goals/ux8b-papers-named.yaml)
+  await expect(page.getByText("of the library’s")).toBeVisible();
+  await page.locator(`a[href="/worksheets/${r.worksheet}"]`, { hasText: /^Sheet \d+$/ }).click();
   await expect(page).toHaveURL(new RegExp(`/worksheets/${r.worksheet}$`));
-  await expect(page.getByRole("heading", { name: `Worksheet ${r.worksheet}` })).toBeVisible();
+  await expect(page.getByText(`Worksheet ${r.worksheet}.`)).toBeVisible();
 });
 
 test("a spare is listed with the week it was printed for", async ({ page }) => {
@@ -109,16 +113,15 @@ test("a paper opens from its code: the page as printed, how it was drawn, and it
   expect(paper, "a paper of the week, rendered").toBeTruthy();
 
   await page.goto(`/papers/approve?section=${paper.section}&week=${paper.week}&kind=${paper.kind}`);
-  await page.getByRole("link", { name: paper.qr, exact: true }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Paper ${paper.qr}`);
+  await page.getByRole("row").filter({ hasText: `printed code ${paper.qr}` }).getByRole("link", { name: "See the paper" }).click();
+  await expect(page.getByText(`Printed code ${paper.qr}`)).toBeVisible();
   await expect(page.getByRole("table", { name: "Answer key" }).locator("tbody tr")).toHaveCount(paper.n);
   // a library worksheet says which one it is; a paper generated before the library, the pool it was drawn from
+  // (by its sheet number, linked to the worksheet: goals/ux8b-papers-named.yaml)
   await expect(
-    page.getByText(
-      paper.source === "library"
-        ? `Worksheet ${paper.code} from the library, one of`
-        : `${paper.n} picked at random from ${paper.pool.toLocaleString("en-IN")}`,
-    ),
+    paper.source === "library"
+      ? page.locator(`a[href="/worksheets/${paper.code}"]`, { hasText: /^Sheet \d+$/ })
+      : page.getByText(`${paper.n} picked at random from ${paper.pool.toLocaleString("en-IN")}`),
   ).toBeVisible();
 
   // The page itself, QR and all, comes from the PDF the engine rendered — not a second drawing.
