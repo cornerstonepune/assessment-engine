@@ -6,9 +6,13 @@ audit in `docs/notes/ux8-every-screen.md` (#253): its findings 9, 10 and 17.
 
 ## Verified
 
-- Measured first: `u45-papers-named.spec.ts`, one test per sentence, run on the code before the change: RESULT_FIRST
-- After the change: RESULT_AFTER
-- `bin/engine done ux8b-papers-named`: RESULT_DONE
+- Measured first: `u45-papers-named.spec.ts`, one test per sentence, run on the code before the change: all five failed
+  ("R22-M01" on Marking, the marking page's lane "Addition", "Sat —", no link "What the class did this week", no
+  column saying why a child has none)
+- After the change, with every test it touches (s3, s5, s7, s8, s11, s12, u2, u33, u38, m2): all passed.
+- `bin/engine done ux8b-papers-named` (2026-10-21, on a fresh database): all five of Nimish's sentences PROVED; "every
+  page still holds": 291 passed (11.1 min); `bin/check`: 28 passed. NOT DONE only because the work is not on main or
+  live yet.
 
 ## Handoff
 
