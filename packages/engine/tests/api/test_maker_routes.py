@@ -64,7 +64,8 @@ def test_an_educator_sees_the_papers_makes_them_once_and_prints_them_as_one(clie
     assert plan.status_code == 200, plan.text
     assert [p["n"] for p in plan.json()["papers"]] == [3, 3] and plan.json()["refused"] == []
 
-    sent = _batch(kids, by="educator@school.test", once="form-1")
+    # the papers made are the papers shown: the plan's code for them goes back (goals/preview-before-print.yaml)
+    sent = _batch(kids, by="educator@school.test", once="form-1", seen=plan.json()["seen"])
     made = client.post("/papers/make", headers=HEADERS, json=sent)
     assert made.status_code == 200, made.text
     assert made.json()["papers"] == 2 and made.json()["already"] is False
@@ -87,7 +88,7 @@ def test_a_batch_that_cannot_be_made_says_why(client, kids):
     bad = client.post("/papers/plan", headers=HEADERS, json=_batch(kids, kind="homework"))
     assert bad.status_code == 409 and "class practice" in bad.json()["detail"]
     nothing = client.post(
-        "/papers/make", headers=HEADERS, json=_batch(kids, way="own", areas=[], by="e", once="f")
+        "/papers/make", headers=HEADERS, json=_batch(kids, way="own", areas=[], by="e", once="f", seen="s")
     )
     assert nothing.status_code == 409 and "roll 1" in nothing.json()["detail"], (
         "a child with nothing to work on"
