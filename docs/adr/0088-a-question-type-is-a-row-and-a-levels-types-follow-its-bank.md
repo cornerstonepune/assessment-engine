@@ -1,6 +1,7 @@
 # ADR 0088 — A question type is a row, and a level's types follow its bank
 
-**Status:** accepted (2026-10-21). Goal: `goals/b2-question-types-are-rows.yaml`. Builds on ADR 0077 and ADR 0087.
+**Status:** accepted (2026-10-21), from the decisions Nimish chose (docs/drafts/b2-b4-decisions.md). Builds on ADR 0077 and 0087.
+Goal: goals/b2-question-types-are-rows.yaml
 
 ## What was found
 
