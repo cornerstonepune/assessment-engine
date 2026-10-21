@@ -3,6 +3,14 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-21 — B2–B4 drafted for Nimish to lock (W1, gate 3); PR on `claude/b2-b4-scopes`, draft, no code
+- **Drafts in `docs/drafts/`** (b2-, b3-, b4-*.yaml, and `b2-b4-decisions.md`): goal, Nimish's words with the tests
+  that will prove them, the rehearsal, criteria. Out of `goals/` until their tests exist; `bin/check` passes.
+- **Measured:** 33 labels, 6 card kinds (inside one label), 178 levels, ~97 levels with examples to split, 514 mistake
+  links, 8 division mistakes on Multiplication facts, 61 registry links, no prerequisites anywhere, 46 rungs, 19 files
+  read the rung table. BUILD-ORDER's numbers hold.
+- **Open:** what one question type is; SF2a is parked, not built; who checks the split; where prerequisites come from;
+  the rename. None of B2–B4 builds beside B1.
 ## 2026-10-20 — the 5 papers "counted twice" were never counted twice (W3); PR on `claude/marking-counts-once`, draft
 - **The check was wrong, not the data** (STATE.md "Marking counts each answer once"): their grid questions ask five
   answers each; the check counted questions. Now it counts answers; the same answer read twice still fails. No child's

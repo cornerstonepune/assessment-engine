@@ -1,0 +1,58 @@
+# DRAFT, not locked. Moves to goals/b2-question-types-are-rows.yaml when Nimish locks it and its tests are written
+# (kept here because `engine promises` refuses a `proved_by` whose test does not exist yet). Open decisions:
+# docs/drafts/b2-b4-decisions.md, section B2. Waits for B1 (skill_level) to merge.
+#
+# Measured on the seed and code, 2026-10-21 (main at 37683c3):
+# - 33 question-type labels, all in the website's code (apps/web/components/question.tsx, KIND), none in a table;
+#   4 more for the school's earlier papers (EARLIER). Matches BUILD-ORDER's 33.
+# - The skills' `formats` lists name 32 labels, not 33: `word_budget` is on a list but has no label; `chunking` and
+#   `long_division` have a label but are on no list (they are written methods, reached through a level's rule).
+# - 6 card kinds (supabase/seed/question_formats.json): MUL3.SUM, MUL3.STORY, SEQ.ON, SEQ.BACK, MULT.NTH, MULT.FIRST5.
+#   Matches BUILD-ORDER's 6. All six print under one label, `card`, so they are not additional to the 33.
+# - The maths library has no list of its types. 26 named templates are written in engine/assess (two of them,
+#   EQ.{shape} and MULT.{shape}, families filled at run time), beside the templates that are only a level's numbers
+#   (ADD.2D2D.REG1). Live held 74 formats in 212 skill × format pairs (ADR 0077, measured on a copy of live on
+#   2026-10-15); not re-measured here, as it needs a copy of live.
+# - So "the 33 labels, the 6 card kinds and the maths library's types" overlap; they do not add up. One rule must say
+#   what one question type is (decision B2-1).
+name: b2-question-types-are-rows
+goal: >
+  A question type is a row (`question_type`): its name in the school's words, how it reaches the child (printed, read
+  aloud, drawn) and how it is marked, one row for each format ADR 0077 defines. Which types a level uses is rows
+  (`skill_level_question_type`), replacing the skills' formats lists, and every level uses exactly the types it used
+  before. One approval, the coordinator's, covers a type across every skill and level using it (SF2a). The paper-maker
+  draws only from confirmed levels and approved types, and when it cannot make a paper it says which type waits. No
+  paper changes on the day: every type starts approved where every level using it was approved.
+says:
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_question_types.py::test_every_label_card_kind_and_library_type_is_one_row"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_question_types.py::test_every_level_uses_the_same_types_before_and_after"
+  - words: "all unique formats of questions"
+    proved_by: "packages/engine/tests/test_question_types.py::test_one_approval_covers_a_type_in_every_skill_and_level"
+  - words: "all unique formats of questions"
+    proved_by: "packages/engine/tests/test_question_types.py::test_the_paper_maker_draws_only_confirmed_levels_and_approved_types"
+  - words: "all unique formats of questions"
+    proved_by: "packages/engine/tests/test_question_types.py::test_a_paper_that_cannot_be_made_names_the_type_that_waits"
+  - words: "simply checks whether a certain question belongs to a certain format"
+    proved_by: "packages/engine/tests/test_question_types.py::test_every_question_in_the_bank_belongs_to_exactly_one_type"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_question_types.py::test_a_new_type_is_an_insert_and_waits_for_approval"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_question_types.py::test_no_file_outside_the_maths_library_names_a_type"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive, every format live holds is a row of `question_type`, every one starts approved, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: the types, their links, the seed and the migration agree
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_question_types.py tests/test_loaders.py
+    expect: "passed"
+  - name: every path that makes a paper still makes the same one
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_focus_paper.py tests/test_maker.py tests/test_library.py tests/test_handout.py tests/test_week.py tests/test_card_bank.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
