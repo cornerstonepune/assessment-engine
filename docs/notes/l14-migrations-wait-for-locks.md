@@ -29,6 +29,20 @@ survives it, as the 55P03 shows.
   fail (5 failed, 15 passed).
 - `bin/check`: 28 passed, lint clean.
 
+**A second way migrate live fails: a migration older than live's newest.** `supabase db push` compares the local
+files with the versions live recorded and, when a local one sorts before the newest recorded, stops with "Found local
+migration files to be inserted before the last migration on remote database. Rerun the command with --include-all"
+(supabase/cli `apps/cli/src/command-internal/migration-pending.ts` `findPendingMigrations`, and `db-push-core.ts`,
+which raises it unless `--include-all`; the Go CLI's `pkg/migration/apply.go` the same). B2 (#240) held
+`20261125090000` while live had main's `20261126090000`; the rehearsal applies with psql and cannot see it. B2's is
+now `20261126100000`, and `tests/test_migration_order.py` fails any change whose added migration sorts at or before
+`origin/main`'s newest, naming the file and a version to rename it to. It runs in `bin/check` and in CI's
+`engine-checks` (full-history checkout, so `origin/main` is there; in CI a missing `origin/main` fails, never skips).
+
+- With B2's old migration in the tree: `1 failed, 1 passed`, "supabase/migrations/20261125090000_question_types_are_rows.sql
+  sorts before main's newest migration 20261126090000 … e.g. 20261126100000_question_types_are_rows.sql". With B2's
+  renamed one: `2 passed`. On this branch: `2 passed`.
+
 ## Handoff
 
 - Live: nothing yet. The first merge with a migration proves the one thing this machine could not: that live's

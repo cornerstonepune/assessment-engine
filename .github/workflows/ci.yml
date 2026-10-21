@@ -39,6 +39,10 @@ jobs:
       # complexity limits, the coverage floor); a change may tighten each number and never loosen it
       # (goals/p1-the-gates-hold.yaml). The base is the pull request's, or the commit main was at before a push.
       - run: uv run engine ratchet --base "${{ github.event.pull_request.base.sha || github.event.before }}"
+      # A migration this change adds must sort after main's newest: live has applied that one, and `supabase db push`
+      # refuses an older one, so migrate live would fail after the merge (tests/test_migration_order.py). It reads
+      # origin/main, which the full-history checkout above fetched.
+      - run: uv run pytest -q -p no:cacheprovider -o addopts= tests/test_migration_order.py
 
   # The engine's tests, cut across runners by file (bin/ci-shard), each with its own database built afresh: one
   # runner took 37 minutes on 2026-10-21, 31 of them tests (goals/ci-engine-shards.yaml, docs/notes/ci-engine-shards.md).

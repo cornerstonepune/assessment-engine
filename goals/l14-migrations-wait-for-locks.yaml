@@ -27,6 +27,9 @@ criteria:
   - name: the push's settings and its retry are as the tests say
     run: cd packages/engine && uv run pytest -q tests/test_deploy.py
     expect: "passed"
+  - name: every migration a change adds sorts after main's newest, which db push otherwise refuses
+    run: cd packages/engine && uv run pytest -q tests/test_migration_order.py
+    expect: "passed"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check
     expect: "passed"
