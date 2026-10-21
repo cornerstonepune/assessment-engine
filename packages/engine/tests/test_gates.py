@@ -30,14 +30,21 @@ def test_ci_lints_the_website_with_no_warning_allowed():
 def test_ci_holds_the_engine_to_its_coverage_floor():
     floor = PYPROJECT["tool"]["coverage"]["report"]["fail_under"]
     assert floor >= 79, "the floor sits below the 79% the engine measured when it was set"
-    assert [r for r in _runs("engine") if "pytest" in r and "--cov=engine" in r], "CI measures no coverage"
+    # the shards measure, and the one engine job combines them and applies the floor to the whole suite
+    # (goals/ci-engine-shards.yaml): no shard's part can pass for the whole, and no run lowers the floor
+    assert [r for r in _runs("engine-shard") if "pytest" in r and "--cov=engine" in r], (
+        "CI measures no coverage"
+    )
+    (report,) = [r for r in _runs("engine") if "coverage report" in r]
+    assert "coverage combine" in report and "--fail-under" not in report, report
 
 
 def test_ci_refuses_a_change_that_loosens_a_baseline():
-    steps = CI["jobs"]["engine"]["steps"]
+    steps = CI["jobs"]["engine-checks"]["steps"]
     checkout = next(s for s in steps if s.get("uses", "").startswith("actions/checkout"))
     assert checkout.get("with", {}).get("fetch-depth") == 0, "the job cannot see the commit it compares with"
-    (ratchet,) = [r for r in _runs("engine") if r.startswith("uv run engine ratchet --base")]
+    (ratchet,) = [r for r in _runs("engine-checks") if r.startswith("uv run engine ratchet --base")]
+    assert "engine-checks" in CI["jobs"]["engine"]["needs"], "the engine result does not wait on the ratchet"
     assert "pull_request.base.sha" in ratchet and "github.event.before" in ratchet, ratchet
 
 
