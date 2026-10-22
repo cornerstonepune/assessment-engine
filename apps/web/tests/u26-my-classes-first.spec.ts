@@ -72,10 +72,13 @@ test("an educator's pages open on their own class, every class one tap away and 
     for (const href of ["/api/paper/CSF1B026/1", `/api/see/${other.Chirag}?week=2026-W42`]) {
       expect((await page.request.get(href)).status(), href).not.toBe(403);
     }
-    // one tap in the menu: every class, as the coordinator sees them
+    // one choice in the bar at the top: every class, as the coordinator sees them
     await page.goto("/today");
-    await page.getByRole("complementary").getByRole("button", { name: "See every class" }).click();
-    await expect(page.getByRole("complementary").getByRole("button", { name: "See your classes first" })).toBeVisible();
+    await Promise.all([
+      page.waitForResponse((r) => r.request().method() === "POST"),
+      page.getByRole("search", { name: "Subject, class and search" }).getByLabel("Class").selectOption("every"),
+    ]);
+    await page.waitForLoadState("networkidle");
     await page.goto("/growth");
     await expect(page.getByRole("main")).toContainText(OTHER);
     await page.goto("/papers/make");

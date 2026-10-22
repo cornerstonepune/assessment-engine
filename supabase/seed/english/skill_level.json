@@ -3460,7 +3460,7 @@
    "skill_code": "EN3.READ.INSTRUCT",
    "difficulty": "Medium",
    "grade": "G3",
-   "looks_like": "Numbered steps with direction words such as left, right and second; the child carries them out alone and says where they lead.",
+   "looks_like": "Numbered steps with direction words such as left, right and second; the child follows them alone and says where they lead.",
    "rule": {
     "passage_words": [
      60,
@@ -3486,7 +3486,7 @@
    "skill_code": "EN3.READ.INSTRUCT",
    "difficulty": "Advance",
    "grade": "G3",
-   "looks_like": "A word puzzle where each step changes the last result; the child carries it out, finds which step someone missed and fixes it.",
+   "looks_like": "A word puzzle where each step changes the last result; the child follows it, finds which step someone missed and fixes it.",
    "rule": {
     "passage_words": [
      120,
@@ -5868,7 +5868,7 @@
    "skill_code": "EN4.TEXT.FICTION",
    "difficulty": "Medium",
    "grade": "G4",
-   "looks_like": "Places a non-fiction book in its numbered section; the section names are printed beside each number.",
+   "looks_like": "Places a non-fiction book on its subject shelf; the shelf names are printed beside the books.",
    "rule": {
     "items": [
      4,
@@ -5878,14 +5878,14 @@
      0,
      15
     ],
-    "support": "section numbers with their subjects"
+    "support": "shelf names printed in the question"
    }
   },
   {
    "skill_code": "EN4.TEXT.FICTION",
    "difficulty": "Hard",
    "grade": "G4",
-   "looks_like": "Uses spine labels: fiction by the author's surname, non-fiction by section number; six books or a label to build.",
+   "looks_like": "Uses spine labels: fiction by the author's surname, non-fiction by shelf name; six books or a label to build.",
    "rule": {
     "items": [
      4,
