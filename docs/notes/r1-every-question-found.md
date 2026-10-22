@@ -29,9 +29,11 @@ read only: codes, question numbers, counts and image sizes; no name, no image).
   found where the test put its boxes, each in its own; a picture with no paper in it still does not line up.
   `cd packages/engine && uv run pytest -q tests/test_lineup.py` → 13 passed. Without the change to `lineup.py`, 4 of
   them fail (the 2 line-ups and the 2 pages' questions).
-- The reader's other files: `uv run pytest -q tests/test_boxes.py tests/test_stencil.py tests/test_sorting.py
-  tests/test_copies.py tests/test_legacy.py tests/test_inbox.py tests/test_crops.py tests/test_ink_line.py
-  tests/test_second_reader.py` → see the PR for the run with a database.
+- `bin/engine done r1-every-question-found`, 2026-10-22, on a database built by `bin/testdb fresh`: the three tests
+  PROVED; `tests/test_lineup.py tests/test_boxes.py tests/test_stencil.py` → 41 passed; `tests/test_copies.py
+  tests/test_sorting.py tests/test_legacy.py tests/test_inbox.py tests/test_crops.py tests/test_ink_line.py
+  tests/test_second_reader.py` → 119 passed; `bin/check` → 30 passed. NOT DONE only for: not on main, and the
+  re-read of the live file (manual, needs Nimish).
 
 ## Handoff
 
