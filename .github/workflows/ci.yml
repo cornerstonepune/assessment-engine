@@ -11,12 +11,14 @@ on:
     branches: [main]
   pull_request:
 
-# A pull request's newer push cancels its older run: the engine's shards take 12 of the jobs GitHub runs at once (20 on
-# its free plan), and two runs of one branch queued each other (2026-10-21). Every run on main finishes, since
-# migrate.yml and deploy-engine.yml start from each.
+# A newer push cancels the older run of the same pull request, and a newer merge cancels main's older run: the engine's
+# shards take 12 of the jobs GitHub runs at once (20 on its free plan), and runs queued behind each other. Two runs of one
+# branch did on 2026-10-21; seven merges in a row held main for over an hour on 2026-10-22. Cancelling main's older run
+# loses nothing, because migrate.yml and deploy-engine.yml act only for main's newest commit, which carries every older
+# merge ("main has moved on").
 concurrency:
-  group: ci-${{ github.event.pull_request.number || github.sha }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # The engine's checks that need no database, beside the shards rather than before them.

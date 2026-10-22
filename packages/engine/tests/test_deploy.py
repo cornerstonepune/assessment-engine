@@ -55,6 +55,15 @@ def test_only_mains_newest_commit_changes_live():
         assert after == [], f"{name} runs {after} even when a newer merge is on main"
 
 
+def test_a_newer_merge_cancels_mains_older_ci_run():
+    """Seven merges in a row queued seven runs of the full suite on main and held the website for over an hour
+    (2026-10-22). Only main's newest commit reaches live (above), so its older runs are cancelled, not queued."""
+    group = _load(WORKFLOWS / "ci.yml")["concurrency"]
+    assert group["cancel-in-progress"] is True
+    assert "github.ref" in group["group"], "main's runs must share one group to cancel each other"
+    assert "github.sha" not in group["group"], "a group per commit never cancels anything"
+
+
 def test_the_website_goes_live_only_once_live_has_the_commits_migrations():
     """Vercel holds each production deployment until the commit's `live database` status is green (Deployment Checks,
     ADR 0074); only migrate live sets it, on the commit it migrated, after `db push` — so a page never reaches a
