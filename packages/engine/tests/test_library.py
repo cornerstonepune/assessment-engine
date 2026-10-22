@@ -237,7 +237,9 @@ def _six_sums(conn):
     from engine.assess import items
 
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
-    rung = conn.execute("select code from rung order by code limit 1").fetchone()["code"]  # any: layout only
+    rung = conn.execute("select rung_code from skill_set order by rung_code limit 1").fetchone()[
+        "rung_code"
+    ]  # any: layout only
     rng, ids = random.Random(7), []
     made = [items.bare_sum(rng, "R5", "Procedural", "+", 2, 2, [0, 1]) for _ in range(40)]
     for q in [q for q in made if len(q.responses[0].answer) == 2][:6]:
