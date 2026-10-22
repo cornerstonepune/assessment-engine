@@ -77,7 +77,7 @@ function Search() {
         id="bar-search"
         name="q"
         type="search"
-        className="input min-h-[40px] !w-[240px] pl-9 text-[15px] transition-[width] focus:!w-[340px]"
+        className="input min-h-[40px] !w-[96px] !pl-9 text-[15px] transition-[width] focus:!w-[150px] md:!w-[240px] md:focus:!w-[340px]"
         placeholder="Find a child or paper"
         autoComplete="off"
         defaultValue={found?.q}

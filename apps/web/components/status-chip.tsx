@@ -19,6 +19,9 @@ export const STATES = {
   toCheck: { tone: "act", words: "to check" },
   toSignOff: { tone: "wait", words: "to sign off" },
   replaced: { tone: "quiet", words: "replaced" },
+  approved: { tone: "ok", words: "approved" },
+  taught: { tone: "ok", words: "taught" },
+  notTaught: { tone: "quiet", words: "not taught yet" },
 } as const;
 export type State = keyof typeof STATES;
 export type Tone = (typeof STATES)[State]["tone"];

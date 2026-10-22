@@ -76,7 +76,7 @@ function Grid<T>({ label, cols, rows, rowKey, extras }: { label: string; cols: C
   const cls = (c: Column<T>) => `a-${alignOf(c)}`;
   return (
     <div className="data-table">
-      <table className="grid list fixed" aria-label={label}>
+      <table className="grid list fixed-cols" aria-label={label}>
         <colgroup>
           {cols.map((c) => (
             <col key={c.key} style={c.width ? { width: c.width } : undefined} />

@@ -180,7 +180,6 @@
     "about": "The pages that still break a rule of docs/ux-rules.md, and the rules each breaks. A page leaves this list when it is built on the shared blocks; nothing joins it (engine ratchet) except for a rule written down for the first time, whose debt is recorded here.",
     "rules": ["shell", "purpose", "table", "taglist", "filter", "status"],
     "frozen": {
-      "/": ["filter", "shell", "status", "table", "taglist"],
       "/asks": ["purpose", "shell", "taglist"],
       "/capture": ["filter", "purpose", "shell", "status", "table", "taglist"],
       "/capture/[id]": ["shell", "status", "taglist"],
