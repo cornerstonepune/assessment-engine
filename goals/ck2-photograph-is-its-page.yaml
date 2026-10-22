@@ -1,0 +1,42 @@
+name: ck2-photograph-is-its-page
+goal: >
+  Which page of the paper a photograph IS comes from what it prints, never from where it sits in the file. On 2026-10-22,
+  on the live check screen, "Mahishmati · question 10" (right answer 9, on the paper's second page) showed the paper's
+  FIRST page. Measured on live that day (docs/notes/ck2-photograph-is-its-page.md, "Measured on live"): in the 20-page
+  Grade 1 file, copies 3, 4, 7 and 8 were photographed second page first; the other six in order. Each photograph of a
+  swapped copy lined up with 17 to 21 of the first page's 149 tiles of print and with 66 to 69 of the second's 72, and the
+  engine had taken it for the other page. The cause: a copy with as many photographs as the paper has pages was taken as
+  page 1, page 2 in file order with nothing measured (boxes._placing). Each photograph is now laid on every page of the
+  paper, the way of laying them that fits best is taken if it fits clearly better than the next (a photograph that lines
+  up with neither is the page the other leaves; none lining up with any keeps the file's order and goes whole to a person),
+  and the answers go by that. A file sent to the engine can be read again from the site and from the engine, which
+  supersedes only the readings no person has checked.
+# Written 2026-10-22, before the code, from Nimish's report the same day and the live measure in the note.
+says:
+  - words: "this is happening very frequently; you really need to fix this"
+    proved_by: "packages/engine/tests/test_photograph_page.py::test_two_pages_photographed_in_the_opposite_order_are_placed_by_what_they_print"
+  - words: "this is happening very frequently; you really need to fix this"
+    proved_by: "packages/engine/tests/test_photograph_page.py::test_the_paper_photographed_by_a_phone_is_placed_in_either_order"
+  - words: "this is happening very frequently; you really need to fix this"
+    proved_by: "packages/engine/tests/test_photograph_page.py::test_a_copy_photographed_second_page_first_is_read_from_the_photographs_that_are_each_page"
+  - words: "this is happening very frequently; you really need to fix this"
+    proved_by: "packages/engine/tests/test_copies.py::test_a_copy_photographed_second_page_first_has_each_answer_on_the_photograph_that_is_its_page"
+  - words: "the picture shown is the paper's FIRST page (questions 1 to 8). Question 10 is on the paper's second page. So the picture does not contain the question"
+    proved_by: "packages/engine/tests/test_copies.py::test_a_copy_photographed_second_page_first_has_each_answer_on_the_photograph_that_is_its_page"
+  - words: "this is happening very frequently; you really need to fix this"
+    proved_by: "packages/engine/tests/test_photograph_page.py::test_an_uploaded_file_is_read_again_as_a_run_of_its_own_with_again_set"
+  - words: "this is happening very frequently; you really need to fix this"
+    proved_by: "apps/web/tests/u51-read-an-uploaded-file-again.spec.ts::a finished scan can be read again, and the page says why when the engine will not"
+manual:
+  - "After deploy, with the file kept in the engine's inbox: Read again on the 22 Oct file once (Marking, 'Read a scan'), then the engine-logs measure: copies in order and swapped, answers found of 120, answers agreeing with the person's key on the four swapped copies."
+scenarios: []
+criteria:
+  - name: the placing, the read-again route, and the reader's files did not move
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_photograph_page.py tests/test_boxes.py tests/test_lineup.py tests/test_copies.py tests/test_inbox.py tests/test_sorting.py tests/test_legacy.py
+    expect: "passed"
+  - name: the site reads an uploaded file again and says why when it cannot
+    run: cd apps/web && npx playwright test --project=steps u51-read-an-uploaded-file-again
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

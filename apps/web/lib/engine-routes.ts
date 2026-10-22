@@ -50,6 +50,7 @@ export type EngineRoutes = {
   "POST /papers/make": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]>; draw?: number; by: string; once: string; seen: string };
   "POST /papers/plan": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]>; draw?: number };
   "POST /read/file": { url: string; actor: string; again?: boolean };
+  "POST /read/run/{run_id}/again": { by: string };
   "POST /read/run/{run_id}/page": { page: number; child_id: string; by: string };
   "POST /read/upload": null;
   "POST /week/approve": { section: string; week: string; kind?: string; by: string };

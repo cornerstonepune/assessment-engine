@@ -17,7 +17,7 @@ from pathlib import Path
 import pymupdf
 
 from engine.core import db, roster
-from engine.w3_read import boxes, checked, legacy, marking, printed_paper, render_pdf, sorting
+from engine.w3_read import checked, legacy, marking, placing, printed_paper, render_pdf, sorting
 
 # Where the school's scans live, on this Mac and on the server alike (`deploy/compose.server.yml` mounts only this):
 # a copy cut anywhere else can be read here but never shown on the approval screens.
@@ -69,7 +69,7 @@ def _margin(conn):
 
 def _misplaced(conn, cut, held) -> tuple[str | None, int]:
     """A live reading of this very copy with answers on questions its pages do not hold — read before a copy's
-    pages were placed (`boxes.placed`) — and how many of them a person signed off or corrected. Such a reading is
+    pages were placed (`placing.placed`) — and how many of them a person signed off or corrected. Such a reading is
     wrong at its root, a person's checks included: they were made against another question's words and key
     (2026-09-29), so it is replaced whatever was done on it (rule 4: kept, no longer read)."""
     old = conn.execute(
@@ -218,23 +218,23 @@ def _and(ns) -> str:
 
 
 def _run_placed(photos, pdf, margin, n) -> list[int] | None:
-    """Which page of `pdf` each photograph of one run is: the run as one (`boxes.placed`), or — more photographs than
+    """Which page of `pdf` each photograph of one run is: the run as one (`placing.placed`), or — more photographs than
     the paper has pages — each by itself. None where any cannot be told apart."""
     if len(photos) <= n:
-        return boxes.placed(photos, pdf, margin)
-    each = [boxes.placed([ph], pdf, margin) for ph in photos]
+        return placing.placed(photos, pdf, margin)
+    each = [placing.placed([ph], pdf, margin) for ph in photos]
     return None if any(not e for e in each) else [e[0] for e in each if e]
 
 
 def _placing(scan, copy, cut, pdf, margin) -> tuple[list[int], list[int], list[dict]] | None:
     """(the file's pages to read, the paper's page each is, each page photographed more than once) — or None where a
     run of its pages cannot be told apart. A copy taken in one run, no longer than its paper, is placed as one
-    (`boxes.placed`): it may start part-way, as a copy split across two files does. A copy whose runs lie apart in the
+    (`placing.placed`): it may start part-way, as a copy split across two files does. A copy whose runs lie apart in the
     file is placed run by run, and one with more photographs than its paper has pages photograph by photograph; a page
     photographed more than once is read from the last of them, the one a person took again (goals/l11)."""
     n = len(pymupdf.open(pdf))
     if len(copy["runs"]) == 1 and len(copy["pages"]) <= n:
-        placed = boxes.placed(list(render_pdf.photos(cut)), pdf, margin)
+        placed = placing.placed(list(render_pdf.photos(cut)), pdf, margin)
         return None if placed is None else (list(copy["pages"]), placed, [])
     at: dict[int, list[int]] = {}
     for run in copy["runs"]:
