@@ -45,6 +45,7 @@ def coverage(conn):
         " from skill_set s"
         " join (select tenant_id, code as difficulty, ord from difficulty) d on d.tenant_id = s.tenant_id"
         " join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code and l.difficulty = d.difficulty"
+        "   and l.rule ? 'check'"  # the bank is drawn from a level's check: English's levels have none (E0)
         " left join ("
         "   select skill_set_code, difficulty, count(*) as n from item"
         "   where status = 'active' group by skill_set_code, difficulty"

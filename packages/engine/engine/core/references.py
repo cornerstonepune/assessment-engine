@@ -31,12 +31,13 @@ def orphans() -> dict[str, list[str]]:
                 ).fetchall()
             ],
             # Two bands with one region compete for one pool of items and starve each other
-            # (BUILD-ORDER gate 4, amended). A band's region is its `check`; equal checks fail.
+            # (BUILD-ORDER gate 4, amended). A band's region is its `check`; equal checks fail. A level with no check
+            # draws from no pool (English's are not drawn from a bank), so it has no region to share.
             "skill_set bands sharing one region": [
                 f"{r['code']} {r['bands']}"
                 for r in conn.execute(
                     "select skill_code as code, string_agg(difficulty, '=' order by difficulty) as bands from ("
-                    "  select skill_code, difficulty, rule->'check' as region from skill_level) x"
+                    "  select skill_code, difficulty, rule->'check' as region from skill_level where rule ? 'check') x"
                     " group by code, region having count(*) > 1 order by code"
                 ).fetchall()
             ],

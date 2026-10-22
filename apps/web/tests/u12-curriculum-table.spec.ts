@@ -31,8 +31,8 @@ test("the curriculum is one table that opens grade by grade, topic by topic, and
   const grade = table(page).getByRole("button", { name: "Grade 2", exact: true });
   await grade.click();
   await expect(grade).toHaveAttribute("aria-expanded", "true");
-  const [{ subject }] = await sql<{ subject: string }[]>`select name as subject from subject order by code limit 1`;
-  await expect(table(page).locator('tr[data-row="G2/subject"]')).toContainText(subject);
+  const [{ subject }] = await sql<{ subject: string }[]>`select name as subject from subject where code = 'NUM'`;
+  await expect(table(page).locator('tr[data-row="G2/NUM"]')).toContainText(subject);
   const topic = table(page).locator('tr[data-row="G2/ADDSUB"]');
   await expect(topic).toBeVisible();
   await expect(table(page).locator('tr[data-row="G2/ADD.2D2D"]')).toHaveCount(0);

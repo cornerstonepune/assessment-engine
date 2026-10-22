@@ -7,21 +7,22 @@ import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { levels } from "@/lib/levels";
 import {
-  gradeOf,
   grades,
   levelsOf,
   skillSets,
   type Difficulty,
 } from "@/lib/queries";
 import { mistakeBook } from "@/lib/queries-bank";
-import { levelExamples, skillKinds, skillMistakes } from "@/lib/queries-skills";
+import { levelExamples, skillKinds, skillMistakes, skillWatches, skillWays } from "@/lib/queries-skills";
 import { worksheets } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../../worksheets/library";
-import { approveSkills, saveGrades } from "./actions";
+import { approveSkills } from "./actions";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { mayDecide } from "@/lib/decides";
 import { LevelApproval } from "./level-approval";
+import { GradesPanel } from "./grades-panel";
+import { LevelWays, Watched, WaysPanel } from "./ways";
 import { dateWords } from "@/lib/week";
 
 type Props = {
@@ -39,7 +40,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   const [{ code }, q] = await Promise.all([params, searchParams]);
   const level = (await levels()).order.find((d) => d === q.level);
   const everyLevel = q.level === "all";
-  const [all, examples, kinds, caught, book, sheets, g, { words }] = await deadline(
+  const [all, examples, kinds, caught, book, sheets, g, { words }, ways, watched] = await deadline(
     Promise.all([
       skillSets({ untaught: true, scope: scopeOf(me) }),
       levelExamples(code),
@@ -49,12 +50,16 @@ export default async function SkillPage({ params, searchParams }: Props) {
       worksheets({ set: code, level }, 200, 0),
       grades(),
       questionKinds(),
+      skillWays(code),
+      skillWatches(code),
     ]),
   );
   // a skill whose topic is not taught yet opens too, to be read and approved before it is switched on (goals/ny1-needs-you.yaml)
   const s = all.find((x) => x.code === code);
   if (!s) notFound();
   const sets = all.filter((x) => x.taught);
+  // a skill whose questions are not drawn from the bank (English, E0) is read from the rows that say how it is asked
+  const bankless = !Object.keys(s.counts).length && ways.length > 0;
   const example = (d: Difficulty) => examples.find((e) => e.difficulty === d);
   const ops = new Set(levelsOf(s).map((d) => s.difficulty[d]?.check?.op).filter(Boolean));
   const op = ops.size === 1 ? String([...ops][0]) : undefined;
@@ -71,7 +76,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
       <PageHeader
         stage={`Curriculum · ${g.name(s.band)} · ${s.taught ? `Skill ${sets.indexOf(s) + 1} of ${sets.length}` : "Not taught yet"} · ${s.name}`}
         title={s.learning_objective}
-        sub="What this skill looks like at each level, each with a real question from the bank, the mistakes its questions are built to catch, and its worksheets."
+        sub={bankless ? "What this skill looks like at each level, how it is asked, and the mistakes to watch for." : "What this skill looks like at each level, each with a real question from the bank, the mistakes its questions are built to catch, and its worksheets."}
       />
       <Body>
         {q.saved ? (
@@ -84,6 +89,11 @@ export default async function SkillPage({ params, searchParams }: Props) {
           <Notice tone="terracotta">Nothing was approved: it changed since this page was opened. Read it again, then approve.</Notice>
         ) : q.approved ? (
           <Notice tone="neem">Approved as written, in your name.</Notice>
+        ) : null}
+        {q.way_approved ? (
+          <Notice tone="neem">
+            Approved &ldquo;{ways.find((w) => w.code === q.way_approved)?.words ?? "this way of asking"}&rdquo;, in your name.
+          </Notice>
         ) : null}
         {s.taught ? null : (
           <Notice tone="terracotta">
@@ -127,48 +137,20 @@ export default async function SkillPage({ params, searchParams }: Props) {
 
         {/* the skill in five parts, each one click from here (goals/ui3-curriculum.yaml) */}
         <nav aria-label="Parts of this skill" className="mb-[18px] flex flex-wrap gap-2">
-          {[["What it means", "#means"], ["Levels", "#levels"], ["Mistakes", "#mistakes"], ["Questions", `/library?set=${s.code}#questions`], ["Worksheets", "#worksheets"]].map(([words, href]) => (
+          {(bankless
+            ? [["What it means", "#means"], ["Levels", "#levels"], ["How it is asked", "#ways"], ["Mistakes", "#mistakes"]]
+            : [["What it means", "#means"], ["Levels", "#levels"], ["Mistakes", "#mistakes"], ["Questions", `/library?set=${s.code}#questions`], ["Worksheets", "#worksheets"]]
+          ).map(([words, href]) => (
             <Link key={words} href={href} className="chip">{words}</Link>
           ))}
         </nav>
 
         <div className="grid gap-[18px]">
-          <Panel
-            title="Which grade each level belongs to"
-            label="Which grade each level belongs to"
-            aside="each level to one grade; a child is given a level of their grade or below"
-          >
-            {q.grades ? <Notice tone="neem">Saved: each level is now taught in the grade shown.</Notice> : null}
-            <form action={saveGrades} className="flex flex-wrap items-end gap-4">
-              <input type="hidden" name="code" value={s.code} />
-              {levelsOf(s).map((d) => (
-                <label key={d} className="grid gap-1 text-[13px]">
-                  <span className="label">{d}</span>
-                  <select name={`grade:${d}`} defaultValue={gradeOf(s, d)} className="border border-basalt/20 bg-white px-2 py-1">
-                    {g.list.map((x) => (
-                      <option key={x.code} value={x.code}>
-                        {x.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ))}
-              <button className="btn secondary" type="submit">
-                Save the grades
-              </button>
-            </form>
-            <p className="note mt-2">
-              A level in another grade shows under that grade on the Curriculum too. Moving a level does not change its
-              words, so the skill keeps its approval.
-              {s.moved_by && s.moved_at
-                ? ` Last moved by ${s.moved_by}, ${dateWords(s.moved_at)}.`
-                : null}
-            </p>
-          </Panel>
+          <GradesPanel s={s} grades={g} saved={Boolean(q.grades)} />
           <Panel
             id="levels"
             title="At each level"
-            aside="the level in words, and a real question from the bank"
+            aside={bankless ? "what the child does at each level, and how it is asked" : "the level in words, and a real question from the bank"}
           >
             <div className="grid gap-[14px] md:grid-cols-2 xl:grid-cols-4">
               {levelsOf(s).map((d) => {
@@ -184,7 +166,9 @@ export default async function SkillPage({ params, searchParams }: Props) {
                     <p className="text-[13.5px] leading-snug">
                       {s.difficulty[d]?.words}
                     </p>
-                    {it ? (
+                    {bankless ? (
+                      <LevelWays ways={ways} level={d} />
+                    ) : it ? (
                       <div className="grid gap-1 bg-chalk p-2 text-[13.5px]">
                         <span className="label">For example</span>
                         <Link
@@ -202,7 +186,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                         No question in the bank at this level yet.
                       </p>
                     )}
-                    <p className="note">
+                    {bankless ? null : <p className="note">
                       <Link
                         href={`/library?set=${s.code}&difficulty=${d}#questions`}
                       >
@@ -218,13 +202,16 @@ export default async function SkillPage({ params, searchParams }: Props) {
                       ) : (
                         "no worksheets yet"
                       )}
-                    </p>
+                    </p>}
                   </section>
                 );
               })}
             </div>
           </Panel>
 
+          {bankless ? (
+            <WaysPanel ways={ways} code={s.code} mayApprove={mayApprove} />
+          ) : (
           <Panel
             title="Kinds of question"
             aside={`${kinds.length} ${kinds.length === 1 ? "kind" : "kinds"}`}
@@ -259,13 +246,16 @@ export default async function SkillPage({ params, searchParams }: Props) {
               </table>
             </div>
           </Panel>
+          )}
 
           <Panel
             id="mistakes"
             title="Mistakes it watches for"
             aside="the wrong answers its questions are built to recognise"
           >
-            {mistakes.length ? (
+            {bankless ? (
+              <Watched watched={watched} />
+            ) : mistakes.length ? (
               <>
                 <ul className="grid gap-3">
                   {mistakes.slice(0, 6).map((m) => (
@@ -303,7 +293,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
             )}
           </Panel>
 
-          <section id="worksheets" className="scroll-mt-6">
+          {bankless ? null : <section id="worksheets" className="scroll-mt-6">
             <Panel
               title="Worksheets"
               aside={`${shown.length} ${shownLevel ? `at ${shownLevel}` : "at every level"}`}
@@ -367,7 +357,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                 </p>
               )}
             </Panel>
-          </section>
+          </section>}
         </div>
 
         <p className="fact mt-[18px] text-[11px] text-basalt/50">

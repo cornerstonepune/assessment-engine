@@ -35,8 +35,16 @@ def every_rung_has_a_spec(conn):
     ]
 
 
+def _drawn(r):
+    """Whether the bank is drawn from a skill's levels: some level carries a `check`. English's (E0) do not: its
+    questions are samples a person reads, and nothing is generated from them."""
+    return any(b.get("check") for b in r["difficulty"].values())
+
+
 def every_spec_is_ratified(conn):
-    return [f"{r['code']} is {r['status']}" for r in _skill_sets(conn) if r["status"] != "ratified"]
+    return [
+        f"{r['code']} is {r['status']}" for r in _skill_sets(conn) if r["status"] != "ratified" and _drawn(r)
+    ]
 
 
 def no_spec_claims_a_mistake_its_own_numbers_cannot_produce(conn):
@@ -60,6 +68,7 @@ def every_band_can_produce_a_question(conn):
     return [
         f"{r['code']} {d}: nothing can make this rule ({band.get('check') or {}})"
         for r in _skill_sets(conn)
+        if _drawn(r)
         for d, band in r["difficulty"].items()
         if not bands.makeable(band.get("check") or {})
     ]
@@ -118,7 +127,11 @@ def every_answer_lookup_code_is_computed_somewhere(conn):
     claimed = {
         r["code"]
         for r in conn.execute(
-            "select distinct code from misconception where detectable_by = 'answer_lookup'"
+            "select distinct m.code from misconception m where m.detectable_by = 'answer_lookup'"
+            # a mistake only skills with no generated level watch for (English's, E0) has no generator to emit it
+            " and not (exists (select 1 from skill_mistake k where k.misconception_code = m.code)"
+            "   and not exists (select 1 from skill_mistake k join skill_level l on l.tenant_id = k.tenant_id"
+            "     and l.skill_code = k.skill_code and l.rule ? 'check' where k.misconception_code = m.code))"
         ).fetchall()
     }
     emitted = set(M.PREDICTED)

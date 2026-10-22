@@ -34,11 +34,11 @@ test("the tree reads grade, subject, skill, level, worksheets, and every count i
   const all = await levels();
   await page.goto("/?details=1");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Curriculum");
-  const [{ subject }] = await sql<{ subject: string }[]>`select name as subject from subject limit 1`;
+  const [{ subject }] = await sql<{ subject: string }[]>`select name as subject from subject where code = 'NUM'`;
   await openAll(page);
   for (const grade of [...new Set(all.map((l) => l.band))]) {
     await expect(table(page).locator(`tr[data-row="${grade}"]`)).toBeVisible();
-    await expect(table(page).locator(`tr[data-row="${grade}/subject"]`)).toContainText(subject);
+    await expect(table(page).locator(`tr[data-row="${grade}/NUM"]`)).toContainText(subject);
   }
   // each sampled skill, each of its own grade's levels with its sentence and count, and its worksheets a click away
   const sample = all.filter((l) => ["ADD.2D2D", "SUB.3D1D"].includes(l.code));
@@ -94,7 +94,7 @@ test("each grade's skills sit under their topics, in the topics' order, each top
   await openAll(page);
   // the rows under Grade 3, in the table's order: each topic, then its skills
   const order = await table(page).locator("tbody tr").evaluateAll((trs) => trs.map((t) => t.getAttribute("data-row") ?? ""));
-  const g3 = order.filter((id) => id.startsWith("G3/") && id !== "G3/subject");
+  const g3 = order.filter((id) => id.startsWith("G3/") && id !== "G3/NUM");
   const topics = [...new Set(rows.map((r) => r.topic))];
   expect(g3.filter((id) => topics.includes(id.slice(3)))).toEqual(topics.map((t) => `G3/${t}`));
   for (const r of rows) {

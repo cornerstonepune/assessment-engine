@@ -9,8 +9,8 @@ import { taughtByGrade, untaughtByGrade } from "./taught";
 // their counts are `skillSets()`'s own; this adds each level's worksheets, in the order they are numbered.
 export type CurriculumSkill = SkillSet & { sheets: Record<string, string[]> };
 
-export async function curriculum(scope: Scope): Promise<{ subject: string; skills: CurriculumSkill[] }> {
-  const [sets, sheets, [subject]] = await Promise.all([
+export async function curriculum(scope: Scope): Promise<{ skills: CurriculumSkill[] }> {
+  const [sets, sheets] = await Promise.all([
     // the whole mapping, taught or not (goals/c1-whole-curriculum.yaml): showing a skill is not putting it on a paper
     skillSets({ untaught: true, scope }),
     sql<{ code: string; level: string; codes: string[] }[]>`
@@ -18,16 +18,10 @@ export async function curriculum(scope: Scope): Promise<{ subject: string; skill
       from sheet_template t
       where t.source = 'library' and t.retired_at is null
       group by t.skill_set_code, t.difficulty`,
-    // the subject of the skill sets' topics (skill_set → topic → subject); one tree holds one today
-    sql<{ name: string }[]>`
-      select su.name from subject su
-      where exists (select 1 from skill_set ss join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
-                    where t.tenant_id = su.tenant_id and t.subject_code = su.code)
-      order by su.code limit 1`,
   ]);
   const by = new Map<string, Record<string, string[]>>();
   for (const s of sheets) by.set(s.code, { ...(by.get(s.code) ?? {}), [s.level]: s.codes });
-  return { subject: subject?.name ?? "", skills: sets.map((s) => ({ ...s, sheets: by.get(s.code) ?? {} })) };
+  return { skills: sets.map((s) => ({ ...s, sheets: by.get(s.code) ?? {} })) };
 }
 
 /** One row of the curriculum table (goals/u12-curriculum-table.yaml): a grade, its subject, a topic or a skill, with
@@ -66,8 +60,8 @@ export type CurriculumRow = {
  *  levels only — and each row's children assessed: those of the scope's classes with a checked answer on it
  *  (`child_skill_state`), counted once however many of a topic's skills they reached (goals/ux6-curriculum-for-the-
  *  educator.yaml: an educator counts their own class's). */
-export async function curriculumRows(scope: Scope): Promise<{ subject: string; rows: CurriculumRow[]; order: string[] }> {
-  const [{ subject, skills }, reached, taught, untaught, { order }, g] = await Promise.all([
+export async function curriculumRows(scope: Scope): Promise<{ rows: CurriculumRow[]; order: string[] }> {
+  const [{ skills }, reached, taught, untaught, { order }, g] = await Promise.all([
     curriculum(scope),
     // a child assessed on a skill (the graph's word, `child_skill_state`) counts under the grade of each level they answered
     // it at: a skill whose Easy level the school files under Grade 1 is not Grade 1's for a child who answered at Medium
@@ -103,60 +97,66 @@ export async function curriculumRows(scope: Scope): Promise<{ subject: string; r
     const group = skills.filter((s) => inGrade(s).length);
     if (!group.length) continue;
     const grade: CurriculumRow = { id: band, parent: null, depth: 0, label: words, questions: 0, worksheets: 0, levels: {}, children: 0, assessed: 0, skills: 0 };
-    const subj: CurriculumRow = { ...grade, id: `${band}/subject`, parent: band, depth: 1, label: subject };
-    const topics = [...new Map(group.map((s) => [s.topic_code ?? "", s])).values()].sort((a, b) => (a.topic_ord ?? 99) - (b.topic_ord ?? 99));
-    const topicRows: CurriculumRow[] = [];
-    const all = new Set<string>();
-    rows.push(grade, subj);
-    for (const t of topics) {
-      const id = `${band}/${t.topic_code ?? ""}`;
-      const skillRows = group
-        .filter((s) => s.topic_code === t.topic_code)
-        .map((s): CurriculumRow => {
-          const levels = inGrade(s);
-          return {
-            id: `${band}/${s.code}`,
-            parent: id,
-            depth: 3,
-            label: s.learning_objective,
-            sub: s.name,
-            href: `/skill-sets/${s.code}`,
-            draft: s.status !== "ratified",
-            off: !taught(band, s.code),
-            topic: s.topic_code ?? undefined,
-            skill: s.code,
-            untaught: untaught(band, s.code),
-            questions: levels.reduce((n, d) => n + (s.counts[d] ?? 0), 0),
-            worksheets: levels.reduce((n, d) => n + (s.worksheets[d] ?? 0), 0),
-            levels: Object.fromEntries(order.map((d) => [d, levels.includes(d) ? (s.counts[d] ?? 0) : null])),
-            words: Object.fromEntries(levels.map((d) => [d, s.difficulty[d].words])),
-            children: kids.get(`${band}|${s.code}`)?.length ?? 0,
-            assessed: kids.has(`${band}|${s.code}`) ? 1 : 0,
-            skills: 1,
-          };
-        });
-      const reach = new Set(group.filter((s) => s.topic_code === t.topic_code).flatMap((s) => kids.get(`${band}|${s.code}`) ?? []));
-      reach.forEach((k) => all.add(k));
-      const topic: CurriculumRow = {
-        id,
-        parent: subj.id,
-        depth: 2,
-        label: t.topic_name ?? "Other",
-        off: skillRows.every((r) => r.off),
-        topic: t.topic_code ?? undefined,
-        untaught: [...new Set(skillRows.flatMap((r) => r.untaught ?? []))].sort(),
-        questions: sum(skillRows, "questions"),
-        worksheets: sum(skillRows, "worksheets"),
-        levels: levelSums(skillRows),
-        children: reach.size,
-        assessed: skillRows.reduce((n, r) => n + r.assessed, 0),
-        skills: skillRows.length,
-      };
-      topicRows.push(topic);
-      rows.push(topic, ...skillRows);
-    }
-    for (const r of [grade, subj]) {
-      Object.assign(r, {
+    rows.push(grade);
+    const everyone = new Set<string>();
+    const subjectRows: CurriculumRow[] = [];
+    // a grade's subjects, in the order of their first topic (a school with maths and English shows both, one tree each)
+    const subjects = [...new Map([...group].sort((a, b) => (a.topic_ord ?? 99) - (b.topic_ord ?? 99)).map((s) => [s.subject_code ?? "", s])).values()];
+    for (const sub of subjects) {
+      const inSub = group.filter((s) => (s.subject_code ?? "") === (sub.subject_code ?? ""));
+      const subj: CurriculumRow = { ...grade, id: `${band}/${sub.subject_code ?? ""}`, parent: band, depth: 1, label: sub.subject_name ?? "" };
+      const topics = [...new Map(inSub.map((s) => [s.topic_code ?? "", s])).values()].sort((a, b) => (a.topic_ord ?? 99) - (b.topic_ord ?? 99));
+      const topicRows: CurriculumRow[] = [];
+      const all = new Set<string>();
+      rows.push(subj);
+      for (const t of topics) {
+        const id = `${band}/${t.topic_code ?? ""}`;
+        const skillRows = inSub
+          .filter((s) => s.topic_code === t.topic_code)
+          .map((s): CurriculumRow => {
+            const levels = inGrade(s);
+            return {
+              id: `${band}/${s.code}`,
+              parent: id,
+              depth: 3,
+              label: s.learning_objective,
+              sub: s.name,
+              href: `/skill-sets/${s.code}`,
+              draft: s.status !== "ratified",
+              off: !taught(band, s.code),
+              topic: s.topic_code ?? undefined,
+              skill: s.code,
+              untaught: untaught(band, s.code),
+              questions: levels.reduce((n, d) => n + (s.counts[d] ?? 0), 0),
+              worksheets: levels.reduce((n, d) => n + (s.worksheets[d] ?? 0), 0),
+              levels: Object.fromEntries(order.map((d) => [d, levels.includes(d) ? (s.counts[d] ?? 0) : null])),
+              words: Object.fromEntries(levels.map((d) => [d, s.difficulty[d].words])),
+              children: kids.get(`${band}|${s.code}`)?.length ?? 0,
+              assessed: kids.has(`${band}|${s.code}`) ? 1 : 0,
+              skills: 1,
+            };
+          });
+        const reach = new Set(inSub.filter((s) => s.topic_code === t.topic_code).flatMap((s) => kids.get(`${band}|${s.code}`) ?? []));
+        reach.forEach((k) => all.add(k));
+        const topic: CurriculumRow = {
+          id,
+          parent: subj.id,
+          depth: 2,
+          label: t.topic_name ?? "Other",
+          off: skillRows.every((r) => r.off),
+          topic: t.topic_code ?? undefined,
+          untaught: [...new Set(skillRows.flatMap((r) => r.untaught ?? []))].sort(),
+          questions: sum(skillRows, "questions"),
+          worksheets: sum(skillRows, "worksheets"),
+          levels: levelSums(skillRows),
+          children: reach.size,
+          assessed: skillRows.reduce((n, r) => n + r.assessed, 0),
+          skills: skillRows.length,
+        };
+        topicRows.push(topic);
+        rows.push(topic, ...skillRows);
+      }
+      Object.assign(subj, {
         questions: sum(topicRows, "questions"),
         worksheets: sum(topicRows, "worksheets"),
         levels: levelSums(topicRows),
@@ -164,7 +164,17 @@ export async function curriculumRows(scope: Scope): Promise<{ subject: string; r
         assessed: topicRows.reduce((n, x) => n + x.assessed, 0),
         skills: topicRows.reduce((n, x) => n + x.skills, 0),
       });
+      all.forEach((k) => everyone.add(k));
+      subjectRows.push(subj);
     }
+    Object.assign(grade, {
+      questions: sum(subjectRows, "questions"),
+      worksheets: sum(subjectRows, "worksheets"),
+      levels: levelSums(subjectRows),
+      children: everyone.size,
+      assessed: subjectRows.reduce((n, x) => n + x.assessed, 0),
+      skills: subjectRows.reduce((n, x) => n + x.skills, 0),
+    });
   }
-  return { subject, rows, order };
+  return { rows, order };
 }
