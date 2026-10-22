@@ -34,12 +34,21 @@ Slice UXF of the locked scope of 22 Oct, beside S1: web only, no migration, no n
   class results"); the count is one `Count`; a chip says whether the answer is a spot-check, for judging, or waiting.
   Words, picture and forms are unchanged.
 
+- **Main merged in (2026-10-22), and CI's two reds found their cause.** CI's merge of this branch with the main of that hour
+  failed `test_the_list_only_shrinks`: Today (`/`) no longer breaks the "purpose" rule after main's declutter, so its entry
+  was out of date; it now lists `shell` and `table` only. With today's main, S2's new page `/papers/card` was a page not on
+  the list that broke "shell" and "table". It is not added to the list: it is built on `PageShell` (the stage's one action
+  at the top, "All assessments" as the next step) and `DataTable` (the children still out first, ten to a page).
+  `bin/check` → 30 passed; `test_ux_rules`, `test_layout`, `test_ratchet` → 17 passed; `s42-the-assessment-card` and
+  `u51-ux-rules` → 12 passed, and the six specs that read the card (`m4`, `s7`, `u11`, `u17`, `u36`, `u37`) → 34 passed,
+  on a `bin/testdb fresh` copy of this branch. `DataTable` now has a rendered page (the card's table).
+
 ## Not held yet, said plainly
 
 - The menu shows a red count on every tab; rule 5 allows red on Today alone. It changes every page, so it waits for the
   slice that moves Today (PRs #274, #278 change Today, Papers, Children and Curriculum).
-- `DataTable` has no page yet, so it is proved on its pure functions (`u51`: empty cells, empty columns, paging, grouping)
-  and by its types, not by a rendered table. The first page moved onto it adds that check.
+- `DataTable` is rendered by one page, the assessment card; its paging past ten children is proved on the pure functions
+  (`u51`), not by a card with eleven children.
 - A listed page's rendered tables depend on the rows in the database, so they are measured, not frozen: on the test copy,
   /make, /growth, /growth/reports, /library, /worksheets, /worksheets/taxonomy and /worksheets/[qr] drew tables past 10
   rows, and /, /make/[section] and /growth a column of zeros or dashes. The spec records them in its annotations.
