@@ -76,7 +76,9 @@ export default async function MarkingPage({ searchParams }: Props) {
           {by === "class" ? <ByClass papers={papers} /> : null}
           {by === "child" ? <ByChild papers={papers} open={(section) => !!scope.classes || section === q.class} /> : null}
           {by === "worksheet" ? <ByWorksheet papers={papers} /> : null}
-          <ReaderPanel r={reader} />
+          <div id="reader" className="min-w-0 scroll-mt-6">
+            <ReaderPanel r={reader} />
+          </div>
           <NothingRead papers={papers} />
         </div>
       </Body>

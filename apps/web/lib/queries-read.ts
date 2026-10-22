@@ -7,6 +7,7 @@
  * off the paper either way.
  */
 import { sql } from "./db";
+import { awaitingCte } from "./queries-counts";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { paperName } from "./queries-papers";
 
@@ -45,6 +46,7 @@ export type PaperRow = {
 };
 
 const paperRows = (where: ReturnType<typeof sql>, actor: string) => sql<PaperRow[]>`
+  with ${awaitingCte()}
   select si.id, si.child_id, p.first_name, ch.section, ch.roll_no, t.batch_id as paper,
          ${paperName("t")} as title, t.key ->> 'date' as date,
          coalesce(jsonb_array_length(t.key -> 'pages'), 1) as pages,
@@ -68,7 +70,8 @@ const paperRows = (where: ReturnType<typeof sql>, actor: string) => sql<PaperRow
              and r.status in ('correct', 'wrong', 'blank')) as n_scored,
          (select count(*)::int from answer_standing s where s.sheet_instance_id = si.id and s.standing = 'engine') as n_engine,
          (select count(*)::int from answer_standing s where s.sheet_instance_id = si.id and s.standing = 'person') as n_person,
-         (select count(*)::int from answer_standing s where s.sheet_instance_id = si.id and s.standing = 'waiting') as n_waiting,
+         -- the answers waiting for a person: the one count (lib/queries-counts.ts), as the list, the card, Check the answers and Today say it
+         (select count(*)::int from awaiting w where w.sheet_instance_id = si.id) as n_waiting,
          coalesce(t.code, t.batch_id, t.key ->> 'title', si.qr_code) as worksheet
   from sheet_instance si
   join sheet_template t on t.id = si.sheet_template_id
@@ -80,8 +83,9 @@ const paperRows = (where: ReturnType<typeof sql>, actor: string) => sql<PaperRow
 // (rule 6) — a queue of papers is still a list of children.
 export async function papersToApprove(actor: string, scope: Scope = EVERY_CLASS): Promise<PaperRow[]> {
   return paperRows(
+    // a paper put away is not marked: its answers wait for no one (lib/queries-counts.ts)
     sql`exists (select 1 from capture c where c.sheet_instance_id = si.id and c.superseded_by is null)
-        and ${inScope(scope, sql`ch.section`)}`,
+        and si.print_status <> 'void' and ${inScope(scope, sql`ch.section`)}`,
     actor,
   );
 }
@@ -272,7 +276,8 @@ export async function readerReport(): Promise<ReaderReport> {
 
 export async function checkQueue(scope: Scope = EVERY_CLASS): Promise<QueueEntry[]> {
   return sql<QueueEntry[]>`
-    with live as (
+    with ${awaitingCte()},
+    live as (
       select r.id, r.rid, r.status, r.state, r.raw_read, r.item_id, c.sheet_instance_id
       from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null
     ),
@@ -283,7 +288,7 @@ export async function checkQueue(scope: Scope = EVERY_CLASS): Promise<QueueEntry
       order by l.sheet_instance_id, md5(l.id::text)
     ),
     q as (
-      select l.id, false as spot from live l where l.status in ('unreadable', 'needs_teacher')
+      select w.item_result_id as id, false as spot from awaiting w
       union all
       select s.id, true from spot s
       where s.state = 'candidate' and not exists (select 1 from read_correction rc where rc.item_result_id = s.id)
@@ -294,7 +299,7 @@ export async function checkQueue(scope: Scope = EVERY_CLASS): Promise<QueueEntry
     join sheet_instance si on si.id = l.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
     join child ch on ch.id = si.child_id
-    where ${inScope(scope, sql`ch.section`)}
+    where ${inScope(scope, sql`coalesce(si.section, ch.section)`)}
     order by t.key ->> 'date' desc nulls last, roll_order(ch.roll_no), ch.roll_no, si.id, coalesce((l.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1),
              nullif(regexp_replace(result_slot(i.item_key, l.raw_read::jsonb), '[^0-9]', '', 'g'), '')::int, i.item_key,
              result_order(i.responses, l.rid)`;

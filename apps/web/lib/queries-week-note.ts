@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { awaitingCte } from "./queries-counts";
 import { many } from "./needs-you";
 import { inScope, type Scope } from "./scope";
 
@@ -29,7 +30,8 @@ const rungIn = (subject: string, rung: ReturnType<typeof sql>) => sql`exists (
 export async function weekNote(scope: Scope, subject: string): Promise<WeekNote> {
   const [[read], [stand], [mistake]] = await Promise.all([
     sql<{ papers: number; answers: number; checked: number; waiting: number }[]>`
-      with answers as (
+      with ${awaitingCte()},
+      answers as (
         select k.id as capture, r.id, r.status
         from capture k
         join sheet_instance si on si.id = k.sheet_instance_id
@@ -43,7 +45,7 @@ export async function weekNote(scope: Scope, subject: string): Promise<WeekNote>
       )
       select count(distinct capture)::int as papers, count(*)::int as answers,
              (select count(distinct c.item_result_id)::int from read_correction c where c.item_result_id in (select id from answers)) as checked,
-             count(*) filter (where status in ('unreadable', 'needs_teacher'))::int as waiting
+             count(*) filter (where id in (select item_result_id from awaiting))::int as waiting
       from answers`,
     sql<{ children: number; secure: number; practising: number; help: number; help_twice: number }[]>`
       with kids as (select id from child where active and ${inScope(scope, sql`section`)}),
@@ -88,7 +90,7 @@ export function noteLines(w: WeekNote): string[] {
       ? `${many(w.papers, "paper")} came back this week, and ${many(w.answers, "answer")} ${w.answers === 1 ? "was" : "were"} read.`
       : "No paper has come back this week yet.",
     `${w.checked ? `A person checked ${many(w.checked, "answer")}` : "No answer has been checked by a person yet"}; ${
-      w.waiting ? `${many(w.waiting, "answer")} ${w.waiting === 1 ? "waits" : "wait"} for a person.` : "none waits for a person."
+      w.waiting ? `${many(w.waiting, "answer")} from this week ${w.waiting === 1 ? "waits" : "wait"} for a person.` : "none of this week's waits for a person."
     }`,
     `${w.secure} of ${many(w.children, "child", "children")} ${is(w.secure)} secure on a skill; ${w.help} ${w.help === 1 ? "needs" : "need"} help on one, and ${w.practising} ${is(w.practising)} practising one.`,
     w.mistake

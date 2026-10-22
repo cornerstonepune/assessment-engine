@@ -6,6 +6,7 @@
  * classes it is.
  */
 import { sql } from "./db";
+import { awaitingCte } from "./queries-counts";
 import { EVERY_CLASS, isMine, type Scope } from "./scope";
 
 type Copy = {
@@ -69,9 +70,11 @@ export async function lastScans(scope: Scope = EVERY_CLASS, n = 5): Promise<Scan
   const captures = [...new Set(runs.flatMap((r) => r.copies.flatMap((c) => (c.capture_id ? [c.capture_id] : []))))];
   const standing = new Map<string, { engine: number; person: number; waiting: number }>();
   for (const s of captures.length ? await sql<{ capture_id: string; engine: number; person: number; waiting: number }[]>`
+      with ${awaitingCte()}
       select r.capture_id, count(*) filter (where a.standing = 'engine')::int as engine,
              count(*) filter (where a.standing = 'person')::int as person,
-             count(*) filter (where a.standing = 'waiting')::int as waiting
+             -- the one count of answers waiting (lib/queries-counts.ts), as every page says it
+             count(*) filter (where a.item_result_id in (select item_result_id from awaiting))::int as waiting
       from answer_standing a join item_result r on r.id = a.item_result_id
       where r.capture_id = any(${captures}::uuid[]) group by r.capture_id` : [])
     standing.set(s.capture_id, s);

@@ -31,7 +31,7 @@ export function ReadScan({ from, read, why, pages, scans = [] }: { from: "/paper
     given: `Page ${Number(pages) || ""} is being read now as the paper of the child you gave it to.`,
   }[read ?? ""];
   return (
-    <Panel title="Read a scan" label="Read a scan" id="read-scan">
+    <Panel title={from === "/papers" ? "Upload papers" : "Read a scan"} label="Read a scan" id="read-scan">
       <UploadScans reading={scans.some((s) => s.status === "running")} />
       <p className="mb-1 text-[13px] text-ink-soft">Or paste the link to a scan on Google Drive:</p>
       <form action={readScan} className="flex flex-wrap items-center gap-2">
@@ -48,11 +48,14 @@ export function ReadScan({ from, read, why, pages, scans = [] }: { from: "/paper
           Read it
         </button>
       </form>
-      <p className="mt-2 text-[13px] text-ink-soft">
-        {said ?? "Every page is sorted by the code printed on it and read in its boxes; every answer waits here for a person. A copy printed without a child's code, or a page whose code cannot be read, is listed, never guessed."}
-      </p>
+      {/* Assessments is the day's first job and says only what happened; the long way it works is said on Marking */}
+      {said || from === "/capture" ? (
+        <p className="mt-2 text-[13px] text-ink-soft">
+          {said ?? "Every page is sorted by the code printed on it and read in its boxes; every answer waits here for a person. A copy printed without a child's code, or a page whose code cannot be read, is listed, never guessed."}
+        </p>
+      ) : null}
       {scans.length ? (
-        <ul aria-label="Scans read last" className="mt-3 grid gap-2 border-t border-line pt-3 text-[13px]">
+        <ul aria-label="Scans read last" id="past-scans" className="mt-3 scroll-mt-6 grid gap-2 border-t border-line pt-3 text-[13px]">
           {scans.map((s) => (
             <li key={s.id} className="min-w-0">
               <p>

@@ -11,6 +11,7 @@ import { randomBytes } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass } from "./rows";
+import { filterBy } from "./papers-page";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -74,8 +75,9 @@ test("the class papers Today counts are the copies the pages it opens show waiti
   await page.goto(`/papers?class=${CLASS}`);
   await expect(ours(page)).toContainText("2 to approve");
   await expect(ours(page)).toContainText("and 1 spare");
-  const stage = page.getByRole("navigation", { name: "Papers by stage" }).getByRole("link", { name: /^To approve/ });
-  await expect(stage, "the class's papers to approve: its children's copies").toHaveText(/To approve\s*2$/);
+  // S2b: the stage chips are the Filter now; the row says it, "2 to approve" above, and a stage chosen keeps just those copies
+  await filterBy(page, { stage: { value: "made" } });
+  await expect(ours(page).getByTestId("copies"), "the class's papers to approve: its children's copies").toHaveText(/^2/);
 
   // the approve page Today's line opens: two copies to approve, the spare among the spare copies, the button counting
   // them as Today does (goals/ux5-papers-grouped.yaml)

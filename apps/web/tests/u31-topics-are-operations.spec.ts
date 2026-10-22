@@ -88,9 +88,13 @@ test("curriculum lists the six topics, and a class's skills each with its own sw
 test("no chip names a kind of question, or a topic with nothing taught at the class's grade", async ({ page }) => {
   for (const at of ["/growth", "/papers"]) {
     await page.goto(at);
+    // S2b (goals/s2b-assessments-declutter.yaml), 2026-10-22: on Assessments the topic chips are the Filter's Topic choice
+    const onPapers = at === "/papers";
     const chips = page.getByRole("navigation", { name: "Topic" });
-    await expect(chips.getByRole("link", { name: "All topics" })).toBeVisible();
-    const names = (await chips.getByRole("link").allInnerTexts()).map((n) => n.trim()).filter((n) => n !== "All topics");
+    if (!onPapers) await expect(chips.getByRole("link", { name: "All topics" })).toBeVisible();
+    const names = onPapers
+      ? (await page.locator("[data-filters] select[name=topic] option").allInnerTexts()).map((n) => n.trim()).filter((n) => n !== "Every topic")
+      : (await chips.getByRole("link").allInnerTexts()).map((n) => n.trim()).filter((n) => n !== "All topics");
     expect(names.length, at).toBeGreaterThan(0);
     expect(names.filter((n) => !SIX.includes(n)), `${at}: a chip that is not one of the six topics`).toEqual([]);
     expect(names.filter((n) => KINDS.includes(n)), `${at}: a kind of question as a topic`).toEqual([]);

@@ -101,7 +101,13 @@ function Next({ card, s }: { card: Card; s: Standing }) {
         ) : null}
         {s.inn ? (
           <li>
-            {s.checked} of {s.inn} checked{s.waiting ? ` · ${s.waiting} ${s.waiting === 1 ? "answer waits" : "answers wait"} for a person` : ""}; {s.signed} signed off.
+            {s.checked} of {s.inn} checked
+            {s.waiting ? (
+              <>
+                {" "}· <span data-testid="to-check">{s.waiting}</span> {s.waiting === 1 ? "answer waits" : "answers wait"} for a person
+              </>
+            ) : null}
+            ; {s.signed} signed off.
           </li>
         ) : null}
       </ul>

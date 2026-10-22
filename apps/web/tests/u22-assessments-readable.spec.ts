@@ -12,6 +12,7 @@ import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
 import { isoWeek, weekWords } from "../lib/week";
+import { filterBy } from "./papers-page";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -78,8 +79,9 @@ test("Assessments opens on one row for each assessment, its copies counted by st
     "Kind",
     "Class",
     "Copies",
-    "Where they stand",
-    "Waiting",
+    "To do",
+    "Papers in",
+    "Answers to check",
     "Score",
   ]);
   // three copies of one class assessment are one row, the tally practice another
@@ -90,12 +92,13 @@ test("Assessments opens on one row for each assessment, its copies counted by st
     "Class assessment",
     `Grade 2 · ${SECTION}`,
     "3",
-    /1 to approve[^]*1 with the children[^]*1 to check/,
+    /^1 to approve$/,
+    "1 of 3",
     "1",
     "—",
   ]);
   // a stage keeps the copies at that stage
-  await page.getByRole("navigation", { name: "Papers by stage" }).getByRole("link", { name: /^To approve/ }).click();
+  await filterBy(page, { stage: { value: "made" } });
   await expect(page).toHaveURL(/stage=made/);
   await expect(ours(page)).toHaveCount(2);
   await expect(ours(page).filter({ hasText: await setName("ADD.2D2D") }).locator("td").nth(3)).toHaveText("1");
@@ -105,14 +108,13 @@ test("Assessments opens on one row for each assessment, its copies counted by st
 
 test("a topic keeps the assessments on its skills, and an assessment opens its copies", async ({ page }) => {
   await page.goto(`/papers?class=${SECTION}`);
-  const topics = page.getByRole("navigation", { name: "Topic" });
-  await expect(topics.getByRole("link", { name: "All topics" })).toHaveAttribute("aria-current", "page");
-  await topics.getByRole("link", { name: "Data handling", exact: true }).click();
+  // S2b (goals/s2b-assessments-declutter.yaml), 2026-10-22: the stage and topic chips are one Filter, and a row says what waits on a person, not six counts.
+  await filterBy(page, { topic: { label: "Data handling" } });
   await expect(page).toHaveURL(/topic=DATA\b/);
   await expect(ours(page)).toHaveCount(1);
   await expect(ours(page)).toContainText(await setName("DATA.TALLY"));
   // a topic stays chosen when the class changes, and the class when the topic does
-  await page.getByRole("navigation", { name: "Topic" }).getByRole("link", { name: "Addition & subtraction", exact: true }).click();
+  await filterBy(page, { topic: { label: "Addition & subtraction" } });
   // the new topic's own row, waited for: the class was in the address before the click, so waiting on it alone let a
   // slow run click Data handling's row, whose one copy then failed the count (CI, 2026-10-12)
   await expect(page).toHaveURL(/topic=ADDSUB\b/);
