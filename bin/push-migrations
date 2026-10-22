@@ -36,7 +36,9 @@ done
 for try in 1 2 3 4 5 6; do
   if out=$(supabase db push --workdir "$work" --db-url "$LIVE" --yes 2>&1); then echo "$out"; exit 0; fi
   echo "$out"
-  case "$out" in *55P03*) ;; *) exit 1 ;; esac
+  # 55P03, a lock it could not have in 3 s; 40P01, a deadlock with a reader of live (2026-10-22 17:32, B4's migration
+  # held one table and waited on another a reader held). Either way Postgres rolled the migration back whole.
+  case "$out" in *55P03*|*40P01*) ;; *) exit 1 ;; esac
   echo "::warning::try $try of 6: a query on live held a lock the migration needs; trying again in 20 s"
   sleep 20
 done

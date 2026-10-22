@@ -15,6 +15,8 @@ says:
   - words: "a database update waits briefly and tries again by itself instead of failing"
     proved_by: packages/engine/tests/test_deploy.py::test_a_migration_held_by_a_lock_tries_again_by_itself
   - words: "a database update waits briefly and tries again by itself instead of failing"
+    proved_by: packages/engine/tests/test_deploy.py::test_a_migration_caught_in_a_deadlock_tries_again_by_itself
+  - words: "a database update waits briefly and tries again by itself instead of failing"
     proved_by: packages/engine/tests/test_deploy.py::test_a_migration_that_fails_for_another_reason_stops_at_once
   - words: "a database update waits briefly and tries again by itself instead of failing"
     proved_by: packages/engine/tests/test_deploy.py::test_a_migration_still_held_after_six_tries_fails
@@ -33,6 +35,8 @@ says:
 # They are now the first statements of each migration, and the migration checks them itself.
 # 2026-10-22 (L14c, docs/notes/l14c-update-live-in-band.md): bin/update-live still pushed by hand without them, and
 # migrate live took whichever CLI was newest. Both now run bin/push-migrations, and migrate live's CLI is pinned.
+# 2026-10-22 (L14d, docs/notes/l14d-a-deadlock-is-tried-again.md): B4's migration met a reader of live in a deadlock
+# (SQLSTATE 40P01) and migrate live stopped at once; a deadlock rolls back whole like a lock timeout, so it is tried again.
 manual:
   - "The next merge with a migration: migrate live's 'apply what live is missing' step applies it, and live's supabase_migrations.schema_migrations row for it starts with the set lock_timeout and statement_timeout lines; any 'try n of 6' warning names a lock it waited out."
 scenarios: []
