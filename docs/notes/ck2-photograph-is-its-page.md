@@ -60,6 +60,12 @@ Tiles of print found when a photograph is laid on each printed page (page 1 has 
   has not: CI is their first run.
 - Cost, named: a copy with as many photographs as pages is now measured, n² fits per copy (4 for a two-page paper; the live measure took about 6 s a photograph for the
   tiles and fits on both pages) where it was none.
+- Flake, found and fixed (2026-10-22; PRs 285 and 288 red on shard 6). `test_copies.py` built its paper from the first twelve
+  word problems of the bank, and the bank is a fresh random draw on every database (CI builds one per runner). In some
+  draws the true placement of a copy missing its first page beat the next laying by 1.21, under `read.page_margin` 1.25:
+  `placing.placed` returned None, `copies.read` rightly skipped the copy (it goes whole to a person, R2), and a skipped
+  entry has no `capture_id`: `KeyError`. Reproduced: 1 draw in 33 of random twelves (ratio 1.21; the rest 1.28–1.50).
+  The code is right, the test's paper was not fixed. The paper is now twelve stories made from `random.Random(7)`.
 
 ## Handoff
 
