@@ -26,7 +26,7 @@ reading's progress).
   - **The card** (`/papers/card`, opened from an assessment on Assessments with "Open its card"): the stages Made →
     approved for print → Given → Papers in → Read → Checked → Signed off → Results, the one it is at marked, and its next
     step. Each child's paper as proposed, with the way to the approve page where any child is changed.
-  - **Given on** and **away, carried**: the educator's word, written by the engine as a `flow_run` row (`given`,
+  - **Given on** and **away, held for later**: the educator's word, written by the engine as a `flow_run` row (`given`,
     `absent`; `w2_print/given.py`, `POST /papers/given`, `POST /papers/absent`). The paper itself is not changed; papers
     put in without "Given on" still count as given.
   - **To photograph again**: what the newest file holding a copy lacked (the read-scan run's `lacks`), flagged on the

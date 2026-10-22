@@ -91,7 +91,7 @@ function Next({ card, s }: { card: Card; s: Standing }) {
         </li>
         <li data-testid="in">
           {s.inn} of {s.n} in{s.out.length ? ` · missing: ${rollsSaid(s.out)}` : ""}
-          {s.away.length ? ` · away, carried: ${rollsSaid(s.away)}` : ""}
+          {s.away.length ? ` · away, held for later: ${rollsSaid(s.away)}` : ""}
         </li>
         {card.reading ? (
           <li data-testid="reading">
@@ -140,7 +140,7 @@ function Next({ card, s }: { card: Card; s: Standing }) {
           </button>
         </form>
       ) : null}
-      {s.at === "Papers in" || s.at === "Read" ? <p className="text-[13.5px]">Put the papers in at the top of this card. A child who was away is marked below; their paper is carried, not missing.</p> : null}
+      {s.at === "Papers in" || s.at === "Read" ? <p className="text-[13.5px]">Put the papers in at the top of this card. A child who was away is marked below; their paper is held for later, not missing.</p> : null}
       {s.at === "Checked" ? (
         <Link className="btn" href="/capture/check">
           Check them →
@@ -196,7 +196,7 @@ function Copies({ card }: { card: Card }) {
                       code <Link href={`/worksheets/${c.qr}`}>{c.qr}</Link>
                     </span>
                   </td>
-                  <td>{c.away && out ? "away · carried" : STAGE_WORDS[c.stage]}</td>
+                  <td>{c.away && out ? "away · held for later" : STAGE_WORDS[c.stage]}</td>
                   <td className="num">{c.scored ? `${c.right} of ${c.scored}` : "—"}</td>
                   <td>
                     {out && c.printed ? (
@@ -205,7 +205,7 @@ function Copies({ card }: { card: Card }) {
                         <input type="hidden" name="qr" value={c.qr} />
                         <input type="hidden" name="away" value={c.away ? "no" : "yes"} />
                         <button type="submit" className="btn secondary whitespace-nowrap text-[12.5px]">
-                          {c.away ? "Back: count as missing" : "Away: carry it"}
+                          {c.away ? "Back: count as missing" : "Away: hold it for later"}
                         </button>
                       </form>
                     ) : null}

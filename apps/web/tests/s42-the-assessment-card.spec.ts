@@ -94,9 +94,9 @@ test("the card moves from Made to Results, always showing its next step", async 
   const bina = await aReadPaper(sql, { qr: QR.Bina, child: kids.Bina, template: ws.id, items: ws.item_ids.slice(0, 2), reads: [{ status: "correct", read: "1" }, { status: "needs_teacher", read: "7" }] });
   await page.reload();
   await expect(page.getByTestId("in")).toHaveText(/2 of 3 in · missing: roll 3/);
-  // Chetan was away: his paper is carried, not missing
-  await page.getByRole("row").filter({ hasText: "Chetan" }).getByRole("button", { name: "Away: carry it" }).click();
-  await expect(page.getByTestId("in")).toHaveText(/2 of 3 in · away, carried: roll 3/);
+  // Chetan was away: his paper is held for later, not missing
+  await page.getByRole("row").filter({ hasText: "Chetan" }).getByRole("button", { name: "Away: hold it for later" }).click();
+  await expect(page.getByTestId("in")).toHaveText(/2 of 3 in · away, held for later: roll 3/);
   await expect(at(page)).toContainText("Checked");
   await expect(page.getByRole("link", { name: "Check them →" })).toBeVisible();
 
@@ -132,8 +132,8 @@ test("a page to photograph again is flagged, a child away is carried, the papers
   // a paper not back is listed by roll; away, it is carried; back, it is missing again
   await expect(page.getByTestId("in")).toHaveText(/missing: [^·]*roll 3/);
   const chetan = page.getByRole("row").filter({ hasText: "Chetan" });
-  await chetan.getByRole("button", { name: "Away: carry it" }).click();
-  await expect(page.getByTestId("in")).toHaveText(/away, carried: roll 3/);
+  await chetan.getByRole("button", { name: "Away: hold it for later" }).click();
+  await expect(page.getByTestId("in")).toHaveText(/away, held for later: roll 3/);
   await chetan.getByRole("button", { name: "Back: count as missing" }).click();
   await expect(page.getByTestId("in")).toHaveText(/missing: [^·]*roll 3/);
 });
