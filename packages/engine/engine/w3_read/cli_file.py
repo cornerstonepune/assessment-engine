@@ -5,7 +5,7 @@ under the ceiling."""
 import typer
 
 from engine.core import db
-from engine.w3_read import copies, copy_scores, sorting
+from engine.w3_read import copies, copy_scores, inbox, sorting
 
 
 def read_file(
@@ -99,5 +99,32 @@ def _read_copies(path, names, section, actor):
     )
 
 
+def file_again(
+    name: str = typer.Argument(help="the file's name in the engine's inbox, as Marking lists it"),
+    actor: str = typer.Option("engine-cli", "--actor"),
+) -> None:
+    """A file already sent to be read, read afresh (goals/ck2-photograph-is-its-page.yaml): each copy no person has
+    worked on read anew, its old reading superseded; a person's checks stay. The run is the file's newest."""
+    with db.connect() as conn:
+        run = conn.execute(
+            "select id from flow_run where flow = %s and coalesce(result ->> 'file', substr(trigger,"
+            " strpos(trigger, ': ') + 2)) = %s order by started_at desc limit 1",
+            (inbox.FLOW, name),
+        ).fetchone()
+        if not run:
+            raise typer.BadParameter(f"no scan named {name} was sent to be read")
+        try:
+            path, tenant = inbox.again(conn, str(run["id"]))
+        except inbox.Refused as no:
+            raise typer.BadParameter(str(no)) from no
+    new = inbox.start(tenant, path, actor)
+    for c in inbox.read(new, path, actor, again=True):
+        typer.echo(
+            f"  copy {c['copy']}: {c.get('answers', 0)} answers" + (f" — {c['why']}" if c.get("why") else "")
+        )
+    typer.echo(f"  run {new}")
+
+
 def register(read_app: typer.Typer) -> None:
     read_app.command("file")(read_file)
+    read_app.command("file-again")(file_again)

@@ -199,3 +199,41 @@ def test_a_copys_readings_say_why_each_answer_waits(client, monkeypatch):
     monkeypatch.setattr(copy_scores, "readings", lambda conn, capture_id: [row])
     r = c.get(f"/capture/{RUN}/readings")
     assert r.status_code == 200 and r.json() == [row]
+
+
+def test_the_run_says_how_far_the_reading_has_got_while_it_reads(tmp_path, monkeypatch):
+    """The scope Nimish locked on 2026-10-22 (S2): "Read (progress: page n of N, about how long)". How far the reading
+    has got is written on the run on a connection of its own as each copy is read, so the assessment's card sees it
+    while the reading's own transaction is still open (goals/s2-the-assessment-card.yaml)."""
+    kept = []
+    monkeypatch.setattr(inbox.db, "connect", lambda *a, **k: _Tx(kept))
+    monkeypatch.setattr(inbox, "given", lambda conn, name: {})
+    seen = []
+
+    def reading(conn, *a, progress=None, **k):
+        progress(2, 5)
+        seen.append(len(kept))  # the first two pages are on the run before the reading ends
+        progress(5, 5)
+        return []
+
+    monkeypatch.setattr(copies, "read", reading)
+    inbox.read(RUN, tmp_path / "24 sept.pdf", "achal@school")
+    assert seen == [1]
+    said = [p for s, p in kept if "'read'" in s]
+    assert [p[:2] for p in said] == [(2, 5), (5, 5)] and all(p[2] == RUN for p in said)
+    assert "status = 'ok'" in kept[-1][0]
+
+
+def test_each_copy_read_moves_the_reading_on_by_its_pages(monkeypatch):
+    papers = [
+        {"qr": None, "sheet": None, "worksheet": None, "pages": [1, 2], "unread": []},
+        {"qr": None, "sheet": None, "worksheet": None, "pages": [3], "unread": []},
+    ]
+    monkeypatch.setattr(copies.sorting, "sort_file", lambda *a: papers)
+    monkeypatch.setattr(copies.sorting, "give", lambda papers, given: papers)
+    monkeypatch.setattr(copies, "_said", lambda *a: {})
+    said = []
+    out = copies.read(
+        None, "scan.pdf", "", None, "achal@school", progress=lambda done, of: said.append((done, of))
+    )
+    assert len(out) == 2 and said == [(0, 3), (2, 3), (3, 3)]

@@ -72,6 +72,30 @@ export async function givePage(formData: FormData): Promise<void> {
   redirect(`${page}?read=given&pages=${n}#read-scan`);
 }
 
+/** A file already sent, read afresh (goals/ck2-photograph-is-its-page.yaml, `POST /read/run/{id}/again`): the engine reads
+ *  every copy no person has worked on anew and supersedes only those readings; a person's checks stay. It takes no link
+ *  — the file is the one the engine keeps — and says in words why it will not (still being read, no longer kept). */
+export async function readAgain(formData: FormData): Promise<void> {
+  const me = await deciding("papers");
+  const page = formData.get("from") === "/papers" ? "/papers" : "/capture";
+  const run = String(formData.get("run") ?? "");
+  if (!UUID.test(run)) redirect(`${page}#read-scan`);
+  try {
+    const res = await engineSend(`/read/run/${run}/again`, { by: me.email });
+    if (!res.ok) {
+      const why = ((await res.json().catch(() => ({}))) as { detail?: string }).detail ?? "";
+      redirect(`${page}?read=refused&why=${encodeURIComponent(why.slice(0, 200))}#read-scan`);
+    }
+    const { pages } = (await res.json()) as { pages: number };
+    revalidatePath("/capture");
+    revalidatePath("/papers");
+    redirect(`${page}?read=again&pages=${Number(pages) || 0}#read-scan`);
+  } catch (e) {
+    if (!(e instanceof EngineDown)) throw e;
+    redirect(`${page}?read=engine#read-scan`);
+  }
+}
+
 /** Leave to send scans from this page straight to the engine (N8, `POST /read/upload`, ADR 0092): where to, and a
  *  token for this person that lives half an hour — asked for as each batch of files starts, so a page left open all
  *  morning still sends. Only someone who may put papers in is given one. */

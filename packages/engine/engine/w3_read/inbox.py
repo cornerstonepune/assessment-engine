@@ -167,7 +167,16 @@ def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]
     was not in the file (goals/l11-a-scan-is-read-whole.yaml)."""
     with db.connect() as conn:
         try:
-            out = copies.read(conn, str(path), "", None, actor, again=again, given=given(conn, path.name))
+            out = copies.read(
+                conn,
+                str(path),
+                "",
+                None,
+                actor,
+                again=again,
+                given=given(conn, path.name),
+                progress=_progress(run_id),
+            )
             conn.execute(
                 "update flow_run set status = 'ok', result = coalesce(result, '{}') || %s::jsonb, finished_at = now(),"
                 " updated_at = now()"
@@ -187,6 +196,22 @@ def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]
             # `ConfigParseError` (2026-09-25).
             conn.commit()
             raise
+
+
+def _progress(run_id: str):
+    """How far the reading has got, written on the run as each copy is read (goals/s2-the-assessment-card.yaml: "page n
+    of N, about how long"): on a connection of its own, committed at once, since the reading's own transaction is open
+    until the whole file is read. The card says the time left from `at` and the pages still to read."""
+
+    def tell(done: int, of: int) -> None:
+        with db.connect() as c:
+            c.execute(
+                "update flow_run set result = coalesce(result, '{}') || jsonb_build_object('read',"
+                " jsonb_build_object('pages', %s::int, 'of', %s::int, 'at', now())), updated_at = now() where id = %s",
+                (done, of, run_id),
+            )
+
+    return tell
 
 
 # the file a run read: kept on the run from 2026-10-22, before that only in its trigger ("who: file")
@@ -237,6 +262,24 @@ def give(conn, run_id: str, page: int, child_id: str, by: str) -> Path:
         (json.dumps([word]), run_id),
     )
     return path
+
+
+def again(conn, run_id: str) -> tuple[Path, str]:
+    """(the file a run read, its tenant) — to be read afresh, as a run of its own (`start`, then `read` with `again`):
+    every copy no person has worked on is read anew and its old reading superseded, never edited (rule 4); a person's
+    checks stay (`checked`). The same file is otherwise never read twice (`legacy.import_scan`, `file_sha256`). Not
+    while the file is being read, and only while the engine still keeps it."""
+    run = conn.execute(
+        f"select status, tenant_id, {_FILE} as file from flow_run where id = %s and flow = %s", (run_id, FLOW)
+    ).fetchone()
+    if not run:
+        raise Refused(404, "no such scan")
+    if run["status"] == "running":
+        raise Refused(409, "this scan is still being read: read it again once it is read")
+    path = INBOX / Path(run["file"]).name
+    if not path.exists():
+        raise Refused(410, f"{path.name} is no longer kept by the engine: send the scan again")
+    return path, str(run["tenant_id"])
 
 
 def page_jpg(conn, run_id: str, page_no: int) -> bytes:

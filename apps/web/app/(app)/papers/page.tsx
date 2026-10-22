@@ -118,6 +118,10 @@ export default async function PapersPage({ searchParams }: Props) {
         sub="Make an assessment, then follow every one from approval to done, week by week. An assessment opens to its copies; a copy opens to print it, or to check its answers once it is read."
       />
       <Body>
+        {/* the upload box at the top (goals/s2-the-assessment-card.yaml): papers in is the day's first job */}
+        <div className="mb-[18px]">
+          <ReadScan from="/papers" read={q.read} why={q.why} pages={q.pages} scans={scans} />
+        </div>
         <section aria-label="Make an assessment" className="mb-[18px]">
           <h2 className="label mb-2">Make an assessment</h2>
           <div className="grid gap-[10px] sm:grid-cols-2 xl:grid-cols-4">
@@ -209,9 +213,6 @@ export default async function PapersPage({ searchParams }: Props) {
           {groups.more ? <p className="note">The newest 300 assessments are shown; narrow the filters to see the rest.</p> : null}
         </section>
 
-        <div className="mt-[18px]">
-          <ReadScan from="/papers" read={q.read} why={q.why} pages={q.pages} scans={scans} />
-        </div>
       </Body>
     </>
   );
