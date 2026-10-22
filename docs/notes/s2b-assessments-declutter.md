@@ -13,7 +13,13 @@ workflow gate moves. Goal: `goals/s2b-assessments-declutter.yaml`. No migration,
   (3 expected, 32 received), 2026-10-22. Restored.
 - Full browser suite on a database built by `bin/testdb fresh`: 329 passed, 0 failed.
 - `bin/check`: 30 passed (it skips the migration-order test until `git fetch origin main`; with main fetched it runs).
-- `bin/engine done s2b-assessments-declutter`: see the end of this note for its output.
+- `bin/engine done s2b-assessments-declutter`, on a database built by `bin/testdb fresh` (2026-10-22): all 7 sentences
+  PROVED; criteria PASSED: every page still holds, 329 passed (17.1m); `bin/check`, 30 passed. It ends NOT DONE only
+  because the work is not on main and the live database did not answer from here (ConnectionTimeout), so live migrations
+  are unchecked; this change adds none. One manual check is left for after deploy (below).
+- An earlier `done` run read FAILED (306 and then 312 passed) on a database earlier runs had used, or because the seven
+  new tests ran first and left a put-away paper that `s4-validation-queue` counted by the old raw rule. That spec now
+  restates the one definition; the run above is the clean one.
 - Nothing in the engine changed; the engine's tests are untouched.
 
 ## What changed, for an educator
