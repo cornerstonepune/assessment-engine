@@ -49,7 +49,7 @@ MOVED = [
     "apps/web/lib/queries-worksheets.ts",
     "apps/web/lib/queries-taxonomy.ts",
     "apps/web/lib/maker.ts",
-    "apps/web/app/(app)/curriculum-table.tsx",
+    "apps/web/components/curriculum-counts.tsx",
     "apps/web/app/(app)/worksheets/page.tsx",
     "apps/web/app/(app)/worksheets/[qr]/page.tsx",
     "apps/web/app/(app)/papers/approve/page.tsx",
