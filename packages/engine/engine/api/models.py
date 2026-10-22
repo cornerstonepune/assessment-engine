@@ -3,6 +3,7 @@ code — never a name, and never the content of what a child wrote (rule 6): n8n
 bodies and logs every one of them, so the detail a person needs to review an import lives in the
 app, which reads the database directly, not in what a workflow's execution history retains."""
 
+from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -279,6 +280,18 @@ class WeekRenderResponse(BaseModel):
 
 class CardConfirmRequest(BaseModel):
     by: str = Field(min_length=1, max_length=200)
+
+
+class PapersGivenRequest(BaseModel):
+    qrs: list[str]
+    on: date
+    by: str
+
+
+class PaperAbsentRequest(BaseModel):
+    qr: str
+    away: bool
+    by: str
 
 
 class WeekApproveRequest(BaseModel):
