@@ -1,3 +1,4 @@
+import { mayUse } from "./access";
 import type { Session } from "./auth";
 import { decidable, type Kind } from "./decides";
 import { grades, type Grades } from "./queries";
@@ -92,7 +93,7 @@ export function linesOf(w: Waiting, g: Grades, may: (kind: Kind) => boolean = ()
 /** What waits on this person: in their classes, decisions that are theirs, and the questions drafted for their role. */
 export async function needsYou(me: Session): Promise<NeedsYou> {
   const [w, may, g] = await Promise.all([waiting(me.email, scopeOf(me)), decidable(me), grades()]);
-  const asks = me.role === "coordinator" ? w.asks : w.asks.filter((a) => a.for_role === me.role);
+  const asks = mayUse(me, "any_ask") ? w.asks : w.asks.filter((a) => a.for_role === me.role);
   return linesOf({ ...w, asks }, g, may);
 }
 

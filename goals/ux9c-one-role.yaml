@@ -1,0 +1,26 @@
+name: ux9c-one-role
+goal: >
+  One role for now. Every page, table, button, menu item and decision a coordinator can use, an educator can use too:
+  every class's pages, papers and children, approving a skill, the question bank's stock, the engineering map, every
+  question the engine drafted. One place in the website's code says whether a person may use a thing
+  (`apps/web/lib/access.ts`, `mayUse`), and today it answers yes for every member of staff; splitting the roles again is
+  an answer there. A person's pages still open on their own classes and grade first: a default, never a wall, since
+  "See every class" in the menu shows every class in one tap and any class's page opens by its address.
+# Written 2026-10-22, before the code. Nimish's decision undoes the role split of UX1 (goals/ux1-who-sees-what.yaml),
+# F1b/F1c (my classes first, who decides what) and UX6's stock columns. Their tests that said an educator is refused or
+# shown less now say the reverse, and each says so. `people.decides` stays, saying whose each decision is, for the day
+# the roles split again; nothing reads it to refuse.
+says:
+  - words: "Just keep all the features available for both educators and coordinators for now."
+    proved_by: "apps/web/tests/u49-one-role.spec.ts::an educator reaches every page and every action the coordinator does"
+  - words: "As we become bigger, we'll have that bifurcation, so don't differentiate that."
+    proved_by: "apps/web/tests/u49-one-role.spec.ts::an educator takes a decision once the coordinator's alone: approving a skill"
+manual: []
+scenarios: []
+criteria:
+  - name: every page still holds, for both roles
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

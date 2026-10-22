@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { mayUse } from "@/lib/access";
 import { requireStaff } from "@/lib/auth";
 import { sql } from "@/lib/db";
 
@@ -18,7 +19,7 @@ export async function answerAsk(formData: FormData): Promise<void> {
   if (!CODE.test(code) || (corrected && !correction)) redirect(`/asks${corrected ? "?empty=1" : ""}`);
   // each question is drafted for a role (`ask.for_role`); the coordinator may answer any
   const [ask] = await sql<{ for_role: string }[]>`select for_role from ask where code = ${code}`;
-  if (ask && me.role !== "coordinator" && me.role !== ask.for_role) redirect(`/refused?kind=asks&role=${ask.for_role}`);
+  if (ask && !mayUse(me, "any_ask") && me.role !== ask.for_role) redirect(`/refused?kind=asks&role=${ask.for_role}`);
   await sql`
     update ask set answer = ${corrected ? "corrected" : "agreed"}, correction = ${corrected ? correction : null},
                    answered_by = ${me.name}, answered_at = now()

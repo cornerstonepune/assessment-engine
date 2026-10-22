@@ -2,7 +2,7 @@ import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
-import { isMine, scopeOf } from "@/lib/scope";
+import { isMine, reachOf, scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { staffList } from "@/lib/queries";
 import { readDraw, seeHref } from "@/lib/next-paper";
@@ -26,7 +26,7 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
   const [{ section: raw }, q] = await Promise.all([params, searchParams]);
   const section = decodeURIComponent(raw);
   const scope = scopeOf(me);
-  if (!isMine(scope, section)) return <NotYours what={section} />;
+  if (!isMine(reachOf(me), section)) return <NotYours what={section} />;
   const week = isoWeek();
   const draws: Record<string, number> = {};
   for (const d of [q.draw ?? []].flat()) {

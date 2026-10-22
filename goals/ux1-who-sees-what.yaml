@@ -1,25 +1,26 @@
 name: ux1-who-sees-what
 goal: >
-  An educator is shown only what is theirs. No page offers them a decision the school gives to someone else: no
-  "Approve" on a skill or on Approve the skills, no "Skills to approve" on Today, no question the engine drafted for
-  another role. A worksheet's print list names only the children of their own classes, and the site reads no other
-  child's name for them (each read is logged, so a name read is a name shown). Today and the menu count the same
-  lines, so what the badge says waits is what the educator can do. The coordinator is shown every decision and every
-  class, as before.
+  Since 2026-10-22 (goals/ux9c-one-role.yaml), an educator is shown what the coordinator is: every decision ("Approve" on
+  a skill and on Approve the skills, "Skills to approve" on Today), every question the engine drafted, every class's
+  children on a worksheet's print list, one tap from their own. Today and the menu count the same lines, so what the badge says waits is what
+  the person can do.
 # Written 2026-10-15, before the code: slice UX1 of BUILD-ORDER "topics are operations, and every page is the
 # educator's own". Measured first, on a fresh copy signed in as the G2-C educator (scratchpad audit, 172 screenshots):
 # 48 "Approve…" buttons on Approve the skills and one on every skill page, each landing on "Nothing was changed"; Today
 # listing "46 Skills to approve" and every role's drafted questions, so its badge read 126 where about 50 were theirs; a
 # worksheet's "Print for children" listing 49 children from 6 classes. The cause of the last: `childrenOnRoll` reads
 # the whole roll through `pii.read_child` for anyone, and `childHeader` reads it all to find one child.
+# Superseded on 2026-10-22 by Nimish: "Just keep all the features available for both educators and coordinators for
+# now" (goals/ux9c-one-role.yaml). His 2026-10-15 sentence, "It should be teacher-specific", holds again the day the
+# roles split, in `apps/web/lib/access.ts`.
 says:
-  - words: "It should be teacher-specific and all of those things."
-    proved_by: "apps/web/tests/u32-who-sees-what.spec.ts::an educator's Today lists only what they may decide, and the menu counts the same"
-  - words: "It should be teacher-specific and all of those things."
-    proved_by: "apps/web/tests/u32-who-sees-what.spec.ts::an educator is offered no approval of a skill"
-  - words: "It should be teacher-specific and all of those things."
-    proved_by: "apps/web/tests/u32-who-sees-what.spec.ts::a worksheet's print list names only the educator's own children, and no other name is read"
-  - words: "It should be teacher-specific and all of those things."
+  - words: "Just keep all the features available for both educators and coordinators for now."
+    proved_by: "apps/web/tests/u32-who-sees-what.spec.ts::an educator's Today lists every decision the coordinator's does, and the menu counts the same"
+  - words: "Just keep all the features available for both educators and coordinators for now."
+    proved_by: "apps/web/tests/u32-who-sees-what.spec.ts::an educator is offered the approval of a skill"
+  - words: "Just keep all the features available for both educators and coordinators for now."
+    proved_by: "apps/web/tests/u32-who-sees-what.spec.ts::a worksheet's print list opens on the educator's own children, every class's one tap away"
+  - words: "Just keep all the features available for both educators and coordinators for now."
     proved_by: "apps/web/tests/u32-who-sees-what.spec.ts::the coordinator is shown every decision and every class"
 manual: []
 scenarios: []

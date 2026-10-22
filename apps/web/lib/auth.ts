@@ -8,7 +8,10 @@ import { staffList, type Staff } from "./queries";
 import { devBypass, SESSION_COOKIE, SESSION_DAYS, sessionEmail, sessionValue } from "./session-cookie";
 
 // Who is signed in, without the password hash: a session can reach a client component, and the hash must not.
-export type Session = Omit<Staff, "password"> & { devBypass: boolean };
+/** `everyClass`: the person chose to see every class rather than their own (`seeClasses`, goals/ux9c-one-role.yaml). */
+export type Session = Omit<Staff, "password"> & { devBypass: boolean; everyClass: boolean };
+/** The cookie that keeps a person's choice of every class over their own: a view, not a permission. */
+export const CLASSES_COOKIE = "cs_classes";
 
 // `scrypt$salt$hash`, both hex. scrypt is in node's standard library, so no dependency and no
 // bcrypt build step; the salt is per person so two people with the same password differ.
@@ -66,13 +69,21 @@ export async function verifyStaff(email: string, password: string): Promise<Staf
 // the login page during an outage, which read as a broken password. Once per request, however many
 // pages, layouts and data reads ask.
 export const currentStaff = cache(async (): Promise<Session | null> => {
-  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], devBypass: true };
-  const email = sessionEmail((await cookies()).get(SESSION_COOKIE)?.value);
+  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], devBypass: true, everyClass: true };
+  const jar = await cookies();
+  const email = sessionEmail(jar.get(SESSION_COOKIE)?.value);
   if (!email) return null;
   const staff = (await deadline(staffList())).find((s) => s.email.toLowerCase() === email.toLowerCase());
   // named fields, never the record: the password hash stays on the server
   return staff
-    ? { email: staff.email, name: staff.name, role: staff.role, classes: staff.classes ?? [], devBypass: false }
+    ? {
+        email: staff.email,
+        name: staff.name,
+        role: staff.role,
+        classes: staff.classes ?? [],
+        devBypass: false,
+        everyClass: jar.get(CLASSES_COOKIE)?.value === "every",
+      }
     : null;
 });
 

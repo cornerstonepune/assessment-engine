@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { Nav, type NavItem } from "./nav";
-import { signOut } from "@/lib/auth-actions";
+import { seeClasses, signOut } from "@/lib/auth-actions";
 import type { Session } from "@/lib/auth";
+import { mayUse } from "@/lib/access";
 
 // The menu is the school's order of work (goals/ui1-menu-and-today.yaml): what waits today, what is taught, the
 // assessments made from it, and the children they tell about. Each tab carries the count of what waits in it, from the
@@ -39,7 +40,7 @@ function Account({ me, grades, subject, className }: { me: Session; grades: stri
   return (
     <div className={className}>
       {/* the engineering map is the coordinator's: an educator's menu holds the school's work alone */}
-      {me.role === "coordinator" ? (
+      {mayUse(me, "the_map") ? (
         <a href="/workflows" className="mb-4 block text-[12.5px] text-bamboo underline-offset-2 hover:underline">
           How it works
         </a>
@@ -58,8 +59,16 @@ function Account({ me, grades, subject, className }: { me: Session; grades: stri
             </form>
           )}
         </div>
-        {/* what the site opens on for this person (ADR 0073): never a guess */}
+        {/* what the site opens on for this person (ADR 0073): never a guess; every class one tap away (goals/ux9c-one-role.yaml) */}
         <div className="mt-1 opacity-75">{classesSaid(me)}</div>
+        {me.classes?.length ? (
+          <form action={seeClasses} className="mt-1">
+            <input type="hidden" name="classes" value={me.everyClass ? "mine" : "every"} />
+            <button type="submit" className="cursor-pointer text-bamboo underline underline-offset-2">
+              {me.everyClass ? "See your classes first" : "See every class"}
+            </button>
+          </form>
+        ) : null}
       </div>
     </div>
   );
