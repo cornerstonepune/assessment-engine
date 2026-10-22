@@ -14,7 +14,7 @@ export const NAV: readonly NavItem[] = [
   { href: "/today", label: "Today", icon: "check", match: ["/today"] },
   { href: "/", label: "Curriculum", icon: "map", match: ["/", "/skill-sets", "/library", "/worksheets", "/asks"] },
   { href: "/papers", label: "Assessments", icon: "sheet", match: ["/papers", "/capture", "/make", "/home", "/worksheets/CS"] },
-  { href: "/growth", label: "Children", icon: "growth", match: ["/growth", "/across"] },
+  { href: "/growth", label: "Children", icon: "growth", match: ["/growth"] },
 ];
 
 export function Shell({ me, waiting, grades, choices, children }: { me: Session; waiting: Partial<Record<string, number>>; grades: string; choices: Choices; children: ReactNode }) {
@@ -47,10 +47,6 @@ export function Shell({ me, waiting, grades, choices, children }: { me: Session;
 function Account({ me, grades, subject, className }: { me: Session; grades: string; subject: string; className?: string }) {
   return (
     <div className={className}>
-      {/* the page across every class (goals/s7-across-classes.yaml): every member of staff's, as everything is */}
-      <a href="/across" className="mb-2 block text-[12.5px] text-bamboo underline-offset-2 hover:underline">
-        Across every class
-      </a>
       {/* the engineering map is the coordinator's: an educator's menu holds the school's work alone */}
       {mayUse(me, "the_map") ? (
         <a href="/workflows" className="mb-4 block text-[12.5px] text-bamboo underline-offset-2 hover:underline">

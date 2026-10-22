@@ -67,7 +67,7 @@ export async function across(actor: string): Promise<Across> {
                         coalesce(si.printed_at, si.approved_at)::date) as since
         from sheet_instance si join child ch on ch.id = si.child_id and ch.active
         join sheet_template t on t.id = si.sheet_template_id
-        left join skill_set ss on ss.tenant_id = t.tenant_id and ss.code = t.skill_set_code
+        left join skill ss on ss.tenant_id = t.tenant_id and ss.code = t.skill_set_code
         where si.print_status in ('printed', 'with_teacher')
           and not exists (select 1 from capture k where k.sheet_instance_id = si.id and k.superseded_by is null)
           and coalesce((select (a.request ->> 'away')::boolean from flow_run a where a.flow = 'absent'
@@ -83,7 +83,7 @@ export async function across(actor: string): Promise<Across> {
       with red as (
         select s.child_id, t.subject_code
         from child_skill_state s join child_state cs on cs.tenant_id = s.tenant_id and cs.code = s.state
-        join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
+        join skill ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
         join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
         where cs.enough and cs.colour = 'red'
         group by 1, 2
@@ -95,7 +95,7 @@ export async function across(actor: string): Promise<Across> {
       order by grade_ord(c.tenant_id, class_band(c.tenant_id, c.section)), c.section, roll_order(c.roll_no), c.roll_no`,
     sql<{ subjects: number }[]>`
       select count(distinct t.subject_code)::int as subjects from child_skill_state s
-      join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
+      join skill ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code`,
   ]);
   return { stages, overdue, missing, struggling, days: limits.days, hours: limits.hours, subjects };
