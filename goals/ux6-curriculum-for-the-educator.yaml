@@ -4,8 +4,8 @@ goal: >
   the grade of their class, its topics showing and every other grade closed, and "children assessed" counts their own
   class's children only. The question bank and the worksheets open on the same grade: the questions and worksheets
   listed are that grade's, each skill's count is of that grade's levels, and every grade is one tap away. The bank's
-  stock columns (each level's count, the removed questions, every grade's skills) are the coordinator's, who sees the
-  whole bank as before; an educator sees one count per skill of their grade.
+  stock columns (each level's count, the removed questions, every grade's skills) are every member of staff's since
+  2026-10-22 (goals/ux9c-one-role.yaml); an educator sees one count per skill of their grade first.
 # Written 2026-10-21, before the code: slice UX6 of BUILD-ORDER ("Inserted now: topics are operations, and every page is
 # the educator's own"); Nimish said "go" to UX6 and UX7 the same day, alongside the backend work. Measured first on a
 # fresh test database (bin/testdb fresh), signed in as an educator of one Grade 2 class (STATE.md "UI audit,
@@ -23,7 +23,7 @@ says:
   - words: "Most of the pages just have a long list for no reason."
     proved_by: "apps/web/tests/u42-curriculum-for-the-educator.spec.ts::the question bank opens on the educator's grade, every grade one tap away"
   - words: "They should have the right set of columns which are important."
-    proved_by: "apps/web/tests/u42-curriculum-for-the-educator.spec.ts::the bank's stock columns are the coordinator's"
+    proved_by: "apps/web/tests/u42-curriculum-for-the-educator.spec.ts::the bank's stock columns are every member of staff's, beside the educator's own grade's count"
   - words: "Most of the pages just have a long list for no reason."
     proved_by: "apps/web/tests/u42-curriculum-for-the-educator.spec.ts::the worksheets open on the educator's grade, the counts and the list the same worksheets"
 manual: []

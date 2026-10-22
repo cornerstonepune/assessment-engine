@@ -7,7 +7,7 @@ import { spareSheets, unplanned, weekPlan, weeks, type WeekRow } from "@/lib/que
 import { approvePack, overrideChild } from "./actions";
 import { deadline } from "@/lib/deadline";
 import { requireStaff } from "@/lib/auth";
-import { isMine, scopeOf } from "@/lib/scope";
+import { isMine, reachOf, scopeOf } from "@/lib/scope";
 import { weekWords } from "@/lib/week";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -21,14 +21,15 @@ export default async function ApprovePage({ searchParams }: Props) {
   const me = await requireStaff();
   const scope = scopeOf(me);
   const q = await searchParams;
-  const all = await deadline(weeks(scope));
+  // a class asked for by name is listed whoever asks: every class is every member of staff's (goals/ux9c-one-role.yaml)
+  const all = await deadline(weeks(q.section ? reachOf(me) : scope));
   // a link to a class's week that is not on the list (another educator's class, or a week with nothing made) says so,
   // rather than opening another class's week unannounced (goals/ux8a-numbers-true.yaml)
   const asked = q.section && q.week && q.kind ? { section: q.section, week: q.week, kind: q.kind } : null;
   const notListed =
     asked && !all.some((w) => w.section === asked.section && w.week === asked.week && w.kind === asked.kind)
       ? `${asked.section} · ${weekWords(asked.week)} · ${asked.kind}: ${
-          isMine(scope, asked.section) ? "no papers have been made for it" : "not one of your classes"
+          isMine(reachOf(me), asked.section) ? "no papers have been made for it" : "not one of your classes"
         }.`
       : null;
 

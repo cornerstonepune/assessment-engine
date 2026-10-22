@@ -174,28 +174,19 @@ test("Today lists everything that waits, under the tab where it is done, and eac
   await expect(page.getByTestId("parent-report")).toBeVisible();
 });
 
-test("an educator sees every line of theirs a coordinator sees, and no engineering map", async ({ page }) => {
+test("an educator sees every line a coordinator sees, and the engineering map", async ({ page }) => {
+  // one role for now (goals/ux9c-one-role.yaml): what waits on the coordinator waits on an educator too
   await page.goto("/today");
   const coordinator = { a: await lines(page, "Assessments"), c: await lines(page, "Curriculum"), k: await lines(page, "Children") };
   await expect(page.getByRole("complementary").getByRole("link", { name: "How it works" })).toBeVisible();
-  // one list, no layers: the coordinator's own decisions left out, and the questions drafted for an educator's role
-  // (goals/ux1-who-sees-what.yaml)
-  const [{ n: asked }] = await sql<{ n: number }[]>`select count(*)::int as n from ask where answer is null and for_role = 'educator'`;
-  const theirs = {
-    ...coordinator,
-    c: coordinator.c
-      .filter((l) => l.title !== "Skills to approve")
-      .map((l) => (l.title === "Questions the engine drafted for you" ? { ...l, n: asked } : l))
-      .filter((l) => l.n > 0),
-  };
 
   await sql`update config set value = value || ${sql.json([EDUCATOR])} where key = 'app.staff'`;
   await signInAs(page, EDUCATOR.email);
   await page.goto("/today");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today");
-  expect({ a: await lines(page, "Assessments"), c: await lines(page, "Curriculum"), k: await lines(page, "Children") }).toEqual(theirs);
+  expect({ a: await lines(page, "Assessments"), c: await lines(page, "Curriculum"), k: await lines(page, "Children") }).toEqual(coordinator);
   await expect(page.getByText(/For others|For you|No one on the staff list/)).toHaveCount(0);
-  await expect(page.getByRole("complementary").getByRole("link", { name: "How it works" })).toHaveCount(0);
+  await expect(page.getByRole("complementary").getByRole("link", { name: "How it works" })).toBeVisible();
 });
 
 test("weeks and classes on Today are said in words, not codes", async ({ page }) => {

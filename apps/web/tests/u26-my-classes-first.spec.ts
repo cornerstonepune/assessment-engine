@@ -1,9 +1,8 @@
 /**
- * U26 — each person sees their own classes (goals/f1b-my-classes-first.yaml, ADR 0073). Nimish, 2026-10-14: "Then the
- * teachers only see, when Achal logs in, things that are relevant to his grades." An educator linked to one class sees
- * that class's children, papers and what waits on them, and never another's: not in a list, a count or a menu, and not
- * by typing another class's address. The coordinator sees every class. An educator linked to no class yet sees every
- * class and is told why.
+ * U26 — each person's pages open on their own classes (goals/f1b-my-classes-first.yaml), and since 2026-10-22 every class
+ * is one tap away and every class's page theirs to open (goals/ux9c-one-role.yaml). Nimish, that day: "Just keep all the
+ * features available for both educators and coordinators for now." Their own class is where a page starts, never what
+ * it hides.
  *
  * The classes are the test's own (tests/rows.ts), made once and kept; the educators are taken off the list after.
  */
@@ -62,43 +61,31 @@ async function signedIn(browser: Browser, email: string): Promise<Page> {
   return page;
 }
 
-test("an educator sees their own classes and no other", async ({ browser }) => {
+test("an educator's pages open on their own class, every class one tap away and every class's page theirs to open", async ({ browser }) => {
   const page = await signedIn(browser, LINKED.email);
   try {
-    // Today and the menu: the other class's pack is not theirs to approve
-    await expect(page.getByRole("main")).not.toContainText(OTHER);
-
-    // Children: their class's children, and no one else's
+    // where the pages start: their own class
     await page.goto("/growth");
-    const children = page.getByRole("table", { name: /: its children$/ });
-    await expect(children.first()).toBeVisible();
     await expect(page.getByRole("main")).toContainText("Aarav");
     await expect(page.getByRole("main")).not.toContainText("Chirag");
-
-    // Home assessments, Make papers and Assessments list their class alone
-    await page.goto("/make");
-    await expect(page.getByRole("main")).toContainText(MINE);
-    await expect(page.getByRole("main")).not.toContainText(OTHER);
-    await page.goto("/papers/make");
-    const classes = await page.getByLabel("Choose a class").locator("option").allTextContents();
-    expect(classes.join(" ")).toContain(MINE);
-    expect(classes.join(" ")).not.toContain(OTHER);
-    // the other class asked for by name: none of its papers, its copies or its name
-    await page.goto(`/papers?class=${OTHER}`);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Assessments");
-    await expect(page.getByRole("main")).not.toContainText("CSF1B026");
-    await expect(page.getByRole("main")).not.toContainText("Chirag");
-
-    // another class's page, typed in, says it is not theirs and shows nothing of it
+    // another class's pages, by address, open whole: nothing is hidden (goals/ux9c-one-role.yaml)
     for (const href of [`/growth/class/${OTHER}`, `/make/${OTHER}`, `/growth/${other.Chirag}`, "/worksheets/CSF1B026"]) {
       await page.goto(href);
-      await expect(page.getByRole("main"), href).toContainText("not one of your classes");
-      await expect(page.getByRole("main"), href).not.toContainText("Chirag");
+      await expect(page.getByRole("main"), href).not.toContainText("not one of your classes");
     }
-    // nor its paper's printed page, its preview, or its print, asked for by address
-    for (const href of ["/api/paper/CSF1B026/1", `/api/see/${other.Chirag}?week=2026-W42`, "/api/papers/print?qr=CSF1B026"]) {
-      expect((await page.request.get(href)).status(), href).toBe(403);
+    await page.goto(`/growth/${other.Chirag}`);
+    await expect(page.getByRole("main")).toContainText("Chirag");
+    for (const href of ["/api/paper/CSF1B026/1", `/api/see/${other.Chirag}?week=2026-W42`]) {
+      expect((await page.request.get(href)).status(), href).not.toBe(403);
     }
+    // one tap in the menu: every class, as the coordinator sees them
+    await page.goto("/today");
+    await page.getByRole("complementary").getByRole("button", { name: "See every class" }).click();
+    await expect(page.getByRole("complementary").getByRole("button", { name: "See your classes first" })).toBeVisible();
+    await page.goto("/growth");
+    await expect(page.getByRole("main")).toContainText(OTHER);
+    await page.goto("/papers/make");
+    expect((await page.getByLabel("Choose a class").locator("option").allTextContents()).join(" ")).toContain(OTHER);
   } finally {
     await page.context().close();
   }
@@ -114,13 +101,12 @@ test("the coordinator sees every class", async ({ page }) => {
   await expect(page.getByRole("main")).not.toContainText("not one of your classes");
 });
 
-test("an educator linked to no class sees every class and is told why", async ({ browser }) => {
+test("an educator linked to no class sees every class", async ({ browser }) => {
   const page = await signedIn(browser, UNLINKED.email);
   try {
-    await expect(page.getByRole("main")).toContainText("No class is linked to you yet");
     await page.goto("/growth");
-    await expect(page.getByRole("main")).toContainText("Aarav");
-    await expect(page.getByRole("main")).toContainText("Chirag");
+    await expect(page.getByRole("main")).toContainText(MINE);
+    await expect(page.getByRole("main")).toContainText(OTHER);
   } finally {
     await page.context().close();
   }

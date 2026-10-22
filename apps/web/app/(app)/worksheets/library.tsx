@@ -22,8 +22,8 @@ type Q = Record<string, string | undefined>;
 // Every question in the bank is on a numbered worksheet (ADR 0026). The grid is every taught skill at every level with its
 // worksheets; a count opens that list, and a worksheet opens its own page. It opens on the person's own grade, its levels
 // alone, every grade one tap away (goals/ux6-curriculum-for-the-educator.yaml).
-export async function Library({ q, scope }: { q: Q; scope: Scope }) {
-  const [{ order }, { words }, mine, g] = await deadline(Promise.all([levels(), questionKinds(), gradesOf(scope), grades()]));
+export async function Library({ q, scope, own }: { q: Q; scope: Scope; own: Scope }) {
+  const [{ order }, { words }, mine, g] = await deadline(Promise.all([levels(), questionKinds(), gradesOf(own), grades()]));
   const inGrades = q.grade === "all" ? [] : mine;
   const gradeWords = inGrades.map((b) => g.name(b)).join(" and ");
   const filter = { set: q.set, level: order.find((d) => d === q.level), scope, grades: inGrades };

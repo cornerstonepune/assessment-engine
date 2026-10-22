@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { requireStaff, type Session } from "./auth";
 import { sql } from "./db";
-import { isMine, scopeOf } from "./scope";
+import { mayUse } from "./access";
+import { isMine, reachOf } from "./scope";
 
 // Who decides what (goals/f1c-who-decides-what.yaml, ADR 0073 decision 3): every decision taken on the site is checked on
 // the server before it writes. The roles are the school's row, `people.decides`; the coordinator may take any decision;
@@ -48,18 +49,15 @@ export async function decidersOf(kind: Kind): Promise<string[] | null> {
 /** Which kinds of decision a person's role may take, the row read once: the one rule a page offers by
  *  (goals/ux1-who-sees-what.yaml) and the server refuses by. */
 export async function decidable(me: Pick<Session, "role">): Promise<(kind: Kind) => boolean> {
-  if (me.role === "coordinator") return () => true;
-  const [row] = await sql<{ value: Partial<Record<Kind, string[]>> | null }[]>`select value from config where key = 'people.decides'`;
-  return (kind) => {
-    const roles = row?.value?.[kind];
-    return !roles || roles.includes(me.role);
-  };
+  // every member of staff may take every decision for now (`mayUse`, goals/ux9c-one-role.yaml); `people.decides` says
+  // whose each is, for the day the roles split again
+  return (kind) => mayUse(me, kind);
 }
 
 /** Whether a person may take a kind of decision on these classes; a class of null (nothing found) is no one's. */
 export async function mayDecide(me: Session, kind: Kind, classes: (string | null)[] = []): Promise<boolean> {
   if (!(await decidable(me))(kind)) return false;
-  const scope = scopeOf(me);
+  const scope = reachOf(me);
   return classes.every((c) => isMine(scope, c));
 }
 
@@ -73,7 +71,6 @@ export async function deciding(kind: Kind): Promise<Session> {
 
 /** For a server action, once it knows what it touches: every class must be one of the signer's, or nothing is written. */
 export function mustBeMine(me: Session, kind: Kind, classes: (string | null)[]): void {
-  if (me.role === "coordinator") return;
-  const scope = scopeOf(me);
+  const scope = reachOf(me);
   if (classes.some((c) => !isMine(scope, c))) redirect(`/refused?kind=${kind}&class=1`);
 }

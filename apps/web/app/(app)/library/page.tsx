@@ -7,7 +7,8 @@ import { bankGrid, bankTotals, itemCount, items } from "@/lib/queries-bank";
 import { deadline } from "@/lib/deadline";
 import { Proposals } from "./proposals";
 import { requireStaff } from "@/lib/auth";
-import { gradesOf, scopeOf } from "@/lib/scope";
+import { mayUse } from "@/lib/access";
+import { gradesOf, ownClasses, scopeOf } from "@/lib/scope";
 import { gradeOf, grades } from "@/lib/queries";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -23,7 +24,7 @@ export default async function LibraryPage({ searchParams }: Props) {
   const scope = scopeOf(me);
   // it opens on the person's own grade, every grade one tap away; the coordinator's on every grade
   // (goals/ux6-curriculum-for-the-educator.yaml)
-  const [mine, g] = await deadline(Promise.all([gradesOf(scope), grades()]));
+  const [mine, g] = await deadline(Promise.all([gradesOf(ownClasses(me)), grades()]));
   const shown = q.grade === "all" ? [] : mine;
   const gradeWords = shown.map((b) => g.name(b)).join(" and ");
   const filter = { set: q.set, difficulty: q.difficulty, fmt: q.fmt, status: q.status, find, scope, grades: shown };
@@ -36,9 +37,10 @@ export default async function LibraryPage({ searchParams }: Props) {
     levels(),
     questionKinds(),
   ]));
-  // the stock — each level's count, the removed, every grade's skills — is the coordinator's; an educator reads one count
-  // per skill, of the levels of the grade shown
-  const stock = me.role === "coordinator";
+  // the stock — each level's count, the removed, every grade's skills — is every member of staff's for now (`mayUse`,
+  // goals/ux9c-one-role.yaml); a person with classes of their own reads first one count per skill, of the levels of the
+  // grade shown
+  const stock = mayUse(me, "stock");
   const ofGrade = (r: (typeof grid)[number]) => order.filter((d) => !shown.length || shown.includes(gradeOf(r, d)));
   const mineGrid = grid
     .map((r) => ({ ...r, n: ofGrade(r).reduce((a, d) => a + (r.counts[d] ?? 0), 0), at: ofGrade(r) }))
@@ -95,7 +97,7 @@ export default async function LibraryPage({ searchParams }: Props) {
         ) : null}
         <Proposals />
         <div className="h-[18px]" />
-        {stock ? null : (
+        {scope.classes ? (
           <Panel title={`What is in the bank${gradeWords ? ` for ${gradeWords}` : ""}`} aside={`${n(mineGrid.reduce((a, r) => a + r.n, 0))} ready, of the skills taught${scope.classes ? " in your classes" : ""}`}>
             {/* Curriculum counts every skill of a grade, taught or not, so the two totals differ (goals/ux8c-one-word.yaml) */}
             <p className="note mb-3">Only skills taught are counted here; Curriculum counts every skill of the grade, taught or not.</p>
@@ -122,7 +124,7 @@ export default async function LibraryPage({ searchParams }: Props) {
               </table>
             </div>
           </Panel>
-        )}
+        ) : null}
         {stock ? (
           <Panel title="What is in the bank" aside={`${n(totals.active)} ready · ${n(totals.retired)} removed`}>
             <div className="overflow-x-auto">

@@ -44,7 +44,7 @@ test("the coordinator approves one level and the others still wait", async ({ pa
   await expect(page.getByRole("region", { name: "Medium", exact: true }).getByRole("button", { name: "Approve Medium" })).toBeVisible();
 });
 
-test("an educator reads who a level waits for, and has no button", async ({ browser }) => {
+test("an educator is offered each level's approval, as the coordinator is (one role for now, goals/ux9c-one-role.yaml)", async ({ browser }) => {
   const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
@@ -60,8 +60,7 @@ test("an educator reads who a level waits for, and has no button", async ({ brow
     await expect(page).toHaveURL(/\/today$/);
     await page.goto(`/skill-sets/${code}`);
     const medium = page.getByRole("region", { name: "Medium", exact: true });
-    await expect(medium).toContainText("Waiting for the coordinator");
-    await expect(medium.getByRole("button")).toHaveCount(0);
+    await expect(medium.getByRole("button", { name: "Approve Medium" })).toBeVisible();
   } finally {
     await context.close();
   }
