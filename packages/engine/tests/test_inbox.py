@@ -105,7 +105,7 @@ def test_the_route_fetches_the_file_answers_at_once_and_reads_it_after(client, t
     order = []
     monkeypatch.setattr(inbox, "fetch", lambda url: scan)
     monkeypatch.setattr(
-        inbox, "start", lambda tenant, path, actor: order.append(("start", tenant, actor)) or RUN
+        inbox, "start", lambda tenant, path, actor, pages=None: order.append(("start", tenant, actor)) or RUN
     )
     monkeypatch.setattr(
         inbox, "read", lambda run_id, path, actor, again=False: order.append(("read", run_id, path, again))
