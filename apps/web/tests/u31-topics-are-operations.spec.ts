@@ -45,7 +45,7 @@ test("curriculum lists the six topics, and a class's skills each with its own sw
     sql<{ t: boolean }[]>`select skill_taught_in(tenant_id, ${skill}, ${CLASS}) as t from skill_set where code = ${skill}`;
   expect((await said("MUL.2D1D"))[0].t, "column multiplication waits for an educator's word").toBe(false);
   try {
-    await page.goto("/");
+    await page.goto("/?taught=1");
     // equal groups, Grade 1's, is taught by the school: so Multiplication is taught in the class, with one skill of it;
     // its skills open on their own, one class and one topic at a time
     const taught = page.getByRole("region", { name: "Taught", exact: true });
@@ -66,7 +66,7 @@ test("curriculum lists the six topics, and a class's skills each with its own sw
     expect(who.taught_by, "in the name of who said it").toBe(TEST_STAFF.name);
 
     // the topic's own switch says it of every skill in it
-    await page.goto("/");
+    await page.goto("/?taught=1");
     await page.getByRole("region", { name: "Taught", exact: true }).locator("summary").first().click();
     await page
       .getByRole("region", { name: "Taught", exact: true })
@@ -86,7 +86,8 @@ test("curriculum lists the six topics, and a class's skills each with its own sw
 });
 
 test("no chip names a kind of question, or a topic with nothing taught at the class's grade", async ({ page }) => {
-  for (const at of ["/growth", "/papers"]) {
+  // Children has none any more (goals/ux10-declutter.yaml); Assessments keeps its chips
+  for (const at of ["/papers"]) {
     await page.goto(at);
     const chips = page.getByRole("navigation", { name: "Topic" });
     await expect(chips.getByRole("link", { name: "All topics" })).toBeVisible();

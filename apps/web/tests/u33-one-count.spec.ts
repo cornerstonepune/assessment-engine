@@ -104,7 +104,7 @@ test("the question bank is one number wherever it is named", async ({ page }) =>
   await expect(page.getByRole("main"), "a part names the whole").toContainText(`of the bank's ${words(bank)}`);
 
   // Curriculum: its grades' questions are the bank's, each level counted at the grade that holds it
-  await page.goto("/");
+  await page.goto("/?details=1");
   const grades = page.getByRole("table", { name: "The curriculum, grade by grade" }).locator('tbody tr[data-depth="0"]');
   await expect(grades.first()).toBeVisible();
   const counts = await grades.locator("td:nth-child(2)").allInnerTexts();

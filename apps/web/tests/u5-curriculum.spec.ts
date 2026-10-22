@@ -32,7 +32,7 @@ async function openAll(page: Page) {
 
 test("the tree reads grade, subject, skill, level, worksheets, and every count is the database's own", async ({ page }) => {
   const all = await levels();
-  await page.goto("/");
+  await page.goto("/?details=1");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Curriculum");
   const [{ subject }] = await sql<{ subject: string }[]>`select name as subject from subject limit 1`;
   await openAll(page);
@@ -62,7 +62,7 @@ test("a skill waiting for approval says so in the tree and opens where it is edi
     select s.code, s.learning_objective as outcome, s.status, r.band from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
     where s.taught
     order by s.status = 'draft' desc, s.code limit 1`;
-  await page.goto("/");
+  await page.goto("/?details=1");
   await openAll(page);
   const row = table(page).locator(`tr[data-row="${s.band}/${s.code}"]`);
   if (s.status === "ratified") await expect(row).not.toContainText("waiting for approval");
@@ -71,12 +71,13 @@ test("a skill waiting for approval says so in the tree and opens where it is edi
   await expect(page).toHaveURL(new RegExp(`/skill-sets/${s.code.replace(/\./g, "\\.")}`));
 });
 
-test("the taxonomy is one click from the tree, and the tree fits a phone", async ({ page }) => {
+test("the taxonomy is two clicks from the tree, behind Question bank details, and the tree fits a phone", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Read the same worksheets by the taxonomy" }).click();
+  await page.getByRole("link", { name: "Question bank details" }).click();
+  await page.getByRole("link", { name: "Every case, with its worksheets" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Worksheets by taxonomy");
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/", { waitUntil: "networkidle" });
+  await page.goto("/?details=1", { waitUntil: "networkidle" });
   await openAll(page);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
@@ -89,7 +90,7 @@ test("each grade's skills sit under their topics, in the topics' order, each top
     join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code and s.taught
     where r.band = 'G3' and coalesce(s.level_band, '{}'::jsonb) = '{}'::jsonb order by t.ord`;
   expect(rows.length).toBeGreaterThan(0);
-  await page.goto("/");
+  await page.goto("/?details=1");
   await openAll(page);
   // the rows under Grade 3, in the table's order: each topic, then its skills
   const order = await table(page).locator("tbody tr").evaluateAll((trs) => trs.map((t) => t.getAttribute("data-row") ?? ""));

@@ -79,6 +79,8 @@ test("each colour is said in the rule's own numbers, wherever colours show", asy
   const pc = (x: number) => `${Math.round(x * 100)}%`;
   for (const path of [`/growth/class/${SECTION}`, "/growth", `/growth/${ids.Bina}`]) {
     await page.goto(path);
+    // Children puts the key behind "Details" (goals/ux10-declutter.yaml)
+    if (path === "/growth") await page.getByText("Details", { exact: true }).click();
     // each page folds the key to one line (goals/ux3-children-grouped.yaml, ux4-class-and-child.yaml): opened, it is
     // the whole key
     await page.locator("details[data-colour-key] summary").click();

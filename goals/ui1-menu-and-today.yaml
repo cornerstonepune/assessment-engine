@@ -12,11 +12,12 @@ goal: >
 # "UI1 — measured before the build"): 16 kinds of thing wait on a person; the page holding the answers to check is not
 # in the menu; Today files 6 of its 7 queues under "For others" because no one on the copy's staff list is an
 # educator; weeks read "2026-W41" and class packs "U9-TEST · U9-W · practice".
+# Re-pointed 2026-10-22 (goals/ux10-declutter.yaml): Nimish's "a red count only on Today" narrows the menu's count to Today.
 says:
   - words: "I can't seem to actually find where I go and check the papers or questions for which human validation is required."
     proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::Today lists everything that waits, under the tab where it is done, and each line opens that place"
   - words: "At any tab that requires validation"
-    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::the menu is Today, Curriculum, Assessments, Children, each with the count of what waits in it"
+    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::the menu is Today, Curriculum, Assessments, Children, and only Today carries the count of what waits"
   - words: "better UI, better navigation, and better linking"
     proved_by: "apps/web/tests/u1-today.spec.ts::the menu is the teacher's week, and says where they are"
   - words: "They are the educators, the teachers, so we don't have any more layers in there."

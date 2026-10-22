@@ -1,0 +1,37 @@
+name: ux10-declutter
+goal: >
+  The educator's pages say what to do and nothing else. Children leads with the children who need the educator, as a
+  short list, and its per-child table holds only the columns that have something in them in the class shown; there are
+  no topic chips and no second box to find a child (the bar at the top does it). Curriculum shows grades, then topics,
+  then skills, each with what its levels ask; the bank's counts, its worksheets by level and the other ways into the
+  bank sit behind "Question bank details"; a topic not taught yet is a word on its row, not two big sections. Under a
+  page's title there is one line, never a paragraph. In the menu only Today carries a red count. Every member of staff
+  still sees every feature: nothing is hidden by role, only put away behind a link.
+# Written 2026-10-22, before the code. Nimish reviewed the live site that day. Rules he set: one main action per page at
+# the top; no explanatory paragraph (one line under the title at most); a number only when someone must act on it (no
+# zero columns, no "—" cells, no empty chips); a red count only on Today; setup and statistics behind a "details" link;
+# plain words ("taxonomy", "rung") never shown to educators; every member of staff still sees every feature.
+# Not touched: Assessments (/papers, /capture), which S2 owns. No migration, no new table.
+# Measured first, on main's code, with u50 as an educator of two Grade 2 classes (one with a child who needs help, one
+# quiet): the quiet class's table showed 8 columns, 6 of them noughts or dashes; Children had 2 find boxes and 7 topic
+# chips; the menu carried a count on 3 items; Curriculum's header paragraph was 241 characters.
+says:
+  - words: "Look at the clutter"
+    proved_by: "apps/web/tests/u50-declutter.spec.ts::a class's table holds only the columns that have something in them"
+  - words: "The current frontend is extremely confusing to me"
+    proved_by: "apps/web/tests/u50-declutter.spec.ts::Children leads with the children who need the educator, as a short list"
+  - words: "make it much, much cleaner"
+    proved_by: "apps/web/tests/u50-declutter.spec.ts::under a page's title there is one line, never a paragraph"
+  - words: "a red count only on Today in the menu"
+    proved_by: "apps/web/tests/u50-declutter.spec.ts::in the menu only Today carries a count"
+  - words: "the bank's counts move behind Question bank details"
+    proved_by: "apps/web/tests/u50-declutter.spec.ts::Curriculum shows grades, topics and skills with what each level asks; the bank's counts wait behind Question bank details"
+manual: []
+scenarios: []
+criteria:
+  - name: every page still holds, for both roles
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
