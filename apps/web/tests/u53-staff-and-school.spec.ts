@@ -28,6 +28,10 @@ test.afterAll(async () => {
   await sql.end();
 });
 
+// each test starts from the person's classes as it says, so any one runs alone
+const teaches = (classes: string[]) =>
+  sql`update config set value = (select jsonb_agg(case when p ->> 'email' = ${PERSON.email} then jsonb_set(p, '{classes}', ${sql.json(classes)}) else p end) from jsonb_array_elements(value) p) where key = 'app.staff'`;
+
 const classesOf = async () =>
   (
     await sql<
@@ -38,6 +42,7 @@ const classesOf = async () =>
 test("a coordinator ticks a person's classes on the Staff page and the list keeps them, and the rest of the person", async ({
   page,
 }) => {
+  await teaches([]);
   await page.goto("/staff");
   const table = page.getByRole("table", { name: "Staff" });
   const row = table.locator(`tr[data-person="${PERSON.email}"]`);
@@ -63,6 +68,7 @@ test("a coordinator ticks a person's classes on the Staff page and the list keep
 test("a class no child is in refuses everything, and the filter row finds a person", async ({
   page,
 }) => {
+  await teaches([CLASS]);
   await page.goto("/staff?role=educator&q=ayush");
   await expect(page.locator("[data-filterbar]")).toBeVisible();
   const row = page
@@ -87,6 +93,7 @@ test("a class no child is in refuses everything, and the filter row finds a pers
 test("School shows each class with its grade, its children and who teaches it", async ({
   page,
 }) => {
+  await teaches([CLASS]);
   await page.goto("/school");
   const row = page
     .getByRole("table", { name: "Classes" })
