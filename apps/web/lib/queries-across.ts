@@ -38,14 +38,14 @@ export async function across(actor: string): Promise<Across> {
         from (select section, subject, kind, week, set_key, max(created_at) as at from one group by 1, 2, 3, 4, 5) a
         order by section, subject, at desc
       )
-      select o.section, min(o.class_band) as band, o.subject, min(o.set_name) as title, o.week,
+      select o.section, o.class_band as band, o.subject, min(o.set_name) as title, o.week,
              jsonb_object_agg(o.stage, o.n) as by
       from (select one.tenant_id, one.section, one.class_band, one.subject, one.set_name, one.week, one.stage, count(*)::int as n
             from one join newest n using (section, subject, kind)
             where one.week is not distinct from n.week and one.set_key is not distinct from n.set_key
             group by 1, 2, 3, 4, 5, 6, 7) o
-      group by o.tenant_id, o.section, o.subject, o.week
-      order by grade_ord(o.tenant_id, min(o.class_band)), o.section, o.subject`,
+      group by o.tenant_id, o.section, o.class_band, o.subject, o.week
+      order by grade_ord(o.tenant_id, o.class_band), o.section, o.subject`,
     // answers waiting for a person longer than the threshold since their paper was read
     sql<Overdue[]>`
       select coalesce(si.section, ch.section) as section, class_band(si.tenant_id, coalesce(si.section, ch.section)) as band,
