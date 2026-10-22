@@ -32,6 +32,14 @@ migration: the schema track owns tables, one slice at a time.
    in the person's name and the date, for every skill that asks it that way; a level is approved as maths levels are.
    Every member of staff may (ux9c).
 6. **bin/testdb approves what live has approved**: maths only, so English stays drafts on the copy as on live.
+7. **The site opens on the subject that has approved skills** (`lib/choices.ts`): subjects were listed by code, so English
+   (`ENG`) came before Maths (`NUM`) and would have been what Today and every page opened on for anyone who had not chosen,
+   with nothing approved in it. A subject with approved skills now comes first, then by code; once English has approved
+   skills too, the code decides again. Nimish decides which subject the site opens on, if not this.
+8. **One grant, in a numbered migration** (`20261203090000_the_website_may_add_an_approval_of_a_kind.sql`): the website's
+   role could not insert into `question_type_approval` ("permission denied"), though B2's migration says the website may
+   add an approval. CI runs the website as that role and caught it; a run as the table's owner does not. It is a permission,
+   not a table: nothing in the schema changes shape.
 
 ## What waits (not loaded, not faked)
 
