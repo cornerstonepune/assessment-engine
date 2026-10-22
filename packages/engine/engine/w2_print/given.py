@@ -30,8 +30,10 @@ def _papers(conn, qrs: list[str]) -> list[str]:
 def _keep(conn, tenant, flow: str, by: str, said: str, request: dict) -> str:
     return str(
         conn.execute(
-            "insert into flow_run (tenant_id, flow, trigger, status, finished_at, request) values"
-            " (%s, %s, %s, 'ok', now(), %s::jsonb) returning id",
+            # the clock's own time, not the transaction's: two words said in one transaction stay in the order said,
+            # and the newest stands
+            "insert into flow_run (tenant_id, flow, trigger, status, started_at, finished_at, request) values"
+            " (%s, %s, %s, 'ok', clock_timestamp(), clock_timestamp(), %s::jsonb) returning id",
             (tenant, flow, f"{by}: {said}", json.dumps(request)),
         ).fetchone()["id"]
     )
