@@ -77,7 +77,8 @@ const rollsSaid = (cs: CardCopy[]) => cs.map((c) => (c.roll_no ? `roll ${c.roll_
 /** The one next step for where the card stands, and what the card knows at that stage. */
 function Next({ card, s }: { card: Card; s: Standing }) {
   const { key } = card;
-  const today = new Date().toISOString().slice(0, 10);
+  // the school's day, as the engine checks it: "2026-10-22" in Pune, whatever the server's clock
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
   const retake = card.copies.filter((c) => c.retake.length);
   return (
     <Panel title={`Next: ${s.at}`} label="Next step">

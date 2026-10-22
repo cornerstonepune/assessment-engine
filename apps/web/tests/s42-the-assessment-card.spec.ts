@@ -84,7 +84,7 @@ test("the card moves from Made to Results, always showing its next step", async 
             where qr_code in ${sql(Object.values(QR))}`;
   await page.goto(card("practice"));
   await expect(at(page)).toContainText("Given");
-  await page.getByLabel("Day it was given").fill(new Date().toISOString().slice(0, 10));
+  await page.getByLabel("Day it was given").fill(new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }));
   await page.getByRole("button", { name: "Given on" }).click();
   await expect(page.getByTestId("given")).toContainText("Given on");
   await expect(at(page)).toContainText("Papers in");
@@ -120,12 +120,22 @@ test("a page to photograph again is flagged, a child away is carried, the papers
     insert into flow_run (tenant_id, flow, trigger, status, finished_at, result)
     values (${tenant}, 'read-scan', 's42: class scan.pdf', 'ok', now(),
             ${sql.json({ copies: [{ copy: 3, pages: [5], code: QR.Chetan, child_id: kids.Chetan, answers: 1, lacks: ["page 2 is not in the file"] }] })})`;
+  // printed, and Chetan not said to be away, whichever test ran before: the newest word stands
+  await sql`update sheet_instance set print_status = 'printed', approved_by = 'e2e', approved_at = now(), printed_at = now()
+            where qr_code in ${sql(Object.values(QR))} and print_status = 'new'`;
+  await sql`
+    insert into flow_run (tenant_id, flow, trigger, status, finished_at, request)
+    values (${tenant}, 'absent', 'e2e: back', 'ok', now(), ${sql.json({ qr: QR.Chetan, away: false, by: "e2e" })})`;
   await page.goto(card("practice"));
   const flag = page.getByRole("alert", { name: "To photograph again" });
   await expect(flag).toContainText("Roll 3: page 2 is not in the file");
-  // back from being away: his paper is counted as not back again
-  await page.getByRole("row").filter({ hasText: "Chetan" }).getByRole("button", { name: "Back: count as missing" }).click();
-  await expect(page.getByTestId("in")).toHaveText(/missing: roll 3/);
+  // a paper not back is listed by roll; away, it is carried; back, it is missing again
+  await expect(page.getByTestId("in")).toHaveText(/missing: [^·]*roll 3/);
+  const chetan = page.getByRole("row").filter({ hasText: "Chetan" });
+  await chetan.getByRole("button", { name: "Away: carry it" }).click();
+  await expect(page.getByTestId("in")).toHaveText(/away, carried: roll 3/);
+  await chetan.getByRole("button", { name: "Back: count as missing" }).click();
+  await expect(page.getByTestId("in")).toHaveText(/missing: [^·]*roll 3/);
 });
 
 test("papers put in without Given on are read, and the card says it was given", async ({ page }) => {

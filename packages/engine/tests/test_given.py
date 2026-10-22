@@ -57,8 +57,12 @@ def test_given_on_is_the_educators_word_kept_with_its_day(conn):
 
 def test_a_day_to_come_no_person_or_no_paper_is_refused_in_words(conn):
     t = _a_paper(conn, "CSGE0002")
+    pune = conn.execute("select (now() at time zone 'Asia/Kolkata')::date as d").fetchone()["d"]
+    given.given(
+        conn, t, ["CSGE0002"], pune, "educator@school"
+    )  # today in Pune, whatever the server's clock says
     with pytest.raises(ValueError, match="still to come"):
-        given.given(conn, t, ["CSGE0002"], date.today() + timedelta(days=1), "educator@school")
+        given.given(conn, t, ["CSGE0002"], pune + timedelta(days=1), "educator@school")
     with pytest.raises(ValueError, match="who gave"):
         given.given(conn, t, ["CSGE0002"], date.today(), "")
     with pytest.raises(LookupError, match="none of these codes"):

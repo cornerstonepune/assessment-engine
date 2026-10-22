@@ -11,6 +11,13 @@ reading's progress).
 - Engine: `cd packages/engine && uv run pytest -q tests/test_given.py tests/test_inbox.py tests/test_a_scan_read_whole.py
   tests/test_no_guessed_pages.py tests/test_upload.py tests/test_contract.py` → 35 passed. The two progress tests failed
   before the change (2 failed).
+- `bin/engine done s2-the-assessment-card` (2026-10-22): 6 of 7 sentences PROVED; the seventh ("a page to retake…")
+  failed only when run alone, since it leaned on the test before it. It now sets its own rows and passes alone (1 passed)
+  and with the others (6 passed). Criteria: the engine's tests 16 passed; `bin/check` 30 passed; "every page still holds"
+  311 passed, 3 failed: u15 (Today's class papers), u26 (the coordinator's Today), u46 (a name's colour) — the same three
+  `docs/notes/ux9c-one-role.md` records as failing only on a local copy many runs old; this branch does not touch Today.
+  CI's fresh copy decides. NOT DONE also because the live database did not answer from this machine.
+- "Given on" checks the day against Pune's date, not the server's (`test_given.py`, 3 passed).
 
 ## Handoff
 
