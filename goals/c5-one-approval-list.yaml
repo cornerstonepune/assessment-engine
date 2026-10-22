@@ -1,0 +1,33 @@
+name: c5-one-approval-list
+goal: >
+  One list holds everything new that a person approves (a skill at a level, a way of asking, a report for a parent),
+  each draft beside the approved, with where it stands: draft, sent back with its reason, waiting for a second approval,
+  or approved. Anything that reaches a parent needs a second approval by someone other than the first, and a report
+  cannot be sent before it. The existing approvals stay where they were, unchanged; a decision is never edited.
+# Written 2026-10-22, from BUILD-ORDER's locked scope of 22 Oct (slice C5, "Green means"), and the night orders: include
+# "send back with a reason", which E0 could not store. Papers before print keep their own approval (sheet_instance) and
+# are not in this list (decision in the PR).
+says:
+  - words: "one approval list for everything new"
+    proved_by: "packages/engine/tests/test_approval_list.py::test_what_is_approved_and_where_it_stands_are_rows"
+  - words: "draft beside approved"
+    proved_by: "packages/engine/tests/test_approval_list.py::test_draft_beside_approved_in_one_list"
+  - words: "draft beside approved"
+    proved_by: "packages/engine/tests/test_approval_list.py::test_send_back_with_a_reason"
+  - words: "a second approval before anything reaches a parent"
+    proved_by: "packages/engine/tests/test_approval_list.py::test_a_second_approval_before_anything_reaches_a_parent"
+  - words: "the existing approvals unchanged"
+    proved_by: "packages/engine/tests/test_approval_list.py::test_the_existing_approvals_are_unchanged"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive; `engine past` prints the same before and after, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: one approval list, a second approval before a parent
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_approval_list.py tests/test_parent_report.py tests/test_rules.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

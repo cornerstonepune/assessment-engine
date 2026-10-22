@@ -63,5 +63,17 @@
     {"code": "learning", "words": "Learning", "every_answer_to_person": true},
     {"code": "trusted", "words": "Trusted", "every_answer_to_person": false},
     {"code": "falls_back", "words": "Falls back", "every_answer_to_person": true}
+  ],
+  "_approval_note": "C5 (goals/c5-one-approval-list.yaml): what the one approval list holds, and whether each reaches a parent (then it needs a second approval, by someone else); and where an entry stands, in the list's words. The migration 20261208090000 inserts these same rows for every school; tests/test_approval_list.py keeps them equal.",
+  "approval_kinds": [
+    {"code": "skill_level", "words": "a skill at a level", "reaches_parent": false},
+    {"code": "question_type", "words": "a way of asking", "reaches_parent": false},
+    {"code": "parent_note", "words": "a report for a parent", "reaches_parent": true}
+  ],
+  "approval_states": [
+    {"code": "draft", "words": "draft"},
+    {"code": "sent_back", "words": "sent back"},
+    {"code": "waiting_second", "words": "waiting for a second approval"},
+    {"code": "approved", "words": "approved"}
   ]
 }
