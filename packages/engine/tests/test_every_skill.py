@@ -189,7 +189,7 @@ def test_rules_are_rows_in_config(conn):
     rules = labels.rules(conn)
     assert rules["by_operation"]["+"] == "NUM.OPS.01"
     assert "word_2step" in rules["by_kind"]
-    registry = {r["code"] for r in conn.execute("select code from skill").fetchall()}
+    registry = {r["code"] for r in conn.execute("select code from registry_skill").fetchall()}
     named = set(rules["by_operation"].values()) | set(rules["by_symbol"].values())
     named |= {
         s for v in rules["by_kind"].values() for s in (v if isinstance(v, list) else sum(v.values(), []))

@@ -38,10 +38,9 @@ export async function worksheets(f: WorksheetFilter, limit: number, offset: numb
               select i.fmt, count(*)::int as n from item i where i.id = any(t.item_ids) group by i.fmt) k) as kinds
     from sheet_template t
     join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
-    join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
     join difficulty d on d.tenant_id = t.tenant_id and d.code = t.difficulty
     where ${live(f)}
-    order by r.ladder_order nulls last, s.code, d.ord, t.variant
+    order by s.ladder_order nulls last, s.code, d.ord, t.variant
     limit ${limit} offset ${offset}`;
 }
 

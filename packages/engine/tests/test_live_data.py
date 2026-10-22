@@ -82,7 +82,9 @@ def _paper(conn, responses):
     )
     tenant = tenant.fetchone()["id"]
     conn.execute(
-        "insert into rung (tenant_id, code, band, descriptor) values (%s, 'R1', 'G2', 'd')", (tenant,)
+        "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, difficulty, grade, descriptor)"
+        " values (%s, 'S1', 'R1', 's', 'o', '{}', 'G2', 'd')",
+        (tenant,),
     )
     item = conn.execute(
         "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses)"

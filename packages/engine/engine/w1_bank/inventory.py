@@ -197,7 +197,7 @@ def item_from_row(r):
 
 def sheet(conn, code, difficulty, n, outdir, seed=1, pw=None):
     rows = conn.execute(
-        "select i.*, r.band from item i join rung r on r.tenant_id = i.tenant_id and r.code = i.rung_code"
+        "select i.*, s.grade as band from item i join skill_set s on s.tenant_id = i.tenant_id and s.rung_code = i.rung_code"
         " where i.status = 'active' and i.skill_set_code = %s and i.difficulty = %s",
         (code, difficulty),
     ).fetchall()

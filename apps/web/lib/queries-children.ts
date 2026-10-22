@@ -116,14 +116,13 @@ export async function classGrid(
 ): Promise<{ steps: Step[]; children: GridChild[]; notYet: Unanswered[]; band: string }> {
   const [steps, children, states, notYet, [grade]] = await Promise.all([
     sql<Step[]>`
-      select distinct s.skill_code, ss.name as skill_name, r.code as rung_code, ss.name as descriptor, t.code as topic_code, t.name as topic_name,
-             ss.code as skill_set, ${levelsUsedBy(sql`class_band(ss.tenant_id, ${section})`)} as levels, t.ord, r.ladder_order
+      select distinct s.skill_code, ss.name as skill_name, ss.rung_code, ss.name as descriptor, t.code as topic_code, t.name as topic_name,
+             ss.code as skill_set, ${levelsUsedBy(sql`class_band(ss.tenant_id, ${section})`)} as levels, t.ord, ss.ladder_order
       from child_skill_state s join child c on c.id = s.child_id
-      join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code and s.skill_code = any(r.skill_codes)
-      join skill_set ss on ss.tenant_id = r.tenant_id and ss.rung_code = r.code
+      join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code and s.skill_code = any(ss.registry_codes)
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, section)}
       where c.section = ${section} and c.active and s.n_events > 0
-      order by t.ord, r.ladder_order nulls last, r.code`,
+      order by t.ord, ss.ladder_order nulls last, ss.rung_code`,
     classRoll(section, actor),
     sql<{ child_id: string; skill_code: string; rung_code: string; state: string; n_events: number; n_correct: number }[]>`
       select s.child_id, s.skill_code, s.rung_code, s.state, s.n_events, s.n_correct
@@ -131,11 +130,10 @@ export async function classGrid(
     sql<Unanswered[]>`
       select ss.code, ss.name, ${levelsUsedBy(sql`class_band(ss.tenant_id, ${section})`)} as levels, t.code as topic_code from skill_set ss
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, section)}
-      join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
-      where r.band in (select band from child where section = ${section} and active)
+      where ss.grade in (select band from child where section = ${section} and active)
         and not exists (select 1 from child_skill_state s join child c on c.id = s.child_id
-                        where c.section = ${section} and c.active and s.rung_code = r.code and s.n_events > 0)
-      order by t.ord, r.ladder_order nulls last`,
+                        where c.section = ${section} and c.active and s.rung_code = ss.rung_code and s.n_events > 0)
+      order by t.ord, ss.ladder_order nulls last`,
     // the class's grade: the database's one rule, which the engine asks too (goals/ux2-one-count-one-thing.yaml)
     sql<{ band: string }[]>`
       select class_band(tenant_id, section) as band from child where section = ${section} and active limit 1`,
@@ -174,18 +172,17 @@ export type ChildSkill = {
  *  no answers has no state. */
 export async function childSkills(id: string): Promise<ChildSkill[]> {
   return sql<ChildSkill[]>`
-    select ss.code, ss.name, t.name as topic, t.code as topic_code, r.code as rung_code, s.skill_code, sk.name as skill_name, s.state,
+    select ss.code, ss.name, t.name as topic, t.code as topic_code, ss.rung_code, s.skill_code, sk.name as skill_name, s.state,
            ${levelsUsedBy(sql`(select band from child where id = ${id}::uuid)`)} as levels,
            coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
            s.repeating_misconception, s.last_seen
     from skill_set ss
     join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
       and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, sql`(select section from child where id = ${id}::uuid)`)}
-    join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
-    left join child_skill_state s on s.child_id = ${id}::uuid and s.rung_code = r.code and s.skill_code = any(r.skill_codes)
-    left join skill sk on sk.tenant_id = ss.tenant_id and sk.code = s.skill_code
-    where r.band = (select band from child where id = ${id}::uuid) or s.n_events > 0
-    order by t.ord, r.ladder_order nulls last, ss.code, s.skill_code`;
+    left join child_skill_state s on s.child_id = ${id}::uuid and s.rung_code = ss.rung_code and s.skill_code = any(ss.registry_codes)
+    left join registry_skill sk on sk.tenant_id = ss.tenant_id and sk.code = s.skill_code
+    where ss.grade = (select band from child where id = ${id}::uuid) or s.n_events > 0
+    order by t.ord, ss.ladder_order nulls last, ss.code, s.skill_code`;
 }
 
 /** The one sentence a child's page opens on: the skills their checked answers reach, counted by colour, red first;
@@ -272,8 +269,8 @@ export async function repeatedMistakes(id: string): Promise<Repeated[]> {
                and e.confirmed_by is not null and (c.id is null or c.superseded_by is null)
                and s.repeating_misconception = any(e.misconception_codes)) as times
     from child_skill_state s
-    join rung r on r.code = s.rung_code
-    left join lateral (select name from skill where code = s.skill_code limit 1) k on true
+    join skill_set r on r.tenant_id = s.tenant_id and r.rung_code = s.rung_code
+    left join lateral (select name from registry_skill where code = s.skill_code limit 1) k on true
     left join lateral (select mistake_name(s.repeating_misconception, s.skill_code) as name) m on true
     where s.child_id = ${id}::uuid and s.repeating_misconception is not null
     order by times desc, r.ladder_order`;

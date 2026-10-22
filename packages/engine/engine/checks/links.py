@@ -51,7 +51,7 @@ def _lists(conn: db.Conn) -> list[str]:
     """Each skill whose mistake or registry rows are not its lists' codes, and how."""
     disagree = []
     for r in conn.execute(
-        "select s.code, s.misconception_codes as listed, r.skill_codes as registry,"
+        "select s.code, s.misconception_codes as listed, s.registry_codes as registry,"
         " (select coalesce(array_agg(distinct k.misconception_code), '{}') from skill_mistake k"
         "   where k.tenant_id = s.tenant_id and k.skill_code = s.code) as mistakes,"
         " (select count(*) from skill_mistake k where k.tenant_id = s.tenant_id and k.skill_code = s.code) as mistake_rows,"
@@ -59,7 +59,7 @@ def _lists(conn: db.Conn) -> list[str]:
         "   as misconception_rows,"
         " (select coalesce(array_agg(l.registry_skill), '{}') from skill_registry_link l"
         "   where l.tenant_id = s.tenant_id and l.skill_code = s.code) as links"
-        " from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code order by s.code"
+        " from skill_set s order by s.code"
     ):
         if set(r["listed"]) != set(r["mistakes"]) or r["mistake_rows"] != r["misconception_rows"]:
             disagree.append(

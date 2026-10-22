@@ -29,17 +29,13 @@ RULE = {"op": "-", "digits": [3, 2], "regroups": [1]}
 @pytest.fixture
 def conn():
     with db.connect() as c:
-        # a rung of its own, as every skill set has (ADR 0048): a copy of SUB.3D2D's, off the ladder
-        c.execute(
-            "insert into rung (tenant_id, code, band, ladder_order, descriptor, skill_codes, milestone_id)"
-            " select tenant_id, 'TEST.R', band, null, descriptor, skill_codes, milestone_id from rung"
-            " where code = (select rung_code from skill_set where code = 'SUB.3D2D')"
-        )
+        # a rung of its own, as every skill set has (ADR 0048): SUB.3D2D's grade and description, off the ladder
         c.execute(
             "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, formats, misconception_codes,"
-            " difficulty, status) select tenant_id, %s, 'TEST.R', 'the model path, under test', learning_objective,"
-            " array['column_grid','bare_sum','missing_number','word_1step'], misconception_codes, %s, 'ratified'"
-            " from skill_set where code = 'SUB.3D2D'",
+            " difficulty, status, grade, descriptor, registry_codes) select tenant_id, %s, 'TEST.R',"
+            " 'the model path, under test', learning_objective,"
+            " array['column_grid','bare_sum','missing_number','word_1step'], misconception_codes, %s, 'ratified',"
+            " grade, descriptor, registry_codes from skill_set where code = 'SUB.3D2D'",
             (
                 SET,
                 json.dumps(
