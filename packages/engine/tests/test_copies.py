@@ -6,6 +6,7 @@ a school scanner hands them over (`test_sorting._scanned`), and the reader is st
 so the test is about which child each copy lands on and how it is marked, not about handwriting.
 """
 
+import dataclasses
 import json
 import os
 import random
@@ -15,10 +16,11 @@ import pymupdf
 import pytest
 
 from engine.adapters import ocr
-from engine.assess import items
+from engine.assess import items, words
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
 from engine.core import db
+from engine.w1_bank import bank
 from engine.w2_print import library
 from engine.w3_read import boxes, copies, copy_scores, placing, printed_paper, render_pdf, second_reader
 from tests import rows
@@ -38,14 +40,28 @@ def conn():
 def worksheet(conn, tmp_path, monkeypatch):
     """A library worksheet of twelve word problems, as the library deals one, and its printed PDF."""
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()
-    ids = [
-        r["id"]
-        for r in conn.execute(
-            "select id from item where fmt = 'word_2step' and status = 'active' order by item_key limit 12"
-        )
-    ]
-    if not tenant or len(ids) < 12:
+    if not tenant:
         pytest.skip("needs the seed and the bank on the copy")
+    # Twelve stories made here from a fixed seed, not the first twelve of the bank: the bank is a fresh random draw on
+    # every database (CI builds one per runner), and in one draw the paper's pages told apart only 1.21 times better
+    # than the next layings, under the 1.25 `read.page_margin` asks — the copy then goes whole to a person, with no
+    # capture to replace (2026-10-22, PRs 285 and 288).
+    rng, made = random.Random(7), []
+    while len(made) < 12:
+        try:
+            made.append(words.word_2step(rng, "R14", "Application", 4))
+        except (RuntimeError, ValueError):  # these numbers do not make this story: the next draw
+            continue
+    # each names its skill set's registry skills, as `bank.fill` gives every question it makes (C1)
+    skills = conn.execute("select registry_codes from skill where code = 'WORD.1_2STEP'").fetchone()[
+        "registry_codes"
+    ]
+    made = [dataclasses.replace(it, skills=list(skills)) for it in made]
+    for it in made:
+        bank._insert(conn, tenant["id"], it, "WORD.1_2STEP", "Hard")
+    ids = [
+        conn.execute("select id from item where item_key = %s", (it.item_id,)).fetchone()["id"] for it in made
+    ]
     code = f"R8-H9{uuid.uuid4().int % 100:02d}"  # a code as the library writes one
     conn.execute(
         "insert into sheet_template (tenant_id, band, week, variant, source, code, skill_set_code, difficulty,"
