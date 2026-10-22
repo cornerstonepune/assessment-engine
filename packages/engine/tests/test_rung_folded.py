@@ -27,6 +27,8 @@ SOURCES = [
     *(db.REPO_ROOT / "apps/web/lib").rglob("*.ts"),
     *(db.REPO_ROOT / "apps/web/app").rglob("*.ts"),
     *(db.REPO_ROOT / "apps/web/app").rglob("*.tsx"),
+    *(db.REPO_ROOT / "apps/web/components").rglob("*.tsx"),
+    *(db.REPO_ROOT / "apps/web/tests").rglob("*.ts"),
     *(db.REPO_ROOT / "n8n/workflows").glob("*.json"),
     *(p for p in (db.REPO_ROOT / "bin").iterdir() if p.is_file()),
 ]

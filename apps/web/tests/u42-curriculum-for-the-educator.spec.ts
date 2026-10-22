@@ -29,8 +29,8 @@ test.beforeAll(async () => {
     select g.code, g.name from grade g join child c on c.tenant_id = g.tenant_id and g.code = class_band(c.tenant_id, c.section)
     where c.id = ${mine.Asha}`;
   [skill] = await sql<{ code: string; rung: string }[]>`
-    select s.skill_codes[1] as code, s.code as rung from rung s where s.band = ${grade.code} and cardinality(s.skill_codes) > 0
-    and exists (select 1 from skill_set ss where ss.rung_code = s.code) order by s.ladder_order limit 1`;
+    select s.registry_codes[1] as code, s.rung_code as rung from skill_set s
+    where s.grade = ${grade.code} and cardinality(s.registry_codes) > 0 order by s.ladder_order limit 1`;
   const [{ tenant }] = await sql<{ tenant: string }[]>`select tenant_id as tenant from child where id = ${mine.Asha}`;
   for (const id of [mine.Asha, other.Kavi]) {
     const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from evidence_event where child_id = ${id}`;

@@ -34,8 +34,8 @@ test.beforeAll(async ({ browser }) => {
   const kids = await aClass(sql, SECTION, "G2", ["Asha", "Bina"]);
   const [{ tenant }] = await sql<{ tenant: string }[]>`select tenant_id as tenant from child where id = ${kids.Asha}`;
   const [skill] = await sql<{ code: string; rung: string; set: string }[]>`
-    select r.skill_codes[1] as code, r.code as rung, ss.code as set from rung r join skill_set ss on ss.rung_code = r.code
-    where r.band = 'G2' and cardinality(r.skill_codes) > 0 order by r.ladder_order, ss.code limit 1`;
+    select ss.registry_codes[1] as code, ss.rung_code as rung, ss.code as set from skill_set ss
+    where ss.grade = 'G2' and cardinality(ss.registry_codes) > 0 order by ss.ladder_order, ss.code limit 1`;
   for (const [who, answers] of [["Asha", [true, true, true, true, true, true, false, true]], ["Bina", [true]]] as const) {
     const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from evidence_event where child_id = ${kids[who]}`;
     if (n) continue;

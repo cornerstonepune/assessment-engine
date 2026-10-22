@@ -41,5 +41,9 @@
 - **Live:** nothing; not deployed. Merge → `migrate live` runs the migration → the engine and site take the code.
 - **In flight:** PR #273, CI and the rehearsal green; waiting on Nimish to merge.
 - **Next:** B4b, `skill_set` → `skill` (goals/b4b-the-skill-is-called-skill.yaml), which also drops the two views.
+- **Found at the merge of main (2026-10-22):** 16 of the website's own browser tests read `rung`; the scan had not looked
+  in `apps/web/tests`. Moved onto the skill's columns, and the scan now covers the website's tests and components.
+  `.github/workflows/rehearse-update-live.yml` still reads `rung` twice (the grades live holds; rungs no skill holds),
+  through B4's view, so a re-run of this branch's rehearsal still works; B4b moves them when it drops the view.
 - **Not done here (decided):** evidence, child_skill_state and class_card keep `rung_code` (B4-2); the maths library's
   word "rung" stays (B4-3); the seed keeps `rungs.json`, read onto the skill by `engine load`.

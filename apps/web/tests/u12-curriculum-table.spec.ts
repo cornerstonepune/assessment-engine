@@ -67,11 +67,11 @@ test("every row has the same columns, and every number is the database's own", a
 
   // one skill, at Grade 2's levels: its questions and worksheets, its children assessed, assessed or not
   const levels = await sql<{ level: string; grade: string; questions: number; worksheets: number; words: string }[]>`
-    select d.key as level, coalesce(s.level_band ->> d.key, r.band) as grade, d.value ->> 'words' as words,
+    select d.key as level, coalesce(s.level_band ->> d.key, s.grade) as grade, d.value ->> 'words' as words,
            (select count(*)::int from item i where i.skill_set_code = s.code and i.difficulty = d.key and i.status = 'active') as questions,
            (select count(*)::int from sheet_template t where t.skill_set_code = s.code and t.difficulty = d.key
              and t.source = 'library' and t.retired_at is null) as worksheets
-    from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code, jsonb_each(s.difficulty) d
+    from skill_set s, jsonb_each(s.difficulty) d
     where s.code = 'ADD.2D2D'`;
   const g2 = levels.filter((l) => l.grade === "G2");
   const [{ kids }] = await sql<{ kids: number }[]>`
@@ -92,13 +92,13 @@ test("every row has the same columns, and every number is the database's own", a
   const skills = await sql<{ code: string; questions: number; assessed: boolean }[]>`
     select s.code,
            (select count(*)::int from item i where i.skill_set_code = s.code and i.status = 'active'
-             and coalesce(s.level_band ->> i.difficulty, r.band) = 'G2' and s.difficulty ? i.difficulty) as questions,
+             and coalesce(s.level_band ->> i.difficulty, s.grade) = 'G2' and s.difficulty ? i.difficulty) as questions,
            exists (select 1 from child_skill_state k join child c on c.id = k.child_id and c.active
                    where k.rung_code = s.rung_code and k.n_events > 0) as assessed
-    from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+    from skill_set s
     join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
     where s.topic_code = 'ADDSUB'
-      and exists (select 1 from jsonb_object_keys(s.difficulty) d where coalesce(s.level_band ->> d, r.band) = 'G2')`;
+      and exists (select 1 from jsonb_object_keys(s.difficulty) d where coalesce(s.level_band ->> d, s.grade) = 'G2')`;
   const topic = table(page).locator('tr[data-row="G2/ADDSUB"] td');
   await expect(topic.nth(1)).toHaveText(n(skills.reduce((a, s) => a + s.questions, 0)));
   await expect(topic.nth(8)).toHaveText(`${skills.filter((s) => s.assessed).length} of ${skills.length}`);
@@ -111,10 +111,9 @@ test("the skills waiting for approval are counted once, though a skill shows und
   const [skill] = await sql<{ code: string; easiest: string }[]>`
     select ss.code, (array['Easy', 'Medium', 'Hard', 'Advance'])[min(array_position(array['Easy', 'Medium', 'Hard', 'Advance'], d))] as easiest
     from skill_set ss
-    join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
     join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and ss.taught
     cross join jsonb_object_keys(ss.difficulty) as d
-    where r.band = 'G2' and ss.level_band = '{}'::jsonb
+    where ss.grade = 'G2' and ss.level_band = '{}'::jsonb
     group by ss.code having count(*) >= 2 order by ss.code limit 1`;
   expect(skill, "no Grade 2 skill with two levels to show under two grades").toBeTruthy();
   const putBack = await aWaitingSkill(sql, skill.code);

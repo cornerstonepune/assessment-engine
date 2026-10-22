@@ -96,8 +96,7 @@ const hardOf = async () =>
   (
     await sql<{ n: number; outcome: string; grade: string }[]>`
       select count(*)::int as n, (select learning_objective from skill_set where code = 'SUB.2D2D') as outcome,
-             (select coalesce(s.level_band ->> 'Hard', r.band) from skill_set s
-                join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code where s.code = 'SUB.2D2D') as grade
+             (select coalesce(s.level_band ->> 'Hard', s.grade) from skill_set s where s.code = 'SUB.2D2D') as grade
       from item where status = 'active' and skill_set_code = 'SUB.2D2D' and difficulty = 'Hard'`
   )[0];
 

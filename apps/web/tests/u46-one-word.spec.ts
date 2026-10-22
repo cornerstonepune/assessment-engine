@@ -25,7 +25,7 @@ test.beforeAll(async () => {
   const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from evidence_event where child_id = ${kids.Asha}`;
   if (!n) {
     const [skill] = await sql<{ code: string; rung: string }[]>`
-      select r.skill_codes[1] as code, r.code as rung from rung r join skill_set ss on ss.rung_code = r.code
+      select ss.registry_codes[1] as code, ss.rung_code as rung from skill_set ss
       where ss.code = 'ADD.2D2D'`;
     for (const right of [true, true, true, false]) {
       await sql`

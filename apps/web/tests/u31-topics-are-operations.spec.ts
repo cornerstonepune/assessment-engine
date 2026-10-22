@@ -98,10 +98,9 @@ test("no chip names a kind of question, or a topic with nothing taught at the cl
     const shown = await sql<{ name: string }[]>`
       select distinct t.name from topic t
       join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
-      join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
       join (select distinct section, band from child where active) k on skill_taught_in(s.tenant_id, s.code, k.section)
       where exists (select 1 from jsonb_object_keys(s.difficulty) lvl
-                    where left(coalesce(s.level_band ->> lvl, r.band), 2) <= left(k.band, 2))`;
+                    where left(coalesce(s.level_band ->> lvl, s.grade), 2) <= left(k.band, 2))`;
     expect([...names].sort(), at).toEqual(shown.map((t) => t.name).sort());
   }
 });
