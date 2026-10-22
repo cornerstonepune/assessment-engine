@@ -109,6 +109,11 @@ jobs:
       - name: the levels as rows, against the blob, before
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: bin/engine levels check
+      # A skill's samples, mistakes, registry links and prerequisites as rows (goals/b3-samples-mistakes-prerequisites.yaml):
+      # on live's own skills, the rows the migration made say what the lists say. Codes and counts only.
+      - name: the samples, mistakes and links as rows, against the lists, before
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: bin/engine links check --words
       - name: stories the labeller cannot name (their text; questions hold no names)
         run: |
           psql "$COPY" -c "select item_key, skill_set_code, stem, spec from item where fmt = 'word_1step' and not (tags ? 'structure') order by item_key limit 25"
@@ -166,3 +171,4 @@ jobs:
           bin/engine live data --url "$COPY"
           bin/engine live homes --url "$COPY"
           bin/engine levels check
+          bin/engine links check

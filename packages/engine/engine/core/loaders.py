@@ -33,6 +33,10 @@ FILLED_TABLES = (
     "config",
     "skill_set",
     "skill_level",
+    "skill_level_sample",
+    "skill_mistake",
+    "skill_registry_link",
+    "skill_prerequisite",
     "subject",
     "topic",
     "question_format",
@@ -343,19 +347,14 @@ def _subjects(conn: db.Conn, t: db.Id) -> None:
         )
 
 
-def _question_types(conn: db.Conn, t: db.Id) -> None:
-    """Each question type's words, how it reaches the child and how it is marked (B2), in one statement, so the levels'
-    links are made once. A type the seed does not name is left as it is; a new one waits for the coordinator."""
+def _prerequisites(conn: db.Conn, t: db.Id) -> None:
+    """What comes before each skill, drafted from the seed once: only while the school has none. After that the rows are
+    a person's, and a prerequisite they removed is never put back (B3-3, ADR 0092)."""
     conn.execute(
-        "insert into question_type (tenant_id, code, fmt, words, reaches, marked, own_words)"
-        " select %s, x.code, x.fmt, x.words, x.reaches, x.marked::eval_type[], x.own_words from jsonb_to_recordset(%s::jsonb)"
-        "   x(code text, fmt text, words text, reaches text, marked text[], own_words boolean)"
-        " on conflict (tenant_id, code) do update set fmt = excluded.fmt, words = excluded.words,"
-        " reaches = excluded.reaches, marked = excluded.marked, own_words = excluded.own_words"
-        " where row(question_type.fmt, question_type.words, question_type.reaches, question_type.marked,"
-        " question_type.own_words) is distinct from row(excluded.fmt, excluded.words, excluded.reaches,"
-        " excluded.marked, excluded.own_words)",
-        (t, json.dumps(settings.seed("question_types.json", "question_types"))),
+        "insert into skill_prerequisite (tenant_id, skill_code, before_code)"
+        " select %s, x.skill, x.after from jsonb_to_recordset(%s::jsonb) x(skill text, after text)"
+        " where not exists (select 1 from skill_prerequisite p where p.tenant_id = %s)",
+        (t, json.dumps(settings.seed("skill_prerequisites.json", "skill_prerequisites")), t),
     )
 
 
@@ -373,12 +372,13 @@ def load_all() -> dict[str, int]:
             settings.load,
             _skill_sets,
             _subjects,
-            _question_types,
         ):
             step(conn, t)
+        question_formats.load_types(conn, t, settings.seed)
         topics.load(conn, t, settings.seed)
         question_formats.load(conn, t, settings.seed)
         asks.load(conn, t, settings.seed)
+        _prerequisites(conn, t)
         conn.commit()
         return db.counts(conn, FILLED_TABLES)
 

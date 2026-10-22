@@ -1,0 +1,66 @@
+name: b3-samples-mistakes-prerequisites
+goal: >
+  A level's samples are rows (`skill_level_sample`): each card kind's examples, and each example a level's words give
+  after their colon, split by the rule the words themselves follow, the words left as they are. The mistakes a skill
+  watches for (`skill_mistake`), the registry skills it covers (`skill_registry_link`) and the skills that come before
+  it (`skill_prerequisite`) are rows, so every code a skill names is a real key the database checks and refuses when it
+  is not. A division mistake stays on a skill where a question of that skill asks a division and the mistake's own
+  rule computes a wrong answer on it; the 8 on Multiplication facts do, and stay. Nothing changes for any
+  past assessment: the evidence (count and checksum), every child's states and every scored answer are the same before
+  and after, in a test and on a copy of live. No paper, map or page changes on the day.
+# Written 2026-10-21, before the code, from docs/drafts/b3-samples-mistakes-prerequisites.yaml (scope-locked by
+# Nimish) and his decisions in docs/drafts/b2-b4-decisions.md, "Decided". Nimish, 2026-10-21: no dependency on Achal;
+# B3-1, B3-2 and B3-3 are decided here by rules a test checks, recorded in ADR 0092. Achal may correct rows later:
+# that is an update to rows, not a blocker.
+#
+# The three decisions and their rules (measured on a database built from main, docs/notes/b3-samples-mistakes-prerequisites.md):
+# - B3-1, a level's examples: the text after the words' last colon, to the end of that sentence, cut at ", " and "; ";
+#   numbers written in a row ("5, 10, 15, 20, □") are one example; a piece is a sample when it is written in signs —
+#   a number sentence with + − × ÷ = ≈ < > ○ or □, and no word but the remainder's "r". A piece in words ("56 × 3 =
+#   1518 found wrong", "and why") stays in the level's words only. The words themselves are never changed.
+# - B3-2, the division mistakes: kept on a skill when a question its levels draw asks a division and the mistake's
+#   rule (the engine's own predictor, `spec.known_misconceptions`) computes a wrong answer on it. All 8 on
+#   Multiplication facts pass: its Advance fact family ("10 × 3 = 30. Use it to finish these facts.") asks two
+#   divisions, and each mistake computes a wrong answer there. No mistake is removed anywhere: a sample of questions
+#   shows that a mistake happens, never that it cannot. (A first pass with the engine's standard sample took six links
+#   on four division skills for unreachable; drawn more widely, each comes up on a division its skill asks, e.g.
+#   M_DIV_TENS_ZERO_EXTRA on "100 ÷ 4" in DIV.3D1D, M_DIV_TENS_ZERO_LEFT on "50 ÷ 10" in MD.EQUALITY.)
+#   The four column mistakes are not division mistakes and stay (its 2-digit facts, 11 × 12, compute them).
+#   "Multiplied instead of dividing" is one of M_WRONG_OP's five rows; the code is computed there as "added instead of
+#   multiplying" and stays; which row's words a page shows is settled when the readers move onto the rows, not here.
+# - B3-3, what comes before: the ladder's grades. A skill comes after every skill of its topic on the nearest grade
+#   below its own. The ladder's own positions cannot order them: 26 of the 46 rungs have none, and they put Grade 2
+#   mental strategies (R7) before Grade 1 addition (R19).
+says:
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_every_card_example_and_level_example_is_a_sample_row"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_a_levels_samples_are_its_words_own_examples_in_order"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_every_code_a_skill_names_is_a_key_the_database_checks"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_mistakes_and_registry_links_equal_the_skills_lists"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_the_division_mistakes_on_multiplication_facts_stay_where_a_division_computes_them"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_prerequisites_come_from_the_ladders_grades_and_no_skill_comes_before_itself"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_a_new_sample_mistake_or_link_is_an_insert"
+  - words: "nothing will change for any of the past assessments, scoring etc. right?"
+    proved_by: "packages/engine/tests/test_skill_links.py::test_past_results_are_the_same_before_and_after"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive; `engine past` prints the same evidence count and checksum, children's states and scored answers before the migrations, after them and after update-live; `engine links check` says every list and its rows agree, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: the samples, mistakes, links and prerequisites agree with the skills, the seed and the rules
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_skill_links.py tests/test_loaders.py
+    expect: "passed"
+  - name: the rows and the skills' own lists agree, on the database the engine reads
+    run: bin/engine links check
+    expect: "agree"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
