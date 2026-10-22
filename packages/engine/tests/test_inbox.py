@@ -176,6 +176,7 @@ def test_a_reading_that_fails_says_why_on_its_run(tmp_path, monkeypatch):
     25 minutes — the error was written, then rolled back with the failure."""
     kept = []
     monkeypatch.setattr(inbox.db, "connect", lambda *a, **k: _Tx(kept))
+    monkeypatch.setattr(inbox, "given", lambda conn, name: {})  # no page a person gave to a child
 
     def broken(*a, **k):
         raise RuntimeError("Unable to parse config file: /root/.aws/credentials")

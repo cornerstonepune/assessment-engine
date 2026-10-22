@@ -101,43 +101,37 @@ def _text_of(img, cli):
 
 
 def group(codes: list[str | None], length=lambda code: 0) -> list[dict]:
-    """Pages in file order → papers: a run of pages with one code is one paper; a page with no code joins the
-    paper before it, flagged, since a sheet's later pages carry the same code and a missing one is a bad scan.
-    `length(code)` is how many pages one copy has when every child's copy carries the same code (a library
-    worksheet); such a run is cut into copies of that many pages."""
+    """Pages in file order → papers: a run of pages with one code is one paper. `length(code)` is how many pages one
+    copy has when every child's copy carries the same code (a library worksheet); such a run is cut into copies of that
+    many pages. A page with no code joins no paper: it is a paper of its own, unread, until a person says whose it is
+    (`give`). Until 2026-10-22 it joined the paper before it, and a page that was not that child's was read as theirs;
+    Nimish, that day: "yes, stop guessing" (goals/ux9a-no-guessed-pages.yaml)."""
     out = []
     for n, code in enumerate(codes, 1):
         last = out[-1] if out else None
         full = last and length(last["qr"]) and len(last["pages"]) >= length(last["qr"])
         if code and last and last["qr"] == code and not full:
             last["pages"].append(n)
-        elif code or not last or full:
-            # a page with no code after a whole copy is taken for another copy of the same library worksheet —
-            # never for another child's own paper, whose code is theirs alone
-            guess = last and full and WORKSHEET.match(last["qr"] or "") and last["qr"]
-            out.append({"qr": code or guess or None, "pages": [n], "unread": [] if code else [n]})
         else:
-            last["pages"].append(n)
-            last["unread"].append(n)
-    # A page with no code read, after a copy already whole, was guessed above as a copy of the worksheet before
-    # it. Where the copy after it is short by exactly those pages, they are its first pages: on 2026-09-23 page 27
-    # was R5-H14's first page, and taken for another R2-E12 it would have been marked against R2-E12's questions.
-    merged = []
-    for p in out:
-        prev = merged[-1] if merged else None
-        need = p["qr"] and length(p["qr"])
-        if (
-            prev and need and prev["pages"] == prev["unread"] and prev["pages"][-1] + 1 == p["pages"][0]
-            and len(prev["pages"]) + len(p["pages"]) == need
-        ):  # fmt: skip
-            merged[-1] = {
-                "qr": p["qr"],
-                "pages": prev["pages"] + p["pages"],
-                "unread": prev["unread"] + p["unread"],
-            }
-        else:
-            merged.append(p)
-    return merged
+            out.append({"qr": code, "pages": [n], "unread": [] if code else [n]})
+    return out
+
+
+def give(papers: list[dict], given: dict[int, str]) -> list[dict]:
+    """Papers → the same, each page with no code that a person said is a child's (`given`, {page: child}) moved onto
+    that child's own paper in the file as a run of its own, said in its `given`. A page given to a child whose paper is
+    not in the file stays as it was: unread."""
+    theirs = {p["sheet"]["child_id"]: p for p in papers if p.get("sheet") and p["sheet"]["child_id"]}
+    out = []
+    for p in papers:
+        whose = None if p["qr"] else theirs.get(given.get(p["pages"][0]))
+        if whose is None:
+            out.append(p)
+            continue
+        whose["pages"] = sorted(whose["pages"] + p["pages"])
+        whose["runs"].append(list(p["pages"]))
+        whose["given"] = whose.get("given", []) + p["pages"]
+    return out
 
 
 def pages_said(pages: list[int]) -> str:

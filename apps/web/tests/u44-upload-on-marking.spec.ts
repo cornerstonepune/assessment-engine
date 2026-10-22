@@ -108,6 +108,6 @@ test("a scan put in on Marking is read, and its run says what was found and what
   await expect(run).toContainText(
     `${pages} pages, 3 copies found for 2 children · 2 copies read, 5 answers: 3 settled by the engine, 1 checked by a person, 1 waiting for a person`,
   );
-  // the blank page: said by its number, never guessed
-  await expect(run).toContainText(`No code could be read on page ${pages}: not guessed`);
+  // the blank page: said by its number, never guessed (goals/ux9a-no-guessed-pages.yaml)
+  await expect(run).toContainText(`Page ${pages}: no code could be read on it, so it is not read until you say whose it is.`);
 });

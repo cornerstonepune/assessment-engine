@@ -1,6 +1,6 @@
 import { Panel } from "@/components/shell";
 import type { Scan } from "@/lib/queries-scans";
-import { readScan } from "./actions";
+import { givePage, readScan } from "./actions";
 import { UploadScans } from "./upload-scans";
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
@@ -28,6 +28,7 @@ export function ReadScan({ from, read, why, pages, scans = [] }: { from: "/paper
     refused: `The engine would not take that: ${why ?? ""}`,
     "not-a-link": "Paste the link to the scan on Google Drive (drive.google.com/…).",
     engine: "The engine is not answering; nothing was read.",
+    given: `Page ${Number(pages) || ""} is being read now as the paper of the child you gave it to.`,
   }[read ?? ""];
   return (
     <Panel title="Read a scan" label="Read a scan" id="read-scan">
@@ -48,7 +49,7 @@ export function ReadScan({ from, read, why, pages, scans = [] }: { from: "/paper
         </button>
       </form>
       <p className="mt-2 text-[13px] text-ink-soft">
-        {said ?? "Every page is sorted by the code printed on it and read in its boxes; every answer waits here for a person. A copy printed without a child's code is listed, not guessed."}
+        {said ?? "Every page is sorted by the code printed on it and read in its boxes; every answer waits here for a person. A copy printed without a child's code, or a page whose code cannot be read, is listed, never guessed."}
       </p>
       {scans.length ? (
         <ul aria-label="Scans read last" className="mt-3 grid gap-2 border-t border-line pt-3 text-[13px]">
@@ -57,12 +58,13 @@ export function ReadScan({ from, read, why, pages, scans = [] }: { from: "/paper
               <p>
                 <strong>{s.file}</strong> · {s.when} · {found(s)}
               </p>
-              {s.noCode.length ? (
-                <p className="text-terracotta">
-                  No code could be read on {s.noCode.length === 1 ? "page" : "pages"} {s.noCode.join(", ")}: not guessed — photograph{" "}
-                  {s.noCode.length === 1 ? "it" : "them"} again with the code in view.
+              {s.given.length ? (
+                <p>
+                  {s.given.map((g) => `Page ${g.page} given to ${g.who}`).join("; ")}
+                  {s.status === "running" ? ": reading it now." : "."}
                 </p>
               ) : null}
+              {s.noCode.length ? <WaitingPages scan={s} from={from} /> : null}
               {s.lines.length ? (
                 <ul aria-label={`What ${s.file} lacks`} className="ml-5 mt-1 list-disc text-terracotta">
                   {s.lines.map((l, i) => (
@@ -77,5 +79,57 @@ export function ReadScan({ from, read, why, pages, scans = [] }: { from: "/paper
         </ul>
       ) : null}
     </Panel>
+  );
+}
+
+/** The pages of a file on which no code could be read (goals/ux9a-no-guessed-pages.yaml). Nimish, 2026-10-22: "yes, stop
+ *  guessing." Such a page is read as no child's until a person says whose it is: each is shown small, with a button for
+ *  each child whose own paper is in the file, a copy short of a page first, the rest folded. One tap, and the file is
+ *  read again with the page as that child's. */
+function WaitingPages({ scan: s, from }: { scan: Scan; from: string }) {
+  const short = s.owners.filter((o) => o.short);
+  const rest = s.owners.filter((o) => !o.short);
+  return (
+    <ul aria-label={`Pages of ${s.file} waiting for their child`} className="mt-1 grid gap-2">
+      {s.noCode.map((n) => (
+        <li key={n} className="flex flex-wrap items-start gap-3">
+          <a href={`/api/scan-run/${s.id}/${n}`} target="_blank" rel="noreferrer" aria-label={`See page ${n}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- a scan the engine draws, never a static asset */}
+            <img src={`/api/scan-run/${s.id}/${n}`} alt={`Page ${n} of ${s.file}`} width={72} className="border border-line" />
+          </a>
+          <div className="min-w-0 flex-1">
+            <p className="text-terracotta">
+              Page {n}: no code could be read on it, so it is not read until you say whose it is.
+              {s.owners.length ? "" : " No child's own paper is in this file: photograph it again with the code in view."}
+            </p>
+            {s.owners.length && s.status !== "running" ? (
+              <form action={givePage} aria-label={`Whose is page ${n}?`} className="mt-1 flex flex-wrap items-center gap-2">
+                <input type="hidden" name="run" value={s.id} />
+                <input type="hidden" name="page" value={n} />
+                <input type="hidden" name="from" value={from} />
+                {(short.length ? short : rest).map((o) => (
+                  <button key={o.id} type="submit" name="child" value={o.id} className="btn secondary">
+                    {o.who}
+                    {o.short ? " (a page short)" : ""}
+                  </button>
+                ))}
+                {short.length && rest.length ? (
+                  <details>
+                    <summary className="cursor-pointer text-[13px]">Another child in this file</summary>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      {rest.map((o) => (
+                        <button key={o.id} type="submit" name="child" value={o.id} className="btn secondary">
+                          {o.who}
+                        </button>
+                      ))}
+                    </div>
+                  </details>
+                ) : null}
+              </form>
+            ) : null}
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
