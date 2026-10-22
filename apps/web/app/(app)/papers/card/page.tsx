@@ -1,11 +1,14 @@
 import Link from "@/components/link";
-import { Body, Notice, PageHeader, Panel } from "@/components/shell";
+import { DataTable } from "@/components/data-table";
+import { PageShell } from "@/components/page-shell";
+import { Notice, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { classWords } from "@/lib/needs-you";
 import { grades } from "@/lib/queries";
 import { assessmentCard, CARD_STAGES, type Card, type CardCopy, type CardKey, standing } from "@/lib/queries-card";
 import { KIND_WORDS, STAGE_WORDS } from "@/lib/queries-papers";
+import type { Column } from "@/lib/ux-rules";
 import { dateWords, weekWords } from "@/lib/week";
 import { UploadScans } from "../../capture/upload-scans";
 import { away, givenOn } from "./actions";
@@ -24,32 +27,35 @@ export default async function CardPage({ searchParams }: Props) {
   const title = card.copies[0]?.title ?? card.spares[0]?.title ?? "No such assessment";
   const band = card.copies[0]?.band ?? card.spares[0]?.band;
   const s = standing(card);
+  // the school's day, as the engine checks it: "2026-10-22" in Pune, whatever the server's clock
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
   return (
-    <>
-      <PageHeader
-        stage="Assessments · its card"
-        title={key.kind === "focus" ? "Home assessments" : title}
-        sub={`${KIND_WORDS[key.kind] ?? key.kind} · ${band ? classWords(g, band, key.class) : key.class} · ${weekWords(key.week || null)}`}
-      />
-      <Body>
-        {q.said ? <Notice tone="terracotta">{q.said}</Notice> : null}
-        {s.n === 0 ? (
-          <p className="note">No paper of this class, week and kind was found: open it from Assessments.</p>
-        ) : (
-          <div className="grid min-w-0 gap-[18px]">
+    <PageShell
+      stage="Assessments · its card"
+      title={key.kind === "focus" ? "Home assessments" : title}
+      purpose={`${KIND_WORDS[key.kind] ?? key.kind} · ${band ? classWords(g, band, key.class) : key.class} · ${weekWords(key.week || null)}`}
+      action={s.n === 0 ? <Link className="btn" href="/papers">Open Assessments →</Link> : <MainAction card={card} s={s} today={today} />}
+      next={s.n === 0 ? { href: "/", label: "Today" } : { href: "/papers", label: "All assessments" }}
+    >
+      {q.said ? <Notice tone="terracotta">{q.said}</Notice> : null}
+      {s.n === 0 ? (
+        <p className="note">No paper of this class, week and kind was found: open it from Assessments.</p>
+      ) : (
+        <div className="grid min-w-0 gap-[18px]">
+          <div id="papers-in">
             <Panel title="Papers in" label="Papers in" aside={`${s.inn} of ${s.n} in`}>
               <UploadScans reading={!!card.reading} />
               <p className="mt-2 text-[13px] text-basalt/70">
                 Put in the scan or the photos of any papers: each page goes where its printed code says, whichever card you put it in from.
               </p>
             </Panel>
-            <Stages at={s.at} done={s.done} />
-            <Next card={card} s={s} />
-            <Copies card={card} />
           </div>
-        )}
-      </Body>
-    </>
+          <Stages at={s.at} done={s.done} />
+          <Next card={card} s={s} />
+          <Copies card={card} page={Number(q.page) || 1} />
+        </div>
+      )}
+    </PageShell>
   );
 }
 
@@ -76,9 +82,6 @@ const rollsSaid = (cs: CardCopy[]) => cs.map((c) => (c.roll_no ? `roll ${c.roll_
 
 /** The one next step for where the card stands, and what the card knows at that stage. */
 function Next({ card, s }: { card: Card; s: Standing }) {
-  const { key } = card;
-  // the school's day, as the engine checks it: "2026-10-22" in Pune, whatever the server's clock
-  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
   const retake = card.copies.filter((c) => c.retake.length);
   return (
     <Panel title={`Next: ${s.at}`} label="Next step">
@@ -118,41 +121,64 @@ function Next({ card, s }: { card: Card; s: Standing }) {
         </div>
       ) : null}
       {s.at === "Made" || s.at === "Approved for print" ? (
-        <p className="text-[13.5px]">
-          The system proposed each child&apos;s paper; change any child before it prints.{" "}
-          <Link className="btn" href={key.kind === "focus" ? `/make/${encodeURIComponent(key.class)}` : `/papers/approve?section=${encodeURIComponent(key.class)}&week=${encodeURIComponent(key.week)}&kind=${key.kind}`}>
-            Look over and approve for print →
-          </Link>
-        </p>
+        <p className="text-[13.5px]">The system proposed each child&apos;s paper; change any child before it prints.</p>
       ) : null}
-      {s.at === "Given" ? (
-        <form action={givenOn} className="flex flex-wrap items-end gap-2">
-          <Back k={key} />
-          {[...card.copies, ...card.spares].map((c) => (
-            <input key={c.qr} type="hidden" name="qr" value={c.qr} />
-          ))}
-          <label className="field">
-            <span className="label">Day it was given</span>
-            <input className="input" type="date" name="on" defaultValue={today} max={today} required />
-          </label>
-          <button type="submit" className="btn">
-            Given on
-          </button>
-        </form>
-      ) : null}
+      {s.at === "Given" ? <p className="text-[13.5px]">Say the day it was given, at the top.</p> : null}
       {s.at === "Papers in" || s.at === "Read" ? <p className="text-[13.5px]">Put the papers in at the top of this card. A child who was away is marked below; their paper is held for later, not missing.</p> : null}
-      {s.at === "Checked" ? (
-        <Link className="btn" href="/capture/check">
-          Check them →
-        </Link>
-      ) : null}
-      {s.at === "Signed off" ? (
-        <Link className="btn" href={`/capture?by=child&class=${encodeURIComponent(key.class)}`}>
-          Sign them off →
-        </Link>
-      ) : null}
+      {s.at === "Checked" ? <p className="text-[13.5px]">Some answers wait for a person: check them, then sign off.</p> : null}
+      {s.at === "Signed off" ? <p className="text-[13.5px]">Checked: sign each child off, then the results show here.</p> : null}
       {s.at === "Results" ? <p className="text-[13.5px]">Every paper is signed off: each child&apos;s score is below, and each child opens their profile.</p> : null}
     </Panel>
+  );
+}
+
+/** The one thing to do at this stage, at the top of the page. */
+function MainAction({ card, s, today }: { card: Card; s: Standing; today: string }) {
+  const { key } = card;
+  if (s.at === "Made" || s.at === "Approved for print")
+    return (
+      <Link className="btn" href={key.kind === "focus" ? `/make/${encodeURIComponent(key.class)}` : `/papers/approve?section=${encodeURIComponent(key.class)}&week=${encodeURIComponent(key.week)}&kind=${key.kind}`}>
+        Look over and approve for print →
+      </Link>
+    );
+  if (s.at === "Given")
+    return (
+      <form action={givenOn} className="flex flex-wrap items-end gap-2">
+        <Back k={key} />
+        {[...card.copies, ...card.spares].map((c) => (
+          <input key={c.qr} type="hidden" name="qr" value={c.qr} />
+        ))}
+        <label className="field">
+          <span className="label">Day it was given</span>
+          <input className="input" type="date" name="on" defaultValue={today} max={today} required />
+        </label>
+        <button type="submit" className="btn">
+          Given on
+        </button>
+      </form>
+    );
+  if (s.at === "Checked")
+    return (
+      <Link className="btn" href="/capture/check">
+        Check them →
+      </Link>
+    );
+  if (s.at === "Signed off")
+    return (
+      <Link className="btn" href={`/capture?by=child&class=${encodeURIComponent(key.class)}`}>
+        Sign them off →
+      </Link>
+    );
+  if (s.at === "Results")
+    return (
+      <Link className="btn" href="/growth">
+        See the class results →
+      </Link>
+    );
+  return (
+    <Link className="btn" href="#papers-in">
+      Put the papers in ↓
+    </Link>
   );
 }
 
@@ -168,54 +194,57 @@ function Back({ k }: { k: CardKey }) {
   );
 }
 
-function Copies({ card }: { card: Card }) {
+const away_ = (c: CardCopy) => ["made", "printed"].includes(c.stage) && c.printed;
+
+/** Each child's paper, those still out first (rule 3 of docs/ux-rules.md: ten to a page, the rest a page away). */
+function Copies({ card, page }: { card: Card; page: number }) {
+  const out = (c: CardCopy) => ["made", "printed"].includes(c.stage);
+  const rows = [...card.copies.filter(out), ...card.copies.filter((c) => !out(c))];
+  const columns: Column<CardCopy>[] = [
+    { key: "roll", label: "Roll", value: (c) => c.roll_no },
+    {
+      key: "child",
+      label: "Child",
+      value: (c) => c.child,
+      cell: (c) => (c.child_id ? <Link href={`/growth/${c.child_id}`}>{c.child ?? "this child"}</Link> : "spare"),
+    },
+    {
+      key: "paper",
+      label: "Paper",
+      value: (c) => c.title,
+      cell: (c) => (
+        <>
+          {c.title}
+          <span className="block text-[11.5px] text-basalt/55">
+            code <Link href={`/worksheets/${c.qr}`}>{c.qr}</Link>
+          </span>
+        </>
+      ),
+    },
+    { key: "where", label: "Where it is", value: (c) => (c.away && out(c) ? "away · held for later" : STAGE_WORDS[c.stage]) },
+    { key: "score", label: "Score", num: true, value: (c) => (c.scored ? `${c.right} of ${c.scored}` : null) },
+    {
+      key: "away",
+      label: "Away",
+      value: (c) => (away_(c) ? "away" : null),
+      cell: (c) =>
+        away_(c) ? (
+          <form action={away}>
+            <Back k={card.key} />
+            <input type="hidden" name="qr" value={c.qr} />
+            <input type="hidden" name="away" value={c.away ? "no" : "yes"} />
+            <button type="submit" className="btn secondary whitespace-nowrap text-[12.5px]">
+              {c.away ? "Back: count as missing" : "Away: hold it for later"}
+            </button>
+          </form>
+        ) : null,
+    },
+  ];
+  const { class: cls, week, kind, set } = card.key;
+  const to = (p: number) => `/papers/card?${new URLSearchParams({ class: cls, week, kind, ...(set ? { set } : {}), page: String(p) })}`;
   return (
     <Panel title="Each child's paper" label="Each child's paper">
-      <div className="min-w-0 overflow-x-auto">
-        <table className="grid" aria-label="Each child's paper">
-          <thead>
-            <tr>
-              <th>Roll</th>
-              <th>Child</th>
-              <th>Paper</th>
-              <th>Where it is</th>
-              <th className="num">Score</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {card.copies.map((c) => {
-              const out = ["made", "printed"].includes(c.stage);
-              return (
-                <tr key={c.qr} data-roll={c.roll_no ?? ""}>
-                  <td className="fact">{c.roll_no ?? "—"}</td>
-                  <td>{c.child_id ? <Link href={`/growth/${c.child_id}`}>{c.child ?? "this child"}</Link> : "spare"}</td>
-                  <td>
-                    {c.title}
-                    <span className="block text-[11.5px] text-basalt/55">
-                      code <Link href={`/worksheets/${c.qr}`}>{c.qr}</Link>
-                    </span>
-                  </td>
-                  <td>{c.away && out ? "away · held for later" : STAGE_WORDS[c.stage]}</td>
-                  <td className="num">{c.scored ? `${c.right} of ${c.scored}` : "—"}</td>
-                  <td>
-                    {out && c.printed ? (
-                      <form action={away}>
-                        <Back k={card.key} />
-                        <input type="hidden" name="qr" value={c.qr} />
-                        <input type="hidden" name="away" value={c.away ? "no" : "yes"} />
-                        <button type="submit" className="btn secondary whitespace-nowrap text-[12.5px]">
-                          {c.away ? "Back: count as missing" : "Away: hold it for later"}
-                        </button>
-                      </form>
-                    ) : null}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <DataTable label="Each child's paper" columns={columns} rows={rows} rowKey={(c) => c.qr} more={{ page, href: to }} />
     </Panel>
   );
 }
