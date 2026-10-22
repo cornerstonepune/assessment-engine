@@ -13,7 +13,7 @@
   skill holds. Written to run twice (applied twice locally: same result).
 - **Tests:** `tests/test_rung_folded.py` (7). On a database built from main: 5 of the 6 that do not apply the
   migration fail (no `grade`, `registry_codes` or `registry_skill`; the one that passes checks only that every rung
-  code on record is a rung's); with the migration and the old code, the two file scans failed on 25 files. After the
+  code on record is already a skill's); with the migration and the old code, the two file scans failed on 25 files. After the
   code, on a fresh build of this branch: 7 passed. `bin/engine links check`: "the rows and the lists agree on every skill and
   level". `engine live rules` on a fresh build: "0 rules held otherwise than the migrations make them" (rules.json
   rewritten from it).
@@ -25,10 +25,17 @@
   "a rung no skill holds is removed" became `test_no_rung_is_left_without_a_skill`: no such rung can exist now.
   The audit's "every rung has a spec" went with the table it checked.
 
+- **Rehearsed on a copy of live, run 39745650087 on a7c389c (green):** live held 46 rungs (G1 4, G2 20, G3 13, G4 9),
+  one per skill, so the migration stopped on nothing. `engine past` before the migrations, after them and after
+  update-live, all three the same: `evidence 1740 rows checksum 8f69097fe762641397c33ed7f3ed8945 · states 274 rows
+  checksum 8ef89d8c9d9d09d532841d7cb529d3f7 · scored 12665 rows checksum 565e33bdd7a3819f7415a7c73dbbbde1`.
+  `engine links check`: "the rows and the lists agree on every skill and level"; the copy after: every check ok.
+- **CI on a7c389c:** run 39745683535, success (the website's browser suite included).
+
 ## Handoff
 
 - **Live:** nothing; not deployed. Merge → `migrate live` runs the migration → the engine and site take the code.
-- **In flight:** the PR, CI and the rehearsal on a copy of live (Actions → rehearse update-live, this branch).
+- **In flight:** PR #273, CI and the rehearsal green; waiting on Nimish to merge.
 - **Next:** B4b, `skill_set` → `skill` (goals/b4b-the-skill-is-called-skill.yaml), which also drops the two views.
 - **Not done here (decided):** evidence, child_skill_state and class_card keep `rung_code` (B4-2); the maths library's
   word "rung" stays (B4-3); the seed keeps `rungs.json`, read onto the skill by `engine load`.
