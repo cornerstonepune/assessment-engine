@@ -1,11 +1,15 @@
 import Link from "@/components/link";
-import { Bar, Body, Notice, PageHeader, Panel } from "@/components/shell";
+import { Count } from "@/components/count";
+import { EmptyState } from "@/components/empty-state";
+import { PageShell } from "@/components/page-shell";
+import { Bar, Notice, Panel } from "@/components/shell";
+import { StatusChip } from "@/components/status-chip";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { checkItem, checkQueue, held, toJudge, type CheckItem } from "@/lib/queries-read";
 import { EngineDown, engineGet } from "@/lib/engine";
-import { correctRead, judgeOne } from "../actions";
+import { Confirm, Judge, Nothing, TypeIt } from "./answer";
 import { ZoomPage } from "./zoom-page";
 import type { Key } from "../[id]/card";
 import { dateWords } from "@/lib/week";
@@ -68,181 +72,137 @@ export default async function CheckAnswers({ searchParams }: Props) {
   const next = `/capture/check?from=${from}`;
   const box = a?.box?.length === 4 && a.answer_state !== "not_found" ? `?box=${a.box.join(",")}` : "";
 
+  const says = entry?.spot ? (a?.read ?? "") : (a?.guess ?? "");
+  // The one main action: the decision this answer waits for (Right/Wrong/Blank, "Yes, the child wrote…", or typing it).
+  const main = !a || !entry ? (
+    <Link href="/capture" className="btn">
+      Mark more papers
+    </Link>
+  ) : toJudge(a) ? (
+    <Judge a={a} next={next} />
+  ) : entry.spot || a.guess ? (
+    <Confirm a={a} next={next} says={says} />
+  ) : (
+    <TypeIt a={a} next={next} label="What the child wrote" primary />
+  );
+
   return (
-    <>
-      <PageHeader
-        stage="Assessments · check answers"
-        title="Check the answers"
-        sub="Every answer the engine was not sure of, one at a time, with the child's own writing. Say what the child wrote; the engine marks it."
-      />
-      <Body>
-        <p className="mb-4">
-          <Link href="/capture" className="chip">
-            ← Marking
-          </Link>
+    <PageShell
+      stage="Assessments · check answers"
+      title="Check the answers"
+      purpose="Every answer the engine was not sure of, one at a time, with the child's own writing. Say what the child wrote; the engine marks it."
+      action={main}
+      next={from + 1 < queue.length ? { href: `/capture/check?from=${from + 1}`, label: "Later — show the next one" } : { href: "/growth", label: "See the class results" }}
+    >
+      <p className="mb-4">
+        <Link href="/capture" className="chip">
+          ← Marking
+        </Link>
+      </p>
+      {q.error === "engine" ? (
+        <Notice tone="terracotta">The engine could not be reached, so that answer was not saved. Try it again.</Notice>
+      ) : null}
+      <div className="mb-[18px] grid gap-2">
+        <p className="text-[14px]">
+          <Count of="answers to check" n={waiting} /> {waiting === 1 ? "answer" : "answers"} left to check · {spots} spot-
+          {spots === 1 ? "check" : "checks"} · answer {queue.length ? from + 1 : 0} of {queue.length}
         </p>
-        {q.error === "engine" ? (
-          <Notice tone="terracotta">The engine could not be reached, so that answer was not saved. Try it again.</Notice>
-        ) : null}
-        <div className="mb-[18px] grid gap-2">
-          <p className="text-[14px]">
-            <strong>{waiting}</strong> {waiting === 1 ? "answer" : "answers"} left to check · {spots} spot-
-            {spots === 1 ? "check" : "checks"} · answer {queue.length ? from + 1 : 0} of {queue.length}
-          </p>
-          <Bar tone="neem" share={queue.length ? from / queue.length : 1} width={320} />
-        </div>
+        <Bar tone="neem" share={queue.length ? from / queue.length : 1} width={320} />
+      </div>
 
-        {!a || !entry ? (
-          <Notice tone="neem">
-            Nothing is waiting. Every answer the engine read is settled — by the engine or by a person.
-          </Notice>
-        ) : (
-          <Panel
-            title={`${a.first_name} · question ${a.slot}`}
-            aside={`${a.paper_title ?? "paper"}${a.sat ? ` · sat ${dateWords(a.sat)}` : ""}`}
-          >
-            <div className="grid gap-[18px] lg:grid-cols-[minmax(0,1fr)_380px]">
-              <figure className="min-w-0">
-                <p className="mb-2 text-[15px] leading-snug">
-                  <strong>Question {a.slot}</strong> · {a.question}
-                </p>
-                {box ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={`/api/scan/${a.capture_id}/${a.file_page}${box}`}
-                    alt={`What ${a.first_name} wrote for question ${a.slot}`}
-                    className="max-h-[560px] w-full border border-basalt/14 bg-chalk object-contain"
-                  />
-                ) : (
-                  <ZoomPage
-                    src={`/api/scan/${a.capture_id}/${a.file_page}`}
-                    alt={`What ${a.first_name} wrote for question ${a.slot}`}
-                  />
-                )}
-                <figcaption className="note mt-1">
-                  {box
-                    ? `The part of page ${a.page} that is question ${a.slot}.`
-                    : `We could not find question ${a.slot} on this page: it is somewhere on this page. Click the page to enlarge it.`}{" "}
-                  <Link href={`/capture/${a.paper_id}#a-${a.id}`}>Open the whole paper →</Link>
-                </figcaption>
-              </figure>
+      {!a || !entry ? (
+        <EmptyState>Nothing is waiting. Every answer the engine read is settled — by the engine or by a person.</EmptyState>
+      ) : (
+        <Panel
+          title={`${a.first_name} · question ${a.slot}`}
+          aside={
+            <>
+              <StatusChip state={entry.spot ? "spot" : toJudge(a) ? "judge" : "waiting"} />{" "}
+              {`${a.paper_title ?? "paper"}${a.sat ? ` · sat ${dateWords(a.sat)}` : ""}`}
+            </>
+          }
+        >
+          <div className="grid gap-[18px] lg:grid-cols-[minmax(0,1fr)_380px]">
+            <figure className="min-w-0">
+              <p className="mb-2 text-[15px] leading-snug">
+                <strong>Question {a.slot}</strong> · {a.question}
+              </p>
+              {box ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={`/api/scan/${a.capture_id}/${a.file_page}${box}`}
+                  alt={`What ${a.first_name} wrote for question ${a.slot}`}
+                  className="max-h-[560px] w-full border border-basalt/14 bg-chalk object-contain"
+                />
+              ) : (
+                <ZoomPage
+                  src={`/api/scan/${a.capture_id}/${a.file_page}`}
+                  alt={`What ${a.first_name} wrote for question ${a.slot}`}
+                />
+              )}
+              <figcaption className="note mt-1">
+                {box
+                  ? `The part of page ${a.page} that is question ${a.slot}.`
+                  : `We could not find question ${a.slot} on this page: it is somewhere on this page. Click the page to enlarge it.`}{" "}
+                <Link href={`/capture/${a.paper_id}#a-${a.id}`}>Open the whole paper →</Link>
+              </figcaption>
+            </figure>
 
-              <div className="grid content-start gap-3 text-[14px]">
-                <div>
-                  <span className="label">The question</span>
-                  {a.part ? <span className="ml-2 text-[12.5px] text-basalt/70">{a.part}</span> : null}
-                  <p className="mt-1 leading-snug">{a.question}</p>
-                  <p className="mt-1">
-                    <span className="label">Right answer</span>{" "}
-                    <strong className="fact">{key?.right ?? a.answer ?? "a person judges this one"}</strong>
-                    {key?.by ? <span className="text-[12px] text-basalt/55"> · changed from {key.was ?? "none"} by {key.by}</span> : null}
-                  </p>
-                </div>
-                <p className="note">{whyHere(a, entry.spot)}</p>
-
-                {entry.spot ? (
-                  <p>
-                    The engine read <strong className="fact">{a.read || "nothing"}</strong>.
-                  </p>
-                ) : a.second_read !== null ? (
-                  <p>
-                    Two readers disagree. The reader thinks the child wrote <strong className="fact">{a.guess}</strong>; the second reader, shown the child&rsquo;s own answers, reads <strong className="fact">{a.second_read || "nothing"}</strong>. Look at the photograph.
-                  </p>
-                ) : a.guess && a.guess_by ? (
-                  <p>
-                    The second reader, shown {a.guess_by.match(/with (\d+)/)?.[1] ?? "some"} of the child&rsquo;s own answers, thinks the child wrote{" "}
-                    <strong className="fact">{a.guess}</strong>.
-                  </p>
-                ) : a.guess ? (
-                  <p>
-                    The reader thinks the child wrote <strong className="fact">{a.guess}</strong>.
-                  </p>
-                ) : null}
-
-                {toJudge(a) ? (
-                  <>
-                    <form action={judgeOne} className="flex flex-wrap items-center gap-2">
-                      <input type="hidden" name="result_id" value={a.id} />
-                      <input type="hidden" name="paper_id" value={a.paper_id} />
-                      <input type="hidden" name="next" value={next} />
-                      <span>
-                        The child wrote <strong className="fact">{a.human_read ?? a.read}</strong>. Is it
-                      </span>
-                      <button className="btn" name="status" value="correct" type="submit">
-                        Right
-                      </button>
-                      <button className="btn secondary" name="status" value="wrong" type="submit">
-                        Wrong
-                      </button>
-                      <button className="btn secondary" name="status" value="blank" type="submit">
-                        Blank
-                      </button>
-                    </form>
-                    {/* A judgement says whether the child is right, not what the child wrote: when the
-                        reading itself is wrong, it is corrected here and the engine marks it again. */}
-                    <form action={correctRead} className="flex flex-wrap items-end gap-2">
-                      <input type="hidden" name="result_id" value={a.id} />
-                      <input type="hidden" name="paper_id" value={a.paper_id} />
-                      <input type="hidden" name="next" value={next} />
-                      <label className="field">
-                        <span className="label">Not what the child wrote? Type it</span>
-                        <input className="input w-[160px]" name="human_read" required maxLength={40} />
-                      </label>
-                      <button className="btn secondary" type="submit">
-                        Save
-                      </button>
-                    </form>
-                  </>
-                ) : (
-                  <>
-                    {entry.spot || a.guess ? (
-                      <form action={correctRead}>
-                        <input type="hidden" name="result_id" value={a.id} />
-                        <input type="hidden" name="paper_id" value={a.paper_id} />
-                        <input type="hidden" name="next" value={next} />
-                        <input type="hidden" name="human_read" value={(entry.spot ? a.read : a.guess) ?? ""} />
-                        <button className="btn" type="submit">
-                          Yes, the child wrote {(entry.spot ? a.read : a.guess) || "nothing"}
-                        </button>
-                      </form>
-                    ) : null}
-                    <form action={correctRead} className="flex flex-wrap items-end gap-2">
-                      <input type="hidden" name="result_id" value={a.id} />
-                      <input type="hidden" name="paper_id" value={a.paper_id} />
-                      <input type="hidden" name="next" value={next} />
-                      <label className="field">
-                        <span className="label">{entry.spot || a.guess ? "No — the child wrote" : "What the child wrote"}</span>
-                        <input className="input w-[160px]" name="human_read" required maxLength={40} />
-                      </label>
-                      <button className="btn secondary" type="submit">
-                        Save
-                      </button>
-                    </form>
-                    <form action={correctRead}>
-                      <input type="hidden" name="result_id" value={a.id} />
-                      <input type="hidden" name="paper_id" value={a.paper_id} />
-                      <input type="hidden" name="next" value={next} />
-                      <input type="hidden" name="human_read" value="" />
-                      <button className="btn secondary" type="submit">
-                        Nothing is written here
-                      </button>
-                    </form>
-                  </>
-                )}
-
-                <div className="flex flex-wrap gap-3 pt-2 text-[13px]">
-                  {from > 0 ? <Link href={`/capture/check?from=${from - 1}`}>← Previous</Link> : null}
-                  {from + 1 < queue.length ? <Link href={`/capture/check?from=${from + 1}`}>Later — show the next one →</Link> : null}
-                </div>
-                <p className="note">
-                  Your answer is saved in your name and the engine marks it; what the engine read first is kept beside it, so
-                  the reader can be measured against you.
+            <div className="grid content-start gap-3 text-[14px]">
+              <div>
+                <span className="label">The question</span>
+                {a.part ? <span className="ml-2 text-[12.5px] text-basalt/70">{a.part}</span> : null}
+                <p className="mt-1 leading-snug">{a.question}</p>
+                <p className="mt-1">
+                  <span className="label">Right answer</span>{" "}
+                  <strong className="fact">{key?.right ?? a.answer ?? "a person judges this one"}</strong>
+                  {key?.by ? <span className="text-[12px] text-basalt/55"> · changed from {key.was ?? "none"} by {key.by}</span> : null}
                 </p>
               </div>
+              <p className="note">{whyHere(a, entry.spot)}</p>
+
+              {entry.spot ? (
+                <p>
+                  The engine read <strong className="fact">{a.read || "nothing"}</strong>.
+                </p>
+              ) : a.second_read !== null ? (
+                <p>
+                  Two readers disagree. The reader thinks the child wrote <strong className="fact">{a.guess}</strong>; the second reader, shown the child&rsquo;s own answers, reads <strong className="fact">{a.second_read || "nothing"}</strong>. Look at the photograph.
+                </p>
+              ) : a.guess && a.guess_by ? (
+                <p>
+                  The second reader, shown {a.guess_by.match(/with (\d+)/)?.[1] ?? "some"} of the child&rsquo;s own answers, thinks the child wrote{" "}
+                  <strong className="fact">{a.guess}</strong>.
+                </p>
+              ) : a.guess ? (
+                <p>
+                  The reader thinks the child wrote <strong className="fact">{a.guess}</strong>.
+                </p>
+              ) : null}
+
+              {/* the one main action is at the top of the page; the ways round it stay here */}
+              {toJudge(a) ? (
+                // A judgement says whether the child is right, not what the child wrote: when the reading itself is
+                // wrong, it is corrected here and the engine marks it again.
+                <TypeIt a={a} next={next} label="Not what the child wrote? Type it" />
+              ) : (
+                <>
+                  {entry.spot || a.guess ? <TypeIt a={a} next={next} label="No — the child wrote" /> : null}
+                  <Nothing a={a} next={next} />
+                </>
+              )}
+
+              <div className="flex flex-wrap gap-3 pt-2 text-[13px]">
+                {from > 0 ? <Link href={`/capture/check?from=${from - 1}`}>← Previous</Link> : null}
+              </div>
+              <p className="note">
+                Your answer is saved in your name and the engine marks it; what the engine read first is kept beside it, so
+                the reader can be measured against you.
+              </p>
             </div>
-          </Panel>
-        )}
-      </Body>
-    </>
+          </div>
+        </Panel>
+      )}
+    </PageShell>
   );
 }

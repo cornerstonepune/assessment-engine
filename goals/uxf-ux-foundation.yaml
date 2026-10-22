@@ -1,0 +1,44 @@
+name: uxf-ux-foundation
+goal: >
+  The educator's site is built to rules, not page by page. Five shared blocks (PageShell, DataTable, StatusChip,
+  EmptyState, Count) carry the eight rules of docs/ux-rules.md: one purpose and one main action per page, ending on its
+  next step; one table style; at most ten rows shown, the rest grouped or paged; no empty columns or empty chips; one
+  count with one meaning; the school's words; a list on a phone with 44 px targets; setup behind a "details" link. Tests
+  fail the build when a page breaks a rule. The pages that already break them are named in `workflows.json` under `ux`,
+  frozen: a page leaves the list when it is moved onto the blocks, and nothing joins it. Check answers (/capture/check),
+  the page used daily, is the first moved; the other pages are moved in later slices (Today, Curriculum, Assessments and
+  Children wait for the changes in PRs #274 and #278).
+# Written 2026-10-22, before the code: slice UXF, web only, no migration. Nimish approved the rules on 2026-10-22 ("yes",
+# Claude Doc "UX rules and the educator's week"). Measured first, on main's code, by tests/test_ux_rules.py with an empty
+# list: 30 pages, 30 break "shell" (no main-action or next-step slot), 19 build a table by hand, 10 have a line under the
+# title past 140 characters. Those 30 are the list; Check answers leaves it in this slice.
+# Out of scope, on purpose: moving any other page; the menu's red counts on every tab (rule 5 allows red on Today
+# alone), which changes every page and waits for the slice that moves Today; a rendered check of DataTable until a page
+# uses it (its rules are proved on its pure functions here, and its props make a table that can outgrow the limit
+# without grouping or paging a compile error).
+says:
+  - words: "a significant shift to the ui/ux - ensuring there are proper rules/flows/tabular views"
+    proved_by: "packages/engine/tests/test_ux_rules.py::test_the_list_only_shrinks"
+  - words: "no long table"
+    proved_by: "apps/web/tests/u51-ux-rules.spec.ts::rows past the limit are paged or grouped, never shown at once"
+  - words: "all info displayed is consistent, well formatted"
+    proved_by: "apps/web/tests/u51-ux-rules.spec.ts::a cell of nothing, a dash or a zero is empty; a column of them is not shown"
+  - words: "every page has a purpose, a sequence"
+    proved_by: "packages/engine/tests/test_ux_rules.py::test_every_page_has_a_main_action_and_a_next_step_or_is_on_the_list"
+  - words: "all pages, flows, views are educator backward"
+    proved_by: "apps/web/tests/u51-ux-rules.spec.ts::every page keeps the rules, or is named as still breaking them, and only those"
+manual: []
+scenarios: []
+criteria:
+  - name: no hand-built table and no long purpose line off the list
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_ux_rules.py tests/test_ratchet.py -q -p no:cacheprovider -o addopts=
+    expect: "passed"
+  - name: Check answers on the blocks, and every page against the rules, rendered
+    run: cd apps/web && npx playwright test tests/u51-ux-rules.spec.ts tests/s4-validation-queue.spec.ts tests/u3-marking.spec.ts tests/u50-the-picture-is-the-question.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

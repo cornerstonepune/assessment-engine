@@ -309,3 +309,44 @@ table.grid td.num {
   color: var(--ink-55);
   line-height: 1.5;
 }
+
+/* A table is a list on a phone (docs/ux-rules.md rule 7): the head is read by a screen reader only, each row is a card,
+   each cell says which column it is, and a link in a cell is a thumb's size. */
+@media (max-width: 767px) {
+  table.grid.list thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  table.grid.list,
+  table.grid.list tbody,
+  table.grid.list tr,
+  table.grid.list td {
+    display: block;
+  }
+  table.grid.list tr {
+    border-bottom: 1px solid var(--ink-16);
+    padding: 6px 0;
+  }
+  table.grid.list td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 0;
+    padding: 5px 14px;
+  }
+  table.grid.list td::before {
+    content: attr(data-label);
+    color: var(--ink-55);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  table.grid.list td a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+  }
+}
