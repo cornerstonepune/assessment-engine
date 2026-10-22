@@ -1,0 +1,38 @@
+name: c4-validation-rules-per-subject-and-kind
+goal: >
+  Every kind of question a subject holds has a validation stage: New (never checked; every answer to a person),
+  Learning (checked, never yet trusted), Trusted (its newest window of checks reaches the bar) or Falls back (once
+  trusted, below the bar now). The stages are rows, and the numbers that move a kind between them, a window and a bar,
+  are a subject's own rows, for all its kinds or one. Each subject starts with the two numbers `kind_trust` reads, so a
+  stage agrees with `kind_trust` under the same numbers. Past results are untouched.
+# Written 2026-10-22, from BUILD-ORDER's locked scope of 22 Oct (slice C4, "Green means"). Only the schema part:
+# "each subject's page shows each kind's stage" is the `kind_stage` view the page reads; the page belongs to the UI
+# sessions (screen follow-up in the PR). Marking keeps reading `kind_trust` until a subject's numbers differ (PR).
+says:
+  - words: "validation rules per subject and kind: New (every answer to a person), Learning, Trusted, Falls back"
+    proved_by: "packages/engine/tests/test_validation_stages.py::test_the_four_stages_are_rows"
+  - words: "validation rules per subject and kind: New (every answer to a person), Learning, Trusted, Falls back"
+    proved_by: "packages/engine/tests/test_validation_stages.py::test_a_kind_goes_new_learning_trusted_and_falls_back"
+  - words: "every number a row"
+    proved_by: "packages/engine/tests/test_validation_stages.py::test_every_number_is_a_row"
+  - words: "every number a row"
+    proved_by: "packages/engine/tests/test_validation_stages.py::test_a_rule_out_of_range_is_refused"
+  - words: "grown from `kind_trust` (ADR 0060)"
+    proved_by: "packages/engine/tests/test_validation_stages.py::test_every_subject_starts_with_the_numbers_kind_trust_reads"
+  - words: "grown from `kind_trust` (ADR 0060)"
+    proved_by: "packages/engine/tests/test_validation_stages.py::test_a_stage_agrees_with_kind_trust_under_the_same_numbers"
+  - words: "nothing will change for any of the past assessments, scoring etc. right?"
+    proved_by: "packages/engine/tests/test_validation_stages.py::test_past_results_are_the_same_before_and_after"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive; `engine past` prints the same before and after, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: each kind's stage, every number a row
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_validation_stages.py tests/test_profiles.py tests/test_rules.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

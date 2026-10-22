@@ -56,5 +56,12 @@
     {"code": "voice", "words": "voice", "scale": "answer"},
     {"code": "project", "words": "project", "scale": "seen"},
     {"code": "performance", "words": "performance", "scale": "seen"}
+  ],
+  "_validation_note": "C4 (goals/c4-validation-rules-per-subject-and-kind.yaml): the stages a kind of question passes through as a person checks the reader's answers, and whether every answer of a kind in that stage goes to a person. The numbers that move a kind between them are validation_rule rows, a subject's own. The migration 20261207090000 inserts these same rows for every school; tests/test_validation_stages.py keeps them equal.",
+  "validation_stages": [
+    {"code": "new", "words": "New: every answer to a person", "every_answer_to_person": true},
+    {"code": "learning", "words": "Learning", "every_answer_to_person": true},
+    {"code": "trusted", "words": "Trusted", "every_answer_to_person": false},
+    {"code": "falls_back", "words": "Falls back", "every_answer_to_person": true}
   ]
 }
