@@ -108,7 +108,8 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
                     <th>Roll</th>
                     <th>Child</th>
                     <th>Works on</th>
-                    {/* on a phone the why folds away: what a child works on and the next step stay on screen */}
+                    {/* on a phone the why moves under what the child works on: it is what an educator approves on
+                        (goals/ux8d-phone-and-one-action.yaml) */}
                     <th className="max-sm:hidden">Why</th>
                     <th>Next step</th>
                   </tr>
@@ -129,6 +130,7 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
                                 {a.name} · {a.level}
                                 {each ? null : ` · ${a.questions.length} questions`}
                               </a>
+                              {a.why ? <span className="mt-1 line-clamp-2 block text-[12px] text-basalt/70 sm:hidden">{a.why}</span> : null}
                               <details className="mt-1">
                                 <summary className="cursor-pointer text-[13px]">Its questions</summary>
                                 <Questions name={a.name} level={a.level} questions={a.questions} />

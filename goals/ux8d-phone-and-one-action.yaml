@@ -1,0 +1,38 @@
+name: ux8d-phone-and-one-action
+goal: >
+  Every page has one main action at most: the one loud colour, terracotta, on one thing, as the school's design rule
+  says; every other action is outlined. On a phone every action is big enough to tap: a button or chip 44 px tall, any
+  other action (a toggle, a table's one link, a field) 24 px. On a phone what needs doing is on the row: an assessment's
+  stage beside its name, and why a home assessment works on what it does under what it works on. A field's own words fit
+  inside it, and the grades are said as a person says them.
+# Written 2026-10-21, before the code: slice UX8d of the audit of every maths screen (docs/notes/ux8-every-screen.md,
+# findings 18 and 23-25). Measured first with u47 on main's code, as an educator of a Grade 2 class and as the
+# coordinator:
+#   - more than one terracotta action on 13 page-and-role pairs: Today 4 (educator) and 7 (coordinator), Curriculum 6
+#     and 198 (every class's "Taught in … " switch), Assessments, Marking, a class's papers to approve, a child's page,
+#     Approve the skills, 2 each;
+#   - 520 actions too small on a phone: buttons 41 px, chips 36 px, the curriculum's row toggles 20 px, the bank's skill
+#     links 17 px;
+#   - Assessments' stage and Home assessments' "Why" off the side of a phone, or folded away;
+#   - "How m" for "How many"; "GRADE 1–GRADE 4" under the menu.
+# 44 px is a phone's own control size; 24 px is WCAG 2.2 AA's floor (2.5.8, target size minimum). A link inside a
+# sentence is the sentence's, and is not measured. The grades' names are rows ("Grade 1"), so the span says "Grade 1 to
+# Grade 4" rather than parse a name into "Grades 1-4".
+says:
+  - words: "making sure that every screen and every other representation is thought through well"
+    proved_by: "apps/web/tests/u47-phone-and-one-action.spec.ts::every page has one main action at most: the one loud colour, once"
+  - words: "clickability is fine"
+    proved_by: "apps/web/tests/u47-phone-and-one-action.spec.ts::on a phone every action is big enough to tap: a button or chip 44 px tall, any other 24 px"
+  - words: "it's clear"
+    proved_by: "apps/web/tests/u47-phone-and-one-action.spec.ts::on a phone, what needs doing is on the row: an assessment's stage, and why a home assessment works on what it does"
+  - words: "every other representation is thought through well"
+    proved_by: "apps/web/tests/u47-phone-and-one-action.spec.ts::the small words: a field says what it asks in full, and the grades are said as a person says them"
+manual: []
+scenarios: []
+criteria:
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

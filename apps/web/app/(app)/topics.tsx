@@ -51,7 +51,7 @@ export function Topics({ topics, me, open }: { topics: Topic[]; me: string; open
                     <span className="block text-[12px] text-basalt/55">Not taught yet in {waiting.map((c) => c.section).join(", ")}</span>
                   </span>
                   <details className="text-right">
-                    <summary className="btn cursor-pointer list-none">Say it is taught</summary>
+                    <summary className="btn secondary cursor-pointer list-none">Say it is taught</summary>
                     <div className="mt-2 grid max-w-[360px] justify-items-end gap-2 text-left text-[13px]">
                       <p>
                         Say a class has been taught {t.name}: its skills appear on that class&rsquo;s pages and can go on its
@@ -121,7 +121,7 @@ function Switch({ code, skill, section, on, label }: { code: string; skill?: str
       {skill ? <input type="hidden" name="skill" value={skill} /> : null}
       <input type="hidden" name="class" value={section} />
       <input type="hidden" name="taught" value={on ? "on" : "off"} />
-      <button className={on ? "btn" : "chip"} type="submit">
+      <button className={on ? "btn secondary" : "chip"} type="submit">
         {label}
       </button>
     </form>

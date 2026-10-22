@@ -177,7 +177,7 @@ export default async function PapersPage({ searchParams }: Props) {
             <Select name="child" label="Child" value={f.child} all="Every child" options={options.children.map((c) => [c.id, c.label])} />
             <Select name="kind" label="Kind" value={f.kind} all="Any kind" options={Object.entries(KIND_WORDS)} />
             <Select name="week" label="Week" value={f.week} all="Every week" options={options.weeks.map((w) => [w, weekWords(w)])} />
-            <button type="submit" className="btn">Show</button>
+            <button type="submit" className="btn secondary">Show</button>
             {chosen ? <Link href="/papers" className="text-[13px]">Clear</Link> : null}
           </form>
         </details>

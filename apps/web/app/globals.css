@@ -242,6 +242,32 @@ table.grid td.num {
   cursor: default;
 }
 
+/* On a phone every action is big enough for a thumb (goals/ux8d-phone-and-one-action.yaml): a button or chip 44 px tall,
+   as a phone's own controls are; any other action, a toggle or a table's one link, 24 px (WCAG 2.2 AA, 2.5.8). */
+@media (max-width: 767px) {
+  .btn,
+  .chip {
+    min-height: 44px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+  }
+  main summary,
+  main button,
+  main select,
+  main input:not([type="hidden"]),
+  main label:has(> input[type="checkbox"]),
+  main label:has(> input[type="radio"]) {
+    min-height: 24px;
+  }
+  main td > a:only-child {
+    display: inline-block;
+    min-height: 24px;
+    line-height: 24px;
+  }
+}
+
 .field {
   display: flex;
   flex-direction: column;
