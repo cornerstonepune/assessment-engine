@@ -18,8 +18,9 @@ APP = WEB / "app"
 # `deciding(kind)` (lib/decides.ts, goals/f1c-who-decides-what.yaml) is a check because its first line is
 # `requireStaff()`; the last test below holds it to that
 CHECKS = re.compile(r"\b(?:requireStaff|currentStaff|deciding)\(")
-OPEN_PAGES = {"app/login/page.tsx"}  # the one page anyone may open
-OPEN_ACTIONS = {"lib/auth-actions.ts::signIn", "lib/auth-actions.ts::signOut"}
+# the door anyone may open: the sign-in page and Google's two steps into it (goals/a1-sign-in-with-google.yaml)
+OPEN_PAGES = {"app/login/page.tsx", "app/login/google/route.ts", "app/login/google/callback/route.ts"}
+OPEN_ACTIONS = {"lib/auth-actions.ts::signOut"}
 
 pytestmark = pytest.mark.skipif(not WEB.exists(), reason="the website is not beside the engine here")
 
