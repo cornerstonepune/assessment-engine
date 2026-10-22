@@ -126,7 +126,7 @@ def test_a_skill_a_person_switched_stays_as_they_left_it():
     """Nimish, 2026-10-10: "I'm not seeing any of the multiplication, division". A skill the rows leave off is switched
     on by a person, in their own name, and a reload of the rows never switches it back: the rows decide a skill only
     until a person has. One changed in the database with no name on it is no one's decision, and follows the rows."""
-    from engine.core import db, settings
+    from engine.core import db, english, settings
 
     with db.connect() as conn:
         tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
@@ -136,7 +136,7 @@ def test_a_skill_a_person_switched_stays_as_they_left_it():
         conn.execute(
             "update skill_set set taught = true, taught_by = null, taught_at = null where code = 'DIV.FACTS'"
         )
-        topics.load(conn, tenant, settings.seed)
+        topics.load(conn, tenant, english.with_english(settings.seed))
         got = {
             r["code"]: (r["taught"], r["taught_by"], r["taught_at"] is not None)
             for r in conn.execute(
@@ -152,7 +152,7 @@ def test_a_topic_the_rows_drop_is_gone_after_a_load():
     """Live on 2026-10-15 still had "Number sense & strategies", "Estimation" and "Word problems": topics the rows
     dropped on 2026-09-23, which a load updated nothing in and never removed, so they stayed switched on and on every
     page's chips. A load now removes a topic the rows no longer have; every word said of a skill stays on the skill."""
-    from engine.core import db, settings
+    from engine.core import db, english, settings
 
     with db.connect() as conn:
         tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
@@ -167,7 +167,7 @@ def test_a_topic_the_rows_drop_is_gone_after_a_load():
             " (%s, 'T1-OLD', 'MD.ESTIMATE', true, 'An educator') on conflict do nothing",
             (tenant,),
         )
-        topics.load(conn, tenant, settings.seed)
+        topics.load(conn, tenant, english.with_english(settings.seed))
         left = conn.execute(
             "select (select count(*) from topic where code = 'ESTIMATE') as topic,"
             " (select topic_code from skill_set where code = 'MD.ESTIMATE') as home,"
@@ -175,7 +175,7 @@ def test_a_topic_the_rows_drop_is_gone_after_a_load():
             " (select array_agg(code order by ord) from topic) as codes",
             (tenant,),
         ).fetchone()
-        seeded = [t["code"] for t in settings.seed("topics.json", "topics")]
+        seeded = [t["code"] for t in english.with_english(settings.seed)("topics.json", "topics")]
         conn.rollback()
     assert (left["topic"], left["home"]) == (0, "DIV"), (
         "the old topic is gone; its skill sits under its operation"

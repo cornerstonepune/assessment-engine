@@ -99,7 +99,11 @@ def test_every_level_uses_the_same_types_before_and_after(conn):
     `skill_level` and `question_type`; they are exactly the types its questions were made in, and nothing reads
     which types a level uses from the skills' `formats` lists any more."""
     links = defaultdict(set)
-    for r in conn.execute("select skill_code, difficulty, question_type from skill_level_question_type"):
+    # the levels a bank draws from: English's (E0) have no bank, and their links are the seed's
+    for r in conn.execute(
+        "select k.skill_code, k.difficulty, k.question_type from skill_level_question_type k join skill_level l"
+        " on l.tenant_id = k.tenant_id and l.skill_code = k.skill_code and l.difficulty = k.difficulty where l.rule ? 'check'"
+    ):
         links[(r["skill_code"], r["difficulty"])].add(r["question_type"])
     bank = _bank(conn)
     assert {k: v for k, v in links.items() if v} == {k: v for k, v in bank.items() if v}

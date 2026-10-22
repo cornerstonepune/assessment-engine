@@ -15,7 +15,7 @@ import os
 import pytest
 
 from engine.checks import live_data
-from engine.core import db, settings, topics
+from engine.core import db, english, settings, topics
 from engine.w2_print import focus_paper, maker, shelf
 
 WEEK = "T3W1-taught-test"
@@ -199,7 +199,7 @@ def test_regrouping_the_topics_changes_no_classs_paper(conn):
         ("MUL.2D1D", "T1-A"): False, ("MUL.2D1D", "T1-B"): True, ("MUL.2D1D", "T1-NEW"): True,
     }  # fmt: skip
 
-    topics.load(conn, tenant, settings.seed)
+    topics.load(conn, tenant, english.with_english(settings.seed))
 
     now = {(k, c): _rule(conn, k, c) for k in skills for c in sections}
     assert now == was, {k: (was[k], now[k]) for k in was if was[k] != now[k]}
