@@ -18,7 +18,7 @@ const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "U22-TEST";
 const WEEK = isoWeek();
 let kids: Record<string, string> = {};
-const setName = async (code: string) => (await sql<{ name: string }[]>`select name from skill_set where code = ${code}`)[0].name;
+const setName = async (code: string) => (await sql<{ name: string }[]>`select name from skill where code = ${code}`)[0].name;
 
 /** A paper made for one skill set at one level, its questions the bank's own; → its template and questions. */
 async function aSheet(code: string, level: string): Promise<{ template: string; items: string[] }> {

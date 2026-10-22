@@ -153,7 +153,7 @@ test("Today lists everything that waits, under the tab where it is done, and eac
 
   // Curriculum: skills to approve, the engine's questions, the topics not taught yet, each counted as the rows say
   const curriculum = Object.fromEntries((await lines(page, "Curriculum")).map((l) => [l.title, l]));
-  const [{ drafts }] = await sql<{ drafts: number }[]>`select count(*)::int as drafts from skill_set where status <> 'ratified'`;
+  const [{ drafts }] = await sql<{ drafts: number }[]>`select count(*)::int as drafts from skill where status <> 'ratified'`;
   const [{ asks }] = await sql<{ asks: number }[]>`select count(*)::int as asks from ask where answer is null`;
   const [{ off }] = await sql<{ off: number }[]>`select count(*)::int as off from topic t where not exists (select 1 from child k where k.tenant_id = t.tenant_id and k.active and taught_in(t.tenant_id, t.code, k.section))`;
   expect(curriculum["Skills to approve"]?.n ?? 0).toBe(drafts);

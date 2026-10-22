@@ -31,7 +31,7 @@ def options(conn, band):
     `grade`: reasoning's "G2+" is Grade 2 (ADR 0085)."""
     out = {}
     for r in conn.execute(
-        "select s.code, s.name, s.learning_objective from skill_set s"
+        "select s.code, s.name, s.learning_objective from skill s"
         " where exists (select 1 from skill_level l where l.tenant_id = s.tenant_id and l.skill_code = s.code"
         " and l.grade = %s)"
         " order by s.code",

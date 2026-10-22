@@ -114,7 +114,7 @@ def _child(conn, prior: str | None, right: int, answered: int) -> str:
     """A child of a section of their own with `right` of `answered` confirmed answers on SET's rung, last prescribed
     at `prior`."""
     tenant = loaders._tenant(conn)
-    rung = conn.execute("select rung_code from skill_set where code = %s", (SET,)).fetchone()["rung_code"]
+    rung = conn.execute("select rung_code from skill where code = %s", (SET,)).fetchone()["rung_code"]
     child = conn.execute(
         "insert into child (tenant_id, roll_no, section, band) values (%s, '1', 'B0C-TEST', 'G2') returning id",
         (tenant,),

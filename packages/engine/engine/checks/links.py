@@ -59,7 +59,7 @@ def _lists(conn: db.Conn) -> list[str]:
         "   as misconception_rows,"
         " (select coalesce(array_agg(l.registry_skill), '{}') from skill_registry_link l"
         "   where l.tenant_id = s.tenant_id and l.skill_code = s.code) as links"
-        " from skill_set s order by s.code"
+        " from skill s order by s.code"
     ):
         if set(r["listed"]) != set(r["mistakes"]) or r["mistake_rows"] != r["misconception_rows"]:
             disagree.append(
@@ -122,7 +122,7 @@ def compare(conn: db.Conn) -> dict[str, Any]:
     disagree += [f"{c['start']} comes before itself" for c in circles]
     count = db.one(
         conn,
-        "select (select count(*) from skill_set)::int as skills, (select count(*) from skill_mistake)::int as mistakes,"
+        "select (select count(*) from skill)::int as skills, (select count(*) from skill_mistake)::int as mistakes,"
         " (select count(*) from skill_registry_link)::int as links,"
         " (select count(*) from skill_prerequisite)::int as prerequisites,"
         " (select count(*) from skill_level_sample where question_format is null)::int as word_samples,"

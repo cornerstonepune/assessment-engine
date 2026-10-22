@@ -1,0 +1,35 @@
+name: b4b-the-skill-is-called-skill
+goal: >
+  The school's skills are the table `skill` (decision B4-1, the second of its two deploys; the registry's became
+  `registry_skill` in goals/b4-the-rung-folded-in.yaml). No file reads `skill_set` as a table, and the two names B4 left
+  answering for one deploy (`rung`, the registry's old `skill`) are gone. Only the table's name changes: its columns,
+  rows and keys are the same, evidence is untouched, and every child's states and scored answers are equal before and
+  after.
+# Written 2026-10-22, before the code, on top of B4 (PR #273), from decision B4-1 (docs/drafts/b2-b4-decisions.md,
+# "Decided", Nimish 2026-10-21: "Rename skill_set → skill and the registry's skill → registry_skill, in two deploys,
+# registry first"). Columns that name `skill_set` (`skill_set_code`, `skill_set_version`) are not renamed: the
+# decision names the table only, and a column's name is a second change of its own.
+# Measured on B4's branch: 202 files name `skill_set` (as a table, a column or a word); the table only is renamed.
+# For the one deploy in which B4's code may still run, `skill_set` answers as a view; the next schema slice drops it.
+says:
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_is_called_skill.py::test_the_schools_skills_are_the_table_skill"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_is_called_skill.py::test_no_file_reads_skill_set_as_a_table"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_skill_is_called_skill.py::test_the_names_b4_kept_for_one_deploy_are_gone"
+  - words: "nothing will change for any of the past assessments, scoring etc. right?"
+    proved_by: "packages/engine/tests/test_skill_is_called_skill.py::test_past_results_are_the_same_before_and_after"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive; `engine past` prints the same evidence count and checksum, children's states and scored answers before and after, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: the rename, and evidence untouched
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_skill_is_called_skill.py tests/test_rung_folded.py tests/test_skill_links.py tests/test_loaders.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

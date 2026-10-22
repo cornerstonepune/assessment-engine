@@ -93,7 +93,7 @@ def test_a_levels_samples_are_its_words_own_examples_in_order(conn):
     advance = _samples(conn, "MUL.2D1D", "Advance")
     assert "2□ × 4 = 92" in advance and not any("found wrong" in s for s in advance)
     blob = conn.execute(
-        "select difficulty -> 'Easy' ->> 'words' as w from skill_set where code = 'MUL.FACTS'"
+        "select difficulty -> 'Easy' ->> 'words' as w from skill where code = 'MUL.FACTS'"
     ).fetchone()
     assert (
         blob["w"]
@@ -102,7 +102,7 @@ def test_a_levels_samples_are_its_words_own_examples_in_order(conn):
         ).fetchone()["looks_like"]
     )
     conn.execute(
-        "update skill_set set difficulty = jsonb_set(difficulty, '{Easy,words}', to_jsonb('The 2 table: 2 × 3, 2 × 9.'::text))"
+        "update skill set difficulty = jsonb_set(difficulty, '{Easy,words}', to_jsonb('The 2 table: 2 × 3, 2 × 9.'::text))"
         " where code = 'MUL.FACTS'"
     )
     assert _samples(conn, "MUL.FACTS", "Easy") == ["2 × 3", "2 × 9"]
@@ -113,11 +113,11 @@ def test_every_code_a_skill_names_is_a_key_the_database_checks(conn):
     mistake a skill names cannot be taken out from under it; the website cannot write the mirrors behind the lists."""
     assert _refused(
         conn,
-        "update skill_set set misconception_codes = misconception_codes || '{M_NOT_A_MISTAKE}' where code = 'MUL.FACTS'",
+        "update skill set misconception_codes = misconception_codes || '{M_NOT_A_MISTAKE}' where code = 'MUL.FACTS'",
     )
     assert _refused(
         conn,
-        "update skill_set set registry_codes = registry_codes || '{NOT.A.SKILL}' where rung_code = 'R36'",
+        "update skill set registry_codes = registry_codes || '{NOT.A.SKILL}' where rung_code = 'R36'",
     )
     assert _refused(conn, "delete from misconception where code = 'M_DIV_SUBTRACTED'")
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
@@ -152,7 +152,7 @@ def test_mistakes_and_registry_links_equal_the_skills_lists(conn):
         "select s.code, s.rung_code, s.misconception_codes,"
         " (select array_agg(distinct misconception_code) from skill_mistake k where k.skill_code = s.code) as mistakes,"
         " (select array_agg(registry_skill) from skill_registry_link l where l.skill_code = s.code) as links"
-        " from skill_set s"
+        " from skill s"
     ):
         assert set(r["misconception_codes"]) == set(r["mistakes"] or []), r["code"]
         if r["code"] in seed:
@@ -198,7 +198,7 @@ def test_prerequisites_come_from_the_ladders_grades_and_no_skill_comes_before_it
     Decision B3-3: a skill comes after every skill of its topic on the nearest grade below its own, worked out here from
     the database's own topics and grades; no skill comes before itself, however long the way round."""
     skills = conn.execute(
-        "select s.code, s.topic_code, g.ord from skill_set s"
+        "select s.code, s.topic_code, g.ord from skill s"
         " join grade g on g.tenant_id = s.tenant_id and g.code = s.grade"
         " join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code where o.subject_code <> 'ENG'"  # E0: English's own
     ).fetchall()
@@ -214,7 +214,7 @@ def test_prerequisites_come_from_the_ladders_grades_and_no_skill_comes_before_it
     rows = {
         (r["skill_code"], r["before_code"])
         for r in conn.execute(
-            "select p.skill_code, p.before_code from skill_prerequisite p join skill_set s on s.tenant_id = p.tenant_id"
+            "select p.skill_code, p.before_code from skill_prerequisite p join skill s on s.tenant_id = p.tenant_id"
             " and s.code = p.skill_code join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code"
             " where o.subject_code <> 'ENG'"
         )
@@ -240,7 +240,7 @@ def test_a_new_sample_mistake_or_link_is_an_insert(conn):
         (tenant,),
     )
     conn.execute(
-        "update skill_set set misconception_codes = misconception_codes || '{M_TEST_NEW}' where code = 'MUL.FACTS'"
+        "update skill set misconception_codes = misconception_codes || '{M_TEST_NEW}' where code = 'MUL.FACTS'"
     )
     conn.execute(
         "insert into misconception (tenant_id, code, op, name, detectable_by) values (%s, 'M_TEST_NEW', '÷', 'A test', 'teacher')",
@@ -258,10 +258,10 @@ def test_a_new_sample_mistake_or_link_is_an_insert(conn):
     assert _samples(conn, "MUL.THREE", "Easy", "MUL3.SUM")[-1] == "3 × 3 × 3 = □"
     other = conn.execute(
         "select code from registry_skill"
-        " where code <> all(select unnest(registry_codes) from skill_set where rung_code = 'R36') limit 1"
+        " where code <> all(select unnest(registry_codes) from skill where rung_code = 'R36') limit 1"
     ).fetchone()["code"]
     conn.execute(
-        "update skill_set set registry_codes = registry_codes || %s::text where rung_code = 'R36'", (other,)
+        "update skill set registry_codes = registry_codes || %s::text where rung_code = 'R36'", (other,)
     )
     assert conn.execute(
         "select 1 from skill_registry_link where skill_code = 'MUL.FACTS' and registry_skill = %s", (other,)

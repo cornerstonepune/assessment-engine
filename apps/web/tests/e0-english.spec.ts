@@ -26,7 +26,7 @@ test.beforeAll(async () => {
   // one English skill that is asked in a way a person checks every answer of, and names a mistake
   const [s] = await sql<{ code: string; name: string; learning_objective: string; easy: string; open: string; mistake: string }[]>`
     select s.code, s.name, s.learning_objective, l.looks_like as easy, q.words as open, m.name as mistake
-    from skill_set s join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code and t.subject_code = 'ENG'
+    from skill s join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code and t.subject_code = 'ENG'
     join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code and l.difficulty = 'Easy'
     join skill_level_question_type k on k.tenant_id = s.tenant_id and k.skill_code = s.code and k.question_type = 'ENG.SHORT_ANSWER'
     join question_type q on q.tenant_id = k.tenant_id and q.code = k.question_type
@@ -49,7 +49,7 @@ test.beforeAll(async () => {
 /** English stays a draft: what a test approved is withdrawn. */
 async function withdraw() {
   await sql`delete from question_type_approval where question_type = ${way.code}`;
-  await sql`update skill_set set level_approved = '{}'::jsonb where code = ${skill.code}`;
+  await sql`update skill set level_approved = '{}'::jsonb where code = ${skill.code}`;
 }
 
 test.afterAll(async () => {

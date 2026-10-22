@@ -39,7 +39,7 @@ export async function find(_: Found | null, form: FormData): Promise<Found> {
       select coalesce(ss.name, t.key ->> 'title', t.code) as name, si.kind, si.section, class_band(si.tenant_id, si.section) as band,
              coalesce(si.week, t.week) as week, coalesce(t.skill_set_code, t.id::text) as set
       from sheet_instance si join sheet_template t on t.id = si.sheet_template_id
-      left join skill_set ss on ss.tenant_id = t.tenant_id and ss.code = t.skill_set_code
+      left join skill ss on ss.tenant_id = t.tenant_id and ss.code = t.skill_set_code
       where si.print_status <> 'void' and si.kind in ('practice', 'assessment') and si.section is not null
         and position(lower(${q}) in lower(coalesce(ss.name, t.key ->> 'title', t.code))) > 0
       group by 1, 2, 3, 4, 5, 6 order by max(si.created_at) desc limit ${MOST}`,

@@ -99,7 +99,7 @@ test("each class is a table of its children, each row their standing and next st
   // the skill roll 1 most needs help on is the red one, by its name, with the mistake she repeats there; read from the
   // tree, not from the page's code
   const [{ name: red }] = await sql<{ name: string }[]>`
-    select ss.name from skill_set ss join topic t on t.code = ss.topic_code and ss.taught where ss.rung_code = 'R24' limit 1`;
+    select ss.name from skill ss join topic t on t.code = ss.topic_code and ss.taught where ss.rung_code = 'R24' limit 1`;
   const [{ name: mistake }] = await sql<{ name: string }[]>`select mistake_name('M_SMALL_FROM_LARGE', 'NUM.OPS.02') as name`;
   const cells = (name: string) => row(page, name).locator("td");
   await expect(cells("Asha")).toHaveText(["1", "Asha", new RegExp(`${red}.*${mistake.slice(0, 20)}`), "1", "1", "1", /out of date/]);

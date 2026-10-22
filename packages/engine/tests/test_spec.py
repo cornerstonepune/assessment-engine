@@ -67,7 +67,7 @@ def test_code_finds_every_computable_mistake_a_curated_list_names(conn):
     """The recall a prompt was being scored on is a property of arithmetic, so code owns it: for
     every skill set whose bands have numbers, what the predictors reach must include every code a
     person curated that a predictor can produce at all."""
-    rows = conn.execute("select code, misconception_codes as curated from skill_set order by code").fetchall()
+    rows = conn.execute("select code, misconception_codes as curated from skill order by code").fetchall()
     checked = 0
     for r in rows:
         covered = set(c for cs in spec.known_misconceptions(conn, r["code"], 40).values() for c in cs)
@@ -144,21 +144,21 @@ def test_applying_unions_and_keeps_the_signature(conn, monkeypatch):
     """The engine keeping a set's mistake list up to date never withdraws its approval: only a person's change does
     (migration 20261006090000_only_what_is_taught.sql; test_approval.py holds the trigger to it)."""
     # approved whole by "a test", as a person does: withdrawn, then ratified (the copy starts with every level approved)
-    conn.execute("update skill_set set status = 'draft' where code = %s", (SET,))
-    conn.execute("update skill_set set status = 'ratified', ratified_by = 'a test' where code = %s", (SET,))
+    conn.execute("update skill set status = 'draft' where code = %s", (SET,))
+    conn.execute("update skill set status = 'ratified', ratified_by = 'a test' where code = %s", (SET,))
     before = set(
-        conn.execute("select misconception_codes as c from skill_set where code = %s", (SET,)).fetchone()["c"]
+        conn.execute("select misconception_codes as c from skill where code = %s", (SET,)).fetchone()["c"]
     )
     monkeypatch.setattr(
         spec.llm, "generate", fake_mistakes([mistake("Only in the working", 62, 27, 53, "working")])
     )
     r = spec.propose_misconceptions(conn, SET, apply=True)
     after = set(
-        conn.execute("select misconception_codes as c from skill_set where code = %s", (SET,)).fetchone()["c"]
+        conn.execute("select misconception_codes as c from skill where code = %s", (SET,)).fetchone()["c"]
     )
     assert before <= after, "a curated code can never be dropped by a model's omission"
     assert set(r["covered"]) <= after, "what code computed is attached too"
-    row = conn.execute("select status, ratified_by from skill_set where code = %s", (SET,)).fetchone()
+    row = conn.execute("select status, ratified_by from skill where code = %s", (SET,)).fetchone()
     assert (row["status"], row["ratified_by"]) == ("ratified", "a test"), (
         "the engine's own update keeps the signature"
     )
@@ -167,11 +167,11 @@ def test_applying_unions_and_keeps_the_signature(conn, monkeypatch):
 def test_ratify_signs_every_draft_with_a_name_and_never_signs_one_twice(conn):
     """W1 gate 1. Only this one row is put back to draft: the all-drafts branch is proved by it
     being the only row the bulk call returns, never by rewriting the live ratifications."""
-    conn.execute("update skill_set set status = 'draft', ratified_by = null where code = %s", (SET,))
+    conn.execute("update skill set status = 'draft', ratified_by = null where code = %s", (SET,))
     assert SET in [r["code"] for r in spec.ratify(conn, "a test")], "the bulk call takes every draft"
-    assert conn.execute("select count(*) as n from skill_set where status = 'draft'").fetchone()["n"] == 0
+    assert conn.execute("select count(*) as n from skill where status = 'draft'").fetchone()["n"] == 0
     assert spec.ratify(conn, "a test") == [], "and an already-ratified row is not signed again"
-    row = conn.execute("select status, ratified_by from skill_set where code = %s", (SET,)).fetchone()
+    row = conn.execute("select status, ratified_by from skill where code = %s", (SET,)).fetchone()
     assert (row["status"], row["ratified_by"]) == ("ratified", "a test")
 
 

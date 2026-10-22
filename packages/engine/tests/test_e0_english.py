@@ -37,7 +37,7 @@ def one(conn, sql, *params):
 def test_every_row_of_the_seed_that_a_table_can_hold_is_loaded_and_loading_twice_moves_nothing(conn):
     before = loaders.load_all()
     assert loaders.load_all() == before, "a second load moved a row"
-    eng = "from skill_set s join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code where o.subject_code = 'ENG'"
+    eng = "from skill s join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code where o.subject_code = 'ENG'"
     paper = [q for q in rows("question_type.json", "question_types") if q["reaches"] != "observed"]
     assert one(conn, "select count(*) from subject where code = 'ENG'") == 1
     assert (
@@ -50,7 +50,7 @@ def test_every_row_of_the_seed_that_a_table_can_hold_is_loaded_and_loading_twice
     assert (
         one(
             conn,
-            f"select count(*) from skill_level l join skill_set s on s.code = l.skill_code {eng.split('from skill_set s', 1)[1]}",
+            f"select count(*) from skill_level l join skill s on s.code = l.skill_code {eng.split('from skill s', 1)[1]}",
         )
         == len(rows("skill_level.json", "skill_levels"))
         == 436
@@ -116,7 +116,7 @@ def test_an_unapproved_english_kind_or_level_is_never_drawn(conn):
     question_types.approve(conn, kind, "Ayush Test")
     assert drawn() == 0, "the kind alone is not enough: the level waits"
     conn.execute(
-        "update skill_set set level_approved = level_approved || jsonb_build_object(%s::text,"
+        "update skill set level_approved = level_approved || jsonb_build_object(%s::text,"
         " jsonb_build_object('by', 'Ayush Test'::text, 'at', now())) where code = %s",
         (level, skill),
     )
@@ -133,7 +133,7 @@ def test_an_approval_of_a_kind_records_the_name_and_the_date(conn):
     assert got["approved"] and got["by"] == "Ayush Test" and got["at"] is not None
     skill, level = "EN3.PHON.SOUNDS", "Easy"
     conn.execute(
-        "update skill_set set level_approved = level_approved || jsonb_build_object(%s::text,"
+        "update skill set level_approved = level_approved || jsonb_build_object(%s::text,"
         " jsonb_build_object('by', 'Ayush Test'::text, 'at', now())) where code = %s",
         (level, skill),
     )
@@ -145,7 +145,7 @@ def test_an_approval_of_a_kind_records_the_name_and_the_date(conn):
 
 
 def test_the_maths_is_exactly_as_it_was(conn):
-    maths = "from skill_set s join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code where o.subject_code <> 'ENG'"
+    maths = "from skill s join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code where o.subject_code <> 'ENG'"
     sets = json.loads((SEED / "skill_sets.json").read_text())["skill_sets"]
     assert one(conn, f"select count(*) {maths}") == len(sets)
     assert one(conn, "select count(*) from skill_prerequisite where skill_code not like 'EN%'") == len(

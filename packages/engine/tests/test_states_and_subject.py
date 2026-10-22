@@ -170,7 +170,7 @@ def child(conn):
 def test_a_prescription_takes_its_subject_from_the_skills_topic(conn, child):
     """skill_set → topic → subject: a skill set moved to a topic of another subject is prescribed as that subject."""
     s = conn.execute(
-        "select code, topic_code, tenant_id from skill_set where topic_code is not null limit 1"
+        "select code, topic_code, tenant_id from skill where topic_code is not null limit 1"
     ).fetchone()
     want = conn.execute("select subject_code from topic where code = %s", (s["topic_code"],)).fetchone()[
         "subject_code"
@@ -186,7 +186,7 @@ def test_a_prescription_takes_its_subject_from_the_skills_topic(conn, child):
         "insert into topic (tenant_id, code, name, subject_code, ord) values (%s, 'B0D.T', 'B0d topic', 'B0DSUBJ', 99)",
         (s["tenant_id"],),
     )
-    conn.execute("update skill_set set topic_code = 'B0D.T' where code = %s", (s["code"],))
+    conn.execute("update skill set topic_code = 'B0D.T' where code = %s", (s["code"],))
     prescribe.for_class(conn, "B0DSEC", "B0D-W2", s["code"])
     got = conn.execute(
         "select strand from prescription where child_id = %s and week = 'B0D-W2'", (child,)

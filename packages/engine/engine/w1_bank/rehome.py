@@ -34,7 +34,7 @@ def shaped(conn):
     """The skills that have a shape, with their levels' checks and rung."""
     return placing.shaped(
         conn.execute(
-            f"select s.code, s.rung_code, s.version, {levels.LEVELS} as difficulty from skill_set s order by s.code"
+            f"select s.code, s.rung_code, s.version, {levels.LEVELS} as difficulty from skill s order by s.code"
         ).fetchall()
     )
 
@@ -105,7 +105,7 @@ def rehome(conn):
     )
     conn.execute("delete from skill_set_version where code = any(%s)", (old,))
     removed_sets = [
-        r["code"] for r in conn.execute("delete from skill_set where code = any(%s) returning code", (old,))
+        r["code"] for r in conn.execute("delete from skill where code = any(%s) returning code", (old,))
     ]
     return {
         "moved": moved,

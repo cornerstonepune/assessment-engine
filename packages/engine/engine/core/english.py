@@ -116,7 +116,7 @@ def kinds(conn: db.Conn, t: db.Id) -> None:
 
 def skills(conn: db.Conn, t: db.Id) -> None:
     """Each skill once, with its levels (the database makes `skill_level` from the skill's `difficulty`, and the links
-    to its mistakes from `misconception_codes`). A skill's code is also its `rung_code`, the column B4 keeps for it."""
+    to its mistakes from `misconception_codes`). A skill's code is also its `rung_code`, the column B4 kept on `skill`."""
     levels: dict[str, dict[str, Any]] = {}
     for lv in seed("skill_level.json", "skill_levels"):
         levels.setdefault(lv["skill_code"], {})[lv["difficulty"]] = {"words": lv["looks_like"], **lv["rule"]}
@@ -127,7 +127,7 @@ def skills(conn: db.Conn, t: db.Id) -> None:
     for s in seed("skill.json", "skills"):
         eval_type = "open_response" if open_kinds & set(s["question_types"]) else "closed_set"
         conn.execute(
-            "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, misconception_codes,"
+            "insert into skill (tenant_id, code, rung_code, name, learning_objective, misconception_codes,"
             " difficulty, eval_type, grade, descriptor) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             " on conflict (tenant_id, code) do nothing",
             (
@@ -162,7 +162,7 @@ def prerequisites(conn: db.Conn, t: db.Id) -> None:
     conn.execute(
         "insert into skill_prerequisite (tenant_id, skill_code, before_code)"
         " select %s, x.skill_code, x.before_code from jsonb_to_recordset(%s::jsonb) x(skill_code text, before_code text)"
-        " where not exists (select 1 from skill_prerequisite p join skill_set s"
+        " where not exists (select 1 from skill_prerequisite p join skill s"
         "   on s.tenant_id = p.tenant_id and s.code = p.skill_code join topic o"
         "   on o.tenant_id = s.tenant_id and o.code = s.topic_code where p.tenant_id = %s and o.subject_code = %s)",
         (t, json.dumps(seed("skill_prerequisite.json", "skill_prerequisites")), t, SUBJECT),

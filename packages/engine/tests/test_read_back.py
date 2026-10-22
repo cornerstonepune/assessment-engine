@@ -31,7 +31,7 @@ ASK = [{"skill_set": "MUL.2D1D", "level": "Medium", "n": 4}]
 @pytest.fixture
 def two(conn):
     conn.execute(
-        "update skill_set set taught = true, taught_by = %s, taught_at = now() where code = %s",
+        "update skill set taught = true, taught_by = %s, taught_at = now() where code = %s",
         (BY, ASK[0]["skill_set"]),
     )
     return [_child(conn, "1", SECTION), _child(conn, "2", SECTION)]

@@ -22,10 +22,10 @@ async function tenant(sql: Sql): Promise<string> {
  *  the function it returns puts them back, so no other test finds a level a paper may not draw. */
 export async function aWaitingSkill(sql: Sql, code: string): Promise<() => Promise<void>> {
   const [{ approved }] = await sql<{ approved: Parameters<Sql["json"]>[0] }[]>`
-    select level_approved as approved from skill_set where code = ${code}`;
-  await sql`update skill_set set level_approved = '{}'::jsonb where code = ${code}`;
+    select level_approved as approved from skill where code = ${code}`;
+  await sql`update skill set level_approved = '{}'::jsonb where code = ${code}`;
   return async () => {
-    await sql`update skill_set set level_approved = ${sql.json(approved)} where code = ${code}`;
+    await sql`update skill set level_approved = ${sql.json(approved)} where code = ${code}`;
   };
 }
 

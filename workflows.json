@@ -203,7 +203,6 @@
       "/skill-sets/[code]": ["shell", "table"],
       "/skill-sets/[code]/edit": ["shell"],
       "/skill-sets/approve": ["purpose", "shell", "table"],
-      "/today": ["shell", "table"],
       "/workflows": ["purpose", "shell"],
       "/worksheets": ["shell", "table"],
       "/worksheets/[qr]": ["shell", "table"],

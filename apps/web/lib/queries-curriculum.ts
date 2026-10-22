@@ -69,7 +69,7 @@ export async function curriculumRows(scope: Scope): Promise<{ rows: CurriculumRo
     sql<{ code: string; grade: string; kids: string[] }[]>`
       select ss.code, a.grade, array_agg(distinct s.child_id::text) as kids
       from child_skill_state s join child c on c.id = s.child_id and c.active
-      join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
+      join skill ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
       cross join lateral (
         select distinct coalesce(l.grade, ss.grade) as grade
         from evidence_placed e

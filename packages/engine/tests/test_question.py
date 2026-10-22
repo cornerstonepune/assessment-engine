@@ -112,7 +112,7 @@ def test_a_number_wall_keeps_every_answer_box_inside_its_brick(conn):
     """24 mm bricks once drew a three-digit answer's four boxes over the neighbouring brick. Measured
     in a browser, on the wall in the bank with the longest answer."""
     row = conn.execute(
-        "select i.*, s.grade as band from item i join skill_set s on s.tenant_id = i.tenant_id and s.rung_code = i.rung_code"
+        "select i.*, s.grade as band from item i join skill s on s.tenant_id = i.tenant_id and s.rung_code = i.rung_code"
         " where i.fmt = 'number_wall' and i.status = 'active' order by"
         " (select max(length(x ->> 'answer')) from jsonb_array_elements(i.responses) x) desc, i.item_key limit 1"
     ).fetchone()

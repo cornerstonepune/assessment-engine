@@ -65,7 +65,7 @@ def ratify(
     with db.connect() as conn:
         rows = spec.ratify(conn, by, code or None)
         conn.commit()
-        left = db.one(conn, "select count(*) as n from skill_set where status = 'draft'")["n"]
+        left = db.one(conn, "select count(*) as n from skill where status = 'draft'")["n"]
     for r in rows:
         typer.echo(f"  ratified  {r['code']:<22}v{r['version']:<3}{by}")
     typer.echo(f"  {len(rows)} ratified, {left} still draft")
@@ -154,7 +154,7 @@ def _eval_item_generate(n: int, only: str) -> None:
     total_ok = total = 0
     with db.connect() as conn:
         sets = conn.execute(
-            f"select s.code, {levels.LEVELS} as difficulty from skill_set s order by s.code"
+            f"select s.code, {levels.LEVELS} as difficulty from skill s order by s.code"
         ).fetchall()
         for s in sets:
             if only and s["code"] != only:
@@ -235,7 +235,7 @@ def eval_(
                         "select distinct on (eval_type, has_words) code from ("
                         "  select s.code, s.eval_type, exists (select 1 from skill_level_question_type x"
                         "    where x.tenant_id = s.tenant_id and x.skill_code = s.code and x.question_type = any(%s))"
-                        "    as has_words from skill_set s) x order by eval_type, has_words, code",
+                        "    as has_words from skill s) x order by eval_type, has_words, code",
                         (list(story_keys.KINDS),),
                     ).fetchall()
                 ]

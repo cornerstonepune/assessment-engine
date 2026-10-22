@@ -31,11 +31,11 @@ def conn():
     with db.connect() as c:
         # a rung of its own, as every skill set has (ADR 0048): SUB.3D2D's grade and description, off the ladder
         c.execute(
-            "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, formats, misconception_codes,"
+            "insert into skill (tenant_id, code, rung_code, name, learning_objective, formats, misconception_codes,"
             " difficulty, status, grade, descriptor, registry_codes) select tenant_id, %s, 'TEST.R',"
             " 'the model path, under test', learning_objective,"
             " array['column_grid','bare_sum','missing_number','word_1step'], misconception_codes, %s, 'ratified',"
-            " grade, descriptor, registry_codes from skill_set where code = 'SUB.3D2D'",
+            " grade, descriptor, registry_codes from skill where code = 'SUB.3D2D'",
             (
                 SET,
                 json.dumps(
@@ -209,7 +209,7 @@ def test_coverage_lists_every_skill_set_by_difficulty_with_real_counts(conn, mon
         r["code"]: set(r["levels"])
         for r in conn.execute(
             "select code, array(select e.key from jsonb_each(difficulty) e where e.value ? 'check') as levels"
-            " from skill_set"  # the levels a bank draws from: English's (E0) have no check
+            " from skill"  # the levels a bank draws from: English's (E0) have no check
         )
         if r["levels"]
     }
@@ -240,7 +240,7 @@ def test_coverage_targets_what_a_class_needs_and_a_units_own_ceiling_when_it_has
     assert (
         small["target"]
         == conn.execute(
-            "select (difficulty -> 'Easy' ->> 'min_items')::int as n from skill_set where code = 'ADD.1D1D'"
+            "select (difficulty -> 'Easy' ->> 'min_items')::int as n from skill where code = 'ADD.1D1D'"
         ).fetchone()["n"]
     )
 
@@ -274,7 +274,7 @@ def test_fill_native_produces_items_for_every_native_unit(conn, code, difficulty
     range (ADR 0011/0016) — a further fill *must* accept nothing. `MENTAL.BRIDGE_EQ Easy` holds 145
     and the numbers are spent. Asserting five unconditionally made a full bank look like a bug.
     """
-    band = conn.execute("select difficulty from skill_set where code = %s", (code,)).fetchone()["difficulty"][
+    band = conn.execute("select difficulty from skill where code = %s", (code,)).fetchone()["difficulty"][
         difficulty
     ]
     counts, accepted = bank.fill_native(conn, code, difficulty, 5)
@@ -353,7 +353,7 @@ def test_every_sample_sheet_is_titled_with_its_own_skill_set(conn, tmp_path):
 
     units = conn.execute(
         "select i.skill_set_code as code, i.difficulty, s.name from item i"
-        " join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code"
+        " join skill s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code"
         " where i.status = 'active' and i.source = 'generated'"
         " group by 1, 2, 3 having count(*) >= 8 order by 1, 2"
     ).fetchall()

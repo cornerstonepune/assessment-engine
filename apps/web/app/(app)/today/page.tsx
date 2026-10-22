@@ -1,5 +1,6 @@
 import Link from "@/components/link";
-import { Body, PageHeader } from "@/components/shell";
+import { DataTable } from "@/components/data-table";
+import { PageShell } from "@/components/page-shell";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
@@ -10,13 +11,15 @@ import { queueByWeek, type Trust, trustNow, type Week } from "@/lib/queries-toda
 import { isoWeek, weekWords } from "@/lib/week";
 import { choices } from "@/lib/choices";
 import { noteLines, weekNote } from "@/lib/queries-week-note";
+import type { Column } from "@/lib/ux-rules";
 
 // Today — everything that waits on a person, in one list under the tab where it is done (goals/ui1-menu-and-today.yaml,
 // goals/u1-today.yaml), each line opening that place, under five lines of what the system now knows this week
 // (goals/s1-subject-class-and-today.yaml). The menu's counts are this list's (lib/needs-you.ts). Every line
 // is the signed-in person's: in their classes, and only where the decision is theirs (goals/ux1-who-sees-what.yaml). The
 // engine proposes; a person approves.
-export default async function Today() {
+export default async function Today({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const q = await searchParams;
   const me = await requireStaff();
   const scope = scopeOf(me);
   const { subjects } = await deadline(choices());
@@ -25,44 +28,51 @@ export default async function Today() {
     Promise.all([needsYou(me), queueByWeek(scope), trustNow(), questionKinds(), weekNote(scope, subject?.code ?? "")]),
   );
   // the one loud colour, once (design-system/PRINCIPLES.md): the first thing that waits, in Today's order, is the page's
-  // main action; every other line's is outlined (goals/ux8d-phone-and-one-action.yaml)
+  // main action, at the top; every line's own button is outlined (goals/ux8d-phone-and-one-action.yaml)
   const first = TODAY_ORDER.flatMap((t) => lines[t]).find((l) => l.waits && l.href && l.action);
   return (
-    <>
-      <PageHeader stage="Today" title="Today" sub="Everything that waits on a person, under the tab where it is done. Each line opens the place to do it." />
-      <Body>
-        {scope.note ? (
-          <p role="status" className="note mb-5">
-            {scope.note}
-          </p>
-        ) : null}
-        {/* what the system now knows, five lines, before what waits (goals/s1-subject-class-and-today.yaml) */}
-        <section aria-label="What the system now knows" className="panel mb-6 p-4">
-          <h2 className="font-heading text-[17px]">What the system now knows</h2>
-          <p className="mt-1 text-[12.5px] text-basalt/62">
-            {subject?.label ?? "Every subject"}, {weekWords(isoWeek())}, in the classes chosen at the top
-          </p>
-          <ol className="mt-2 grid list-decimal gap-1 pl-5 text-[14px] leading-snug">
-            {noteLines(note).map((l) => (
-              <li key={l}>{l}</li>
-            ))}
-          </ol>
+    <PageShell
+      stage="Today"
+      title="Today"
+      purpose="Everything that waits on a person, under the tab where it is done. Each line opens the place to do it."
+      action={
+        <Link href={first?.href ?? "/papers"} className="btn">
+          {first?.action ?? "Open Assessments →"}
+        </Link>
+      }
+      next={{ href: "/papers", label: "Assessments" }}
+    >
+      {scope.note ? (
+        <p role="status" className="note mb-5">
+          {scope.note}
+        </p>
+      ) : null}
+      {/* what the system now knows, five lines, before what waits (goals/s1-subject-class-and-today.yaml) */}
+      <section aria-label="What the system now knows" className="panel mb-6 p-4">
+        <h2 className="font-heading text-[17px]">What the system now knows</h2>
+        <p className="mt-1 text-[12.5px] text-basalt/62">
+          {subject?.label ?? "Every subject"}, {weekWords(isoWeek())}, in the classes chosen at the top
+        </p>
+        <ol className="mt-2 grid list-decimal gap-1 pl-5 text-[14px] leading-snug">
+          {noteLines(note).map((l) => (
+            <li key={l}>{l}</li>
+          ))}
+        </ol>
+      </section>
+      {TODAY_ORDER.map((tab) => (
+        <section key={tab} aria-label={tab} className="mb-6">
+          <h2 className="label mb-2">{tab}</h2>
+          {lines[tab].length ? (
+            <div className="panel divide-y divide-basalt/12">
+              {lines[tab].map((l) => <Row key={l.title} line={l} />)}
+            </div>
+          ) : (
+            <p className="note">Nothing waits here.</p>
+          )}
         </section>
-        {TODAY_ORDER.map((tab) => (
-          <section key={tab} aria-label={tab} className="mb-6">
-            <h2 className="label mb-2">{tab}</h2>
-            {lines[tab].length ? (
-              <div className="panel divide-y divide-basalt/12">
-                {lines[tab].map((l) => <Row key={l.title} line={l} primary={l === first} />)}
-              </div>
-            ) : (
-              <p className="note">Nothing waits here.</p>
-            )}
-          </section>
-        ))}
-        <Shrinking weeks={weeks} trust={trust} words={words} />
-      </Body>
-    </>
+      ))}
+        <Shrinking weeks={weeks} trust={trust} words={words} page={Number(q.weeks) || 1} />
+    </PageShell>
   );
 }
 
@@ -72,7 +82,7 @@ const FIRST = 5;
 
 /** One kind of thing that waits: how many, what it is, and where it is done — or, for class packs and parent reports,
  *  each one of them as its own link. */
-function Row({ line, primary }: { line: Line; primary: boolean }) {
+function Row({ line }: { line: Line }) {
   return (
     <section data-testid="line" data-waits={line.waits ? "yes" : "no"} aria-label={line.title} className="grid gap-x-4 gap-y-1 p-4 md:grid-cols-[64px_minmax(0,1fr)_auto] md:items-start">
       <span data-testid="count" className={`font-heading text-[26px] leading-none tabular-nums ${line.waits ? "" : "text-basalt/55"}`}>
@@ -98,7 +108,7 @@ function Row({ line, primary }: { line: Line; primary: boolean }) {
         ) : null}
       </div>
       {line.href && line.action ? (
-        <Link href={line.href} className={`btn self-start ${primary ? "" : "secondary"}`}>
+        <Link href={line.href} className="btn secondary self-start">
           {line.action}
         </Link>
       ) : null}
@@ -108,7 +118,16 @@ function Row({ line, primary }: { line: Line; primary: boolean }) {
 
 // Whether checking pays (goals/ny2-the-queue-shrinks.yaml): each week's answers, how many a person had to check, and how
 // near the reader is to settling a kind of question alone. Every wrong and blank still waits for a person (ADR 0029).
-function Shrinking({ weeks, trust, words }: { weeks: Week[]; trust: Trust; words: Record<string, string> }) {
+const WEEK_COLUMNS: Column<Week>[] = [
+  { key: "week", label: "Week", value: (k) => weekWords(k.week) },
+  { key: "read", label: "Answers read", num: true, value: (k) => k.read },
+  { key: "alone", label: "Settled by the engine alone", num: true, value: (k) => k.alone },
+  { key: "person", label: "Checked by a person", num: true, value: (k) => k.person },
+  { key: "waiting", label: "Still waiting", num: true, value: (k) => k.waiting },
+  { key: "needed", label: "Needed a person", num: true, value: (k) => `${Math.round((100 * (k.person + k.waiting)) / k.read)}%` },
+];
+
+function Shrinking({ weeks, trust, words, page }: { weeks: Week[]; trust: Trust; words: Record<string, string>; page: number }) {
   const title = "Is the queue shrinking?";
   return (
     <section aria-label={title} className="panel mb-6 p-4">
@@ -123,31 +142,8 @@ function Shrinking({ weeks, trust, words }: { weeks: Week[]; trust: Trust; words
         . Every wrong answer and every blank still waits for a person.
       </p>
       {weeks.length ? (
-        <div className="mt-3 min-w-0 overflow-x-auto">
-          <table className="grid" aria-label="Answers read, week by week">
-            <thead>
-              <tr>
-                <th>Week</th>
-                <th className="num">Answers read</th>
-                <th className="num">Settled by the engine alone</th>
-                <th className="num">Checked by a person</th>
-                <th className="num">Still waiting</th>
-                <th className="num">Needed a person</th>
-              </tr>
-            </thead>
-            <tbody>
-              {weeks.map((k) => (
-                <tr key={k.week}>
-                  <td className="fact whitespace-nowrap">{weekWords(k.week)}</td>
-                  <td className="num">{k.read}</td>
-                  <td className="num">{k.alone}</td>
-                  <td className="num">{k.person}</td>
-                  <td className="num">{k.waiting}</td>
-                  <td className="num">{Math.round((100 * (k.person + k.waiting)) / k.read)}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mt-3 min-w-0">
+          <DataTable label="Answers read, week by week" columns={WEEK_COLUMNS} rows={weeks} rowKey={(k) => k.week} more={{ page, href: (p: number) => `/today?weeks=${p}` }} />
         </div>
       ) : (
         <p className="note mt-2">No papers read yet.</p>

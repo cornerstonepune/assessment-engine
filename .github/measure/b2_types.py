@@ -29,7 +29,7 @@ with db.connect() as c:
     ok = {
         (r["code"], r["level"]): r["ok"]
         for r in c.execute(
-            "select s.code, d.key as level, s.level_approved ? d.key as ok from skill_set s, jsonb_each(s.difficulty) d"
+            "select s.code, d.key as level, s.level_approved ? d.key as ok from skill s, jsonb_each(s.difficulty) d"
         )
     }
     rows = c.execute(
@@ -44,9 +44,9 @@ with db.connect() as c:
         "select distinct i.template, i.fmt from sheet_template t, unnest(t.item_ids) x(id) join item i on i.id = x.id"
         " where t.source = 'library' and t.retired_at is null and i.source = 'generated'"
     ).fetchall()
-    lists = c.execute("select code, formats from skill_set").fetchall()
+    lists = c.execute("select code, formats from skill").fetchall()
     level_formats = c.execute(
-        "select distinct d.value -> 'check' ->> 'format' as f from skill_set s, jsonb_each(s.difficulty) d"
+        "select distinct d.value -> 'check' ->> 'format' as f from skill s, jsonb_each(s.difficulty) d"
     ).fetchall()
     closing = shelf.closing(c)
     b2 = c.execute("select to_regclass('public.question_type') is not null as built").fetchone()["built"] and c.execute(

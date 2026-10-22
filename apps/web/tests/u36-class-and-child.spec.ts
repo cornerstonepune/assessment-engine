@@ -189,7 +189,7 @@ test("a child with no answers gets one sentence and one action", async ({ page }
   const lines = q.getAll("a");
   expect(lines.length).toBeGreaterThanOrEqual(1);
   expect(lines.length).toBeLessThanOrEqual(3);
-  const names = await sql<{ name: string }[]>`select name from skill_set where code in ${sql(lines.map((a) => a.split("~")[0]))}`;
+  const names = await sql<{ name: string }[]>`select name from skill where code in ${sql(lines.map((a) => a.split("~")[0]))}`;
   for (const { name } of names) await expect(sentence).toContainText(name);
   await first.click();
   await expect(page).toHaveURL(/\/papers\/make\?/);

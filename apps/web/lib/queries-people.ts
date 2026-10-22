@@ -35,7 +35,7 @@ export async function topics(scope: Scope = EVERY_CLASS): Promise<Topic[]> {
   const classes = await classesOf(scope);
   const rows = await sql<{ code: string; name: string; skills: string[]; classes: { section: string; skills: SkillTaught[] }[] }[]>`
     select t.code, t.name,
-           coalesce((select array_agg(s.name order by s.code) from skill_set s
+           coalesce((select array_agg(s.name order by s.code) from skill s
                      where s.tenant_id = t.tenant_id and s.topic_code = t.code), '{}') as skills,
            (select coalesce(json_agg(json_build_object('section', k.section, 'skills', (
                       select coalesce(json_agg(json_build_object(
@@ -45,7 +45,7 @@ export async function topics(scope: Scope = EVERY_CLASS): Promise<Topic[]> {
                                'reaches', exists (select 1 from skill_level l where l.tenant_id = s.tenant_id and l.skill_code = s.code
                                                   and grade_ord(l.tenant_id, l.grade) <= grade_ord(s.tenant_id, k.band))
                              ) order by s.code), '[]')
-                      from skill_set s
+                      from skill s
                       left join class_skill cs on cs.tenant_id = s.tenant_id and cs.skill_set_code = s.code
                                               and cs.section = k.section
                       where s.tenant_id = t.tenant_id and s.topic_code = t.code)) order by k.section), '[]')
@@ -108,7 +108,7 @@ export async function asksWaiting(): Promise<{ for_role: string; n: number }[]> 
 /** Skills waiting for an approval, taught or not: one is approved before its topic is switched on. Today, Curriculum
  *  and the approval page all count these. */
 export async function skillsWaiting(): Promise<number> {
-  const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from skill_set where status <> 'ratified'`;
+  const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from skill where status <> 'ratified'`;
   return n;
 }
 

@@ -42,7 +42,7 @@ def coverage(conn):
     rows = conn.execute(
         "select s.code, d.difficulty, coalesce(i.n, 0) as n,"
         " coalesce((l.rule ->> 'min_items')::int, " + str(need) + ") as target"
-        " from skill_set s"
+        " from skill s"
         " join (select tenant_id, code as difficulty, ord from difficulty) d on d.tenant_id = s.tenant_id"
         " join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code and l.difficulty = d.difficulty"
         "   and l.rule ? 'check'"  # the bank is drawn from a level's check: English's levels have none (E0)
@@ -197,14 +197,14 @@ def item_from_row(r):
 
 def sheet(conn, code, difficulty, n, outdir, seed=1, pw=None):
     rows = conn.execute(
-        "select i.*, s.grade as band from item i join skill_set s on s.tenant_id = i.tenant_id and s.rung_code = i.rung_code"
+        "select i.*, s.grade as band from item i join skill s on s.tenant_id = i.tenant_id and s.rung_code = i.rung_code"
         " where i.status = 'active' and i.skill_set_code = %s and i.difficulty = %s",
         (code, difficulty),
     ).fetchall()
     if len(rows) < n:
         raise ValueError(f"only {len(rows)} active items for {code} {difficulty}; asked for {n}")
     chosen = random.Random(seed).sample(rows, n)
-    name = conn.execute("select name from skill_set where code = %s", (code,)).fetchone()["name"]
+    name = conn.execute("select name from skill where code = %s", (code,)).fetchone()["name"]
     sh = Sheet(
         sheet_id(code, difficulty, seed, "bank"),
         chosen[0]["band"],

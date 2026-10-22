@@ -16,6 +16,7 @@ from engine.assess import graph
 from engine.checks import past
 from engine.core import db, settings
 from engine.w2_print import shelf
+from tests.rows import data_steps
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -79,7 +80,7 @@ def _refused(conn, sql, params=()):
 
 
 _MATHS = (
-    "select s.code from skill_set s join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code"
+    "select s.code from skill s join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code"
     " where o.subject_code = 'NUM'"
 )
 
@@ -90,7 +91,7 @@ def test_each_skill_holds_its_rungs_grade_order_and_description(conn):
     skills = {
         r["rung_code"]: r
         for r in conn.execute(
-            "select s.rung_code, s.grade, s.ladder_order, s.descriptor, s.registry_codes from skill_set s"
+            "select s.rung_code, s.grade, s.ladder_order, s.descriptor, s.registry_codes from skill s"
             " join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code where o.subject_code = 'NUM'"  # the seed's rungs are the maths
         )
     }
@@ -104,10 +105,10 @@ def test_each_skill_holds_its_rungs_grade_order_and_description(conn):
             r["skill_codes"],
         ), code
     # a grade is a key, and a registry skill is still a row's key (B3), now kept equal to the skill's own list
-    assert _refused(conn, "update skill_set set grade = 'G99' where rung_code = 'R36'")
+    assert _refused(conn, "update skill set grade = 'G99' where rung_code = 'R36'")
     assert _refused(
         conn,
-        "update skill_set set registry_codes = registry_codes || '{NOT.A.SKILL}' where rung_code = 'R36'",
+        "update skill set registry_codes = registry_codes || '{NOT.A.SKILL}' where rung_code = 'R36'",
     )
 
 
@@ -115,12 +116,12 @@ def test_every_rung_code_on_record_is_a_skills_second_code(conn):
     """A question's rung is a key into the skill's second code, as it was into the rung; what the graph and the cards
     hold names a skill by it. Each skill has exactly one."""
     assert conn.execute(
-        "select count(*) = count(distinct (tenant_id, rung_code)) as one from skill_set"
+        "select count(*) = count(distinct (tenant_id, rung_code)) as one from skill"
     ).fetchone()["one"]
     for table in ("item", "evidence_event", "child_skill_state", "class_card", "skill_set_version"):
         left = conn.execute(
             f"select distinct x.rung_code from {table} x where not exists"
-            " (select 1 from skill_set s where s.tenant_id = x.tenant_id and s.rung_code = x.rung_code)"
+            " (select 1 from skill s where s.tenant_id = x.tenant_id and s.rung_code = x.rung_code)"
         ).fetchall()
         assert left == [], (table, left)
     item = conn.execute("select id from item limit 1").fetchone()
@@ -136,11 +137,16 @@ def test_no_file_reads_the_rung_table(conn):
 
 
 def test_the_tables_carry_the_names_nimish_chose(conn):
-    """B4-1, registry first: the registry's skills are `registry_skill`, and no file reads `skill` (which the school's
-    skills take in the next deploy), so a reader left behind cannot read the school's skills for the registry's."""
+    """B4-1, registry first: the registry's skills are `registry_skill`; `skill`, once the next deploy (B4b) gave the
+    school's skills that name, holds the school's own, each with its second code, never the registry's."""
     assert _kind(conn, "registry_skill") == "table"
-    assert _kind(conn, "skill") in (None, "view")
-    assert _files_reading("skill") == []
+    assert _kind(conn, "skill") == "table"
+    assert (
+        conn.execute(
+            "select count(*) as n from information_schema.columns where table_name = 'skill' and column_name = 'rung_code'"
+        ).fetchone()["n"]
+        == 1
+    )
     assert conn.execute("select count(*) as n from registry_skill").fetchone()["n"] == len(
         settings.seed("registry.json", "skills")
     )
@@ -150,19 +156,19 @@ def test_a_new_grade_or_registry_skill_on_a_skill_moves_its_levels_and_links(con
     """What the rung's triggers did, the skill's own do: a level not moved follows its skill's grade, and the registry
     links equal the skill's list."""
     s = conn.execute(
-        "select code, rung_code from skill_set where level_band = '{}' and difficulty ? 'Easy' limit 1"
+        "select code, rung_code from skill where level_band = '{}' and difficulty ? 'Easy' limit 1"
     ).fetchone()
-    conn.execute("update skill_set set grade = 'G4' where code = %s", (s["code"],))
+    conn.execute("update skill set grade = 'G4' where code = %s", (s["code"],))
     assert {
         r["grade"] for r in conn.execute("select grade from skill_level where skill_code = %s", (s["code"],))
     } == {"G4"}
     other = conn.execute(
-        "select code from registry_skill where code <> all(select unnest(registry_codes) from skill_set where code = %s)"
+        "select code from registry_skill where code <> all(select unnest(registry_codes) from skill where code = %s)"
         " limit 1",
         (s["code"],),
     ).fetchone()["code"]
     conn.execute(
-        "update skill_set set registry_codes = registry_codes || %s::text where code = %s", (other, s["code"])
+        "update skill set registry_codes = registry_codes || %s::text where code = %s", (other, s["code"])
     )
     links = {
         r["registry_skill"]
@@ -170,7 +176,7 @@ def test_a_new_grade_or_registry_skill_on_a_skill_moves_its_levels_and_links(con
             "select registry_skill from skill_registry_link where skill_code = %s", (s["code"],)
         )
     }
-    listed = conn.execute("select registry_codes from skill_set where code = %s", (s["code"],)).fetchone()
+    listed = conn.execute("select registry_codes from skill where code = %s", (s["code"],)).fetchone()
     assert links == set(listed["registry_codes"]) and other in links
 
 
@@ -192,7 +198,7 @@ def test_evidence_count_and_checksum_equal_before_and_after(conn):
     graph.rebuild(conn, str(child))
     before = past.fingerprint(conn)
     assert before["evidence"]["n"] >= 3 and before["states"]["n"] >= 1
-    conn.execute(MIGRATION.read_text())
+    conn.execute(data_steps(MIGRATION))
     graph.rebuild(conn, str(child))
     assert past.fingerprint(conn) == before
     conn.execute(add, (tenant, child, False))
@@ -213,12 +219,12 @@ def test_every_childs_map_and_paper_is_the_same_before_and_after(conn):
         assert c["own"] in (None, r["skill_codes"][0]), c["code"]
     moved = {
         (r["code"], level): grade
-        for r in conn.execute("select code, level_band from skill_set")
+        for r in conn.execute("select code, level_band from skill")
         for level, grade in r["level_band"].items()
     }
     for r in conn.execute(
         "select l.skill_code, l.difficulty, l.grade, s.rung_code from skill_level l"
-        " join skill_set s on s.tenant_id = l.tenant_id and s.code = l.skill_code"
+        " join skill s on s.tenant_id = l.tenant_id and s.code = l.skill_code"
         " join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code where o.subject_code = 'NUM'"
     ):
         want = moved.get((r["skill_code"], r["difficulty"]), rungs[r["rung_code"]]["band"])

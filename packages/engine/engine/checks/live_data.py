@@ -39,7 +39,7 @@ def _off_the_map(conn):
     rows = conn.execute(
         "select e.placed_rung, count(*) as n, count(distinct e.child_id) as children"
         " from evidence_placed e where e.confirmed_by is not null and not exists ("
-        "  select 1 from skill_set ss where ss.tenant_id = e.tenant_id and ss.rung_code = e.placed_rung)"
+        "  select 1 from skill ss where ss.tenant_id = e.tenant_id and ss.rung_code = e.placed_rung)"
         " group by 1 order by 2 desc"
     ).fetchall()
     return [
@@ -57,7 +57,7 @@ def hidden(conn):
         for r in conn.execute(
             "select ss.code, count(*) as n from evidence_placed e"
             " join child c on c.id = e.child_id"
-            " join skill_set ss on ss.tenant_id = e.tenant_id and ss.rung_code = e.placed_rung"
+            " join skill ss on ss.tenant_id = e.tenant_id and ss.rung_code = e.placed_rung"
             " where e.confirmed_by is not null and not skill_taught_in(ss.tenant_id, ss.code, c.section)"
             " group by 1 order by 1"
         )
