@@ -7,7 +7,7 @@ goal: >
   swapped copy lined up with 17 to 21 of the first page's 149 tiles of print and with 66 to 69 of the second's 72, and the
   engine had taken it for the other page. The cause: a copy with as many photographs as the paper has pages was taken as
   page 1, page 2 in file order with nothing measured (boxes._placing). Each photograph is now laid on every page of the
-  paper, the way of laying them that fits best is taken if it fits clearly better than the next (a photograph that lines
+  paper, a whole copy keeps the file's order unless another order fits clearly better, a part copy takes the way of laying them that fits best if clearly better than the next (a photograph that lines
   up with neither is the page the other leaves; none lining up with any keeps the file's order and goes whole to a person),
   and the answers go by that. A file sent to the engine can be read again from the site and from the engine, which
   supersedes only the readings no person has checked.

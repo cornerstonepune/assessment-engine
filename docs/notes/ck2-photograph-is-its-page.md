@@ -36,8 +36,10 @@ Tiles of print found when a photograph is laid on each printed page (page 1 has 
 ## What changed
 
 - `w3_read/placing.py` (split out of `boxes.py`, which went over its ceiling): each photograph is laid on every page it
-  could be, and the way of laying them on distinct pages that fits best stands if it fits `read.page_margin` (1.25) times
-  better than the next best. The next best is exact: the best with each of the best's pairs forbidden in turn (dynamic over
+  could be, and for a copy of the whole paper the file's order stands unless another order fits `read.page_margin` (1.25) times
+  better than it (CI found that a clean six-page paper, whose pages share a layout, was otherwise skipped as "could not be
+  told apart"); for a copy of part of a paper, the way of laying them on distinct pages that fits best stands if it fits that
+  much better than the next best. The next best is exact: the best with each of the best's pairs forbidden in turn (dynamic over
   the pages used, no n!). A photograph that lines up with neither page is the page the other leaves; no photograph lining up
   with any page keeps the file's order and each page goes whole to a person (R2). More photographs than pages, or a paper of
   one page, are not measured, as before.

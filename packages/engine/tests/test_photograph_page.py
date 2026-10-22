@@ -35,10 +35,15 @@ def test_a_page_that_lines_up_with_neither_is_the_page_the_other_leaves(tmp_path
     assert placing.placed(["a", "b"], _pages(tmp_path, 2), 1.25) == [2, 1]
 
 
-def test_photographs_that_fit_both_orders_alike_are_not_placed(tmp_path, monkeypatch):
-    """No clear margin: not placed, so no answer is read against a key nobody can be sure of."""
+def test_photographs_that_fit_both_orders_alike_keep_the_files_order(tmp_path, monkeypatch):
+    """Pages of one paper share a layout: with no clear margin the file's order is the only evidence there is. On CI a
+    clean six-page paper was skipped as "could not be told apart" before this."""
     _fitting(monkeypatch, {("a", 1): 0.5, ("a", 2): 0.5, ("b", 1): 0.5, ("b", 2): 0.5})
-    assert placing.placed(["a", "b"], _pages(tmp_path, 2), 1.25) is None
+    assert placing.placed(["a", "b"], _pages(tmp_path, 2), 1.25) == [1, 2]
+    _fitting(monkeypatch, {("a", 1): 0.5, ("a", 2): 0.55, ("b", 1): 0.55, ("b", 2): 0.5})
+    assert placing.placed(["a", "b"], _pages(tmp_path, 2), 1.25) == [1, 2], (
+        "a swap that fits 10% better is no more"
+    )
 
 
 def test_photographs_that_line_up_with_nothing_keep_the_files_order_and_go_whole_to_a_person(

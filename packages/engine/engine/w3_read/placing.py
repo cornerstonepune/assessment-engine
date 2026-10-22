@@ -58,23 +58,29 @@ def _fits(img, pdf, page_no, own):
     return _ruled(canon, pdf, page_no) * float(found)
 
 
-def _placing(pages, pdf):
+def _placing(pages, pdf, margin):
     """(how well, which printed page each photograph is, how well the next best did): the way of laying the
     photographs on distinct pages of `pdf` that they fit (`_fits`) most. Not "in order": on 2026-10-22 four of ten
     copies of a two-page paper were photographed second page first, and a copy with as many photographs as the paper
     has pages, taken as 1…n unmeasured, had its second page's questions looked for on its first page's photograph.
     A copy may also start part-way: on 2026-09-29 one child's copy was photographed across two files, and the second
     file's two pages — the paper's third and fourth — were read as its first and second, against questions 1–6.
-    Nothing is measured only where nothing can differ: one page, or a photograph over for every page (more
-    photographs than the paper has pages — `copies._run_placed` places those one by one). Where no photograph lines
-    up with any page, nothing measured says otherwise: the file's order stands, and each page that does not line up
-    goes whole to a person."""
+    A copy of the whole paper has a natural order, the file's, and keeps it unless another order fits `margin` times
+    better (several pages of one paper share a layout, so a swap of two of them can fit nearly as well, and the file's
+    order is then the only evidence there is). No photograph lining up with any page leaves the file's order too, and
+    each page that does not line up goes whole to a person. Nothing is measured where nothing can differ: one page, or
+    a photograph over for every page (more photographs than the paper has pages — `copies._run_placed` places those
+    one by one)."""
     n, k = len(pymupdf.open(pdf)), len(pages)
     if k > n or n == 1:
         return None, list(range(1, k + 1)), None
+    if k == n:
+        fit = _fitter(pages, pdf)
+        in_order = list(range(1, n + 1))
+        best, run = _best(fit, k, n)
+        asis = sum(fit(i, i + 1) for i in range(k))
+        return None, (run if best > 0 and best >= margin * asis else in_order), None
     runs = _runs(pages, pdf)
-    if k == n and runs[0][0] <= 0:
-        return None, list(range(1, k + 1)), None
     return runs[0][0], runs[0][1], runs[1][0] if len(runs) > 1 else 0.0
 
 
@@ -95,17 +101,23 @@ def _best(fit, k, n, banned=()):
     return max(states.values(), default=(float("-inf"), []))
 
 
-def _runs(pages, pdf):
-    """The best and the next best way of laying `pdf`'s pages under the photographs, with how well they fit (`_fits`):
-    [(score, pages)], best first. The next best is the best that differs from it in at least one photograph's page.
-    Every photograph is measured against every page it could be."""
-    n, k, own, fit = len(pymupdf.open(pdf)), len(pages), _own_print(pdf), {}
+def _fitter(pages, pdf):
+    """`fit(i, p)`: how well photograph `i` (from 0) fits page `p` of `pdf` (`_fits`), each measured once."""
+    own, fit = _own_print(pdf), {}
 
     def at(i, p):
         if (i, p) not in fit:
             fit[i, p] = _fits(pages[i], pdf, p, own)
         return fit[i, p]
 
+    return at
+
+
+def _runs(pages, pdf):
+    """The best and the next best way of laying `pdf`'s pages under the photographs, with how well they fit (`_fits`):
+    [(score, pages)], best first. The next best is the best that differs from it in at least one photograph's page.
+    Every photograph is measured against every page it could be."""
+    n, k, at = len(pymupdf.open(pdf)), len(pages), _fitter(pages, pdf)
     best = _best(at, k, n)
     others = [_best(at, k, n, {(i, p)}) for i, p in enumerate(best[1])]
     return [best, *sorted((o for o in others if o[1]), reverse=True)[:1]]
@@ -115,7 +127,7 @@ def placed(pages, pdf, margin) -> list[int] | None:
     """Which page of `pdf` each photographed page of a copy is, in order (`_placing`) — or None when no way of laying
     them fits `margin` times better than the next: its answers are then not read against a key nobody can be sure of,
     and a person places the pages."""
-    best, run, second = _placing(pages, pdf)
+    best, run, second = _placing(pages, pdf, margin)
     if best is None:
         return run
     return run if best > 0 and best >= margin * second else None
