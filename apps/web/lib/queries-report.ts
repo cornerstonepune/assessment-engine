@@ -34,9 +34,9 @@ export async function skillMap(id: string): Promise<MapNode[]> {
     st as (
       select s.rung_code,
              (array_agg(s.state order by cs.ord))[1] as state
-      from child_skill_state s join rung r on r.code = s.rung_code
+      from child_skill_state s join skill_set r on r.tenant_id = s.tenant_id and r.rung_code = s.rung_code
       join child_state cs on cs.tenant_id = s.tenant_id and cs.code = s.state -- weakest first, as its rows order it
-      where s.child_id = ${id}::uuid and s.skill_code = any(r.skill_codes) and s.n_events > 0
+      where s.child_id = ${id}::uuid and s.skill_code = any(r.registry_codes) and s.n_events > 0
       group by s.rung_code),
     -- each signed-off answer once (answer_placed), not once per skill its question tests
     sig as (
@@ -50,22 +50,22 @@ export async function skillMap(id: string): Promise<MapNode[]> {
       left join capture c on c.id = ir.capture_id
       where a.child_id = ${id}::uuid and a.confirmed_by is not null and (c.id is null or c.superseded_by is null)
       group by a.placed_rung)
-    select ss.code, ss.name, coalesce(ss.learning_objective, '') as objective, r.code as rung_code,
-           r.band, g.ord as grade_ord, g.name as grade_name, r.ladder_order, r.skill_codes[1] as lane, coalesce(k.name, r.skill_codes[1]) as lane_name,
+    select ss.code, ss.name, coalesce(ss.learning_objective, '') as objective, ss.rung_code,
+           ss.grade as band, g.ord as grade_ord, g.name as grade_name, ss.ladder_order, ss.registry_codes[1] as lane,
+           coalesce(k.name, ss.registry_codes[1]) as lane_name,
            st.state, coalesce(sig.right, 0) as right, coalesce(sig.wrong, 0) as wrong,
            coalesce(sig.wrong_working, 0) as wrong_working, coalesce(sig.blank, 0) as blank
     from skill_set ss
     join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
       and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, sql`(select section from child where id = ${id}::uuid)`)}
-    join rung r on r.tenant_id = ss.tenant_id and r.code = ss.rung_code
-    join grade g on g.tenant_id = r.tenant_id and g.code = r.band
-    left join st on st.rung_code = r.code
-    left join sig on sig.rung_code = r.code
-    left join lateral (select name from skill where code = r.skill_codes[1] limit 1) k on true
+    join grade g on g.tenant_id = ss.tenant_id and g.code = ss.grade
+    left join st on st.rung_code = ss.rung_code
+    left join sig on sig.rung_code = ss.rung_code
+    left join lateral (select name from registry_skill where code = ss.registry_codes[1] limit 1) k on true
     where ss.status is distinct from 'retired'
-      and (abs(g.ord - grade_ord(r.tenant_id, (select band from me))) <= 1
+      and (abs(g.ord - grade_ord(ss.tenant_id, (select band from me))) <= 1
            or st.rung_code is not null or sig.rung_code is not null)
-    order by r.skill_codes[1], g.ord, r.ladder_order nulls last, ss.code`;
+    order by ss.registry_codes[1], g.ord, ss.ladder_order nulls last, ss.code`;
 }
 
 export type Coverage = {
@@ -115,7 +115,7 @@ export type Edge = { from: string; to: string };
 
 /** Where each skill set sits on the map: a column per grade, a row per lane; within a lane and grade the ladder's
  *  order. An arrow joins each skill set on the ladder to the next one up its lane — the order the school teaches them
- *  in (`rung.ladder_order`); there is no table of prerequisites, so no other edge is drawn. */
+ *  in (`skill_set.ladder_order`); there is no table of prerequisites, so no other edge is drawn. */
 export function layout(nodes: MapNode[]) {
   const bands = [...new Map(nodes.map((n) => [n.band, n.grade_ord]))].sort(([, a], [, b]) => a - b).map(([b]) => b);
   const lanes = [...new Set(nodes.map((n) => n.lane))];

@@ -77,7 +77,7 @@ test("a topic is switched on only after the person has read what it does", async
   const [topic] = await sql<{ name: string; taught: boolean }[]>`select name, taught_in(tenant_id, code, null) as taught from topic where code = 'DIV'`;
   expect(topic.taught, "division waits for an educator's word").toBe(false);
   try {
-    await page.goto("/");
+    await page.goto("/?taught=1");
     const row = page.getByRole("region", { name: "Not taught yet", exact: true }).getByRole("listitem").filter({ hasText: topic.name });
     const confirm = row.getByRole("button", { name: `Taught in ${CLASS}, as ${TEST_STAFF.name}`, includeHidden: true });
     await expect(confirm).toHaveCount(1);

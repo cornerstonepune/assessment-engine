@@ -40,8 +40,8 @@ def row(conn, code):
 def read(conn, code, difficulty):
     """One band's spec as the item-generation prompt's input, built only from rows: skill set, rung, school philosophy, misconceptions."""
     s = conn.execute(
-        f"select s.*, r.band, r.skill_codes, {levels.LEVELS} as levels from skill_set s"
-        " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code where s.code = %s",
+        f"select s.*, s.grade as band, s.registry_codes as skill_codes, {levels.LEVELS} as levels from skill_set s"
+        " where s.code = %s",
         (code,),
     ).fetchone()
     if not s:
@@ -119,9 +119,7 @@ def outcome_problems(text):
 def outcomes(conn):
     """Every skill set's outcome and what is wrong with it, in ladder order."""
     rows = conn.execute(
-        "select s.code, s.learning_objective from skill_set s"
-        " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
-        " order by r.ladder_order, s.code"
+        "select s.code, s.learning_objective from skill_set s order by s.ladder_order, s.code"
     ).fetchall()
     return [(r["code"], r["learning_objective"], outcome_problems(r["learning_objective"])) for r in rows]
 

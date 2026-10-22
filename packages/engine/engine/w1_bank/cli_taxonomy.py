@@ -57,7 +57,6 @@ def register(bank_app: typer.Typer) -> None:
             f"  moved {sum(out['moved'].values())} questions · {out['old_papers']} old papers' sums onto their skill"
             f" · {sum(out['retired'].values())} retired, their story's shape unnamed"
             f" · {'would remove' if dry_run else 'removed'} {len(out['removed_sets'])} skill sets"
-            f" and {len(out['removed_rungs'])} rungs"
         )
 
     @bank_app.command("levels")

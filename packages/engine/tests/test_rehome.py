@@ -8,6 +8,7 @@ import json
 import os
 import pathlib
 
+import psycopg
 import pytest
 
 from engine.assess import placing, tags, taxonomy
@@ -152,12 +153,9 @@ def test_every_question_moves_to_the_level_its_numbers_put_it_in_and_the_old_lad
     old = sorted(rehome.replaced())
     assert not conn.execute("select 1 from skill_set where code = any(%s)", (old,)).fetchone()
     assert not conn.execute("select 1 from item where skill_set_code = any(%s)", (old,)).fetchone()
-    assert not conn.execute(
-        "select 1 from rung r where not exists (select 1 from skill_set s where s.rung_code = r.code)"
-    ).fetchone(), "every rung left is a skill's"
     assert cases.outside_their_level(conn) == []
     again = rehome.rehome(conn)
-    assert (sum(again["moved"].values()), again["removed_sets"], again["removed_rungs"]) == (0, [], [])
+    assert (sum(again["moved"].values()), again["removed_sets"]) == (0, [])
 
 
 def test_worksheets_are_built_one_skill_and_one_level_each(conn):
@@ -271,16 +269,14 @@ def test_an_old_story_whose_shape_is_unnamed_goes_to_its_skill_retired_and_only_
     assert [r["item_key"] for r, _ in homeless] == ["sum"]
 
 
-def test_a_rung_no_skill_and_no_question_holds_is_removed(conn):
+def test_no_rung_is_left_without_a_skill(conn):
     """Found 2026-10-12 on a copy of live: rung R9 of the old ladder stayed because one stale paper question pointed at
-    it; once nothing holds a rung, it goes, whatever ladder it was on (`engine audit`: every rung has a spec)."""
-    conn.execute(
-        "insert into rung (tenant_id, code, band, ladder_order, descriptor, skill_codes, milestone_id)"
-        " select tenant_id, 'TEST.ORPHAN', band, null, descriptor, skill_codes, milestone_id from rung"
-        " where code = (select rung_code from skill_set where code = 'SUB.3D2D')"
-    )
+    it, and rehome had to remove it. Since B4 a rung is a skill's second code (goals/b4-the-rung-folded-in.yaml): there
+    is no rung apart from its skill to be left behind, and a question naming a rung no skill holds is refused."""
+    item = conn.execute("select id from item limit 1").fetchone()["id"]
+    with pytest.raises(psycopg.errors.ForeignKeyViolation), conn.transaction():
+        conn.execute("update item set rung_code = 'TEST.ORPHAN' where id = %s", (item,))
     held = conn.execute("select rung_code from skill_set where code = 'SUB.3D2D'").fetchone()["rung_code"]
-    out = rehome.rehome(conn)
-    assert "TEST.ORPHAN" in out["removed_rungs"]
-    left = {r["code"] for r in conn.execute("select code from rung")}
-    assert "TEST.ORPHAN" not in left and held in left
+    with pytest.raises(psycopg.errors.ForeignKeyViolation), conn.transaction():
+        conn.execute("delete from skill_set where code = 'SUB.3D2D'")
+    assert conn.execute("select 1 from item where rung_code = %s", (held,)).fetchone()

@@ -1,0 +1,53 @@
+name: b4-the-rung-folded-in
+goal: >
+  The rung's grade, order, description and registry skills are on the skill, and its code is the skill's permanent
+  second code, so every answer and piece of evidence already recorded points at a skill without being rewritten. No file
+  reads the `rung` table, and it is gone. The registry's table is `registry_skill` (decision B4-1: registry first; the
+  school's `skill_set` becomes `skill` in the next deploy, goals/b4b-the-skill-is-called-skill.yaml). Evidence is
+  untouched: its row count and checksum, every child's states and every scored answer are equal before and after, and
+  every child's map and every paper read the same place, grade and own skill as the rung gave them.
+# Written 2026-10-22, before the code, from docs/drafts/b4-the-rung-folded-in.yaml (scope-locked by Nimish on
+# 2026-10-21, decisions "A": B4-1 rename in two deploys, registry first; B4-2 evidence keeps `rung_code`, no row
+# rewritten; B4-3 "no file reads rung" means the `rung` table, the maths library's word stays). BUILD-ORDER's scope of
+# 2026-10-22 keeps B4 first in the schema track.
+#
+# Measured on a database built from main (fba80af), before the code: 46 rungs, one per skill; 9 database functions name
+# a rung, of which two read the table (`skill_level_sync`, `skill_registry_link_sync`) and two are its triggers; 25 files
+# read it (18 engine, 7 website); 3 engine files and 4 website files read the registry as `skill`. 14 rungs list more
+# than one registry skill and the first is the skill's own (`shelf._catalog`, the child's map's lane), so the list keeps
+# its order on the skill (`registry_codes`), kept equal to B3's `skill_registry_link` rows by the same trigger.
+# A rung's `milestone_id` was never written by any code; the migration stops if live holds one, and stops naming the
+# rung if a question names a rung no skill holds, rather than lose either.
+# The two old names answer as views for the one deploy in which the code before this may still run (migrate live runs
+# before the engine and website take this code); the next deploy drops them.
+says:
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_each_skill_holds_its_rungs_grade_order_and_description"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_every_rung_code_on_record_is_a_skills_second_code"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_no_file_reads_the_rung_table"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_the_tables_carry_the_names_nimish_chose"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_a_new_grade_or_registry_skill_on_a_skill_moves_its_levels_and_links"
+  - words: "nothing will change for any of the past assessments, scoring etc. right?"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_evidence_count_and_checksum_equal_before_and_after"
+  - words: "nothing will change for any of the past assessments, scoring etc. right?"
+    proved_by: "packages/engine/tests/test_rung_folded.py::test_every_childs_map_and_paper_is_the_same_before_and_after"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive; `engine past` prints the same evidence count and checksum, children's states and scored answers before the migrations, after them and after update-live; `engine links check` says every list and its rows agree, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: the fold, the registry's name and evidence untouched
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_rung_folded.py tests/test_skill_links.py tests/test_skill_level.py tests/test_grades.py tests/test_loaders.py
+    expect: "passed"
+  - name: the rows and the skills' own lists agree, on the database the engine reads
+    run: bin/engine links check
+    expect: "agree"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -44,8 +44,8 @@ def vocabulary(conn):
 def _generated(conn):
     return conn.execute(
         "select i.id, i.fmt, i.spec, i.stem, i.responses, i.skill_codes, i.mistake_skills, i.tags, i.case_codes,"
-        " i.rung_code, r.skill_codes as rung_skills"
-        " from item i join rung r on r.tenant_id = i.tenant_id and r.code = i.rung_code"
+        " i.rung_code, s.registry_codes as rung_skills"
+        " from item i join skill_set s on s.tenant_id = i.tenant_id and s.rung_code = i.rung_code"
         " where i.source = 'generated'"
     ).fetchall()
 

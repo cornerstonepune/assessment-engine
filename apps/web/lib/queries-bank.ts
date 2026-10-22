@@ -121,7 +121,7 @@ export async function bankGrid(scope: Scope = EVERY_CLASS): Promise<BankRow[]> {
       select skill_set_code, difficulty, fmt, count(*)::int as n from item
       where source = 'generated' and status = 'active' group by 1, 2, 3
     )
-    select s.code, s.name, r.band,
+    select s.code, s.name, s.grade as band,
            coalesce((select jsonb_object_agg(l.difficulty, l.grade) from skill_level l
                      where l.tenant_id = s.tenant_id and l.skill_code = s.code), '{}'::jsonb) as level_grade,
            coalesce((select array_agg(distinct b.fmt order by b.fmt) from b where b.skill_set_code = s.code), '{}') as fmts,
@@ -129,9 +129,8 @@ export async function bankGrid(scope: Scope = EVERY_CLASS): Promise<BankRow[]> {
                      from (select b.difficulty, sum(b.n)::int as n from b where b.skill_set_code = s.code
                            group by b.difficulty) d), '{}'::json) as counts
     from skill_set s
-    join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
     where ${skillTaughtFor(scope, sql`s.tenant_id`, sql`s.code`)}
-    order by r.ladder_order nulls last, s.code`;
+    order by s.ladder_order nulls last, s.code`;
 }
 
 /** The bank: the questions the engine can draw — made by it, active, of a skill at one of that skill's levels — the one
@@ -256,7 +255,7 @@ export type QuestionPage = ItemRow & {
 // and which question took its place.
 export async function questionPage(key: string): Promise<QuestionPage | undefined> {
   const rows = await sql<QuestionPage[]>`
-    select ${itemColumns()}, r.band, l.looks_like as level_words,
+    select ${itemColumns()}, r.grade as band, l.looks_like as level_words,
            i.generator, i.skill_set_version, i.created_at,
            (select count(distinct x.child_id)::int from item_exposure x where x.item_id = i.id) as children,
            (select o.item_key from item o where o.id = i.corrected_from) as corrected_from_key,
@@ -266,7 +265,7 @@ export async function questionPage(key: string): Promise<QuestionPage | undefine
            coalesce((select array_agg(t.code order by t.code) from sheet_template t
                      where t.source = 'library' and t.retired_at is null and i.id = any(t.item_ids)), '{}') as worksheets
     from item i
-    join rung r on r.tenant_id = i.tenant_id and r.code = i.rung_code
+    join skill_set r on r.tenant_id = i.tenant_id and r.rung_code = i.rung_code
     left join skill_level l on l.tenant_id = i.tenant_id and l.skill_code = i.skill_set_code and l.difficulty = i.difficulty
     left join lateral (select actor, note from item_feedback
                        where item_id = i.id and verdict = 'retire' order by created_at desc limit 1) f on true

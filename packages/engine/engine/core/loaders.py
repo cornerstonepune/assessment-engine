@@ -15,7 +15,7 @@ SEED = settings.SEED
 FILLED_TABLES = (
     "tenant",
     "domain",
-    "skill",
+    "registry_skill",
     "milestone",
     "learning_objective",
     "learning_objective_skill",
@@ -23,7 +23,6 @@ FILLED_TABLES = (
     "activity_skill",
     "report_item",
     "trait",
-    "rung",
     "level_rule",
     "misconception",
     "case_dimension",
@@ -87,7 +86,7 @@ def _registry(conn: db.Conn, t: db.Id) -> None:
     )
 
     many(
-        "insert into skill (tenant_id, code, domain, strand, name, description, source,"
+        "insert into registry_skill (tenant_id, code, domain, strand, name, description, source,"
         " skill_type, pillar, ncf, cg, authored_by) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         " on conflict (tenant_id, code) do update set domain=excluded.domain,"
         " strand=excluded.strand, name=excluded.name, description=excluded.description,"
@@ -226,18 +225,6 @@ def _registry(conn: db.Conn, t: db.Id) -> None:
     )
 
 
-def _rungs(conn: db.Conn, t: db.Id) -> None:
-    for r in settings.seed("rungs.json", "rungs"):
-        conn.execute(
-            "insert into rung (tenant_id, code, band, ladder_order, descriptor, skill_codes)"
-            " values (%s,%s,%s,%s,%s,%s)"
-            " on conflict (tenant_id, code) do update set band=excluded.band,"
-            " ladder_order=excluded.ladder_order, descriptor=excluded.descriptor,"
-            " skill_codes=excluded.skill_codes, updated_at=now()",
-            (t, r["code"], r["band"], r["ladder_order"], r["descriptor"], r["skill_codes"]),
-        )
-
-
 def _levels(conn: db.Conn, t: db.Id) -> None:
     for lv in settings.seed("levels.json", "levels"):
         conn.execute(
@@ -318,13 +305,19 @@ def _skill_sets(conn: db.Conn, t: db.Id) -> None:
     """Insert only. The seed is the first draft of a set; after that the row belongs to Neha and
     Achal, who edit it in the app. An upsert here would silently overwrite their words and rules
     on the next `engine load` — and they would have no way to know. A level the seed teaches in another grade than
-    the skill's own (`level_band`) is first drafted there too; a database loaded before is moved by a migration."""
+    the skill's own (`level_band`) is first drafted there too; a database loaded before is moved by a migration.
+    What its rung said (`rungs.json`: its grade, place on the ladder, description and registry skills) is the seed's,
+    as the rung's row was, and is set on every load (B4, goals/b4-the-rung-folded-in.yaml)."""
+    rungs = {r["code"]: r for r in settings.seed("rungs.json", "rungs")}
     for s in settings.seed("skill_sets.json", "skill_sets"):
         own = [s[k] for k in ("code", "rung_code", "name", "learning_objective", "philosophy", "formats")]
+        r = rungs[s["rung_code"]]
+        rung = (r["band"], r["ladder_order"], r["descriptor"], r["skill_codes"])
         conn.execute(
             "insert into skill_set (tenant_id, code, rung_code, name, learning_objective,"
-            " philosophy, formats, misconception_codes, difficulty, eval_type, level_band)"
-            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            " philosophy, formats, misconception_codes, difficulty, eval_type, level_band,"
+            " grade, ladder_order, descriptor, registry_codes)"
+            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             " on conflict (tenant_id, code) do nothing",
             (
                 t,
@@ -333,7 +326,14 @@ def _skill_sets(conn: db.Conn, t: db.Id) -> None:
                 json.dumps(s["difficulty"]),
                 s.get("eval_type", "computable"),
                 json.dumps(s.get("level_band", {})),
+                *rung,
             ),
+        )
+        conn.execute(
+            "update skill_set set grade = %s, ladder_order = %s, descriptor = %s, registry_codes = %s"
+            " where tenant_id = %s and rung_code = %s"
+            " and row(grade, ladder_order, descriptor, registry_codes) is distinct from row(%s, %s, %s, %s::text[])",
+            (*rung, t, s["rung_code"], *rung),
         )
 
 
@@ -364,7 +364,6 @@ def load_all() -> dict[str, int]:
         vocabulary.load(conn, t, settings.seed)
         for step in (
             _registry,
-            _rungs,
             _levels,
             _misconceptions,
             _dimensions,

@@ -41,6 +41,10 @@ export default async function MarkingPage({ searchParams }: Props) {
         sub="Papers in, and where every answer on them stands: settled by the engine, checked by a person, or still waiting. Check what waits one answer at a time; sign a child's papers off to build their graph."
       />
       <Body>
+        {/* the upload box at the top (goals/s2-the-assessment-card.yaml) */}
+        <div className="mb-[18px] grid min-w-0">
+          <ReadScan from="/capture" read={q.read} why={q.why} pages={q.pages} scans={scans} />
+        </div>
         <section aria-label="Answers to check" className="panel mb-[18px] flex flex-wrap items-center gap-4 border-l-4 border-l-bamboo p-4">
           <p className="text-[14px]">
             <N id="papers" n={all.papers} /> {all.papers === 1 ? "paper" : "papers"} in: <N id="engine" n={all.engine} />{" "}
@@ -72,7 +76,6 @@ export default async function MarkingPage({ searchParams }: Props) {
           {by === "class" ? <ByClass papers={papers} /> : null}
           {by === "child" ? <ByChild papers={papers} open={(section) => !!scope.classes || section === q.class} /> : null}
           {by === "worksheet" ? <ByWorksheet papers={papers} /> : null}
-          <ReadScan from="/capture" read={q.read} why={q.why} pages={q.pages} scans={scans} />
           <ReaderPanel r={reader} />
           <NothingRead papers={papers} />
         </div>

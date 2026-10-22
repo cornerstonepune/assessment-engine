@@ -76,7 +76,7 @@ def review_unit(conn, code, difficulty, reviewer, fraction=SAMPLE_FRACTION, seed
 
     rows = sample(conn, code, difficulty, fraction, seed)
     subjects = [_band_subject(s, difficulty)] + _item_subjects(rows)
-    band = conn.execute("select band from rung where code = %s", (s["rung_code"],)).fetchone()["band"]
+    band = s["grade"]
     variables = {
         "skill_set": {
             "code": s["code"],
@@ -147,7 +147,7 @@ def evaluate(conn, reviewer, gold):
     got, meta, cost = {}, {}, 0.0
     for (code, difficulty), group in groups.items():
         s = levels.skill(conn, code)
-        band = conn.execute("select band from rung where code = %s", (s["rung_code"],)).fetchone()["band"]
+        band = s["grade"]
         variables = {
             "skill_set": {
                 "code": s["code"],

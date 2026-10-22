@@ -29,8 +29,8 @@ test.beforeAll(async () => {
   await aClass(sql, OTHER, "G3", ["Dev"]);
   const [{ tenant }] = await sql<{ tenant: string }[]>`select tenant_id as tenant from child where id = ${kids.Asha}`;
   const skills = await sql<{ code: string; rung: string }[]>`
-    select r.skill_codes[1] as code, r.code as rung from rung r join skill_set ss on ss.rung_code = r.code
-    where r.band = 'G2' and cardinality(r.skill_codes) > 0 order by r.ladder_order, ss.code limit 2`;
+    select ss.registry_codes[1] as code, ss.rung_code as rung from skill_set ss
+    where ss.grade = 'G2' and cardinality(ss.registry_codes) > 0 order by ss.ladder_order, ss.code limit 2`;
   const [m] = await sql<{ code: string; name: string }[]>`select code, name from misconception order by code limit 1`;
   mistake = m.name;
   const evidence = async (child: string, skill: { code: string; rung: string }, right: boolean, n: number) => {
