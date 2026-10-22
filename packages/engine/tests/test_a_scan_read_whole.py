@@ -116,6 +116,7 @@ def test_a_page_not_in_the_file_is_said_by_its_page(conn, worksheet, tmp_path, m
 def test_what_a_files_reading_came_to_is_kept_on_its_run_with_no_name(tmp_path, monkeypatch):
     kept = []
     monkeypatch.setattr(inbox.db, "connect", lambda *a, **k: _Tx(kept))
+    monkeypatch.setattr(inbox, "given", lambda conn, name: {})  # no page a person gave to a child
     lines = [
         {"copy": 1, "pages": [2], "code": "CS6A1B49", "child_id": "c1", "answers": 9, "missing": [1], "twice": [],
          "lacks": ["page 1 of 2 is not in this file: scan it and send it to be read"], "capture_id": "k1"},
