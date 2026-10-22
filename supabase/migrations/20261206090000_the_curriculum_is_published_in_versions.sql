@@ -12,7 +12,7 @@
 -- force when they were written, by themselves; a past row names none, and is not touched.
 --
 -- Version 1 is the curriculum as it stands when this runs, in force from this week's Monday, so a result written from
--- today names it and nothing a child is given this week changes.
+-- today names it and nothing a child is given this week changes. A school with no skill yet begins at its first load.
 --
 -- The school's time zone is a row (`config` school.time_zone), as its week begins on its own Monday.
 --
@@ -84,7 +84,7 @@ $$;
 
 -- A school's clock, and its version 1: the curriculum as it stands, in force from this week's Monday. For every
 -- school, there now or added later.
-create or replace function internal.curriculum_begins(p_tenant uuid) returns void
+create or replace function public.curriculum_begins(p_tenant uuid) returns void
 language plpgsql security definer set search_path = public as $$
 declare
   v uuid;
@@ -93,7 +93,9 @@ begin
   values (p_tenant, 'school.time_zone', '"Asia/Kolkata"',
           'The school''s own clock: its day and its week, which a published curriculum takes effect from (C3).')
   on conflict (tenant_id, key) do nothing;
-  if exists (select 1 from curriculum_version where tenant_id = p_tenant) then
+  -- a school with no skill yet (one just added, a database just built) begins at its first load (`engine load`)
+  if exists (select 1 from curriculum_version where tenant_id = p_tenant)
+     or not exists (select 1 from skill where tenant_id = p_tenant) then
     return;
   end if;
   insert into curriculum_version (tenant_id, number, published_by, takes_effect, note)
@@ -107,7 +109,7 @@ end $$;
 create or replace function internal.curriculum_begins_on_new_school() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
-  perform internal.curriculum_begins(new.id);
+  perform public.curriculum_begins(new.id);
   return new;
 end $$;
 
@@ -115,7 +117,7 @@ drop trigger if exists curriculum_begins on tenant;
 create trigger curriculum_begins after insert on tenant
   for each row execute function internal.curriculum_begins_on_new_school();
 
-select internal.curriculum_begins(id) from tenant;
+select public.curriculum_begins(id) from tenant;
 
 -- Every new result names the version in force when it was written; a past row names none.
 alter table item_result add column if not exists curriculum_version int;
