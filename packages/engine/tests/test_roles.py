@@ -30,6 +30,8 @@ WEB_WRITES = {
     "public.web_error": {"INSERT"},
     # a wrong password for an email, so too many make it wait (goals/p2-live-recovers.yaml)
     "public.sign_in_failure": {"INSERT"},
+    # a person's approval of a way of asking, added once and never changed (goals/e0-english-in-the-system.yaml)
+    "public.question_type_approval": {"INSERT"},
     # a class's word on a skill is said through `say_taught` (goals/t1-topics-are-operations.yaml), never written
 }
 # Every function of ours the website calls: signing a paper off, settling one answer, a roll in its order, a name, a
