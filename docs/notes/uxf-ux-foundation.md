@@ -20,7 +20,11 @@ Slice UXF of the locked scope of 22 Oct, beside S1: web only, no migration, no n
   It holds each page off the list to the five rendered rules; Check answers is the page off it.
 - Check answers on the blocks, the same answers as before: the older specs that read the page still hold:
   `s4-validation-queue`, `u3-marking`, `u50-the-picture-is-the-question`, `u43`, `u45`, `u47`, `u49`, `u1`, `u38`, `u9`,
-  `s1`, `u33`, `u15` → see "Full suite" below.
+  `s1`, `u33`, `u15` → all pass (62 of 67 first run; the one failure was a missing "← Marking" link, restored, re-run green).
+- Full suite on a `bin/testdb fresh` copy, this sandbox: 283 passed, 14 failed, 31 not run (the run stops a serial file at its first
+  failure). All 14 print a PDF (make papers, home assessments, worksheets): the engine's own error is "BrowserType.launch:
+  Executable doesn't exist … chromium_headless_shell-1243" (this sandbox has 1194), so they cannot pass here whatever the
+  branch. None touches Check answers. CI, with its own browsers, decides.
 - Before and after of Check answers, desktop and phone, seeded test rows only: the one decision (Yes, the child wrote 1 /
   Right, Wrong, Blank / type it) moved to the top, under the title, as the one main action; the ways round it stay beside
   the picture; "Later — show the next one" became the page's next step at the foot (at the end of the queue: "See the
