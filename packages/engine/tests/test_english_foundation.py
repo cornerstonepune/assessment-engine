@@ -4,7 +4,7 @@ Nimish, 2026-10-21: "make the entire set of learning objectives, the difficulty 
 and Grade 4 of the Cambridge board … Fundamental work can be done by you. The teacher will only go and approve or
 edit." Grade 3 is Stage 3 and Grade 4 is Stage 4 (Nimish confirmed).
 
-The rows are drafts in docs/drafts/english/, shaped like the maths seed tables; no database is needed. The framework
+The rows are drafts in supabase/seed/english/, shaped like the maths seed tables; no database is needed. The framework
 is read from the copy recorded in docs/crosswalk/sources.json, downloaded into data/crosswalk_sources/ on the first
 run and refused if its fingerprint differs. research/english_check.py does the checking; these tests run it and show
 that it catches what it says it catches.
@@ -106,9 +106,9 @@ def test_every_assessable_skill_has_four_levels_each_with_a_rule_and_three_examp
             mine = [
                 x for x in t["skill_level_sample"] if x["skill_code"] == s["code"] and x["difficulty"] == d
             ]
-            assert sorted(x["n"] for x in mine) == [1, 2, 3] and all(
-                x["answer"] not in (None, "") for x in mine
-            )
+            for kind in {x["question_type"] for x in mine}:  # three per kind since english-kinds-and-samples
+                assert sorted(x["n"] for x in mine if x["question_type"] == kind) == [1, 2, 3]
+            assert len(mine) >= 3 and all(x["answer"] not in (None, "") for x in mine)
 
 
 def test_every_example_meets_its_level_and_code_works_its_answer_out_again(t, cambridge):
@@ -178,7 +178,8 @@ def test_judged_writing_has_a_rubric_whose_four_levels_an_educator_and_a_model_r
 
 def test_every_question_type_says_how_it_reaches_the_child_and_who_marks_it(t):
     kinds = {q["code"]: q for q in t["question_type"]}
-    assert {q["marked_by"] for q in kinds.values()} == {"code", "model_rubric", "educator"}
+    assert {q["marked_by"] for q in kinds.values()} == {"code", "educator"}
+    assert {q["answer"] for q in kinds.values()} == {"one", "open", "observed"}
     assert all(kinds[q]["reaches"] != "observed" for s in t["skill"] for q in s["question_types"])
     assert {n["question_type"] for n in t["not_on_paper"]} <= {
         c for c, q in kinds.items() if q["marked_by"] == "educator"
