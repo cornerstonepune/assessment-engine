@@ -116,8 +116,7 @@ def kinds(conn: db.Conn, t: db.Id) -> None:
 
 def skills(conn: db.Conn, t: db.Id) -> None:
     """Each skill once, with its levels (the database makes `skill_level` from the skill's `difficulty`, and the links
-    to its mistakes from `misconception_codes`). A skill's code is also its rung's: the tables still key a skill to one
-    rung (B4 folds it in)."""
+    to its mistakes from `misconception_codes`). A skill's code is also its `rung_code`, the column B4 keeps for it."""
     levels: dict[str, dict[str, Any]] = {}
     for lv in seed("skill_level.json", "skill_levels"):
         levels.setdefault(lv["skill_code"], {})[lv["difficulty"]] = {"words": lv["looks_like"], **lv["rule"]}
@@ -126,15 +125,10 @@ def skills(conn: db.Conn, t: db.Id) -> None:
         watched.setdefault(m["skill_code"], []).append(m["misconception_code"])
     open_kinds = {q["code"] for q in _paper_kinds() if q["answer"] != "one"}
     for s in seed("skill.json", "skills"):
-        conn.execute(
-            "insert into rung (tenant_id, code, band, descriptor) values (%s,%s,%s,%s)"
-            " on conflict (tenant_id, code) do nothing",
-            (t, s["code"], s["grade"], s["learning_objective"]),
-        )
         eval_type = "open_response" if open_kinds & set(s["question_types"]) else "closed_set"
         conn.execute(
             "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, misconception_codes,"
-            " difficulty, eval_type) values (%s,%s,%s,%s,%s,%s,%s,%s)"
+            " difficulty, eval_type, grade, descriptor) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             " on conflict (tenant_id, code) do nothing",
             (
                 t,
@@ -145,6 +139,8 @@ def skills(conn: db.Conn, t: db.Id) -> None:
                 sorted(watched.get(s["code"], [])),
                 json.dumps(levels[s["code"]]),
                 eval_type,
+                s["grade"],
+                s["learning_objective"],
             ),
         )
 
