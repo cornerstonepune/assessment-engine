@@ -309,3 +309,7 @@ class ReadFileRequest(BaseModel):
 class ReadFileResponse(BaseModel):
     run_id: str  # `/runs/{id}` says how the reading went; the papers appear on Marking as they are read
     pages: int
+
+
+class UploadResponse(ReadFileResponse):
+    file: str  # the name it is kept under in the inbox, as Marking lists it

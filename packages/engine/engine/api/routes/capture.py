@@ -190,7 +190,7 @@ def read_file(
         raise HTTPException(status_code=400, detail=str(why)) from why
     with pymupdf.open(path) as doc:
         pages = len(doc)
-    run_id = inbox.start(tenant_id, path, body.actor)
+    run_id = inbox.start(tenant_id, path, body.actor, pages=pages)
     background.add_task(inbox.read, run_id, path, body.actor, body.again)
     return {"run_id": run_id, "pages": pages}
 

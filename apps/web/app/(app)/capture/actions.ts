@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { deciding, mustBeMine } from "@/lib/decides";
 import { childSection, paperSection, resultSection } from "@/lib/scope";
 import { sql } from "@/lib/db";
-import { EngineDown, enginePost, engineSend, markWhatTrustSettles } from "@/lib/engine";
+import { EngineDown, enginePost, engineSend, markWhatTrustSettles, uploadTicket } from "@/lib/engine";
 
 const UUID = /^[0-9a-f-]{36}$/;
 // The validation queue sends its answers here too; after one is settled it goes back to the queue,
@@ -44,6 +44,14 @@ export async function readScan(formData: FormData): Promise<void> {
     if (!(e instanceof EngineDown)) throw e;
     redirect(`${page}?read=engine#read-scan`);
   }
+}
+
+/** Leave to send scans from this page straight to the engine (N8, `POST /read/upload`, ADR 0092): where to, and a
+ *  token for this person that lives half an hour — asked for as each batch of files starts, so a page left open all
+ *  morning still sends. Only someone who may put papers in is given one. */
+export async function scanTicket(): Promise<{ url: string; token: string } | null> {
+  const me = await deciding("papers");
+  return uploadTicket(me.email);
 }
 
 /** A person says what the child actually wrote.

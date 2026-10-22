@@ -1,0 +1,40 @@
+name: n8-upload-on-marking
+goal: >
+  On Marking, an educator chooses or drops one or more scans: a PDF, or phone photos (JPG, PNG, HEIC), the photos of one
+  paper's pages made one PDF in page order. Each file's upload shows its progress, goes from the browser straight to the
+  engine (a Vercel function takes at most 4.5 MB, and a class's scan is tens of MB), and starts the same reading a Drive
+  link does. The page then shows that file's run: the pages found, the copies and the children found and, once read,
+  how many answers the engine settled and how many wait for a person. A page with no readable code is said by its page
+  number, never guessed. The engine refuses, in words, a file that is not a PDF or a photo, and one larger than a scan of
+  a class; one file refused does not stop the others. The Drive link stays as a second way in.
+# Written 2026-10-21, before the code. Nimish, the same day, replacing the Drive folder the workflow named for N8 (v1):
+# ADR 0092. The browser is given a short-lived token the site signs; it never sees the engine's key.
+says:
+  - words: "Teachers can directly just put in the assessments, like the PDF copy or scanned copy of the assessments, there."
+    proved_by: "packages/engine/tests/test_upload.py::test_an_uploaded_pdf_lands_in_the_inbox_and_its_reading_starts"
+  - words: "Teachers can directly just put in the assessments, like the PDF copy or scanned copy of the assessments, there."
+    proved_by: "packages/engine/tests/test_upload.py::test_photos_of_one_paper_become_one_pdf_in_page_order"
+  - words: "Teachers can directly just put in the assessments, like the PDF copy or scanned copy of the assessments, there."
+    proved_by: "packages/engine/tests/test_upload.py::test_a_file_not_a_pdf_or_a_photo_is_refused_in_words"
+  - words: "Teachers can directly just put in the assessments, like the PDF copy or scanned copy of the assessments, there."
+    proved_by: "packages/engine/tests/test_upload.py::test_a_file_larger_than_a_scan_of_a_class_is_refused"
+  - words: "Teachers can directly just put in the assessments, like the PDF copy or scanned copy of the assessments, there."
+    proved_by: "packages/engine/tests/test_upload.py::test_only_the_sites_own_fresh_token_may_upload"
+  - words: "Then the analysis can happen"
+    proved_by: "packages/engine/tests/test_upload.py::test_a_page_with_no_readable_code_is_kept_by_its_page_number"
+  - words: "there it says we have a proper understanding of how many questions have been evaluated, how many questions need validation from the teacher."
+    proved_by: "apps/web/tests/u44-upload-on-marking.spec.ts::a scan put in on Marking is read, and its run says what was found and what waits"
+manual:
+  - "On live, once deployed: on Marking, choose a class's scanned PDF of 30–60 MB from a phone; the bar fills, the run appears under Read a scan with its pages, copies and children, and once read its answers settled and waiting."
+  - "On live, once deployed: photograph a two-page paper on an iPhone (HEIC) and put both photos in; one PDF of two pages is read."
+scenarios: []
+criteria:
+  - name: the upload, the inbox, and the reading of a scan
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_upload.py tests/test_inbox.py tests/test_a_scan_read_whole.py
+    expect: "passed"
+  - name: putting a scan in on Marking, and what a scan lacks
+    run: cd apps/web && npx playwright test tests/u44-upload-on-marking.spec.ts tests/u41-what-a-scan-lacks.spec.ts tests/u3-marking.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

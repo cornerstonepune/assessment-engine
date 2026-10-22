@@ -1,0 +1,177 @@
+{
+ "topics": [
+  {
+   "code": "ENG.PHON",
+   "subject": "ENG",
+   "name": "Phonics and reading words",
+   "order": 1,
+   "skill_sets": [
+    "EN3.PHON.SOUNDS",
+    "EN3.PHON.SIGHT",
+    "EN3.PHON.CHUNK",
+    "EN3.PHON.SHORTFORM",
+    "EN4.PHON.READNEW",
+    "EN4.PHON.STRESS",
+    "EN4.PHON.SIGHT"
+   ]
+  },
+  {
+   "code": "ENG.SPELL",
+   "subject": "ENG",
+   "name": "Spelling",
+   "order": 2,
+   "skill_sets": [
+    "EN3.SPELL.CONSONANT",
+    "EN3.SPELL.VERBEND",
+    "EN3.SPELL.AFFIX",
+    "EN3.SPELL.HOMOPHONE",
+    "EN3.SPELL.TRICKY",
+    "EN4.SPELL.SILENT",
+    "EN4.SPELL.PLURAL",
+    "EN4.SPELL.AFFIX",
+    "EN4.SPELL.THEIR",
+    "EN4.SPELL.OUGH",
+    "EN4.SPELL.RULE",
+    "EN4.SPELL.TRICKY",
+    "EN4.SPELL.ROOT"
+   ]
+  },
+  {
+   "code": "ENG.VOCAB",
+   "subject": "ENG",
+   "name": "Words and their meanings",
+   "order": 3,
+   "skill_sets": [
+    "EN3.VOCAB.ABC",
+    "EN3.VOCAB.TOPIC",
+    "EN3.VOCAB.CONTEXT",
+    "EN3.VOCAB.SYNONYM",
+    "EN3.VOCAB.DESCRIBE",
+    "EN3.VOCAB.SOUNDWORD",
+    "EN3.VOCAB.OPENER",
+    "EN3.VOCAB.SAYVERB",
+    "EN4.VOCAB.ABC",
+    "EN4.VOCAB.TOPIC",
+    "EN4.VOCAB.CONTEXT",
+    "EN4.VOCAB.SYNONYM",
+    "EN4.VOCAB.SHADES",
+    "EN4.VOCAB.FIGURE",
+    "EN4.VOCAB.WRITEFIGURE",
+    "EN4.VOCAB.VERBCHOICE"
+   ]
+  },
+  {
+   "code": "ENG.GRAM",
+   "subject": "ENG",
+   "name": "Grammar",
+   "order": 4,
+   "skill_sets": [
+    "EN3.GRAM.SENTTYPE",
+    "EN3.GRAM.NOUNVERB",
+    "EN3.GRAM.PREP",
+    "EN3.GRAM.TENSE",
+    "EN3.GRAM.IRREGULAR",
+    "EN3.GRAM.JOIN",
+    "EN3.GRAM.WRITETYPE",
+    "EN4.GRAM.TENSE",
+    "EN4.GRAM.AGREE",
+    "EN4.GRAM.CONNECT",
+    "EN4.GRAM.QUANT",
+    "EN4.GRAM.ADVERB"
+   ]
+  },
+  {
+   "code": "ENG.PUNCT",
+   "subject": "ENG",
+   "name": "Punctuation",
+   "order": 5,
+   "skill_sets": [
+    "EN3.PUNCT.APOSTROPHE",
+    "EN3.PUNCT.END",
+    "EN3.PUNCT.SPEECH",
+    "EN4.PUNCT.END",
+    "EN4.PUNCT.COMMA",
+    "EN4.PUNCT.SPEECH",
+    "EN4.PUNCT.POSSESS"
+   ]
+  },
+  {
+   "code": "ENG.READ",
+   "subject": "ENG",
+   "name": "Reading for meaning",
+   "order": 6,
+   "skill_sets": [
+    "EN3.READ.FIND",
+    "EN3.READ.CHARACTER",
+    "EN3.READ.ORDER",
+    "EN3.READ.BLURB",
+    "EN3.READ.INDEX",
+    "EN3.READ.MAIN",
+    "EN3.READ.INFER",
+    "EN3.READ.THEME",
+    "EN3.READ.COMPARE",
+    "EN3.READ.PREDICT",
+    "EN3.READ.INSTRUCT",
+    "EN3.READ.FACTOPINION",
+    "EN4.READ.FIND",
+    "EN4.READ.CHARACTER",
+    "EN4.READ.STAGES",
+    "EN4.READ.KEYWORDS",
+    "EN4.READ.SKIM",
+    "EN4.READ.LINKS",
+    "EN4.READ.INFER",
+    "EN4.READ.PREDICT",
+    "EN4.READ.THEME",
+    "EN4.READ.CONTEXT",
+    "EN4.READ.VIEWPOINT",
+    "EN4.READ.RESPOND",
+    "EN4.READ.FACTOPINION"
+   ]
+  },
+  {
+   "code": "ENG.TEXT",
+   "subject": "ENG",
+   "name": "Kinds of text and how they are built",
+   "order": 7,
+   "skill_sets": [
+    "EN3.TEXT.FICTION",
+    "EN3.TEXT.GENRE",
+    "EN3.TEXT.NONFICTION",
+    "EN3.TEXT.FEATURES",
+    "EN3.TEXT.PARAGRAPH",
+    "EN4.TEXT.FICTION",
+    "EN4.TEXT.GENRE",
+    "EN4.TEXT.PARAGRAPH",
+    "EN4.TEXT.FEATURES",
+    "EN4.TEXT.PERSUADE"
+   ]
+  },
+  {
+   "code": "ENG.WRITE",
+   "subject": "ENG",
+   "name": "Writing",
+   "order": 8,
+   "skill_sets": [
+    "EN3.WRITE.PLAN",
+    "EN3.WRITE.DESCRIBE",
+    "EN3.WRITE.TABLE",
+    "EN3.WRITE.SEQUENCE",
+    "EN3.WRITE.PLAYSCRIPT",
+    "EN3.WRITE.IMPROVE",
+    "EN3.WRITE.REVIEW",
+    "EN3.WRITE.PROOFREAD",
+    "EN4.WRITE.DESCRIBE",
+    "EN4.WRITE.ENDING",
+    "EN4.WRITE.NOTES",
+    "EN4.WRITE.SEQUENCE",
+    "EN4.WRITE.PLAYSCRIPT",
+    "EN4.WRITE.PLAN",
+    "EN4.WRITE.PROFILE",
+    "EN4.WRITE.VIEWPOINT",
+    "EN4.WRITE.ARGUE",
+    "EN4.WRITE.PROOFREAD",
+    "EN4.WRITE.IMPROVE"
+   ]
+  }
+ ]
+}

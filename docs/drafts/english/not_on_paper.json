@@ -1,0 +1,764 @@
+{
+ "not_on_paper": [
+  {
+   "objective": "3Ww.06",
+   "reason": "a habit over time",
+   "why": "Keeping a spelling log and checking words in a dictionary or on screen is a habit built over weeks, not an answer on one paper.",
+   "observe": "Look at the child's spelling log once a fortnight: are misspelt words from their writing added, practised and ticked off?",
+   "school_units": [
+    "unit.224",
+    "unit.225"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "3Wv.07",
+   "reason": "a habit over time",
+   "why": "Using a word list, dictionary or thesaurus to widen the words in their writing shows only across a run of written work.",
+   "observe": "Compare two pieces of writing a month apart: has the child used words from their own word list or a thesaurus?",
+   "school_units": [
+    "unit.226"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "3Ri.02",
+   "reason": "range of reading over a term",
+   "why": "Reading and exploring many kinds of fiction, poems and playscripts is about how widely a child reads across a term.",
+   "observe": "Keep the reading record: by the end of term has the child read a story, a poem and a playscript, and talked about a picture in one?",
+   "school_units": [
+    "unit.226",
+    "unit.228",
+    "unit.230"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "3Ri.04",
+   "reason": "range of reading over a term",
+   "why": "Reading many kinds of non-fiction is about the range a child meets over a term, not one passage.",
+   "observe": "Keep the reading record: has the child read instructions, a report and a recount this term, in class or at home?",
+   "school_units": [
+    "unit.226",
+    "unit.227"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "3Ra.01",
+   "reason": "enjoyment and choice",
+   "why": "Enjoying reading alone and with others is seen in how a child chooses and talks about books, not in marks.",
+   "observe": "During Reading Time, note whether the child chooses books freely, stays with them and asks to share them.",
+   "school_units": [
+    "unit.228",
+    "unit.230"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "3Ra.02",
+   "reason": "read aloud",
+   "why": "Reading silently can only be watched: whether the child reads without saying the words aloud and keeps their place.",
+   "observe": "During silent reading, watch for lip movement and finger pointing, then ask one question about the page.",
+   "school_units": [
+    "unit.228"
+   ],
+   "question_type": "ENG.READ_ALOUD"
+  },
+  {
+   "objective": "3Wc.01",
+   "reason": "extended writing",
+   "why": "Creative writing in many kinds of story and poem is a full piece over a lesson or more, judged across the term.",
+   "observe": "Use the exercise-book pieces from Storybook, Mind Pictures and Poems to Ponder; judge them with the writing rubric.",
+   "school_units": [
+    "unit.323",
+    "unit.325",
+    "unit.330"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "3Wc.05",
+   "reason": "extended writing",
+   "why": "Writing a whole text for a purpose with the features of its type needs a full piece, not a few lines.",
+   "observe": "Use the information page from Going Deep and the instructions from Food for Thought; check the features of each type.",
+   "school_units": [
+    "unit.324",
+    "unit.329"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "3Wc.06",
+   "reason": "extended writing",
+   "why": "Choosing content and language for a named reader shows in a full piece written for that reader.",
+   "observe": "Use an advert or invitation written in class for a named reader; ask: would that reader understand and want to read it?",
+   "school_units": [
+    "unit.329"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "3Wp.01",
+   "reason": "handwriting",
+   "why": "Legible, fluent joined handwriting is judged across exercise books, not from one answer.",
+   "observe": "Look at one page of the exercise book each half-term: are letters formed, sized and joined steadily?",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "3Wp.03",
+   "reason": "on screen",
+   "why": "Choosing between handwritten, printed and on-screen layouts needs a screen and a real purpose, which a paper cannot give.",
+   "observe": "In a computing or class project, watch the child lay out a page on screen and say why they chose it.",
+   "school_units": [
+    "unit.324"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "3SLm.01",
+   "reason": "spoken",
+   "why": "Speaking fluently and confidently is heard, not written.",
+   "observe": "In show-and-tell or a unit's speaking task, note whether the child speaks without long stops in familiar topics.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLm.02",
+   "reason": "spoken",
+   "why": "Choosing the right information and detail when speaking is heard in talk.",
+   "observe": "Ask the child to tell a partner how to get to the library; note what they include and leave out.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLm.03",
+   "reason": "spoken",
+   "why": "Choosing words to suit the situation is heard in talk.",
+   "observe": "Note the words the child uses with a friend and when speaking to the class or a visitor.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLm.04",
+   "reason": "spoken",
+   "why": "Gesture, eye contact and expression are seen while a child speaks.",
+   "observe": "During a presentation, note eye contact, gesture and facial expression.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLm.05",
+   "reason": "spoken",
+   "why": "Adapting language and tone to an audience is heard in talk.",
+   "observe": "Compare how the child speaks to younger children in a buddy reading session and to their class.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLs.01",
+   "reason": "listening",
+   "why": "Listening and following spoken instructions is shown in what the child does after hearing them.",
+   "observe": "Give three spoken steps (fold, colour, write); note whether the child carries out each in order.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLs.02",
+   "reason": "listening",
+   "why": "Asking questions about what was heard is spoken.",
+   "observe": "After a read-aloud, note whether the child's question is about a main point of what was read.",
+   "school_units": [
+    "unit.228"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLg.01",
+   "reason": "spoken",
+   "why": "Taking a role in a group is seen during group work.",
+   "observe": "In a group task, give roles (reader, writer, timekeeper) and note whether the child keeps theirs.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLg.02",
+   "reason": "spoken",
+   "why": "Replying politely to another view is heard in discussion.",
+   "observe": "In a class discussion, note whether the child disagrees politely and gives their own view.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLg.03",
+   "reason": "spoken",
+   "why": "Adding relevant comments to a discussion is heard in discussion.",
+   "observe": "In group talk, note whether the child's comments stay on the topic and move it on.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLg.04",
+   "reason": "spoken",
+   "why": "Taking turns and acknowledging others is seen in discussion.",
+   "observe": "In group talk, note whether the child waits, listens and refers to what someone said.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLp.01",
+   "reason": "read aloud",
+   "why": "Reading aloud with expression is heard.",
+   "observe": "Listen to the child read a short passage aloud; note expression that fits the meaning.",
+   "school_units": [
+    "unit.327",
+    "unit.228"
+   ],
+   "question_type": "ENG.READ_ALOUD"
+  },
+  {
+   "objective": "3SLp.02",
+   "reason": "read aloud",
+   "why": "Using different voices when reading aloud is heard.",
+   "observe": "When the child reads a story with dialogue aloud, note whether characters sound different.",
+   "school_units": [
+    "unit.327"
+   ],
+   "question_type": "ENG.READ_ALOUD"
+  },
+  {
+   "objective": "3SLp.03",
+   "reason": "read aloud",
+   "why": "Reading a familiar text aloud accurately, with its punctuation, is heard.",
+   "observe": "Listen to the child read a familiar page aloud; count words misread and pauses missed at full stops.",
+   "school_units": [
+    "unit.228"
+   ],
+   "question_type": "ENG.READ_ALOUD"
+  },
+  {
+   "objective": "3SLp.04",
+   "reason": "spoken",
+   "why": "Creating a character with voice, gesture and movement is a performance.",
+   "observe": "In the Let's Perform unit, watch the child play a character and note voice and movement.",
+   "school_units": [
+    "unit.327"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLp.05",
+   "reason": "spoken",
+   "why": "Planning and giving a presentation alone is a spoken performance.",
+   "observe": "Watch the child's presentation on a familiar subject; note its order and whether it was planned.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLr.01",
+   "reason": "spoken",
+   "why": "Evaluating talk is done in talk, straight after it.",
+   "observe": "After presentations, ask the child to say one thing that went well and one to improve.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "3SLr.02",
+   "reason": "spoken",
+   "why": "Commenting on how meaning is shown with words and without them is a spoken reflection.",
+   "observe": "After a drama or presentation, ask how the speaker showed feeling without words.",
+   "school_units": [
+    "unit.327"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4Ww.09",
+   "reason": "a habit over time",
+   "why": "Keeping a spelling log and checking spellings with a dictionary or on screen is a habit built over weeks.",
+   "observe": "Look at the spelling log once a fortnight: are words from the child's own writing added, learnt and ticked off?",
+   "school_units": [
+    "unit.372",
+    "unit.373"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "4Wv.06",
+   "reason": "a habit over time",
+   "why": "Using a word list, dictionary or thesaurus to widen the words in writing shows only across a run of work.",
+   "observe": "Compare two pieces of writing a month apart for words taken from the child's word list or a thesaurus.",
+   "school_units": [
+    "unit.374"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "4Ri.02",
+   "reason": "range of reading over a term",
+   "why": "Reading many kinds of fiction, poems and playscripts is about how widely a child reads across a term.",
+   "observe": "Keep the reading record: by the end of term, a novel chapter, a poem, a playscript, and a comment on a picture.",
+   "school_units": [
+    "unit.374",
+    "unit.376",
+    "unit.378"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "4Ri.04",
+   "reason": "range of reading over a term",
+   "why": "Reading many kinds of non-fiction is about the range a child meets over a term.",
+   "observe": "Keep the reading record: a report, an advert, a recipe and a news article this term, in class or at home.",
+   "school_units": [
+    "unit.374",
+    "unit.375"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "4Ra.01",
+   "reason": "enjoyment and choice",
+   "why": "Enjoying reading alone and with others is seen in how a child chooses and talks about books.",
+   "observe": "During Reading Time, note whether the child picks books freely, finishes them and asks to share them.",
+   "school_units": [
+    "unit.376",
+    "unit.378"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "4Ra.03",
+   "reason": "enjoyment and choice",
+   "why": "Having favourite books and recommending them is shown in talk with others over time.",
+   "observe": "Once a half-term, ask the child to recommend a book to a friend and note whether they give a reason.",
+   "school_units": [
+    "unit.374"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "4Wc.01",
+   "reason": "extended writing",
+   "why": "Creative writing in many kinds of story and poem is a full piece over a lesson or more, judged across the term.",
+   "observe": "Use the exercise-book pieces from Storybook, Just Imagine and Poems to Ponder; judge them with the writing rubric.",
+   "school_units": [
+    "unit.323",
+    "unit.326",
+    "unit.330"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "4Wc.08",
+   "reason": "extended writing",
+   "why": "Writing a whole text for a purpose with the features of its type needs a full piece.",
+   "observe": "Use the information page from Going Deep and the advert from Food for Thought; check the features of each type.",
+   "school_units": [
+    "unit.324",
+    "unit.329"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "4Wc.09",
+   "reason": "extended writing",
+   "why": "Choosing content and language for a named reader shows in a full piece written for that reader.",
+   "observe": "Use a letter or advert written in class for a named reader; ask whether that reader would understand it and be persuaded.",
+   "school_units": [
+    "unit.329"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "4Wp.01",
+   "reason": "handwriting",
+   "why": "Legible, fluent and quicker handwriting is judged across exercise books and timed writing.",
+   "observe": "Each half-term, time three minutes of copying and look at one page of the book for letter shape and joins.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "4Wp.03",
+   "reason": "on screen",
+   "why": "Choosing between handwritten, printed and on-screen layouts needs a screen and a purpose.",
+   "observe": "In a project, watch the child lay out a page on screen with headings and pictures and say why.",
+   "school_units": [
+    "unit.324"
+   ],
+   "question_type": "ENG.EXTENDED"
+  },
+  {
+   "objective": "4SLm.01",
+   "reason": "spoken",
+   "why": "Speaking accurately and at length is heard, not written.",
+   "observe": "In a unit's speaking task, note whether the child speaks for a minute or more with few errors.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLm.02",
+   "reason": "spoken",
+   "why": "Putting information in an order that helps the listener is heard in talk.",
+   "observe": "Ask the child to explain a recipe to a partner; note whether the steps come in order.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLm.03",
+   "reason": "spoken",
+   "why": "Choosing exact words when speaking is heard in talk.",
+   "observe": "Note whether the child uses precise words (sprinted, fragile) rather than general ones when explaining.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLm.04",
+   "reason": "spoken",
+   "why": "Gesture, eye contact and expression are seen while a child speaks.",
+   "observe": "During a presentation, note eye contact, gesture and facial expression.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLm.05",
+   "reason": "spoken",
+   "why": "Adapting language and tone to an audience is heard in talk.",
+   "observe": "Compare the child talking to a younger class during buddy reading and to a visitor.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLs.01",
+   "reason": "listening",
+   "why": "Listening, then asking and answering questions to build ideas, is spoken.",
+   "observe": "After a talk by a classmate, note whether the child's question builds on what was said.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLg.01",
+   "reason": "spoken",
+   "why": "Taking a role in a group is seen during group work.",
+   "observe": "Give group roles and note whether the child keeps theirs to the end of the task.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLg.02",
+   "reason": "spoken",
+   "why": "Replying politely to another view is heard in discussion.",
+   "observe": "In a class debate, note whether the child disagrees politely and gives a reason.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLg.03",
+   "reason": "spoken",
+   "why": "Adding comments and questions that move a discussion on is heard.",
+   "observe": "In group talk, note comments and questions that stay on topic and add something new.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLg.04",
+   "reason": "spoken",
+   "why": "Taking turns and building on others is seen in discussion.",
+   "observe": "In group talk, note whether the child links what they say to the speaker before.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLp.01",
+   "reason": "read aloud",
+   "why": "Reading aloud with expression, pace and volume is heard.",
+   "observe": "Listen to the child read a lively passage aloud; note changes of pace and volume.",
+   "school_units": [
+    "unit.327",
+    "unit.376"
+   ],
+   "question_type": "ENG.READ_ALOUD"
+  },
+  {
+   "objective": "4SLp.02",
+   "reason": "read aloud",
+   "why": "Reading aloud accurately and fluently with its punctuation is heard.",
+   "observe": "Listen to a page read aloud; count words misread and pauses missed at commas and full stops.",
+   "school_units": [
+    "unit.376"
+   ],
+   "question_type": "ENG.READ_ALOUD"
+  },
+  {
+   "objective": "4SLp.03",
+   "reason": "spoken",
+   "why": "Changing voice, gesture and movement to play a character is a performance.",
+   "observe": "In the Let's Perform unit, watch the child play a character and change it for another.",
+   "school_units": [
+    "unit.327"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLp.04",
+   "reason": "spoken",
+   "why": "Planning and giving a group presentation to a wider audience is a performance.",
+   "observe": "Watch the group's presentation in assembly; note the child's part in planning and speaking.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLr.01",
+   "reason": "spoken",
+   "why": "Evaluating talk is done in talk, straight after it.",
+   "observe": "After presentations, ask the child for one strength and one change for next time.",
+   "school_units": [
+    "unit.323",
+    "unit.324",
+    "unit.325",
+    "unit.326",
+    "unit.327",
+    "unit.328",
+    "unit.329",
+    "unit.330"
+   ],
+   "question_type": "ENG.TALK"
+  },
+  {
+   "objective": "4SLr.02",
+   "reason": "spoken",
+   "why": "Commenting on how meaning is shown with words and without them is a spoken reflection.",
+   "observe": "After a drama, ask how a speaker's face and hands changed what their words meant.",
+   "school_units": [
+    "unit.327"
+   ],
+   "question_type": "ENG.TALK"
+  }
+ ]
+}

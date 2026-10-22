@@ -1,0 +1,2593 @@
+{
+ "skills": [
+  {
+   "code": "EN3.PHON.SOUNDS",
+   "subject": "ENG",
+   "topic": "ENG.PHON",
+   "grade": "G3",
+   "order": 1,
+   "strand": "Reading",
+   "name": "Hear one sound in different spellings",
+   "learning_objective": "Identifies words where the same letters make an unusual sound, or different letters make the same sound, and sorts them by sound.",
+   "objectives": [
+    "3Rw.01"
+   ],
+   "before": [],
+   "school_units": [
+    "unit.224"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SORT"
+   ]
+  },
+  {
+   "code": "EN3.PHON.SIGHT",
+   "subject": "ENG",
+   "topic": "ENG.PHON",
+   "grade": "G3",
+   "order": 2,
+   "strand": "Reading",
+   "name": "Read common words on sight, including words that sound alike",
+   "learning_objective": "Reads common words quickly and chooses the right one of two words that sound alike or nearly alike, by its meaning in the sentence.",
+   "objectives": [
+    "3Rw.04"
+   ],
+   "before": [],
+   "school_units": [
+    "unit.228"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.GAP"
+   ]
+  },
+  {
+   "code": "EN3.PHON.CHUNK",
+   "subject": "ENG",
+   "topic": "ENG.PHON",
+   "grade": "G3",
+   "order": 3,
+   "strand": "Reading",
+   "name": "Break a long word into parts to read it",
+   "learning_objective": "Reads an unfamiliar long word by splitting it into syllables or known parts, and uses the sentence to check it makes sense.",
+   "objectives": [
+    "3Rw.03"
+   ],
+   "before": [
+    "EN3.PHON.SOUNDS"
+   ],
+   "school_units": [
+    "unit.228"
+   ],
+   "question_types": [
+    "ENG.WRITE_WORD",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN3.SPELL.CONSONANT",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G3",
+   "order": 4,
+   "strand": "Writing",
+   "name": "Spell the j and k sounds the right way",
+   "learning_objective": "Writes the /j/ sound as j, g, ge or dge and the /k/ sound as c, k or ck, choosing by the letters around it.",
+   "objectives": [
+    "3Ww.01"
+   ],
+   "before": [
+    "EN3.PHON.SOUNDS"
+   ],
+   "school_units": [
+    "unit.224",
+    "unit.225"
+   ],
+   "question_types": [
+    "ENG.GAP",
+    "ENG.DICTATION",
+    "ENG.SORT"
+   ]
+  },
+  {
+   "code": "EN3.SPELL.VERBEND",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G3",
+   "order": 5,
+   "strand": "Writing",
+   "name": "Add -s, -ed and -ing to verbs",
+   "learning_objective": "Writes verbs with -s, -ed and -ing, dropping a final e before -ing and doubling the last consonant after a short vowel.",
+   "objectives": [
+    "3Ww.02"
+   ],
+   "before": [],
+   "school_units": [
+    "unit.224",
+    "unit.225"
+   ],
+   "question_types": [
+    "ENG.WRITE_WORD",
+    "ENG.CHOOSE",
+    "ENG.DICTATION"
+   ]
+  },
+  {
+   "code": "EN3.SPELL.AFFIX",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G3",
+   "order": 6,
+   "strand": "Writing",
+   "name": "Spell words with re-, in-, -ment, -ness and -less",
+   "learning_objective": "Writes words that add re-, in-, -ment, -ness or -less to a root word, changing y to i where the rule needs it.",
+   "objectives": [
+    "3Ww.03"
+   ],
+   "before": [
+    "EN3.SPELL.VERBEND"
+   ],
+   "school_units": [
+    "unit.224",
+    "unit.225"
+   ],
+   "question_types": [
+    "ENG.WRITE_WORD",
+    "ENG.GAP",
+    "ENG.MATCH"
+   ]
+  },
+  {
+   "code": "EN3.SPELL.HOMOPHONE",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G3",
+   "order": 7,
+   "strand": "Writing",
+   "name": "Choose to, two or too, and right or write",
+   "learning_objective": "Chooses and writes the homophone that matches the meaning of the sentence: to, two or too; right or write; and other common pairs.",
+   "objectives": [
+    "3Ww.04"
+   ],
+   "before": [
+    "EN3.PHON.SIGHT"
+   ],
+   "school_units": [
+    "unit.224",
+    "unit.225"
+   ],
+   "question_types": [
+    "ENG.GAP",
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN3.TEXT.FICTION",
+   "subject": "ENG",
+   "topic": "ENG.TEXT",
+   "grade": "G3",
+   "order": 8,
+   "strand": "Reading",
+   "name": "Tell fiction from non-fiction",
+   "learning_objective": "Sorts books and short extracts into fiction and non-fiction, and places each on the right library shelf from its subject.",
+   "objectives": [
+    "3Ri.01"
+   ],
+   "before": [],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SORT"
+   ]
+  },
+  {
+   "code": "EN3.TEXT.GENRE",
+   "subject": "ENG",
+   "topic": "ENG.TEXT",
+   "grade": "G3",
+   "order": 9,
+   "strand": "Reading",
+   "name": "Name a story's kind from its features",
+   "learning_objective": "Identifies a story as a fable, adventure, myth, mystery or funny story from its typical features, and compares two kinds.",
+   "objectives": [
+    "3Ri.03"
+   ],
+   "before": [
+    "EN3.TEXT.FICTION"
+   ],
+   "school_units": [
+    "unit.323",
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.MATCH",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN3.PHON.SHORTFORM",
+   "subject": "ENG",
+   "topic": "ENG.PHON",
+   "grade": "G3",
+   "order": 10,
+   "strand": "Reading",
+   "name": "Read short forms like isn't and we're",
+   "learning_objective": "Reads a short form with an apostrophe and says the two words it stands for, and finds which letters the apostrophe replaces.",
+   "objectives": [
+    "3Rw.02",
+    "3Rg.03"
+   ],
+   "before": [],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.MATCH",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN3.PUNCT.APOSTROPHE",
+   "subject": "ENG",
+   "topic": "ENG.PUNCT",
+   "grade": "G3",
+   "order": 11,
+   "strand": "Writing",
+   "name": "Write short forms with an apostrophe",
+   "learning_objective": "Writes the short form of two words with the apostrophe in the place of the missing letters.",
+   "objectives": [
+    "3Wg.02"
+   ],
+   "before": [
+    "EN3.PHON.SHORTFORM"
+   ],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.WRITE_WORD",
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN3.PUNCT.END",
+   "subject": "ENG",
+   "topic": "ENG.PUNCT",
+   "grade": "G3",
+   "order": 12,
+   "strand": "Writing",
+   "name": "End a sentence with a full stop, question mark or exclamation mark",
+   "learning_objective": "Writes the right end mark for each sentence, and a capital letter at the start of the next.",
+   "objectives": [
+    "3Wg.01"
+   ],
+   "before": [],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.PUNCTUATE",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN3.GRAM.SENTTYPE",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G3",
+   "order": 13,
+   "strand": "Reading",
+   "name": "Tell statements, questions, commands and exclamations apart",
+   "learning_objective": "Identifies each sentence as a statement, question, command or exclamation from its words and its end mark, and reads it with that meaning.",
+   "objectives": [
+    "3Rg.01",
+    "3Rg.02",
+    "3Rg.05"
+   ],
+   "before": [
+    "EN3.PUNCT.END"
+   ],
+   "school_units": [
+    "unit.323",
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SORT"
+   ]
+  },
+  {
+   "code": "EN3.READ.FIND",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 14,
+   "strand": "Reading",
+   "name": "Find facts the passage states",
+   "learning_objective": "Finds information stated in a passage by scanning for a key word, and answers a question by copying or pointing to the words that say it.",
+   "objectives": [
+    "3Ri.06",
+    "3Ri.14",
+    "3Ri.16"
+   ],
+   "before": [],
+   "school_units": [
+    "unit.323",
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.COPY",
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN3.READ.CHARACTER",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 15,
+   "strand": "Reading",
+   "name": "Say how the writer shows a character or a place",
+   "learning_objective": "Finds the words that tell what a character is like or what a place is like, and explains what they show.",
+   "objectives": [
+    "3Ri.08"
+   ],
+   "before": [
+    "EN3.READ.FIND"
+   ],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.COPY",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN3.READ.ORDER",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 16,
+   "strand": "Reading",
+   "name": "Put the events of a story in order",
+   "learning_objective": "Orders the events of a story or recount and says which earlier event caused a later one.",
+   "objectives": [
+    "3Rs.01"
+   ],
+   "before": [
+    "EN3.READ.FIND"
+   ],
+   "school_units": [
+    "unit.323",
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.ORDER",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN3.READ.BLURB",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 17,
+   "strand": "Reading",
+   "name": "Choose a book from its blurb",
+   "learning_objective": "Chooses a book for a reader from its blurb or a short review and explains the choice with one detail.",
+   "objectives": [
+    "3Ra.04"
+   ],
+   "before": [
+    "EN3.TEXT.GENRE"
+   ],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN3.WRITE.PLAN",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G3",
+   "order": 18,
+   "strand": "Writing",
+   "name": "Plan the main points before writing",
+   "learning_objective": "Plans a short story or report by recording its main points in a frame: beginning, middle and end, or headings.",
+   "objectives": [
+    "3Wc.02"
+   ],
+   "before": [
+    "EN3.READ.ORDER"
+   ],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.TABLE",
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN3.WRITE.DESCRIBE",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G3",
+   "order": 19,
+   "strand": "Writing",
+   "name": "Describe a place or a character",
+   "learning_objective": "Writes three to five sentences describing a setting or a character, using details of what is seen, heard and felt.",
+   "objectives": [
+    "3Wc.03"
+   ],
+   "before": [
+    "EN3.READ.CHARACTER"
+   ],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN3.VOCAB.ABC",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G3",
+   "order": 20,
+   "strand": "Reading",
+   "name": "Put words in alphabetical order by the first two letters",
+   "learning_objective": "Orders words alphabetically by their first and second letters, and uses this to find a word in a dictionary or glossary.",
+   "objectives": [
+    "3Rv.03"
+   ],
+   "before": [],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.ORDER",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN3.READ.INDEX",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 21,
+   "strand": "Reading",
+   "name": "Use a contents page and an index",
+   "learning_objective": "Finds the page for a topic from a contents page or an index, and chooses which one to use.",
+   "objectives": [
+    "3Ri.15"
+   ],
+   "before": [
+    "EN3.VOCAB.ABC"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.GAP",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN3.TEXT.NONFICTION",
+   "subject": "ENG",
+   "topic": "ENG.TEXT",
+   "grade": "G3",
+   "order": 22,
+   "strand": "Reading",
+   "name": "Say what a non-fiction text is for",
+   "learning_objective": "Identifies whether a non-fiction text instructs, reports, recounts or explains, and finds the features that show it and keep the reader interested.",
+   "objectives": [
+    "3Ri.05"
+   ],
+   "before": [
+    "EN3.TEXT.FICTION"
+   ],
+   "school_units": [
+    "unit.324",
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.MATCH"
+   ]
+  },
+  {
+   "code": "EN3.TEXT.FEATURES",
+   "subject": "ENG",
+   "topic": "ENG.TEXT",
+   "grade": "G3",
+   "order": 23,
+   "strand": "Reading and Writing",
+   "name": "Name the parts of a text",
+   "learning_objective": "Identifies titles, headings, paragraphs, chapters, numbered and bulleted lists, verses and stage directions, and says what each is for.",
+   "objectives": [
+    "3Rs.02",
+    "3Rs.03",
+    "3Ws.04"
+   ],
+   "before": [
+    "EN3.TEXT.NONFICTION"
+   ],
+   "school_units": [
+    "unit.324",
+    "unit.327"
+   ],
+   "question_types": [
+    "ENG.MATCH",
+    "ENG.CHOOSE",
+    "ENG.REWRITE"
+   ]
+  },
+  {
+   "code": "EN3.TEXT.PARAGRAPH",
+   "subject": "ENG",
+   "topic": "ENG.TEXT",
+   "grade": "G3",
+   "order": 24,
+   "strand": "Writing",
+   "name": "Group sentences that belong together",
+   "learning_objective": "Sorts sentences about the same idea into one paragraph or section, and chooses a heading for each.",
+   "objectives": [
+    "3Ws.02"
+   ],
+   "before": [
+    "EN3.TEXT.FEATURES"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.SORT",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN3.READ.MAIN",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 25,
+   "strand": "Reading",
+   "name": "Say what a passage is mostly about",
+   "learning_objective": "Chooses or writes the main point of a passage or paragraph in one sentence, leaving out small details.",
+   "objectives": [
+    "3Ri.07"
+   ],
+   "before": [
+    "EN3.READ.FIND"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN3.VOCAB.TOPIC",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G3",
+   "order": 26,
+   "strand": "Writing",
+   "name": "Use the right topic words",
+   "learning_objective": "Uses the special words of a familiar topic, such as habitats or food, in the right place in a sentence.",
+   "objectives": [
+    "3Wv.01"
+   ],
+   "before": [],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.GAP",
+    "ENG.MATCH"
+   ]
+  },
+  {
+   "code": "EN3.WRITE.TABLE",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G3",
+   "order": 27,
+   "strand": "Writing",
+   "name": "Fill a table from a text",
+   "learning_objective": "Records information from a passage in a table or labelled diagram, one fact in each box.",
+   "objectives": [
+    "3Wp.02"
+   ],
+   "before": [
+    "EN3.READ.FIND"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.TABLE"
+   ]
+  },
+  {
+   "code": "EN3.GRAM.NOUNVERB",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G3",
+   "order": 28,
+   "strand": "Reading",
+   "name": "Find nouns, pronouns, verbs and adjectives",
+   "learning_objective": "Identifies the nouns, pronouns, verbs and adjectives in a sentence and says what job each does.",
+   "objectives": [
+    "3Rg.07",
+    "3Rg.08"
+   ],
+   "before": [
+    "EN3.GRAM.SENTTYPE"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.MARK_WORDS",
+    "ENG.SORT"
+   ]
+  },
+  {
+   "code": "EN3.GRAM.PREP",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G3",
+   "order": 29,
+   "strand": "Reading and Writing",
+   "name": "Use words that say where and when",
+   "learning_objective": "Uses prepositions of place and time, such as under, behind, during and until, to say exactly where or when.",
+   "objectives": [
+    "3Rg.09",
+    "3Wg.08"
+   ],
+   "before": [
+    "EN3.GRAM.NOUNVERB"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.GAP",
+    "ENG.MARK_WORDS"
+   ]
+  },
+  {
+   "code": "EN3.SPELL.TRICKY",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G3",
+   "order": 30,
+   "strand": "Writing",
+   "name": "Spell compound words and tricky words",
+   "learning_objective": "Writes compound words by joining two words, and spells tricky words correctly using patterns, memory tricks and saying the parts.",
+   "objectives": [
+    "3Ww.05"
+   ],
+   "before": [
+    "EN3.SPELL.CONSONANT"
+   ],
+   "school_units": [
+    "unit.325",
+    "unit.225"
+   ],
+   "question_types": [
+    "ENG.WRITE_WORD",
+    "ENG.DICTATION"
+   ]
+  },
+  {
+   "code": "EN3.VOCAB.CONTEXT",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G3",
+   "order": 31,
+   "strand": "Reading",
+   "name": "Work out a new word's meaning from the sentence",
+   "learning_objective": "Chooses the meaning of an unfamiliar word from the clues in the sentence and the sentences around it.",
+   "objectives": [
+    "3Rv.01"
+   ],
+   "before": [],
+   "school_units": [
+    "unit.325"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN3.VOCAB.SYNONYM",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G3",
+   "order": 32,
+   "strand": "Reading and Writing",
+   "name": "Find and use words that mean the same",
+   "learning_objective": "Finds words in a text that mean the same as a given word, and chooses a better synonym for big, small, nice or good.",
+   "objectives": [
+    "3Rv.02",
+    "3Wv.02"
+   ],
+   "before": [
+    "EN3.VOCAB.CONTEXT"
+   ],
+   "school_units": [
+    "unit.325"
+   ],
+   "question_types": [
+    "ENG.COPY",
+    "ENG.CHOOSE",
+    "ENG.GAP"
+   ]
+  },
+  {
+   "code": "EN3.VOCAB.DESCRIBE",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G3",
+   "order": 33,
+   "strand": "Reading and Writing",
+   "name": "Spot and add describing words",
+   "learning_objective": "Identifies the adjectives and noun phrases that make a picture for the reader, and adds describing words to a plain noun.",
+   "objectives": [
+    "3Rv.04",
+    "3Wv.05"
+   ],
+   "before": [
+    "EN3.GRAM.NOUNVERB"
+   ],
+   "school_units": [
+    "unit.325"
+   ],
+   "question_types": [
+    "ENG.MARK_WORDS",
+    "ENG.REWRITE"
+   ]
+  },
+  {
+   "code": "EN3.VOCAB.SOUNDWORD",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G3",
+   "order": 34,
+   "strand": "Reading and Writing",
+   "name": "Spot and use sound words",
+   "learning_objective": "Identifies words that sound like the noise they name, and chooses one to fit a sound in a sentence.",
+   "objectives": [
+    "3Rv.07",
+    "3Wv.06"
+   ],
+   "before": [
+    "EN3.VOCAB.DESCRIBE"
+   ],
+   "school_units": [
+    "unit.325",
+    "unit.327"
+   ],
+   "question_types": [
+    "ENG.MARK_WORDS",
+    "ENG.GAP"
+   ]
+  },
+  {
+   "code": "EN3.READ.INFER",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 35,
+   "strand": "Reading",
+   "name": "Work out what the writer hints at",
+   "learning_objective": "Explains what a character feels, thinks or wants from clues in what they do and say, when the passage does not say it.",
+   "objectives": [
+    "3Ri.10",
+    "3Ri.12"
+   ],
+   "before": [
+    "EN3.READ.CHARACTER"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN3.READ.THEME",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 36,
+   "strand": "Reading",
+   "name": "Say what a story teaches",
+   "learning_objective": "Identifies the lesson or big idea of a story, such as kindness or honesty, and finds stories that share it.",
+   "objectives": [
+    "3Ri.17"
+   ],
+   "before": [
+    "EN3.READ.MAIN"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN3.READ.COMPARE",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 37,
+   "strand": "Reading",
+   "name": "Compare two tellings of one story",
+   "learning_objective": "Compares two retellings of the same story and finds what stays the same and what changes.",
+   "objectives": [
+    "3Ra.05"
+   ],
+   "before": [
+    "EN3.READ.THEME"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.TABLE",
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN3.READ.PREDICT",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 38,
+   "strand": "Reading",
+   "name": "Predict how a story might end",
+   "learning_objective": "Predicts a story's ending from what has happened and from stories of the same kind, and gives a reason.",
+   "objectives": [
+    "3Ri.11"
+   ],
+   "before": [
+    "EN3.READ.ORDER",
+    "EN3.READ.INFER"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN3.GRAM.TENSE",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G3",
+   "order": 39,
+   "strand": "Reading and Writing",
+   "name": "Keep verbs in the past or the present",
+   "learning_objective": "Identifies past and present verbs in a text and writes regular verbs in one tense all the way through.",
+   "objectives": [
+    "3Rg.10",
+    "3Wg.06"
+   ],
+   "before": [
+    "EN3.GRAM.NOUNVERB"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.CORRECT",
+    "ENG.SORT"
+   ]
+  },
+  {
+   "code": "EN3.GRAM.IRREGULAR",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G3",
+   "order": 40,
+   "strand": "Reading and Writing",
+   "name": "Use irregular past tense verbs",
+   "learning_objective": "Writes the past tense of common irregular verbs, such as go and went, and matches each to its present form.",
+   "objectives": [
+    "3Rg.11",
+    "3Wg.07"
+   ],
+   "before": [
+    "EN3.GRAM.TENSE",
+    "EN3.SPELL.VERBEND"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.WRITE_WORD",
+    "ENG.MATCH",
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN3.VOCAB.OPENER",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G3",
+   "order": 41,
+   "strand": "Reading and Writing",
+   "name": "Start a sentence with when, where or how",
+   "learning_objective": "Sorts sentence openers by time, place and manner, and uses one to link a sentence to the one before.",
+   "objectives": [
+    "3Rv.06",
+    "3Wv.04",
+    "3Rs.04",
+    "3Ws.03"
+   ],
+   "before": [
+    "EN3.GRAM.SENTTYPE"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.SORT",
+    "ENG.CHOOSE",
+    "ENG.REWRITE"
+   ]
+  },
+  {
+   "code": "EN3.GRAM.JOIN",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G3",
+   "order": 42,
+   "strand": "Reading and Writing",
+   "name": "Join two ideas in one sentence",
+   "learning_objective": "Uses and, but, so, because, when, before, after and if to join two ideas into one sentence that makes sense.",
+   "objectives": [
+    "3Rg.06",
+    "3Wg.05"
+   ],
+   "before": [
+    "EN3.GRAM.SENTTYPE"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.GAP",
+    "ENG.REWRITE"
+   ]
+  },
+  {
+   "code": "EN3.WRITE.SEQUENCE",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G3",
+   "order": 43,
+   "strand": "Writing",
+   "name": "Write events in a clear order",
+   "learning_objective": "Writes four to six sentences that tell events in order, linking them with time words.",
+   "objectives": [
+    "3Ws.01"
+   ],
+   "before": [
+    "EN3.WRITE.PLAN",
+    "EN3.VOCAB.OPENER"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN3.WRITE.PLAYSCRIPT",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G3",
+   "order": 44,
+   "strand": "Writing",
+   "name": "Turn a short story part into a playscript",
+   "learning_objective": "Writes a few lines of a story as a playscript, with each speaker's name, their words and a stage direction.",
+   "objectives": [
+    "3Wc.04"
+   ],
+   "before": [
+    "EN3.WRITE.SEQUENCE",
+    "EN3.TEXT.FEATURES"
+   ],
+   "school_units": [
+    "unit.327"
+   ],
+   "question_types": [
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN3.PUNCT.SPEECH",
+   "subject": "ENG",
+   "topic": "ENG.PUNCT",
+   "grade": "G3",
+   "order": 45,
+   "strand": "Reading and Writing",
+   "name": "Put speech marks round spoken words",
+   "learning_objective": "Finds the words a character says and writes speech marks round them, keeping the narrator's words outside.",
+   "objectives": [
+    "3Rg.04",
+    "3Wg.03"
+   ],
+   "before": [
+    "EN3.PUNCT.END"
+   ],
+   "school_units": [
+    "unit.328"
+   ],
+   "question_types": [
+    "ENG.MARK_WORDS",
+    "ENG.PUNCTUATE"
+   ]
+  },
+  {
+   "code": "EN3.VOCAB.SAYVERB",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G3",
+   "order": 46,
+   "strand": "Reading and Writing",
+   "name": "Choose a better word than said",
+   "learning_objective": "Chooses a speech verb, such as whispered or shouted, that shows how something is said, and explains what it adds.",
+   "objectives": [
+    "3Rv.05",
+    "3Wv.03"
+   ],
+   "before": [
+    "EN3.PUNCT.SPEECH"
+   ],
+   "school_units": [
+    "unit.328"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.GAP"
+   ]
+  },
+  {
+   "code": "EN3.WRITE.IMPROVE",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G3",
+   "order": 47,
+   "strand": "Writing",
+   "name": "Suggest how to make writing better",
+   "learning_objective": "Checks a short piece of writing for sense and content and suggests one clear improvement with a better version.",
+   "objectives": [
+    "3Wp.04"
+   ],
+   "before": [
+    "EN3.WRITE.DESCRIBE"
+   ],
+   "school_units": [
+    "unit.328"
+   ],
+   "question_types": [
+    "ENG.SHORT_ANSWER",
+    "ENG.REWRITE"
+   ]
+  },
+  {
+   "code": "EN3.READ.INSTRUCT",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 48,
+   "strand": "Reading",
+   "name": "Follow written instructions",
+   "learning_objective": "Reads written steps, such as a recipe or a puzzle, carries them out in order on the paper and shows the result.",
+   "objectives": [
+    "3Ri.09"
+   ],
+   "before": [
+    "EN3.READ.FIND"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.ORDER"
+   ]
+  },
+  {
+   "code": "EN3.READ.FACTOPINION",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G3",
+   "order": 49,
+   "strand": "Reading",
+   "name": "Tell a fact from an opinion",
+   "learning_objective": "Sorts sentences into facts, which can be checked, and opinions, which say what someone thinks.",
+   "objectives": [
+    "3Ri.13"
+   ],
+   "before": [
+    "EN3.TEXT.NONFICTION"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.SORT",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN3.WRITE.REVIEW",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G3",
+   "order": 50,
+   "strand": "Reading",
+   "name": "Write a short review of a book",
+   "learning_objective": "Writes a short review that says what a book is about and gives an opinion with a reason.",
+   "objectives": [
+    "3Ra.03"
+   ],
+   "before": [
+    "EN3.READ.BLURB"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN3.GRAM.WRITETYPE",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G3",
+   "order": 51,
+   "strand": "Writing",
+   "name": "Write a question, a command and an exclamation",
+   "learning_objective": "Writes each kind of sentence for a purpose, such as a command for a recipe or a question for an interview, with the right end mark.",
+   "objectives": [
+    "3Wg.04"
+   ],
+   "before": [
+    "EN3.GRAM.SENTTYPE"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.REWRITE",
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN3.WRITE.PROOFREAD",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G3",
+   "order": 52,
+   "strand": "Writing",
+   "name": "Find and fix mistakes in spelling, grammar and punctuation",
+   "learning_objective": "Finds and corrects the spelling, grammar and punctuation mistakes in a short piece of writing.",
+   "objectives": [
+    "3Wp.05"
+   ],
+   "before": [
+    "EN3.PUNCT.END",
+    "EN3.SPELL.VERBEND",
+    "EN3.SPELL.HOMOPHONE"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN4.PHON.READNEW",
+   "subject": "ENG",
+   "topic": "ENG.PHON",
+   "grade": "G4",
+   "order": 1,
+   "strand": "Reading",
+   "name": "Read new long words from their parts",
+   "learning_objective": "Reads an unfamiliar long word by finding its root, prefix and suffix, and uses the sentence to check its meaning.",
+   "objectives": [
+    "4Rw.01"
+   ],
+   "before": [
+    "EN3.PHON.CHUNK"
+   ],
+   "school_units": [
+    "unit.376"
+   ],
+   "question_types": [
+    "ENG.WRITE_WORD",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN4.PHON.STRESS",
+   "subject": "ENG",
+   "topic": "ENG.PHON",
+   "grade": "G4",
+   "order": 2,
+   "strand": "Reading",
+   "name": "Hear the strong beat in a long word",
+   "learning_objective": "Identifies the stressed syllable in a word of two to four syllables, and the weak syllables around it.",
+   "objectives": [
+    "4Rw.02"
+   ],
+   "before": [
+    "EN3.PHON.CHUNK"
+   ],
+   "school_units": [
+    "unit.376"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.WRITE_WORD"
+   ]
+  },
+  {
+   "code": "EN4.PHON.SIGHT",
+   "subject": "ENG",
+   "topic": "ENG.PHON",
+   "grade": "G4",
+   "order": 3,
+   "strand": "Reading",
+   "name": "Read words that look or sound nearly alike",
+   "learning_objective": "Reads common words at sight and chooses between near-homophones, such as quiet and quite, by meaning.",
+   "objectives": [
+    "4Rw.03"
+   ],
+   "before": [
+    "EN3.PHON.SIGHT"
+   ],
+   "school_units": [
+    "unit.376"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.GAP"
+   ]
+  },
+  {
+   "code": "EN4.SPELL.SILENT",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G4",
+   "order": 4,
+   "strand": "Writing",
+   "name": "Spell words with silent letters and unusual vowel spellings",
+   "learning_objective": "Writes words with silent letters, the 'o' spelling of the short u sound, and the vowel changes after w.",
+   "objectives": [
+    "4Ww.01"
+   ],
+   "before": [
+    "EN3.SPELL.CONSONANT"
+   ],
+   "school_units": [
+    "unit.372",
+    "unit.373"
+   ],
+   "question_types": [
+    "ENG.GAP",
+    "ENG.DICTATION",
+    "ENG.SORT"
+   ]
+  },
+  {
+   "code": "EN4.SPELL.PLURAL",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G4",
+   "order": 5,
+   "strand": "Writing",
+   "name": "Make plurals with -s, -es, -ies and -ves",
+   "learning_objective": "Writes the plural of a noun by adding -s or -es, changing y to ies, or changing f or fe to ves.",
+   "objectives": [
+    "4Ww.02"
+   ],
+   "before": [
+    "EN3.SPELL.VERBEND"
+   ],
+   "school_units": [
+    "unit.372",
+    "unit.373"
+   ],
+   "question_types": [
+    "ENG.WRITE_WORD",
+    "ENG.SORT",
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN4.SPELL.AFFIX",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G4",
+   "order": 6,
+   "strand": "Writing",
+   "name": "Spell words with trans-, pre-, -ion, -ation and -ous",
+   "learning_objective": "Writes words with trans-, pre-, -ion, -ation and -ous, changing the root where the rule needs it.",
+   "objectives": [
+    "4Ww.03"
+   ],
+   "before": [
+    "EN3.SPELL.AFFIX"
+   ],
+   "school_units": [
+    "unit.372",
+    "unit.373"
+   ],
+   "question_types": [
+    "ENG.WRITE_WORD",
+    "ENG.GAP",
+    "ENG.MATCH"
+   ]
+  },
+  {
+   "code": "EN4.SPELL.THEIR",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G4",
+   "order": 7,
+   "strand": "Writing",
+   "name": "Choose there, their or they're",
+   "learning_objective": "Chooses there, their or they're, and your or you're, by the job the word does in the sentence.",
+   "objectives": [
+    "4Ww.05"
+   ],
+   "before": [
+    "EN3.SPELL.HOMOPHONE"
+   ],
+   "school_units": [
+    "unit.372",
+    "unit.373"
+   ],
+   "question_types": [
+    "ENG.GAP",
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN4.SPELL.OUGH",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G4",
+   "order": 8,
+   "strand": "Writing",
+   "name": "Spell letter strings said in different ways",
+   "learning_objective": "Writes words with the same letter string said in different ways, such as -ough, -ou- and -ear, and sorts them by sound.",
+   "objectives": [
+    "4Ww.06"
+   ],
+   "before": [
+    "EN4.SPELL.SILENT"
+   ],
+   "school_units": [
+    "unit.372",
+    "unit.373"
+   ],
+   "question_types": [
+    "ENG.SORT",
+    "ENG.DICTATION",
+    "ENG.GAP"
+   ]
+  },
+  {
+   "code": "EN4.SPELL.RULE",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G4",
+   "order": 9,
+   "strand": "Writing",
+   "name": "Find a spelling rule and test it",
+   "learning_objective": "Finds the rule a set of words follows, tests it on new words, and finds the word that breaks it.",
+   "objectives": [
+    "4Ww.07"
+   ],
+   "before": [
+    "EN4.SPELL.PLURAL"
+   ],
+   "school_units": [
+    "unit.372"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.WRITE_WORD"
+   ]
+  },
+  {
+   "code": "EN4.SPELL.TRICKY",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G4",
+   "order": 10,
+   "strand": "Writing",
+   "name": "Spell tricky words with rules, parts and memory tricks",
+   "learning_objective": "Writes unfamiliar regular and tricky words correctly, using syllables, rules, word parts and memory tricks.",
+   "objectives": [
+    "4Ww.08"
+   ],
+   "before": [
+    "EN3.SPELL.TRICKY"
+   ],
+   "school_units": [
+    "unit.373"
+   ],
+   "question_types": [
+    "ENG.DICTATION",
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN4.TEXT.FICTION",
+   "subject": "ENG",
+   "topic": "ENG.TEXT",
+   "grade": "G4",
+   "order": 11,
+   "strand": "Reading",
+   "name": "Find fiction and non-fiction books by their labels",
+   "learning_objective": "Sorts books into fiction and non-fiction and places a non-fiction book in its section from its subject and label.",
+   "objectives": [
+    "4Ri.01"
+   ],
+   "before": [
+    "EN3.TEXT.FICTION"
+   ],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SORT"
+   ]
+  },
+  {
+   "code": "EN4.TEXT.GENRE",
+   "subject": "ENG",
+   "topic": "ENG.TEXT",
+   "grade": "G4",
+   "order": 12,
+   "strand": "Reading",
+   "name": "Compare kinds of stories by their features",
+   "learning_objective": "Compares two kinds of story, such as a fable and an adventure, by their characters, settings, plots and language.",
+   "objectives": [
+    "4Ri.03"
+   ],
+   "before": [
+    "EN3.TEXT.GENRE",
+    "EN4.TEXT.FICTION"
+   ],
+   "school_units": [
+    "unit.323",
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.TABLE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN4.READ.FIND",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 13,
+   "strand": "Reading",
+   "name": "Find and use information to answer questions",
+   "learning_objective": "Finds the information a question needs in a longer passage, sometimes from two places, and uses it in the answer.",
+   "objectives": [
+    "4Ri.06",
+    "4Ri.14",
+    "4Ri.15"
+   ],
+   "before": [
+    "EN3.READ.FIND",
+    "EN3.READ.INDEX"
+   ],
+   "school_units": [
+    "unit.323",
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.COPY",
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN4.READ.CHARACTER",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 14,
+   "strand": "Reading",
+   "name": "Show how a character or place is built, with the story's words",
+   "learning_objective": "Explains how a writer builds a character or setting and quotes the key words and phrases that show it.",
+   "objectives": [
+    "4Ri.08"
+   ],
+   "before": [
+    "EN3.READ.CHARACTER",
+    "EN4.READ.FIND"
+   ],
+   "school_units": [
+    "unit.323",
+    "unit.328"
+   ],
+   "question_types": [
+    "ENG.COPY",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN4.READ.STAGES",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 15,
+   "strand": "Reading",
+   "name": "Name the stages of a text from opening to ending",
+   "learning_objective": "Places each part of a story or report in its stage: opening, build-up, problem, resolution and ending, or introduction to conclusion.",
+   "objectives": [
+    "4Rs.01"
+   ],
+   "before": [
+    "EN3.READ.ORDER"
+   ],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.MATCH",
+    "ENG.ORDER"
+   ]
+  },
+  {
+   "code": "EN4.PUNCT.END",
+   "subject": "ENG",
+   "topic": "ENG.PUNCT",
+   "grade": "G4",
+   "order": 16,
+   "strand": "Writing",
+   "name": "End every sentence correctly",
+   "learning_objective": "Writes the right end mark and capital letter in a run of sentences where the breaks are not shown.",
+   "objectives": [
+    "4Wg.01"
+   ],
+   "before": [
+    "EN3.PUNCT.END"
+   ],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.PUNCTUATE",
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN4.PUNCT.COMMA",
+   "subject": "ENG",
+   "topic": "ENG.PUNCT",
+   "grade": "G4",
+   "order": 17,
+   "strand": "Reading and Writing",
+   "name": "Use commas to make meaning clear",
+   "learning_objective": "Writes commas in lists, after an opening phrase and before a name someone is spoken to, and says how a comma changes the meaning.",
+   "objectives": [
+    "4Rg.01",
+    "4Rg.02",
+    "4Wg.02"
+   ],
+   "before": [
+    "EN4.PUNCT.END"
+   ],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.PUNCTUATE",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN4.WRITE.DESCRIBE",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G4",
+   "order": 18,
+   "strand": "Writing",
+   "name": "Describe a setting or character to catch the reader",
+   "learning_objective": "Writes a paragraph describing a setting or character with chosen details, senses and comparisons that make the reader want to read on.",
+   "objectives": [
+    "4Wc.04"
+   ],
+   "before": [
+    "EN3.WRITE.DESCRIBE"
+   ],
+   "school_units": [
+    "unit.323"
+   ],
+   "question_types": [
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN4.WRITE.ENDING",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G4",
+   "order": 19,
+   "strand": "Writing",
+   "name": "Write a new beginning or ending for a story",
+   "learning_objective": "Writes a different opening or ending for a known story that fits its characters and what has already happened.",
+   "objectives": [
+    "4Wc.05"
+   ],
+   "before": [
+    "EN4.READ.STAGES",
+    "EN3.READ.PREDICT"
+   ],
+   "school_units": [
+    "unit.323",
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN4.VOCAB.ABC",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G4",
+   "order": 20,
+   "strand": "Reading",
+   "name": "Put words in alphabetical order past the first letters",
+   "learning_objective": "Orders words alphabetically using the third letter or later when the first letters match, and uses guide words in a dictionary.",
+   "objectives": [
+    "4Rv.04"
+   ],
+   "before": [
+    "EN3.VOCAB.ABC"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.ORDER",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN4.VOCAB.TOPIC",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G4",
+   "order": 21,
+   "strand": "Writing",
+   "name": "Use topic words accurately",
+   "learning_objective": "Uses the special words of a familiar topic accurately, choosing between topic words with close meanings.",
+   "objectives": [
+    "4Wv.01"
+   ],
+   "before": [
+    "EN3.VOCAB.TOPIC"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.GAP",
+    "ENG.MATCH"
+   ]
+  },
+  {
+   "code": "EN4.SPELL.ROOT",
+   "subject": "ENG",
+   "topic": "ENG.SPELL",
+   "grade": "G4",
+   "order": 22,
+   "strand": "Reading and Writing",
+   "name": "Build words from the same root",
+   "learning_objective": "Sorts words into families with the same root, writes new words from a root and says what the family means.",
+   "objectives": [
+    "4Ww.04",
+    "4Rv.02"
+   ],
+   "before": [
+    "EN3.SPELL.AFFIX"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.SORT",
+    "ENG.WRITE_WORD",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN4.READ.KEYWORDS",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 23,
+   "strand": "Reading",
+   "name": "Pick the key words that carry the main points",
+   "learning_objective": "Finds the key words and phrases in a paragraph that carry its main point, leaving out the details.",
+   "objectives": [
+    "4Ri.07"
+   ],
+   "before": [
+    "EN3.READ.MAIN"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.COPY",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN4.READ.SKIM",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 24,
+   "strand": "Reading",
+   "name": "Skim a text for its overall sense",
+   "learning_objective": "Reads a text quickly for its gist, using title, headings and first sentences, and chooses what it is mostly about.",
+   "objectives": [
+    "4Ri.13"
+   ],
+   "before": [
+    "EN4.READ.KEYWORDS"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.MATCH"
+   ]
+  },
+  {
+   "code": "EN4.TEXT.PARAGRAPH",
+   "subject": "ENG",
+   "topic": "ENG.TEXT",
+   "grade": "G4",
+   "order": 25,
+   "strand": "Reading and Writing",
+   "name": "Organise ideas into paragraphs and sections",
+   "learning_objective": "Sorts ideas into paragraphs and sections with headings, and finds the sentence that does not belong.",
+   "objectives": [
+    "4Rs.03",
+    "4Ws.02"
+   ],
+   "before": [
+    "EN3.TEXT.PARAGRAPH"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.SORT",
+    "ENG.MATCH",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN4.TEXT.FEATURES",
+   "subject": "ENG",
+   "topic": "ENG.TEXT",
+   "grade": "G4",
+   "order": 26,
+   "strand": "Reading and Writing",
+   "name": "Name the features of a kind of text",
+   "learning_objective": "Identifies the features of a poem, playscript, report or set of instructions and uses lists and headings where the text needs them.",
+   "objectives": [
+    "4Rs.02",
+    "4Ws.04"
+   ],
+   "before": [
+    "EN3.TEXT.FEATURES"
+   ],
+   "school_units": [
+    "unit.324",
+    "unit.327"
+   ],
+   "question_types": [
+    "ENG.MATCH",
+    "ENG.CHOOSE",
+    "ENG.REWRITE"
+   ]
+  },
+  {
+   "code": "EN4.READ.LINKS",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 27,
+   "strand": "Reading",
+   "name": "Follow how ideas link within and between paragraphs",
+   "learning_objective": "Finds the words that link one point to the next within and between paragraphs, and says how each new point builds on the last.",
+   "objectives": [
+    "4Rs.04"
+   ],
+   "before": [
+    "EN4.TEXT.PARAGRAPH"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.MARK_WORDS",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN4.WRITE.NOTES",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G4",
+   "order": 28,
+   "strand": "Writing",
+   "name": "Make short notes from a text",
+   "learning_objective": "Records the key facts of a passage as short notes in a table or list, then uses them to write.",
+   "objectives": [
+    "4Wp.02"
+   ],
+   "before": [
+    "EN3.WRITE.TABLE",
+    "EN4.READ.KEYWORDS"
+   ],
+   "school_units": [
+    "unit.324"
+   ],
+   "question_types": [
+    "ENG.TABLE",
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN4.VOCAB.CONTEXT",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G4",
+   "order": 29,
+   "strand": "Reading",
+   "name": "Suggest a synonym for a new word from its sentence",
+   "learning_objective": "Uses clues in the sentence to suggest a word that means the same as an unfamiliar word.",
+   "objectives": [
+    "4Rv.01"
+   ],
+   "before": [
+    "EN3.VOCAB.CONTEXT"
+   ],
+   "school_units": [
+    "unit.325"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.WRITE_WORD"
+   ]
+  },
+  {
+   "code": "EN4.VOCAB.SYNONYM",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G4",
+   "order": 30,
+   "strand": "Reading and Writing",
+   "name": "Collect strong words and replace overused ones",
+   "learning_objective": "Finds strong words in a text and chooses a better word or phrase for an overused one, such as nice, got or a lot.",
+   "objectives": [
+    "4Rv.03",
+    "4Wv.02"
+   ],
+   "before": [
+    "EN3.VOCAB.SYNONYM"
+   ],
+   "school_units": [
+    "unit.325"
+   ],
+   "question_types": [
+    "ENG.COPY",
+    "ENG.CHOOSE",
+    "ENG.REWRITE"
+   ]
+  },
+  {
+   "code": "EN4.VOCAB.SHADES",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G4",
+   "order": 31,
+   "strand": "Reading and Writing",
+   "name": "Order words by strength of meaning",
+   "learning_objective": "Orders adjectives and adverbs from weakest to strongest and chooses the one that fits a sentence exactly.",
+   "objectives": [
+    "4Rv.06",
+    "4Wv.03"
+   ],
+   "before": [
+    "EN4.VOCAB.SYNONYM"
+   ],
+   "school_units": [
+    "unit.325"
+   ],
+   "question_types": [
+    "ENG.ORDER",
+    "ENG.GAP"
+   ]
+  },
+  {
+   "code": "EN4.VOCAB.FIGURE",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G4",
+   "order": 32,
+   "strand": "Reading",
+   "name": "Spot and explain similes and alliteration",
+   "learning_objective": "Identifies similes and alliteration in a text and explains the picture or sound each one makes.",
+   "objectives": [
+    "4Rv.07",
+    "4Rv.08"
+   ],
+   "before": [
+    "EN3.VOCAB.SOUNDWORD"
+   ],
+   "school_units": [
+    "unit.325",
+    "unit.330"
+   ],
+   "question_types": [
+    "ENG.MARK_WORDS",
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN4.VOCAB.WRITEFIGURE",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G4",
+   "order": 33,
+   "strand": "Writing",
+   "name": "Write similes and alliteration",
+   "learning_objective": "Writes a simile with like or as and a phrase with alliteration to describe something in a fresh way.",
+   "objectives": [
+    "4Wv.05"
+   ],
+   "before": [
+    "EN4.VOCAB.FIGURE"
+   ],
+   "school_units": [
+    "unit.325",
+    "unit.330"
+   ],
+   "question_types": [
+    "ENG.REWRITE",
+    "ENG.GAP"
+   ]
+  },
+  {
+   "code": "EN4.READ.INFER",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 34,
+   "strand": "Reading",
+   "name": "Work out hidden meanings about places and characters",
+   "learning_objective": "Explains what the writer suggests about a setting or a character from clues, and quotes the clue.",
+   "objectives": [
+    "4Ri.09",
+    "4Ri.11"
+   ],
+   "before": [
+    "EN3.READ.INFER"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN4.READ.PREDICT",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 35,
+   "strand": "Reading",
+   "name": "Predict what happens next from earlier events",
+   "learning_objective": "Predicts what happens next in a story and links the prediction to an earlier event in it.",
+   "objectives": [
+    "4Ri.10"
+   ],
+   "before": [
+    "EN3.READ.PREDICT",
+    "EN4.READ.INFER"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN4.READ.THEME",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 36,
+   "strand": "Reading",
+   "name": "Compare the themes of two texts",
+   "learning_objective": "Compares the themes and features of two texts and finds what they share and where they differ.",
+   "objectives": [
+    "4Ri.16"
+   ],
+   "before": [
+    "EN3.READ.THEME"
+   ],
+   "school_units": [
+    "unit.326",
+    "unit.330"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.TABLE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN4.READ.CONTEXT",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 37,
+   "strand": "Reading",
+   "name": "Say how a story shows its time and place",
+   "learning_objective": "Finds the details that show when and where a story is set, and explains how life there differs from today.",
+   "objectives": [
+    "4Ra.04"
+   ],
+   "before": [
+    "EN4.READ.INFER"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.COPY",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN4.GRAM.TENSE",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G4",
+   "order": 38,
+   "strand": "Reading and Writing",
+   "name": "Use past, present and future verb forms",
+   "learning_objective": "Writes verbs in the past, present and future, keeps a tense steady, and changes tense on purpose inside speech.",
+   "objectives": [
+    "4Rg.09",
+    "4Wg.06",
+    "4Wg.07"
+   ],
+   "before": [
+    "EN3.GRAM.TENSE",
+    "EN3.GRAM.IRREGULAR"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.WRITE_WORD",
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN4.GRAM.AGREE",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G4",
+   "order": 39,
+   "strand": "Reading and Writing",
+   "name": "Make the subject and the verb agree",
+   "learning_objective": "Chooses is or are, was or were, and has or have to agree with the subject, in the past, present and future.",
+   "objectives": [
+    "4Rg.10",
+    "4Wg.08"
+   ],
+   "before": [
+    "EN4.GRAM.TENSE"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN4.GRAM.CONNECT",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G4",
+   "order": 40,
+   "strand": "Reading and Writing",
+   "name": "Join clauses and paragraphs with connectives",
+   "learning_objective": "Finds connectives in a text and uses them, such as unless, while, since and so that, to join clauses and to link paragraphs.",
+   "objectives": [
+    "4Rg.04",
+    "4Rg.05",
+    "4Wg.05",
+    "4Ws.03"
+   ],
+   "before": [
+    "EN3.GRAM.JOIN"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.MARK_WORDS",
+    "ENG.CHOOSE",
+    "ENG.REWRITE"
+   ]
+  },
+  {
+   "code": "EN4.WRITE.SEQUENCE",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G4",
+   "order": 41,
+   "strand": "Writing",
+   "name": "Write ideas in a logical order with clear links",
+   "learning_objective": "Writes a paragraph whose ideas follow on in order, showing how each links to the last with connectives.",
+   "objectives": [
+    "4Ws.01"
+   ],
+   "before": [
+    "EN3.WRITE.SEQUENCE",
+    "EN4.GRAM.CONNECT"
+   ],
+   "school_units": [
+    "unit.326"
+   ],
+   "question_types": [
+    "ENG.SHORT_WRITE",
+    "ENG.ORDER"
+   ]
+  },
+  {
+   "code": "EN4.WRITE.PLAYSCRIPT",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G4",
+   "order": 42,
+   "strand": "Writing",
+   "name": "Write a short scene of a play",
+   "learning_objective": "Writes an original short scene for two or three characters with names, lines and stage directions set out as a playscript.",
+   "objectives": [
+    "4Wc.07"
+   ],
+   "before": [
+    "EN3.WRITE.PLAYSCRIPT"
+   ],
+   "school_units": [
+    "unit.327"
+   ],
+   "question_types": [
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN4.READ.VIEWPOINT",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 43,
+   "strand": "Reading",
+   "name": "Say who is telling the story",
+   "learning_objective": "Identifies whether a story is told by a character (I, we) or by a narrator outside it (he, she, they), and finds the words that show it.",
+   "objectives": [
+    "4Ri.17"
+   ],
+   "before": [
+    "EN4.READ.CHARACTER"
+   ],
+   "school_units": [
+    "unit.328"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.COPY"
+   ]
+  },
+  {
+   "code": "EN4.READ.RESPOND",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 44,
+   "strand": "Reading",
+   "name": "Link a story to your own life",
+   "learning_objective": "Explains a personal response to a character, setting or event and links it to an experience of their own.",
+   "objectives": [
+    "4Ra.02"
+   ],
+   "before": [
+    "EN4.READ.CHARACTER"
+   ],
+   "school_units": [
+    "unit.328"
+   ],
+   "question_types": [
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN4.PUNCT.SPEECH",
+   "subject": "ENG",
+   "topic": "ENG.PUNCT",
+   "grade": "G4",
+   "order": 45,
+   "strand": "Reading and Writing",
+   "name": "Set out and punctuate speech",
+   "learning_objective": "Writes speech with speech marks, a comma, question mark or exclamation mark inside them, and a new line for a new speaker.",
+   "objectives": [
+    "4Rg.03",
+    "4Wg.04"
+   ],
+   "before": [
+    "EN3.PUNCT.SPEECH",
+    "EN4.PUNCT.COMMA"
+   ],
+   "school_units": [
+    "unit.328"
+   ],
+   "question_types": [
+    "ENG.PUNCTUATE",
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN4.VOCAB.VERBCHOICE",
+   "subject": "ENG",
+   "topic": "ENG.VOCAB",
+   "grade": "G4",
+   "order": 46,
+   "strand": "Reading and Writing",
+   "name": "Choose strong verbs and say what they add",
+   "learning_objective": "Chooses a strong verb in place of a plain one and explains how it changes the picture for the reader.",
+   "objectives": [
+    "4Rv.05",
+    "4Wv.04"
+   ],
+   "before": [
+    "EN3.VOCAB.SAYVERB"
+   ],
+   "school_units": [
+    "unit.328"
+   ],
+   "question_types": [
+    "ENG.CHOOSE",
+    "ENG.GAP",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN4.WRITE.PLAN",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G4",
+   "order": 47,
+   "strand": "Writing",
+   "name": "Plan writing in different ways",
+   "learning_objective": "Plans writing with the frame that suits it: a story mountain, a mind map, a table or a list of steps.",
+   "objectives": [
+    "4Wc.02"
+   ],
+   "before": [
+    "EN3.WRITE.PLAN"
+   ],
+   "school_units": [
+    "unit.328"
+   ],
+   "question_types": [
+    "ENG.TABLE",
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN4.WRITE.PROFILE",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G4",
+   "order": 48,
+   "strand": "Writing",
+   "name": "Write a character profile",
+   "learning_objective": "Writes a character profile with looks, personality, likes and a quote, each backed by a detail from the story.",
+   "objectives": [
+    "4Wc.03"
+   ],
+   "before": [
+    "EN4.READ.CHARACTER"
+   ],
+   "school_units": [
+    "unit.328"
+   ],
+   "question_types": [
+    "ENG.TABLE",
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN4.WRITE.VIEWPOINT",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G4",
+   "order": 49,
+   "strand": "Writing",
+   "name": "Write a character's opinion of a place or person",
+   "learning_objective": "Writes a few sentences as a character, giving their opinion of a setting or another character and a reason.",
+   "objectives": [
+    "4Wc.06"
+   ],
+   "before": [
+    "EN4.READ.VIEWPOINT"
+   ],
+   "school_units": [
+    "unit.328"
+   ],
+   "question_types": [
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN4.TEXT.PERSUADE",
+   "subject": "ENG",
+   "topic": "ENG.TEXT",
+   "grade": "G4",
+   "order": 50,
+   "strand": "Reading",
+   "name": "Spot how a text tries to persuade",
+   "learning_objective": "Identifies how an advert or review persuades: strong adjectives, questions to the reader, numbers and promises.",
+   "objectives": [
+    "4Ri.05"
+   ],
+   "before": [
+    "EN3.TEXT.NONFICTION"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.MARK_WORDS",
+    "ENG.CHOOSE",
+    "ENG.SHORT_ANSWER"
+   ]
+  },
+  {
+   "code": "EN4.READ.FACTOPINION",
+   "subject": "ENG",
+   "topic": "ENG.READ",
+   "grade": "G4",
+   "order": 51,
+   "strand": "Reading",
+   "name": "Sort facts from opinions in a longer text",
+   "learning_objective": "Sorts facts from opinions in a review or advert and identifies the words that mark an opinion, such as best or I think.",
+   "objectives": [
+    "4Ri.12"
+   ],
+   "before": [
+    "EN3.READ.FACTOPINION"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.SORT",
+    "ENG.MARK_WORDS"
+   ]
+  },
+  {
+   "code": "EN4.WRITE.ARGUE",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G4",
+   "order": 52,
+   "strand": "Writing",
+   "name": "Write for a view in a non-fiction text",
+   "learning_objective": "Writes a short non-fiction text for a reader, such as a note to the principal, that gives a view and two reasons.",
+   "objectives": [
+    "4Wc.10"
+   ],
+   "before": [
+    "EN4.TEXT.PERSUADE"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.SHORT_WRITE"
+   ]
+  },
+  {
+   "code": "EN4.GRAM.QUANT",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G4",
+   "order": 53,
+   "strand": "Reading and Writing",
+   "name": "Use words that say how many or how much",
+   "learning_objective": "Chooses quantifiers, such as each, every, several, few, many and much, that fit the noun and the meaning.",
+   "objectives": [
+    "4Rg.06",
+    "4Wg.09"
+   ],
+   "before": [
+    "EN4.GRAM.AGREE"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.GAP",
+    "ENG.CHOOSE"
+   ]
+  },
+  {
+   "code": "EN4.GRAM.ADVERB",
+   "subject": "ENG",
+   "topic": "ENG.GRAM",
+   "grade": "G4",
+   "order": 54,
+   "strand": "Reading and Writing",
+   "name": "Find and use adverbs and adverbial phrases",
+   "learning_objective": "Identifies adverbs and adverbial phrases that say how, when or where, and adds one to make an instruction exact.",
+   "objectives": [
+    "4Rg.07",
+    "4Rg.08",
+    "4Wg.10"
+   ],
+   "before": [
+    "EN3.GRAM.NOUNVERB"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.MARK_WORDS",
+    "ENG.SORT",
+    "ENG.REWRITE"
+   ]
+  },
+  {
+   "code": "EN4.PUNCT.POSSESS",
+   "subject": "ENG",
+   "topic": "ENG.PUNCT",
+   "grade": "G4",
+   "order": 55,
+   "strand": "Reading and Writing",
+   "name": "Use apostrophes to show who owns something",
+   "learning_objective": "Writes an apostrophe for one owner and for many owners, such as the girl's bag and the girls' bags.",
+   "objectives": [
+    "4Wg.03",
+    "4Rg.02"
+   ],
+   "before": [
+    "EN3.PUNCT.APOSTROPHE"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.WRITE_WORD",
+    "ENG.CHOOSE",
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN4.WRITE.PROOFREAD",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G4",
+   "order": 56,
+   "strand": "Writing",
+   "name": "Proofread and correct a paragraph",
+   "learning_objective": "Finds and corrects spelling, grammar and punctuation mistakes in a paragraph, including apostrophes and speech.",
+   "objectives": [
+    "4Wp.05"
+   ],
+   "before": [
+    "EN3.WRITE.PROOFREAD",
+    "EN4.PUNCT.POSSESS"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.CORRECT"
+   ]
+  },
+  {
+   "code": "EN4.WRITE.IMPROVE",
+   "subject": "ENG",
+   "topic": "ENG.WRITE",
+   "grade": "G4",
+   "order": 57,
+   "strand": "Writing",
+   "name": "Evaluate writing and improve it",
+   "learning_objective": "Checks a piece of writing for sense, accuracy and content and rewrites one part to make it better, saying why.",
+   "objectives": [
+    "4Wp.04"
+   ],
+   "before": [
+    "EN3.WRITE.IMPROVE"
+   ],
+   "school_units": [
+    "unit.329"
+   ],
+   "question_types": [
+    "ENG.SHORT_ANSWER",
+    "ENG.REWRITE"
+   ]
+  }
+ ]
+}
