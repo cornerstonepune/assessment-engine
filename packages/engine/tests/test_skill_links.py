@@ -196,6 +196,7 @@ def test_prerequisites_come_from_the_ladders_grades_and_no_skill_comes_before_it
     skills = conn.execute(
         "select s.code, s.topic_code, g.ord from skill_set s join rung r on r.tenant_id = s.tenant_id"
         " and r.code = s.rung_code join grade g on g.tenant_id = r.tenant_id and g.code = r.band"
+        " join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code where o.subject_code <> 'ENG'"  # E0: English's own
     ).fetchall()
     expected = set()
     for s in skills:
@@ -208,7 +209,11 @@ def test_prerequisites_come_from_the_ladders_grades_and_no_skill_comes_before_it
             }
     rows = {
         (r["skill_code"], r["before_code"])
-        for r in conn.execute("select skill_code, before_code from skill_prerequisite")
+        for r in conn.execute(
+            "select p.skill_code, p.before_code from skill_prerequisite p join skill_set s on s.tenant_id = p.tenant_id"
+            " and s.code = p.skill_code join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code"
+            " where o.subject_code <> 'ENG'"
+        )
     }
     assert rows == expected and len(rows) == 167
     assert ("MUL.FACTS", "MUL.GROUPS") in rows and ("ADD.2D1D", "ADD.1D1D") in rows
