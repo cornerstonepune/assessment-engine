@@ -56,8 +56,8 @@ Tiles of print found when a photograph is laid on each printed page (page 1 has 
   The end-to-end `tests/test_copies.py::test_a_copy_photographed_second_page_first_...` and the screen spec
   `apps/web/tests/u51-read-an-uploaded-file-again.spec.ts` need the test database and the web build, which this sandbox
   has not: CI is their first run.
-- Cost, named: a copy with as many photographs as pages is now measured, n² line-ups per copy (4 for a two-page paper, about
-  6 s each on live) where it was none; a copy of a paper of n pages needs n² fits.
+- Cost, named: a copy with as many photographs as pages is now measured, n² fits per copy (4 for a two-page paper; the live measure took about 6 s a photograph for the
+  tiles and fits on both pages) where it was none.
 
 ## Handoff
 
