@@ -24,7 +24,7 @@ test.afterAll(async () => {
 test("every grade shows each skill with a level in it, taught or not, and says which are not taught yet", async ({ page }) => {
   const [mulcol] = await sql<{ taught: boolean }[]>`select taught from skill_set where code = 'MUL.2D1D'`;
   expect(mulcol.taught, "column multiplication waits for an educator's word").toBe(false);
-  await page.goto("/");
+  await page.goto("/?details=1");
   await page.getByRole("button", { name: "Open everything" }).click();
   const t = table(page);
 
@@ -59,7 +59,7 @@ test("a level moved to another grade moves on the Curriculum, in the name of who
     expect(now.level_band.Hard).toBeUndefined(); // Grade 2 is the skill's own grade
     expect(now.level_band_by).toBe(TEST_STAFF.name);
 
-    await page.goto("/");
+    await page.goto("/?details=1");
     await page.getByRole("button", { name: "Open everything" }).click();
     expect(await levels(table(page).locator('tr[data-row="G2/MUL.2D1D"]'))).toEqual({ Easy: true, Medium: true, Hard: true, Advance: false });
     expect(await levels(table(page).locator('tr[data-row="G3/MUL.2D1D"]'))).toEqual({ Easy: false, Medium: false, Hard: false, Advance: true });

@@ -13,9 +13,10 @@ goal: >
 # counts every taught topic together; a class is one grid of every skill anyone in it has answered, topic headings over
 # the columns, which grows a column for every skill of every topic switched on — fifteen topics in the tree, twelve of
 # them multiplication and division, not yet switched on.
+# Re-pointed 2026-10-22 (goals/ux10-declutter.yaml): the Children list's topic chips were dropped; a class still reads by topic.
 says:
   - words: "It should be by topic or something."
-    proved_by: "apps/web/tests/u21-class-by-topic.spec.ts::the Children list reads one topic at a time"
+    proved_by: "apps/web/tests/u21-class-by-topic.spec.ts::a class opens on its children against its topics, and a topic opens its skills alone"
   - words: "we need to now expand our thought process as more and more topics start coming in and need help"
     proved_by: "apps/web/tests/u21-class-by-topic.spec.ts::a class opens on its children against its topics, and a topic opens its skills alone"
 manual:

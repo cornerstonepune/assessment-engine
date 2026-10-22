@@ -13,7 +13,7 @@ says:
   - words: "As we have the ability to keep changing, say, map or edit certain stuff, those kinds of capabilities will need to exist also"
     proved_by: apps/web/tests/u5-curriculum.spec.ts::a skill waiting for approval says so in the tree and opens where it is edited and approved
   - words: "The worksheet library view, ideally, should give a very clear taxonomy and the worksheets attached to the taxonomy"
-    proved_by: apps/web/tests/u5-curriculum.spec.ts::the taxonomy is one click from the tree, and the tree fits a phone
+    proved_by: apps/web/tests/u5-curriculum.spec.ts::the taxonomy is two clicks from the tree, behind Question bank details, and the tree fits a phone
 manual: []
 scenarios: []
 criteria:
