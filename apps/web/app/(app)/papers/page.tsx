@@ -48,9 +48,9 @@ function Select({ name, label, value, all, options }: {
   name: string; label: string; value?: string; all: string; options: [string, string][];
 }) {
   return (
-    <label className="field min-w-[11rem]">
+    <label className="field min-w-0">
       <span className="label">{label}</span>
-      <select className="select" name={name} defaultValue={value ?? ""}>
+      <select className="select w-full min-w-0 max-w-full" name={name} defaultValue={value ?? ""}>
         <option value="">{all}</option>
         {options.map(([v, words]) => <option key={v} value={v}>{words}</option>)}
       </select>

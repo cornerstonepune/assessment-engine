@@ -174,5 +174,10 @@ test("on a phone the page is the same few things and does not scroll sideways", 
   const upload = (await page.getByText("Choose scans or drop them here").first().boundingBox())!;
   const firstWeek = (await page.locator("[data-week]").first().boundingBox())!;
   expect(upload.y).toBeLessThan(firstWeek.y);
+  // the opened Filter fits the screen too: every choice inside it ends before the phone's edge
+  await page.getByText("Filter", { exact: true }).click();
+  for (const box of await page.locator("[data-filters] select").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().right))) {
+    expect(box, "a Filter choice runs off the phone").toBeLessThanOrEqual(390);
+  }
   await ctx.close();
 });
