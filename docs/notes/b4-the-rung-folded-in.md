@@ -31,6 +31,10 @@
   checksum 8ef89d8c9d9d09d532841d7cb529d3f7 · scored 12665 rows checksum 565e33bdd7a3819f7415a7c73dbbbde1`.
   `engine links check`: "the rows and the lists agree on every skill and level"; the copy after: every check ok.
 - **CI on a7c389c:** run 39745683535, success (the website's browser suite included).
+- **`bin/engine done b4-the-rung-folded-in` (2026-10-22, on a fresh build of this branch):** every sentence PROVED (7
+  of 7); criteria: the fold 39 passed, `links check` agree, `bin/check` 30 passed; the whole suite timed out at done's
+  1800 s on this container. Run alone with a browser: `2712 passed, 2 skipped, 1 warning in 2597.05s`. CI on 5895b48
+  (run 39749669201): success.
 
 ## Handoff
 
