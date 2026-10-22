@@ -1,0 +1,30 @@
+name: uxn2-staff-and-school
+goal: >
+  A coordinator says who teaches which class on a Staff page, as `engine staff classes` does from the command line: a table of
+  people with their classes, a filter row, the classes ticked and saved in the one staff list, the rest of the person (their
+  password hash) untouched and never on a page. A School page lists each class with its grade, its children and who teaches
+  it. Subject per teacher is not kept anywhere yet, so no column pretends: schema follow-up for the core track.
+# Written 2026-10-22 (night), before the code: web only, no migration, no new table (app_web already updates `config`).
+says:
+  - words: "the staff table of who teaches which class and subject is edited on a Staff page, not by commands"
+    proved_by: "apps/web/tests/u53-staff-and-school.spec.ts::a coordinator ticks a person's classes on the Staff page and the list keeps them, and the rest of the person"
+  - words: "Use filters wherever possible"
+    proved_by: "apps/web/tests/u53-staff-and-school.spec.ts::a class no child is in refuses everything, and the filter row finds a person"
+  - words: "Ayush is a part of Cornerstone. He has the account"
+    proved_by: "apps/web/tests/u53-staff-and-school.spec.ts::School shows each class with its grade, its children and who teaches it"
+manual:
+  - "Subject per teacher (Ayush English, Achal Maths): the existing staff list has no subject field; needs a schema decision from the core track."
+scenarios: []
+criteria:
+  - name: the rules, the ratchet and the layout hold
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_ux_rules.py tests/test_ratchet.py tests/test_layout.py -q -p no:cacheprovider -o addopts=
+    expect: "passed"
+  - name: the rendered Staff and School pages
+    run: cd apps/web && npx playwright test tests/u53-staff-and-school.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -53,6 +53,9 @@ function Account({ me, grades, subject, className }: { me: Session; grades: stri
           How it works
         </a>
       ) : null}
+      <a href="/school" className="mb-4 block text-[12.5px] text-bamboo underline-offset-2 hover:underline">
+        School and staff
+      </a>
       <div className="label !text-bamboo opacity-75">{grades} · {subject}</div>
       <div role="group" aria-label="Signed in" className="mt-3 text-[12.5px] text-bamboo">
         <div className="flex items-center justify-between gap-2">
