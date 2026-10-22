@@ -19,7 +19,7 @@ let putBack: () => Promise<void>;
 
 test.beforeAll(async () => {
   [{ code }] = await sql<{ code: string }[]>`
-    select code from skill_set where (select count(*) from jsonb_object_keys(difficulty)) >= 2 order by code limit 1`;
+    select code from skill where (select count(*) from jsonb_object_keys(difficulty)) >= 2 order by code limit 1`;
   putBack = await aWaitingSkill(sql, code);
 });
 test.afterAll(async () => {
@@ -38,7 +38,7 @@ test("the coordinator approves one level and the others still wait", async ({ pa
   await expect(page).toHaveURL(/level_approved=Easy/);
   await expect(page.getByRole("region", { name: "Easy", exact: true })).toContainText("Approved · End-to-end test");
   const [s] = await sql<{ status: string; level_approved: Record<string, unknown> }[]>`
-    select status, level_approved from skill_set where code = ${code}`;
+    select status, level_approved from skill where code = ${code}`;
   expect(Object.keys(s.level_approved)).toEqual(["Easy"]);
   expect(s.status, "the skill waits until every level is approved").toBe("draft");
   await expect(page.getByRole("region", { name: "Medium", exact: true }).getByRole("button", { name: "Approve Medium" })).toBeVisible();

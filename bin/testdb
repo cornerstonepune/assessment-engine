@@ -31,7 +31,7 @@ fresh() {
   # As live is (rehearsal 39560151627, B2): every level confirmed and every question type approved, so a paper is made
   # here as it is there; a test withdraws what it needs withdrawn, and rolls it back.
   psql "$url" -q -v ON_ERROR_STOP=1 \
-    -c "update skill_set set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', 'bin/testdb, as live', 'at', now())) from jsonb_object_keys(difficulty) k)" \
+    -c "update skill set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', 'bin/testdb, as live', 'at', now())) from jsonb_object_keys(difficulty) k)" \
     -c "insert into question_type_approval (tenant_id, question_type, approved_by) select tenant_id, code, 'bin/testdb, as live' from question_type on conflict do nothing"
   "$REPO/bin/engine" bank refill | tail -1
   "$REPO/bin/engine" library build | tail -1

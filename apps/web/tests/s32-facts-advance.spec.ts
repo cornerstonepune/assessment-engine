@@ -27,11 +27,11 @@ async function shows(page: Page, set: string, fmt: string, says: RegExp, what: s
 
 test("once taught, the tables' kinds are on the Question bank with their numbers", async ({ page }) => {
   const skills = await sql<{ code: string; taught: boolean }[]>`
-    select distinct s.code, s.taught from skill_set s
+    select distinct s.code, s.taught from skill s
     where s.code in ('MUL.FACTS', 'DIV.FACTS')`;
   expect(skills.length, "the tables in topics of their own").toBeGreaterThan(0);
   expect(skills.every((t) => !t.taught), "the tables wait for an educator's word").toBe(true);
-  await sql`update skill_set set taught = true where code = any(${skills.map((t) => t.code)})`;
+  await sql`update skill set taught = true where code = any(${skills.map((t) => t.code)})`;
   try {
     await shows(page, "MUL.FACTS", "missing_number", /(\d+|□) × (\d+|□) = \d+/, "a missing factor's sentence");
     await shows(page, "MUL.FACTS", "fact_family", /\d+ ÷ \d+ = □/, "a fact family's divisions");
@@ -43,6 +43,6 @@ test("once taught, the tables' kinds are on the Question bank with their numbers
       "the table backwards: the division and its fact",
     );
   } finally {
-    await sql`update skill_set set taught = false where code = any(${skills.map((t) => t.code)})`;
+    await sql`update skill set taught = false where code = any(${skills.map((t) => t.code)})`;
   }
 });

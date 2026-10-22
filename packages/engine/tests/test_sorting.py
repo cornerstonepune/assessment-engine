@@ -174,7 +174,7 @@ def test_a_class_of_library_worksheet_copies_sorts_into_one_paper_per_child(conn
     """The Grade 2 scan of 2026-09-23: every copy of worksheet R8-H02 carries the code R8-H02. Two copies, and a
     copy of another worksheet between, come out as three papers, each named as the worksheet it is."""
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()
-    if not tenant or not conn.execute("select 1 from skill_set where code = 'ADD.2D2D'").fetchone():
+    if not tenant or not conn.execute("select 1 from skill where code = 'ADD.2D2D'").fetchone():
         pytest.skip("needs the seed loaded on the copy")
     # two codes of the library's shape that no worksheet on this database already has: the library build
     # makes R8-H02 itself, and a test that assumed it absent failed on any database the library was built on

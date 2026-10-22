@@ -41,7 +41,7 @@ export const grades = cache(async (): Promise<Grades> => {
 export async function gradeSpan(): Promise<string> {
   const rows = await sql<{ name: string }[]>`
     select g.name from grade g join tenant t on t.id = g.tenant_id and t.slug = ${TENANT_SLUG}
-    where exists (select 1 from skill_set s where s.tenant_id = g.tenant_id and s.grade = g.code)
+    where exists (select 1 from skill s where s.tenant_id = g.tenant_id and s.grade = g.code)
     order by g.ord`;
   return [...new Set([rows[0]?.name, rows.at(-1)?.name])].filter(Boolean).join(" to ");
 }
@@ -113,7 +113,7 @@ export async function skillSets({
                      from (select difficulty, count(*)::int as n from sheet_template t
                            where t.skill_set_code = s.code and t.source = 'library' and t.retired_at is null
                            group by difficulty) w), '{}'::json) as worksheets
-    from skill_set s
+    from skill s
     left join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
     where ${untaught} or ${taught}
     order by s.ladder_order nulls last, s.code`;
@@ -133,8 +133,8 @@ export async function setSkills(): Promise<Skill[]> {
     select k.code, k.name, k.description,
            coalesce(array_agg(r.rung_code order by r.ladder_order) filter (where r.rung_code is not null), '{}') as rungs
     from registry_skill k
-    left join skill_set r on r.tenant_id = k.tenant_id and k.code = any(r.registry_codes)
-    where exists (select 1 from skill_set ss where ss.tenant_id = k.tenant_id and k.code = any(ss.registry_codes))
+    left join skill r on r.tenant_id = k.tenant_id and k.code = any(r.registry_codes)
+    where exists (select 1 from skill ss where ss.tenant_id = k.tenant_id and k.code = any(ss.registry_codes))
     group by k.code, k.name, k.description
     order by k.code`;
 }
@@ -229,7 +229,7 @@ export type NextStep = { code: string; name: string; rung_code: string; difficul
 export async function childNext(id: string): Promise<NextStep[]> {
   return sql<NextStep[]>`
     select s.code, s.name, s.rung_code, n.difficulty, n.rule, coalesce(n.targets, '{}') as targets
-    from skill_set s, lateral next_difficulty(${id}::uuid, s.code) n
+    from skill s, lateral next_difficulty(${id}::uuid, s.code) n
     where ${skillTaughtIn(sql`s.tenant_id`, sql`s.code`, sql`(select section from child where id = ${id}::uuid)`)}
     order by s.code`;
 }

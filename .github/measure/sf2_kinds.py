@@ -7,7 +7,7 @@ from engine.w2_print import shelf
 
 with db.connect() as c:
     levels = c.execute(
-        "select s.code, d.key as level, s.level_approved ? d.key as ok, s.status from skill_set s, jsonb_each(s.difficulty) d"
+        "select s.code, d.key as level, s.level_approved ? d.key as ok, s.status from skill s, jsonb_each(s.difficulty) d"
     ).fetchall()
     ok = {(r["code"], r["level"]): r["ok"] for r in levels}
     kinds = c.execute(

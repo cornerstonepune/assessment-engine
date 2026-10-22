@@ -29,7 +29,7 @@ test.beforeAll(async () => {
   await aClass(sql, OTHER, "G3", ["Dev"]);
   const [{ tenant }] = await sql<{ tenant: string }[]>`select tenant_id as tenant from child where id = ${kids.Asha}`;
   const skills = await sql<{ code: string; rung: string }[]>`
-    select ss.registry_codes[1] as code, ss.rung_code as rung from skill_set ss
+    select ss.registry_codes[1] as code, ss.rung_code as rung from skill ss
     where ss.grade = 'G2' and cardinality(ss.registry_codes) > 0 order by ss.ladder_order, ss.code limit 2`;
   const [m] = await sql<{ code: string; name: string }[]>`select code, name from misconception order by code limit 1`;
   mistake = m.name;
@@ -52,7 +52,7 @@ test.beforeAll(async () => {
   }
   for (const id of [kids.Asha, kids.Bina]) await sql`select rebuild_child_skill_state(${id}::uuid)`;
   const [ws] = await sql<{ id: string; item_ids: string[]; set: string }[]>`
-    select t.id, t.item_ids, s.name as set from sheet_template t join skill_set s on s.code = t.skill_set_code
+    select t.id, t.item_ids, s.name as set from sheet_template t join skill s on s.code = t.skill_set_code
     where t.source = 'library' and t.retired_at is null and t.band = 'G2' and cardinality(t.item_ids) >= 2 order by t.code limit 1`;
   setName = ws.set;
   // read again this week, so the paper is this week's: the reader supersedes the earlier scan, as it does on live

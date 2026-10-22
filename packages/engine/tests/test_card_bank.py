@@ -34,7 +34,7 @@ def test_achals_skills_are_grade_2_rows_with_their_kinds(conn):
     rows = {
         r["code"]: r
         for r in conn.execute(
-            "select code, difficulty, level_band from skill_set where code = any(%s)", (list(ACHAL),)
+            "select code, difficulty, level_band from skill where code = any(%s)", (list(ACHAL),)
         ).fetchall()
     }
     assert sorted(rows) == sorted(ACHAL)
@@ -46,7 +46,7 @@ def test_achals_skills_are_grade_2_rows_with_their_kinds(conn):
             assert check["format"] == "card", (code, level)
             for k in check["cards"]:
                 assert held[k]["skill_set"] == code, (code, level, k)
-        topic = conn.execute("select topic_code from skill_set where code = %s", (code,)).fetchone()
+        topic = conn.execute("select topic_code from skill where code = %s", (code,)).fetchone()
         assert topic["topic_code"] == TOPIC[code], code
     source = (db.REPO_ROOT / "packages/engine/engine/assess/cards.py").read_text()
     assert not re.search(r"MUL3|SEQ\.|MULT\.", source), "the card engine names a kind"
@@ -85,7 +85,7 @@ def test_a_question_in_the_bank_is_checked_against_its_kind(conn):
     )
     top = big["spec"]["numbers"]["a"] * big["spec"]["numbers"]["b"] * big["spec"]["numbers"]["c"]
     conn.execute(
-        "update skill_set set difficulty = jsonb_set(difficulty, '{Easy,check,answer_within}', %s::jsonb)"
+        "update skill set difficulty = jsonb_set(difficulty, '{Easy,check,answer_within}', %s::jsonb)"
         " where code = 'MUL.THREE'",
         (json.dumps([8, top - 1]),),
     )
@@ -114,7 +114,7 @@ def test_a_kinds_question_is_printed_read_and_marked(conn, tmp_path):
     level = kinds.resolve(
         conn,
         conn.execute(
-            "select difficulty -> 'Medium' -> 'check' as c from skill_set where code = 'MUL.NTH'"
+            "select difficulty -> 'Medium' -> 'check' as c from skill where code = 'MUL.NTH'"
         ).fetchone()["c"],
     )
     rng = random.Random(3)

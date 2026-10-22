@@ -59,7 +59,7 @@ async function signedIn(browser: Browser): Promise<Page> {
 const said = (section: string) =>
   sql<{ taught: boolean; taught_by: string }[]>`
     select bool_and(taught) as taught, min(taught_by) as taught_by from class_skill
-    where section = ${section} and skill_set_code in (select code from skill_set where topic_code = ${TOPIC})
+    where section = ${section} and skill_set_code in (select code from skill where topic_code = ${TOPIC})
     having count(*) > 0`;
 
 test("an educator says a topic is taught in their class, in their name, and no other class changes", async ({ browser }) => {
@@ -74,7 +74,7 @@ test("an educator says a topic is taught in their class, in their name, and no o
     await expect(page.getByRole("main")).toContainText(`${topicName} is taught in ${MINE} now`);
     expect(await said(MINE)).toEqual([{ taught: true, taught_by: EDUCATOR.name }]);
     expect(await said(OTHER), "no other class changes").toEqual([]);
-    const [school] = await sql<{ taught: boolean }[]>`select bool_or(taught) as taught from skill_set where topic_code = ${TOPIC}`;
+    const [school] = await sql<{ taught: boolean }[]>`select bool_or(taught) as taught from skill where topic_code = ${TOPIC}`;
     expect(school.taught, "one class's word is not the school's switch").toBe(false);
 
     // another class is theirs to say too, one role for now (goals/ux9c-one-role.yaml): the form sent for it, in their name

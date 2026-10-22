@@ -43,8 +43,8 @@ export async function measures(): Promise<Record<string, Measure>> {
     }[]
   >`
     select
-      (select count(*) from skill_set s where ${skillTaughtFor(EVERY_CLASS, sql`s.tenant_id`, sql`s.code`)})::int as sets,
-      (select count(*) from skill_set s where s.status = 'ratified' and ${skillTaughtFor(EVERY_CLASS, sql`s.tenant_id`, sql`s.code`)})::int as approved,
+      (select count(*) from skill s where ${skillTaughtFor(EVERY_CLASS, sql`s.tenant_id`, sql`s.code`)})::int as sets,
+      (select count(*) from skill s where s.status = 'ratified' and ${skillTaughtFor(EVERY_CLASS, sql`s.tenant_id`, sql`s.code`)})::int as approved,
       (select count(*) from item i join skill_level l on l.tenant_id = i.tenant_id and l.skill_code = i.skill_set_code
         and l.difficulty = i.difficulty where i.source = 'generated' and i.status = 'active')::int as items,
       (select count(distinct i.skill_set_code) from item i join skill_level l on l.tenant_id = i.tenant_id and l.skill_code = i.skill_set_code
@@ -55,7 +55,7 @@ export async function measures(): Promise<Record<string, Measure>> {
          join sheet_template t on t.id = si.sheet_template_id where c.superseded_by is null and t.source = 'legacy')::int as old_children,
       (select count(*) from prescription)::int as prescriptions,
       (select max(created_at)::text from prescription) as prescribed_at,
-      (select count(*) from sheet_template t join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
+      (select count(*) from sheet_template t join skill s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
         where t.source = 'library' and t.retired_at is null)::int as worksheets,
       (select count(*) from sheet_instance where qr_code like 'CS%')::int as printed,
       (select count(*) from sheet_instance where qr_code like 'CS%' and print_status <> 'new')::int as approved_packs,

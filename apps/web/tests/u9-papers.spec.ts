@@ -93,7 +93,7 @@ test.afterAll(async () => sql.end());
 
 const row = (page: Page, p: Paper) => page.locator(`tbody tr[data-paper="${p.id}"]`);
 const setName = async (code: string) =>
-  (await sql<{ name: string }[]>`select name from skill_set where code = ${code} limit 1`)[0].name;
+  (await sql<{ name: string }[]>`select name from skill where code = ${code} limit 1`)[0].name;
 
 test("every paper is one row, what it is, whose, and where it stands, filtered by class, kind and stage", async ({ page }) => {
   // week by week, each assessment a line, each paper a copy under its assessment, in roll order

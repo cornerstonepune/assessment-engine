@@ -7,7 +7,7 @@ export async function subjectOf(skillSets: string[] = []): Promise<string> {
   const rows = await sql<{ label: string }[]>`
     select coalesce(su.label, su.name) as label
     from subject su
-    where exists (select 1 from skill_set ss join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
+    where exists (select 1 from skill ss join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
                   where t.tenant_id = su.tenant_id and t.subject_code = su.code
                     and (${skillSets.length === 0} or ss.code = any(${skillSets})))
     order by su.code`;

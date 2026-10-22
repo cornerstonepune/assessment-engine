@@ -33,11 +33,11 @@ def test_a_rung_holds_one_skill_set(conn):
     rungs = [s["rung_code"] for s in sets]
     assert len(rungs) == len(set(rungs)), "one skill set a rung in the seed"
     taken = conn.execute(
-        "select tenant_id, rung_code from skill_set where rung_code is not null limit 1"
+        "select tenant_id, rung_code from skill where rung_code is not null limit 1"
     ).fetchone()
     with pytest.raises(psycopg.errors.UniqueViolation):
         conn.execute(
-            "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, difficulty, grade, descriptor)"
+            "insert into skill (tenant_id, code, rung_code, name, learning_objective, difficulty, grade, descriptor)"
             " values (%s, 'TEST.TWIN', %s, 'a twin', 'two on one rung', '{}', 'G2', 'a twin')",
             (taken["tenant_id"], taken["rung_code"]),
         )
@@ -47,8 +47,7 @@ def test_a_skill_sets_own_skill_is_the_one_its_rung_declares(conn):
     """A skill lists its registry skills own first (`skill_set.registry_codes`, its rung's list until B4); the catalogue a paper is drawn from reads that, not a
     count of its questions' skills, which made equal groups Addition and a budget story Money."""
     declared = {
-        r["code"]: r["own"]
-        for r in conn.execute("select s.code, s.registry_codes[1] as own from skill_set s")
+        r["code"]: r["own"] for r in conn.execute("select s.code, s.registry_codes[1] as own from skill s")
     }
     catalog = {c["code"]: c["own"] for c in shelf._catalog(conn, None)}
     assert catalog, "the catalogue holds the taught skill sets"

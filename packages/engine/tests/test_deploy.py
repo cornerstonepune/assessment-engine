@@ -279,7 +279,7 @@ def _settings() -> str:
 
 def _checkout(tmp_path, answers):
     """A checkout holding bin/push-migrations, bin/update-live and two migrations, with a `supabase` that answers each
-    try from `answers` ("ok", "lock" for SQLSTATE 55P03, anything else another failure), writes down the first line of
+    try from `answers` ("ok", "lock" for SQLSTATE 55P03, "deadlock" for 40P01, anything else another failure), writes down the first line of
     the migrations it was handed and keeps a copy of them, and a sleep that only writes down that it was called →
     (the checkout, the environment to run it in)."""
     import os
@@ -295,6 +295,7 @@ def _checkout(tmp_path, answers):
         'a=$(head -1 "$ANSWERS"); sed -i 1d "$ANSWERS"\n'
         'case "$a" in ok) echo "Finished supabase db push." ;;\n'
         '  lock) echo "ERROR: canceling statement due to lock timeout (SQLSTATE 55P03)"; exit 1 ;;\n'
+        '  deadlock) echo "ERROR: deadlock detected (SQLSTATE 40P01)"; exit 1 ;;\n'
         '  *) echo "ERROR: relation \\"x\\" does not exist (SQLSTATE 42P01)"; exit 1 ;; esac\n',
     }
     for name, body in fakes.items():
@@ -446,6 +447,16 @@ def test_a_migration_whose_session_lacks_the_settings_stops_before_any_change():
 
 def test_a_migration_held_by_a_lock_tries_again_by_itself(tmp_path):
     code, calls = _push(tmp_path, ["lock", "lock", "ok"])
+    assert code == 0
+    assert [c for c in calls if c.startswith("push ")] == [_pushed()] * 3, calls
+    assert calls.count("sleep 20") == 2, calls
+
+
+def test_a_migration_caught_in_a_deadlock_tries_again_by_itself(tmp_path):
+    """2026-10-22 17:32 UTC, migrate live, B4's migration: "deadlock detected (SQLSTATE 40P01)" — it held one table's
+    lock and waited for another that a reader of live held, the reader waiting on it. Postgres rolled the migration
+    back whole, as for a lock it could not have, so it is tried again the same way."""
+    code, calls = _push(tmp_path, ["deadlock", "lock", "ok"])
     assert code == 0
     assert [c for c in calls if c.startswith("push ")] == [_pushed()] * 3, calls
     assert calls.count("sleep 20") == 2, calls

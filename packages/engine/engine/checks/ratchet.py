@@ -44,6 +44,7 @@ def baselines(map_text: str, pyproject_text: str) -> dict:
         "covers": m["ceilings"].get("covers", ["engine/"]),
         "ceilings": m["ceilings"]["frozen"],
         "complexity": m.get("complexity"),
+        "ux": m.get("ux", {}).get("frozen"),
         "coverage": float(report.get("fail_under", 0)),
         "types": types,
     }
@@ -85,6 +86,23 @@ def _complexity(base: dict | None, head: dict | None) -> list[str]:
     return out
 
 
+def _ux(base: dict | None, head: dict | None) -> list[str]:
+    """The pages still breaking a rule of docs/ux-rules.md: a page leaves, a rule leaves, nothing joins."""
+    if base is None:
+        return []  # the list is being written down on this commit
+    if head is None:
+        return ["the pages that break the UX rules are no longer listed in the map"]
+    out = []
+    for route, rules in head.items():
+        if route not in base:
+            out.append(
+                f"{route} joined the pages allowed to break the UX rules: build it on the shared blocks"
+            )
+        else:
+            out += [f"{route} may now break {r}, which it kept" for r in rules if r not in base[route]]
+    return out
+
+
 def _types(base: dict | None, head: dict | None) -> list[str]:
     if base is None:
         return []  # the type check is being written down on this commit
@@ -113,6 +131,7 @@ def loosened(base: dict, head: dict) -> list[str]:
     """Every way `head` asks less of the code than `base` did; none is the only passing answer."""
     out = _ceilings(base, head) + _complexity(base["complexity"], head["complexity"])
     out += _types(base.get("types"), head.get("types"))
+    out += _ux(base.get("ux"), head.get("ux"))
     if head["coverage"] < base["coverage"]:
         out.append(f"the coverage floor fell from {base['coverage']:g}% to {head['coverage']:g}%")
     return out

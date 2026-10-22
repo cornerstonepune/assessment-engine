@@ -114,7 +114,7 @@ test("today lists everything waiting on a teacher, each with its count and one c
   // the skills that wait for an approval
   await page.goto("/today");
   // every skill waiting, taught or not: one is approved before its topic is switched on (goals/ny1-needs-you.yaml)
-  const [{ drafts }] = await sql<{ drafts: number }[]>`select count(*)::int as drafts from skill_set s where s.status <> 'ratified'`;
+  const [{ drafts }] = await sql<{ drafts: number }[]>`select count(*)::int as drafts from skill s where s.status <> 'ratified'`;
   expect(await count(page, "Skills to approve")).toBe(drafts);
   if (drafts > 0) {
     await page.getByRole("region", { name: "Skills to approve" }).getByRole("link").first().click();

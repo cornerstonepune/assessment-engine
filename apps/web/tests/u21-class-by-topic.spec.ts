@@ -24,7 +24,7 @@ const STATES: [string, string, string, string, number, number][] = [
   ["Bina", "R21", "NUM.OPS.01", "practising", 5, 3],
 ];
 const nameOf = async (rung: string) =>
-  (await sql<{ name: string }[]>`select name from skill_set where rung_code = ${rung} and status is distinct from 'retired' limit 1`)[0].name;
+  (await sql<{ name: string }[]>`select name from skill where rung_code = ${rung} and status is distinct from 'retired' limit 1`)[0].name;
 
 test.beforeAll(async () => {
   kids = await aClass(sql, SECTION, "G2", ["Asha", "Bina"]);

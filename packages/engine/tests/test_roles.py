@@ -24,7 +24,7 @@ WEB_WRITES = {
     "public.read_correction": {"INSERT"},
     "public.item_result": {"UPDATE"},
     "public.prescription": {"UPDATE"},
-    "public.skill_set": {"UPDATE"},
+    "public.skill": {"UPDATE"},
     "public.config": {"UPDATE"},
     # an error a page raised, for the live watcher (goals/p2-live-is-watched.yaml)
     "public.web_error": {"INSERT"},

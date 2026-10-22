@@ -82,10 +82,7 @@ def test_56_times_3_written_1518_on_aseems_paper_is_named_counted_and_aimed_at(
         "1518 is each product side by side"
     )
     rung = conn.execute("select rung_code from item where id = %s", (q18["id"],)).fetchone()["rung_code"]
-    assert (
-        rung
-        == conn.execute("select rung_code from skill_set where code = 'MUL.2D1D'").fetchone()["rung_code"]
-    )
+    assert rung == conn.execute("select rung_code from skill where code = 'MUL.2D1D'").fetchone()["rung_code"]
 
     child = _child(conn)
     _read(conn, child, tmp_path / "quiz20-kabir.pdf", {"18": "1518"}, monkeypatch)
@@ -122,7 +119,7 @@ def test_56_times_3_written_1518_on_aseems_paper_is_named_counted_and_aimed_at(
         assert now["repeating_misconception"] == "M_MUL_CONCAT", (n, now)
     assert now["state"] == "patterned_error", now
     conn.execute(
-        "update skill_set set taught = true, taught_by = %s, taught_at = now() where code = 'MUL.2D1D'",
+        "update skill set taught = true, taught_by = %s, taught_at = now() where code = 'MUL.2D1D'",
         (PERSON,),
     )
     nxt = focus_paper.plan(conn, child, WEEK)["areas"]

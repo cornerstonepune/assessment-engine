@@ -23,7 +23,7 @@ export type WeekNote = {
 
 /** A skill set's rung is in the subject: the rung's skill set's topic is the subject's. */
 const rungIn = (subject: string, rung: ReturnType<typeof sql>) => sql`exists (
-  select 1 from skill_set ss join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
+  select 1 from skill ss join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
   where ss.rung_code = ${rung} and t.subject_code = ${subject})`;
 
 export async function weekNote(scope: Scope, subject: string): Promise<WeekNote> {
@@ -36,7 +36,7 @@ export async function weekNote(scope: Scope, subject: string): Promise<WeekNote>
         left join child ch on ch.id = si.child_id
         join item_result r on r.capture_id = k.id
         join item i on i.id = r.item_id
-        join skill_set ss on ss.tenant_id = i.tenant_id and ss.code = i.skill_set_code
+        join skill ss on ss.tenant_id = i.tenant_id and ss.code = i.skill_set_code
         join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
         where k.superseded_by is null and k.created_at >= date_trunc('week', now()) and t.subject_code = ${subject}
           and ${inScope(scope, sql`coalesce(si.section, ch.section)`)}

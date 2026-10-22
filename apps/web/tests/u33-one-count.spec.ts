@@ -92,7 +92,7 @@ test("the question bank is one number wherever it is named", async ({ page }) =>
     select count(*)::int as bank,
            count(*) filter (where exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active
                                           and skill_taught_in(s.tenant_id, s.code, k.section)))::int as taught
-    from item i join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code
+    from item i join skill s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code
     where i.source = 'generated' and i.status = 'active' and s.difficulty ? i.difficulty`;
   const words = (n: number) => n.toLocaleString("en-IN");
 

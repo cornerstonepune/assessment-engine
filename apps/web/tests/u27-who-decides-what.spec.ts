@@ -51,7 +51,7 @@ test.beforeAll(async () => {
         values (${tenant}, ${id}, ${WEEK}, 'band_default', 'ADD.2D1D', 'Easy', 'practice', ${paper})`;
     }
   }
-  [{ code: draft }] = await sql<{ code: string }[]>`select code from skill_set order by code limit 1`;
+  [{ code: draft }] = await sql<{ code: string }[]>`select code from skill order by code limit 1`;
   putBack = await aWaitingSkill(sql, draft);
 });
 test.afterAll(async () => {
@@ -80,12 +80,12 @@ test("an educator approves a skill, in their own name", async ({ browser }) => {
     await page.goto(`/skill-sets/${draft}`);
     await page.getByRole("button", { name: "Approve as written" }).click();
     await expect(page).toHaveURL(/approved=1/);
-    const [now] = await sql<{ status: string; ratified_by: string }[]>`select status, ratified_by from skill_set where code = ${draft}`;
+    const [now] = await sql<{ status: string; ratified_by: string }[]>`select status, ratified_by from skill where code = ${draft}`;
     expect(now).toEqual({ status: "ratified", ratified_by: EDUCATOR.name });
   } finally {
     await page.context().close();
     // waiting again for the coordinator's test after this one, as `aWaitingSkill` left it
-    await sql`update skill_set set status = 'draft', ratified_by = null, level_approved = '{}'::jsonb where code = ${draft}`;
+    await sql`update skill set status = 'draft', ratified_by = null, level_approved = '{}'::jsonb where code = ${draft}`;
   }
 });
 
@@ -111,9 +111,9 @@ test("the coordinator takes any decision", async ({ page }) => {
     await page.goto(`/skill-sets/${draft}`);
     await page.getByRole("button", { name: "Approve as written" }).click();
     await expect(page).toHaveURL(/approved=1/);
-    const [now] = await sql<{ status: string }[]>`select status from skill_set where code = ${draft}`;
+    const [now] = await sql<{ status: string }[]>`select status from skill where code = ${draft}`;
     expect(now.status).toBe("ratified");
   } finally {
-    await sql`update skill_set set status = 'draft', ratified_by = null where code = ${draft}`;
+    await sql`update skill set status = 'draft', ratified_by = null where code = ${draft}`;
   }
 });

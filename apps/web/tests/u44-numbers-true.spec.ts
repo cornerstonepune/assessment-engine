@@ -88,7 +88,9 @@ test("Today's queue counts the educator's own classes, as the line above it does
   // the educator's one waiting answer is Asha's; Chetan's two are another class's
   expect(toCheck).toBe(1);
   const table = page.getByRole("table", { name: "Answers read, week by week" });
-  const waiting = await table.locator("tbody tr td:nth-child(5)").allTextContents();
+  // the column by its heading: a column that is all zeros is not drawn (docs/ux-rules.md rule 4), so its place moves
+  const heads = await table.locator("thead th").allTextContents();
+  const waiting = await table.locator(`tbody tr td:nth-child(${heads.indexOf("Still waiting") + 1})`).allTextContents();
   expect(waiting.reduce((n, s) => n + num(s), 0), "Still waiting, summed over the weeks shown").toBe(toCheck);
   await page.context().close();
 });

@@ -95,7 +95,7 @@ def conn():
     if not os.getenv("DATABASE_URL"):
         pytest.skip("needs DATABASE_URL (see .env.example)")
     with db.connect() as c:
-        if not c.execute("select 1 from skill_set where code = 'ADD.2D2D'").fetchone():
+        if not c.execute("select 1 from skill where code = 'ADD.2D2D'").fetchone():
             pytest.skip(
                 "the taxonomy-shaped skills are not loaded here: `engine load`, then `engine bank rehome`"
             )
@@ -106,7 +106,7 @@ def conn():
 def _active(conn, where="true"):
     return conn.execute(
         "select i.skill_set_code, i.difficulty, i.fmt, i.tags, s.difficulty as levels from item i"
-        " join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code"
+        " join skill s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code"
         " where i.status = 'active' and " + where
     ).fetchall()
 
@@ -114,7 +114,7 @@ def _active(conn, where="true"):
 def test_easy_is_straight_calculation_of_one_operation(conn):
     rows = _active(
         conn,
-        "i.skill_set_code in (select code from skill_set where difficulty -> 'Easy' -> 'check' ? 'within')",
+        "i.skill_set_code in (select code from skill where difficulty -> 'Easy' -> 'check' ? 'within')",
     )
     for r in rows:
         if r["difficulty"] == "Advance":
@@ -134,7 +134,7 @@ def test_only_advance_mixes_kinds_of_question(conn):
     kinds = {}
     for r in _active(
         conn,
-        "i.skill_set_code in (select code from skill_set where difficulty -> 'Easy' -> 'check' ? 'within')",
+        "i.skill_set_code in (select code from skill where difficulty -> 'Easy' -> 'check' ? 'within')",
     ):
         kinds.setdefault((r["skill_set_code"], r["difficulty"]), set()).add(r["fmt"])
     assert all(k <= CALCULATION for (_, level), k in kinds.items() if level != "Advance")
@@ -151,7 +151,7 @@ def test_every_taxonomy_case_has_a_place(conn):
 
 def test_every_question_moves_to_the_level_its_numbers_put_it_in_and_the_old_ladder_is_gone(conn):
     old = sorted(rehome.replaced())
-    assert not conn.execute("select 1 from skill_set where code = any(%s)", (old,)).fetchone()
+    assert not conn.execute("select 1 from skill where code = any(%s)", (old,)).fetchone()
     assert not conn.execute("select 1 from item where skill_set_code = any(%s)", (old,)).fetchone()
     assert cases.outside_their_level(conn) == []
     again = rehome.rehome(conn)
@@ -167,17 +167,17 @@ def test_worksheets_are_built_one_skill_and_one_level_each(conn):
     assert bad == []
     built = conn.execute(
         "select count(distinct (t.skill_set_code, t.difficulty)) as n from sheet_template t"
-        " join skill_set s on s.code = t.skill_set_code where t.source = 'library' and t.retired_at is null"
+        " join skill s on s.code = t.skill_set_code where t.source = 'library' and t.retired_at is null"
         " and s.difficulty -> 'Easy' -> 'check' ? 'within'"
     ).fetchone()["n"]
     levels = conn.execute(
-        "select count(*) as n from skill_set s, jsonb_object_keys(s.difficulty) k"
+        "select count(*) as n from skill s, jsonb_object_keys(s.difficulty) k"
         " where s.difficulty -> 'Easy' -> 'check' ? 'within'"
     ).fetchone()["n"]
     assert built == levels
     assert not conn.execute(
         "select 1 from sheet_template t where t.source = 'library' and t.retired_at is null"
-        " and not exists (select 1 from skill_set s where s.code = t.skill_set_code)"
+        " and not exists (select 1 from skill s where s.code = t.skill_set_code)"
     ).fetchone(), "no worksheet in the library is of a skill that is gone"
 
 
@@ -276,7 +276,7 @@ def test_no_rung_is_left_without_a_skill(conn):
     item = conn.execute("select id from item limit 1").fetchone()["id"]
     with pytest.raises(psycopg.errors.ForeignKeyViolation), conn.transaction():
         conn.execute("update item set rung_code = 'TEST.ORPHAN' where id = %s", (item,))
-    held = conn.execute("select rung_code from skill_set where code = 'SUB.3D2D'").fetchone()["rung_code"]
+    held = conn.execute("select rung_code from skill where code = 'SUB.3D2D'").fetchone()["rung_code"]
     with pytest.raises(psycopg.errors.ForeignKeyViolation), conn.transaction():
-        conn.execute("delete from skill_set where code = 'SUB.3D2D'")
+        conn.execute("delete from skill where code = 'SUB.3D2D'")
     assert conn.execute("select 1 from item where rung_code = %s", (held,)).fetchone()

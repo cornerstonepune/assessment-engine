@@ -230,7 +230,7 @@ def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
     first, then the ones given longest ago — as a paper shows them, each area saying how many it repeats
     (`seen_before`); `strict` refuses an area its level cannot fill at all rather than printing it short."""
     names = _once(
-        "set names", lambda: {r["code"]: r["name"] for r in conn.execute("select code, name from skill_set")}
+        "set names", lambda: {r["code"]: r["name"] for r in conn.execute("select code, name from skill")}
     )
     skills = _once(
         "skill names",
