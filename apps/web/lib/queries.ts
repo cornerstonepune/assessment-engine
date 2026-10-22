@@ -268,7 +268,7 @@ export async function pendingResults(id: string): Promise<PendingResult[]> {
            r.capture_id, si.id as paper_id,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
-           ${ownBox} as box,
+           ${ownBox()} as box,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
            coalesce((r.raw_read::jsonb ->> 'attempted')::boolean, false) as attempted,
            coalesce(r.raw_read::jsonb ->> 'working_summary', '') as working,

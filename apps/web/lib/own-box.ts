@@ -4,8 +4,9 @@ import { sql } from "./db";
 // A box is shown as the part of the page an answer was read from only when the engine cut it from that question's own
 // printed boxes (`boxes`, stored beside it by `boxes.read_page`) and no other question of the same page has the same
 // one. Any other box — a region found by words, one given to several questions — is not that question's own, and the
-// answer is shown whole instead. Reads `r` (item_result) and `i` (item), as every query of an answer does.
-export const ownBox = sql`
+// answer is shown whole instead. A function, so nothing touches the database until a query asks (the build has none).
+// Reads `r` (item_result) and `i` (item), as every query of an answer does.
+export const ownBox = () => sql`
   case when coalesce((r.raw_read::jsonb ->> 'boxes')::int, 0) > 0
         and jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
         and not exists (
