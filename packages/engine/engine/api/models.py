@@ -311,6 +311,10 @@ class ReadFileResponse(BaseModel):
     pages: int
 
 
+class ReadAgainRequest(BaseModel):
+    by: str  # who asked; the file is the one the run read, kept in the engine's inbox
+
+
 class GivePageRequest(BaseModel):
     page: int  # the file's page on which no code could be read
     child_id: str  # whose a person says it is: a child whose own paper is in the file

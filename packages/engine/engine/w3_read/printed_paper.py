@@ -10,7 +10,7 @@ from pathlib import Path
 import pymupdf
 
 from engine.w2_print import library
-from engine.w3_read import boxes, render_pdf
+from engine.w3_read import placing, render_pdf
 
 STOPS = {"working", "Answer"}  # the labels printed under a question, where its words end
 NAME_BAND = (
@@ -146,12 +146,12 @@ def paper(conn, code, pdf=None, template_id=None):
 
 def _as_printed(conn, code, cut):
     """The worksheet as this copy was printed, where no PDF of it was kept: of the layouts the worksheet has
-    printed in (`library.printed`), the one the copy's pages match (`boxes.as_printed`, goals/s18). On 23 Sep a
+    printed in (`library.printed`), the one the copy's pages match (`placing.as_printed`, goals/s18). On 23 Sep a
     copy printed four boxes an answer; the worksheet prints two today."""
     drawn = list(library.printed(conn, code).values())
     if len(drawn) == 1:
         return drawn[0]
-    return boxes.as_printed(list(render_pdf.photos(cut)), drawn)
+    return placing.as_printed(list(render_pdf.photos(cut)), drawn)
 
 
 def read_from(conn, code, mine, cut):

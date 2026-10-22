@@ -354,5 +354,5 @@ def pdf(conn, code, layout=None):
 
 def printed(conn, code):
     """{layout name: the worksheet drawn in it}, today's first: every way a copy of it may have been printed. A
-    copy scanned back is read in the one its page matches (`boxes.as_printed`)."""
+    copy scanned back is read in the one its page matches (`placing.as_printed`)."""
     return {layout["name"]: pdf(conn, code, layout) for layout in reversed(layouts(conn))}
