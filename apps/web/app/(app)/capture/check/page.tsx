@@ -116,7 +116,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
                 ) : (
                   <ZoomPage
                     src={`/api/scan/${a.capture_id}/${a.file_page}`}
-                    alt={`Page ${a.page}, where ${a.first_name} wrote question ${a.slot}`}
+                    alt={`What ${a.first_name} wrote for question ${a.slot}`}
                   />
                 )}
                 <figcaption className="note mt-1">

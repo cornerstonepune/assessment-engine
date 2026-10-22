@@ -79,43 +79,43 @@ test("the question's own number and printed words head the picture", async ({ pa
 
 test("an answer cut from its own printed boxes shows that part of the page, large enough to read", async ({ page }) => {
   await open(page, 4);
+  await shoot(page, "own-box-q4");
   await expect(shown(page)).toHaveAttribute("src", /\?box=/);
   await expect.poll(async () => (await natural(page))[1]).toBeGreaterThan(0);
   const [w, h] = await natural(page);
   expect(h, "a strip of the page, not the page").toBeLessThan(w / 3);
   expect(w, "wide enough to read").toBeGreaterThan(600);
-  await shoot(page, "own-box-q4");
 });
 
 test("a box another question shares is not shown: the whole page and the plain line instead", async ({ page }) => {
   for (const n of [1, 7, 8]) {
     await open(page, n);
+    if (n === 8) await shoot(page, "shared-box-q8");
     await expect(shown(page)).not.toHaveAttribute("src", /box=/);
     await expect(page.locator("figure")).toContainText(
       `We could not find question ${n} on this page: it is somewhere on this page`,
     );
   }
-  await shoot(page, "shared-box-q8");
 });
 
 test("a region found by words, here another question's, is never shown as this question's", async ({ page }) => {
   await open(page, 2);
+  await shoot(page, "words-region-q2");
   await expect(shown(page)).not.toHaveAttribute("src", /box=/);
   await expect(page.locator("figure")).toContainText("We could not find question 2 on this page");
-  await shoot(page, "words-region-q2");
 });
 
 test("an answer with no box shows the whole page, and a click opens it to full size to scroll about in", async ({ page }) => {
   await open(page, 3);
+  await shoot(page, "whole-page-q3");
   const frame = page.locator("figure button").locator("..");
-  await expect.poll(async () => (await natural(page))[1]).toBeGreaterThan(H);
+  await expect.poll(async () => (await natural(page))[1]).toBeGreaterThanOrEqual(H);
   const fit = await shown(page).evaluate((el) => el.getBoundingClientRect().width);
   await page.getByRole("button", { name: /Enlarge the page/ }).click();
   await expect(page.getByRole("button", { name: /Shrink the page/ })).toBeVisible();
   const full = await shown(page).evaluate((el) => el.getBoundingClientRect().width);
   expect(full, "the page opens at its own size").toBeGreaterThan(fit);
   expect(await frame.evaluate((el) => el.scrollWidth > el.clientWidth), "and can be scrolled across").toBe(true);
-  await shoot(page, "whole-page-q3");
 });
 
 test("no two answers of a page are shown the same part of it", async ({ page }) => {

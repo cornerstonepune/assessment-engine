@@ -45,7 +45,20 @@ Home assessment papers (no class assessment is waiting).
 
 ## Verified
 
-Filled in as each command is run (below).
+- Fail first: `cd apps/web && npx playwright test --project=steps u50-the-picture-is-the-question` on the screen and
+  queries as they were: 5 of 6 failed (the own-box case passes either way), and the screenshot of question 2 shows
+  "11 How many dots are there in all?" under "the part of the page the answer was read from". The words-reader test
+  `tests/test_stencil.py::test_a_page_read_by_its_words_stores_no_box` failed before `stencil.py` changed.
+- After: the same spec, `6 passed`. `s4-validation-queue` and the u50 spec together, `23 passed` (the first s4 test found
+  the picture by its alt text, which the whole-page version had changed; both now say "What <child> wrote for question N").
+- `bin/engine done ck1-the-picture-is-the-question`, 2026-10-22, on a database built by `bin/testdb fresh`: all five of
+  Nimish's sentences PROVED; the reader's files `test_stencil test_second_reader test_legacy test_lineup test_boxes` → 119
+  passed; the spec → 6 passed; `bin/check` → 30 passed. NOT DONE only for: not on main, the live database unreachable from
+  here, and the manual check after deploy.
+- Screenshots, seeded test data only (a page the test draws itself; no child's name, no scan): `docs/notes/ck1-the-picture-is-the-question/`,
+  `before-words-region-q2.png` and `after-words-region-q2.png` are the reported bug and its fix; `after-shared-box-q8.png`,
+  `after-own-box-q4.png`, `after-whole-page-q3.png` the other cases. (The sandbox needed the browser build the repo's
+  Playwright asks for linked to the one installed; nothing in the repository changed for it.)
 
 ## Handoff
 
