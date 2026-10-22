@@ -29,8 +29,8 @@ test.beforeAll(async () => {
     select g.code, g.name from grade g join child c on c.tenant_id = g.tenant_id and g.code = class_band(c.tenant_id, c.section)
     where c.id = ${mine.Asha}`;
   [skill] = await sql<{ code: string; rung: string }[]>`
-    select s.skill_codes[1] as code, s.code as rung from rung s where s.band = ${grade.code} and cardinality(s.skill_codes) > 0
-    and exists (select 1 from skill_set ss where ss.rung_code = s.code) order by s.ladder_order limit 1`;
+    select s.registry_codes[1] as code, s.rung_code as rung from skill_set s
+    where s.grade = ${grade.code} and cardinality(s.registry_codes) > 0 order by s.ladder_order limit 1`;
   const [{ tenant }] = await sql<{ tenant: string }[]>`select tenant_id as tenant from child where id = ${mine.Asha}`;
   for (const id of [mine.Asha, other.Kavi]) {
     const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from evidence_event where child_id = ${id}`;
@@ -84,7 +84,7 @@ async function gradeQuestions(): Promise<number> {
 
 test("Curriculum opens on the educator's grade, every other grade closed", async ({ browser }) => {
   const page = await asEducator(browser);
-  await page.goto("/");
+  await page.goto("/?details=1");
   const rows = curriculum(page).locator('tbody tr[data-depth="0"]');
   await expect(rows.first()).toBeVisible();
   for (const row of await rows.all()) {
@@ -104,11 +104,11 @@ test("Curriculum opens on the educator's grade, every other grade closed", async
 test("Curriculum counts the children assessed in the educator's own class", async ({ browser, page }) => {
   const children = (p: Page) => curriculum(p).locator(`tbody tr[data-row="${grade.code}"] td`).nth(-2);
   const educator = await asEducator(browser);
-  await educator.goto("/");
+  await educator.goto("/?details=1");
   await expect(children(educator), "Asha alone: Kavi is in another class").toHaveText("1");
   await educator.context().close();
   // the coordinator's count is every class's
-  await page.goto("/");
+  await page.goto("/?details=1");
   expect(number(await children(page).innerText())).toBeGreaterThanOrEqual(2);
 });
 

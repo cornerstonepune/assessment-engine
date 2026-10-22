@@ -8,10 +8,20 @@ import { staffList, type Staff } from "./queries";
 import { devBypass, SESSION_COOKIE, SESSION_DAYS, sessionEmail, sessionValue } from "./session-cookie";
 
 // Who is signed in, without the password hash: a session can reach a client component, and the hash must not.
-/** `everyClass`: the person chose to see every class rather than their own (`seeClasses`, goals/ux9c-one-role.yaml). */
-export type Session = Omit<Staff, "password"> & { devBypass: boolean; everyClass: boolean };
-/** The cookie that keeps a person's choice of every class over their own: a view, not a permission. */
+/** What the bar at the top shows (`choose`, goals/s1-subject-class-and-today.yaml): `everyClass`, every class rather
+ *  than the person's own (goals/ux9c-one-role.yaml); `oneClass`, one class alone; `subject`, the subject chosen, a code
+ *  of `subject` (null: the first). A view, never a permission. */
+export type Session = Omit<Staff, "password"> & { devBypass: boolean; everyClass: boolean; oneClass: string | null; subject: string | null };
+/** The cookie that keeps a person's choice of class: "every", or "class:" and one class; none is their own classes. */
 export const CLASSES_COOKIE = "cs_classes";
+/** The cookie that keeps the subject chosen at the top. */
+export const SUBJECT_COOKIE = "cs_subject";
+
+/** The class choice a cookie holds. */
+export function classChoice(value: string | undefined): { everyClass: boolean; oneClass: string | null } {
+  if (value === "every") return { everyClass: true, oneClass: null };
+  return { everyClass: false, oneClass: value?.startsWith("class:") && value.length > 6 ? value.slice(6) : null };
+}
 
 // `scrypt$salt$hash`, both hex. scrypt is in node's standard library, so no dependency and no
 // bcrypt build step; the salt is per person so two people with the same password differ.
@@ -69,7 +79,7 @@ export async function verifyStaff(email: string, password: string): Promise<Staf
 // the login page during an outage, which read as a broken password. Once per request, however many
 // pages, layouts and data reads ask.
 export const currentStaff = cache(async (): Promise<Session | null> => {
-  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], devBypass: true, everyClass: true };
+  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], devBypass: true, everyClass: true, oneClass: null, subject: null };
   const jar = await cookies();
   const email = sessionEmail(jar.get(SESSION_COOKIE)?.value);
   if (!email) return null;
@@ -82,7 +92,8 @@ export const currentStaff = cache(async (): Promise<Session | null> => {
         role: staff.role,
         classes: staff.classes ?? [],
         devBypass: false,
-        everyClass: jar.get(CLASSES_COOKIE)?.value === "every",
+        ...classChoice(jar.get(CLASSES_COOKIE)?.value),
+        subject: jar.get(SUBJECT_COOKIE)?.value || null,
       }
     : null;
 });

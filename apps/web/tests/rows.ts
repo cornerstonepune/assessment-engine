@@ -69,7 +69,11 @@ export async function aWorksheet(sql: Sql, w: Worksheet): Promise<{ template: st
 
 /** One answer as the reader left it: its status, what it read, and why it held it, if it did; `checkedBy`, the person
  *  who said what the child wrote. */
-export type Read = { status: string; read?: string; why?: string; guess?: string; checkedBy?: string };
+/** `box` and `boxes`: where the reading says it came from, and how many of the question's own printed boxes it was cut
+ *  from (`boxes.read_page`; a reading by words has a region and no count). */
+export type Read = {
+  status: string; read?: string; why?: string; guess?: string; checkedBy?: string; box?: number[]; boxes?: number;
+};
 
 /** One child's copy of a worksheet, scanned and read, an answer per entry of `reads` in question order. A paper read
  *  before under the same code is superseded, as the reader supersedes a scan it reads again: its answers stay — one a
@@ -78,7 +82,7 @@ export type Read = { status: string; read?: string; why?: string; guess?: string
  *  answers' ids. */
 export async function aReadPaper(
   sql: Sql,
-  p: { qr: string; child: string; template: string; items: string[]; reads: Read[] },
+  p: { qr: string; child: string; template: string; items: string[]; reads: Read[]; file?: string },
 ): Promise<{ sheet: string; capture: string; results: string[] }> {
   // ADR 0029: a wrong or a blank stands once a person has said what the child wrote; the engine's word alone holds it
   // for them (`needs_teacher`). A paper with one the engine settled alone is a paper the engine cannot write.
@@ -93,7 +97,7 @@ export async function aReadPaper(
         values (${t}, ${p.qr}, ${p.template}, ${p.child}, 'returned') returning id`;
   const [{ id: capture }] = await sql<{ id: string }[]>`
     insert into capture (tenant_id, path, pages, status, sheet_instance_id)
-    values (${t}, ${`${p.qr}.pdf`}, 1, 'processed', ${sheet}) returning id`;
+    values (${t}, ${p.file ?? `${p.qr}.pdf`}, 1, 'processed', ${sheet}) returning id`;
   await sql`update capture set superseded_by = ${capture} where sheet_instance_id = ${sheet} and id <> ${capture}
             and superseded_by is null`;
   const results: string[] = [];
@@ -104,6 +108,8 @@ export async function aReadPaper(
       confidence: 95,
       why: r.why ?? "",
       ...(r.guess ? { guess: r.guess } : {}),
+      ...(r.box ? { box: r.box, page: 1, file_page: 1 } : {}),
+      ...(r.boxes ? { boxes: r.boxes } : {}),
     });
     // the answer is to the question's own response (its first): a result naming one the question does not ask for is
     // marked against another's key, and `engine audit` refuses it (goals/md0a-every-answer-counts.yaml)

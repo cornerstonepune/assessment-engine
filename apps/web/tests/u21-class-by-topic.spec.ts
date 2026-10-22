@@ -1,8 +1,8 @@
 /**
  * U21 — Children by topic, a class and the list (goals/ui4b2-class-by-topic.yaml). Nimish, 2026-10-11: "in the
  * Children tab, I think we need to now expand our thought process as more and more topics start coming in and need
- * help. It should be by topic or something." The Children list reads one topic at a time, chosen at the top; a class
- * opens on its children against its topics, each topic opening the class against its skills alone, in their place.
+ * help. It should be by topic or something." A class opens on its children against its topics, each topic opening the
+ * class against its skills alone, in their place. (The Children list's own topic chips went with goals/ux10-declutter.yaml.)
  *
  * The class is the test's own (tests/rows.ts). Its children's skill states are set here directly — the graph's own
  * rules are proved by the engine's tests; this is how the pages lay them out — and taken away after.
@@ -41,49 +41,28 @@ test.afterAll(async () => {
   await sql.end();
 });
 
-// a child's row on the Children list, their class opened (goals/ux3-children-grouped.yaml): needs help on, secure,
-// practising
+// a child's "Needs help on" on the Children list, their class opened (goals/ux3-children-grouped.yaml); a table holds
+// only the columns that have something in them (goals/ux10-declutter.yaml), so the cell is found under its heading
 const standing = async (page: Page, who: string) => {
   const group = page.locator(`details[data-class="${SECTION}"]`);
   if ((await group.getAttribute("open")) === null) await group.locator("summary").click();
-  const row = page.getByRole("table", { name: `${SECTION}: its children` }).locator(`tr[data-child="${kids[who]}"]`);
+  const table = page.getByRole("table", { name: `${SECTION}: its children` });
+  const row = table.locator(`tr[data-child="${kids[who]}"]`);
   await expect(row).toBeVisible();
-  const cells = (await row.locator("td").allInnerTexts()).map((t) => t.trim());
-  return [cells[2], cells[5], cells[4]];
+  const heads = (await table.locator("thead th").allTextContents()).map((t) => t.trim().replace(/ ▾$/, ""));
+  const help = (await row.locator("td").nth(heads.indexOf("Needs help on")).innerText()).trim();
+  return [help];
 };
 
-test("the Children list reads one topic at a time", async ({ page }) => {
-  await page.goto("/growth");
-  const topics = page.getByRole("navigation", { name: "Topic" });
-  await expect(topics.getByRole("link", { name: "All topics" })).toHaveAttribute("aria-current", "page");
-  // every topic with a skill switched on, and none with none (taught skill by skill: goals/t1-topics-are-operations.yaml)
-  const taught = (
-    await sql<{ name: string }[]>`
-      select distinct t.name from topic t join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
-      where s.taught order by 1`
-  ).map((t) => t.name);
-  for (const t of taught) await expect(topics.getByRole("link", { name: t, exact: true })).toBeVisible();
-  await expect(topics).not.toContainText("Multiples & factors");
-  expect(await standing(page, "Asha")).toEqual([await nameOf("R24"), "2", "0"]);
-
-  await topics.getByRole("link", { name: "Data handling", exact: true }).click();
-  await expect(page).toHaveURL(/[?&]topic=DATA\b/);
-  await expect(page.getByRole("navigation", { name: "Topic" }).getByRole("link", { name: "Data handling", exact: true })).toHaveAttribute(
-    "aria-current",
-    "page",
-  );
-  expect(await standing(page, "Asha")).toEqual(["—", "1", "0"]);
-  expect(await standing(page, "Bina")).toEqual(["—", "0", "0"]);
-
-  await page.getByRole("navigation", { name: "Topic" }).getByRole("link", { name: "Addition & subtraction", exact: true }).click();
-  await expect(page).toHaveURL(/[?&]topic=ADDSUB\b/);
-  expect(await standing(page, "Asha")).toEqual([await nameOf("R24"), "1", "0"]);
-  expect(await standing(page, "Bina")).toEqual([await nameOf("R21"), "0", "1"]);
-  // a sort keeps the topic
-  await expect(page.getByRole("table", { name: `${SECTION}: its children` }).getByRole("link", { name: "Secure" })).toHaveAttribute(
-    "href",
-    /topic=ADDSUB/,
-  );
+// goals/ux10-declutter.yaml, Nimish 2026-10-22: the topic chips on Children are dropped. What the page said by topic it
+// now says across every topic switched on, and a class's own page still reads topic by topic (the next test).
+test("the Children list has no topic chips: it reads every topic switched on, whatever the address says", async ({ page }) => {
+  for (const at of ["/growth", "/growth?topic=DATA"]) {
+    await page.goto(at);
+    await expect(page.getByRole("navigation", { name: "Topic" }), at).toHaveCount(0);
+    // Asha needs help on addition and subtraction: it shows, though the address asked for Data handling alone
+    expect(await standing(page, "Asha"), at).toEqual([await nameOf("R24")]);
+  }
 });
 
 test("a class opens on its children against its topics, and a topic opens its skills alone", async ({ page }) => {

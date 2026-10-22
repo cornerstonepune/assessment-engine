@@ -120,7 +120,7 @@ test("a paper's line says who it is for in words: never null, a home assessment 
 
 test("Curriculum counts a child under the grade of the level they answered", async ({ browser }) => {
   const page = await asEducator(browser);
-  await page.goto("/");
+  await page.goto("/?details=1");
   const curriculum = page.getByRole("table", { name: "The curriculum, grade by grade" });
   // Asha answered at Medium, Grade 2's level; 2-digit + 2-digit's Easy is Grade 1's, which no child of the class answered
   const children = (grade: string) => curriculum.locator(`tr[data-row="${grade}"] td`).nth(-2);

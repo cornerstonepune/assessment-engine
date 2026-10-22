@@ -28,7 +28,7 @@ test("a Grade 10 skill shows on the curriculum page, under Grade 10, after Grade
     const [now] = await sql<{ level_band: Record<string, string> }[]>`select level_band from skill_set where code = 'SUB.3D3D'`;
     expect(now.level_band.Advance).toBe("G10");
 
-    await page.goto("/");
+    await page.goto("/?details=1");
     await expect(table(page).getByRole("button", { name: "Grade 10", exact: true })).toBeVisible();
     const order = await gradeRows(page);
     expect(order.at(-1), "Grade 10 comes last, after Grade 4 — never sorted as text, between Grade 1 and Grade 2").toBe("G10");
@@ -46,7 +46,7 @@ test("a Grade 10 skill shows on the curriculum page, under Grade 10, after Grade
 });
 
 test("reasoning sits under Grade 2, and no group is called Grade 2 and up", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?details=1");
   await expect(table(page).getByRole("button", { name: "Grade 2", exact: true })).toBeVisible();
   await expect(table(page).getByText("Grade 2 and up")).toHaveCount(0);
   await page.getByRole("button", { name: "Open everything" }).click();
