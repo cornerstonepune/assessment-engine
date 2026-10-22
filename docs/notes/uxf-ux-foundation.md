@@ -21,10 +21,13 @@ Slice UXF of the locked scope of 22 Oct, beside S1: web only, no migration, no n
 - Check answers on the blocks, the same answers as before: the older specs that read the page still hold:
   `s4-validation-queue`, `u3-marking`, `u50-the-picture-is-the-question`, `u43`, `u45`, `u47`, `u49`, `u1`, `u38`, `u9`,
   `s1`, `u33`, `u15` → all pass (62 of 67 first run; the one failure was a missing "← Marking" link, restored, re-run green).
-- Full suite on a `bin/testdb fresh` copy, this sandbox: 283 passed, 14 failed, 31 not run (the run stops a serial file at its first
-  failure). All 14 print a PDF (make papers, home assessments, worksheets): the engine's own error is "BrowserType.launch:
-  Executable doesn't exist … chromium_headless_shell-1243" (this sandbox has 1194), so they cannot pass here whatever the
-  branch. None touches Check answers. CI, with its own browsers, decides.
+- Full suite on a `bin/testdb fresh` copy, with this sandbox's Chromium linked in: 323 passed, 2 failed, 3 not run.
+  The 2 are `u15-menu-and-today` ("Today lists everything…") and `u26-my-classes-first` ("the coordinator sees every
+  class"): Today lists five class packs and then "and N more", and by this point of the run the copy holds more test
+  classes than that. They fail the same way on the unchanged base commit (5ffb020) on the same copy (2 failed, same
+  names), and ux9c-one-role.md records both failing on a local copy before this branch. Today is not touched here.
+  `bin/engine done uxf-ux-foundation`: all five of Nimish's sentences PROVED, the rule tests, the Check answers specs
+  (34) and `bin/check` PASSED; "every page still holds" FAILED on those two. CI's fresh copy decides.
 - Before and after of Check answers, desktop and phone, seeded test rows only: the one decision (Yes, the child wrote 1 /
   Right, Wrong, Blank / type it) moved to the top, under the title, as the one main action; the ways round it stay beside
   the picture; "Later — show the next one" became the page's next step at the foot (at the end of the queue: "See the
