@@ -36,6 +36,7 @@ FILLED_TABLES = (
     "subject",
     "topic",
     "question_format",
+    "question_type",
     "ask",
     "grade",
     "difficulty",
@@ -342,6 +343,22 @@ def _subjects(conn: db.Conn, t: db.Id) -> None:
         )
 
 
+def _question_types(conn: db.Conn, t: db.Id) -> None:
+    """Each question type's words, how it reaches the child and how it is marked (B2), in one statement, so the levels'
+    links are made once. A type the seed does not name is left as it is; a new one waits for the coordinator."""
+    conn.execute(
+        "insert into question_type (tenant_id, code, fmt, words, reaches, marked, own_words)"
+        " select %s, x.code, x.fmt, x.words, x.reaches, x.marked::eval_type[], x.own_words from jsonb_to_recordset(%s::jsonb)"
+        "   x(code text, fmt text, words text, reaches text, marked text[], own_words boolean)"
+        " on conflict (tenant_id, code) do update set fmt = excluded.fmt, words = excluded.words,"
+        " reaches = excluded.reaches, marked = excluded.marked, own_words = excluded.own_words"
+        " where row(question_type.fmt, question_type.words, question_type.reaches, question_type.marked,"
+        " question_type.own_words) is distinct from row(excluded.fmt, excluded.words, excluded.reaches,"
+        " excluded.marked, excluded.own_words)",
+        (t, json.dumps(settings.seed("question_types.json", "question_types"))),
+    )
+
+
 def load_all() -> dict[str, int]:
     with db.connect() as conn:
         t = _tenant(conn)
@@ -356,6 +373,7 @@ def load_all() -> dict[str, int]:
             settings.load,
             _skill_sets,
             _subjects,
+            _question_types,
         ):
             step(conn, t)
         topics.load(conn, t, settings.seed)

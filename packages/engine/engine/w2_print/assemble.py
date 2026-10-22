@@ -20,6 +20,7 @@ from playwright.sync_api import sync_playwright
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
 from engine.core import db, roster, settings
+from engine.w1_bank import question_types
 from engine.w1_bank.inventory import item_from_row
 from engine.w2_print import pack
 
@@ -30,15 +31,23 @@ def _qr(*parts) -> str:
     return "CS" + hashlib.sha1("|".join(map(str, parts)).encode()).hexdigest()[:6].upper()
 
 
+# A worksheet may be handed out only while every question on it may still be drawn (`drawable_item`, B2): active, at a
+# confirmed level, of an approved type.
+DRAWABLE = (
+    "not exists (select 1 from unnest(t.item_ids) x(id)"
+    " where not exists (select 1 from drawable_item d where d.id = x.id))"
+)
+
+
 def _worksheets(conn, skill_set, difficulty, child_id, window_days):
     """The library's worksheets at this skill and level a child may be given, least handed out first:
     never one the child sat, never one holding a question they saw inside the exposure window, never
-    one holding a question that has left the bank. With no child — a spare — only the last applies."""
+    one holding a question that has left the bank or may not be drawn. With no child — a spare — only the last applies."""
     return conn.execute(
         "select t.id, t.code, t.item_ids from sheet_template t"
         " where t.source = 'library' and t.retired_at is null"
         "   and t.skill_set_code = %s and t.difficulty = %s"
-        "   and not exists (select 1 from item i where i.id = any(t.item_ids) and i.status <> 'active')"
+        f"   and {DRAWABLE}"
         "   and not exists (select 1 from sheet_instance si where si.sheet_template_id = t.id and si.child_id = %s)"
         "   and not exists (select 1 from item_exposure x where x.item_id = any(t.item_ids)"
         "                   and x.child_id = %s and x.created_at > now() - make_interval(days => %s))"
@@ -63,7 +72,7 @@ def _seen_longest_ago(conn, skill_set, difficulty, child_id, given, used):
         "   where x.child_id = %s and x.item_id = any(t.item_ids)) as last"
         " from sheet_template t where t.source = 'library' and t.retired_at is null"
         "   and t.skill_set_code = %s and t.difficulty = %s"
-        "   and not exists (select 1 from item i where i.id = any(t.item_ids) and i.status <> 'active')"
+        f"   and {DRAWABLE}"
         " order by t.code",
         (child_id, skill_set, difficulty),
     ).fetchall()
@@ -108,7 +117,7 @@ def for_week(conn, section: str, week: str, kind: str = "practice") -> dict:
         if w is None:
             w = _seen_longest_ago(conn, p["skill_set_code"], p["difficulty"], p["child_id"], given, used)
         if w is None:
-            why = NO_WORKSHEET
+            why = question_types.why_not(conn, p["skill_set_code"], p["difficulty"]) or NO_WORKSHEET
             # kept on the child's plan, where the class's papers to approve name them and say why
             # (goals/ux5-papers-grouped.yaml)
             conn.execute("update prescription set no_paper = %s where id = %s", (why, p["id"]))

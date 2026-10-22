@@ -16,6 +16,9 @@ pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DAT
 @pytest.fixture
 def conn():
     with db.connect() as c:
+        # approved whole by Nimish, as a person does: withdrawn, then ratified (the copy starts with every level
+        # approved, as live does, and the latest level approval names who ratified)
+        c.execute("update skill_set set status = 'draft' where code = 'SUB.2D2D'")
         c.execute("update skill_set set status = 'ratified', ratified_by = 'Nimish' where code = 'SUB.2D2D'")
         yield c
         c.rollback()

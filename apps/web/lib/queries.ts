@@ -56,7 +56,6 @@ export type SkillSet = {
   name: string;
   learning_objective: string;
   philosophy: string[];
-  formats: string[];
   misconception_codes: string[];
   difficulty: Record<Difficulty, Band>;
   levels: Difficulty[];
@@ -95,7 +94,7 @@ export async function skillSets({
 }: { untaught?: boolean; scope?: Scope; section?: string } = {}): Promise<SkillSet[]> {
   const taught = section ? skillTaughtIn(sql`s.tenant_id`, sql`s.code`, section) : skillTaughtFor(scope, sql`s.tenant_id`, sql`s.code`);
   return sql<SkillSet[]>`
-    select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy, s.formats,
+    select s.code, s.rung_code, s.name, s.learning_objective, s.philosophy,
            s.misconception_codes, public.skill_levels(s.tenant_id, s.code) as difficulty, ${levelsColumn()}, s.status, s.ratified_by,
            coalesce((select jsonb_object_agg(l.difficulty, jsonb_build_object('by', l.confirmed_by, 'at', l.confirmed_at))
                      from skill_level l where l.tenant_id = s.tenant_id and l.skill_code = s.code and l.confirmed_at is not null),

@@ -23,6 +23,8 @@ from engine.assess.geometry import GEOM_JS
 from engine.assess.page_css import CSS, overrides
 
 MM = 25.4 / 96.0  # CSS px -> mm
+# The printed formats whose line `render_item` draws from the numbers, in place of the question's own words (`item.stem`).
+DRAWN_FROM_NUMBERS = ("bare_sum", "column_grid", "missing_number")
 
 
 def render_item(sheet, it, n, layout: dict[str, Any] | None = None):

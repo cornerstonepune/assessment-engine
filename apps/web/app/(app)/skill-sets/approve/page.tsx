@@ -3,7 +3,8 @@ import { Body, Notice, PageHeader, Panel, Pill } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
-import { KIND } from "@/components/question";
+import { kindWords } from "@/components/question";
+import { questionKinds } from "@/lib/question-types";
 import { grades as schoolGrades, levelsOf, skillSets, type SkillSet } from "@/lib/queries";
 import { chargesTable } from "@/lib/queries-charges";
 import { approveSkills } from "../[code]/actions";
@@ -40,8 +41,8 @@ function keeps(x: SkillSet, f: Filter, except?: keyof Filter) {
 export default async function ApproveSkills({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
   const q = await searchParams;
-  const [sets, charges, mayApprove, school] = await deadline(
-    Promise.all([skillSets({ untaught: true, scope: scopeOf(me) }), chargesTable(), mayDecide(me, "skills"), schoolGrades()]),
+  const [sets, charges, mayApprove, school, { words }] = await deadline(
+    Promise.all([skillSets({ untaught: true, scope: scopeOf(me) }), chargesTable(), mayDecide(me, "skills"), schoolGrades(), questionKinds()]),
   );
   const waiting = sets.filter((s) => s.status !== "ratified");
   // the school's grades in their order (`grade`): every grade a skill holds is one of them
@@ -108,7 +109,7 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
                 <ul className="mt-2 grid gap-1 text-[13px]">
                   {charges.rows.map((r) => (
                     <li key={`${r.kind}-${r.code}`}>
-                      On a {KIND[r.kind] ?? r.kind}, <b>{r.mistake.toLowerCase()}</b> counts against <b>{r.skill}</b>.
+                      On a {kindWords(words, r.kind)}, <b>{r.mistake.toLowerCase()}</b> counts against <b>{r.skill}</b>.
                     </li>
                   ))}
                 </ul>

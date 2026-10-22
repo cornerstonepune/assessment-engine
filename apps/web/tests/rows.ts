@@ -17,6 +17,18 @@ async function tenant(sql: Sql): Promise<string> {
   return (await sql<{ id: string }[]>`select id from tenant limit 1`)[0].id;
 }
 
+/** A skill waiting for the coordinator's approval, as a test needs one. The copy starts with every level approved, as
+ *  live has them (`bin/testdb`, goals/b2-question-types-are-rows.yaml), so this withdraws the skill's level approvals;
+ *  the function it returns puts them back, so no other test finds a level a paper may not draw. */
+export async function aWaitingSkill(sql: Sql, code: string): Promise<() => Promise<void>> {
+  const [{ approved }] = await sql<{ approved: Parameters<Sql["json"]>[0] }[]>`
+    select level_approved as approved from skill_set where code = ${code}`;
+  await sql`update skill_set set level_approved = '{}'::jsonb where code = ${code}`;
+  return async () => {
+    await sql`update skill_set set level_approved = ${sql.json(approved)} where code = ${code}`;
+  };
+}
+
 /** A class of the test's own, `band`, its children named in roll order — made once and kept: a child some test has
  *  signed a paper off for holds evidence, which is append-only. → {name: child id} */
 export async function aClass(sql: Sql, section: string, band: string, names: string[]): Promise<Record<string, string>> {

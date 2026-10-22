@@ -11,6 +11,7 @@ from Make papers (`assemble._hand_out`, `assemble.render`), so its scan sorts it
 from pathlib import Path
 
 from engine.core import db
+from engine.w1_bank import question_types
 from engine.w2_print import assemble
 
 KIND = "custom"  # a paper an educator asks for (migration 20261004090000), not the week's practice pack
@@ -42,6 +43,11 @@ def for_children(conn, code: str, child_ids: list, week: str, by: str, outdir: P
         raise ValueError(
             f"{code} is retired: a question on it left the bank — print the worksheet that replaced it"
         )
+    if conn.execute(
+        f"select 1 from sheet_template t where t.id = %s and not {assemble.DRAWABLE}", (w["id"],)
+    ).fetchone():
+        why = question_types.why_not(conn, w["skill_set_code"], w["difficulty"])
+        raise ValueError(f"{code} cannot be printed: {why or 'a question on it may not be drawn'}")
     kids = conn.execute(
         "select id, roll_no, section from child where id = any(%s) and active"
         " order by section, roll_order(roll_no), roll_no",
