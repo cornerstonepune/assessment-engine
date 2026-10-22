@@ -1,0 +1,30 @@
+name: r1-every-question-found
+goal: >
+  The reader finds every printed question on a paper this system printed and gives each answer its own box, however the
+  page was photographed. On 2026-10-22 a 20-page Grade 1 file ("Equal groups (repeated addition)", 10 copies x 12
+  answers) was a phone's portrait picture laid on each A4 page, the paper a third of what is read. The line-up matched
+  every page (113 features agreed on one) and threw the match away: its check asked the whole photograph to land on
+  about one printed page, true only of a picture cropped to the paper's edges. Every page then fell to the reader by
+  words, which cannot find a question that is a picture: 49 of 120 answers "not found", one box given to three
+  questions. The check is now where the printed page sits in the photograph; what is found of its print still decides.
+# Written 2026-10-22, before the code, from the live measure (.github/measure/scan_vs_eye.py, docs/notes/r1-every-question-found.md).
+says:
+  - words: "the reader finds every printed question on this paper's pages and gives each answer its own box"
+    proved_by: "packages/engine/tests/test_lineup.py::test_a_phone_photograph_laid_on_an_a4_page_lines_up"
+  - words: "the reader finds every printed question on this paper's pages and gives each answer its own box"
+    proved_by: "packages/engine/tests/test_lineup.py::test_every_printed_question_of_the_equal_groups_paper_is_found_in_its_own_boxes"
+  - words: "the reader finds every printed question on this paper's pages and gives each answer its own box"
+    proved_by: "packages/engine/tests/test_lineup.py::test_a_photograph_of_the_desk_alone_in_a_phone_picture_does_not_line_up"
+manual:
+  - "After deploy, with Nimish's approval: read the 2026-10-22 Grade 1 file again through the read-again path, then the engine-logs measure on this branch: of 120 answers, how many are found in their boxes, and how many agree with the person's reading."
+scenarios: []
+criteria:
+  - name: a phone picture on an A4 page lines up, and every question of the Grade 1 paper is found in its own boxes
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_lineup.py tests/test_boxes.py tests/test_stencil.py
+    expect: "passed"
+  - name: nothing else moved — the reader's files
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_copies.py tests/test_sorting.py tests/test_legacy.py tests/test_inbox.py tests/test_crops.py tests/test_ink_line.py tests/test_second_reader.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

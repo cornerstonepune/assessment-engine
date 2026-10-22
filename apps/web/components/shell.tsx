@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import { Nav, type NavItem } from "./nav";
-import { seeClasses, signOut } from "@/lib/auth-actions";
+import { TopBar } from "./top-bar";
+import { signOut } from "@/lib/auth-actions";
 import type { Session } from "@/lib/auth";
 import { mayUse } from "@/lib/access";
+import type { Choices } from "@/lib/choices";
 
 // The menu is the school's order of work (goals/ui1-menu-and-today.yaml): what waits today, what is taught, the
 // assessments made from it, and the children they tell about. Each tab carries the count of what waits in it, from the
@@ -15,22 +17,28 @@ export const NAV: readonly NavItem[] = [
   { href: "/growth", label: "Children", icon: "growth", match: ["/growth", "/across"] },
 ];
 
-export function Shell({ me, waiting, grades, subject, children }: { me: Session; waiting: Partial<Record<string, number>>; grades: string; subject: string; children: ReactNode }) {
-  // On a phone the menu is one row of tabs, so a page's heading is in the top 120 px (goals/ux7-phone-and-words.yaml);
-  // who is signed in moves to the foot of the page there, as it is the menu's foot on a wider screen.
+export function Shell({ me, waiting, grades, choices, children }: { me: Session; waiting: Partial<Record<string, number>>; grades: string; choices: Choices; children: ReactNode }) {
+  const subject = choices.subjects.find((x) => x.code === me.subject) ?? choices.subjects[0];
+  const chosen = me.oneClass ? `class:${me.oneClass}` : me.everyClass || !me.classes?.length ? "every" : "mine";
+  // On a phone the menu is one row of big tabs at the foot of the screen, so the bar and a page's heading are both at
+  // the top (goals/ux7-phone-and-words.yaml: the heading in the top 120 px; goals/s1-subject-class-and-today.yaml); who
+  // is signed in moves to the foot of the page there, as it is the menu's foot on a wider screen.
   return (
-    <div className="flex min-h-dvh flex-col md:flex-row">
-      <aside className="flex w-full flex-row items-center gap-2 bg-basalt px-3 py-[2px] text-lime md:w-[230px] md:shrink-0 md:flex-col md:items-stretch md:gap-0 md:px-[18px] md:py-[26px] print:hidden">
-        <div className="flex items-center gap-[10px] md:mb-9">
+    <div className="flex min-h-dvh flex-col pb-[56px] md:flex-row md:pb-0 print:pb-0">
+      <aside className="fixed inset-x-0 bottom-0 z-30 flex w-full flex-row items-center gap-2 bg-basalt px-3 py-[2px] text-lime md:static md:w-[230px] md:shrink-0 md:flex-col md:items-stretch md:gap-0 md:px-[18px] md:py-[26px] print:hidden">
+        <div className="hidden items-center gap-[10px] md:mb-9 md:flex">
           <Mark />
-          <div className="hidden font-heading text-[19px] text-lime md:block">cornerstone</div>
+          <div className="font-heading text-[19px] text-lime">cornerstone</div>
         </div>
         <Nav items={NAV.map((it) => ({ ...it, count: waiting[it.label] }))} />
-        <Account me={me} grades={grades} subject={subject} className="mt-auto hidden pt-8 md:block" />
+        <Account me={me} grades={grades} subject={subject?.label ?? ""} className="mt-auto hidden pt-8 md:block" />
       </aside>
-      <main className="flex min-w-0 flex-1 flex-col">{children}</main>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar choices={choices} subject={subject?.code ?? ""} chosen={chosen} own={me.classes ?? []} />
+        <main className="flex min-w-0 flex-1 flex-col">{children}</main>
+      </div>
       <footer className="bg-basalt px-5 py-4 md:hidden print:hidden">
-        <Account me={me} grades={grades} subject={subject} />
+        <Account me={me} grades={grades} subject={subject?.label ?? ""} />
       </footer>
     </div>
   );
@@ -63,16 +71,9 @@ function Account({ me, grades, subject, className }: { me: Session; grades: stri
             </form>
           )}
         </div>
-        {/* what the site opens on for this person (ADR 0073): never a guess; every class one tap away (goals/ux9c-one-role.yaml) */}
+        {/* what the site opens on for this person (ADR 0073): never a guess; every class one choice away in the bar at the top
+            (goals/s1-subject-class-and-today.yaml) */}
         <div className="mt-1 opacity-75">{classesSaid(me)}</div>
-        {me.classes?.length ? (
-          <form action={seeClasses} className="mt-1">
-            <input type="hidden" name="classes" value={me.everyClass ? "mine" : "every"} />
-            <button type="submit" className="cursor-pointer text-bamboo underline underline-offset-2">
-              {me.everyClass ? "See your classes first" : "See every class"}
-            </button>
-          </form>
-        ) : null}
       </div>
     </div>
   );

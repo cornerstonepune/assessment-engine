@@ -1,0 +1,51 @@
+name: english-kinds-and-samples
+goal: >
+  English for Grades 3 and 4 is ready for the school's English educator to approve or change, as seed rows that are
+  not loaded. For every skill a paper can assess: the kinds of question it uses, what each of Easy, Medium, Hard
+  and Advance means for it, three samples for every kind each level uses, each with its right answer and its likely
+  wrong answers, every wrong answer tied to one of the 340 named mistakes. Each kind says whether it has one right
+  answer that code checks or an open answer a person reads (every answer, to begin with). Every objective that is
+  not on a paper is a milestone an educator marks yes, sometimes or not yet, for the observation engine to come.
+  Code works out again every answer and every rule-shaped wrong answer it can, and reads every word against a
+  British English dictionary. One document for the educator, one section per skill. Content only: no migration,
+  engine code, endpoint or screen.
+
+# Written 2026-10-22, before the work. Nimish's locked scope of 22 Oct (BUILD-ORDER on claude/scope-oct22, PR #269)
+# lets this English content be prepared now, beside the build: "the English content (skills, kinds of question,
+# samples for the English educator to approve) is prepared now, content only, as goals/english-foundation.yaml was."
+says:
+  - words: "the English content (skills, kinds of question, samples for the English educator to approve) is prepared now"
+    proved_by: packages/engine/tests/test_english_kinds_and_samples.py::test_every_sample_has_an_answer_a_level_a_kind_and_wrong_answers_naming_real_mistakes
+  - words: "the English content (skills, kinds of question, samples for the English educator to approve) is prepared now"
+    proved_by: packages/engine/tests/test_english_kinds_and_samples.py::test_every_kind_a_level_uses_has_three_samples
+  - words: "the English content (skills, kinds of question, samples for the English educator to approve) is prepared now"
+    proved_by: packages/engine/tests/test_english_kinds_and_samples.py::test_a_made_up_mistake_a_missing_level_and_an_empty_wrong_answer_are_caught
+  - words: "validation by rules per subject and kind of question (a new one shows a person every answer)"
+    proved_by: packages/engine/tests/test_english_kinds_and_samples.py::test_every_kind_says_one_right_answer_code_checks_or_an_open_answer_a_person_reads
+  - words: "its scale (right/wrong/blank or yes/sometimes/not yet)"
+    proved_by: packages/engine/tests/test_english_kinds_and_samples.py::test_every_objective_not_on_a_paper_is_a_milestone_marked_yes_sometimes_or_not_yet
+  - words: "the English content (skills, kinds of question, samples for the English educator to approve) is prepared now"
+    proved_by: packages/engine/tests/test_english_kinds_and_samples.py::test_a_wrong_answer_a_rule_gives_is_the_one_the_rule_gives
+manual:
+  - "The English educator reads the document (its link is in the PR and in docs/notes/english-kinds-and-samples.md) and approves or changes each skill's kinds, levels, samples, wrong answers and milestones. Until then every row is a draft and counts for nothing."
+  - "Whether a sample is a good question for a child of 8 or 9, and whether a wrong answer is one a child would really give, is the educator's judgement; code checks that answers are right where a rule gives them, that wrong answers fit the question and name a mistake of the skill, and that every word is spelt as British English."
+  - "Open answers have no single right answer for code to check; a person reads every one while the kind is new (BUILD-ORDER, C4 decides when that changes)."
+  - "The facts in passages that name real places were checked against public sources (listed in the note) or made neutral; the educator confirms them."
+  - "Loading the rows waits for the build to reach English (BUILD-ORDER's order ends with English, Grades 3 and 4): no migration, engine code, endpoint or screen is part of this goal."
+scenarios: []
+criteria:
+  - name: every sample has an answer, a level, a kind and real mistakes; three per kind and level; kinds and milestones
+    run: cd packages/engine && .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_english_kinds_and_samples.py
+    expect: "passed"
+  - name: the earlier English checks still hold on the larger set (objectives, levels, answers worked out again)
+    run: cd packages/engine && .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_english_foundation.py
+    expect: "passed"
+  - name: every answer and wrong answer code can check, from the command line
+    run: packages/engine/.venv/bin/python research/english_check.py
+    expect: "0 faults"
+  - name: every word on a paper or in a key is British English
+    run: uv run -q --no-project --with spylls==0.1.7 python research/english_spelling.py
+    expect: "0 faults"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

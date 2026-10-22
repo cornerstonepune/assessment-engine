@@ -7,6 +7,7 @@ import re
 from collections import Counter
 
 import english_rules as er
+import english_wrong
 
 GAP = "___"
 # what a question type's example must carry, beyond a skill, a level, an ask and an answer
@@ -29,8 +30,8 @@ def check(t, levels, used, objs, pdf_text):
             faults.append(f"passage {p['code']}: needs text and a grade")
     for s in t["skill_level_sample"]:
         key = (s["skill_code"], s["difficulty"])
-        label = f"{s['skill_code']} {s['difficulty']} #{s.get('n')}"
-        by_level.setdefault(key, []).append(s.get("n"))
+        label = f"{s['skill_code']} {s['difficulty']} {s['question_type']} #{s.get('n')}"
+        by_level.setdefault((*key, s["question_type"]), []).append(s.get("n"))
         skill, level = skills.get(s["skill_code"]), levels.get(key)
         if not skill or not level:
             faults.append(f"{label}: no such skill or level")
@@ -58,8 +59,12 @@ def check(t, levels, used, objs, pdf_text):
             faults.append(f"{label}: uses Cambridge's own example {sorted(hit)} for {skill['objectives']}")
         ran["not Cambridge's examples"] += 1
     for key in levels:
-        if sorted(by_level.get(key, []), key=str) != [1, 2, 3]:
-            faults.append(f"{key[0]} {key[1]}: needs examples 1, 2 and 3, has {by_level.get(key, [])}")
+        if not any(k[:2] == key for k in by_level):
+            faults.append(f"{key[0]} {key[1]}: needs examples 1, 2 and 3 of each kind it uses, has none")
+    for key, ns in by_level.items():
+        if sorted(ns, key=str) != [1, 2, 3]:
+            faults.append(f"{key[0]} {key[1]}: needs examples 1, 2 and 3 of {key[2]}, has {ns}")
+    faults += placed(t["skill_level_sample"])
     for code, skill in skills.items():
         kinds = {s["question_type"] for s in t["skill_level_sample"] if s["skill_code"] == code}
         if missing := set(skill["question_types"]) - kinds:
@@ -75,6 +80,23 @@ def check(t, levels, used, objs, pdf_text):
         if hit := ec.shingles(text, ec.LONG_SHINGLE) & long:
             faults.append(f"{label}: copies Cambridge's words: {sorted(hit)[:2]}")
     return faults, ran
+
+
+def placed(samples):
+    """The right answer of a choice sits at each place about equally often, so ticking the first option, or any one
+    place, does not pay: for each number of options, no place holds more than its fair share plus 15 points."""
+    at = {}
+    for s in samples:
+        opts = s.get("options")
+        if s["question_type"] in ("ENG.CHOOSE", "ENG.GAP") and isinstance(opts, list) and s.get("answer") in opts:
+            at.setdefault(len(opts), Counter())[opts.index(s["answer"])] += 1
+    faults = []
+    for n, c in at.items():
+        total = sum(c.values())
+        for i, k in c.items():
+            if total >= 20 and k / total > 1 / n + 0.15:
+                faults.append(f"choices of {n} options: the answer is option {i + 1} in {k} of {total}")
+    return faults
 
 
 def examples_given(objs):
@@ -108,11 +130,9 @@ def one(s, skill, level, passage, rubrics, mistakes):
     if not s.get("ask", "").strip() or ans in (None, "", [], {}):
         f.append("needs an ask and an answer")
         return f, ran
-    for wrong, code in (s.get("wrong") or {}).items():
-        if code not in mistakes:
-            f.append(f"wrong answer {wrong!r} names {code}, not a mistake of this skill")
-        if er.plain(wrong) == er.plain(str(ans)):
-            f.append(f"wrong answer {wrong!r} is the answer")
+    wf, wn = english_wrong.check(dict(s, _passage_text=p), mistakes)
+    f += wf
+    ran.update(wn)
     f += shape(q, s, ans, opts, text, p)
     ran[f"shape of {q}"] += 1
     if q in JUDGED:
