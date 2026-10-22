@@ -95,7 +95,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
       next={from + 1 < queue.length ? { href: `/capture/check?from=${from + 1}`, label: "Later — show the next one" } : { href: "/growth", label: "See the class results" }}
     >
       <p className="mb-4">
-        <Link href="/capture" className="chip">
+        <Link href="/capture" className="text-[13px]">
           ← Marking
         </Link>
       </p>

@@ -40,7 +40,19 @@ export const KIND_WORDS: Record<string, string> = {
 };
 
 /** `topic`: papers on a taught topic's skills; `set`: one assessment's copies (`AssessmentRow.set`). */
-export type PaperFilter = { class?: string; child?: string; kind?: string; week?: string; stage?: string; topic?: string; set?: string };
+export type PaperFilter = {
+  class?: string;
+  child?: string;
+  kind?: string;
+  week?: string;
+  stage?: string;
+  topic?: string;
+  set?: string;
+  /** A subject's code (`subject.code`): the papers whose skills are in it. */
+  subject?: string;
+  /** Words in the assessment's name. */
+  q?: string;
+};
 
 export type PaperListRow = {
   id: string;
@@ -100,6 +112,10 @@ const papersCte = () => sql`
                 when t.skill_set_code is null and si.key ? 'areas' then 'areas:' || (si.key -> 'areas')::text
                 else coalesce(t.skill_set_code, t.id::text) end as set_key,
            coalesce(ss.name, t.key ->> 'title', drawn.title, t.code, t.batch_id, si.qr_code) as set_name,
+           -- the subject of its questions' topics (one of them, by code, where a paper spans two)
+           (select min(tp.subject_code) from skill s join topic tp on tp.tenant_id = s.tenant_id and tp.code = s.topic_code
+             where s.tenant_id = t.tenant_id
+               and (s.code = t.skill_set_code or s.code in (select i.skill_set_code from item i where i.id = any(t.item_ids)))) as subject,
            -- the topics its questions are on: its skill set's, or each of its questions' own
            array(select distinct s.topic_code from skill s
                  where s.tenant_id = t.tenant_id and s.topic_code is not null
@@ -143,7 +159,9 @@ const narrowed = (f: PaperFilter, scope: Scope) => sql`
   and (${f.kind ?? null}::text is null or kind = ${f.kind ?? null})
   and (${f.week ?? null}::text is null or week = ${f.week ?? null})
   and (${f.topic ?? null}::text is null or ${f.topic ?? null} = any(topics))
-  and (${f.set ?? null}::text is null or set_key = ${f.set ?? null})`;
+  and (${f.set ?? null}::text is null or set_key = ${f.set ?? null})
+  and (${f.subject ?? null}::text is null or subject = ${f.subject ?? null})
+  and (${f.q ?? null}::text is null or position(lower(${f.q ?? ""}) in lower(set_name)) > 0)`;
 
 /** The papers a filter leaves (at most 300) — newest first, or an assessment's copies in roll order, its spares last
  *  (goals/ux5-papers-grouped.yaml) — with each child's name read once, through pii.read_child, which logs who asked. */
@@ -213,6 +231,10 @@ export type AssessmentRow = {
    *  kind already name. */
   set: string | null;
   title: string;
+  /** The code of its subject (`subject.code`), where its questions' topics name one. */
+  subject: string | null;
+  /** Its children's copies' paper codes, for the day it was given (`givenOn`). */
+  qrs: string[];
   /** Its children's copies; its spares, not yet written on, apart: they go with the pack. */
   copies: number;
   spares: number;
@@ -234,6 +256,7 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
     -- the lowest grade of its copies, by the grades' order (grade_ord), never as text
     select kind, section, coalesce((array_agg(class_band order by grade_ord(tenant_id, class_band)) filter (where class_band is not null))[1],
                                    (array_agg(band order by grade_ord(tenant_id, band)))[1]) as band, week, set_key as set, min(set_name) as title,
+           min(subject) as subject, array_agg(qr) filter (where not spare) as qrs,
            count(*) filter (where not spare)::int as copies, count(*) filter (where spare)::int as spares,
            jsonb_build_object('made', count(*) filter (where stage = 'made' and not spare),
                               'printed', count(*) filter (where stage = 'printed' and not spare),
@@ -251,3 +274,16 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
   return { rows: rows.slice(0, LIMIT), more: rows.length > LIMIT };
 }
 
+
+/** The day each assessment was given, as the educator said it on the card (`flow_run`, flow "given"): the newest day over
+ *  its copies, by the assessment's `qrs`. An assessment never given has none. */
+export async function givenOn(rows: readonly { qrs: string[] }[]): Promise<Map<string, string>> {
+  const qrs = [...new Set(rows.flatMap((r) => r.qrs ?? []))];
+  if (!qrs.length) return new Map();
+  const found = await sql<{ qr: string; on: string }[]>`
+    select q.value as qr, max(r.request ->> 'on') as on
+    from flow_run r cross join lateral jsonb_array_elements_text(r.request -> 'qrs') q(value)
+    where r.flow = 'given' and jsonb_typeof(r.request -> 'qrs') = 'array' and q.value = any(${qrs})
+    group by q.value`;
+  return new Map(found.map((f) => [f.qr, f.on]));
+}

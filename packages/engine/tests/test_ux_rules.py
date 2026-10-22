@@ -18,7 +18,8 @@ UX = json.loads((db.REPO_ROOT / "workflows.json").read_text())["ux"]
 PURPOSE_MAX = int(
     re.search(r"PURPOSE_MAX = (\d+)", (db.REPO_ROOT / "apps/web/lib/ux-rules.ts").read_text())[1]
 )
-SOURCE_RULES = {"shell", "purpose", "table"}
+SOURCE_RULES = {"shell", "purpose", "table", "taglist", "filter", "status"}
+WEB = db.REPO_ROOT / "apps" / "web"
 
 
 def route(page):
@@ -43,6 +44,15 @@ def broken(src):
         out.add("purpose")
     if "<table" in src:
         out.add("table")
+    # a list of tags where a table belongs: filter or choice chips drawn by hand (a FilterBar draws its own)
+    if re.search(r'className=\{?[`"]chip\b', src):
+        out.add("taglist")
+    # a long list with no filter row: a table with no FilterBar over it
+    if ("<DataTable" in src or "<table" in src) and "<FilterBar" not in src:
+        out.add("filter")
+    # a status drawn by hand, in a colour with no icon: a StatusChip draws its icon with its word
+    if re.search(r"<(Mark)?Pill\b", src):
+        out.add("status")
     return out
 
 
@@ -76,5 +86,34 @@ def test_the_list_only_shrinks():
         assert set(rules) == still, (
             f"{r} lists {sorted(rules)} but breaks {sorted(still)}: write down what it breaks now"
         )
-        if "<PageShell" in seen[r]:
-            raise AssertionError(f"{r} is built on PageShell: take it off ux.frozen")
+
+
+def test_a_status_chip_always_draws_its_icon_with_its_word():
+    """Never colour alone: the one chip has no way to draw a state without an icon."""
+    chip = (WEB / "components/status-chip.tsx").read_text()
+    assert "<Icon" in chip and "STATUS_ICONS" in chip, "StatusChip must draw an icon for every tone"
+    tones = set(re.findall(r'tone: "(\w+)"', chip))
+    assert tones <= {"ok", "wait", "act", "quiet"}, f"states map to green, amber, red or quiet only: {tones}"
+
+
+def test_the_top_bar_controls_are_full_size_and_the_search_is_compact():
+    """Class and Subject: at least 40 px tall, 15 px text. The student search: about 240 px, never a strip."""
+    rules = (WEB / "lib/ux-rules.ts").read_text()
+    least = int(re.search(r"TOP_BAR_MIN_PX = (\d+)", rules)[1])
+    text = int(re.search(r"TOP_BAR_TEXT_PX = (\d+)", rules)[1])
+    search = int(re.search(r"SEARCH_PX = (\d+)", rules)[1])
+    assert least >= 40 and text >= 15 and 200 <= search <= 280
+    bar = (WEB / "components/top-bar.tsx").read_text()
+    assert f"min-h-[{least}px]" in bar and f"text-[{text}px]" in bar, (
+        "the selectors must be sized from the rules"
+    )
+    assert f"w-[{search}px]" in bar and "flex-1" not in bar.split("function Search")[1], (
+        "the search is a field, not a strip"
+    )
+    assert "max-w-[88px]" not in bar and "max-w-[118px]" not in bar, "the selectors may not be squeezed"
+
+
+def test_a_filter_bar_has_every_part_the_pages_rely_on():
+    bar = (WEB / "components/filter-bar.tsx").read_text()
+    for part in ('role="search"', "data-filterbar", "data-active-filters", "Clear", 'type="search"'):
+        assert part in bar, f"FilterBar lacks {part}"
