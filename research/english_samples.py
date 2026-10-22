@@ -64,6 +64,7 @@ def check(t, levels, used, objs, pdf_text):
     for key, ns in by_level.items():
         if sorted(ns, key=str) != [1, 2, 3]:
             faults.append(f"{key[0]} {key[1]}: needs examples 1, 2 and 3 of {key[2]}, has {ns}")
+    faults += placed(t["skill_level_sample"])
     for code, skill in skills.items():
         kinds = {s["question_type"] for s in t["skill_level_sample"] if s["skill_code"] == code}
         if missing := set(skill["question_types"]) - kinds:
@@ -79,6 +80,23 @@ def check(t, levels, used, objs, pdf_text):
         if hit := ec.shingles(text, ec.LONG_SHINGLE) & long:
             faults.append(f"{label}: copies Cambridge's words: {sorted(hit)[:2]}")
     return faults, ran
+
+
+def placed(samples):
+    """The right answer of a choice sits at each place about equally often, so ticking the first option, or any one
+    place, does not pay: for each number of options, no place holds more than its fair share plus 15 points."""
+    at = {}
+    for s in samples:
+        opts = s.get("options")
+        if s["question_type"] in ("ENG.CHOOSE", "ENG.GAP") and isinstance(opts, list) and s.get("answer") in opts:
+            at.setdefault(len(opts), Counter())[opts.index(s["answer"])] += 1
+    faults = []
+    for n, c in at.items():
+        total = sum(c.values())
+        for i, k in c.items():
+            if total >= 20 and k / total > 1 / n + 0.15:
+                faults.append(f"choices of {n} options: the answer is option {i + 1} in {k} of {total}")
+    return faults
 
 
 def examples_given(objs):

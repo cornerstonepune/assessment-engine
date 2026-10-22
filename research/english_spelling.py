@@ -2,7 +2,7 @@
 """Every word an English sample puts on a paper or in its key is a British English word (supabase/seed/english/).
 
 Read against the en_GB Hunspell dictionary that LibreOffice ships, fetched at a pinned commit into data/dictionaries/
-and refused if its fingerprint differs. Checked: the passages, each sample's instruction, its text, its right answer,
+and refused if its fingerprint differs. Checked: the passages, each sample's instruction, its text, its right answer (sort groups and table boxes too),
 the answers also accepted, the key points a marker looks for, and every printed option except those listed as a
 likely wrong answer. Not checked: the likely wrong answers, which are misspelt on purpose, and the text of a
 "find and fix the mistakes" question. A sample may show a child a word that is not one on purpose (a misspelling
@@ -63,9 +63,11 @@ def texts(t):
         yield label, s.get("ask") or "", nots, False
         if s["question_type"] != "ENG.CORRECT":
             yield label, s.get("text") or "", nots, s["question_type"] == "ENG.PUNCTUATE"
-        for v in (s.get("answer"), s.get("accept"), s.get("key_points")):
+        for v in (s.get("answer"), s.get("accept")):
             for x in ec.flat(v):
-                yield label, x, set(), False
+                yield label, x, nots, False
+        for x in s.get("key_points") or []:
+            yield label, x, set(), False
         for x in ec.flat(s.get("options")):
             if x not in wrong:
                 yield label, x, nots, False

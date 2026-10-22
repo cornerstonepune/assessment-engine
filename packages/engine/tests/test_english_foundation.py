@@ -106,9 +106,9 @@ def test_every_assessable_skill_has_four_levels_each_with_a_rule_and_three_examp
             mine = [
                 x for x in t["skill_level_sample"] if x["skill_code"] == s["code"] and x["difficulty"] == d
             ]
-            assert sorted(x["n"] for x in mine) == [1, 2, 3] and all(
-                x["answer"] not in (None, "") for x in mine
-            )
+            for kind in {x["question_type"] for x in mine}:  # three per kind since english-kinds-and-samples
+                assert sorted(x["n"] for x in mine if x["question_type"] == kind) == [1, 2, 3]
+            assert len(mine) >= 3 and all(x["answer"] not in (None, "") for x in mine)
 
 
 def test_every_example_meets_its_level_and_code_works_its_answer_out_again(t, cambridge):

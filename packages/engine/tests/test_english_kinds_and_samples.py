@@ -132,3 +132,11 @@ def test_a_wrong_answer_a_rule_gives_is_the_one_the_rule_gives(t):
     bake = {"question_type": "ENG.WRITE_WORD", "answer": "baking", "check": {"compute": "add_ending", "base": "bake",
             "ending": "ing"}, "wrong": {"bakking": "M_ENG_E_KEPT"}}  # fmt: skip
     assert any("M_ENG_E_KEPT gives" in f for f in ew.check(bake, ["M_ENG_E_KEPT"])[0])
+
+
+def test_the_right_answer_of_a_choice_is_not_always_in_the_same_place(t):
+    es = research("english_samples")
+    assert es.placed(t["skill_level_sample"]) == []
+    first = [dict(s, options=[s["answer"], "x", "y"]) for s in t["skill_level_sample"][:30]]
+    first = [dict(s, question_type="ENG.CHOOSE") for s in first]
+    assert any("the answer is option 1 in 30 of 30" in f for f in es.placed(first))

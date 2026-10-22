@@ -222,7 +222,7 @@
    "grade": "G3",
    "kind": "blurb",
    "title": "Two Books on the Library Shelf",
-   "text": "Book A: The Secret of the Fort\nMeher and her cousin find an old map in their grandmother's trunk. It leads them to a hidden room inside an old hill fort. Who left the map there, and why? A mystery full of clues and surprises.\n\nBook B: Wonderful Elephants\nHow much does an elephant eat in a day? Why do elephants flap their ears? This book is packed with photographs and facts about elephants in India's forests."
+   "text": "Book A: The Secret of the Fort Meher and her cousin find an old map in their grandmother's trunk. It leads them to a hidden room inside an old hill fort. Who left the map there, and why? A mystery full of clues and surprises.\n\nBook B: Wonderful Elephants How much does an elephant eat in a day? Why do elephants flap their ears? This book is packed with photographs and facts about elephants in India's forests."
   },
   {
    "code": "P.EN3.READ.BLURB.H",
@@ -236,7 +236,7 @@
    "grade": "G3",
    "kind": "review",
    "title": "Book Corner",
-   "text": "Book 1: Rhymes from the Railway\nTwenty short, funny poems about life on Indian trains: the tea seller's song, the sleepy uncle on the top berth and the goat that bought a ticket. Each poem has a bright picture beside it. Perfect for reading aloud with a friend, one short poem at a time.\n\nBook 2: Captain Kesar and the Space Mango\nWhen a giant mango lands on Kesar's farm, she finds it is really a spaceship! A fast, exciting adventure across the stars, with a chapter that ends on a cliffhanger every time.\n\nReview of Book 2 by Mrs Pillai, school librarian: Children who enjoy action will race through this book. However, the chapters are long, so it suits confident readers more than those just starting chapter books."
+   "text": "Book 1: Rhymes from the Railway Twenty short, funny poems about life on Indian trains: the tea seller's song, the sleepy uncle on the top berth and the goat that bought a ticket. Each poem has a bright picture beside it. Perfect for reading aloud with a friend, one short poem at a time.\n\nBook 2: Captain Kesar and the Space Mango When a giant mango lands on Kesar's farm, she finds it is really a spaceship! A fast, exciting adventure across the stars, with a chapter that ends on a cliffhanger every time.\n\nReview of Book 2 by Mrs Pillai, school librarian: Children who enjoy action will race through this book. However, the chapters are long, so it suits confident readers more than those just starting chapter books."
   },
   {
    "code": "P.EN3.READ.INDEX.E",
@@ -292,119 +292,125 @@
    "grade": "G3",
    "kind": "information",
    "title": "Bridges That Grow",
-   "text": "In the hills of Meghalaya, in north-east India, some bridges are not built from wood or stone. They are grown from living trees. Villagers guide the roots of rubber fig trees across a stream, tying them to bamboo poles or old tree trunks. Slowly, over many years, the roots grow thick and strong and reach the other side. Then the villagers press stones into the gaps to make a path.\n\nA bridge of wood can rot and a bridge of steel can rust in the heavy rain, but a root bridge does the opposite. Because the tree is still alive, its roots keep growing, so the bridge gets stronger as it gets older. Some root bridges are so old that nobody remembers who first started them. Today, visitors walk across them, and the village children learn how to care for them, so that the bridges will last for many more years."
+   "text": "In the hills of Meghalaya, in north-east India, some bridges are not built from wood or stone. They are grown from living trees. Villagers guide the roots of rubber fig trees across a stream, tying them to bamboo poles or old tree trunks. Slowly, over many years, the roots grow thick and strong and reach the other side. Then the villagers press stones into the gaps to make a path.\n\nA bridge of wood can rot and a bridge of steel can rust in the heavy rain, but a root bridge does the opposite. Because the tree is still alive, its roots keep growing, so the bridge gets stronger as it gets older. Some root bridges are so old that nobody remembers who first started them. Today, visitors walk across them, and the village children learn how to care for them, so that the bridges will last for many more years.",
+   "facts": [
+    "Living root bridges in Meghalaya are grown by villagers from the roots of rubber fig trees."
+   ]
   },
   {
    "code": "P.EN3.READ.INFER.E",
    "grade": "G3",
    "kind": "story",
    "title": "The Red Kite",
-   "text": "Riya had made the red kite with her nani. On Sunday she flew it high above the roof. Then the string snapped.\nThe kite floated away over the mango trees. Riya stood very still. Her lip shook. She did not say a word on the\nway home, and at dinner she only pushed her poha around her plate."
+   "text": "Riya had made the red kite with her nani. On Sunday she flew it high above the roof. Then the string snapped. The kite floated away over the mango trees. Riya stood very still. Her lip shook. She did not say a word on the way home, and at dinner she only pushed her poha around her plate."
   },
   {
    "code": "P.EN3.READ.INFER.M",
    "grade": "G3",
    "kind": "story",
    "title": "Picked Last",
-   "text": "At break, the boys chose teams for cricket. Sahil was picked first, then Dev, then Imran. Arjun was picked last\nof all. His face went hot. He kicked a stone and looked down at his shoes. In the last over, the ball flew high\ntowards him. Arjun ran, stretched out both hands and held on. His team cheered and lifted him up. Arjun grinned\nall the way back to class, and he kept the ball on his desk until the bell rang."
+   "text": "At break, the boys chose teams for cricket. Sahil was picked first, then Dev, then Imran. Arjun was picked last of all. His face went hot. He kicked a stone and looked down at his shoes. In the last over, the ball flew high towards him. Arjun ran, stretched out both hands and held on. His team cheered and lifted him up. Arjun grinned all the way back to class, and he kept the ball on his desk until the bell rang."
   },
   {
    "code": "P.EN3.READ.INFER.H",
    "grade": "G3",
    "kind": "story",
    "title": "The Big Diya",
-   "text": "Two days before Diwali, Kabir was helping Aai set out the clay diyas on the balcony. When she went inside to\nfetch the oil, his elbow knocked the biggest diya off the ledge. It cracked into three pieces. Kabir looked at the\ndoor. Quickly, he pushed the pieces behind the flower pots and began to whistle.\n\"Where is the big diya, the one Ajoba painted?\" asked Aai when she came back.\n\"I don't know,\" said Kabir, without looking up. His ears turned pink.\nThat night Kabir could not sleep. He turned one way, then the other. At last he crept into the kitchen, where Aai\nwas making chaklis, and held out his hand. The three pieces lay on his palm."
+   "text": "Two days before Diwali, Kabir was helping Aai set out the clay diyas on the balcony. When she went inside to fetch the oil, his elbow knocked the biggest diya off the ledge. It cracked into three pieces. Kabir looked at the door. Quickly, he pushed the pieces behind the flower pots and began to whistle. \"Where is the big diya, the one Ajoba painted?\" asked Aai when she came back. \"I don't know,\" said Kabir, without looking up. His ears turned pink. That night Kabir could not sleep. He turned one way, then the other. At last he crept into the kitchen, where Aai was making chaklis, and held out his hand. The three pieces lay on his palm."
   },
   {
    "code": "P.EN3.READ.INFER.A",
    "grade": "G3",
    "kind": "story",
    "title": "Not Yet",
-   "text": "Meera's family moved from Pune to Kolkata in the middle of the monsoon. On her first morning at the new school,\nMeera wore her neatest uniform. \"I'm not nervous at all,\" she told Baba at the gate, but she held his hand so\ntightly that his fingers went white.\nIn class, the children spoke Bengali to each other and laughed at jokes she did not understand. Meera opened her\ntiffin and closed it again without eating. At lunch, a girl with two long plaits sat down beside her. \"I'm\nTanushree,\" she said. \"Do you play carrom?\" Meera nodded.\nThat evening Baba asked, \"Well? Shall we go back to Pune?\" Meera was already setting up the carrom board on the\nfloor. \"Not yet,\" she said. \"Tanushree is coming on Saturday.\""
+   "text": "Meera's family moved from Pune to Kolkata in the middle of the monsoon. On her first morning at the new school, Meera wore her neatest uniform. \"I'm not nervous at all,\" she told Baba at the gate, but she held his hand so tightly that his fingers went white. In class, the children spoke Bengali to each other and laughed at jokes she did not understand. Meera opened her tiffin and closed it again without eating. At lunch, a girl with two long plaits sat down beside her. \"I'm Tanushree,\" she said. \"Do you play carrom?\" Meera nodded. That evening Baba asked, \"Well? Shall we go back to Pune?\" Meera was already setting up the carrom board on the floor. \"Not yet,\" she said. \"Tanushree is coming on Saturday.\"",
+   "facts": [
+    "Bengali is the language many children speak in Kolkata."
+   ]
   },
   {
    "code": "P.EN3.READ.THEME.E",
    "grade": "G3",
    "kind": "story",
    "title": "One Umbrella",
-   "text": "It was the first day of the monsoon. Anu had a big blue umbrella, but her friend Zoya had none. \"Come under\nmine,\" said Anu, and they walked to school together, laughing. The next morning Anu forgot her umbrella at home.\nZoya ran up with a new yellow one. \"Come under mine,\" she said."
+   "text": "It was the first day of the monsoon. Anu had a big blue umbrella, but her friend Zoya had none. \"Come under mine,\" said Anu, and they walked to school together, laughing. The next morning Anu forgot her umbrella at home. Zoya ran up with a new yellow one. \"Come under mine,\" she said."
   },
   {
    "code": "P.EN3.READ.THEME.M",
    "grade": "G3",
    "kind": "story",
    "title": "Ten Rupees Too Many",
-   "text": "Tara went to Mr Pawar's shop to buy milk. She paid with a fifty-rupee note. Mr Pawar was busy and gave her\nthirty-four rupees back. Outside, Tara counted the coins. The milk cost twenty-six rupees, so he had given her\nten rupees too many. Nobody had seen. She could buy a guava with it. Tara turned round, walked back into the shop\nand put the ten rupees on the counter. \"You gave me too much,\" she said. Mr Pawar smiled. \"Thank you, Tara. Not\nmany people would do that.\""
+   "text": "Tara went to Mr Pawar's shop to buy milk. She paid with a fifty-rupee note. Mr Pawar was busy and gave her thirty-four rupees back. Outside, Tara counted the coins. The milk cost twenty-six rupees, so he had given her ten rupees too many. Nobody had seen. She could buy a guava with it. Tara turned round, walked back into the shop and put the ten rupees on the counter. \"You gave me too much,\" she said. Mr Pawar smiled. \"Thank you, Tara. Not many people would do that.\""
   },
   {
    "code": "P.EN3.READ.THEME.H",
    "grade": "G3",
    "kind": "story",
    "title": "The Mango at the Top",
-   "text": "High on the old tree hung the last mango of summer. Monkey climbed up, but the branch was too thin and he slid\nback down. Parrot flew up and pecked at the stalk, but the mango was too heavy to take. Tortoise sat at the\nbottom and said nothing for a long time.\nAt last he spoke. \"Monkey, climb as far as you safely can and shake the branch. Parrot, peck the stalk while it\nshakes. I will wait below on this soft grass.\"\nThe branch shook, the stalk broke, and the mango dropped onto the grass beside Tortoise without a bruise. The\nthree friends cut it into three pieces and ate it in the shade."
+   "text": "High on the old tree hung the last mango of summer. Monkey climbed up, but the branch was too thin and he slid back down. Parrot flew up and pecked at the stalk, but the mango was too heavy to take. Tortoise sat at the bottom and said nothing for a long time. At last he spoke. \"Monkey, climb as far as you safely can and shake the branch. Parrot, peck the stalk while it shakes. I will wait below on this soft grass.\" The branch shook, the stalk broke, and the mango dropped onto the grass beside Tortoise without a bruise. The three friends cut it into three pieces and ate it in the shade."
   },
   {
    "code": "P.EN3.READ.THEME.A",
    "grade": "G3",
    "kind": "story",
    "title": "Ajoba's Old Bat",
-   "text": "For his birthday, Dhruv hoped for a shiny new cricket bat like the one in the sports shop window. Instead, Ajoba\ngave him his own old bat. The handle was wrapped in faded green tape, and the wood was dark and covered in little\ndents.\n\"Thank you,\" said Dhruv quietly, and he hid the bat under his bed.\nOn Saturday, Dhruv's team was short of a bat. He had no choice. He walked onto the ground with the old one, and\nsome of the boys giggled. Then the first ball came. Crack! It flew over the wall. The old wood was heavy and\nstrong, and Dhruv hit four more boundaries that morning.\nWhen he got home, he sat beside Ajoba. \"Tell me about every dent,\" he said. Ajoba laughed and began with the very\nfirst one."
+   "text": "For his birthday, Dhruv hoped for a shiny new cricket bat like the one in the sports shop window. Instead, Ajoba gave him his own old bat. The handle was wrapped in faded green tape, and the wood was dark and covered in little dents. \"Thank you,\" said Dhruv quietly, and he hid the bat under his bed. On Saturday, Dhruv's team was short of a bat. He had no choice. He walked onto the ground with the old one, and some of the boys giggled. Then the first ball came. Crack! It flew over the wall. The old wood was heavy and strong, and Dhruv hit four more boundaries that morning. When he got home, he sat beside Ajoba. \"Tell me about every dent,\" he said. Ajoba laughed and began with the very first one."
   },
   {
    "code": "P.EN3.READ.COMPARE.E",
    "grade": "G3",
    "kind": "story",
    "title": "Two Thirsty Birds",
-   "text": "Telling 1: A thirsty crow found a pot with a little water at the bottom. He dropped stones in, one by one, until\nthe water rose. Then he drank.\nTelling 2: A thirsty sparrow found a pot in a garden. She dropped stones in, one by one, until the water rose.\nThen she drank."
+   "text": "Telling 1: A thirsty crow found a pot with a little water at the bottom. He dropped stones in, one by one, until the water rose. Then he drank. Telling 2: A thirsty sparrow found a pot in a garden. She dropped stones in, one by one, until the water rose. Then she drank."
   },
   {
    "code": "P.EN3.READ.COMPARE.M",
    "grade": "G3",
    "kind": "story",
    "title": "The Monkey and the Crocodile, Twice",
-   "text": "Telling 1: A crocodile took his friend the monkey across the river on his back. Halfway, he said, \"My wife\nwants to eat your heart.\" The monkey said, \"I left my heart in the jamun tree. Take me back!\" On the bank, the\nmonkey leapt into the tree and never rode on the crocodile again.\nTelling 2: A crocodile took his friend the monkey across the river. Halfway, he said, \"I am taking you to my\nwife for dinner.\" The monkey said, \"I left my heart in the jamun tree.\" Back on the bank, the crocodile felt\nashamed and said sorry, and the two friends shared jamuns every evening."
+   "text": "Telling 1: A crocodile took his friend the monkey across the river on his back. Halfway, he said, \"My wife wants to eat your heart.\" The monkey said, \"I left my heart in the jamun tree. Take me back!\" On the bank, the monkey leapt into the tree and never rode on the crocodile again. Telling 2: A crocodile took his friend the monkey across the river. Halfway, he said, \"I am taking you to my wife for dinner.\" The monkey said, \"I left my heart in the jamun tree.\" Back on the bank, the crocodile felt ashamed and said sorry, and the two friends shared jamuns every evening."
   },
   {
    "code": "P.EN3.READ.COMPARE.H",
    "grade": "G3",
    "kind": "story",
    "title": "The Hare and the Lion: Two Tellings",
-   "text": "Telling 1, from a village: A lion ate one animal every day. One morning it was the hare's turn. The hare walked\nslowly and arrived late. \"Another lion stopped me,\" he said. \"He says this forest is his.\" The lion roared, \"Show\nme!\" The hare led him to a deep well. The lion looked in, saw his own face, and jumped in to fight it. The animals\nwere safe.\nTelling 2, from a city book: A tiger ordered the animals to bring him food every day. A small hare was sent with a\nbasket of fruit. \"A bigger tiger took the rest,\" she said, and she led him to a still pond. The tiger saw himself,\ngrowled, and dived in. He climbed out wet and embarrassed, and he never bullied anyone again."
+   "text": "Telling 1, from a village: A lion ate one animal every day. One morning it was the hare's turn. The hare walked slowly and arrived late. \"Another lion stopped me,\" he said. \"He says this forest is his.\" The lion roared, \"Show me!\" The hare led him to a deep well. The lion looked in, saw his own face, and jumped in to fight it. The animals were safe. Telling 2, from a city book: A tiger ordered the animals to bring him food every day. A small hare was sent with a basket of fruit. \"A bigger tiger took the rest,\" she said, and she led him to a still pond. The tiger saw himself, growled, and dived in. He climbed out wet and embarrassed, and he never bullied anyone again."
   },
   {
    "code": "P.EN3.READ.COMPARE.A",
    "grade": "G3",
    "kind": "story",
    "title": "The Greedy Dog, Then and Now",
-   "text": "Telling 1, told long ago in a village: A dog stole a bone from the butcher and ran off with it. To get home he\nhad to cross a narrow wooden bridge over a stream. Halfway across, he looked down and saw another dog in the water\nwith a bigger bone. \"I want that one too,\" he thought, and he barked at it. His own bone fell into the stream and\nfloated away.\nTelling 2, written this year in Pune: A street dog grabbed a vada pav from a stall on Laxmi Road and raced off.\nAfter the monsoon rain, the footpath was full of puddles. In one shiny puddle he saw a dog holding a bigger vada\npav. He barked to scare it. Splash! His vada pav fell in the puddle and turned to mush. He walked home hungry."
+   "text": "Telling 1, told long ago in a village: A dog stole a bone from the butcher and ran off with it. To get home he had to cross a narrow wooden bridge over a stream. Halfway across, he looked down and saw another dog in the water with a bigger bone. \"I want that one too,\" he thought, and he barked at it. His own bone fell into the stream and floated away. Telling 2, written this year in Pune: A street dog grabbed a vada pav from a stall on Laxmi Road and raced off. After the monsoon rain, the footpath was full of puddles. In one shiny puddle he saw a dog holding a bigger vada pav. He barked to scare it. Splash! His vada pav fell in the puddle and turned to mush. He walked home hungry."
   },
   {
    "code": "P.EN3.READ.PREDICT.E",
    "grade": "G3",
    "kind": "story",
    "title": "Priya's Seed",
-   "text": "Priya found a tamarind seed in her tiffin box. She pressed it into a pot of soil on her window. Every morning\nbefore school, she gave it a cup of water. Then the monsoon came, and rain fell on the pot every day. One morning\nPriya saw something tiny and green in the soil."
+   "text": "Priya found a tamarind seed in her tiffin box. She pressed it into a pot of soil on her window. Every morning before school, she gave it a cup of water. Then the monsoon came, and rain fell on the pot every day. One morning Priya saw something tiny and green in the soil."
   },
   {
    "code": "P.EN3.READ.PREDICT.M",
    "grade": "G3",
    "kind": "story",
    "title": "Om and the Squirrel",
-   "text": "On Sankranti, Om was flying kites on the terrace when he saw a squirrel caught in some old kite string. It was\nwriggling and squeaking. Om knelt down and gently cut the string with his mother's small scissors. The squirrel\nran up the neem tree and looked back at him.\nA week later, Om's best kite got stuck high in the same neem tree. Its string was wound round a thin branch that\nno one could reach. Om sat on the step and sighed. Then he heard a scratching sound in the leaves above him."
+   "text": "On Sankranti, Om was flying kites on the terrace when he saw a squirrel caught in some old kite string. It was wriggling and squeaking. Om knelt down and gently cut the string with his mother's small scissors. The squirrel ran up the neem tree and looked back at him. A week later, Om's best kite got stuck high in the same neem tree. Its string was wound round a thin branch that no one could reach. Om sat on the step and sighed. Then he heard a scratching sound in the leaves above him."
   },
   {
    "code": "P.EN3.READ.PREDICT.H",
    "grade": "G3",
    "kind": "story",
    "title": "The Race to the Banyan Tree",
-   "text": "Every year the children of Wadi village raced from the school gate to the old banyan tree. Neel was the fastest\nrunner in the village, and he knew it. \"I could win this race with my eyes shut,\" he told everyone.\nFarah was small and slow, but she practised every evening, running a little further each time.\nOn race day, Neel shot ahead. By the halfway point, Farah was far behind. Neel looked back and laughed. He stopped\nat a cart to buy a cold lassi and sat in the shade to drink it. \"Plenty of time,\" he said, and closed his eyes.\nFarah kept running, step after step, without stopping once. Soon she could see the banyan tree."
+   "text": "Every year the children of Wadi village raced from the school gate to the old banyan tree. Neel was the fastest runner in the village, and he knew it. \"I could win this race with my eyes shut,\" he told everyone. Farah was small and slow, but she practised every evening, running a little further each time. On race day, Neel shot ahead. By the halfway point, Farah was far behind. Neel looked back and laughed. He stopped at a cart to buy a cold lassi and sat in the shade to drink it. \"Plenty of time,\" he said, and closed his eyes. Farah kept running, step after step, without stopping once. Soon she could see the banyan tree."
   },
   {
    "code": "P.EN3.READ.PREDICT.A",
    "grade": "G3",
    "kind": "story",
    "title": "The Missing Ladoos",
-   "text": "On the morning of Ganesh Chaturthi, Aaji made twelve besan ladoos and left them on a plate by the kitchen window\nto cool. Then she went to the temple with Ajoba. They were away all morning.\nAt lunchtime, Sunil ran into the kitchen. The plate had only four ladoos left. There were yellow crumbs along the\nwindow sill, and the window was wide open. On the mango tree outside, the leaves were shaking, though there was no\nwind.\n\"Was it you, Sunil?\" asked his sister Gauri. Sunil showed his hands. They were clean, and he had been at cricket\npractice since breakfast.\nJust then, they heard a happy chattering sound from the tree. A small brown face peeped out between the leaves,\nwith yellow crumbs on its whiskers."
+   "text": "On the morning of Ganesh Chaturthi, Aaji made twelve besan ladoos and left them on a plate by the kitchen window to cool. Then she went to the temple with Ajoba. They were away all morning. At lunchtime, Sunil ran into the kitchen. The plate had only four ladoos left. There were yellow crumbs along the window sill, and the window was wide open. On the mango tree outside, the leaves were shaking, though there was no wind. \"Was it you, Sunil?\" asked his sister Gauri. Sunil showed his hands. They were clean, and he had been at cricket practice since breakfast. Just then, they heard a happy chattering sound from the tree. A small brown face peeped out between the leaves, with yellow crumbs on its whiskers."
   },
   {
    "code": "P.EN3.READ.INSTRUCT.E",
@@ -425,42 +431,48 @@
    "grade": "G3",
    "kind": "instructions",
    "title": "Bhel Puri for Four",
-   "text": "You need: four cups of puffed rice, one onion, one tomato, green chutney, sweet tamarind chutney, half a lemon and\na cup of sev.\nFirst, ask an adult to chop the onion and the tomato into small pieces.\nBefore you add any chutney, mix the puffed rice with the onion and tomato in a big bowl.\nNext, add two spoons of each chutney and stir well.\nSqueeze the lemon over the top after the chutney.\nDo not add the sev until just before you eat, or it will go soft. Scatter it on top and serve straight away."
+   "text": "You need: four cups of puffed rice, one onion, one tomato, green chutney, sweet tamarind chutney, half a lemon and a cup of sev.\nFirst, ask an adult to chop the onion and the tomato into small pieces.\nBefore you add any chutney, mix the puffed rice with the onion and tomato in a big bowl.\nNext, add two spoons of each chutney and stir well.\nSqueeze the lemon over the top after the chutney.\nDo not add the sev until just before you eat, or it will go soft. Scatter it on top and serve straight away."
   },
   {
    "code": "P.EN3.READ.INSTRUCT.A",
    "grade": "G3",
    "kind": "instructions",
    "title": "Word Magic",
-   "text": "Word Magic is a puzzle that turns one word into another. Read every step before you start, and write each new word\non a new line so that you can check your work afterwards.\n1. Write the word PAN.\n2. Write the same letters backwards.\n3. Put the letter S at the front of your word.\n4. Change the A to an I.\n5. Read your new word aloud.\nIf your word is not a real word, go back to the first step and try again, one step at a time. A real word means\nyou have followed every step. Then make up your own Word Magic puzzle and give it to a friend to try. Ask a\ngrown-up or a friend to check your words."
+   "text": "Word Magic is a puzzle that turns one word into another. Read every step before you start, and write each new word on a new line so that you can check your work afterwards.\n1. Write the word PAN.\n2. Write the same letters backwards.\n3. Put the letter S at the front of your word.\n4. Change the A to an I.\n5. Read your new word aloud.\nIf your word is not a real word, go back to the first step and try again, one step at a time. A real word means you have followed every step. Then make up your own Word Magic puzzle and give it to a friend to try. Ask a grown-up or a friend to check your words."
   },
   {
    "code": "P.EN3.READ.FACTOPINION.E",
    "grade": "G3",
    "kind": "advert",
    "title": "Come to the Mango Fair!",
-   "text": "Come to the Mango Fair! It is at the town hall on Saturday 12 May. Tickets cost twenty rupees. There are ten kinds\nof mango to taste. Our mangoes are the sweetest in the world! Every child gets one free mango. It will be the best\nday of your summer."
+   "text": "Come to the Mango Fair! It is at the town hall on Saturday 12 May. Tickets cost twenty rupees. There are ten kinds of mango to taste. Our mangoes are the sweetest in the world! Every child gets one free mango. It will be the best day of your summer."
   },
   {
    "code": "P.EN3.READ.FACTOPINION.M",
    "grade": "G3",
    "kind": "recount",
    "title": "Our Trip to Sinhagad Fort",
-   "text": "On Friday, Class 3 went on a trip to Sinhagad Fort, near Pune. We left school at seven o'clock in two buses. The\nclimb to the top took us two hours. Mrs Kulkarni took a first-aid box and a big bag of bananas. At the top we\nate kanda bhaji and drank cold buttermilk. I think the bhaji there is the tastiest food in the world. The view\nfrom the top was amazing. We were back at school by four o'clock. It was the best trip we have ever had."
+   "text": "On Friday, Class 3 went on a trip to Sinhagad Fort, near Pune. We left school at seven o'clock in two buses. The climb to the top took us two hours. Mrs Kulkarni took a first-aid box and a big bag of bananas. At the top we ate kanda bhaji and drank cold buttermilk. I think the bhaji there is the tastiest food in the world. The view from the top was amazing. We were back at school by four o'clock. It was the best trip we have ever had.",
+   "facts": [
+    "Sinhagad is a fort near Pune."
+   ]
   },
   {
    "code": "P.EN3.READ.FACTOPINION.H",
    "grade": "G3",
    "kind": "information",
    "title": "All About Kabaddi",
-   "text": "Kabaddi is a team game that is played all over India. Each team has seven players on the court. One player, the\nraider, runs into the other team's half and tries to tag as many players as possible. While raiding, the raider\nmust keep saying \"kabaddi, kabaddi\" without stopping for breath. If the raider is caught, the other team wins a\npoint. Kabaddi is far more exciting than any other sport. You do not need a bat or a ball, only a flat piece of\nground. Every school should have a kabaddi team. Children who play kabaddi are the bravest children of all."
+   "text": "Kabaddi is a team game that is played all over India. Each team has seven players on the court. One player, the raider, runs into the other team's half and tries to tag as many players as possible. While raiding, the raider must keep saying \"kabaddi, kabaddi\" without stopping for breath. If the raider is caught, the other team wins a point. Kabaddi is far more exciting than any other sport. You do not need a bat or a ball, only a flat piece of ground. Every school should have a kabaddi team. Children who play kabaddi are the bravest children of all.",
+   "facts": [
+    "Kabaddi is a team game played in India with seven players on the court for each team."
+   ]
   },
   {
    "code": "P.EN3.READ.FACTOPINION.A",
    "grade": "G3",
    "kind": "letter",
    "title": "A Letter to the Town Newsletter",
-   "text": "Dear Editor,\nI am writing about the new bus that now runs from our village to the town school. The bus leaves the village at\nhalf past seven every morning and stops at five places on the way. It has thirty seats and a ramp for wheelchairs.\nBefore the bus came, many children walked for over an hour to reach school.\nIn my view, this bus is the most important thing to happen to our village in years. The drivers are the\nfriendliest people in the whole district. The bus costs ten rupees a day for each child. Some parents say that is\ntoo much, but I believe it is worth every paisa. Everyone in the village should thank the council.\nYours faithfully,\nMrs S. Deshmukh"
+   "text": "Dear Editor,\nI am writing about the new bus that now runs from our village to the town school. The bus leaves the village at half past seven every morning and stops at five places on the way. It has thirty seats and a ramp for wheelchairs.\nBefore the bus came, many children walked for over an hour to reach school.\nIn my view, this bus is the most important thing to happen to our village in years. The drivers are the friendliest people in the whole district. The bus costs ten rupees a day for each child. Some parents say that is too much, but I believe it is worth every paisa. Everyone in the village should thank the council.\nYours faithfully,\nMrs S. Deshmukh"
   },
   {
    "code": "P.EN4.READ.FIND.E",
@@ -495,7 +507,11 @@
    "grade": "G4",
    "kind": "letter",
    "title": "A letter from Leh",
-   "text": "Dear Isha,\n\nGreetings from Leh! Papa's new job has brought us to Ladakh, and everything here is different from Pune. The town is high up in the mountains, so the air is thin. On our first day I felt tired after climbing only ten steps, and the doctor told us to rest for two whole days before doing anything else.\n\nOur house has thick walls of mud bricks and a flat roof. In autumn, our neighbour, Mrs Dolma, spreads apricots on her roof to dry in the sun. She says the dried fruit will feed her family through the long winter, when snow closes the roads over the mountain passes and trucks cannot bring food up from the plains.\n\nSchool starts at ten o'clock here, not eight, because the mornings are so cold. In winter we will have a holiday of nearly three months. Can you imagine a long holiday in the coldest season instead of the hottest?\n\nI miss your mother's poha and our kabaddi games after school. Please write back and tell me whether the Diwali lamps are up in our building yet.\n\nWith love,\nMihir"
+   "text": "Dear Isha,\n\nGreetings from Leh! Papa's new job has brought us to Ladakh, and everything here is different from Pune. The town is high up in the mountains, so the air is thin. On our first day I felt tired after climbing only ten steps, and the doctor told us to rest for two whole days before doing anything else.\n\nOur house has thick walls of mud bricks and a flat roof. In autumn, our neighbour, Mrs Dolma, spreads apricots on her roof to dry in the sun. She says the dried fruit will feed her family through the long winter, when snow closes the roads over the mountain passes and trucks cannot bring food up from the plains.\n\nSchool starts at ten o'clock here, not eight, because the mornings are so cold. In winter we will have a holiday of nearly three months. Can you imagine a long holiday in the coldest season instead of the hottest?\n\nI miss your mother's poha and our kabaddi games after school. Please write back and tell me whether the Diwali lamps are up in our building yet.\n\nWith love,\nMihir",
+   "facts": [
+    "Leh is high in the mountains of Ladakh, where the air is thin.",
+    "Snow closes the mountain passes in winter."
+   ]
   },
   {
    "code": "P.EN4.READ.CHARACTER.E",
@@ -523,7 +539,10 @@
    "grade": "G4",
    "kind": "story",
    "title": "The fort at night",
-   "text": "When the bus finally stopped below Jaisalmer Fort, the sun had already sunk behind the dunes. Meher looked up at the walls. In the dusk they seemed enormous, dark and silent, like a giant crouching on the hill. A cold wind hissed through the narrow gate, and somewhere above, a door banged again and again. Meher held her brother's hand tightly and did not say a word as they climbed the steep, uneven steps.\n\nAt the top, everything changed. A man was lighting lamps along the lanes, and each little flame turned the yellow stone the colour of honey. Smells of roasting peanuts and warm bajra rotis drifted from an open kitchen. A grandmother sitting in a doorway waved at them and called out, \"Come in, come in, you must be hungry after your journey!\" Somebody was playing a tune on a stringed instrument, and two small boys were dancing to it in the street.\n\nMeher let go of her brother's hand. For the first time since they had left Pune, she laughed."
+   "text": "When the bus finally stopped below Jaisalmer Fort, the sun had already sunk behind the dunes. Meher looked up at the walls. In the dusk they seemed enormous, dark and silent, like a giant crouching on the hill. A cold wind hissed through the narrow gate, and somewhere above, a door banged again and again. Meher held her brother's hand tightly and did not say a word as they climbed the steep, uneven steps.\n\nAt the top, everything changed. A man was lighting lamps along the lanes, and each little flame turned the yellow stone the colour of honey. Smells of roasting peanuts and warm bajra rotis drifted from an open kitchen. A grandmother sitting in a doorway waved at them and called out, \"Come in, come in, you must be hungry after your journey!\" Somebody was playing a tune on a stringed instrument, and two small boys were dancing to it in the street.\n\nMeher let go of her brother's hand. For the first time since they had left Pune, she laughed.",
+   "facts": [
+    "Jaisalmer Fort is built of yellow stone and stands above the town."
+   ]
   },
   {
    "code": "P.EN4.READ.STAGES.E",
@@ -551,14 +570,24 @@
    "grade": "G4",
    "kind": "information",
    "title": "Why our town needs bees",
-   "text": "Many people run away when a bee flies near them, but bees are among the most useful insects in the world. This report explains what they do for us and how we can help them.\n\nBees take pollen from one flower to another as they collect nectar. Without this, plants such as mangoes, pumpkins and sunflowers could not make fruit or seeds.\n\nBees also make honey. A single bee makes only a tiny drop in its whole life, so one jar of honey is the work of thousands of bees.\n\nSadly, there are fewer bees than there used to be. Many gardens have lost their flowers, and some of the sprays used on crops harm them.\n\nWe can help by growing flowering plants such as tulsi, marigold and hibiscus on balconies and in school gardens. If every class in our school planted one pot, the bees of our town would have dozens of new places to feed."
+   "text": "Many people run away when a bee flies near them, but bees are among the most useful insects in the world. This report explains what they do for us and how we can help them.\n\nBees take pollen from one flower to another as they collect nectar. Without this, plants such as mangoes, pumpkins and sunflowers could not make fruit or seeds.\n\nBees also make honey. A single bee makes only a tiny drop in its whole life, so one jar of honey is the work of thousands of bees.\n\nSadly, there are fewer bees than there used to be. Many gardens have lost their flowers, and some of the sprays used on crops harm them.\n\nWe can help by growing flowering plants such as tulsi, marigold and hibiscus on balconies and in school gardens. If every class in our school planted one pot, the bees of our town would have dozens of new places to feed.",
+   "facts": [
+    "Bees move pollen from flower to flower, and plants need this to make fruit and seeds.",
+    "One bee makes only a tiny amount of honey in its life.",
+    "Some sprays used on crops harm bees."
+   ]
   },
   {
    "code": "P.EN4.READ.STAGES.A",
    "grade": "G4",
    "kind": "information",
    "title": "Camels of the Thar Desert (mixed up)",
-   "text": "A. Finally, camels have clever ways of dealing with the sand. Their wide, padded feet stop them from sinking, and two rows of long eyelashes keep out the grains when the wind blows. They can even close their nostrils during a sandstorm.\n\nB. So the next time you see a camel walking slowly across the dunes in Rajasthan, remember that every part of its body suits life in one of the harshest places in India.\n\nC. In the Thar Desert, the days are burning hot, the nights can be freezing and water is hard to find. Yet one animal lives there with ease: the camel. This report explains how it copes with three problems: thirst, hunger and sand.\n\nD. Next, hunger. Many people believe that a camel's hump is full of water, but it is really a store of fat. When food is scarce, the camel's body uses this fat for energy, and the hump becomes smaller and floppy.\n\nE. First, thirst. A camel can walk for days without drinking. When it does find water, it can gulp down more than a hundred litres in about fifteen minutes."
+   "text": "A. Finally, camels have clever ways of dealing with the sand. Their wide, padded feet stop them from sinking, and two rows of long eyelashes keep out the grains when the wind blows. They can even close their nostrils during a sandstorm.\n\nB. So the next time you see a camel walking slowly across the dunes in Rajasthan, remember that every part of its body suits life in one of the harshest places in India.\n\nC. In the Thar Desert, the days are burning hot, the nights can be freezing and water is hard to find. Yet one animal lives there with ease: the camel. This report explains how it copes with three problems: thirst, hunger and sand.\n\nD. Next, hunger. Many people believe that a camel's hump is full of water, but it is really a store of fat. When food is scarce, the camel's body uses this fat for energy, and the hump becomes smaller and floppy.\n\nE. First, thirst. A camel can walk for days without drinking. When it does find water, it can gulp down a huge amount in a few minutes.",
+   "facts": [
+    "A camel can go for days without drinking.",
+    "A camel's hump stores fat, not water.",
+    "A camel can close its nostrils in a sandstorm."
+   ]
   },
   {
    "code": "P.EN4.READ.STAGES.A2",
@@ -572,7 +601,10 @@
    "grade": "G4",
    "kind": "information",
    "title": "Tulsi",
-   "text": "Many Indian homes keep a tulsi plant in a pot near the door or on the balcony, because tulsi is a very useful plant. Its leaves can be boiled in water with ginger to make a warm drink when someone has a cough. The leaves have a strong, sweet smell that keeps mosquitoes and other insects away. Some families also drop a few leaves into their drinking water to give it a fresh taste."
+   "text": "Many Indian homes keep a tulsi plant in a pot near the door or on the balcony, because tulsi is a very useful plant. Its leaves can be boiled in water with ginger to make a warm drink when someone has a cough. The leaves have a strong, sweet smell that keeps mosquitoes and other insects away. Some families also drop a few leaves into their drinking water to give it a fresh taste.",
+   "facts": [
+    "Tulsi leaves are used in a warm drink for a cough, and families believe the smell keeps insects away."
+   ]
   },
   {
    "code": "P.EN4.READ.KEYWORDS.M",
@@ -586,42 +618,69 @@
    "grade": "G4",
    "kind": "information",
    "title": "Saving water in Pune",
-   "text": "In April and May, before the monsoon arrives, many parts of Pune receive water from the taps for only a few hours a day. Tankers rumble through the streets, and families fill buckets, drums and bottles while they can. Water is precious in the hot months.\n\nSmall habits at home can save a surprising amount. Turning off the tap while brushing your teeth saves several litres each time. A bucket of water for a bath uses far less than a long shower, and the water used to wash vegetables can be poured on plants afterwards.\n\nSome housing societies go further. They collect the rain that falls on their roofs during the monsoon and send it down pipes into the ground or into large tanks. This is called rainwater harvesting, and it means that the society has water stored for the dry months."
+   "text": "In April and May, before the monsoon arrives, some parts of Pune receive water from the taps for only a few hours a day. Tankers rumble through the streets, and families fill buckets, drums and bottles while they can. Water is precious in the hot months.\n\nSmall habits at home can save a surprising amount. Turning off the tap while brushing your teeth saves several litres each time. A bucket of water for a bath uses far less than a long shower, and the water used to wash vegetables can be poured on plants afterwards.\n\nSome housing societies go further. They collect the rain that falls on their roofs during the monsoon and send it down pipes into the ground or into large tanks. This is called rainwater harvesting, and it means that the society has water stored for the dry months.",
+   "facts": [
+    "In April and May, before the monsoon, some parts of Pune get tap water for only a few hours a day."
+   ]
   },
   {
    "code": "P.EN4.READ.KEYWORDS.A",
    "grade": "G4",
    "kind": "information",
    "title": "The turtles of Velas",
-   "text": "Every winter, a quiet beach at Velas, a fishing village on the Konkan coast, receives some special visitors. Female olive ridley turtles crawl out of the sea at night, dig a hole in the sand with their back flippers and lay about a hundred eggs. Then they cover the nest and return to the waves, never to see their young.\n\nFor many years, very few of these eggs hatched. Dogs dug them up, people collected them to eat, and crabs and birds took the rest. The turtles of Velas were slowly disappearing.\n\nAbout twenty years ago, the villagers decided to change this. Volunteers began to walk the beach before dawn, move each new clutch of eggs into a fenced hatchery and guard it day and night. Today, when the babies hatch after about fifty days, the villagers take them in baskets to the water's edge and watch them scurry into the sea.\n\nVisitors now come from Pune and Mumbai to watch the hatchlings, and they pay to stay in village homes. In this way, the turtles have brought work to the village, and the village has given the turtles a future."
+   "text": "Every winter, a quiet beach at Velas, a fishing village on the Konkan coast, receives some special visitors. Female olive ridley turtles crawl out of the sea at night, dig a hole in the sand with their back flippers and lay about a hundred eggs. Then they cover the nest and return to the waves, never to see their young.\n\nFor many years, very few of these eggs hatched. Dogs dug them up, people collected them to eat, and crabs and birds took the rest. The turtles of Velas were slowly disappearing.\n\nAbout twenty years ago, the villagers decided to change this. Volunteers began to walk the beach before dawn, move each new clutch of eggs into a fenced hatchery and guard it day and night. Today, when the babies hatch after about fifty days, the villagers take them in baskets to the water's edge and watch them scurry into the sea.\n\nVisitors now come from Pune and Mumbai to watch the hatchlings, and they pay to stay in village homes. In this way, the turtles have brought work to the village, and the village has given the turtles a future.",
+   "facts": [
+    "Olive ridley turtles come ashore at night in winter to lay eggs at Velas on the Konkan coast.",
+    "A turtle lays about a hundred eggs.",
+    "The eggs hatch after about fifty days."
+   ]
   },
   {
    "code": "P.EN4.READ.SKIM.E",
    "grade": "G4",
    "kind": "recount",
    "title": "A day at Shaniwar Wada",
-   "text": "Last Saturday our class visited Shaniwar Wada, the old fort palace in the middle of Pune. First we walked through the huge Delhi Gate, which has sharp iron spikes to stop elephants from pushing it open. Then our guide showed us the ruins of the rooms where the Peshwas once lived, and the lotus-shaped fountain in the garden. Before we left, we sat on the lawn and ate our tiffin under a big tree."
+   "text": "Last Saturday our class visited Shaniwar Wada, the old fort palace in the middle of Pune. First we walked through the huge Delhi Gate, which has sharp iron spikes to stop elephants from pushing it open. Then our guide showed us the ruins of the rooms where the Peshwas once lived, and the lotus-shaped fountain in the garden. Before we left, we sat on the lawn and ate our tiffin under a big tree.",
+   "facts": [
+    "Shaniwar Wada is an old fort palace in Pune.",
+    "The Peshwas lived at Shaniwar Wada.",
+    "The Delhi Gate of Shaniwar Wada has iron spikes made to stop elephants."
+   ]
   },
   {
    "code": "P.EN4.READ.SKIM.M",
    "grade": "G4",
    "kind": "information",
    "title": "The Ghats in the rain",
-   "text": "When the monsoon reaches the Western Ghats in June, the hills change completely. Dry brown slopes turn bright green within a few weeks, and hundreds of waterfalls appear on the cliffs, some of them for only a few months of the year.\n\nThe rain also wakes up many animals. Frogs call loudly from every puddle, crabs climb out of the streams, and colourful snails slide slowly across the wet rocks.\n\nPeople enjoy the season too. At weekends, families from Pune and Mumbai drive up to the hill stations to walk in the mist, eat hot roasted corn from roadside stalls and splash under the falls."
+   "text": "When the monsoon reaches the Western Ghats in June, the hills change completely. Dry brown slopes turn bright green within a few weeks, and hundreds of waterfalls appear on the cliffs, some of them for only a few months of the year.\n\nThe rain also wakes up many animals. Frogs call loudly from every puddle, crabs climb out of the streams, and colourful snails slide slowly across the wet rocks.\n\nPeople enjoy the season too. At weekends, families from Pune and Mumbai drive up to the hill stations to walk in the mist, eat hot roasted corn from roadside stalls and splash under the falls.",
+   "facts": [
+    "The monsoon reaches the Western Ghats in June.",
+    "Waterfalls appear on the cliffs of the Western Ghats in the rain."
+   ]
   },
   {
    "code": "P.EN4.READ.SKIM.H",
    "grade": "G4",
    "kind": "information",
    "title": "Lunch on time",
-   "text": "Every working day in Mumbai, thousands of office workers eat a hot lunch cooked in their own homes. The lunches reach them through the dabbawalas, a group of about five thousand delivery workers who have been taking tiffins across the city for more than a hundred years.\n\nIn the late morning, a dabbawala collects tiffins from the homes in one area. Each tiffin is marked with letters, numbers and colours that show where it must go.\n\nThe tiffins travel on local trains, then on bicycles and handcarts. At each station they are sorted again, and new dabbawalas take them on to the right office building.\n\nThe system is famous because it so rarely goes wrong. Visitors from other countries have come to study how the dabbawalas deliver so many lunches every day without computers or phones.\n\nIn the afternoon, the empty tiffins make the same journey home again."
+   "text": "Every working day in Mumbai, thousands of office workers eat a hot lunch cooked in their own homes. The lunches reach them through the dabbawalas, a large group of delivery workers who have been taking tiffins across the city for more than a hundred years.\n\nIn the late morning, a dabbawala collects tiffins from the homes in one area. Each tiffin is marked with letters, numbers and colours that show where it must go.\n\nThe tiffins travel on local trains, then on bicycles and handcarts. At each station they are sorted again, and new dabbawalas take them on to the right office building.\n\nThe system is famous because it so rarely goes wrong. Visitors from other countries have come to study how the dabbawalas deliver so many lunches every day without computers.\n\nIn the afternoon, the empty tiffins make the same journey home again.",
+   "facts": [
+    "Mumbai's dabbawalas deliver home-cooked lunches to office workers.",
+    "They have done this for more than a hundred years."
+   ]
   },
   {
    "code": "P.EN4.READ.SKIM.A",
    "grade": "G4",
    "kind": "information",
    "title": "A walk to Nongriat",
-   "text": "To reach the village of Nongriat in Meghalaya, you must walk down more than three thousand stone steps through thick, wet forest. It is one of the rainiest corners of India, and the path is often slippery with moss.\n\nBut the walk is worth it, because at the bottom you cross a bridge that nobody built with bricks or steel. It is made from the living roots of rubber fig trees, twisted together across a rushing stream.\n\nThe Khasi people who live here make these bridges slowly. They guide young roots across the stream along hollow trunks of bamboo or betel nut trees. Over fifteen to thirty years the roots grow thick and strong enough to hold people.\n\nUnlike a wooden bridge, which rots in the heavy rain, a root bridge grows stronger as it gets older. Some are thought to be hundreds of years old. In Nongriat there is even a bridge with two levels, one above the other.\n\nToday, the villagers are still planting and training new roots, so that their grandchildren will have bridges too."
+   "text": "To reach the village of Nongriat in Meghalaya, you must walk down thousands of stone steps through thick, wet forest. It is one of the rainiest corners of India, and the path is often slippery with moss.\n\nBut the walk is worth it, because at the bottom you cross a bridge that nobody built with bricks or steel. It is made from the living roots of rubber fig trees, twisted together across a rushing stream.\n\nThe Khasi people who live here make these bridges slowly. They guide young roots across the stream along hollow trunks of bamboo or betel nut trees. Over many years the roots grow thick and strong enough to hold people.\n\nUnlike a wooden bridge, which rots in the heavy rain, a root bridge grows stronger as it gets older. Some are thought to be hundreds of years old. In Nongriat there is even a bridge with two levels, one above the other.\n\nToday, the villagers are still planting and training new roots, so that their grandchildren will have bridges too.",
+   "facts": [
+    "Nongriat is a village in Meghalaya reached by a long stone staircase.",
+    "The Khasi people grow living root bridges from rubber fig trees.",
+    "Meghalaya is one of the rainiest places in India.",
+    "There is a double-decker living root bridge near Nongriat."
+   ]
   },
   {
    "code": "P.EN4.READ.LINKS.E",
@@ -642,14 +701,22 @@
    "grade": "G4",
    "kind": "information",
    "title": "Trees on our streets",
-   "text": "Trees make city streets more pleasant. For example, one big rain tree can shade a whole bus stop, and the air beneath it can feel several degrees cooler than the open road nearby.\n\nTrees are also homes. Mynas, parrots and squirrels nest in their branches, while ants and beetles live in the cracks of the bark.\n\nHowever, many street trees are cut down when roads are made wider. As a result, some streets that were once green and shady are now hot and dusty. This means that planting new trees is more important than ever. In addition, people can protect old trees by building a low wall around their roots.\n\nSo, if we want cool and lively streets, we must look after the trees we have and plant new ones for the future."
+   "text": "Trees make city streets more pleasant. For example, one big rain tree can shade a whole bus stop, and the air beneath it can feel cooler than the open road nearby.\n\nTrees are also homes. Mynas, parrots and squirrels nest in their branches, while ants and beetles live in the cracks of the bark.\n\nHowever, many street trees are cut down when roads are made wider. As a result, some streets that were once green and shady are now hot and dusty. This means that planting new trees is more important than ever. In addition, people can protect old trees by building a low wall around their roots.\n\nSo, if we want cool and lively streets, we must look after the trees we have and plant new ones for the future.",
+   "facts": [
+    "A big tree gives shade, so the air under it feels cooler."
+   ]
   },
   {
    "code": "P.EN4.READ.LINKS.A",
    "grade": "G4",
    "kind": "information",
    "title": "Salt from the sun",
-   "text": "Much of the salt on India's tables comes from the Little Rann of Kutch in Gujarat, a flat, empty land that is covered by sea water for part of the year. When the water goes down after the monsoon, families called Agariyas arrive to make salt.\n\nFirst, they dig wells to reach salty water deep under the ground. Then they pump it into wide, shallow pans. Over the following weeks, the hot sun dries up the water, and white crystals begin to form.\n\nThis work is very hard. The workers rake the crystals every day in fierce heat, and the glare from the white salt hurts their eyes. Despite this, many families have made salt here for hundreds of years, and they take pride in it.\n\nIn recent years, some families have started to use pumps that run on sunlight instead of diesel. As a result, they spend less money on fuel and earn more for each load of salt they sell.\n\nSo the next time you sprinkle salt on your poha, remember the families who made it under the desert sun."
+   "text": "Some of the salt on India's tables comes from the Little Rann of Kutch in Gujarat, a flat, empty land that is covered by sea water for part of the year. When the water goes down after the monsoon, families called Agariyas arrive to make salt.\n\nFirst, they dig wells to reach salty water deep under the ground. Then they pump it into wide, shallow pans. Over the following weeks, the hot sun dries up the water, and white crystals begin to form.\n\nThis work is very hard. The workers rake the crystals every day in fierce heat, and the glare from the white salt hurts their eyes. Despite this, many families have made salt here for hundreds of years, and they take pride in it.\n\nIn recent years, some families have started to use pumps that run on sunlight instead of diesel. As a result, they spend less money on fuel and earn more for each load of salt they sell.\n\nSo the next time you sprinkle salt on your poha, remember the families who made it under the desert sun.",
+   "facts": [
+    "The Little Rann of Kutch in Gujarat is where some of India's salt is made.",
+    "Families called Agariyas make salt there.",
+    "Salt crystals form as the sun dries the water."
+   ]
   },
   {
    "code": "P.EN4.READ.INFER.E",
@@ -733,35 +800,52 @@
    "grade": "G4",
    "kind": "poem",
    "title": "The Neem Speaks",
-   "text": "Text A (a poem):\nI am the neem by the school gate,\nI have stood here eighty years.\nI shade the children while they wait,\nI hear their laughs and tears.\nThey say a road will come this way,\nThey say my roots must go.\nWho will cool the gate in May?\nWho will tell the crows hello?\n\nText B (an information leaflet):\nPlant a Tree This Monsoon\nOne grown neem tree can cool the air around it by several degrees. Its leaves trap dust, and birds and squirrels nest in its branches. This July, the Pune Green Club will give away 500 saplings at the city garden. Each family can take two saplings, a bag of compost and a card that shows how to plant and water them. Volunteers will show children how to dig a small pit and press the soil firmly around the roots. Last year, more than 300 families took part. Come between 8 a.m. and 12 noon on Sunday 13 July. Please bring a cloth bag to take your saplings home."
+   "text": "Text A (a poem):\nI am the neem by the school gate,\nI have stood here eighty years.\nI shade the children while they wait,\nI hear their laughs and tears.\nThey say a road will come this way,\nThey say my roots must go.\nWho will cool the gate in May?\nWho will tell the crows hello?\n\nText B (an information leaflet):\nPlant a Tree This Monsoon\nOne grown neem tree can help to cool the air around it. Its leaves trap dust, and birds and squirrels nest in its branches. This July, the Pune Green Club will give away 500 saplings at the city garden. Each family can take two saplings, a bag of compost and a card that shows how to plant and water them. Volunteers will show children how to dig a small pit and press the soil firmly around the roots. Last year, more than 300 families took part. Come between 8 a.m. and 12 noon on Sunday 13 July. Please bring a cloth bag to take your saplings home.",
+   "facts": [
+    "A neem tree gives shade that helps to cool the air.",
+    "Tree leaves trap dust, and birds nest in trees."
+   ]
   },
   {
    "code": "P.EN4.READ.CONTEXT.E",
    "grade": "G4",
    "kind": "story",
    "title": "When Aaji Was Young",
-   "text": "When Aaji was a girl in a small village near Satara, there was no electricity in her house. Every evening her father lit a kerosene lantern and hung it on a nail by the door. Aaji did her homework on a slate, and when she finished, she wiped it clean with a damp cloth. Once a month, a postman came on a bicycle with a letter from her uncle in Bombay. The whole family sat together on the floor to hear it read aloud."
+   "text": "When Aaji was a girl in a small village near Satara, there was no electricity in her house. Every evening her father lit a kerosene lantern and hung it on a nail by the door. Aaji did her homework on a slate, and when she finished, she wiped it clean with a damp cloth. Once a month, a postman came on a bicycle with a letter from her uncle in Bombay. The whole family sat together on the floor to hear it read aloud.",
+   "facts": [
+    "Mumbai was called Bombay in the past."
+   ]
   },
   {
    "code": "P.EN4.READ.CONTEXT.M",
    "grade": "G4",
    "kind": "story",
    "title": "The Boat to School",
-   "text": "Anu lives in a village in Kerala where the land is criss-crossed by long green canals called backwaters. Her house stands on the bank, and coconut palms lean over the water outside her window. Every morning at seven, she climbs into a small wooden boat with five other children. Old Thomas pushes the boat along with a long bamboo pole, and the children wave to the women washing clothes on the stone steps. When the monsoon rains are heavy, the canal rises so high that the boat glides right past the tops of the bushes. Anu's school has no bus and no car park. It has a small jetty instead, where the boats tie up in a neat row."
+   "text": "Anu lives in a village in Kerala where the land is criss-crossed by long green canals called backwaters. Her house stands on the bank, and coconut palms lean over the water outside her window. Every morning at seven, she climbs into a small wooden boat with five other children. Old Thomas pushes the boat along with a long bamboo pole, and the children wave to the women washing clothes on the stone steps. When the monsoon rains are heavy, the canal rises so high that the boat glides right past the tops of the bushes. Anu's school has no bus and no car park. It has a small jetty instead, where the boats tie up in a neat row.",
+   "facts": [
+    "Kerala has long canals called backwaters, and people travel on them by boat."
+   ]
   },
   {
    "code": "P.EN4.READ.CONTEXT.H",
    "grade": "G4",
    "kind": "story",
    "title": "The Only Radio in the Lane",
-   "text": "It was the summer of 1965, and the whole lane in Shaniwar Peth seemed to be squeezed into the Kulkarnis' front room. Their radio was the only one on the street. It was a big wooden box with two round knobs, and it had to warm up for a whole minute before any sound came out. Shobha sat on the floor between her brothers, waiting for the cricket score. Outside, a tonga clattered past, the horse's bells jingling. Her mother had queued at the ration shop all morning for rice and sugar, and now she was making tea on the brass stove in the corner. When the announcer finally spoke, the room went silent. Nobody had a television, and the newspaper would not bring the score until the next morning. So everybody leaned towards the crackling voice, and when India took a wicket, twenty people cheered at once."
+   "text": "It was the summer of 1965, and the whole lane in Shaniwar Peth seemed to be squeezed into the Kulkarnis' front room. Their radio was the only one on the street. It was a big wooden box with two round knobs, and it had to warm up for a whole minute before any sound came out. Shobha sat on the floor between her brothers, waiting for the cricket score. Outside, a tonga clattered past, the horse's bells jingling. Her mother had queued at the ration shop all morning for rice and sugar, and now she was making tea on the brass stove in the corner. When the announcer finally spoke, the room went silent. Nobody had a television, and the newspaper would not bring the score until the next morning. So everybody leaned towards the crackling voice, and when India took a wicket, twenty people cheered at once.",
+   "facts": [
+    "In 1965 few homes had a radio and most had no television.",
+    "Ration shops sold rice and sugar."
+   ]
   },
   {
    "code": "P.EN4.READ.CONTEXT.A",
    "grade": "G4",
    "kind": "story",
    "title": "Monsoon of 1946",
-   "text": "In the monsoon of 1946, the village of Kelshi on the Konkan coast had no electricity yet, and the nearest town was a whole day away by bullock cart. Every morning before dawn, Sumati helped her mother grind rice into flour on the heavy stone wheel in the courtyard. Then she took the brass pot to the well, balancing it on her head the way her grandmother had taught her. School was a single room above the temple, where twenty children of every age sat on mats and copied letters onto slates. In the evenings, the family sat around a small oil lamp while her father mended fishing nets. Her brother switched on the television to watch the news from the city. When a letter arrived from her uncle in Bombay, it was a week old, and the whole street came to hear it read. Sumati dreamed of seeing Bombay one day, with its trams and tall buildings, but for now her world was the beach, the well and the paddy fields turning green in the rain."
+   "text": "In the monsoon of 1946, the village of Kelshi on the Konkan coast had no electricity yet, and the nearest town was a whole day away by bullock cart. Every morning before dawn, Sumati helped her mother grind rice into flour on the heavy stone wheel in the courtyard. Then she took the brass pot to the well, balancing it on her head the way her grandmother had taught her. School was a single room above the temple, where twenty children of every age sat on mats and copied letters onto slates. In the evenings, the family sat around a small oil lamp while her father mended fishing nets. Her brother switched on the television to watch the news from the city. When a letter arrived from her uncle in Bombay, it was a week old, and the whole street came to hear it read. Sumati dreamed of seeing Bombay one day, with its trams and tall buildings, but for now her world was the beach, the well and the paddy fields turning green in the rain.",
+   "facts": [
+    "Mumbai was called Bombay in 1946, and it had trams."
+   ]
   },
   {
    "code": "P.EN4.READ.VIEWPOINT.E",
@@ -971,7 +1055,14 @@
    "grade": "G4",
    "kind": "information",
    "title": "Sinhagad Fort",
-   "text": "Sinhagad is a hill fort about thirty kilometres south-west of Pune. It stands on a steep hill more than thirteen hundred metres high, and on a clear day visitors can see the Khadakwasla lake shining far below. The fort was once called Kondhana. Its walls were built along the edge of the cliffs, so enemies found it very hard to climb up. The most famous story about the fort is from 1670, when the brave warrior Tanaji Malusare and his soldiers climbed the cliffs at night to capture it. Tanaji lost his life in the battle, and the fort was given a new name, Sinhagad, which means Lion's Fort. Today Sinhagad is a popular place for families and school groups. Visitors can walk up a winding path or travel most of the way by road. At the top they can see the old gates, water tanks cut into the rock and a memorial to Tanaji. Many people stop at small stalls to eat hot pithla bhakri and drink buttermilk before they walk back down. It is best to visit in the cool months, from October to February, because the path can be slippery in the monsoon."
+   "text": "Sinhagad is a hill fort about thirty kilometres south-west of Pune. It stands on a steep hill more than thirteen hundred metres above the sea, and on a clear day visitors can see the Khadakwasla lake shining far below. The fort was once called Kondhana. Its walls were built along the edge of the cliffs, so enemies found it very hard to climb up. The most famous story about the fort is from 1670, when the brave warrior Tanaji Malusare and his soldiers climbed the cliffs at night to capture it. Tanaji lost his life in the battle, and the fort was given a new name, Sinhagad, which means Lion's Fort. Today Sinhagad is a popular place for families and school groups. Visitors can walk up a winding path or travel most of the way by road. At the top they can see the old gates, water tanks cut into the rock and a memorial to Tanaji. Many people stop at small stalls to eat hot pithla bhakri and drink buttermilk before they walk back down. It is best to visit in the cool months, from October to February, because the path can be slippery in the monsoon.",
+   "facts": [
+    "Sinhagad is a hill fort south-west of Pune, more than 1,300 metres above the sea.",
+    "It was once called Kondhana.",
+    "In 1670 Tanaji Malusare and his soldiers climbed its cliffs at night to capture it, and Tanaji died in the battle.",
+    "Sinhagad means Lion's Fort.",
+    "The Khadakwasla lake can be seen from the fort."
+   ]
   },
   {
    "code": "P.EN4.WRITE.SEQUENCE.E",
@@ -1069,21 +1160,33 @@
    "grade": "G3",
    "kind": "information",
    "title": "Honeybees",
-   "text": "Did you know that a honeybee has five eyes? These busy insects are found all over India.\nWhat they look like\nA honeybee has a striped yellow and brown body, two pairs of wings and six legs.\nFood\nBees drink nectar from flowers. They also collect pollen to feed their young.\nHomes\nHoneybees live together in a hive. One hive can hold thousands of bees, but only one queen.\nWhy they matter\nWhen bees move from flower to flower, they move pollen. This helps plants make fruit, such as mangoes and apples.\nFun fact: To make one spoonful of honey, bees must visit thousands of flowers!"
+   "text": "Did you know that a honeybee has five eyes? These busy insects are found all over India.\nWhat they look like\nA honeybee has a striped yellow and brown body, two pairs of wings and six legs.\nFood\nBees drink nectar from flowers. They also collect pollen to feed their young.\nHomes\nHoneybees live together in a hive. One hive can hold thousands of bees, but only one queen.\nWhy they matter\nWhen bees move from flower to flower, they move pollen. This helps plants make fruit, such as mangoes and apples.\nFun fact: To make one spoonful of honey, bees must visit thousands of flowers!",
+   "facts": [
+    "A honeybee has five eyes.",
+    "A honeybee has a striped body, two pairs of wings and six legs.",
+    "Bees drink nectar, collect pollen and live in a hive of thousands of bees with one queen.",
+    "Bees moving pollen helps plants make fruit."
+   ]
   },
   {
    "code": "P.EN3.TEXT.NONFICTION.H2",
    "grade": "G3",
    "kind": "recount",
    "title": "Our Trip to Sinhagad Fort",
-   "text": "Last Saturday, our class went on a trip to Sinhagad Fort near Pune. We met at school at seven o'clock and climbed onto the bus. First, we drove up the winding road to the bottom of the fort. Then we walked up the stone steps to the top. It was hard work, and I was out of breath! At the top, our guide told us how soldiers once guarded the fort. After that, we sat on the wall and ate our tiffin while clouds floated past below us. Finally, we walked down and rode the bus back to school. It was the best day ever!"
+   "text": "Last Saturday, our class went on a trip to Sinhagad Fort near Pune. We met at school at seven o'clock and climbed onto the bus. First, we drove up the winding road to the bottom of the fort. Then we walked up the stone steps to the top. It was hard work, and I was out of breath! At the top, our guide told us how soldiers once guarded the fort. After that, we sat on the wall and ate our tiffin while clouds floated past below us. Finally, we walked down and rode the bus back to school. It was the best day ever!",
+   "facts": [
+    "Sinhagad is a fort near Pune that soldiers once guarded."
+   ]
   },
   {
    "code": "P.EN3.TEXT.NONFICTION.A",
    "grade": "G3",
    "kind": "instructions",
    "title": "Two Texts About Mangoes",
-   "text": "Text 1: Mango Lassi\nYou will need: one ripe mango, a cup of curd, half a cup of cold milk and two spoons of sugar.\n1. Peel the mango and cut it into pieces.\n2. Put the mango, curd, milk and sugar into a blender.\n3. Blend until smooth.\n4. Pour into glasses and serve cold.\nText 2: Why Do Mangoes Turn Yellow?\nA green mango is hard and sour. First, the mango grows on the tree until it is fully grown. Then it starts to give off a gas that begins the ripening. Because of this gas, the green colour slowly fades and the yellow underneath shows through. At the same time, the starch inside turns into sugar, so the fruit becomes soft and sweet. That is why a ripe mango is yellow and juicy."
+   "text": "Text 1: Mango Lassi\nYou will need: one ripe mango, a cup of curd, half a cup of cold milk and two spoons of sugar.\n1. Peel the mango and cut it into pieces.\n2. Put the mango, curd, milk and sugar into a blender.\n3. Blend until smooth.\n4. Pour into glasses and serve cold.\nText 2: Why Do Mangoes Turn Yellow?\nA green mango is hard and sour. First, the mango grows on the tree until it is fully grown. Then it starts to give off a gas that begins the ripening. Because of this gas, the green colour slowly fades and the yellow underneath shows through. At the same time, the starch inside turns into sugar, so the fruit becomes soft and sweet. That is why a ripe mango is yellow and juicy.",
+   "facts": [
+    "A ripening mango gives off a gas, its green colour fades and its starch turns into sugar."
+   ]
   },
   {
    "code": "P.EN3.TEXT.FEATURES.H",
@@ -1125,21 +1228,31 @@
    "grade": "G4",
    "kind": "information",
    "title": "Monsoon in Maharashtra",
-   "text": "Monsoon in Maharashtra\nEvery year, from June to September, the monsoon brings heavy rain to Maharashtra. Farmers wait for it eagerly, because their rice, sugar cane and cotton crops need the water. Towns and cities need it too, to fill their lakes and wells.\nWhere the rain comes from\nIn summer, the land heats up faster than the sea. Warm, wet winds blow in from the Arabian Sea. When they reach the Sahyadri hills, they rise and cool, and the water falls as rain. The hills and the coast get the most rain.\nFact box: Some places in the hills get more than five metres of rain in one season!\nGetting ready for the rain\nThings to pack in your school bag:\n1. a raincoat\n2. a small towel\n3. a plastic cover for books\n4. a spare pair of socks\nWhen it floods, stay indoors. Keep away from fallen wires. Boil water before you drink it. Listen to the radio for news.\nCaption under a photo: Children wade home through a flooded street in Kolhapur."
+   "text": "Monsoon in Maharashtra\nEvery year, from June to September, the monsoon brings heavy rain to Maharashtra. Farmers wait for it eagerly, because their rice, sugar cane and cotton crops need the water. Towns and cities need it too, to fill their lakes and wells.\nWhere the rain comes from\nIn summer, the land heats up faster than the sea. Warm, wet winds blow in from the Arabian Sea. When they reach the Sahyadri hills, they rise and cool, and the water falls as rain. The hills and the coast get the most rain.\nFact box: Some places in the hills get far more rain than the plains do!\nGetting ready for the rain\nThings to pack in your school bag:\n1. a raincoat\n2. a small towel\n3. a plastic cover for books\n4. a spare pair of socks\nWhen it floods, stay indoors. Keep away from fallen wires. Boil water before you drink it. Listen to the radio for news.\nCaption under a photo: Children wade home through a flooded street in Kolhapur.",
+   "facts": [
+    "The monsoon brings heavy rain to Maharashtra from June to September.",
+    "Warm, wet winds from the Arabian Sea rise and cool over the Sahyadri hills, and the hills and the coast get the most rain."
+   ]
   },
   {
    "code": "P.EN3.TEXT.PARAGRAPH.A",
    "grade": "G3",
    "kind": "information",
    "title": "Monsoon in Pune",
-   "text": "Paragraph 1\nThe monsoon reaches Pune in June. Dark clouds fill the sky, and heavy rain falls for hours. The streets turn into little rivers, and frogs croak all night. Thunder booms and lightning flashes over the hills. The air feels cool and damp, and everything turns green. Sometimes the rain stops for a few days, and then it pours again.\nParagraph 2\nWe wear raincoats and gumboots to school. After school, my brother and I sail paper boats in the puddles. The river near our house rises and turns brown. In the evening, Aai makes hot bhajis and tea, and we eat them by the window. On weekends, we visit the waterfalls near Lonavala with our cousins. We always come home soaked and happy."
+   "text": "Paragraph 1\nThe monsoon reaches Pune in June. Dark clouds fill the sky, and heavy rain falls for hours. The streets turn into little rivers, and frogs croak all night. Thunder booms and lightning flashes over the hills. The air feels cool and damp, and everything turns green. Sometimes the rain stops for a few days, and then it pours again.\nParagraph 2\nWe wear raincoats and gumboots to school. After school, my brother and I sail paper boats in the puddles. The river near our house rises and turns brown. In the evening, Aai makes hot bhajis and tea, and we eat them by the window. On weekends, we visit the waterfalls near Lonavala with our cousins. We always come home soaked and happy.",
+   "facts": [
+    "The monsoon reaches Pune in June."
+   ]
   },
   {
    "code": "P.EN4.TEXT.PARAGRAPH.H",
    "grade": "G4",
    "kind": "information",
    "title": "The Banyan Tree",
-   "text": "Paragraph 1\nThe banyan is the national tree of India. It is huge, with a thick trunk and wide, spreading branches. Its leaves are large, shiny and leathery, and its small red figs grow in bunches.\nParagraph 2\nA banyan tree grows in a surprising way. Its seed often begins life high up on another tree, where a bird has dropped it. Roots grow down from its branches like long ropes. Many villages hold their meetings in the shade of a banyan. When the roots touch the soil, they thicken into new trunks. In this way, one banyan can slowly spread over a whole field.\nParagraph 3\nPeople in India value the banyan. Its deep shade keeps travellers cool on hot afternoons. Some banyan trees are hundreds of years old, and people visit them like old friends. Birds, bats and squirrels find food and shelter in its branches."
+   "text": "Paragraph 1\nThe banyan is the national tree of India. It is huge, with a thick trunk and wide, spreading branches. Its leaves are large, shiny and leathery, and its small red figs grow in bunches.\nParagraph 2\nA banyan tree grows in a surprising way. Its seed often begins life high up on another tree, where a bird has dropped it. Roots grow down from its branches like long ropes. Many villages hold their meetings in the shade of a banyan. When the roots touch the soil, they thicken into new trunks. In this way, one banyan can slowly spread over a whole field.\nParagraph 3\nPeople in India value the banyan. Its deep shade keeps travellers cool on hot afternoons. Some banyan trees are hundreds of years old, and people visit them like old friends. Birds, bats and squirrels find food and shelter in its branches.",
+   "facts": [
+    "The banyan is the national tree of India."
+   ]
   },
   {
    "code": "P.EN4.TEXT.PARAGRAPH.A",
@@ -1161,6 +1274,634 @@
    "kind": "advert",
    "title": "Jungle Trail Camp: an Advert and a Review",
    "text": "The Advert\nDo your children love adventure? Send them to Jungle Trail Camp in the hills near Mahabaleshwar! Our camp is never crowded and our snacks are cheap. Every child gets their own tent, and our expert guides keep everyone safe. Your child will come home happier, braver and full of stories, we promise! 9 out of 10 children say it is the best week of their lives! Book now: only 20 places left!\nThe Review, by Farah, aged 10\nI went to Jungle Trail Camp in October. The guides were friendly, and the night walk to see the fireflies was magical. However, the camp was very crowded, and I had to share my tent with three other girls. A packet of chips cost 80 rupees, which my dad said was far too much. The food at dinner was good, though. I would give the camp 3 stars out of 5. It was fun, and I made two new friends, but it was not the best week of my life."
+  },
+  {
+   "code": "P.EN3.READ.BLURB.E2",
+   "grade": "G3",
+   "kind": "blurb",
+   "title": "Pinto and the Paper Boats",
+   "text": "Pinto and the Paper Boats. Every monsoon, Pinto folds paper boats and floats them down the lane. One rainy day, a boat sails away with a secret message inside. Where will it go, and who will find it? A gentle story with bright pictures, perfect for children who like to be read to at bedtime."
+  },
+  {
+   "code": "P.EN3.READ.BLURB.H2",
+   "grade": "G3",
+   "kind": "review",
+   "title": "The Tiger Who Loved Rangoli",
+   "text": "Blurb: On the night before Diwali, a small tiger wanders out of the forest and into a sleepy village. He is not looking for food, only for colours. Can the children of the village teach him to make a rangoli before the lamps are lit? A funny, colourful story about courage and friendship, for readers aged six to nine.\n\nReview by Sana, aged 8: I laughed out loud on every page! The tiger is clumsy and sweet, and I loved the pictures of the chalk-dust clouds when he sneezes. Some of the words were long, so my mother helped me with them. I would tell my friends who like animal stories to read it."
+  },
+  {
+   "code": "P.EN3.READ.BLURB.A2",
+   "grade": "G3",
+   "kind": "review",
+   "title": "Riddles and a Silver Key",
+   "text": "Book 1: Riddles from the Riverbank\nFifty tricky riddles about frogs, fishermen and fireflies. Each riddle has a clue, a bigger clue and an answer printed upside down at the bottom of the page. Great for sharing, for guessing games and for children who like to think.\n\nBook 2: The Silver Key of Sundarpur\nA thick adventure with forty chapters. Twin sisters search an old palace for a lost silver key, with secret doors, a talking parrot and a map that changes at night.\n\nReview of Book 2 by Mr Naik, school librarian: Readers who love long, twisty plots will be thrilled by this book. However, there are very few pictures, and the story takes two weeks or more to finish, so it suits children who like to read for a long time without a break."
+  },
+  {
+   "code": "P.EN3.READ.CHARACTER.E2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Aaji at the End of the Lane",
+   "text": "Aaji lived at the end of our lane. She was tall and thin, with silver hair tied in a bun. Every evening she sat on her step and gave a biscuit to each child who passed. When Pinky fell off her cycle, Aaji ran out with a wet cloth and a warm smile. \"Nobody cries near my house,\" she said."
+  },
+  {
+   "code": "P.EN3.READ.CHARACTER.M2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Railway Station",
+   "text": "The railway station was loud and bright. A train whistled, and the platform shook under Rohan's feet. Tea sellers shouted, \"Chai, garam chai!\" and the smell of hot samosas floated from a stall. Steam rose from the big silver kettles. Rohan stood on his toes and held the strap of his school bag with both hands. His eyes were wide, and he was smiling. Today, for the first time, he was going to see the sea with Dada."
+  },
+  {
+   "code": "P.EN3.READ.CHARACTER.H2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Mrs Dsouza's Kitchen",
+   "text": "Mrs Dsouza's kitchen was small and warm, and it always smelled of cardamom and fresh bread. Copper pots hung from hooks on the wall, shining like little suns. Mrs Dsouza was round and rosy, with flour on her cheeks and a gold chain that jingled when she moved. She hummed while she kneaded the dough, and she never counted how many people came to the door. When Imran knocked one rainy evening, wet and shivering, she did not ask a single question. She wrapped him in a dry towel, put a bowl of hot soup in his hands and said, \"Sit near the stove, beta. There is plenty.\""
+  },
+  {
+   "code": "P.EN3.READ.CHARACTER.A2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Anita at the Harbour",
+   "text": "When the monsoon began, the harbour at Sagarpur turned grey and empty. The boats stayed tied to the pier, rocking and creaking. The beach was littered with wet seaweed, and the wind smelled of salt and mud. Anita sat at the window of her uncle's hut. \"The sea does not want me,\" she said glumly. She had come from the city to learn to sail, but for three weeks she had learned nothing.\n\nOn the first sunny morning, everything woke up. The water was bright blue and calm, and the boats bobbed like colourful toys. Fishermen shouted and laughed as they mended their nets. Anita ran down to the pier before her uncle was even awake. She untied the rope with steady hands and jumped aboard. \"Ready?\" he called, grinning. \"Always,\" she answered, and she did not look back."
+  },
+  {
+   "code": "P.EN3.READ.COMPARE.E2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Lost Balloon",
+   "text": "Telling 1: Nisha lost her red balloon at the fair. A boy caught the string and gave it back. Nisha thanked him with a big smile.\n\nTelling 2: Nisha lost her blue balloon at the fair. A girl caught the string and gave it back. Nisha thanked her with a big smile."
+  },
+  {
+   "code": "P.EN3.READ.COMPARE.M2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Clay Horse, Twice",
+   "text": "Telling 1: Anil made a clay horse for the school fair. On the way, it began to rain, and the horse started to melt. Anil gave the clay to his little sister, who made it into a bowl. Anil felt sad all day.\n\nTelling 2: Anil made a clay horse for the school fair. On the way, it began to rain, and the horse started to melt. Anil ran to a shop, and the shopkeeper gave him a plastic bag. The horse reached the fair safely and won a prize. Anil grinned all day."
+  },
+  {
+   "code": "P.EN3.READ.COMPARE.H2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Small Bird and the Big Trouble",
+   "text": "Telling 1, from a forest tale: A tiny sparrow had a nest in a tall teak tree. Every day, a big elephant rubbed his back against the trunk, and the eggs shook. \"Please stop,\" said the sparrow. The elephant only laughed. So the sparrow asked a friendly bee to buzz in the elephant's ear. The elephant ran away in fear and never came back.\n\nTelling 2, from a city book: A little pigeon had a nest on a lamp post in a busy street. Every day, a noisy truck stopped under the lamp post, and the eggs shook. \"Please move,\" said the pigeon to the driver. The driver only laughed. So the pigeon asked her friends, and a hundred pigeons sat on the truck's windscreen. The driver had to get out and clean it, and from then on he parked far away."
+  },
+  {
+   "code": "P.EN3.READ.COMPARE.A2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Treasure in the Pot",
+   "text": "Telling 1, told long ago in a village: A farmer's son found a golden mango hanging on the old tree. He wanted it all for himself, so he hid it in a pot of grain. That night, the pot began to glow, and a snake coiled around it. The boy was so frightened that he ran to his father and told him everything. His father smiled and shared the mango with the whole village.\n\nTelling 2, written this year in a city: A girl called Mira found a shiny medal on the school playground. She wanted to keep it, so she hid it in her pencil case. All day, the case felt heavy, and she could not enjoy her lunch. That evening, she told her mother everything. The next morning, Mira handed the medal to her educator, and its owner, a boy from Class 5, thanked her with a big hug."
+  },
+  {
+   "code": "P.EN3.READ.FIND.E2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Jay and the Puppy",
+   "text": "On Saturday, Jay and his sister Mira went to the market with Baba. Baba bought a bag of green peas and four ripe bananas. Mira chose a blue balloon from the balloon seller. Jay found a little brown puppy sitting under a cart. It had a white spot on its nose."
+  },
+  {
+   "code": "P.EN3.READ.FIND.M2",
+   "grade": "G3",
+   "kind": "information",
+   "title": "The Garden Club",
+   "text": "The Garden Club in our housing society meets every Wednesday at four o'clock. The club has twelve members, and Mrs Fernandes is the club leader. This month the members are making a compost heap near the gate. They put vegetable peels and dry leaves into a big wooden box. After a few weeks, the peels turn into dark, crumbly soil. The members use this soil for the rose bushes and the tulsi plants. New members are always welcome. They should bring a pair of gloves and a bottle of water.",
+   "facts": [
+    "Vegetable peels and dry leaves turn into dark, crumbly soil (compost) after some weeks."
+   ]
+  },
+  {
+   "code": "P.EN3.READ.FIND.H2",
+   "grade": "G3",
+   "kind": "recount",
+   "title": "Our Class Picnic",
+   "text": "Last Thursday, Class 3B went on a picnic to the Lake Garden. We left school at nine o'clock, but the bus came late, so we reached the garden at ten o'clock. First, our educator counted us: thirty-two children and four helpers. We played hide-and-seek until eleven, and then Rehana's father took photos under the big gulmohar tree. At noon, we sat in a circle to eat. Anil had dhokla, Sana had lemon rice and Ketan shared his chikki with everyone. After lunch, it started to drizzle, so we ran to the bus shed. We were back at school by two o'clock, damp but happy."
+  },
+  {
+   "code": "P.EN3.READ.FIND.A2",
+   "grade": "G3",
+   "kind": "information",
+   "title": "Gokul Pottery Studio",
+   "text": "Welcome to Gokul Pottery Studio! Our studio is on the first floor of the old cloth market. We open at ten in the morning and close at six in the evening, every day except Tuesday. Beginners' classes for children start every Saturday at eleven o'clock and last for ninety minutes. Each child makes one small bowl or one diya. Please wear old clothes, because clay can stain. We give every child an apron, but you must bring your own towel. After a class, the clay piece must dry for one week before we bake it in our kiln. You can collect your finished piece after ten days. A class costs two hundred rupees, and this includes the clay. Sisters and brothers who come together pay only one hundred and fifty rupees each. Please book by phone one day before. Children without a booking are welcome only if there is a free seat."
+  },
+  {
+   "code": "P.EN3.READ.FACTOPINION.E2",
+   "grade": "G3",
+   "kind": "advert",
+   "title": "Raju's Kulfi Cart",
+   "text": "Visit Raju's Kulfi Cart! Our cart is by the lake gate. We sell kulfi from four o'clock to seven o'clock. A cup of kulfi costs fifteen rupees. Every cup comes with a free spoon. Our mango kulfi is the creamiest ever. Nobody makes kulfi better than we do! It will be the tastiest treat of your day."
+  },
+  {
+   "code": "P.EN3.READ.FACTOPINION.M2",
+   "grade": "G3",
+   "kind": "recount",
+   "title": "Our Monsoon Walk",
+   "text": "On Wednesday, Class 3 went for a monsoon walk to the river bank behind our school. We wore raincoats and took umbrellas. The walk lasted forty minutes. Mrs Naik showed us a nest in a neem tree. I think the nest was the prettiest thing we saw. We counted nine frogs near the water. Frogs are clever and funny. We came back at noon. We drank hot tea, and the tea was delicious. It was a wonderful morning."
+  },
+  {
+   "code": "P.EN3.READ.FACTOPINION.H2",
+   "grade": "G3",
+   "kind": "information",
+   "title": "All About Rangoli",
+   "text": "Rangoli is a pattern drawn on the floor with coloured powder. People often draw rangoli near the front door during Diwali. Some families use flower petals, rice flour or coloured sand instead of powder. A small rangoli can take ten minutes, but a large one can take a whole afternoon. Rangoli is the most beautiful art in the world. Every home should have a rangoli at its door. Rangoli with flowers is better than rangoli with powder. Children who draw rangoli are always more patient than other children. The best patterns are the ones with a lot of colours.",
+   "facts": [
+    "Rangoli is a pattern drawn on the floor with coloured powder, rice flour or flower petals, often near the front door during Diwali."
+   ]
+  },
+  {
+   "code": "P.EN3.READ.FACTOPINION.A2",
+   "grade": "G3",
+   "kind": "letter",
+   "title": "A Letter to the School Magazine",
+   "text": "Dear Editor,\nI am writing about our school library. It opens at eight o'clock and closes at four. There are eleven shelves of picture books and six of stories. The stories are more exciting than the picture books, I am sure. The library has a reading corner with four beanbags, and the beanbags are the comfiest seats in the school. The walls were painted yellow in June, and a new fan was fitted above the door. Last month, children took home more than two hundred books. Every child should visit at least once a week. Mrs Dias, the librarian, is the kindest person I know. She puts a sticker on every book that a child finishes, and I have collected eighteen stickers so far.\nYours sincerely,\nRohan Patil, Class 3"
+  },
+  {
+   "code": "P.EN3.READ.INDEX.E2",
+   "grade": "G3",
+   "kind": "index",
+   "title": "Contents: The Monsoon Book",
+   "text": "Contents\nWhy it rains ........ 3\nClouds and thunder ........ 6\nRivers in flood ........ 9\nRainy-day games ........ 13\nRain poems ........ 17"
+  },
+  {
+   "code": "P.EN3.READ.INDEX.M2",
+   "grade": "G3",
+   "kind": "index",
+   "title": "Index: Our Society Garden",
+   "text": "Index\nbananas ........ 8\nbasil ........ 15\nchillies ........ 21\njasmine ........ 4\nmarigolds ........ 12\nmint ........ 27\nroses ........ 18\ntulsi ........ 6"
+  },
+  {
+   "code": "P.EN3.READ.INDEX.H2",
+   "grade": "G3",
+   "kind": "index",
+   "title": "Index: Our Town",
+   "text": "Index\nmarket: 4, 11, 25\nmuseum: 14\npark: 8, 20\nriver: 6, 19, 27\nschool: 3, 15\ntemple: 10, 23\nlibrary: 5, 17\nstation: 9, 22, 30"
+  },
+  {
+   "code": "P.EN3.READ.INDEX.A2",
+   "grade": "G3",
+   "kind": "index",
+   "title": "Index: Farm Life",
+   "text": "Index\nbarns: 16\nbullocks: 7, 21\nchickens: 4\nharvest: 11, 12\nhay: 19\nploughs: 8\nscarecrows: 14\ntractors: 9, 23"
+  },
+  {
+   "code": "P.EN3.READ.INFER.E2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Dev's Picture",
+   "text": "Dev drew a picture of a green parrot for the school show. He held it up to show his friend. Sana looked at it for a long time and then walked away without a word. Dev's smile disappeared. He folded the paper in half, and then in half again, and pushed it deep into his bag."
+  },
+  {
+   "code": "P.EN3.READ.INFER.M2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Spelling Test",
+   "text": "Tanvi had practised her spelling words every night for a week. On Monday morning, she tapped her pencil on her desk and checked the clock twice. When Mrs Menon read out the first word, her hands felt cold and her mind went blank. She looked at the empty line for a long time. Then she took a deep breath, remembered the little song she had made, and began to write. When the test was over, Tanvi handed in her paper and skipped all the way to the water cooler. She was humming the little song."
+  },
+  {
+   "code": "P.EN3.READ.INFER.H2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Blue Elephant",
+   "text": "At assembly, the principal announced the winner of the drawing contest. \"Meher!\" he said. Everyone clapped. Isha clapped too, but her clapping was slow and her smile did not reach her eyes. \"Well done,\" she told Meher, and she looked at the floor. All afternoon, she was quiet. At home, she pulled out her own drawing, the blue elephant she had worked on for two weeks, and stared at it. Then she hid it in a drawer and took out a clean sheet of paper. \"I will try again,\" she muttered, and she began to sketch."
+  },
+  {
+   "code": "P.EN3.READ.INFER.A2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Arjun at the Sea",
+   "text": "Arjun's family had moved from a quiet village to a big, noisy city by the sea. On the first Sunday, Aunty Rekha took him to the beach. \"It is just water,\" Arjun said, shrugging, and he kept his hands deep in his pockets. But when a small wave touched his toes, he jumped back, then stepped forward again. He watched the other children shriek and chase the foam. He pulled his sandals off slowly and left them on the sand.\n\n\"Do you want to go home now?\" asked Aunty Rekha.\n\n\"Not yet,\" said Arjun, his eyes on the water. \"Maybe ten more minutes.\" When the sun began to set, he was still there, wet to the knees, trying to catch the foam in his cupped hands."
+  },
+  {
+   "code": "P.EN3.READ.INSTRUCT.E2",
+   "grade": "G3",
+   "kind": "instructions",
+   "title": "Banana Shake",
+   "text": "You need: two ripe bananas, one cup of cold milk, a spoon of honey.\n1. Peel the bananas.\n2. Break them into pieces.\n3. Pour the milk into the mixer jar.\n4. Add the banana pieces and the honey.\n5. Mix for one minute.\n6. Pour into a tall glass."
+  },
+  {
+   "code": "P.EN3.READ.INSTRUCT.M2",
+   "grade": "G3",
+   "kind": "instructions",
+   "title": "Find the Cricket Ball",
+   "text": "A cricket ball has gone missing. Follow these steps to find it.\n1. Stand at the front door of the library.\n2. Take five steps forward.\n3. Turn right and walk to the green gate.\n4. Go through the gate and climb the stairs.\n5. At the top, turn left and walk past two doors.\n6. Open the third door on your right.\n7. The ball is in the box behind the blue chair."
+  },
+  {
+   "code": "P.EN3.READ.INSTRUCT.H2",
+   "grade": "G3",
+   "kind": "instructions",
+   "title": "A Paper Lantern",
+   "text": "You need: a sheet of coloured paper, scissors, glue, a ruler and a strip of card.\nBefore you cut anything, fold the paper in half lengthways. After you fold it, use the ruler to draw a line across the paper, two fingers from the open edge. Then cut from the fold up to the line, making each cut as wide as your finger. Open the paper out only after all the cuts are made. Next, glue the two short sides together to make a tube. Finally, glue the strip of card to the top as a handle, but wait until the glue on the tube is dry."
+  },
+  {
+   "code": "P.EN3.READ.INSTRUCT.A2",
+   "grade": "G3",
+   "kind": "instructions",
+   "title": "Word Change",
+   "text": "Word Change is a puzzle that turns one word into another. Read every step before you start, and write each new word on its own line so that you can check your work.\n1. Write the word CAT.\n2. Change the letter A to the letter O.\n3. Put the letter A after the letter O.\n4. Change the first letter to G.\n5. Add the letter S at the end.\n6. Read your final word aloud.\nIf your word is not a real word, go back and check each step, one at a time. A real word at the end means you have followed every step. Then make up your own Word Change puzzle and give it to a friend to try."
+  },
+  {
+   "code": "P.EN3.READ.MAIN.E2",
+   "grade": "G3",
+   "kind": "information",
+   "title": "The Garden in the Monsoon",
+   "text": "Monsoon is a busy time in our society garden. The tulsi leaves are bright green, and the marigolds have opened their orange flowers. Snails climb slowly up the walls. Frogs croak loudly in the puddles near the gate. Even the old mango tree looks cleaner, because the rain has washed its leaves."
+  },
+  {
+   "code": "P.EN3.READ.MAIN.M2",
+   "grade": "G3",
+   "kind": "information",
+   "title": "The Library Van",
+   "text": "A small blue van visits our village every Tuesday. It is not full of vegetables or toys. It is full of books! Inside, there are shelves up to the roof, a soft red rug and a small table for reading. Children can choose two books each and take them home for a week. The librarian, Mr Pillai, also reads a story aloud under the neem tree. Many children in the village do not live near a library, so the van brings stories to them."
+  },
+  {
+   "code": "P.EN3.READ.MAIN.H2",
+   "grade": "G3",
+   "kind": "recount",
+   "title": "Kite-Making Day",
+   "text": "Rain had left big puddles all over the field, and the grass was slippery. That Sunday, the children of Lotus Society held a kite-making day instead of a cricket match. Mrs Ghosh brought bamboo sticks, paper and glue. Each child made a kite with a long tail. Some kites were round and some were square, but all of them were bright. When the wind came up in the afternoon, thirty kites rose above the field like colourful birds. Nobody cared about the puddles. The children cheered and shouted as their kites danced. \"Best day ever!\" said Pia. By evening, everyone agreed to hold a kite day every month."
+  },
+  {
+   "code": "P.EN3.READ.MAIN.A2",
+   "grade": "G3",
+   "kind": "information",
+   "title": "How Letters Find Your House",
+   "text": "Every morning, a big sack of letters arrives at the town post office. Before anyone can read a single letter, the workers have to sort them. They look at the PIN code on each envelope and drop it into a small box marked with that code. Letters with the same code go into the same bag, and each bag is tied with a strong string.\n\nBy the afternoon, the postmen collect the bags for their own streets. Each postman puts the letters in order again, so that the first house on his way is the first in his bundle. Then he sets off with his bag, ringing his bicycle bell. Because the letters were sorted twice, he does not waste time hunting for a house, and the letters reach homes quickly.",
+   "facts": [
+    "A post office sorts letters by the PIN code written on each envelope."
+   ]
+  },
+  {
+   "code": "P.EN3.READ.ORDER.E2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Kitten in the Rain",
+   "text": "After school, Zoya found a tiny kitten shivering in the rain. She wrapped it in her scarf and took it home. Her mother warmed some milk in a steel bowl. The kitten drank all the milk and fell asleep on a cushion. Zoya whispered, \"You can stay till the rain stops.\""
+  },
+  {
+   "code": "P.EN3.READ.ORDER.M2",
+   "grade": "G3",
+   "kind": "recount",
+   "title": "Planting Our Mango Tree",
+   "text": "Last Friday, Class 3 planted a mango sapling in the school garden. First, Mr Deshpande dug a deep hole near the fence. Then each child put in a handful of compost. After that, we placed the sapling in the hole and pressed the soil around it. The soil was dry, so we poured two buckets of water over it. Finally, we tied a red ribbon to the branch, because we wanted everybody to see our tree. Our sapling looks very small, but we hope it will grow tall."
+  },
+  {
+   "code": "P.EN3.READ.ORDER.H2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Wobbly Table",
+   "text": "Aarav's father had promised to fix the wobbly table, but he was always busy. Aarav wanted to surprise him. He fetched the toolbox from the cupboard, and the screwdriver slipped out and rolled under the sofa. He lay flat on the floor and stretched his arm until he caught it. The table leg was loose, so he turned the screws one by one. The front door opened. Father stared at the table, which stood straight and firm. \"Who did this?\" he asked. Aarav's ears went red with pride. Father laughed and pressed a cold kulfi into his hand."
+  },
+  {
+   "code": "P.EN3.READ.ORDER.A2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Pooja's Lantern",
+   "text": "Pooja and her cousin Sameer made a lantern for the Diwali parade in their society. They cut a paper tube and pasted red tissue paper over the holes. Sameer lit the small bulb inside, but the lantern stayed dark. The battery was loose. Pooja pushed it back into place, and the lantern glowed. On the evening of the parade, it began to drizzle. The tissue paper went soft, and the red colour ran down the tube. Sameer wanted to give up, but Pooja found a clear plastic bag in the kitchen. She slipped it over the lantern and tied it at the top with a ribbon. The light shone through the plastic, and the rain slid off. At the end of the parade, the judges gave them the prize for the brightest lantern."
+  },
+  {
+   "code": "P.EN3.READ.PREDICT.E2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Sana and the Sparrow",
+   "text": "Sana put a bowl of water on the balcony for the thirsty birds. Each day, a tiny sparrow came a little closer. On Friday, it sat on the edge of the bowl and looked at Sana. Sana stood very still and held out a few grains of rice on her palm. The sparrow tilted its head."
+  },
+  {
+   "code": "P.EN3.READ.PREDICT.M2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Tea Seller and the Dog",
+   "text": "Every morning, Mr Kale gave a piece of bread to a thin brown dog outside his tea stall. The dog wagged its tail and followed him down the lane. One rainy night, Mr Kale was locking up late. A stranger stood behind a tree and watched. He crept closer, slowly, while Mr Kale counted the day's money. Suddenly the brown dog, who slept under the stall, jumped up and began to bark loudly."
+  },
+  {
+   "code": "P.EN3.READ.PREDICT.H2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Kavi and the Orchard",
+   "text": "Kavi was supposed to guard the mango orchard. Bored, he shouted, \"Monkeys! Monkeys!\" and the farmers dropped their work and ran. There were no monkeys. Kavi laughed. The next day, he did it again. The farmers ran, frowned and went back. \"If you shout again, we will not come,\" said the oldest farmer. On the third day, Kavi saw a troop of monkeys leaping through the orchard. \"Monkeys!\" he screamed. The farmers in the far field looked up. \"He is joking again,\" said one, and he bent down to cut the grass."
+  },
+  {
+   "code": "P.EN3.READ.PREDICT.A2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Missing Whistle",
+   "text": "On sports morning, Coach Sunita's silver whistle went missing from her open bag. Four children had been near it: Rishi, who loved playing pranks; Tina, who was fixing the nets; Zubin, who was setting out the cones; and Pooja, who had stayed behind in the classroom. The children were upset, because the races could not begin without it. \"It must have been Rishi,\" whispered Tina. \"He loves pranks.\" Rishi turned red and shook his head hard.\n\nJust then, Moti, the school dog, trotted across the field. He dropped down on the grass and began to chew a bit of blue ribbon. Zubin stared. \"The whistle hung on a blue ribbon,\" he said slowly. \"And there are muddy paw prints beside the coach's bag.\""
+  },
+  {
+   "code": "P.EN3.READ.THEME.E2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Rohan's Pencils",
+   "text": "Rohan's pencil box fell, and all his pencils rolled under the benches. The whole class laughed. Tiya did not laugh. She got down on her knees and helped him pick up every pencil. \"Everyone drops things,\" she said gently. \"Next time it might be me.\""
+  },
+  {
+   "code": "P.EN3.READ.THEME.M2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Broken Swing",
+   "text": "The swing in the park had a broken seat, and nobody had told the gardener. Every child who came saw the crack. Every child said, \"Someone else will tell him,\" and ran off to the slide. One evening, Kavya saw a little girl about to sit on it. She shouted, \"Stop!\" and caught the rope. Then she walked to the gardener's hut and knocked. \"The swing is broken,\" she said. \"Please mend it before someone gets hurt.\" The next morning, the swing had a new seat and a sign: \"Thank you, Kavya.\""
+  },
+  {
+   "code": "P.EN3.READ.THEME.H2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "The Spider in the Classroom",
+   "text": "Every morning, a tiny spider tried to spin a web across the window of Class 3. Every morning, the cleaner swept it away with a long broom. \"Poor spider,\" the children said. \"It will give up.\" But the next day, a new silver thread stretched from the window frame to the shelf. The children watched. Again the web was swept away, and again a new one appeared. On the fifth day, the cleaner was ill, and the web stayed. By afternoon, it shone like a silver star in the sunlight. The children clapped. \"It never stopped,\" whispered Rhea."
+  },
+  {
+   "code": "P.EN3.READ.THEME.A2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Hari and the Window Seat",
+   "text": "Hari always rushed to the bus first to grab the window seat. Every morning, he pushed past the smaller children and flung his bag onto the seat. One rainy day, the bus was crowded. Hari sat down by the window and saw an old man standing, holding the rail with trembling hands. Hari looked out at the rain and pretended not to notice. But the old man's wet umbrella dripped on the floor, the bus lurched, and the old man staggered. Hari felt his face grow hot. He stood up. \"Please sit here, Ajoba,\" he said. The old man smiled with his whole face. Hari held the rail for the rest of the way. His legs were tired, but he did not mind. The next morning, he waited at the stop and let the smaller children go first."
+  },
+  {
+   "code": "P.EN4.READ.FACTOPINION.E2",
+   "grade": "G4",
+   "kind": "advert",
+   "title": "Sunshine Juice Bar",
+   "text": "Visit Sunshine Juice Bar on Station Road! We are open every day from 9 a.m. to 8 p.m. Our orange juice costs twenty-five rupees. We think our sugarcane juice is the freshest in town. A glass of pomegranate juice is delicious! We use no added sugar in any drink. I love the mint lemonade best. Children under five drink free on Sundays. The mango shake is the best thing on the menu."
+  },
+  {
+   "code": "P.EN4.READ.FACTOPINION.M2",
+   "grade": "G4",
+   "kind": "advert",
+   "title": "Tara's Tiffin Service",
+   "text": "Tara's Tiffin Service has been open since 2015. Our dal is the most comforting food you will ever eat. A full tiffin costs eighty rupees. In our view, home cooking always beats restaurant food. We cook every meal in our own kitchen. Our gulab jamun is simply heavenly. Orders must be placed before ten in the morning. The best way to enjoy a tiffin is with a friend. We send each tiffin in a steel box. Our paneer curry is so tasty that nobody can resist it. We deliver to forty offices every day. You should try the Thursday special."
+  },
+  {
+   "code": "P.EN4.READ.FACTOPINION.H2",
+   "grade": "G4",
+   "kind": "review",
+   "title": "Review: The Silver Bicycle",
+   "text": "Book Review: The Silver Bicycle\nby Neha, Class 4C\nThe Silver Bicycle is about a boy called Kunal, who finds an old bicycle in his grandfather's shed. The book has twelve short chapters. Small drawings of the bicycle run along the top of every page. In my view, the pictures are the best part. The author has written four books for children. Kunal learns to ride on page twenty and rides to the river in chapter five. The last chapter is set on a rainy morning. Honestly, the middle of the story is far too slow. The book costs one hundred and fifty rupees at the school bookstall. I think every child in Grade 4 should read it. I read it in two evenings last week, and my friend Dev gave it three stars out of five."
+  },
+  {
+   "code": "P.EN4.READ.FACTOPINION.A2",
+   "grade": "G4",
+   "kind": "review",
+   "title": "Review: The Rain Garden Science Park",
+   "text": "Review: The Rain Garden Science Park\nby Kabir, Class 4B, for the school magazine\nI visited the Rain Garden Science Park with my class on Wednesday, and we stayed for the whole afternoon. The park opened in 2018 and has twenty-two hands-on exhibits. The robot show is far too short. Its glass dome won a national prize for design. The fountain is the prettiest corner of the whole park. Tickets for children cost eighty rupees at the main gate. Nobody could possibly be bored here. The planetarium show lasts twenty minutes. The cafe's samosas are not worth the price. Every Saturday, a scientist answers questions from visitors in the central hall. Parents will enjoy it as much as their children. A shuttle bus runs from the railway station every hour. The queue for the water-rocket game was annoying. The park closes at six o'clock. Our guide wore a yellow cap and walked us through each hall in turn. There is a lift for visitors who cannot climb the stairs. Every school should bring its children here."
+  },
+  {
+   "code": "P.EN4.READ.KEYWORDS.E2",
+   "grade": "G4",
+   "kind": "information",
+   "title": "Our school library",
+   "text": "Our school library is a quiet and cosy place. It has low shelves for the smallest children, a soft carpet and three bright beanbags in the corner. A big window lets in the morning light. Everyone speaks in whispers here. Every Thursday, Mrs Kulkarni reads a story aloud there. Children may take two books home for a week and must bring them back on time."
+  },
+  {
+   "code": "P.EN4.READ.KEYWORDS.M2",
+   "grade": "G4",
+   "kind": "information",
+   "title": "Sunday at the market",
+   "text": "On Sunday mornings, the market near our building is full of colour and noise. Piles of red tomatoes, green beans and orange carrots glow under striped umbrellas, and the sellers call out their prices in loud, singing voices. A small boy with a squeaky trolley follows his mother from stall to stall.\n\nFresh food is not the only thing the market gives us. It is also a place where neighbours meet. Mr Rao stops to talk about cricket with the man who sells onions, and two old friends share a cup of tea on a wooden bench every single week. Nobody is ever in a hurry to leave. That is why the market is the heart of our lane."
+  },
+  {
+   "code": "P.EN4.READ.KEYWORDS.H2",
+   "grade": "G4",
+   "kind": "information",
+   "title": "Paper that comes back",
+   "text": "Every week our class fills a large box with used paper, such as old worksheets, torn notebooks and drawings nobody wanted. At first we simply threw the box away. Then we learned that paper can be made new again.\n\nMaking new paper at school is easy. We tear the old paper into tiny pieces, soak it in water overnight and mash it into a soft pulp. Then we spread the pulp on a screen, press out the water and leave the sheet in the sun to dry.\n\nThe new paper is thicker and rougher than paper from a shop, but it is lovely for cards. Last month, each child made a Diwali card from it and sold the card at the school stall. The money bought a new set of paints for the art room. Recycling paper has helped our school in two ways: it saves paper and it raises money."
+  },
+  {
+   "code": "P.EN4.READ.KEYWORDS.A2",
+   "grade": "G4",
+   "kind": "information",
+   "title": "The van of books",
+   "text": "In the hills of a district far from any city, many villages have no library. The nearest town is a two-hour bus ride away, and few families can spare the time or the money to go. For many children, a book was something they saw only at school. A van full of books has changed that.\n\nTwice a week, the van stops in the square of each village. Its shelves hold picture books, stories, atlases and magazines in the local language. The librarian, Mr Bhosale, lets each child choose one book and gives out a stamped card to keep track of it. A volunteer sits with the smallest children and helps them to read the first page. The children bring the book back on his next visit.\n\nParents have noticed the change too. Evenings that were once spent in silence now include reading aloud by the light of a single bulb. In the end, the van has given the villages something more than books: it has given them a reason to sit together and read."
+  },
+  {
+   "code": "P.EN4.READ.LINKS.E2",
+   "grade": "G4",
+   "kind": "recount",
+   "title": "Planting a bean",
+   "text": "First, Ravi filled a small pot with soft, dark soil. Next, he pushed a bean seed into the soil with his finger. Then he gave it a little water from a steel cup. After a few days, a green shoot appeared at the top of the pot. Finally, he moved the pot to the sunny window, and he watched it grow every morning."
+  },
+  {
+   "code": "P.EN4.READ.SKIM.E2",
+   "grade": "G4",
+   "kind": "recount",
+   "title": "The first rain at school",
+   "text": "On the first rainy day of June, our whole school smelt of wet earth. In the playground, puddles shone like mirrors, and the younger children jumped in them with loud splashes. In class, we watched the rain run down the window and drew pictures of clouds. At lunch, Mrs Kulkarni gave everyone a hot cup of ginger tea. After that, we sang a rain song together before the bell rang."
+  },
+  {
+   "code": "P.EN4.READ.SKIM.M2",
+   "grade": "G4",
+   "kind": "recount",
+   "title": "Sports Day at our school",
+   "text": "Sports Day is the biggest day of the year at our school. For weeks before it, the children practise running, jumping and passing the baton in the playground. Even the youngest children get their own small races.\n\nOn the day, the playground is full of coloured flags. Parents sit under a tent and clap for every race, even for the child who finishes last, and the whole school cheers together.\n\nAt the end, the winners walk up to a small table to receive their medals. Then everyone eats orange slices and goes home tired and happy."
+  },
+  {
+   "code": "P.EN4.READ.SKIM.H2",
+   "grade": "G4",
+   "kind": "information",
+   "title": "Threads and patience",
+   "text": "Every morning before the sun is high, Sulabha sits down at her wooden loom in a small workshop behind her house. The loom clacks softly as her day begins.\n\nFirst, she chooses the threads. Cotton makes the base and silk makes the border, each dyed in rich colours: deep green, bright orange and gold. She winds them onto wooden spools.\n\nNext comes the weaving. Her hands pass the shuttle from side to side, and her feet press the pedals. Each hour, the cloth grows by only a hand's width.\n\nA sari takes many weeks to finish, and one mistake can mean unpicking a whole day's work. So Sulabha works slowly and checks every row.\n\nWhen the sari is done, her son takes it to the market. Shoppers admire the borders and the soft cloth, and many say they will keep it for weddings."
+  },
+  {
+   "code": "P.EN4.READ.SKIM.A2",
+   "grade": "G4",
+   "kind": "information",
+   "title": "A morning of fishing",
+   "text": "At dawn on Neelsar Lake, Hari pushes his narrow boat away from his front door. For Hari there is no front step: his house is a hut of bamboo and thatch that rests on a floating raft of woven reeds.\n\nThe raft homes are built by whole families. Each season they add fresh layers of reeds to the bottom, because the old layers slowly rot in the water. A well-kept raft can last for many years.\n\nAlmost everything happens on the lake. Children paddle to a school that floats beside the biggest raft, mothers sell vegetables from boat to boat, and in the evening the whole village gathers on a wide raft to share stories.\n\nFishing is only a small part of the day. The villagers also grow lotus roots in the shallow water and weave baskets from reeds, which they sell on the shore every Friday.\n\nVisitors often ask whether the villagers would prefer to live on land. Hari always laughs. \"The lake is our field, our road and our playground,\" he says. \"Why would we leave?\""
+  },
+  {
+   "code": "P.EN4.READ.STAGES.E2",
+   "grade": "G4",
+   "kind": "story",
+   "title": "Meera's umbrella",
+   "text": "On a rainy Monday, Meera walked to school with her new red umbrella. She liked the way the drops tapped on it like a little drum.\n\nNear the school gate, a strong gust of wind turned the umbrella inside out and bent one of its thin metal ribs.\n\nMeera felt like crying, but her friend Dev helped her press the rib straight again. By the bell, the umbrella was open and red once more, and they walked in laughing together."
+  },
+  {
+   "code": "P.EN4.READ.STAGES.M2",
+   "grade": "G4",
+   "kind": "story",
+   "title": "The play and the cloak",
+   "text": "Every December, Class 4 of Rainbow School put on a play, and this year Tanvi was chosen to be the queen.\n\nFor two weeks the children practised after lunch, and Tanvi's mother sewed a long blue cloak for her costume.\n\nOn the morning of the play, Tanvi opened her bag and found that the cloak was not there. She had left it hanging on a hook at home.\n\nHer friend Zoya remembered a blue curtain in the school store room. Together they tied it round Tanvi's shoulders with a green ribbon.\n\nThat evening Tanvi walked on stage in her curtain cloak, and the audience clapped louder than ever."
+  },
+  {
+   "code": "P.EN4.READ.STAGES.H3",
+   "grade": "G4",
+   "kind": "story",
+   "title": "Samir and the tiffin",
+   "text": "Every August, the families of Tulsi Park walked up the hill behind their society to eat lunch beside a small lake. Samir loved this day more than Diwali.\n\nThis year he had a special job. His mother gave him the tiffin of puran polis, and he had promised to look after it all the way up. The path was steep, and the children raced ahead, singing.\n\nHalfway up, Samir tripped on a root and the tiffin rolled down the slope, spilling the polis into the wet grass. A crow swooped down at once and began to peck at them. Samir wanted to cry.\n\nThen his friend Kiran ran down with a big banana leaf. Together they picked up the clean polis, wrapped them in the leaf and chased the crow away. Samir's mother laughed and said the polis smelt even better now.\n\nAt the lake, everyone sat in a circle and shared the food, and Samir gave the first poli to Kiran. Afterwards the children skipped stones until the sun went down."
+  },
+  {
+   "code": "P.EN4.READ.STAGES.A3",
+   "grade": "G4",
+   "kind": "information",
+   "title": "Monsoon umbrellas (mixed up)",
+   "text": "A. Finally, an umbrella must be looked after. After a wet day it should be opened and left to dry in a shady corner, because a damp umbrella shut away in a cupboard soon grows spots of mould. A little oil on the hinges also stops the metal ribs from rusting and sticking.\n\nB. Next, the frame. A good umbrella has a handle, a long shaft and several thin ribs that hold the cloth wide open. A strong wind can bend the ribs, so many families keep one umbrella with eight ribs for stormy days and a lighter one for light showers.\n\nC. Every year, when the first rain reaches Pune, umbrella shops along the busy lanes sell hundreds of umbrellas in a single week. This report explains how an umbrella is made, what makes a good one and how to make it last.\n\nD. First, the cloth. Most umbrellas are covered with cloth that water cannot pass through. Some makers coat plain cotton with wax or special paint, and others weave the cloth from threads that do not soak up water.\n\nE. In short, a good umbrella keeps you dry for many monsoons if you choose the frame with care and give it a little attention each season. That is why the shopkeepers say an umbrella bought wisely is a friend for years."
+  },
+  {
+   "code": "P.EN4.READ.THEME.M2",
+   "grade": "G4",
+   "kind": "story",
+   "title": "Helping hands",
+   "text": "Text A (a story): Old Mr Kale dropped his bag of mangoes at the bus stop, and the fruit rolled across the road. People walked past in a hurry. Then a girl named Ira put down her school bag, ran after every mango and placed them back in his bag. \"Thank you,\" said Mr Kale. \"Not at all,\" said Ira, and she hurried to catch her bus.\n\nText B (a diary): Sunday. Today Amma's friend came to our flat with a heavy box of books. The lift was broken, so I helped her take it up four floors, one step at a time. My arms ached, but Amma smiled at me and I felt very proud. I think helping someone is the best feeling."
+  },
+  {
+   "code": "P.EN4.READ.THEME.H2",
+   "grade": "G4",
+   "kind": "tale",
+   "title": "The potter and the quiz",
+   "text": "Text A (a tale): Long ago, in a village by a river, there lived a potter named Bhima. His first pots always cracked in the fire. The other potters laughed, but Bhima made a new pot every day and studied each crack. After a whole year, he made a pot so smooth and strong that the village headman bought it to store the oil for the festival lamps.\n\nText B (a school newsletter recount):\nClass 4A Wins the Quiz at Last\nOn Friday 14 March, Class 4A won the inter-class quiz. In July they had come last, and in October they had come fourth. Each week after that, the children met at lunch to practise questions, even on rainy days. At the final, they answered the last question correctly and won the trophy. Their educator, Mr Patil, said, \"They never gave up.\""
+  },
+  {
+   "code": "P.EN4.READ.THEME.A2",
+   "grade": "G4",
+   "kind": "poem",
+   "title": "Two texts about rain",
+   "text": "Text A (a poem):\nDrum, drum, the roof is singing,\nPuddles ring like silver bells.\nI run outside with my arms flung open,\nThe whole wide sky is mine to tell.\nLet it pour and let it splash,\nLet the gutters gurgle loud.\nI will dance in every flash\nAnd laugh beneath the thunder cloud.\n\nText B (an information leaflet):\nStaying Safe in Heavy Rain\nHeavy rain can make roads slippery and streams rise quickly, so please follow these tips. Do not walk through fast water, even if it looks shallow. Stay away from fallen wires and tell an adult at once. Wear shoes with a good grip, and keep your school bag in a plastic cover. When thunder starts, move indoors and wait there until the sky is quiet again. Never stand under a tall tree or in an open field during a storm. Check the weather news before you leave home, and ask an adult to walk with you if the road is flooded. Keep a torch near your bed in case the power goes out.",
+   "facts": [
+    "Fast-moving flood water is dangerous to walk through.",
+    "During thunder it is safer to be indoors than under a tall tree or in an open field."
+   ]
+  },
+  {
+   "code": "P.EN4.READ.VIEWPOINT.E3",
+   "grade": "G4",
+   "kind": "story",
+   "title": "Rain on the roof",
+   "text": "My cousin and I woke to the sound of rain on the roof. We pulled on our raincoats and ran to the garden. Our shoes sank into the soft mud, and we laughed. Then Nani called us in for hot ginger tea and warm parathas. I held my cup with both hands and watched the drops slide down the window. We stayed there until the cups were empty."
+  },
+  {
+   "code": "P.EN4.READ.VIEWPOINT.M3",
+   "grade": "G4",
+   "kind": "story",
+   "title": "The mango tree",
+   "text": "Our lane has one old mango tree, and every May we wait for the first ripe fruit to fall. This year, Manav was sure he would find it first. He hid behind the tree at dawn, but Pooja and I had the same idea. We tiptoed around the trunk and found him asleep against a root with a mango in his lap. We did not wake him. Instead, we tied a note to the branch above his head that said, \"The tree belongs to everyone.\" When he woke up, he laughed and cut the mango into five pieces so that we could all share."
+  },
+  {
+   "code": "P.EN4.READ.VIEWPOINT.H3",
+   "grade": "G4",
+   "kind": "story",
+   "title": "The assembly leaders",
+   "text": "On the last day of term, Mrs Kulkarni held up three coloured ribbons. \"I need three children to lead the school assembly,\" she said. Arjun's hand shot up. \"I can read the announcements,\" he said. Then Fatima raised hers. \"I will play the drum,\" she said quietly.\n\nEveryone looked at Ishaan, who was sitting at the back, chewing his pencil. \"I... I would like to try,\" he whispered at last. Mrs Kulkarni smiled and tied a ribbon round his wrist.\n\nOn the morning of the assembly, Ishaan's knees shook as he walked to the front of the hall, but his voice was steady. When he had finished, the whole school clapped for a full minute, and Arjun gave him a thumbs-up from the second row. At the side of the hall, Mrs Kulkarni nodded proudly."
+  },
+  {
+   "code": "P.EN4.READ.VIEWPOINT.A3",
+   "grade": "G4",
+   "kind": "story",
+   "title": "Bell on the gate",
+   "text": "I have hung above the school gate for as long as anyone can remember. Every morning at five to eight, Mr Gaikwad, the watchman, climbs a short ladder and pulls my rope. I ring out over the lane, and the sleepy children hurry through the gate. \"Good bell,\" he says, patting my side when he is done.\n\nToday something was different. A small girl with a green bag stood by the gate long before the rope was pulled. She looked up at me and whispered, \"Please don't be too loud.\" Mr Gaikwad chuckled. \"She is new,\" he told the cook. \"Everyone is afraid of the bell on the first day.\"\n\nI wanted to tell her that I am not frightening, only old and a little cracked. So when Mr Gaikwad pulled my rope, I rang as softly as my iron voice allowed. The girl smiled up at me, and for the rest of the week she waved to me every morning before she went in. It was a very small thing, but it made me happy all day."
+  },
+  {
+   "code": "P.EN3.TEXT.FEATURES.H3",
+   "grade": "G3",
+   "kind": "instructions",
+   "title": "Growing Cress on Cotton Wool",
+   "text": "Cress grows quickly, so it is a good plant for a rainy week at home. You can grow some in a plastic tray.\nYou will need: cotton wool, a plastic tray, a spoon of cress seeds and a small jug of water.\nWhat to do\nFirst, lay the cotton wool in the tray. Next, pour a little water over it until it feels damp. Then sprinkle the seeds on top. After that, put the tray near a sunny window. Water the cotton wool every day. In about a week, tiny green shoots will appear.\nTip: do not use too much water, or the seeds may rot.",
+   "facts": [
+    "Cress seeds sprout into small green shoots in about a week."
+   ]
+  },
+  {
+   "code": "P.EN3.TEXT.FEATURES.A2",
+   "grade": "G3",
+   "kind": "information",
+   "title": "Class 3C Times",
+   "text": "Class 3C Times\nSunrise Primary School, Pune\nRangoli Contest\nOn Friday, each group will make a rangoli in the school hall. The judges are Mrs Kulkarni and Mr Pawar. Things to bring: coloured powder, flower petals, a small broom and a cloth.\nLost and Found\nA blue water bottle, a red cap and a pair of spectacles are waiting in the office. Please ask Mrs Joshi if one of them is yours.\nOur Garden\nOur class planted beans last week. To grow beans, first dig a small hole. Then drop in a seed. Next cover it with soil. Finally water it gently.\nMonsoon Quiz\nWhich month does the monsoon begin in our city? Hand in your answer to Mr Pawar before Friday."
+  },
+  {
+   "code": "P.EN3.TEXT.GENRE.H3",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Gopal and the Wedding Cake",
+   "text": "Gopal the goat lived behind the sweet shop on Station Road. Every morning he sniffed the air and dreamed of something delicious. One day a huge wedding cake, covered in pink icing, arrived at the shop door. Gopal tiptoed closer. He sniffed it, licked it and ate a corner. Then he sat right down in the middle of it! The baker shouted, the bride squealed and a flower pot fell onto the baker's hat. Gopal ran in circles with pink icing on his nose and a flower in his ear. The wedding guests laughed so hard that they had to hold their tummies. In the end the bride said, 'Who needs a cake when we have Gopal?' and danced with the goat."
+  },
+  {
+   "code": "P.EN3.TEXT.GENRE.A2",
+   "grade": "G3",
+   "kind": "story",
+   "title": "Two More Stories",
+   "text": "Story 1: The Boy Who Rowed to the Island\nSameer's boat drifted away while he was fishing near the river bend. The water grew rough and the sky turned grey. He gripped the oars and rowed with all his strength towards a small island. Rocks scraped the boat and a wave splashed over the side. At last he jumped onto the sand, tired but safe. He lit a fire with dry sticks and waited for morning. When the sun rose, his father's boat came to find him.\nStory 2: The Goat in the Kitchen\nGranny had just baked a tall cake for the party when a goat trotted into the kitchen. The goat ate the icing. Granny chased the goat round the table, and the goat chased the cat round the chair. Soon flour flew everywhere, and the cat wore a hat made of cream! When the guests arrived, they found Granny, the goat and the cat all covered in white powder. Everybody laughed so much that nobody remembered the cake."
+  },
+  {
+   "code": "P.EN3.TEXT.NONFICTION.H3",
+   "grade": "G3",
+   "kind": "instructions",
+   "title": "Making a Bird Feeder",
+   "text": "Birds visit our balcony in the monsoon, and a bird feeder helps them find food. Here is how to make one.\nYou will need\n• an empty plastic bottle with a lid\n• a piece of string\n• a handful of seeds\n• scissors\nWhat to do\n1. Ask an adult to cut a small window in the side of the bottle.\n2. Tie the string tightly round the neck of the bottle.\n3. Pour the seeds in through the window.\n4. Hang the feeder from a branch or a hook.\n5. Watch the birds arrive!\nTip: Keep the feeder out of the rain so the seeds stay dry."
+  },
+  {
+   "code": "P.EN3.TEXT.NONFICTION.A2",
+   "grade": "G3",
+   "kind": "recount",
+   "title": "Two Texts About Kites",
+   "text": "Text 1: Kite Day on Our Terrace\nLast Sunday, my brother and I flew kites on our terrace. First, Dad checked the wind. Then we tied the string to a bright red kite and let it go. The kite flew high above the trees! After lunch, my cousin's kite got stuck on a wire, so we pulled it down gently. We were tired but happy when the sun went down.\nText 2: How to Make a Kite\nYou will need: one sheet of thin paper, two thin sticks, glue, string and a pair of scissors.\n1. Cross the two sticks to make a plus sign and tie them together with string.\n2. Cut the paper into a diamond shape slightly bigger than the sticks.\n3. Glue the edges of the paper over the string.\n4. Tie a long tail to the bottom and a ball of string to the middle.\nNow take your kite outside and fly it!"
+  },
+  {
+   "code": "P.EN3.TEXT.PARAGRAPH.A2",
+   "grade": "G3",
+   "kind": "information",
+   "title": "Our Class Garden",
+   "text": "Paragraph 1\nOur class has a small garden behind the classroom. We planted tomatoes, beans and marigolds in October. Every plant grows in its own row, and a low fence keeps the dogs out. Two children water the plants each morning. Mrs Joshi helped us to dig the soil and mark the rows. The soil is dark and soft, and it smells of rain.\nParagraph 2\nWe look after the garden every day. Others pull out the weeds and lift the heavy watering cans. In the monsoon, we cover the young plants with old sheets so the heavy rain does not wash them away. The tomatoes turned red in December. We picked a basket of beans and gave them to the school cook. Our marigolds made the garden bright and yellow."
+  },
+  {
+   "code": "P.EN4.TEXT.FEATURES.H3",
+   "grade": "G4",
+   "kind": "playscript",
+   "title": "At the Vegetable Stall",
+   "text": "SCENE 1: A vegetable stall in a market in Pune.\n(MRS DESAI picks up a tomato. The SELLER stands behind his scales. KIRAN, her son, holds her bag.)\nMRS DESAI: (smiling) How much are these tomatoes?\nSELLER: Forty rupees a kilo, madam. They are fresh today.\nMRS DESAI: (shaking her head) That is too much. Last week they were thirty.\nSELLER: (sighing) The rain has made them expensive. I will give you a kilo for thirty-five.\nKIRAN: (tugging his mother's sleeve) Ammi, please say yes. I want to make soup!\nMRS DESAI: (counting coins) Done! And please add a handful of coriander.\nSELLER: (laughing) You drive a hard bargain, madam. Here, it is free.\n(MRS DESAI puts the bag in her basket. KIRAN waves, and they walk away together.)"
+  },
+  {
+   "code": "P.EN4.TEXT.FEATURES.A2",
+   "grade": "G4",
+   "kind": "information",
+   "title": "Our Neighbourhood Park",
+   "text": "Our Neighbourhood Park\nOur park is in the middle of our society. It has a big lawn, a small pond and many shady trees. Children play there every evening, and older people walk along the paths. (The pond glitters in the sun.)\nWhat grows in the park\nThe park has neem, gulmohar and banyan trees. In the monsoon the lawn turns bright green, and small flowers grow in the grass. Parrots and crows visit the trees, and squirrels run along the branches. On Sundays, many families sit on the lawn for a picnic, and volunteers from the society clean the paths.\nThings to bring to the park:\n1. a water bottle\n2. a ball\n3. a mat\n4. a cap\nFact box: The pond is home to frogs, fish and dragonflies.\nPark safety. Do not climb the trees. Do not throw stones in the pond. Keep the park clean. Put rubbish in the bins. Ask an adult before you play near the water.\nCaption under a photo: Children play cricket on the lawn after school."
+  },
+  {
+   "code": "P.EN4.TEXT.GENRE.H2",
+   "grade": "G4",
+   "kind": "story",
+   "title": "Two Stories",
+   "text": "Story 1: The Missing Sandals\nOn Monday morning, Kavya found that her new blue sandals had vanished from the school steps. She did not cry. Instead she took out her notebook and studied the ground. There were wet footprints leading to the water tank, and a single blue strap lay beside it. 'Someone small has been here,' she said slowly. She peeped behind the tank and found a puppy chewing the second sandal happily. The puppy wagged his tail as if to say sorry.\nStory 2: Why the Crow Is Black\nLong ago, the crow was as white as milk. One day, the Sun God asked the birds to fetch fire for the world. The crow flew bravely into the great flames and brought back a glowing coal. The smoke covered her feathers and turned them black for ever. The Sun God thanked her and promised that everyone would remember her courage. That is why crows are black to this day."
+  },
+  {
+   "code": "P.EN4.TEXT.GENRE.A2",
+   "grade": "G4",
+   "kind": "story",
+   "title": "Two Stories from Different Times",
+   "text": "Story 1: The Lighthouse Keeper's Daughter\nTwo hundred years ago, Kamala lived with her father in a stone lighthouse on the coast. There was no electricity, so every night her father climbed the spiral stairs to light the great oil lamp. One stormy night, he slipped and hurt his leg. Kamala climbed the dark stairs alone, lit the lamp with trembling hands and kept it burning until dawn, while the wind howled and the waves crashed on the rocks. The fishing boats found their way home safely. In the morning, her father hugged her, and the whole village came to thank her.\nStory 2: The Garden Under the Sea\nIn the year 2300, Arun's family lived in a glass city at the bottom of the ocean. Robot gardeners grew vegetables in tanks of glowing water. When a crack appeared in the dome, Arun used his tablet to call the robots, and together they sealed the glass before the water rushed in. Outside the dome, strange fish glowed in the dark water, and the whole city cheered. His mother hugged him. 'The future needs brave children,' she said.",
+   "facts": [
+    "Lighthouse lamps burned oil before electricity."
+   ]
+  },
+  {
+   "code": "P.EN4.TEXT.PARAGRAPH.H2",
+   "grade": "G4",
+   "kind": "information",
+   "title": "The Sunday Market",
+   "text": "Paragraph 1\nEvery Sunday, a weekly market is held on the open ground near our society. Farmers arrive early with baskets of vegetables, and traders spread bright cloths on the ground. By eight o'clock the whole ground is full of colour, noise and the smell of fresh coriander.\nParagraph 2\nThe market sells many things. There are tomatoes, onions, green chillies and sweet lemons. One stall sells clay pots, and another sells cotton bags in every colour. A man with a bicycle sells cold lassi to hot and thirsty shoppers. My cousin plays cricket in the lane next to our house.\nParagraph 3\nThe market is important for our neighbourhood. Families buy fresh food at fair prices. Farmers earn money for their work. Neighbours meet, talk and share news while they shop."
+  },
+  {
+   "code": "P.EN4.TEXT.PARAGRAPH.A2",
+   "grade": "G4",
+   "kind": "letter",
+   "title": "A Letter to Ajoba",
+   "text": "Dear Ajoba,\nThank you for the lovely book you sent for my birthday. I have already read the first four chapters, and I think it is the best story I have ever read. I am writing to tell you about my week.\nOn Monday, our class went to the science fair at the school next door. I made a model volcano with clay and baking soda, and it erupted with red foam. The judges asked me many questions about the water in my volcano, and I won second prize. My friend Zoya built a fan that runs on sunlight, and it was the star of the fair. On Saturday, we cleaned the pond in our society garden. Everyone brought gloves and buckets, and we found two old shoes and a bicycle bell. The frogs seemed very pleased when the water was clear again.\nNext month, my school is organising a trip to Panchgani, and I hope to go. Will you come to the school sports day on 14 December? I would love to see you in the front row.\nWith love,\nIsha"
+  },
+  {
+   "code": "P.EN4.TEXT.PERSUADE.H2",
+   "grade": "G4",
+   "kind": "review",
+   "title": "Mango Magic Ice Cream Parlour",
+   "text": "Do you love ice cream? Then Mango Magic Parlour, near the Kothrud bus stop, is the perfect treat for you! I went there last Saturday with my cousins, and we all agreed that it was the best afternoon of the holidays.\nThe parlour has fifteen flavours. The mango scoop is smooth, creamy and bursting with sunshine. My cousin Reha had the chocolate fudge, which was rich and delicious, although it melted quickly in the heat. The seats are comfortable, and the staff gave us a free paper fan.\nA large cup costs ninety rupees, which is a little expensive, but the portions are huge. The parlour opens at eleven o'clock and closes at nine o'clock.\nMy rating: 5 stars out of 5. Do not miss it, I promise you will go back!"
+  },
+  {
+   "code": "P.EN4.TEXT.PERSUADE.A2",
+   "grade": "G4",
+   "kind": "advert",
+   "title": "Sky High Trampoline Park: an Advert and a Review",
+   "text": "The Advert\nWelcome to Sky High Trampoline Park! Bounce higher than ever before on our amazing giant trampolines. Our park is always quiet and our prices are the lowest in Pune. Every child gets a free pair of grip socks, and our trained coaches make sure nobody ever gets hurt. 9 out of 10 families come back again and again! Our cafe sells cold drinks and hot snacks for hungry jumpers. Book your slot today: only 15 places left this week!\nThe Review, by Dhruv, aged 11\nI went to Sky High with my class in November. The trampolines were great fun, and the foam pit was my favourite part. My friends and I also played a catching game on the bouncy floor, which made us laugh a lot. However, the park was very noisy and full of children, and we waited 20 minutes for our turn. The grip socks were not free; they cost 50 rupees. One boy hurt his ankle, although the coach helped him quickly. I would give the park 4 stars out of 5. I will go again, but I will go on a weekday."
+  },
+  {
+   "code": "P.EN3.VOCAB.SYNONYM.A2",
+   "grade": "G3",
+   "kind": "recount",
+   "title": "The Society Fair",
+   "text": "Our society held a fair in the garden last Sunday. Mrs Kulkarni made a good plan, so every stall had its own place. By ten o'clock the garden was crowded and noisy. My friend Hari sold lemonade. 'It is good for a hot day,' he told the shoppers, and they bought it at once.\n\nI helped at the toy stall, where a small wooden horse made everyone smile. A little girl looked at it for a long time. Then she asked, 'May I have it, please?' Her eyes were shining and she looked so joyful. I wrapped the horse in paper and she hugged it all the way to the gate.\n\nAt four o'clock the fair ended. We were exhausted, but Mrs Kulkarni said that we had worked well. Hari was weary too, and he fell asleep on the bench with his empty lemonade jug. I was proud of our fair."
   }
  ]
 }
