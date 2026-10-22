@@ -18,7 +18,7 @@ export const STATES = {
   withChildren: { tone: "wait", words: "with the children" },
   toCheck: { tone: "act", words: "to check" },
   toSignOff: { tone: "wait", words: "to sign off" },
-  replaced: { tone: "quiet", words: "replaced" },
+  replaced: { tone: "quiet", words: "replaced by a newer one" },
 } as const;
 export type State = keyof typeof STATES;
 export type Tone = (typeof STATES)[State]["tone"];
