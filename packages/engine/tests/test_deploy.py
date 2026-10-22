@@ -63,7 +63,7 @@ def test_the_website_goes_live_only_once_live_has_the_commits_migrations():
     (job,) = spec["jobs"].values()
     assert job["permissions"]["statuses"] == "write", "migrate live cannot set a commit's status"
     *_, push, said = job["steps"]
-    assert "supabase db push" in push["run"], "the status is not set after the migration"
+    assert push["run"] == "bin/push-migrations", "the status is not set after the migration"
     assert said["if"] == f"!cancelled() && {GATED}", "the status is set for a commit main has moved on from"
     assert said["env"]["STATE"] == "${{ job.status == 'success' && 'success' || 'failure' }}"
     for needed in ("statuses/$SHA", 'context="live database"', 'state="$STATE"'):
@@ -253,29 +253,36 @@ def test_a_standby_leaves_the_serving_engines_runs_alone(monkeypatch):
     assert marked == [1], "an engine starting after one stopped no longer marks the runs that died with it"
 
 
-def _push_step() -> dict:
-    (job,) = _load(WORKFLOWS / "migrate.yml")["jobs"].values()
-    return next(s for s in job["steps"] if "supabase db push" in s.get("run", ""))
-
-
+PUSH = db.REPO_ROOT / "bin" / "push-migrations"
 IN_BAND = "set lock_timeout = '3s'; set statement_timeout = '10min';"
 SQL = "create view {} as select 1;\n"
 
 
-def _push(tmp_path, answers):
-    """migrate live's push step run as the runner runs it (`bash -e`, in a checkout holding two migrations), with a
-    `supabase` that answers each try from `answers` ("ok", "lock" for SQLSTATE 55P03, anything else another failure)
-    and writes down the first line of the migrations it was handed, and psql and sleep that only write down that they
-    were called → (exit code, every call in order, the checkout's migrations)."""
-    import os
-    import subprocess
+def _push_step() -> dict:
+    (job,) = _load(WORKFLOWS / "migrate.yml")["jobs"].values()
+    return next(s for s in job["steps"] if s.get("name") == "apply what live is missing")
 
-    bin_ = tmp_path / "bin"
+
+def _settings() -> str:
+    """The lines bin/push-migrations puts first in every migration, read from the script itself."""
+    return re.search(r"<<'SQL'.*?\n(.*?)\nSQL\n", PUSH.read_text(), re.S)[1]
+
+
+def _checkout(tmp_path, answers):
+    """A checkout holding bin/push-migrations, bin/update-live and two migrations, with a `supabase` that answers each
+    try from `answers` ("ok", "lock" for SQLSTATE 55P03, anything else another failure), writes down the first line of
+    the migrations it was handed and keeps a copy of them, and a sleep that only writes down that it was called →
+    (the checkout, the environment to run it in)."""
+    import os
+    import shutil
+
+    bin_ = tmp_path / "fakes"
     bin_.mkdir()
     fakes = {
-        "psql": 'echo "psql" >> "$LOG"\n',
         "sleep": 'echo "sleep $1" >> "$LOG"\n',
-        "supabase": 'echo "push $(head -qn1 supabase/migrations/*.sql | sort -u)" >> "$LOG"\n'
+        "supabase": 'while [ $# -gt 0 ]; do [ "$1" = --workdir ] && w=$2; shift; done\n'
+        'echo "push $(head -qn1 "$w"/supabase/migrations/*.sql | sort -u)" >> "$LOG"\n'
+        'rm -rf "$GOT"; cp -r "$w/supabase/migrations" "$GOT"\n'
         'a=$(head -1 "$ANSWERS"); sed -i 1d "$ANSWERS"\n'
         'case "$a" in ok) echo "Finished supabase db push." ;;\n'
         '  lock) echo "ERROR: canceling statement due to lock timeout (SQLSTATE 55P03)"; exit 1 ;;\n'
@@ -284,40 +291,60 @@ def _push(tmp_path, answers):
     for name, body in fakes.items():
         (bin_ / name).write_text("#!/usr/bin/env bash\n" + body)
         (bin_ / name).chmod(0o755)
-    log, said = tmp_path / "calls", tmp_path / "answers"
-    log.touch()
-    said.write_text("\n".join(answers) + "\n")
-    migrations = tmp_path / "checkout" / "supabase" / "migrations"
+    (tmp_path / "calls").touch()
+    (tmp_path / "answers").write_text("\n".join(answers) + "\n")
+    checkout = tmp_path / "checkout"
+    migrations = checkout / "supabase" / "migrations"
     migrations.mkdir(parents=True)
+    shutil.copy(db.REPO_ROOT / "supabase" / "config.toml", checkout / "supabase")
     for name in ("20990101000000_a", "20990102000000_b"):
         (migrations / f"{name}.sql").write_text(SQL.format(name[-1]))
-    step = _push_step()
+    (checkout / "bin").mkdir()
+    for name in ("push-migrations", "update-live"):
+        shutil.copy(db.REPO_ROOT / "bin" / name, checkout / "bin")
     env = {
         **{k: v for k, v in os.environ.items() if k != "PGOPTIONS"},
-        **step["env"],
         "PATH": f"{bin_}:{os.environ['PATH']}",
-        "LOG": str(log),
-        "ANSWERS": str(said),
+        "LOG": str(tmp_path / "calls"),
+        "ANSWERS": str(tmp_path / "answers"),
+        "GOT": str(tmp_path / "pushed"),
     }
-    env["LIVE"] = "postgresql://nobody@127.0.0.1:1/none"
+    return checkout, env
+
+
+def _push(tmp_path, answers):
+    """migrate live's push step run as the runner runs it (`bash -e`, in the checkout) → (exit code, every call in
+    order)."""
+    import subprocess
+
+    checkout, env = _checkout(tmp_path, answers)
+    step = _push_step()
+    env = {**env, **step["env"], "LIVE": "postgresql://nobody@127.0.0.1:1/none"}
     done = subprocess.run(
-        ["bash", "-e", "-c", step["run"]],
-        env=env,
-        cwd=migrations.parent.parent,
-        capture_output=True,
-        text=True,
+        ["bash", "-e", "-c", step["run"]], env=env, cwd=checkout, capture_output=True, text=True
     )
-    return done.returncode, log.read_text().splitlines(), migrations
+    return done.returncode, (tmp_path / "calls").read_text().splitlines()
 
 
 def _pushed() -> str:
-    return "push " + _push_step()["env"]["SETTINGS"]
+    return "push " + _settings()
+
+
+def _in_band(tmp_path):
+    """Each migration as it was pushed: the settings, then the migration as the checkout holds it, unchanged."""
+    for migration in (tmp_path / "checkout" / "supabase" / "migrations").glob("*.sql"):
+        assert migration.read_text() == SQL.format(migration.stem[-1]), (
+            "the checkout's own migration was rewritten"
+        )
+        assert (
+            tmp_path / "pushed" / migration.name
+        ).read_text() == _settings() + "\n" + migration.read_text()
 
 
 def test_a_migration_waits_briefly_for_a_lock_and_long_for_its_work():
     """2026-10-21 12:52 UTC: a view's replacement waited 121 s behind live's readers until live's 2-minute statement
     timeout cancelled it (SQLSTATE 57014), educators' queries on that view queued behind it all the while."""
-    assert _push_step()["env"]["SETTINGS"].startswith(IN_BAND), (
+    assert _settings().startswith(IN_BAND), (
         "a migration still waits on educators' locks, or dies at live's 2 minutes"
     )
 
@@ -327,14 +354,69 @@ def test_the_settings_travel_inside_each_migration_not_with_the_connection(tmp_p
     which does not pass a connection's startup options on, so PGOPTIONS never reached live, and the check that read
     them back over a second connection failed and held the website with nothing to apply. The settings are now the
     first statements of every migration, inside the transaction the push runs it in, whatever the pooler does."""
-    code, calls, migrations = _push(tmp_path, ["ok"])
+    code, calls = _push(tmp_path, ["ok"])
     assert code == 0
     assert "PGOPTIONS" not in _push_step()["env"], "the settings still ride on the connection a pooler drops"
     assert calls == [_pushed()], f"{calls}: no push, or a check on a connection other than the migration's"
-    for migration in migrations.glob("*.sql"):
-        assert migration.read_text() == _push_step()["env"]["SETTINGS"] + "\n" + SQL.format(
-            migration.stem[-1]
+    _in_band(tmp_path)
+
+
+def test_a_hand_update_of_live_pushes_the_same_settings(tmp_path):
+    """2026-10-22 (L14c): bin/update-live, run by a person, still ran `supabase db push` itself, without the settings,
+    so a hand update could queue educators' pages behind a lock as the 12:52 one did. It now runs the same step as
+    migrate live, and leaves the checkout's migrations as main has them, for the next `git pull --ff-only`."""
+    import subprocess
+
+    checkout, env = _checkout(tmp_path, ["ok"])
+    for fake, body in {"git": "", "uv": "", "bin/engine": 'echo "engine $1" >> "$LOG"'}.items():
+        path = (tmp_path / "fakes" / fake) if "/" not in fake else (checkout / fake)
+        path.write_text(f"#!/usr/bin/env bash\n{body}\n")
+        path.chmod(0o755)
+    python = checkout / "packages" / "engine" / ".venv" / "bin" / "python"
+    python.parent.mkdir(parents=True)
+    python.write_text("#!/usr/bin/env bash\n")
+    python.chmod(0o755)
+    (checkout / ".env").write_text("DATABASE_URL=postgresql://nobody@127.0.0.1:1/none\n")
+    done = subprocess.run(
+        [checkout / "bin" / "update-live", "--no-server"], env=env, capture_output=True, text=True
+    )
+    assert done.returncode == 0, done.stdout + done.stderr
+    calls = (tmp_path / "calls").read_text().splitlines()
+    assert calls[0] == _pushed(), (
+        f"{calls[:2]}: the hand update pushed without the settings, or after the engine ran"
+    )
+    _in_band(tmp_path)
+
+
+def test_every_path_to_live_pushes_through_one_step():
+    """A second copy of the push is how bin/update-live was left without the settings: only bin/push-migrations runs
+    `supabase db push`, and migrate live and bin/update-live each run it."""
+    runs = [
+        path.relative_to(db.REPO_ROOT).as_posix()
+        for folder in ("bin", "deploy", ".github/workflows")
+        for path in sorted((db.REPO_ROOT / folder).iterdir())
+        if path.is_file()
+        and any(
+            "supabase db push" in line and not line.strip().startswith("#")
+            for line in path.read_text().splitlines()
         )
+    ]
+    assert runs == ["bin/push-migrations", "bin/testdb"], (
+        runs
+    )  # bin/testdb pushes to the local copy, never to live
+    assert _push_step()["run"] == "bin/push-migrations"
+    assert 'LIVE="$LIVE" "$REPO/bin/push-migrations"' in (db.REPO_ROOT / "bin" / "update-live").read_text()
+
+
+def test_the_cli_that_pushes_is_the_version_rehearsed():
+    """The settings hold for a migration because the CLI runs its statements and its history row as one batch; that
+    was rehearsed on supabase 2.121.0 (docs/notes/l14b-timeouts-in-band.md). `latest` would bring an unrehearsed CLI
+    to live on whatever day it changed."""
+    (job,) = _load(WORKFLOWS / "migrate.yml")["jobs"].values()
+    (cli,) = [s for s in job["steps"] if s.get("uses", "").startswith("supabase/setup-cli")]
+    assert cli["with"]["version"] == "2.121.0", (
+        f"migrate live's CLI is {cli['with']['version']}, not the one rehearsed"
+    )
 
 
 def test_a_migration_whose_session_lacks_the_settings_stops_before_any_change():
@@ -343,7 +425,7 @@ def test_a_migration_whose_session_lacks_the_settings_stops_before_any_change():
     import psycopg
     import pytest
 
-    settings = _push_step()["env"]["SETTINGS"]
+    settings = _settings()
     with db.connect() as conn:
         conn.execute(settings)
         took = "select current_setting('lock_timeout') as l, current_setting('statement_timeout') as s"
@@ -354,20 +436,20 @@ def test_a_migration_whose_session_lacks_the_settings_stops_before_any_change():
 
 
 def test_a_migration_held_by_a_lock_tries_again_by_itself(tmp_path):
-    code, calls, _ = _push(tmp_path, ["lock", "lock", "ok"])
+    code, calls = _push(tmp_path, ["lock", "lock", "ok"])
     assert code == 0
     assert [c for c in calls if c.startswith("push ")] == [_pushed()] * 3, calls
     assert calls.count("sleep 20") == 2, calls
 
 
 def test_a_migration_that_fails_for_another_reason_stops_at_once(tmp_path):
-    code, calls, _ = _push(tmp_path, ["other", "ok"])
+    code, calls = _push(tmp_path, ["other", "ok"])
     assert code == 1
     assert [c for c in calls if c.startswith(("push", "sleep"))] == [_pushed()]
 
 
 def test_a_migration_still_held_after_six_tries_fails(tmp_path):
-    code, calls, _ = _push(tmp_path, ["lock"] * 7)
+    code, calls = _push(tmp_path, ["lock"] * 7)
     assert code == 1
     assert sum(c.startswith("push") for c in calls) == 6, calls
 

@@ -22,9 +22,17 @@ says:
     proved_by: packages/engine/tests/test_deploy.py::test_the_settings_travel_inside_each_migration_not_with_the_connection
   - words: "a database update waits briefly and tries again by itself instead of failing"
     proved_by: packages/engine/tests/test_deploy.py::test_a_migration_whose_session_lacks_the_settings_stops_before_any_change
+  - words: "a database update waits briefly and tries again by itself instead of failing"
+    proved_by: packages/engine/tests/test_deploy.py::test_a_hand_update_of_live_pushes_the_same_settings
+  - words: "a database update waits briefly and tries again by itself instead of failing"
+    proved_by: packages/engine/tests/test_deploy.py::test_every_path_to_live_pushes_through_one_step
+  - words: "a database update waits briefly and tries again by itself instead of failing"
+    proved_by: packages/engine/tests/test_deploy.py::test_the_cli_that_pushes_is_the_version_rehearsed
 # 2026-10-22 (L14b, docs/notes/l14b-timeouts-in-band.md): the settings rode on the connection (PGOPTIONS), which
 # Supabase's pooler does not pass on; the check on a second connection failed both times it ran and held the website.
 # They are now the first statements of each migration, and the migration checks them itself.
+# 2026-10-22 (L14c, docs/notes/l14c-update-live-in-band.md): bin/update-live still pushed by hand without them, and
+# migrate live took whichever CLI was newest. Both now run bin/push-migrations, and migrate live's CLI is pinned.
 manual:
   - "The next merge with a migration: migrate live's 'apply what live is missing' step applies it, and live's supabase_migrations.schema_migrations row for it starts with the set lock_timeout and statement_timeout lines; any 'try n of 6' warning names a lock it waited out."
 scenarios: []
