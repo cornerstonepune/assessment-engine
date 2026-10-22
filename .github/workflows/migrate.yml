@@ -55,43 +55,19 @@ jobs:
           else
             echo "go=yes" >> "$GITHUB_OUTPUT"
           fi
+      # Pinned: the settings below travel inside each migration because this CLI runs a migration's statements and its
+      # history row as one batch, in one transaction. 2.121.0 is the version that was rehearsed doing so
+      # (docs/notes/l14b-timeouts-in-band.md); a newer one is pinned here only after the same rehearsal.
       - uses: supabase/setup-cli@v1
         if: steps.plan.outputs.go == 'yes'
-        with: { version: latest }
-      # 2026-10-21 12:52 UTC, school in session: `create or replace view answer_checked`, a change to the catalogue only,
-      # waited 121 s for a lock live's readers of that view held, until live's 2-minute statement timeout cancelled it
-      # (SQLSTATE 57014); every educator's query on that view queued behind it meanwhile. A re-run at 13:25 took 14 s.
-      # So the migration's session gives up a lock it cannot have within 3 s (SQLSTATE 55P03; its transaction rolls back
-      # whole, nothing recorded), and this step tries again shortly; any other failure stops at once. A migration that
-      # holds its locks and has real work to do gets 10 minutes, not live's 2.
-      # The settings are the first statements of each migration, inside the transaction `db push` runs it in, so they
-      # reach the backend that runs it. Given at connection start (PGOPTIONS) they did not: live is reached through
-      # Supabase's pooler, which does not pass startup options on (ADR 0024 measured the same), and on 2026-10-22 the
-      # check that read them back failed both times it ran (run 39709016021), holding the website with nothing to apply.
-      # The migration checks its own settings and fails, before any change, if they are not there
-      # (rehearsed: supabase 2.121.0, a reader holding the view, 55P03 after 3 s; docs/notes/l14b-timeouts-in-band.md).
+        with: { version: 2.121.0 }
+      # bin/push-migrations, the one step every path to live takes (bin/update-live runs it too): each migration starts
+      # with lock_timeout 3s, statement_timeout 10min and a check that they took; a lock it cannot have is tried again,
+      # six times 20 s apart; any other failure stops at once. Why, in that file.
       - name: apply what live is missing
         if: steps.plan.outputs.go == 'yes'
-        env:
-          LIVE: "${{ secrets.LIVE_DATABASE_URL }}"
-          SETTINGS: >-
-            set lock_timeout = '3s'; set statement_timeout = '10min';
-            do $$ begin if current_setting('lock_timeout') <> '3s' or current_setting('statement_timeout') <> '10min'
-            then raise exception 'this migration''s session did not take lock_timeout 3s and statement_timeout 10min';
-            end if; end $$;
-        run: |
-          for f in supabase/migrations/*.sql; do
-            { printf '%s\n' "$SETTINGS"; cat "$f"; } > "$f.in-band" && mv "$f.in-band" "$f"
-          done
-          for try in 1 2 3 4 5 6; do
-            if out=$(supabase db push --db-url "$LIVE" --yes 2>&1); then echo "$out"; exit 0; fi
-            echo "$out"
-            case "$out" in *55P03*) ;; *) exit 1 ;; esac
-            echo "::warning::try $try of 6: a query on live held a lock the migration needs; trying again in 20 s"
-            sleep 20
-          done
-          echo "::error::live stayed busy for six tries; run this workflow again when it is quieter"
-          exit 1
+        env: { LIVE: "${{ secrets.LIVE_DATABASE_URL }}" }
+        run: bin/push-migrations
       - name: the website may go live with this commit, or may not
         if: "!cancelled() && steps.plan.outputs.go == 'yes'"
         # The status Vercel's Deployment Checks wait on, set on the commit just migrated: green once live has its
