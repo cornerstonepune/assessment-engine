@@ -26,6 +26,7 @@ from engine.assess import focus
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
 from engine.core import db, mistake_names, roster, settings, vocabulary
+from engine.w1_bank import question_types
 from engine.w1_bank.inventory import item_from_row
 from engine.w2_print import seen as shown
 from engine.w2_print.assemble import _qr
@@ -99,9 +100,9 @@ def _draw(conn, whose, area, want, rng, days, taken=(), own=()):
     repeat (`recent`)."""
     rows = conn.execute(
         "select i.*, x.last as last_seen, coalesce(x.last > now() - make_interval(days => %s), false) as recent"
-        " from item i left join lateral (select max(e.created_at) as last from item_exposure e"
+        " from drawable_item i left join lateral (select max(e.created_at) as last from item_exposure e"
         "   where e.child_id = any(%s::uuid[]) and e.item_id = i.id) x on true"
-        " where i.status = 'active' and i.skill_set_code = %s and i.difficulty = %s order by i.item_key",
+        " where i.skill_set_code = %s and i.difficulty = %s order by i.item_key",
         (days, list(whose), area.skill_set, area.level),
     ).fetchall()
     rng.shuffle(rows)
@@ -150,8 +151,7 @@ def _where_it_shows(conn, area, levels) -> focus.Area:
     order = [d for d in (*up, *down) if d in defined]
     rows = {
         level: conn.execute(
-            "select responses, skill_codes from item where status = 'active' and skill_set_code = %s"
-            " and difficulty = %s",
+            "select responses, skill_codes from drawable_item where skill_set_code = %s and difficulty = %s",
             (area.skill_set, level),
         ).fetchall()
         for level in order
@@ -246,7 +246,11 @@ def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
         own.update(str(q["id"]) for q in questions)
         if strict and len(questions) < want:
             alike = any((a.skill_set, a.level) == (area.skill_set, area.level) for a, _ in chosen[:i])
-            raise ValueError(_short(len(questions), names.get(area.skill_set), area.level, alike))
+            why = question_types.why_not(conn, area.skill_set, area.level)
+            raise ValueError(
+                _short(len(questions), names.get(area.skill_set), area.level, alike)
+                + (f": {why}" if why else "")
+            )
         why = (
             ASKED if area.state == "asked" else f"Right {area.right} of {area.answered} — {said[area.state]}"
         )

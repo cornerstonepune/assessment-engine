@@ -1,0 +1,41 @@
+name: ux9a-no-guessed-pages
+goal: >
+  A page of a scan on which no code can be read is never read as any child's. It joins no paper, the one before it or
+  the one after it, whoever's that paper is: it stays unread and is listed on Marking by its page number, drawn small
+  beside a button for each child whose own paper is in the file, a copy short of a page first. One tap gives it to a
+  child: the engine keeps who said so on the file's run and reads the file again with the page as that child's. Only
+  then is any answer on it read. The engine refuses, in words, a page that is not waiting, a child with no paper in the
+  file, and a file still being read.
+# Written 2026-10-22, before the code. PR #252 (n8-upload-on-marking) asked: a page with no readable code inside a
+# child's copy short of pages was read as that copy's next page (`sorting.group`, unchanged since 2026-09-23). Nimish's
+# answer that day: stop guessing. The same rule holds for a library worksheet's copies (a copy's child is the name
+# written on it, so a page joined to a copy is guessed onto that child too). The person's word is kept on the file's run
+# (`flow_run.result.given`), so no migration; every later run of the same file reads it.
+says:
+  - words: "yes, stop guessing."
+    proved_by: "packages/engine/tests/test_no_guessed_pages.py::test_a_page_with_no_code_is_never_joined_to_the_paper_before_it"
+  - words: "yes, stop guessing."
+    proved_by: "packages/engine/tests/test_no_guessed_pages.py::test_a_page_with_no_code_beside_a_childs_short_paper_lands_on_no_child"
+  - words: "yes, stop guessing."
+    proved_by: "packages/engine/tests/test_no_guessed_pages.py::test_a_page_a_person_gives_to_a_child_is_read_as_theirs"
+  - words: "yes, stop guessing."
+    proved_by: "packages/engine/tests/test_no_guessed_pages.py::test_a_page_is_given_only_to_a_child_whose_paper_is_in_the_file_and_only_while_it_waits"
+  - words: "yes, stop guessing."
+    proved_by: "packages/engine/tests/test_no_guessed_pages.py::test_the_reading_reads_each_page_as_the_child_a_person_gave_it_to"
+  - words: "yes, stop guessing."
+    proved_by: "apps/web/tests/u48-no-guessed-pages.spec.ts::a page whose code cannot be read is listed by its number, read as no child's, and given to one in one tap"
+  - words: "yes, stop guessing."
+    proved_by: "apps/web/tests/u48-no-guessed-pages.spec.ts::the engine refuses a page given to a child whose paper is not in the file, in words"
+manual:
+  - "On live, once deployed: a class scan with one page photographed with its code covered; on Marking the page is listed by its number with its picture, and one tap on the child's roll reads it as theirs."
+scenarios: []
+criteria:
+  - name: sorting a scan, the upload, the inbox, and reading a scan whole
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_no_guessed_pages.py tests/test_sorting.py tests/test_a_scan_read_whole.py tests/test_upload.py tests/test_inbox.py
+    expect: "passed"
+  - name: a page given on Marking, putting a scan in, and what a scan lacks
+    run: cd apps/web && npx playwright test tests/u48-no-guessed-pages.spec.ts tests/u44-upload-on-marking.spec.ts tests/u41-what-a-scan-lacks.spec.ts tests/u3-marking.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

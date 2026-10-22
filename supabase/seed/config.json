@@ -362,7 +362,7 @@
           "NUM.OPS.02"
         ]
       },
-      "description": "The written methods that carry out another operation inside their own, and so use it: those that add their steps use addition, and a slip adding them counts against addition, not multiplication (assumption A11, ADR 0055); long division and chunking multiply and take away, so their slips count against multiplication and subtraction. Partitioning a number divided, and chunking's lots, put tens and ones together, which never carries: no addition is carried out (ADR 0063)."
+      "description": "The written methods that carry out another operation inside their own, and so use it: those that add their steps use addition, and a slip adding them counts against addition, not multiplication (assumption A11, ADR 0055); long division and chunking multiply and take away, so their slips count against multiplication and subtraction. Partitioning a number divided, and chunking's lots, put tens and ones together, which never regroups: no addition is carried out (ADR 0063)."
     },
     {
       "key": "skills.charges_by_kind.approved",
@@ -378,7 +378,7 @@
           "5.2"
         ]
       },
-      "description": "Taxonomy sections whose cases are patterns read across levels — how carries and exchanges fall (§5) — rather than cases one level holds. `engine bank taxonomy` counts them as placed by being the rule the levels climb, and says so."
+      "description": "Taxonomy sections whose cases are patterns read across levels — how regrouping and exchanges fall (§5) — rather than cases one level holds. `engine bank taxonomy` counts them as placed by being the rule the levels climb, and says so."
     },
     {
       "key": "story_shape.told_by_words",

@@ -26,8 +26,8 @@
       "built": "live",
       "takes": ["skill_set", "taxonomy_case"],
       "gives": ["item"],
-      "files": ["engine/w1_bank/bank.py", "engine/w1_bank/refill.py", "engine/w1_bank/rehome.py", "engine/w1_bank/cases.py", "engine/w1_bank/labels.py", "engine/w1_bank/question.py", "engine/w1_bank/review.py", "engine/w1_bank/cli_taxonomy.py", "engine/w1_bank/cli_bank.py", "engine/w1_bank/inventory.py", "engine/w1_bank/mistake_guess.py", "engine/w1_bank/learn.py", "engine/w1_bank/learned.py", "engine/w1_bank/story_shape.py", "engine/w1_bank/story_cases.py", "engine/w1_bank/story_eval.py", "engine/w1_bank/story_keys.py", "engine/w1_bank/kinds.py"],
-      "commands": ["engine bank fill", "engine bank shape", "engine bank refill", "engine bank rehome", "engine bank taxonomy", "engine bank relabel", "engine bank rekey"],
+      "files": ["engine/w1_bank/bank.py", "engine/w1_bank/refill.py", "engine/w1_bank/rehome.py", "engine/w1_bank/cases.py", "engine/w1_bank/labels.py", "engine/w1_bank/question.py", "engine/w1_bank/review.py", "engine/w1_bank/cli_taxonomy.py", "engine/w1_bank/cli_bank.py", "engine/w1_bank/inventory.py", "engine/w1_bank/mistake_guess.py", "engine/w1_bank/learn.py", "engine/w1_bank/learned.py", "engine/w1_bank/story_shape.py", "engine/w1_bank/story_cases.py", "engine/w1_bank/story_eval.py", "engine/w1_bank/story_keys.py", "engine/w1_bank/kinds.py", "engine/w1_bank/question_types.py"],
+      "commands": ["engine bank fill", "engine bank shape", "engine bank refill", "engine bank rehome", "engine bank taxonomy", "engine bank relabel", "engine bank rekey", "engine types", "engine types approve"],
       "screens": ["/library", "/library/[key]", "/api/question/[key]"],
       "subject": {"any": false, "note": "Maths only: questions are generated and their answers computed by arithmetic code (engine/assess). A subject whose answers cannot be computed needs a person-approved key per question, which this step does not have."}
     },
@@ -100,7 +100,7 @@
       "gives": ["capture"],
       "files": ["engine/w3_read/render_pdf.py", "engine/w3_read/lineup.py", "engine/w3_read/stencil.py", "engine/w3_read/sorting.py", "engine/w3_read/copies.py", "engine/w3_read/printed_paper.py", "engine/w3_read/copy_scores.py", "engine/w3_read/cli_file.py", "engine/w3_read/inbox.py"],
       "commands": ["engine read stencil", "engine read file"],
-      "screens": ["/papers", "/capture"],
+      "screens": ["/papers", "/capture", "/api/scan-run/[run]/[page]"],
       "subject": {"any": true, "note": "Any subject. Scans are put in on Marking (a PDF, or phone photos made one PDF) or by a Drive link (ADR 0092); a photo arriving on its own (WhatsApp) is not built."}
     },
     {
@@ -165,6 +165,9 @@
     {"from": "engine/w4_close/card.py", "to": "engine/w2_print/focus_paper.py", "why": "The class card names each child's home area as W2 makes the home paper (`home_area`), never a second rule."},
     {"from": "engine/w2_print/library.py", "to": "engine/w1_bank/inventory.py", "why": "A worksheet is dealt from the bank's active questions, each read back as the question it is."},
     {"from": "engine/w2_print/assemble.py", "to": "engine/w1_bank/inventory.py", "why": "A child's paper is built from the bank's questions, each read back as the question it is."},
+    {"from": "engine/w2_print/focus_paper.py", "to": "engine/w1_bank/question_types.py", "why": "A paper that cannot be made says which level or question type waits, in the words the bank keeps (B2)."},
+    {"from": "engine/w2_print/assemble.py", "to": "engine/w1_bank/question_types.py", "why": "A child left without a paper this week is named with the level or question type that waits (B2)."},
+    {"from": "engine/w2_print/handout.py", "to": "engine/w1_bank/question_types.py", "why": "A worksheet that cannot be printed says which level or question type waits (B2)."},
     {"from": "engine/w2_print/focus_paper.py", "to": "engine/w1_bank/inventory.py", "why": "A paper chosen from a child's graph is drawn from the bank's active questions, each read back as the question it is."},
     {"from": "engine/w1_bank/question.py", "to": "engine/w2_print/library.py", "why": "A question a person corrects or retires rebuilds the worksheets that held it."},
     {"from": "engine/w3_read/sorting.py", "to": "engine/w2_print/library.py", "why": "A scanned library worksheet is counted off in copies as long as the worksheet prints."},

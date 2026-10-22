@@ -24,7 +24,9 @@ Nimish put `scope-locked` on these drafts and chose "A": each recommendation bel
 | B4-2 | Evidence keeps its column `rung_code`; no row is rewritten |
 | B4-3 | "No file reads rung" means the `rung` table; the maths library's word stays |
 
-Still open: B2-3, B3-1, B3-2 and B3-3's corrections wait on Achal. B3 cannot finish until he answers.
+Still open: B2-3 waits on Achal. B3-1, B3-2 and B3-3 no longer wait (Nimish, 2026-10-21: "there is NO dependency on
+Achal"): each is decided by a rule a test checks, in goals/b3-samples-mistakes-prerequisites.yaml and ADR 0092; Achal
+may correct the rows later.
 
 Drafts: `b2-question-types-are-rows.yaml`, `b3-samples-mistakes-prerequisites.yaml`, `b4-the-rung-folded-in.yaml`
 (this folder). Numbers measured on the seed and code on 2026-10-21; where BUILD-ORDER differs, it says so below.

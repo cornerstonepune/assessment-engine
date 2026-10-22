@@ -77,6 +77,11 @@ jobs:
             union all select 'registry', band, count(*) from (select band from milestone union all select band from learning_objective union all select band from activity union all select band from report_item union all select band from trait) r group by 2
             union all select 'level_band', e.value, count(*) from skill_set s, jsonb_each_text(s.level_band) e group by 2
             order by 1, 2"
+      # Past results as live holds them (decided 2026-10-21, B2–B4): the evidence, every child's states and every
+      # scored answer, as counts and checksums, compared after the migrations and after update-live. No row is printed.
+      - name: past results, before
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: bin/engine past | tee /tmp/past.before
       # The migrations `bin/update-live` pushes, run on live's rows as they will be on live. Until 2026-10-20 they ran on
       # the empty copy before its rows arrived, and the rows were restored with their triggers off, so a new key (ADR
       # 0084) was never checked against a live row. Each recorded as `supabase db push` records it, so the copy's own
@@ -93,6 +98,9 @@ jobs:
               psql "$COPY" -q -v ON_ERROR_STOP=1 -c "insert into supabase_migrations.schema_migrations (version) values ('$v')"
             fi
           done
+      - name: past results, the same after the migrations
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: bin/engine past | tee /tmp/past.migrated && diff /tmp/past.before /tmp/past.migrated
       - name: before, on the copy
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: bin/engine live data --url "$COPY" || true
@@ -101,6 +109,11 @@ jobs:
       - name: the levels as rows, against the blob, before
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: bin/engine levels check
+      # A skill's samples, mistakes, registry links and prerequisites as rows (goals/b3-samples-mistakes-prerequisites.yaml):
+      # on live's own skills, the rows the migration made say what the lists say. Codes and counts only.
+      - name: the samples, mistakes and links as rows, against the lists, before
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: bin/engine links check --words
       - name: stories the labeller cannot name (their text; questions hold no names)
         run: |
           psql "$COPY" -c "select item_key, skill_set_code, stem, spec from item where fmt = 'word_1step' and not (tags ? 'structure') order by item_key limit 25"
@@ -110,6 +123,9 @@ jobs:
       - name: "SF2 measured: what a format is, and what each starting rule would take off papers"
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: cd packages/engine && uv run python ../../.github/measure/sf2_formats.py
+      - name: "B2 measured: the question types in use, their levels and approvals, labels without words"
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: cd packages/engine && uv run python ../../.github/measure/b2_types.py
       - name: rehearse on the copy — bin/update-live steps 4-6
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: |
@@ -129,6 +145,9 @@ jobs:
       - name: "SF2 measured: the same, after update-live"
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: cd packages/engine && uv run python ../../.github/measure/sf2_kinds.py && uv run python ../../.github/measure/sf2_formats.py
+      - name: "B2 measured: the same, after update-live"
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: cd packages/engine && uv run python ../../.github/measure/b2_types.py
       - name: answers still on a rung no skill holds (their questions; no names)
         if: always()
         run: |
@@ -139,6 +158,10 @@ jobs:
           psql "$COPY" -c "with short as (select s.code, d.key as level, (d.value ->> 'min_items')::int as target, (select count(*) from item i where i.status = 'active' and i.skill_set_code = s.code and i.difficulty = d.key) as n from skill_set s, jsonb_each(s.difficulty) d where d.value ? 'min_items') select sh.code, sh.level, sh.n, sh.target, i.item_key, i.status, i.source, i.generator, i.created_at::date as made, i.updated_at::date as changed, left(coalesce(i.stem, i.spec::text), 50) as question, f.actor, left(f.note, 110) as why from short sh join item i on i.skill_set_code = sh.code and i.difficulty = sh.level and i.status <> 'active' left join item_feedback f on f.item_id = i.id where sh.n < sh.target order by 1, 2, 5"
           psql "$COPY" -c "select r.code, r.band, (select count(*) from item i where i.rung_code = r.code) as questions, (select count(*) from item i where i.rung_code = r.code and i.status = 'active') as active, (select count(*) from evidence_placed e where e.placed_rung = r.code) as answers from rung r where not exists (select 1 from skill_set s where s.rung_code = r.code)"
           psql "$COPY" -c "select i.rung_code, i.item_key, i.status, i.source, i.skill_set_code, i.difficulty, i.generator, i.created_at::date as made, left(coalesce(i.stem, i.spec::text), 60) as question from item i where not exists (select 1 from skill_set s where s.rung_code = i.rung_code) order by 1, 2"
+      - name: past results, after update-live (graph rebuilt, marking re-run)
+        if: always()
+        env: { DATABASE_URL: "${{ env.COPY }}" }
+        run: bin/engine past | tee /tmp/past.after && diff /tmp/past.before /tmp/past.after
       - name: the copy after — must be clean
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: |
@@ -148,3 +171,4 @@ jobs:
           bin/engine live data --url "$COPY"
           bin/engine live homes --url "$COPY"
           bin/engine levels check
+          bin/engine links check

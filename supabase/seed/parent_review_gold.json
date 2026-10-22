@@ -53,8 +53,8 @@
      },
      {
       "id": "M_NOCARRY",
-      "mistake": "Forgets to carry",
-      "what_happens": "Writes each column sum mod 10 and never carries",
+      "mistake": "Forgets to regroup",
+      "what_happens": "Writes each column sum mod 10 and never regroups",
       "what_we_do": "Place-value chart; exchange 10 ones for a ten with rods before recording",
       "times": 2,
       "example": {
@@ -107,7 +107,7 @@
      },
      {
       "id": "M_NOCARRY",
-      "explanation": "When adding, [child] sometimes writes the sum of each column but forgets to carry the ten to the next column. The educator uses a place-value chart and exchanges ten ones for a ten with rods before recording the answer."
+      "explanation": "When adding, [child] sometimes writes the sum of each column but forgets to regroup the ten to the next column. The educator uses a place-value chart and exchanges ten ones for a ten with rods before recording the answer."
      },
      {
       "id": "M_NO_DECREMENT",
@@ -134,7 +134,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 7,
       "answered": 8,
       "ready_to_move_up": true
@@ -142,7 +142,7 @@
      {
       "id": "ADD.3D3D",
       "skill": "3-digit + 3-digit",
-      "can": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "can": "Adds two 3-digit numbers, regrouping from any column, including onto a zero.",
       "right": 17,
       "answered": 18,
       "ready_to_move_up": true
@@ -254,15 +254,15 @@
     }
    },
    "draft": {
-    "summary": "[child] is making good progress in addition and is working on subtraction with larger numbers. [child] can add two-digit and three-digit numbers in columns, carrying when needed, and uses mental strategies like bridging through ten to work out sums and differences. Over these 26 days, [child] has improved in three-digit subtraction, getting more questions right on the recent papers than on earlier ones. Some slips with exchanging across a zero and counting tens are being worked on.",
+    "summary": "[child] is making good progress in addition and is working on subtraction with larger numbers. [child] can add two-digit and three-digit numbers in columns, regrouping when needed, and uses mental strategies like bridging through ten to work out sums and differences. Over these 26 days, [child] has improved in three-digit subtraction, getting more questions right on the recent papers than on earlier ones. Some slips with exchanging across a zero and counting tens are being worked on.",
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "ADD.3D3D",
-      "sentence": "[child] adds two three-digit numbers, carrying from any column, including onto a zero."
+      "sentence": "[child] adds two three-digit numbers, regrouping from any column, including onto a zero."
      },
      {
       "id": "MENTAL.BRIDGE_EQ",
@@ -336,7 +336,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 6,
       "answered": 6,
       "not_yet": "answered on one paper so far: secure once it holds on another"
@@ -398,7 +398,7 @@
      },
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "SUB.2D1D",
@@ -440,7 +440,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "earlier": "4 of 17 right",
       "recent": "11 of 18 right"
      }
@@ -472,8 +472,8 @@
      },
      {
       "id": "M_DROP_CARRYOUT",
-      "mistake": "Drops the final carry-out (76+54 -> 30)",
-      "what_happens": "Drops the carry out of the last column",
+      "mistake": "Drops the final regrouping (76+54 -> 30)",
+      "what_happens": "Drops the regrouping out of the last column",
       "what_we_do": "Estimate first; 'can the answer be smaller than the bigger number?'",
       "times": 1,
       "example": {
@@ -492,11 +492,11 @@
     }
    },
    "draft": {
-    "summary": "[child] is learning to add two 2-digit numbers, and this skill has improved over these 26 days. [child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it. The educator has noticed that [child] is working through some common slips when adding: sometimes writing the full column sum instead of regrouping, sometimes being off by one in the answer, and occasionally dropping the carry when it comes out of the last column. With practice and the support the school is giving, [child] will build on these strengths.",
+    "summary": "[child] is learning to add two 2-digit numbers, and this skill has improved over these 26 days. [child] can add two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it. The educator has noticed that [child] is working through some common slips when adding: sometimes writing the full column sum instead of regrouping, sometimes being off by one in the answer, and occasionally dropping the regrouping when it comes out of the last column. With practice and the support the school is giving, [child] will build on these strengths.",
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it, and this has improved from earlier answers to more recent ones."
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it, and this has improved from earlier answers to more recent ones."
      }
     ],
     "working_on": [
@@ -510,7 +510,7 @@
      },
      {
       "id": "M_DROP_CARRYOUT",
-      "explanation": "Occasionally the carry that comes out of the last column gets dropped, so the answer becomes too small. The educator asks [child] to estimate first, and checks: can the answer really be smaller than the bigger number we started with."
+      "explanation": "Occasionally the regrouping that comes out of the last column gets dropped, so the answer becomes too small. The educator asks [child] to estimate first, and checks: can the answer really be smaller than the bigger number we started with."
      }
     ],
     "at_home": [
@@ -520,7 +520,7 @@
     ]
    },
    "bad": [
-    "[child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+    "[child] can add two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it."
    ]
   },
   {
@@ -535,7 +535,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 8,
       "answered": 8,
       "ready_to_move_up": true
@@ -643,7 +643,7 @@
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "MENTAL.BRIDGE_EQ",
@@ -705,7 +705,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 10,
       "answered": 11,
       "not_yet": "answered on one paper so far: secure once it holds on another"
@@ -730,7 +730,7 @@
     }
    },
    "draft": {
-    "summary": "[child] is working well with addition of one-digit numbers, and has improved over these 26 days. [child] can add two one-digit numbers in columns and in a line, with answers that are one digit or two digits, and this skill has grown from earlier on the papers. [child] is very close to adding two two-digit numbers in columns and in a line with carrying, and the educator will watch for this to hold steady on more papers.",
+    "summary": "[child] is working well with addition of one-digit numbers, and has improved over these 26 days. [child] can add two one-digit numbers in columns and in a line, with answers that are one digit or two digits, and this skill has grown from earlier on the papers. [child] is very close to adding two two-digit numbers in columns and in a line with regrouping, and the educator will watch for this to hold steady on more papers.",
     "can_do": [
      {
       "id": "ADD.1D1D",
@@ -738,7 +738,7 @@
      },
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      }
     ],
     "working_on": [],
@@ -761,7 +761,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 8,
       "answered": 8,
       "ready_to_move_up": true
@@ -777,7 +777,7 @@
      {
       "id": "MUL.1D",
       "skill": "Multiplication by a single digit",
-      "can": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, carrying whenever a column's product is ten or more.",
+      "can": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, regrouping whenever a column's product is ten or more.",
       "right": 3,
       "answered": 3,
       "ready_to_move_up": false
@@ -872,11 +872,11 @@
     }
    },
    "draft": {
-    "summary": "[child] is making good progress in maths. [child] can add two 2-digit numbers in columns and in a line with carrying, and works out sums and differences mentally by bridging through ten or using friendly numbers. Over these 24 days, [child] has improved in subtracting 2-digit numbers and in subtracting 3-digit numbers from 3-digit numbers, including those with zeros. [child] is beginning to multiply in columns and is working on solving one- and two-step word problems by choosing operations from what happens in the story.",
+    "summary": "[child] is making good progress in maths. [child] can add two 2-digit numbers in columns and in a line with regrouping, and works out sums and differences mentally by bridging through ten or using friendly numbers. Over these 24 days, [child] has improved in subtracting 2-digit numbers and in subtracting 3-digit numbers from 3-digit numbers, including those with zeros. [child] is beginning to multiply in columns and is working on solving one- and two-step word problems by choosing operations from what happens in the story.",
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "MENTAL.BRIDGE_EQ",
@@ -884,7 +884,7 @@
      },
      {
       "id": "MUL.1D",
-      "sentence": "[child] multiplies in columns, a two- or three-digit number by one digit and then two two-digit numbers, carrying whenever a column's product is ten or more."
+      "sentence": "[child] multiplies in columns, a two- or three-digit number by one digit and then two two-digit numbers, regrouping whenever a column's product is ten or more."
      },
      {
       "id": "SUB.3D1D",
@@ -941,7 +941,7 @@
      {
       "id": "ADD.3D3D",
       "skill": "3-digit + 3-digit",
-      "can": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "can": "Adds two 3-digit numbers, regrouping from any column, including onto a zero.",
       "right": 18,
       "answered": 18,
       "ready_to_move_up": true
@@ -959,7 +959,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 6,
       "answered": 6,
       "not_yet": "answered on one paper so far: secure once it holds on another"
@@ -1000,11 +1000,11 @@
     }
    },
    "draft": {
-    "summary": "[child] is working well with addition and subtraction in Grade 2 maths. [child] can add two 3-digit numbers with carrying from any column, including when a column carries onto a zero. [child] has also shown what it takes to add and subtract with 2-digit and 3-digit numbers, and these skills are beginning to hold across more than one piece of work. Over these 26 days, [child] has answered 64 questions, leaving some blank and showing working on most of the ones that were not quite right.",
+    "summary": "[child] is working well with addition and subtraction in Grade 2 maths. [child] can add two 3-digit numbers with regrouping from any column, including when a column regroups onto a zero. [child] has also shown what it takes to add and subtract with 2-digit and 3-digit numbers, and these skills are beginning to hold across more than one piece of work. Over these 26 days, [child] has answered 64 questions, leaving some blank and showing working on most of the ones that were not quite right.",
     "can_do": [
      {
       "id": "ADD.3D3D",
-      "sentence": "[child] adds two 3-digit numbers, carrying from any column, including onto a zero."
+      "sentence": "[child] adds two 3-digit numbers, regrouping from any column, including onto a zero."
      },
      {
       "id": "SUB.2D2D",
@@ -1024,7 +1024,7 @@
      },
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      }
     ],
     "working_on": [],
@@ -1050,7 +1050,7 @@
      {
       "id": "ADD.3D3D",
       "skill": "3-digit + 3-digit",
-      "can": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "can": "Adds two 3-digit numbers, regrouping from any column, including onto a zero.",
       "right": 13,
       "answered": 13,
       "ready_to_move_up": true
@@ -1092,7 +1092,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 4,
       "answered": 4,
       "not_yet": "answered on one paper so far: secure once it holds on another"
@@ -1141,11 +1141,11 @@
     }
    },
    "draft": {
-    "summary": "[child] is working confidently with larger numbers in Grade 2. [child] can add and subtract three-digit numbers with carrying and exchanging across zeros, and solves one- and two-step word problems by working out what each step needs rather than following keywords. [child] is also using mental strategies like bridging through ten and balancing equations. Over these 26 days, [child] has shown strong understanding across a range of calculations.",
+    "summary": "[child] is working confidently with larger numbers in Grade 2. [child] can add and subtract three-digit numbers with regrouping and exchanging across zeros, and solves one- and two-step word problems by working out what each step needs rather than following keywords. [child] is also using mental strategies like bridging through ten and balancing equations. Over these 26 days, [child] has shown strong understanding across a range of calculations.",
     "can_do": [
      {
       "id": "ADD.3D3D",
-      "sentence": "[child] adds two three-digit numbers, carrying from any column, including onto a zero."
+      "sentence": "[child] adds two three-digit numbers, regrouping from any column, including onto a zero."
      },
      {
       "id": "MENTAL.BRIDGE_EQ",
@@ -1177,7 +1177,7 @@
      },
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "ADD.3D2D",
@@ -1207,7 +1207,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 8,
       "answered": 8,
       "ready_to_move_up": true
@@ -1223,7 +1223,7 @@
      {
       "id": "MUL.1D",
       "skill": "Multiplication by a single digit",
-      "can": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, carrying whenever a column's product is ten or more.",
+      "can": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, regrouping whenever a column's product is ten or more.",
       "right": 3,
       "answered": 3,
       "ready_to_move_up": false
@@ -1318,11 +1318,11 @@
     }
    },
    "draft": {
-    "summary": "[child] is making good progress in maths. [child] can add two 2-digit numbers in columns and in a line with carrying, and works out sums and differences mentally by bridging through ten or using friendly numbers. Over these 24 days, [child] has improved in subtracting 2-digit numbers and in subtracting 3-digit numbers from 3-digit numbers, including those with zeros. [child] is beginning to multiply in columns and is working on solving one- and two-step word problems by choosing operations from what happens in the story. [child] has mastered two-digit subtraction.",
+    "summary": "[child] is making good progress in maths. [child] can add two 2-digit numbers in columns and in a line with regrouping, and works out sums and differences mentally by bridging through ten or using friendly numbers. Over these 24 days, [child] has improved in subtracting 2-digit numbers and in subtracting 3-digit numbers from 3-digit numbers, including those with zeros. [child] is beginning to multiply in columns and is working on solving one- and two-step word problems by choosing operations from what happens in the story. [child] has mastered two-digit subtraction.",
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "MENTAL.BRIDGE_EQ",
@@ -1330,7 +1330,7 @@
      },
      {
       "id": "MUL.1D",
-      "sentence": "[child] multiplies in columns, a two- or three-digit number by one digit and then two two-digit numbers, carrying whenever a column's product is ten or more."
+      "sentence": "[child] multiplies in columns, a two- or three-digit number by one digit and then two two-digit numbers, regrouping whenever a column's product is ten or more."
      },
      {
       "id": "SUB.3D1D",
@@ -1389,7 +1389,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 8,
       "answered": 8,
       "ready_to_move_up": true
@@ -1405,7 +1405,7 @@
      {
       "id": "MUL.1D",
       "skill": "Multiplication by a single digit",
-      "can": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, carrying whenever a column's product is ten or more.",
+      "can": "Multiplies in columns, a 2- or 3-digit number by one digit and then two 2-digit numbers, regrouping whenever a column's product is ten or more.",
       "right": 3,
       "answered": 3,
       "ready_to_move_up": false
@@ -1500,11 +1500,11 @@
     }
    },
    "draft": {
-    "summary": "[child] is making good progress in maths. [child] can add two 2-digit numbers in columns and in a line with carrying, and works out sums and differences mentally by bridging through ten or using friendly numbers. Over these 24 days, [child] has improved in subtracting 2-digit numbers and in subtracting 3-digit numbers from 3-digit numbers, including those with zeros. [child] is beginning to multiply in columns and is working on solving one- and two-step word problems by choosing operations from what happens in the story. [child] now exchanges correctly across columns and zeros.",
+    "summary": "[child] is making good progress in maths. [child] can add two 2-digit numbers in columns and in a line with regrouping, and works out sums and differences mentally by bridging through ten or using friendly numbers. Over these 24 days, [child] has improved in subtracting 2-digit numbers and in subtracting 3-digit numbers from 3-digit numbers, including those with zeros. [child] is beginning to multiply in columns and is working on solving one- and two-step word problems by choosing operations from what happens in the story. [child] now exchanges correctly across columns and zeros.",
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "MENTAL.BRIDGE_EQ",
@@ -1512,7 +1512,7 @@
      },
      {
       "id": "MUL.1D",
-      "sentence": "[child] multiplies in columns, a two- or three-digit number by one digit and then two two-digit numbers, carrying whenever a column's product is ten or more."
+      "sentence": "[child] multiplies in columns, a two- or three-digit number by one digit and then two two-digit numbers, regrouping whenever a column's product is ten or more."
      },
      {
       "id": "SUB.3D1D",
@@ -1571,7 +1571,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 8,
       "answered": 8,
       "ready_to_move_up": true
@@ -1679,7 +1679,7 @@
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "MENTAL.BRIDGE_EQ",
@@ -1742,7 +1742,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 7,
       "answered": 8,
       "ready_to_move_up": true
@@ -1750,7 +1750,7 @@
      {
       "id": "ADD.3D3D",
       "skill": "3-digit + 3-digit",
-      "can": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "can": "Adds two 3-digit numbers, regrouping from any column, including onto a zero.",
       "right": 17,
       "answered": 18,
       "ready_to_move_up": true
@@ -1862,15 +1862,15 @@
     }
    },
    "draft": {
-    "summary": "[child] is making good progress in addition and is working on subtraction with larger numbers. [child] can add two-digit and three-digit numbers in columns, carrying when needed, and uses mental strategies like bridging through ten to work out sums and differences. Over these 26 days, [child] has improved in three-digit subtraction, getting more questions right on the recent papers than on earlier ones. Some slips with exchanging across a zero and counting tens are being worked on. [child] can now subtract two two-digit numbers, and this is secure.",
+    "summary": "[child] is making good progress in addition and is working on subtraction with larger numbers. [child] can add two-digit and three-digit numbers in columns, regrouping when needed, and uses mental strategies like bridging through ten to work out sums and differences. Over these 26 days, [child] has improved in three-digit subtraction, getting more questions right on the recent papers than on earlier ones. Some slips with exchanging across a zero and counting tens are being worked on. [child] can now subtract two two-digit numbers, and this is secure.",
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "ADD.3D3D",
-      "sentence": "[child] adds two three-digit numbers, carrying from any column, including onto a zero."
+      "sentence": "[child] adds two three-digit numbers, regrouping from any column, including onto a zero."
      },
      {
       "id": "MENTAL.BRIDGE_EQ",
@@ -1977,8 +1977,8 @@
      },
      {
       "id": "M_NOCARRY",
-      "mistake": "Forgets to carry",
-      "what_happens": "Writes each column sum mod 10 and never carries",
+      "mistake": "Forgets to regroup",
+      "what_happens": "Writes each column sum mod 10 and never regroups",
       "what_we_do": "Place-value chart; exchange 10 ones for a ten with rods before recording",
       "times": 2,
       "example": {
@@ -2069,7 +2069,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 6,
       "answered": 6,
       "not_yet": "answered on one paper so far: secure once it holds on another"
@@ -2131,7 +2131,7 @@
      },
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "SUB.2D1D",
@@ -2175,7 +2175,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "earlier": "4 of 17 right",
       "recent": "11 of 18 right"
      }
@@ -2207,8 +2207,8 @@
      },
      {
       "id": "M_DROP_CARRYOUT",
-      "mistake": "Drops the final carry-out (76+54 -> 30)",
-      "what_happens": "Drops the carry out of the last column",
+      "mistake": "Drops the final regrouping (76+54 -> 30)",
+      "what_happens": "Drops the regrouping out of the last column",
       "what_we_do": "Estimate first; 'can the answer be smaller than the bigger number?'",
       "times": 1,
       "example": {
@@ -2227,11 +2227,11 @@
     }
    },
    "draft": {
-    "summary": "[child] is learning to add two 2-digit numbers, and this skill has improved over these 26 days. [child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it. The educator has noticed that [child] is working through some common slips when adding: sometimes writing the full column sum instead of regrouping, sometimes being off by one in the answer, and occasionally dropping the carry when it comes out of the last column. With practice and the support the school is giving, [child] will build on these strengths. [child] has also improved at subtraction.",
+    "summary": "[child] is learning to add two 2-digit numbers, and this skill has improved over these 26 days. [child] can add two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it. The educator has noticed that [child] is working through some common slips when adding: sometimes writing the full column sum instead of regrouping, sometimes being off by one in the answer, and occasionally dropping the regrouping when it comes out of the last column. With practice and the support the school is giving, [child] will build on these strengths. [child] has also improved at subtraction.",
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it, and this has improved from earlier answers to more recent ones."
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it, and this has improved from earlier answers to more recent ones."
      }
     ],
     "working_on": [
@@ -2245,7 +2245,7 @@
      },
      {
       "id": "M_DROP_CARRYOUT",
-      "explanation": "Occasionally the carry that comes out of the last column gets dropped, so the answer becomes too small. The educator asks [child] to estimate first, and checks: can the answer really be smaller than the bigger number we started with."
+      "explanation": "Occasionally the regrouping that comes out of the last column gets dropped, so the answer becomes too small. The educator asks [child] to estimate first, and checks: can the answer really be smaller than the bigger number we started with."
      }
     ],
     "at_home": [
@@ -2256,7 +2256,7 @@
    },
    "bad": [
     "[child] has also improved at subtraction.",
-    "[child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+    "[child] can add two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it."
    ]
   },
   {
@@ -2272,7 +2272,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 10,
       "answered": 11,
       "not_yet": "answered on one paper so far: secure once it holds on another"
@@ -2297,7 +2297,7 @@
     }
    },
    "draft": {
-    "summary": "[child] is working well with addition of one-digit numbers, and has improved over these 26 days. [child] can add two one-digit numbers in columns and in a line, with answers that are one digit or two digits, and this skill has grown from earlier on the papers. [child] is very close to adding two two-digit numbers in columns and in a line with carrying, and the educator will watch for this to hold steady on more papers. [child] adds two two-digit numbers with carrying reliably, on every paper.",
+    "summary": "[child] is working well with addition of one-digit numbers, and has improved over these 26 days. [child] can add two one-digit numbers in columns and in a line, with answers that are one digit or two digits, and this skill has grown from earlier on the papers. [child] is very close to adding two two-digit numbers in columns and in a line with regrouping, and the educator will watch for this to hold steady on more papers. [child] adds two two-digit numbers with regrouping reliably, on every paper.",
     "can_do": [
      {
       "id": "ADD.1D1D",
@@ -2305,7 +2305,7 @@
      },
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      }
     ],
     "working_on": [],
@@ -2315,7 +2315,7 @@
     ]
    },
    "bad": [
-    "[child] adds two two-digit numbers with carrying reliably, on every paper."
+    "[child] adds two two-digit numbers with regrouping reliably, on every paper."
    ]
   },
   {
@@ -2330,7 +2330,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 7,
       "answered": 8,
       "ready_to_move_up": true
@@ -2338,7 +2338,7 @@
      {
       "id": "ADD.3D3D",
       "skill": "3-digit + 3-digit",
-      "can": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "can": "Adds two 3-digit numbers, regrouping from any column, including onto a zero.",
       "right": 17,
       "answered": 18,
       "ready_to_move_up": true
@@ -2450,15 +2450,15 @@
     }
    },
    "draft": {
-    "summary": "[child] is making good progress in addition and is working on subtraction with larger numbers. [child] can add two-digit and three-digit numbers in columns, carrying when needed, and uses mental strategies like bridging through ten to work out sums and differences. Over these 26 days, [child] has improved in three-digit subtraction, getting more questions right on the recent papers than on earlier ones. Some slips with exchanging across a zero and counting tens are being worked on.",
+    "summary": "[child] is making good progress in addition and is working on subtraction with larger numbers. [child] can add two-digit and three-digit numbers in columns, regrouping when needed, and uses mental strategies like bridging through ten to work out sums and differences. Over these 26 days, [child] has improved in three-digit subtraction, getting more questions right on the recent papers than on earlier ones. Some slips with exchanging across a zero and counting tens are being worked on.",
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "ADD.3D3D",
-      "sentence": "[child] adds two three-digit numbers, carrying from any column, including onto a zero."
+      "sentence": "[child] adds two three-digit numbers, regrouping from any column, including onto a zero."
      },
      {
       "id": "MENTAL.BRIDGE_EQ",
@@ -2525,7 +2525,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "right": 8,
       "answered": 8,
       "ready_to_move_up": true
@@ -2633,7 +2633,7 @@
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two two-digit numbers in columns and in a line, carrying exactly when a column needs it."
+      "sentence": "[child] adds two two-digit numbers in columns and in a line, regrouping exactly when a column needs it."
      },
      {
       "id": "MENTAL.BRIDGE_EQ",
@@ -2731,7 +2731,7 @@
      {
       "id": "ADD.2D2D",
       "skill": "2-digit + 2-digit",
-      "can": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "can": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "earlier": "4 of 17 right",
       "recent": "11 of 18 right"
      }
@@ -2763,8 +2763,8 @@
      },
      {
       "id": "M_DROP_CARRYOUT",
-      "mistake": "Drops the final carry-out (76+54 -> 30)",
-      "what_happens": "Drops the carry out of the last column",
+      "mistake": "Drops the final regrouping (76+54 -> 30)",
+      "what_happens": "Drops the regrouping out of the last column",
       "what_we_do": "Estimate first; 'can the answer be smaller than the bigger number?'",
       "times": 1,
       "example": {
@@ -2783,11 +2783,11 @@
     }
    },
    "draft": {
-    "summary": "[child] is learning to add two 2-digit numbers, and this skill has improved over these 26 days. [child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it. The educator has noticed that [child] is working through some common slips when adding: sometimes writing the full column sum instead of regrouping, sometimes being off by one in the answer, and occasionally dropping the carry when it comes out of the last column. With practice and the support the school is giving, [child] will build on these strengths. [child] has improved at adding two-digit numbers, and now gets them right every time.",
+    "summary": "[child] is learning to add two 2-digit numbers, and this skill has improved over these 26 days. [child] can add two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it. The educator has noticed that [child] is working through some common slips when adding: sometimes writing the full column sum instead of regrouping, sometimes being off by one in the answer, and occasionally dropping the regrouping when it comes out of the last column. With practice and the support the school is giving, [child] will build on these strengths. [child] has improved at adding two-digit numbers, and now gets them right every time.",
     "can_do": [
      {
       "id": "ADD.2D2D",
-      "sentence": "[child] adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it, and this has improved from earlier answers to more recent ones."
+      "sentence": "[child] adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it, and this has improved from earlier answers to more recent ones."
      }
     ],
     "working_on": [
@@ -2801,7 +2801,7 @@
      },
      {
       "id": "M_DROP_CARRYOUT",
-      "explanation": "Occasionally the carry that comes out of the last column gets dropped, so the answer becomes too small. The educator asks [child] to estimate first, and checks: can the answer really be smaller than the bigger number we started with."
+      "explanation": "Occasionally the regrouping that comes out of the last column gets dropped, so the answer becomes too small. The educator asks [child] to estimate first, and checks: can the answer really be smaller than the bigger number we started with."
      }
     ],
     "at_home": [
@@ -2812,7 +2812,7 @@
    },
    "bad": [
     "now gets them right every time",
-    "[child] can add two 2-digit numbers in columns and in a line, carrying exactly when a column needs it."
+    "[child] can add two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it."
    ]
   }
  ]

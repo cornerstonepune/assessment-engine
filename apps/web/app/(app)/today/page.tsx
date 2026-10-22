@@ -4,6 +4,7 @@ import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
 import { kindWords } from "@/components/question";
+import { questionKinds } from "@/lib/question-types";
 import { type Line, needsYou, TODAY_ORDER } from "@/lib/needs-you";
 import { queueByWeek, type Trust, trustNow, type Week } from "@/lib/queries-today";
 import { weekWords } from "@/lib/week";
@@ -15,7 +16,7 @@ import { weekWords } from "@/lib/week";
 export default async function Today() {
   const me = await requireStaff();
   const scope = scopeOf(me);
-  const [lines, weeks, trust] = await deadline(Promise.all([needsYou(me), queueByWeek(scope), trustNow()]));
+  const [lines, weeks, trust, { words }] = await deadline(Promise.all([needsYou(me), queueByWeek(scope), trustNow(), questionKinds()]));
   // the one loud colour, once (design-system/PRINCIPLES.md): the first thing that waits, in Today's order, is the page's
   // main action; every other line's is outlined (goals/ux8d-phone-and-one-action.yaml)
   const first = TODAY_ORDER.flatMap((t) => lines[t]).find((l) => l.waits && l.href && l.action);
@@ -40,7 +41,7 @@ export default async function Today() {
             )}
           </section>
         ))}
-        <Shrinking weeks={weeks} trust={trust} />
+        <Shrinking weeks={weeks} trust={trust} words={words} />
       </Body>
     </>
   );
@@ -88,7 +89,7 @@ function Row({ line, primary }: { line: Line; primary: boolean }) {
 
 // Whether checking pays (goals/ny2-the-queue-shrinks.yaml): each week's answers, how many a person had to check, and how
 // near the reader is to settling a kind of question alone. Every wrong and blank still waits for a person (ADR 0029).
-function Shrinking({ weeks, trust }: { weeks: Week[]; trust: Trust }) {
+function Shrinking({ weeks, trust, words }: { weeks: Week[]; trust: Trust; words: Record<string, string> }) {
   const title = "Is the queue shrinking?";
   return (
     <section aria-label={title} className="panel mb-6 p-4">
@@ -98,7 +99,7 @@ function Shrinking({ weeks, trust }: { weeks: Week[]; trust: Trust }) {
         The reader settles a right answer by itself only on a kind of question it has earned trust on. It is trusted on{" "}
         {trust.kinds ? `${trust.trusted} of ${trust.kinds}` : "none of the"} kinds of question it has read so far
         {trust.nearest
-          ? `; the closest, ${kindWords(trust.nearest.fmt)}, needs ${trust.nearest.to_trust} more ${trust.nearest.to_trust === 1 ? "answer" : "answers"} where a person agrees with what it read`
+          ? `; the closest, ${kindWords(words, trust.nearest.fmt)}, needs ${trust.nearest.to_trust} more ${trust.nearest.to_trust === 1 ? "answer" : "answers"} where a person agrees with what it read`
           : ""}
         . Every wrong answer and every blank still waits for a person.
       </p>

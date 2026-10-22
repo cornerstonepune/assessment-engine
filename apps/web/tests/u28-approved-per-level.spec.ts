@@ -7,6 +7,7 @@
 import { scryptSync } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { aWaitingSkill } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -14,15 +15,15 @@ const EDUCATOR = { email: "u28-educator@cornerstone.test", name: "U28 Educator",
 const PASSWORD = "u28-a-long-test-password";
 const SALT = "00112233445566778899aabbccddeeff";
 let code: string;
+let putBack: () => Promise<void>;
 
 test.beforeAll(async () => {
   [{ code }] = await sql<{ code: string }[]>`
-    select code from skill_set where status = 'draft' and (select count(*) from jsonb_object_keys(difficulty)) >= 2
-    order by code limit 1`;
-  await sql`update skill_set set level_approved = '{}' where code = ${code}`;
+    select code from skill_set where (select count(*) from jsonb_object_keys(difficulty)) >= 2 order by code limit 1`;
+  putBack = await aWaitingSkill(sql, code);
 });
 test.afterAll(async () => {
-  await sql`update skill_set set level_approved = '{}' where code = ${code}`;
+  await putBack?.();
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
                                where s ->> 'email' <> ${EDUCATOR.email})

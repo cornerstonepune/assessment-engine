@@ -21,7 +21,7 @@ const VIEWS = [
 ] as const;
 type View = (typeof VIEWS)[number][0];
 
-export function ReaderTable({ r }: { r: ReaderReport }) {
+export function ReaderTable({ r, words }: { r: ReaderReport; words: Record<string, string> }) {
   const [view, setView] = useState<View>("day");
   // days come newest first; each day's move is against the day read before it
   const days = r.days.map((d, i) => {
@@ -95,7 +95,7 @@ export function ReaderTable({ r }: { r: ReaderReport }) {
               <tbody>
                 {r.kinds.map((k) => (
                   <tr key={k.fmt}>
-                    <td>{kindWords(k.fmt)}</td>
+                    <td>{kindWords(words, k.fmt)}</td>
                     <td className="num">{k.checked}</td>
                     <td className="num">{pct(share(k.right, k.checked - k.gave_up))}</td>
                     <td className="num">{k.gave_up}</td>

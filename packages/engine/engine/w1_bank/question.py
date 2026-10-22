@@ -21,10 +21,6 @@ from engine.assess.pick import Sheet
 from engine.w1_bank import inventory
 from engine.w2_print import library
 
-# Kinds whose printed line is drawn from their numbers, not from `item.stem` (`render.render_item`
-# replaces the stem for these three): rewording one would change nothing on paper.
-DRAWN_FROM_NUMBERS = {"bare_sum", "column_grid", "missing_number"}
-
 
 def _row(conn, item_key):
     """The question by its key now, or by one it had before it was keyed again (`inventory.current_key`)."""
@@ -69,7 +65,7 @@ def _refusal(old, stem, reason):
         return "A correction needs a reason, so the next person knows what was wrong."
     if old["status"] != "active":
         return "Only a question that is ready to print can be corrected."
-    if old["fmt"] in DRAWN_FROM_NUMBERS:
+    if old["fmt"] in render.DRAWN_FROM_NUMBERS:  # rewording one would change nothing on paper
         return "This kind of question prints from its numbers alone, so it has no wording to correct. Remove it instead."
     if stem == old["stem"]:
         return "The wording is the same as before."

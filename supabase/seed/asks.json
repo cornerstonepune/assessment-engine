@@ -44,7 +44,7 @@
       "code": "MD.A5",
       "for_role": "educator",
       "question": "A5: The school's words.",
-      "drafted": "\"Regroup\" for a multiplication carry, \"exchange\" when a remainder moves to the next digit, never \"borrow\". \"Product, factor, dividend, divisor, quotient, remainder\" from Grade 3; \"times, groups of, shared equally, left over\" before it.",
+      "drafted": "\"Regroup\" when a column of a multiplication makes ten or more, \"exchange\" when a remainder moves to the next digit, never \"borrow\". \"Product, factor, dividend, divisor, quotient, remainder\" from Grade 3; \"times, groups of, shared equally, left over\" before it.",
       "why": "CLAUDE.md: \"exchange / regroup\", never \"borrow\".",
       "source": "docs/design/multiplication-division-taxonomy.md"
     },
@@ -150,7 +150,7 @@
       "code": "md3b2-divide-advance",
       "for_role": "educator",
       "question": "Division's Advance: each box names the mistakes of the act that finds it",
-      "drafted": "each box is keyed by the act that finds it, drafted here for you to correct. A digit missing in the number divided names the multiplication's mistakes (7□ ÷ 4 = 18: 18 × 4 with the carry left out gives 42, so 4 in a tens box); a remainder missing names the taking away's (38 ÷ 5 = 7 r □: 38 − 35); a digit missing in the quotient names only a wrong quotient as long as the one printed. An estimate rounds the number divided to the nearest hundred, and is asked only where that hundred divides exactly (412 ÷ 8 ≈ 400 ÷ 8 = 50). Not added, for you to decide: a digit that gives the quotient shown with something over (73 ÷ 4 = 18 r 1, answered 3 in 7□ ÷ 4 = 18) is no named mistake.",
+      "drafted": "each box is keyed by the act that finds it, drafted here for you to correct. A digit missing in the number divided names the multiplication's mistakes (7□ ÷ 4 = 18: 18 × 4 with the regrouping left out gives 42, so 4 in a tens box); a remainder missing names the taking away's (38 ÷ 5 = 7 r □: 38 − 35); a digit missing in the quotient names only a wrong quotient as long as the one printed. An estimate rounds the number divided to the nearest hundred, and is asked only where that hundred divides exactly (412 ÷ 8 ≈ 400 ÷ 8 = 50). Not added, for you to decide: a digit that gives the quotient shown with something over (73 ÷ 4 = 18 r 1, answered 3 in 7□ ÷ 4 = 18) is no named mistake.",
       "source": "goals/md3b2-divide-advance.yaml"
     },
     {

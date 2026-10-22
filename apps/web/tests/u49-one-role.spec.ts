@@ -13,7 +13,7 @@ import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { TEST_STAFF } from "./global-setup";
-import { aClass } from "./rows";
+import { aClass, aWaitingSkill } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -99,9 +99,9 @@ test("an educator reaches every page and every action the coordinator does", asy
 });
 
 test("an educator takes a decision once the coordinator's alone: approving a skill", async ({ browser }) => {
-  // a skill waiting for approval, as the engine leaves one it wrote; put back as it was after
-  const [waiting] = await sql<{ code: string; status: string }[]>`select code, status from skill_set order by status = 'ratified', code limit 1`;
-  await sql`update skill_set set status = 'draft' where code = ${waiting.code}`;
+  // a skill waiting for approval (`aWaitingSkill`), put back as it was after
+  const [waiting] = await sql<{ code: string }[]>`select code from skill_set order by code limit 1`;
+  const putBack = await aWaitingSkill(sql, waiting.code);
   const educator = await asEducator(browser);
   try {
     await educator.goto("/today");
@@ -113,6 +113,6 @@ test("an educator takes a decision once the coordinator's alone: approving a ski
     await expect(educator.getByRole("main")).not.toContainText("The coordinator approves the skills");
   } finally {
     await educator.context().close();
-    await sql`update skill_set set status = ${waiting.status} where code = ${waiting.code}`;
+    await putBack();
   }
 });

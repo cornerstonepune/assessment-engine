@@ -46,6 +46,32 @@ export async function readScan(formData: FormData): Promise<void> {
   }
 }
 
+/** A person says whose a page with no code is (goals/ux9a-no-guessed-pages.yaml, `POST /read/run/{id}/page`): the
+ *  engine keeps their word on the file's run and reads the file again, the page as that child's. Until then the page is
+ *  read as nobody's — the engine never guesses a page's child. The engine says in words why it will not. */
+export async function givePage(formData: FormData): Promise<void> {
+  const me = await deciding("papers");
+  const page = formData.get("from") === "/papers" ? "/papers" : "/capture";
+  const run = String(formData.get("run") ?? "");
+  const child = String(formData.get("child") ?? "");
+  const n = Number(formData.get("page"));
+  if (!UUID.test(run) || !UUID.test(child) || !Number.isInteger(n) || n < 1) redirect(`${page}#read-scan`);
+  mustBeMine(me, "papers", [await childSection(child)]);
+  try {
+    const res = await engineSend(`/read/run/${run}/page`, { page: n, child_id: child, by: me.email });
+    if (!res.ok) {
+      const why = ((await res.json().catch(() => ({}))) as { detail?: string }).detail ?? "";
+      redirect(`${page}?read=refused&why=${encodeURIComponent(why.slice(0, 200))}#read-scan`);
+    }
+  } catch (e) {
+    if (!(e instanceof EngineDown)) throw e;
+    redirect(`${page}?read=engine#read-scan`);
+  }
+  revalidatePath("/capture");
+  revalidatePath("/papers");
+  redirect(`${page}?read=given&pages=${n}#read-scan`);
+}
+
 /** Leave to send scans from this page straight to the engine (N8, `POST /read/upload`, ADR 0092): where to, and a
  *  token for this person that lives half an hour — asked for as each batch of files starts, so a page left open all
  *  morning still sends. Only someone who may put papers in is given one. */

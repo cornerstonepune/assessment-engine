@@ -143,6 +143,8 @@ def test_an_answer_only_claim_code_cannot_reproduce_is_downgraded_not_trusted(co
 def test_applying_unions_and_keeps_the_signature(conn, monkeypatch):
     """The engine keeping a set's mistake list up to date never withdraws its approval: only a person's change does
     (migration 20261006090000_only_what_is_taught.sql; test_approval.py holds the trigger to it)."""
+    # approved whole by "a test", as a person does: withdrawn, then ratified (the copy starts with every level approved)
+    conn.execute("update skill_set set status = 'draft' where code = %s", (SET,))
     conn.execute("update skill_set set status = 'ratified', ratified_by = 'a test' where code = %s", (SET,))
     before = set(
         conn.execute("select misconception_codes as c from skill_set where code = %s", (SET,)).fetchone()["c"]

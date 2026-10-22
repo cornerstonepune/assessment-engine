@@ -62,8 +62,14 @@ def test_each_class_is_told_the_levels_its_papers_would_lose(conn):
 def test_the_command_lists_them_and_writes_nothing(conn, monkeypatch):
     """`engine week unapproved`, run against live from anywhere, names what would close and changes nothing. The
     command is handed this test's connection, so it sees the class made here and nothing is committed: it once named
-    a class only when another test had left one on the copy, and on a database of its own named none."""
+    a class only when another test had left one on the copy, and on a database of its own named none. Every level is
+    approved there, as on live (bin/testdb), so the test withdraws one itself: 2-digit + 1-digit keeps only Easy."""
     _class(conn, "F1G-COMMAND", "G2")
+    conn.execute(
+        "update skill_set set level_approved = jsonb_build_object('Easy', jsonb_build_object('by', %s::text, 'at', now()))"
+        " where code = 'ADD.2D1D'",
+        (BY,),
+    )
     monkeypatch.setattr(cli_week.db, "connect", contextlib.contextmanager(lambda: (yield conn)))
     expected = [r for r in shelf.closing(conn) if r["class"] == "F1G-COMMAND"]
     before = conn.execute("select count(*) as n, max(updated_at) as at from skill_set").fetchone()

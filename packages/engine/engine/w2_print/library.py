@@ -134,7 +134,11 @@ def _levels(conn, only=None):
     a level moved to another grade than its skill's (`skill_level.grade`) prints as that grade's."""
     code, difficulty = only or (None, None)
     return conn.execute(
-        "select s.code, s.rung_code, s.formats, l.grade as band, l.difficulty"
+        "select s.code, s.rung_code, l.grade as band, l.difficulty,"
+        # the kinds in the order a worksheet prints them, as the skill placed them (`skill_level_question_type.place`)
+        " array(select q.fmt from skill_level_question_type x join question_type q on q.tenant_id = x.tenant_id"
+        "   and q.code = x.question_type where x.tenant_id = l.tenant_id and x.skill_code = l.skill_code"
+        "   and x.difficulty = l.difficulty and x.place is not null group by q.fmt order by min(x.place)) as kinds"
         " from skill_set s"
         " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
         " join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code"
@@ -173,7 +177,7 @@ def _filler(questions, used, uncovered, share, places):
 def _plan_level(conn, lv, n):
     """(worksheets to retire, question lists to make) for one skill at one level."""
     questions = conn.execute(
-        "select id, item_key, fmt from item where status = 'active' and source = 'generated'"
+        "select id, item_key, fmt from drawable_item where source = 'generated'"
         " and skill_set_code = %s and difficulty = %s order by item_key",
         (lv["code"], lv["difficulty"]),
     ).fetchall()
@@ -201,7 +205,7 @@ def _plan_level(conn, lv, n):
     want = worksheets_needed(len(questions), n)
     if not want:
         return retire, []
-    kinds = list(lv["formats"])
+    kinds = list(lv["kinds"])
     if not keep:
         return retire, deal(questions, n, kinds, want)
     used = Counter(i for s in keep for i in s["item_ids"])
@@ -272,7 +276,7 @@ def check(conn):
         questions = {
             r["id"]: r
             for r in conn.execute(
-                "select id, fmt from item where status = 'active' and source = 'generated'"
+                "select id, fmt from drawable_item where source = 'generated'"
                 " and skill_set_code = %s and difficulty = %s",
                 where,
             ).fetchall()

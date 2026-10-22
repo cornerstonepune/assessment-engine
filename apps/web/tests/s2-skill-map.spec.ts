@@ -7,9 +7,15 @@
  */
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
+import { aClass, aWaitingSkill } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
+// A skill is taught in a class (`skill_taught_in`), so with no class on the roll every skill page says "Not taught yet"
+// beside the notice a test waits for: the class is this spec's own, as a fresh copy has none (`bin/testdb fresh`).
+test.beforeAll(async () => {
+  await aClass(sql, "S2-TEST", "G2", ["Asha"]);
+});
 test.afterAll(async () => sql.end());
 
 type Skill = { code: string; outcome: string; name: string; band: string; words: Record<string, { words: string }> };
@@ -96,6 +102,7 @@ test("every skill page shows each level in a sentence with a real question, its 
 test("changing a skill's words saves them and sends the skill back for approval", async ({ page }) => {
   const [before] = await sql`select name, learning_objective, difficulty, status, ratified_by from skill_set where code = 'ADD.2D2D'`;
   const easy = "A 2-digit number plus a 1-digit number, one regroup in the ones, total under 100 (edited by a test).";
+  const putBack = await aWaitingSkill(sql, "ADD.2D2D");
   try {
     // the page live first: a box filled before the page's script takes over is put back to its printed words, and the
     // typing lands in front of them (CI, 2026-10-11: the words saved as the new ones followed by the old)
@@ -120,6 +127,7 @@ test("changing a skill's words saves them and sends the skill back for approval"
     await sql`update skill_set set name = ${before.name}, learning_objective = ${before.learning_objective},
               difficulty = ${sql.json(before.difficulty)} where code = 'ADD.2D2D'`;
     await sql`update skill_set set status = ${before.status}, ratified_by = ${before.ratified_by} where code = 'ADD.2D2D'`;
+    await putBack();
   }
 });
 

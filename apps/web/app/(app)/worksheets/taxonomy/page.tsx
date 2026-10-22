@@ -12,7 +12,7 @@ const CHAPTERS: Record<string, string> = {
   "2": "Addition",
   "3": "Subtraction",
   "4": "Lining up columns",
-  "5": "Carry and exchange patterns",
+  "5": "Regrouping and exchange patterns",
   "6": "Missing numbers and digits",
   "7": "Equality and checking",
   "8": "Mental strategies",
@@ -99,7 +99,7 @@ export default async function WorksheetsByTaxonomy({ searchParams }: Props) {
         </div>
         <p className="note mt-4">
           Which cases a question is, is measured from its numbers by the engine, never typed. “Across levels” is a
-          pattern — the order of the numbers, how a carry falls — that questions at many levels show, so no one level
+          pattern — the order of the numbers, how a regrouping falls — that questions at many levels show, so no one level
           owns it.
         </p>
       </Body>

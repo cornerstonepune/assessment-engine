@@ -544,7 +544,7 @@
           }
         },
         "Hard": {
-          "words": "Regrouping and a 3-digit answer, a zero only in the answer, the largest carry: 56 × 3, 18 × 6, 48 × 5, 99 × 9. Each in a line, partitioned, in a grid, in expanded columns and in columns.",
+          "words": "Regrouping and a 3-digit answer, a zero only in the answer, the largest regrouping: 56 × 3, 18 × 6, 48 × 5, 99 × 9. Each in a line, partitioned, in a grid, in expanded columns and in columns.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -644,7 +644,7 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "No regrouping, a zero in the middle that no carry reaches: 213 × 3, 434 × 2, 302 × 3. Each in a line, the 1-digit number first too, in expanded columns and in columns.",
+          "words": "No regrouping, a zero in the middle that no regrouping reaches: 213 × 3, 434 × 2, 302 × 3. Each in a line, the 1-digit number first too, in expanded columns and in columns.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -691,7 +691,7 @@
           }
         },
         "Hard": {
-          "words": "Regrouping in any column, a carry onto a zero, an answer full of zeros: 357 × 4, 194 × 6, 506 × 7, 125 × 8. Each in a line, the 1-digit number first too, in expanded columns and in columns.",
+          "words": "Regrouping in any column, a regrouping onto a zero, an answer full of zeros: 357 × 4, 194 × 6, 506 × 7, 125 × 8. Each in a line, the 1-digit number first too, in expanded columns and in columns.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -720,7 +720,7 @@
           }
         },
         "Advance": {
-          "words": "The hardest sums with a missing digit in the 3-digit number and a carry onto a zero found lost: 3□4 × 2 = 708, 506 × 7 = 3502 found wrong.",
+          "words": "The hardest sums with a missing digit in the 3-digit number and a regrouping onto a zero found lost: 3□4 × 2 = 708, 506 × 7 = 3502 found wrong.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -828,7 +828,7 @@
           }
         },
         "Hard": {
-          "words": "A row regrouping, and adding the rows carrying: 36 × 24, 47 × 23, 52 × 34, 19 × 14, 68 × 17. Each in a line, in a grid, by long multiplication and in a lattice.",
+          "words": "A row regrouping, and regrouping when adding the rows: 36 × 24, 47 × 23, 52 × 34, 19 × 14, 68 × 17. Each in a line, in a grid, by long multiplication and in a lattice.",
           "check": {
             "within": {
               "operation": "MUL",
@@ -978,7 +978,7 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "A 2-digit addition with a forgotten carry, a carry in the wrong column, or numbers lined up from the left.",
+          "words": "A 2-digit addition with a forgotten regrouping, a regrouping in the wrong column, or numbers lined up from the left.",
           "check": {
             "cases": [
               "X03",
@@ -1012,7 +1012,7 @@
           }
         },
         "Hard": {
-          "words": "A 3-digit calculation: an exchange across a zero done wrong, an exchange from the wrong column, a carry of 1 where 2 is needed, the final carry dropped.",
+          "words": "A 3-digit calculation: an exchange across a zero done wrong, an exchange from the wrong column, a regrouping of 1 where 2 is needed, the final regrouping dropped.",
           "check": {
             "cases": [
               "X10",
@@ -1343,7 +1343,7 @@
       "code": "MISSING.DIGIT",
       "rung_code": "R17",
       "name": "Missing digits",
-      "learning_objective": "Finds missing digits in an addition or subtraction by reasoning across the columns, including the carry or the exchange.",
+      "learning_objective": "Finds missing digits in an addition or subtraction by reasoning across the columns, including the regrouping or the exchange.",
       "eval_type": "computable",
       "philosophy": [],
       "formats": [
@@ -1352,7 +1352,7 @@
       "misconception_codes": [],
       "difficulty": {
         "Easy": {
-          "words": "One missing digit where no carry or exchange reaches it: 2□ + 34 = 59, 5□ − 23 = 34.",
+          "words": "One missing digit where no regrouping or exchange reaches it: 2□ + 34 = 59, 5□ − 23 = 34.",
           "check": {
             "cases": [
               "M11",
@@ -1364,7 +1364,7 @@
           }
         },
         "Medium": {
-          "words": "One missing digit across a carry or an exchange, in either number or in the answer: 4□ + 38 = 85, 64 − 2□ = 37, 37 + 46 = 8□.",
+          "words": "One missing digit across a regrouping or an exchange, in either number or in the answer: 4□ + 38 = 85, 64 − 2□ = 37, 37 + 46 = 8□.",
           "check": {
             "cases": [
               "M12",
@@ -1688,7 +1688,7 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "No carry, in columns and in a line, either number first, adding zero too: 43 + 5, 5 + 43, 45 + 0.",
+          "words": "No regrouping, in columns and in a line, either number first, adding zero too: 43 + 5, 5 + 43, 45 + 0.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -1707,7 +1707,7 @@
           }
         },
         "Medium": {
-          "words": "A carry into the tens, the answer stays 2 digits: 47 + 6.",
+          "words": "A regrouping into the tens, the answer stays 2 digits: 47 + 6.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -1724,7 +1724,7 @@
           }
         },
         "Hard": {
-          "words": "The carry makes a 3-digit answer: 96 + 8.",
+          "words": "The regrouping makes a 3-digit answer: 96 + 8.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -1776,7 +1776,7 @@
       "code": "ADD.2D2D",
       "rung_code": "R22",
       "name": "2-digit + 2-digit",
-      "learning_objective": "Adds two 2-digit numbers in columns and in a line, carrying exactly when a column needs it.",
+      "learning_objective": "Adds two 2-digit numbers in columns and in a line, regrouping exactly when a column needs it.",
       "eval_type": "computable",
       "philosophy": [],
       "formats": [
@@ -1803,7 +1803,7 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "No carry, in columns and in a line: 23 + 45.",
+          "words": "No regrouping, in columns and in a line: 23 + 45.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -1818,7 +1818,7 @@
           }
         },
         "Medium": {
-          "words": "A carry from the ones only: 27 + 36.",
+          "words": "A regrouping from the ones only: 27 + 36.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -1833,7 +1833,7 @@
           }
         },
         "Hard": {
-          "words": "A carry from the tens, or from both columns, so the answer passes 100: 61 + 42, 68 + 47.",
+          "words": "A regrouping from the tens, or from both columns, so the answer passes 100: 61 + 42, 68 + 47.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2126,7 +2126,7 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "No carry, either number first: 342 + 5, 5 + 342.",
+          "words": "No regrouping, either number first: 342 + 5, 5 + 342.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2143,7 +2143,7 @@
           }
         },
         "Medium": {
-          "words": "A carry from the ones only: 347 + 6.",
+          "words": "A regrouping from the ones only: 347 + 6.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2160,7 +2160,7 @@
           }
         },
         "Hard": {
-          "words": "The carry ripples one more place, or through the 9s to a new digit: 399 + 4, 999 + 7.",
+          "words": "The regrouping ripples one more place, or through the 9s to a new digit: 399 + 4, 999 + 7.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2236,7 +2236,7 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "No carry, either number first: 345 + 23, 23 + 345.",
+          "words": "No regrouping, either number first: 345 + 23, 23 + 345.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2253,7 +2253,7 @@
           }
         },
         "Medium": {
-          "words": "One carry, from the ones or from the tens: 347 + 25, 372 + 64.",
+          "words": "One regrouping, from the ones or from the tens: 347 + 25, 372 + 64.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2274,7 +2274,7 @@
           }
         },
         "Hard": {
-          "words": "Carries from both columns, or a 4-digit answer: 368 + 57, 965 + 78.",
+          "words": "Regrouping from both columns, or a 4-digit answer: 368 + 57, 965 + 78.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2332,7 +2332,7 @@
       "code": "ADD.3D3D",
       "rung_code": "R27",
       "name": "3-digit + 3-digit",
-      "learning_objective": "Adds two 3-digit numbers, carrying from any column, including onto a zero.",
+      "learning_objective": "Adds two 3-digit numbers, regrouping from any column, including onto a zero.",
       "eval_type": "computable",
       "philosophy": [],
       "formats": [
@@ -2358,7 +2358,7 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "No carry, in columns and in a line: 243 + 514.",
+          "words": "No regrouping, in columns and in a line: 243 + 514.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2373,7 +2373,7 @@
           }
         },
         "Medium": {
-          "words": "One carry — from the ones, the tens or the hundreds — or an inside zero: 247 + 315, 405 + 302.",
+          "words": "One regrouping — from the ones, the tens or the hundreds — or an inside zero: 247 + 315, 405 + 302.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2394,7 +2394,7 @@
           }
         },
         "Hard": {
-          "words": "Two or three carries, a carry onto a zero, or zeros kept in the answer: 678 + 457, 395 + 205.",
+          "words": "Two or three regroupings, a regrouping onto a zero, or zeros kept in the answer: 678 + 457, 395 + 205.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2455,7 +2455,7 @@
       "code": "ADD.MANY",
       "rung_code": "R28",
       "name": "Adding three or more numbers",
-      "learning_objective": "Adds three or more numbers lined up by the ones, where a column can carry 2 or more.",
+      "learning_objective": "Adds three or more numbers lined up by the ones, where a column can regroup 2 or more.",
       "eval_type": "computable",
       "philosophy": [],
       "formats": [
@@ -2476,7 +2476,7 @@
       ],
       "difficulty": {
         "Easy": {
-          "words": "Three 2-digit numbers, no carry: 21 + 34 + 12.",
+          "words": "Three 2-digit numbers, no regrouping: 21 + 34 + 12.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2490,7 +2490,7 @@
           }
         },
         "Medium": {
-          "words": "Three numbers with a carry, or of different lengths: 8 + 7 + 9, 45 + 7 + 123.",
+          "words": "Three numbers with a regrouping, or of different lengths: 8 + 7 + 9, 45 + 7 + 123.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2507,7 +2507,7 @@
           }
         },
         "Hard": {
-          "words": "Three 3-digit or 4-digit numbers, four or more numbers, or a column that carries 2: 256 + 348 + 179.",
+          "words": "Three 3-digit or 4-digit numbers, four or more numbers, or a column that regroups 2: 256 + 348 + 179.",
           "check": {
             "within": {
               "operation": "ADD",
@@ -2882,7 +2882,7 @@
       "code": "ADD.4D",
       "rung_code": "R32",
       "name": "4-digit addition",
-      "learning_objective": "Adds a 4-digit number and another, in columns and in a line, whatever the carries.",
+      "learning_objective": "Adds a 4-digit number and another, in columns and in a line, whatever the regrouping.",
       "eval_type": "computable",
       "philosophy": [],
       "formats": [
@@ -2934,7 +2934,7 @@
           }
         },
         "Hard": {
-          "words": "A carry that ripples through 9s, a 5-digit answer, or several zeros: 4999 + 6, 7865 + 4378.",
+          "words": "A regrouping that ripples through 9s, a 5-digit answer, or several zeros: 4999 + 6, 7865 + 4378.",
           "check": {
             "within": {
               "operation": "ADD",

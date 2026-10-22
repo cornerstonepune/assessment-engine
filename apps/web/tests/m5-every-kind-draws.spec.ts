@@ -7,10 +7,17 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { aClass } from "./rows";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const BROKEN = /\bundefined\b|\bNaN\b|\bnull\b|\[object Object\]/;
 const CODE = /\bM_[A-Z_]+\b|\b[A-Z]{2,}\.[A-Z0-9_.]+\b/;
+
+// A topic switched on is taught in each class that has not said otherwise (`skill_taught_in`), so its questions show
+// only where a class is on the roll: the class is this spec's own, as a fresh copy has none (`bin/testdb fresh`).
+test.beforeAll(async () => {
+  await aClass(sql, "M5-TEST", "G2", ["Asha"]);
+});
 
 test.afterAll(async () => {
   await sql.end();
@@ -32,7 +39,7 @@ test("every kind of × and ÷ question the bank holds is drawn with its numbers,
     for (const { set, fmt } of pairs) {
       if (!pickable.has(set)) {
         // the kinds an educator can pick, on the skill set's page with none picked: only their chips carry a kind, and
-        // only a kind with a name in the school's words (`KIND`) has one
+        // only a kind with a name in the school's words (`question_type.words`) has one
         await page.goto(`/library?set=${set}#questions`);
         // read once the page has streamed in, not at its frame
         await expect(page.locator("#questions")).toBeVisible();

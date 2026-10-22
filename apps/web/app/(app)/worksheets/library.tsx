@@ -1,7 +1,8 @@
 import Link from "@/components/link";
-import { KIND } from "@/components/question";
+import { kindWords } from "@/components/question";
 import { Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
+import { questionKinds } from "@/lib/question-types";
 import { levels } from "@/lib/levels";
 import { gradeOf, grades, skillSets } from "@/lib/queries";
 import { gradesOf, type Scope } from "@/lib/scope";
@@ -10,9 +11,9 @@ import { libraryTotal, worksheetCount, worksheets } from "@/lib/queries-workshee
 const PER_PAGE = 50;
 
 /** "3 column sums · 3 word problems" — what a worksheet holds, by kind, in words. */
-export function kindsInWords(kinds: Record<string, number> | null): string {
+export function kindsInWords(kinds: Record<string, number> | null, words: Record<string, string>): string {
   return Object.entries(kinds ?? {})
-    .map(([fmt, n]) => `${n} ${KIND[fmt] ?? fmt}`)
+    .map(([fmt, n]) => `${n} ${kindWords(words, fmt)}`)
     .join(" · ");
 }
 
@@ -22,7 +23,7 @@ type Q = Record<string, string | undefined>;
 // worksheets; a count opens that list, and a worksheet opens its own page. It opens on the person's own grade, its levels
 // alone, every grade one tap away (goals/ux6-curriculum-for-the-educator.yaml).
 export async function Library({ q, scope, own }: { q: Q; scope: Scope; own: Scope }) {
-  const [{ order }, mine, g] = await deadline(Promise.all([levels(), gradesOf(own), grades()]));
+  const [{ order }, { words }, mine, g] = await deadline(Promise.all([levels(), questionKinds(), gradesOf(own), grades()]));
   const inGrades = q.grade === "all" ? [] : mine;
   const gradeWords = inGrades.map((b) => g.name(b)).join(" and ");
   const filter = { set: q.set, level: order.find((d) => d === q.level), scope, grades: inGrades };
@@ -149,7 +150,7 @@ export async function Library({ q, scope, own }: { q: Q; scope: Scope; own: Scop
                   </td>
                   <td className="min-w-[180px]">{w.skill}</td>
                   <td className="num">{w.difficulty}</td>
-                  <td className="text-[12.5px] text-basalt/70">{kindsInWords(w.kinds)}</td>
+                  <td className="text-[12.5px] text-basalt/70">{kindsInWords(w.kinds, words)}</td>
                 </tr>
               ))}
             </tbody>

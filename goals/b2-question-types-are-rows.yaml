@@ -1,0 +1,54 @@
+name: b2-question-types-are-rows
+goal: >
+  A question type is a row (`question_type`): its name in the school's words, how it reaches the child (printed, read
+  aloud, drawn) and how it is marked, one row for each format ADR 0077 defines. Which types a level uses is rows
+  (`skill_level_question_type`), replacing the skills' formats lists, and every level uses exactly the types it used
+  before. One approval, the coordinator's, covers a type across every skill and level using it (SF2a), given with one
+  engine command. The paper-maker draws only from confirmed levels and approved types, and when it cannot make a paper
+  it says which type waits. Nothing changes for any past assessment: the evidence (count and checksum), every child's
+  states and every scored answer are the same before and after, on a copy of live. No paper that can be made today is
+  refused: every type already in use starts approved; only a new type waits for the coordinator.
+# Written 2026-10-21 from docs/drafts/b2-question-types-are-rows.yaml (scope-locked by Nimish) and the decisions he
+# chose in docs/drafts/b2-b4-decisions.md, "Decided": B2-1 a type is a format as ADR 0077 settled, the 33 labels its
+# words; B2-2 the approval table, the gate and an engine command, no new screen; B2-4 the coordinator approves a new type.
+# B2-3 (words for `word_budget`; whether chunking and long division are types of their own) waits on Achal.
+# Measured before the code: docs/notes/b2-question-types-are-rows.md, "Measured".
+says:
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_question_types.py::test_every_label_card_kind_and_library_type_is_one_row"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_question_types.py::test_every_level_uses_the_same_types_before_and_after"
+  - words: "all unique formats of questions"
+    proved_by: "packages/engine/tests/test_question_types.py::test_one_approval_covers_a_type_in_every_skill_and_level"
+  - words: "all unique formats of questions"
+    proved_by: "packages/engine/tests/test_question_types.py::test_the_coordinator_approves_a_type_with_one_command"
+  - words: "all unique formats of questions"
+    proved_by: "packages/engine/tests/test_question_types.py::test_the_paper_maker_draws_only_confirmed_levels_and_approved_types"
+  - words: "all unique formats of questions"
+    proved_by: "packages/engine/tests/test_question_types.py::test_a_paper_that_cannot_be_made_names_the_type_that_waits"
+  - words: "simply checks whether a certain question belongs to a certain format"
+    proved_by: "packages/engine/tests/test_question_types.py::test_every_question_in_the_bank_belongs_to_exactly_one_type"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_question_types.py::test_a_new_type_is_an_insert_and_waits_for_approval"
+  - words: "everything is now getting built in a proper, scalable way, not as some one-time random effort"
+    proved_by: "packages/engine/tests/test_question_types.py::test_no_file_outside_the_maths_library_names_a_type"
+  - words: "nothing will change for any of the past assessments, scoring etc. right?"
+    proved_by: "packages/engine/tests/test_question_types.py::test_past_results_are_the_same_before_and_after"
+  - words: "nothing will change for any of the past assessments, scoring etc. right?"
+    proved_by: "packages/engine/tests/test_question_types.py::test_every_type_already_in_use_starts_approved"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive; `engine past` prints the same evidence count and checksum, children's states and scored answers before and after; every format live holds is a row of `question_type`, every one starts approved, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: the types, their links, the seed and the migration agree
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_question_types.py tests/test_loaders.py
+    expect: "passed"
+  - name: every path that makes a paper still makes the same one
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_focus_paper.py tests/test_maker.py tests/test_library.py tests/test_handout.py tests/test_week.py tests/test_card_bank.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

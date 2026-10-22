@@ -15,6 +15,8 @@ from engine.api.models import (
     CommitResponse,
     CorrectRequest,
     CorrectResponse,
+    GivePageRequest,
+    GivePageResponse,
     IngestRequest,
     IngestResponse,
     KeyRequest,
@@ -193,6 +195,31 @@ def read_file(
     run_id = inbox.start(tenant_id, path, body.actor, pages=pages)
     background.add_task(inbox.read, run_id, path, body.actor, body.again)
     return {"run_id": run_id, "pages": pages}
+
+
+@router.post("/read/run/{run_id}/page", response_model=GivePageResponse)
+def give_page(
+    run_id: str, body: GivePageRequest, background: BackgroundTasks, conn=Depends(get_conn, scope="function")
+):
+    """A person says whose a page with no code is (goals/ux9a-no-guessed-pages.yaml): kept on the file's run, and the
+    file read again after this answers, the page as that child's (`inbox.give`, `inbox.read`). Until then it is read
+    as nobody's: the engine never guesses a page's child."""
+    try:
+        path = inbox.give(conn, run_id, body.page, body.child_id, body.by)
+    except inbox.Refused as no:
+        raise HTTPException(status_code=no.status, detail=str(no)) from no
+    conn.commit()  # the run says "running" before its reading starts, as `inbox.start` does
+    background.add_task(inbox.read, run_id, path, body.by)
+    return {"run_id": run_id}
+
+
+@router.get("/read/run/{run_id}/page/{page_no}.jpg")
+def run_page(run_id: str, page_no: int, conn=Depends(get_conn, scope="function")) -> Response:
+    """One page of a file sent to be read, small, for a person to see whose it is (`inbox.page_jpg`)."""
+    try:
+        return Response(content=inbox.page_jpg(conn, run_id, page_no), media_type="image/jpeg")
+    except inbox.Refused as no:
+        raise HTTPException(status_code=no.status, detail=str(no)) from no
 
 
 @router.get("/read/scan/{name}/copies")
