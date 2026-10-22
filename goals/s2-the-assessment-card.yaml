@@ -1,0 +1,47 @@
+name: s2-the-assessment-card
+goal: >
+  Every assessment opens as one card that moves Made → approved for print → Given → Papers in → Read → Checked →
+  Signed off → Results, says which stage it is at, and shows the one next step. Made: each child's paper as the system
+  proposed it, and the way to look it over, change any child and approve it for print. Given: the educator presses
+  "Given on" with the day, kept as their word (the engine writes it; the paper is not changed); papers put in without it
+  are still read, and the card says they were given. Papers in: the upload box at the top of the card, as at the top of
+  Assessments and Marking; the printed code decides where each page goes; "8 of 10 in · missing: roll 4, roll 7"; a
+  child marked away has their paper carried, not missing; what a file lacked for a copy (a page not in it, a page twice,
+  a copy not read) is flagged on the card at once, to photograph again. Read: while a file is read, "page 7 of 20, about
+  2 minutes left", from the pages the engine has read so far, written on the file's run as each copy is read. Checked,
+  Signed off: how many, and the button to the place it is done. Results: each child's score, each child opening their
+  profile.
+# Written 2026-10-22, before the code. Slice S2 of the scope Nimish locked that day (BUILD-ORDER.md, "the locked scope
+# of 22 Oct"), built beside the C slices because it needs no new table: "Given on" and a child away are rows of
+# `flow_run` the engine writes (w2_print/given.py), as a person's word on a scan already is (goals/ux9a-no-guessed-pages
+# .yaml). Not here, and why: kinds of assessment as a dropdown anyone extends — the database allows four kinds
+# (`sheet_instance_kind_check`), so a fifth needs a table of kinds, which waits on C5 (one approval list) and C3 (the
+# curriculum's versions); the maker keeps its four.
+says:
+  - words: "the assessment as one card moving Made → approved for print → Given → Papers in → Read → Checked → Signed off → Results"
+    proved_by: "apps/web/tests/s42-the-assessment-card.spec.ts::the card moves from Made to Results, always showing its next step"
+  - words: "the system proposes each child's paper and the educator may change it"
+    proved_by: "apps/web/tests/s42-the-assessment-card.spec.ts::at Made the card shows each child's proposed paper and opens the place to change it"
+  - words: "an educator presses \"Given on\"; an upload without it is still accepted"
+    proved_by: "apps/web/tests/s42-the-assessment-card.spec.ts::papers put in without Given on are read, and the card says it was given"
+  - words: "a page to retake flagged at once; an absent child's paper carried; papers printed but never returned listed"
+    proved_by: "apps/web/tests/s42-the-assessment-card.spec.ts::a page to photograph again is flagged, a child away is carried, the papers not back are listed"
+  - words: "Read (progress: page n of N, about how long)"
+    proved_by: "apps/web/tests/s42-the-assessment-card.spec.ts::while a file is read the card says page n of N and about how long"
+  - words: "Read (progress: page n of N, about how long)"
+    proved_by: "packages/engine/tests/test_inbox.py::test_the_run_says_how_far_the_reading_has_got_while_it_reads"
+  - words: "the upload box at the top, not the bottom"
+    proved_by: "apps/web/tests/s42-the-assessment-card.spec.ts::the upload box is at the top of the card, Assessments and Marking"
+manual:
+  - "Once deployed: on a class's card, press Given on, put in a phone scan of the class's papers, and watch the card say page n of N while it reads."
+scenarios: []
+criteria:
+  - name: the engine's tests of a given paper, a child away and the reading's progress
+    run: cd packages/engine && uv run pytest -q tests/test_given.py tests/test_inbox.py
+    expect: "passed"
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

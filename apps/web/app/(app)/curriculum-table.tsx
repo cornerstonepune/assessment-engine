@@ -9,7 +9,9 @@ import { switchTopic } from "./topic-actions";
 // The curriculum as one table (goals/u12-curriculum-table.yaml). Nimish, 2026-09-30: "When I click on grade 1, there
 // is a proper table where, within grade 1, within mathematics, there are addition and subtraction, and then within
 // that, there is sub. It just flows like that." A row opens the rows under it; a grade with one subject opens both, so a
-// click on a grade shows its topics and a click on a topic its skills. The columns are the same at every depth.
+// click on a grade shows its topics and a click on a topic its skills. An educator reads grade → topic → skill, each
+// skill with what its levels ask (goals/ux10-declutter.yaml); the bank's counts at every depth, and how many children
+// have been assessed, are columns of "Question bank details" (`details`).
 
 const n = (x: number) => x.toLocaleString("en-IN");
 const INDENT = ["pl-[14px]", "pl-[34px]", "pl-[54px]", "pl-[74px]"];
@@ -51,7 +53,19 @@ function NotTaught({ row, say }: { row: CurriculumRow; say: boolean }) {
 
 /** `levels`: the school's levels in order, the columns (lib/levels.ts). `start`: the grades it opens on, the person's own
  *  (goals/ux6-curriculum-for-the-educator.yaml), every other grade closed. */
-export function CurriculumTable({ rows, levels, say = false, start = [] }: { rows: CurriculumRow[]; levels: string[]; say?: boolean; start?: string[] }) {
+export function CurriculumTable({
+  rows,
+  levels,
+  say = false,
+  start = [],
+  details = false,
+}: {
+  rows: CurriculumRow[];
+  levels: string[];
+  say?: boolean;
+  start?: string[];
+  details?: boolean;
+}) {
   const under = (id: string) => rows.filter((r) => r.parent === id);
   // a grade opens with its subject when that is the grade's only one; a topic waits for its own click
   const opening = (next: Set<string>, id: string) => {
@@ -82,7 +96,6 @@ export function CurriculumTable({ rows, levels, say = false, start = [] }: { row
   return (
     <section className="panel" aria-label="Curriculum">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-basalt/10 px-[18px] py-3">
-        <span className="note">Click a grade, then a topic, to open what is under it.</span>
         <span className="flex gap-2">
           <button type="button" className="chip" onClick={() => setOpen(new Set(opens))}>
             Open everything
@@ -97,15 +110,19 @@ export function CurriculumTable({ rows, levels, say = false, start = [] }: { row
           <thead>
             <tr>
               <th>Grade · subject · topic · skill</th>
-              <th className="num">Questions</th>
-              <th className="num">Worksheets</th>
-              {levels.map((d) => (
-                <th key={d} className="num">
-                  {d}
-                </th>
-              ))}
-              <th className="num">Children assessed</th>
-              <th className="num">Assessed</th>
+              {details ? (
+                <>
+                  <th className="num">Questions</th>
+                  <th className="num">Worksheets</th>
+                  {levels.map((d) => (
+                    <th key={d} className="num">
+                      {d}
+                    </th>
+                  ))}
+                  <th className="num">Children assessed</th>
+                  <th className="num">Assessed</th>
+                </>
+              ) : null}
             </tr>
           </thead>
           <tbody>
@@ -144,43 +161,60 @@ export function CurriculumTable({ rows, levels, say = false, start = [] }: { row
                         {r.draft ? <Pill tone="bamboo">waiting for approval</Pill> : null}
                         {r.off ? <NotTaught row={r} say={say} /> : null}
                       </div>
+                      {details ? null : (
+                        <ul className="mt-2 grid gap-[3px] text-[12px] text-basalt/70" aria-label={`What ${r.label} asks at each level`}>
+                          {levels
+                            .filter((d) => r.levels[d] != null && r.words?.[d])
+                            .map((d) => (
+                              <li key={d}>
+                                <b className="font-medium text-basalt">{d}</b> · {r.words![d]}
+                              </li>
+                            ))}
+                        </ul>
+                      )}
                     </div>
                   )}
                 </td>
-                <td className="num">{n(r.questions)}</td>
-                <td className="num">
-                  {r.href ? <Link href={`${r.href}#worksheets`}>{n(r.worksheets)}</Link> : n(r.worksheets)}
-                </td>
-                {levels.map((d) => (
-                  <td key={d} className="num" data-level={d} title={r.words?.[d]}>
-                    {r.levels[d] == null ? (
-                      <span className="text-basalt/35">—</span>
-                    ) : r.href ? (
-                      <Link href={`/library?set=${r.href.split("/").pop()}&difficulty=${d}#questions`}>{n(r.levels[d]!)}</Link>
-                    ) : (
-                      n(r.levels[d]!)
-                    )}
-                  </td>
-                ))}
-                <td className="num">{r.children ? r.children : <span className="text-basalt/35">—</span>}</td>
-                <td className="num whitespace-nowrap">
-                  {r.skills === 1 && r.depth === 3 ? (
-                    r.assessed ? <Pill tone="neem">yes</Pill> : <Pill tone="monsoon">not yet</Pill>
-                  ) : (
-                    `${r.assessed} of ${r.skills}`
-                  )}
-                </td>
+                {details ? (
+                  <>
+                    <td className="num">{n(r.questions)}</td>
+                    <td className="num">
+                      {r.href ? <Link href={`${r.href}#worksheets`}>{n(r.worksheets)}</Link> : n(r.worksheets)}
+                    </td>
+                    {levels.map((d) => (
+                      <td key={d} className="num" data-level={d} title={r.words?.[d]}>
+                        {r.levels[d] == null ? (
+                          <span className="text-basalt/35">—</span>
+                        ) : r.href ? (
+                          <Link href={`/library?set=${r.href.split("/").pop()}&difficulty=${d}#questions`}>{n(r.levels[d]!)}</Link>
+                        ) : (
+                          n(r.levels[d]!)
+                        )}
+                      </td>
+                    ))}
+                    <td className="num">{r.children ? r.children : <span className="text-basalt/35">—</span>}</td>
+                    <td className="num whitespace-nowrap">
+                      {r.skills === 1 && r.depth === 3 ? (
+                        r.assessed ? <Pill tone="neem">yes</Pill> : <Pill tone="monsoon">not yet</Pill>
+                      ) : (
+                        `${r.assessed} of ${r.skills}`
+                      )}
+                    </td>
+                  </>
+                ) : null}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <p className="note px-[18px] py-3">
-        Questions and worksheets are the bank&rsquo;s, at this grade&rsquo;s levels; a level another grade holds is a dash. Assessed is read
-        from the answers: a skill is assessed once a child of your classes has a checked answer on it; a topic or grade counts its skills assessed.
-        Taught is what an educator said of their class: &ldquo;not taught yet&rdquo; marks a topic no class of the grade has been taught.
-        Hover a level&rsquo;s count for what the level asks.
-      </p>
+      {details ? (
+        <p className="note px-[18px] py-3">
+          Questions and worksheets are the bank&rsquo;s, at this grade&rsquo;s levels; a level another grade holds is a dash. Assessed is read
+          from the answers: a skill is assessed once a child of your classes has a checked answer on it; a topic or grade counts its skills assessed.
+          Taught is what an educator said of their class: &ldquo;not taught yet&rdquo; marks a topic no class of the grade has been taught.
+          Hover a level&rsquo;s count for what the level asks.
+        </p>
+      ) : null}
     </section>
   );
 }

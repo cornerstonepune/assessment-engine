@@ -100,7 +100,7 @@ export async function saveGrades(formData: FormData): Promise<void> {
   const code = String(formData.get("code") ?? "");
   if (!CODE.test(code)) redirect("/");
   const [row] = await sql<{ difficulty: Record<Difficulty, Band>; levels: Difficulty[]; band: string }[]>`
-    select s.difficulty, ${levelsColumn()}, r.band from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+    select s.difficulty, ${levelsColumn()}, s.grade as band from skill_set s
     where s.code = ${code}`;
   if (!row) redirect("/");
   // a grade the school has (`grade`), other than the skill's own

@@ -233,7 +233,8 @@ def drawn(conn, whose, chosen, rng, taken=(), strict=True) -> dict:
         "set names", lambda: {r["code"]: r["name"] for r in conn.execute("select code, name from skill_set")}
     )
     skills = _once(
-        "skill names", lambda: {r["code"]: r["name"] for r in conn.execute("select code, name from skill")}
+        "skill names",
+        lambda: {r["code"]: r["name"] for r in conn.execute("select code, name from registry_skill")},
     )
     name_of = _once("mistake names", lambda: mistake_names.names(conn))
     days = _once("exposure days", lambda: settings.exposure_days(conn))

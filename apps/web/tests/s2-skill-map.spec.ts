@@ -24,10 +24,10 @@ const LEVELS = ["Easy", "Medium", "Hard", "Advance"];
 const CODE = /\b([A-Z]{2,}\.[A-Z0-9_.]+|R\d{1,2}|X[12]|M_[A-Z0-9_]+)\b/;
 
 const skills = () => sql<Skill[]>`
-  select s.code, s.learning_objective as outcome, s.name, r.band, s.difficulty as words
-  from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+  select s.code, s.learning_objective as outcome, s.name, s.grade as band, s.difficulty as words
+  from skill_set s
   where s.taught
-  order by r.ladder_order nulls last, s.code`;
+  order by s.ladder_order nulls last, s.code`;
 
 async function noSidewaysScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

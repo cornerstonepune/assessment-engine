@@ -26,7 +26,7 @@ says:
   - words: "when will we be able to get a clean version live ?"
     proved_by: "packages/engine/tests/test_legacy.py::test_a_question_something_still_points_at_is_retired_not_removed"
   - words: "when will we be able to get a clean version live ?"
-    proved_by: "packages/engine/tests/test_rehome.py::test_a_rung_no_skill_and_no_question_holds_is_removed"
+    proved_by: "packages/engine/tests/test_rehome.py::test_no_rung_is_left_without_a_skill"
 manual:
   - "`~/cornerstone/assessment-engine/bin/update-live`, run by Nimish once this is merged: its refill draws the six groups again."
   - "The skills and the mistake table are approved on Curriculum → skills to approve, by Aseem (the coordinator)."

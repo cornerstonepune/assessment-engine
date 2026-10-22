@@ -82,7 +82,7 @@ def _seeded(name):
 EXPECTED = {
     "tenant": 1,
     "domain": 14,
-    "skill": 244,  # the whole map, all 14 domains — not the maths slice
+    "registry_skill": 244,  # the whole map, all 14 domains — not the maths slice
     "milestone": 849,
     "learning_objective": 1750,
     "learning_objective_skill": 2012,
@@ -93,7 +93,6 @@ EXPECTED = {
     # R7, R8, R11, R13, R14, R16–R18, X1, X2, R19–R33 (ADR 0034), R34–R35 (Grade 1), R36–R40 (M2a), R41 (M2d1), R42–R45
     # (M3a), R46 (M3c), R47 (M4a), R48 (M4b1), R49 (M4b2), R50 (M4c), R51 (M4d1), R52–R54 (SF1: sequences, multiples in
     # the tables, three numbers multiplied)
-    "rung": 46,
     "level_rule": 12,
     "misconception": 39,
     # every tag a case of either document reads, with its values (goals/md1-taxonomy-rows.yaml); `from_table` (M3a)
@@ -173,9 +172,9 @@ def test_only_one_prompt_version_is_active_per_purpose(loaded):
 def test_every_rung_band_is_a_band_the_levels_know_about(loaded):
     with db.connect() as conn:
         rows = conn.execute(
-            "select distinct r.band from rung r"
-            " where r.band not like '%+%'"
-            " and not exists (select 1 from level_rule l where l.band = r.band)"
+            "select distinct s.grade from skill_set s"
+            " where s.grade not like '%+%'"
+            " and not exists (select 1 from level_rule l where l.band = s.grade)"
         ).fetchall()
     assert rows == [], f"rung bands with no level rule: {rows}"
 
@@ -185,7 +184,7 @@ def test_a_deploy_loads_the_rows_the_engine_reads_as_settings_and_no_others(monk
     threshold, a prompt — is live with the code that reads it, and nobody runs `bin/update-live` for it. The
     rows people own or the bank's own steps build (skill sets, levels, the registry) are not touched."""
     touched = []
-    for step in ("_registry", "_rungs", "_levels", "_misconceptions", "_dimensions", "_taxonomy_cases",
+    for step in ("_registry", "_levels", "_misconceptions", "_dimensions", "_taxonomy_cases",
                  "_skill_sets", "_subjects"):  # fmt: skip
         monkeypatch.setattr(loaders, step, lambda *a, s=step: touched.append(s))
     monkeypatch.setattr(loaders.topics, "load", lambda *a: touched.append("topics"))

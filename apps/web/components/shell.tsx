@@ -7,8 +7,8 @@ import { mayUse } from "@/lib/access";
 import type { Choices } from "@/lib/choices";
 
 // The menu is the school's order of work (goals/ui1-menu-and-today.yaml): what waits today, what is taught, the
-// assessments made from it, and the children they tell about. Each tab carries the count of what waits in it, from the
-// list Today shows (lib/needs-you.ts). A child's own paper (CS + six hex) is an assessment; a library worksheet is
+// assessments made from it, and the children they tell about. Only Today carries a count, the one red number, from the
+// list it shows (lib/needs-you.ts; goals/ux10-declutter.yaml): each page says for itself what waits on it. A child's own paper (CS + six hex) is an assessment; a library worksheet is
 // curriculum. Papers, marking and making a paper are one tab (goals/u9-papers.yaml); its address stays /papers.
 export const NAV: readonly NavItem[] = [
   { href: "/today", label: "Today", icon: "check", match: ["/today"] },
@@ -30,7 +30,7 @@ export function Shell({ me, waiting, grades, choices, children }: { me: Session;
           <Mark />
           <div className="font-heading text-[19px] text-lime">cornerstone</div>
         </div>
-        <Nav items={NAV.map((it) => ({ ...it, count: waiting[it.label] }))} />
+        <Nav items={NAV.map((it) => ({ ...it, count: it.label === "Today" ? waiting.Today : undefined }))} />
         <Account me={me} grades={grades} subject={subject?.label ?? ""} className="mt-auto hidden pt-8 md:block" />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">

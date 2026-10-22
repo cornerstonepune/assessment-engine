@@ -25,16 +25,6 @@ def _skill_sets(conn):
     ).fetchall()
 
 
-def every_rung_has_a_spec(conn):
-    return [
-        r["code"]
-        for r in conn.execute(
-            "select code from rung r where not exists"
-            " (select 1 from skill_set s where s.rung_code = r.code) order by code"
-        ).fetchall()
-    ]
-
-
 def every_spec_is_ratified(conn):
     return [f"{r['code']} is {r['status']}" for r in _skill_sets(conn) if r["status"] != "ratified"]
 
@@ -251,7 +241,6 @@ AWAITS_A_PERSON = {
 
 # Ordered cheapest first, so a run that fails early has still said something useful.
 INVARIANTS = [
-    ("every rung has a spec", every_rung_has_a_spec),
     ("every spec is ratified", every_spec_is_ratified),
     ("what a mistake charges is approved", what_a_mistake_charges_is_approved),
     ("every code a spec references resolves", referential_codes_all_resolve),

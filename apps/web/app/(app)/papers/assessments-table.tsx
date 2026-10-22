@@ -12,6 +12,12 @@ const MANY: Record<string, string> = { focus: "Home assessments", custom: "Chose
 export const assessmentKey = (a: { kind: string; section: string | null; week: string | null; set: string | null }) =>
   [a.kind, a.section ?? "", a.week ?? "", a.set ?? ""].join("~");
 
+/** Its card (goals/s2-the-assessment-card.yaml): the assessment from Made to Results, with its next step. */
+export const cardHref = (a: { kind: string; section: string | null; week: string | null; set: string | null }) => {
+  const q = new URLSearchParams({ class: a.section ?? "", week: a.week ?? "", kind: a.kind, ...(a.set ? { set: a.set } : {}) });
+  return `/papers/card?${q}`;
+};
+
 export const assessmentTitle = (a: AssessmentRow) => (a.set ? a.title : (MANY[a.kind] ?? a.title));
 
 // A week's assessments (goals/ui5-assessments-readable.yaml, goals/ux5-papers-grouped.yaml): one line each — what it is,
@@ -83,6 +89,11 @@ export async function AssessmentsTable({
             open ? (
               <tr key={`${key}|copies`} data-copies={key}>
                 <td colSpan={7} className="!pl-8">
+                  {a.section ? (
+                    <Link href={cardHref(a)} className="btn secondary mb-2">
+                      Open its card →
+                    </Link>
+                  ) : null}
                   <CopiesTable title={assessmentTitle(a)} rows={open} />
                 </td>
               </tr>
