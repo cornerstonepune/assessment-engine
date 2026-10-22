@@ -32,7 +32,7 @@ test.beforeAll(async () => {
     select tenant_id as tenant, to_char(now(), 'IYYY-"W"IW') as week from child where id = ${kids.Asha}`;
   [ws] = await sql<{ id: string; item_ids: string[]; set: string; title: string }[]>`
     select t.id, t.item_ids, t.skill_set_code as set, s.name || ' · ' || t.difficulty as title
-    from sheet_template t join skill_set s on s.code = t.skill_set_code
+    from sheet_template t join skill s on s.code = t.skill_set_code
     where t.source = 'library' and t.retired_at is null and t.band = 'G2' and cardinality(t.item_ids) >= 2 order by t.code limit 1`;
   // an earlier run's papers are put away, as a paper made in error is: the card holds this run's alone
   await sql`update sheet_instance set print_status = 'void' where section = ${SECTION} and qr_code not like ${`CS${RUN}%`}`;
