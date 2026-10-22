@@ -184,7 +184,7 @@ def test_a_deploy_loads_the_rows_the_engine_reads_as_settings_and_no_others(monk
     threshold, a prompt — is live with the code that reads it, and nobody runs `bin/update-live` for it. The
     rows people own or the bank's own steps build (skill sets, levels, the registry) are not touched."""
     touched = []
-    for step in ("_registry", "_rungs", "_levels", "_misconceptions", "_dimensions", "_taxonomy_cases",
+    for step in ("_registry", "_levels", "_misconceptions", "_dimensions", "_taxonomy_cases",
                  "_skill_sets", "_subjects"):  # fmt: skip
         monkeypatch.setattr(loaders, step, lambda *a, s=step: touched.append(s))
     monkeypatch.setattr(loaders.topics, "load", lambda *a: touched.append("topics"))

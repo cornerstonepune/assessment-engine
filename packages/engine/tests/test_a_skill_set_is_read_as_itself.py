@@ -37,8 +37,8 @@ def test_a_rung_holds_one_skill_set(conn):
     ).fetchone()
     with pytest.raises(psycopg.errors.UniqueViolation):
         conn.execute(
-            "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, difficulty) values (%s,"
-            " 'TEST.TWIN', %s, 'a twin', 'two on one rung', '{}')",
+            "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, difficulty, grade, descriptor)"
+            " values (%s, 'TEST.TWIN', %s, 'a twin', 'two on one rung', '{}', 'G2', 'a twin')",
             (taken["tenant_id"], taken["rung_code"]),
         )
 

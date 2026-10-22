@@ -17,6 +17,8 @@ from engine.core import db, levels, loaders
 from engine.w1_bank import spec
 from engine.w2_print import shelf
 
+from tests.rows import data_steps
+
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
 MIGRATION = db.REPO_ROOT / "supabase" / "migrations" / "20261123090000_the_levels_are_rows.sql"
@@ -183,7 +185,7 @@ def test_a_level_keeps_its_own_version_history(conn):
     rows = conn.execute(
         "select count(*) as n from skill_level_version where tenant_id = %s", (t,)
     ).fetchone()["n"]
-    conn.execute(MIGRATION.read_text())
+    conn.execute(data_steps(MIGRATION))
     assert (
         conn.execute("select count(*) as n from skill_level_version where tenant_id = %s", (t,)).fetchone()[
             "n"
@@ -193,7 +195,7 @@ def test_a_level_keeps_its_own_version_history(conn):
     # the migration's first run on a database whose skills have a history: each level's carried onto it
     conn.execute("delete from skill_level_version")
     conn.execute("delete from skill_level")
-    conn.execute(MIGRATION.read_text())
+    conn.execute(data_steps(MIGRATION))
     assert {
         r["difficulty"]: r["version"]
         for r in conn.execute("select difficulty, version from skill_level where skill_code = %s", (SKILL,))

@@ -18,6 +18,8 @@ from engine.checks import links, past
 from engine.core import db, loaders, settings
 from engine.w1_bank import cases, kinds, spec
 
+from tests.rows import data_steps
+
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
 MIGRATION = (
@@ -291,7 +293,7 @@ def test_past_results_are_the_same_before_and_after(conn):
     graph.rebuild(conn, str(child))
     before = past.fingerprint(conn)
     assert before["evidence"]["n"] >= 3 and before["states"]["n"] >= 1
-    conn.execute(MIGRATION.read_text())
+    conn.execute(data_steps(MIGRATION))
     graph.rebuild(conn, str(child))
     assert past.fingerprint(conn) == before
     conn.execute(add, (tenant, child, False, []))
