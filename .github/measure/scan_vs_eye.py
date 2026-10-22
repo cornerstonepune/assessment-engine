@@ -9,8 +9,35 @@ from pathlib import Path
 
 import numpy as np
 
+import numpy as np
+
 from engine.core import db
 from engine.w3_read import lineup, render_pdf
+
+
+def _why(scan, pdf, page):
+    """Which first map fails on a page, and on what: ORB's inliers, SIFT's matches, the photograph's greys, and the
+    tiles found with the photograph turned half round."""
+    import cv2
+
+    from engine.w3_read import stencil
+
+    img, _ = render_pdf.photo(scan, page)
+    printed = lineup._printed(str(pdf), page)
+    small, s = lineup._grey(img, lineup.SIDE)
+    Hm, inl = stencil.homography(small, printed[0])
+    orb = "none" if Hm is None else ("plausible" if stencil.plausible(Hm, small.shape, printed[0].shape) else "implausible")
+    tiny, _ = lineup._grey(img, lineup.SIFT_SIDE)
+    k1, d1 = lineup._sift.detectAndCompute(tiny, stencil.NO_MASK)
+    g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
+    turned = cv2.rotate(img, cv2.ROTATE_180)
+    sm2, s2 = lineup._grey(turned, lineup.SIDE)
+    maps = [m for m in (lineup._by_orb(sm2, s2, printed), lineup._by_sift(turned, printed)) if m is not None]
+    found180 = max((len(lineup._found(sm2, s2, m, printed)) for m in maps), default=0)
+    return {"orb": orb, "orb_inliers": inl, "sift_keys": len(k1), "sift_ref_keys": len(printed[2][2]),
+            "by_sift": lineup._by_sift(img, printed) is not None, "grey_mean": round(float(g.mean()), 1),
+            "grey_p5_p95": [int(v) for v in np.percentile(g, [5, 95])], "dtype": str(img.dtype), "shape": img.shape,
+            "found_turned_180": found180}
 
 
 def _lines_up(scan, pdf, page):
@@ -47,6 +74,8 @@ with db.connect() as c:
                 try:
                     img, _ = render_pdf.photo(scan, p)
                     print("  lineup page", p, "photo px", img.shape[:2], "found / tiles / needs", _lines_up(scan, pdf, p))
+                    if cp["copy"] in (1, 4):
+                        print("  why page", p, json.dumps(_why(scan, pdf, p), default=str))
                 except Exception as e:  # noqa: BLE001 — a measure says what failed and goes on
                     print("  lineup page", p, "failed:", type(e).__name__)
         rows = []
