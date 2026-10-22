@@ -9,7 +9,12 @@ export type Choices = { subjects: { code: string; label: string }[]; classes: { 
 
 export async function choices(): Promise<Choices> {
   const [subjects, classes, g] = await Promise.all([
-    sql<{ code: string; label: string }[]>`select code, coalesce(label, name) as label from subject order by code`,
+    // the first is what a page opens on for someone who has not chosen: a subject with approved skills before one still
+    // waiting for its first approval (English's, E0), so the school's site opens where its work is
+    sql<{ code: string; label: string }[]>`
+      select su.code, coalesce(su.label, su.name) as label from subject su
+      order by exists (select 1 from skill_set s join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
+                       where t.tenant_id = su.tenant_id and t.subject_code = su.code and s.status = 'ratified') desc, su.code`,
     sql<{ section: string; band: string }[]>`
       select section, band from (select distinct tenant_id, section, class_band(tenant_id, section) as band from child where active) k
       order by grade_ord(tenant_id, band), section`,
