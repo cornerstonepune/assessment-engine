@@ -1,0 +1,38 @@
+name: s2b-assessments-declutter
+goal: >
+  Assessments is one calm page. At the top, the one job of the day: the box to put papers in, and one button, Make an
+  assessment, that opens the four ways (for a class, for each child, for one child, a ready-made worksheet). Under the
+  title one short line at most. A number is shown only where someone must act on it: a zero, or a stage with nothing in
+  it, is not drawn; the six stage chips and the topic chips are one control, Filter. Scans already read, however they
+  ended, are behind Past scans, and the reader's track record behind How the reader is doing. And one count, one
+  meaning: an assessment's copies, the papers in, and the answers to check are each counted once, by the same query,
+  and the Assessments list, the assessment's card, Check the answers and Today all show the same number.
+# Written 2026-10-22, before the code. Slice S2b, on S2 (#274), after Nimish reviewed the live Assessments page that day.
+# Not here, and why: Children and Curriculum (#278 owns them), the check screen (#276, #277), and the menu's red counts,
+# which #278 already limits to Today — this branch changes nothing in the menu except that the number Today shows for
+# answers is now the shared one. No migration, no new table.
+says:
+  - words: "One main action at the top: Upload papers, and Make an assessment, one button opening the four ways. Not four cards plus buttons plus links."
+    proved_by: "apps/web/tests/s44-assessments-declutter.spec.ts::the upload box is the first thing, and Make an assessment is one button opening the four ways"
+  - words: "Look at the clutter. No explanatory paragraph under the title; one line at most."
+    proved_by: "apps/web/tests/s44-assessments-declutter.spec.ts::no paragraph over 140 characters sits under the title"
+  - words: "Show a number only when someone must act on it: hide zero counts and empty stage chips; the six stage chips and the topic chips collapse into one Filter control."
+    proved_by: "apps/web/tests/s44-assessments-declutter.spec.ts::no zero is drawn, and the stage and topic chips are one Filter"
+  - words: "Past scans, including old failed ones, behind a Past scans link; the reader's track record behind How the reader is doing."
+    proved_by: "apps/web/tests/s44-assessments-declutter.spec.ts::scans already read are behind Past scans, and the reader's record behind its link"
+  - words: "One count, one meaning: copies, papers in and answers to check come from one query shared by the list, the card and Today."
+    proved_by: "apps/web/tests/s44-assessments-declutter.spec.ts::the list, the card, Check the answers and Today show the same answers to check"
+  - words: "One count, one meaning (the engine's side): an answer waiting is counted once, the same way, wherever it is counted."
+    proved_by: "apps/web/tests/s44-assessments-declutter.spec.ts::copies, papers in and answers to check are each said once on the list"
+  - words: "The current frontend is extremely confusing to me... make it much, much cleaner. On a phone too."
+    proved_by: "apps/web/tests/s44-assessments-declutter.spec.ts::on a phone the page is the same few things and does not scroll sideways"
+manual:
+  - "Once deployed: open Assessments on the live site and on a phone; the page should be the upload box, one Make an assessment button, a Filter, and the weeks."
+scenarios: []
+criteria:
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

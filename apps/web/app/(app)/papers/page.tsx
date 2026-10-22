@@ -15,7 +15,6 @@ import {
   type AssessmentRow,
   type PaperFilter,
   type PaperListRow,
-  type Stage,
 } from "@/lib/queries-papers";
 import { weekWords } from "@/lib/week";
 import { deadline } from "@/lib/deadline";
@@ -24,14 +23,15 @@ import { assessmentKey, AssessmentsTable } from "./assessments-table";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
-// The four ways an educator makes an assessment (goals/ui2-assessments.yaml), each opening the maker ready for that use.
-// Nimish, 2026-10-11: "for every child, there is a customized assessment and the capability to create their own
-// assessments or generate assessments as and when required for a particular class".
-const STARTS: [string, string, string][] = [
-  ["For a class", "/papers/make?kind=assessment&way=same", "one assessment for every child of a class: choose the class, then a topic or the skills"],
-  ["For each child", "/make", "this week's home assessment for each child, made from their own record, to approve"],
-  ["For one child", "/papers/make?kind=assessment&way=own&one=1", "a follow-up for one child: the engine proposes their next step, and you can change it"],
-  ["A ready-made worksheet", "/worksheets", "a worksheet from the library, printed for the children you choose"],
+// The four ways an educator makes an assessment (goals/ui2-assessments.yaml), each opening the maker ready for that use,
+// all behind one button (goals/s2b-assessments-declutter.yaml). Nimish, 2026-10-11: "for every child, there is a
+// customized assessment and the capability to create their own assessments or generate assessments as and when required
+// for a particular class".
+const STARTS: [string, string][] = [
+  ["For a class", "/papers/make?kind=assessment&way=same"],
+  ["For each child", "/make"],
+  ["For one child", "/papers/make?kind=assessment&way=own&one=1"],
+  ["A ready-made worksheet", "/worksheets"],
 ];
 
 const UUID = /^[0-9a-f-]{36}$/;
@@ -48,18 +48,15 @@ function Select({ name, label, value, all, options }: {
   name: string; label: string; value?: string; all: string; options: [string, string][];
 }) {
   return (
-    <label className="field min-w-[11rem]">
+    <label className="field min-w-0">
       <span className="label">{label}</span>
-      <select className="select" name={name} defaultValue={value ?? ""}>
+      <select className="select w-full min-w-0 max-w-full" name={name} defaultValue={value ?? ""}>
         <option value="">{all}</option>
         {options.map(([v, words]) => <option key={v} value={v}>{words}</option>)}
       </select>
     </label>
   );
 }
-
-// What waits in a week, in words: only the stages that wait on a person, and only those that are there.
-const WAITS: [Stage, string][] = [["made", "to approve"], ["scanned", "to check"], ["checked", "to sign off"]];
 
 // Assessments (goals/u9-papers.yaml, goals/ui5-assessments-readable.yaml, goals/ux5-papers-grouped.yaml): its weeks,
 // newest first, the newest open, each one line saying what waits in it; each assessment a line that opens in place to
@@ -103,88 +100,60 @@ export default async function PapersPage({ searchParams }: Props) {
     if (f.child || key === opened) copies.set(key, [...(copies.get(key) ?? []), p]);
   }
   const toCheck = queue.filter((e) => !e.spot).length;
-  const all = STAGES.reduce((n, s) => n + stages[s], 0);
-  const folded = !!(f.class || f.child || f.kind || f.week);
-  const chosen = folded || !!(f.stage || f.topic || f.set);
+  const chosen = !!(f.class || f.child || f.kind || f.week || f.stage || f.topic || f.set);
   // its weeks, newest first; a paper with no week last
   const weeks = [...new Set(groups.rows.map((a) => a.week ?? ""))].sort((a, b) => (a && b ? b.localeCompare(a) : a ? -1 : 1));
   const opensWeek = (w: string) => chosen || w === weeks[0] || groups.rows.some((a) => (a.week ?? "") === w && assessmentKey(a) === opened);
 
+  // the stages that hold something, or the one chosen: a stage with nothing in it is not offered
+  const stagesHere = STAGES.filter((s) => stages[s] || f.stage === s);
+  // only a scan that needs a person here stays on this page; the rest are Past scans
+  const needsYou = scans.filter((s) => s.status === "running" || s.noCode.length > 0 || s.lines.length > 0);
+
   return (
     <>
-      <PageHeader
-        stage="Assessments"
-        title="Assessments"
-        sub="Make an assessment, then follow every one from approval to done, week by week. An assessment opens to its copies; a copy opens to print it, or to check its answers once it is read."
-      />
+      <PageHeader stage="Assessments" title="Assessments" sub="Put papers in, make an assessment, and follow each one to done." />
       <Body>
         {/* the upload box at the top (goals/s2-the-assessment-card.yaml): papers in is the day's first job */}
         <div className="mb-[18px]">
-          <ReadScan from="/papers" read={q.read} why={q.why} pages={q.pages} scans={scans} />
+          <ReadScan from="/papers" read={q.read} why={q.why} pages={q.pages} scans={needsYou} />
         </div>
-        <section aria-label="Make an assessment" className="mb-[18px]">
-          <h2 className="label mb-2">Make an assessment</h2>
-          <div className="grid gap-[10px] sm:grid-cols-2 xl:grid-cols-4">
-            {STARTS.map(([title, href, words]) => (
-              <Link key={title} href={href} className="panel flex flex-col gap-1 p-4 text-basalt no-underline hover:border-basalt">
-                <span className="font-heading text-[16px]">{title}</span>
-                <span className="text-[13px] text-basalt/65">{words}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-        <div className="mb-[18px] flex flex-wrap items-center gap-3">
-          <Link href="/capture/check" className="btn secondary">
-            {toCheck} answers to check →
-          </Link>
-          <Link href="/capture" className="text-[13px] md:ml-auto">
-            Scans, and how the reader is doing
-          </Link>
+        <div className="mb-[18px] flex flex-wrap items-start gap-3">
+          {/* an opened panel is part of the page, on its own line: it never lies over the papers or runs off a phone */}
+          <details className="open:w-full" data-make>
+            <summary className="btn cursor-pointer list-none [&::-webkit-details-marker]:hidden">Make an assessment</summary>
+            <ul className="panel mt-2 grid gap-1 p-2 md:w-fit md:min-w-[14rem]">
+              {STARTS.map(([title, href]) => (
+                <li key={title}>
+                  <Link href={href} className="block px-3 py-2 text-basalt no-underline hover:bg-basalt/5">
+                    {title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </details>
+          <details data-filters className="open:w-full">
+            <summary className={`btn secondary cursor-pointer list-none [&::-webkit-details-marker]:hidden ${chosen ? "on" : ""}`}>Filter</summary>
+            <form action="/papers" className="panel mt-2 grid gap-3 p-4 sm:grid-cols-2 md:w-[min(100%,36rem)]">
+              <Select name="stage" label="Stage" value={f.stage} all="Every stage" options={stagesHere.map((s) => [s, STAGE_WORDS[s][0].toUpperCase() + STAGE_WORDS[s].slice(1)])} />
+              <Select name="topic" label="Topic" value={f.topic} all="Every topic" options={taught.map((t) => [t.code, t.name])} />
+              <Select name="class" label="Class" value={f.class} all="Every class" options={options.classes.map((c) => [c, c])} />
+              <Select name="child" label="Child" value={f.child} all="Every child" options={options.children.map((c) => [c.id, c.label])} />
+              <Select name="kind" label="Kind" value={f.kind} all="Any kind" options={Object.entries(KIND_WORDS)} />
+              <Select name="week" label="Week" value={f.week} all="Every week" options={options.weeks.map((w) => [w, weekWords(w)])} />
+              <div className="flex items-center gap-3 sm:col-span-2">
+                <button type="submit" className="btn secondary">Show</button>
+                {chosen ? <Link href="/papers" className="text-[13px]">Clear</Link> : null}
+              </div>
+            </form>
+          </details>
+          {/* a number only where someone must act on it: with nothing to check there is no button */}
+          {toCheck ? (
+            <Link href="/capture/check" className="btn secondary md:ml-auto">
+              {toCheck} {toCheck === 1 ? "answer" : "answers"} to check →
+            </Link>
+          ) : null}
         </div>
-
-        <nav aria-label="Topic" className="mb-3 flex flex-wrap gap-2">
-          <Link href={query(f, { topic: undefined })} className={`chip ${!f.topic ? "on" : ""}`} aria-current={!f.topic ? "page" : undefined}>
-            All topics
-          </Link>
-          {taught.map((t) => (
-            <Link
-              key={t.code}
-              href={query(f, { topic: t.code })}
-              className={`chip ${f.topic === t.code ? "on" : ""}`}
-              aria-current={f.topic === t.code ? "page" : undefined}
-            >
-              {t.name}
-            </Link>
-          ))}
-        </nav>
-
-        <nav aria-label="Papers by stage" className="mb-3 flex flex-wrap gap-2">
-          <Link href={query(f, { stage: undefined })} className={`chip ${!f.stage ? "on" : ""}`}
-            aria-current={!f.stage ? "page" : undefined}>
-            Every stage <span className="fact ml-1 opacity-70">{all}</span>
-          </Link>
-          {/* replaced is said only where there is one: a week with no home assessment made again shows no empty chip */}
-          {STAGES.filter((s) => s !== "replaced" || stages[s] || f.stage === s).map((s) => (
-            <Link key={s} href={query(f, { stage: s })} className={`chip ${f.stage === s ? "on" : ""}`}
-              aria-current={f.stage === s ? "page" : undefined}>
-              {STAGE_WORDS[s][0].toUpperCase() + STAGE_WORDS[s].slice(1)} <span className="fact ml-1 opacity-70">{stages[s]}</span>
-            </Link>
-          ))}
-        </nav>
-
-        <details data-filters open={folded} className="mb-[18px]">
-          <summary className="cursor-pointer text-[13px] text-basalt/75">Class, child, kind and week</summary>
-          <form action="/papers" className="panel mt-2 flex flex-wrap items-end gap-3 p-4">
-            {f.stage ? <input type="hidden" name="stage" value={f.stage} /> : null}
-            {f.topic ? <input type="hidden" name="topic" value={f.topic} /> : null}
-            <Select name="class" label="Class" value={f.class} all="Every class" options={options.classes.map((c) => [c, c])} />
-            <Select name="child" label="Child" value={f.child} all="Every child" options={options.children.map((c) => [c.id, c.label])} />
-            <Select name="kind" label="Kind" value={f.kind} all="Any kind" options={Object.entries(KIND_WORDS)} />
-            <Select name="week" label="Week" value={f.week} all="Every week" options={options.weeks.map((w) => [w, weekWords(w)])} />
-            <button type="submit" className="btn secondary">Show</button>
-            {chosen ? <Link href="/papers" className="text-[13px]">Clear</Link> : null}
-          </form>
-        </details>
 
         <section className="grid gap-[18px]" aria-label="Papers">
           {weeks.map((w) => {
@@ -213,16 +182,27 @@ export default async function PapersPage({ searchParams }: Props) {
           {groups.more ? <p className="note">The newest 300 assessments are shown; narrow the filters to see the rest.</p> : null}
         </section>
 
+        {/* what is over and done, behind a link each (goals/s2b-assessments-declutter.yaml) */}
+        <nav aria-label="More" className="mt-6 flex flex-wrap gap-x-5 gap-y-1 text-[13px]">
+          <Link href="/capture#past-scans">Past scans</Link>
+          <Link href="/capture#reader">How the reader is doing</Link>
+        </nav>
       </Body>
     </>
   );
 }
 
-/** A week's line: how many assessments, and only what waits in them, or that nothing does. */
+/** A week's line: how many assessments, and only what waits in them, or that nothing does. Papers to approve and to sign
+ *  off are counted as papers, the answers to check as answers — each said once, as the rows say them. */
 function waits(rows: AssessmentRow[]): string[] {
   const n = rows.length;
-  const said = WAITS.map(([s, words]) => [rows.reduce((k, a) => k + a.by[s], 0), words] as const)
+  const sum = (f: (a: AssessmentRow) => number) => rows.reduce((k, a) => k + f(a), 0);
+  const said = [
+    [sum((a) => a.by.made), "to approve"],
+    [sum((a) => a.waiting), "answers to check"],
+    [sum((a) => a.by.checked), "to sign off"],
+  ]
     .filter(([k]) => k)
-    .map(([k, words]) => `${k} ${words}`);
+    .map(([k, words]) => `${k} ${k === 1 && words === "answers to check" ? "answer to check" : words}`);
   return [`${n} assessment${n === 1 ? "" : "s"}`, ...(said.length ? said : ["nothing waiting"])];
 }

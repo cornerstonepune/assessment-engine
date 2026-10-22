@@ -115,7 +115,7 @@ test("Assessments opens on its weeks, the newest open and the rest closed, each 
   // each week one line: its name, how many assessments, and only what waits
   const line = week(page, THIS).locator("> summary");
   await expect(line).toContainText(weekWords(THIS));
-  await expect(line).toContainText(/1 assessment\b.*1 to approve\b.*1 to check\b/);
+  await expect(line).toContainText(/1 assessment\b.*1 to approve\b.*1 answer to check\b/);
   await expect(week(page, OLD).locator("> summary")).toContainText(/1 assessment\b.*nothing waiting/);
   // one line an assessment: what it is, its class and where its copies stand; no copies until it is opened
   const a = week(page, THIS).locator("[data-assessment]");
@@ -155,14 +155,15 @@ test("the topic and stage rows stay, the other filters fold, and a filter opens 
   const page = await asEducator(browser);
   await page.goto("/papers");
   await expect(page.locator("details[data-week]").first()).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Topic" })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Papers by stage" })).toBeVisible();
+  // S2b (goals/s2b-assessments-declutter.yaml), 2026-10-22: the topic and stage chips are one Filter, folded with the rest
+  await expect(page.getByRole("navigation", { name: "Topic" })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Papers by stage" })).toHaveCount(0);
   await expect(page.getByRole("navigation", { name: "View" })).toHaveCount(0);
   const more = page.locator("details[data-filters]");
   await expect(more).not.toHaveAttribute("open", "");
   // a child chosen: their papers, every week open, each assessment showing their copy
   await page.goto(`/papers?child=${kids.Asha}`);
-  await expect(more).toHaveAttribute("open", "");
+  await expect(more).not.toHaveAttribute("open", "");
   await expect(week(page, THIS)).toHaveAttribute("open", "");
   await expect(week(page, OLD)).toHaveAttribute("open", "");
   await expect(week(page, OLD).getByRole("link", { name: "Asha" })).toHaveAttribute("href", `/worksheets/${QR.old}`);

@@ -9,6 +9,7 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { filterBy, openMake } from "./papers-page";
 import { aClass, aReadPaper, aWorksheet } from "./rows";
 import { isoWeek, weekWords } from "../lib/week";
 
@@ -41,11 +42,12 @@ test.afterAll(async () => {
 test("Assessments opens on four ways to make one, each opening the maker ready for its use", async ({ page }) => {
   await page.goto("/papers");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Assessments");
-  const make = page.getByRole("region", { name: "Make an assessment", exact: true });
-  await expect(make.getByRole("link")).toHaveText([/^For a class/, /^For each child/, /^For one child/, /^A ready-made worksheet/]);
+  // one button, and the four ways inside it (goals/s2b-assessments-declutter.yaml)
+  await openMake(page);
+  await expect(page.locator("[data-make] ul").getByRole("link")).toHaveText([/^For a class/, /^For each child/, /^For one child/, /^A ready-made worksheet/]);
 
   // for a class: one assessment for every child, the class still to choose
-  await make.getByRole("link", { name: /^For a class/ }).click();
+  await page.getByRole("link", { name: /^For a class/ }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Make papers");
   await page.getByRole("form", { name: "Choose the papers" }).getByLabel("Class").selectOption({ value: SECTION });
   await page.getByRole("button", { name: "Show the class" }).click();
@@ -55,7 +57,8 @@ test("Assessments opens on four ways to make one, each opening the maker ready f
 
   // for one child: the same maker, no child ticked until the educator ticks one
   await page.goto("/papers");
-  await make.getByRole("link", { name: /^For one child/ }).click();
+  await openMake(page);
+  await page.getByRole("link", { name: /^For one child/ }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Make papers");
   await page.getByRole("form", { name: "Choose the papers" }).getByLabel("Class").selectOption({ value: SECTION });
   await page.getByRole("button", { name: "Show the class" }).click();
@@ -63,10 +66,12 @@ test("Assessments opens on four ways to make one, each opening the maker ready f
 
   // for each child: this week's home assessments, one per child from their record; a worksheet: the library
   await page.goto("/papers");
-  await make.getByRole("link", { name: /^For each child/ }).click();
+  await openMake(page);
+  await page.getByRole("link", { name: /^For each child/ }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Home assessments");
   await page.goto("/papers");
-  await make.getByRole("link", { name: /^A ready-made worksheet/ }).click();
+  await openMake(page);
+  await page.getByRole("link", { name: /^A ready-made worksheet/ }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Worksheets");
 });
 
@@ -102,8 +107,10 @@ test("a class and a topic make the class's default assessment, every child's pap
 
 test("every assessment's stage, class and week are said in words", async ({ page }) => {
   await page.goto(`/papers?class=${SECTION}`);
-  const stages = page.getByRole("navigation", { name: "Papers by stage" });
-  await expect(stages.getByRole("link")).toHaveText([/^Every stage/, /^To approve/, /^With the children/, /^To check/, /^To sign off/, /^Done/]);
+  // the stages are the Filter's one choice, only those that hold something (goals/s2b-assessments-declutter.yaml)
+  await page.getByText("Filter", { exact: true }).click();
+  await expect(page.locator("[data-filters] select[name=stage]")).toContainText("Every stage");
+  await page.getByText("Filter", { exact: true }).click();
   // its week said in words, a line for the assessment, its copy under it (goals/ux5-papers-grouped.yaml)
   const week = page.locator(`details[data-week="${WEEK}"]`);
   await expect(week.locator("> summary")).toContainText(weekWords(WEEK));
@@ -116,7 +123,7 @@ test("every assessment's stage, class and week are said in words", async ({ page
   await expect(copy.locator("td").nth(3)).toHaveText("to check");
   await expect(copy.locator("td").nth(4)).toHaveText("1");
   expect(await page.getByRole("region", { name: "Papers" }).innerText(), "an ISO week code in the list").not.toMatch(/\b\d{4}-W\d{2}\b/);
-  await stages.getByRole("link", { name: /^To check/ }).click();
+  await filterBy(page, { stage: { value: "scanned" } });
   await expect(page).toHaveURL(/stage=scanned/);
   await expect(page.locator("tr[data-assessment]").filter({ hasText: "U16 paper" })).toHaveCount(1);
 });

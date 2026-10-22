@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { awaitingCte } from "./queries-counts";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 
 // Papers (goals/u9-papers.yaml): every paper, made to signed off, in one list. Nimish, 2026-09-30: "one list of papers
@@ -73,6 +74,7 @@ const LIMIT = 300;
 /** The papers themselves, each with its stage and counts, before any filter. Void papers are left out. A function, not
  *  a constant: `sql` is touched only when data is asked for (lib/db.ts), never when the page is imported to build. */
 const papersCte = () => sql`
+  ${awaitingCte()},
   papers as (
     select si.id, si.tenant_id, si.qr_code as qr, coalesce(si.kind, 'earlier') as kind, si.child_id, ch.roll_no, t.difficulty as level,
            -- a child's copy is at the child's grade, a spare at its class's (class_band, the one rule), and only a paper
@@ -87,10 +89,11 @@ const papersCte = () => sql`
                   select 1 from sheet_instance n where n.kind = 'focus' and n.child_id = si.child_id
                     and n.week = si.week and n.created_at > si.created_at and n.print_status <> 'void') then 'replaced'
                 when not a.read then case when si.print_status = 'new' then 'made' else 'printed' end
-                when a.n = 0 or a.waiting > 0 then 'scanned'
+                when a.n = 0 or a.unsettled > 0 then 'scanned'
                 when a.candidate > 0 then 'checked'
                 else 'signed off' end as stage,
-           a.waiting, a.right, a.scored,
+           -- the answers waiting for a person: the one count (lib/queries-counts.ts), not the raw unsettled ones above
+           (select count(*)::int from awaiting w where w.sheet_instance_id = si.id) as waiting, a.right, a.scored,
            -- one assessment (goals/ui5-assessments-readable.yaml): a kind of paper given to a class in a week on one
            -- skill set (each child a worksheet of its own, the same skill) or on one worksheet; a class's home
            -- assessments and chosen papers for a week are one assessment, each child's drawn for them
@@ -125,7 +128,7 @@ const papersCte = () => sql`
     cross join lateral (
       select exists (select 1 from capture k where k.sheet_instance_id = si.id and k.superseded_by is null) as read,
              count(r.id)::int as n,
-             count(*) filter (where r.status in ('unreadable', 'needs_teacher'))::int as waiting,
+             count(*) filter (where r.status in ('unreadable', 'needs_teacher'))::int as unsettled,
              count(*) filter (where r.state = 'candidate')::int as candidate,
              count(*) filter (where r.status = 'correct')::int as right,
              count(*) filter (where r.status in ('correct', 'wrong', 'blank'))::int as scored
@@ -215,6 +218,8 @@ export type AssessmentRow = {
   title: string;
   /** Its children's copies; its spares, not yet written on, apart: they go with the pack. */
   copies: number;
+  /** Its copies that are in: read, from a scan. */
+  arrived: number;
   spares: number;
   /** Its copies at each stage. */
   by: Record<Stage, number>;
@@ -235,6 +240,8 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
     select kind, section, coalesce((array_agg(class_band order by grade_ord(tenant_id, class_band)) filter (where class_band is not null))[1],
                                    (array_agg(band order by grade_ord(tenant_id, band)))[1]) as band, week, set_key as set, min(set_name) as title,
            count(*) filter (where not spare)::int as copies, count(*) filter (where spare)::int as spares,
+           -- papers in: the copies read, as the card says it (lib/queries-card.ts, isIn)
+           count(*) filter (where stage not in ('made', 'printed', 'replaced') and not spare)::int as arrived,
            jsonb_build_object('made', count(*) filter (where stage = 'made' and not spare),
                               'printed', count(*) filter (where stage = 'printed' and not spare),
                               'scanned', count(*) filter (where stage = 'scanned'),

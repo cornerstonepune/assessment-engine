@@ -1,8 +1,8 @@
 import Link from "@/components/link";
-import { Pill } from "@/components/shell";
 import { classWords } from "@/lib/needs-you";
 import { grades } from "@/lib/queries";
-import { KIND_WORDS, STAGES, STAGE_WORDS, type AssessmentRow, type PaperListRow } from "@/lib/queries-papers";
+import { Pill } from "@/components/shell";
+import { KIND_WORDS, STAGE_WORDS, type AssessmentRow, type PaperListRow, type Stage } from "@/lib/queries-papers";
 import { CopiesTable, STAGE_TONE } from "./copies-table";
 
 // A class's home assessments or chosen papers for a week are one assessment, named for what they are.
@@ -17,6 +17,10 @@ export const cardHref = (a: { kind: string; section: string | null; week: string
   const q = new URLSearchParams({ class: a.section ?? "", week: a.week ?? "", kind: a.kind, ...(a.set ? { set: a.set } : {}) });
   return `/papers/card?${q}`;
 };
+
+// What waits on a person, as papers: approving them for print, signing them off. The answers to check are counted in their
+// own column — a paper to check and an answer to check are two things, so they are never said with the same word.
+const TO_DO: Stage[] = ["made", "checked"];
 
 export const assessmentTitle = (a: AssessmentRow) => (a.set ? a.title : (MANY[a.kind] ?? a.title));
 
@@ -40,13 +44,13 @@ export async function AssessmentsTable({
       <thead>
         <tr>
           <th>Assessment</th>
-          {/* on a phone where an assessment stands sits beside its name: the columns the row's own copies repeat fold away
-              (goals/ux8d-phone-and-one-action.yaml) */}
+          {/* on a phone the columns the row's own copies repeat fold away (goals/ux8d-phone-and-one-action.yaml) */}
           <th className="max-md:hidden">Kind</th>
           <th className="max-md:hidden">Class</th>
           <th className="num max-md:hidden">Copies</th>
-          <th>Where they stand</th>
-          <th className="num">Waiting</th>
+          <th>To do</th>
+          <th className="num">Papers in</th>
+          <th className="num">Answers to check</th>
           <th className="num max-md:hidden">Score</th>
         </tr>
       </thead>
@@ -70,25 +74,32 @@ export async function AssessmentsTable({
               <td className="whitespace-nowrap max-md:hidden">
                 {a.section ? (a.band ? classWords(g, a.band, a.section) : a.section) : <span className="text-basalt/45">—</span>}
               </td>
-              <td className="num fact whitespace-nowrap max-md:hidden">
+              <td className="num fact whitespace-nowrap max-md:hidden" data-testid="copies">
                 {a.copies}
                 {a.spares ? <span className="block text-[11.5px] text-basalt/55">and {a.spares} spare</span> : null}
               </td>
               <td>
                 <span data-testid="stage-on-row" className="flex flex-wrap gap-1">
-                  {STAGES.filter((s) => a.by[s]).map((s) => (
-                    <Pill key={s} tone={STAGE_TONE[s]}>
-                      {a.by[s]} {STAGE_WORDS[s]}
+                  {TO_DO.filter((st) => a.by[st]).map((st) => (
+                    <Pill key={st} tone={STAGE_TONE[st]}>
+                      {a.by[st]} {STAGE_WORDS[st]}
                     </Pill>
                   ))}
                 </span>
               </td>
-              <td className="num">{a.waiting ? a.waiting : <span className="text-basalt/45">—</span>}</td>
+              {/* copies, papers in and answers to check: each said once, by the one query (lib/queries-counts.ts); a zero is
+                  not drawn (goals/s2b-assessments-declutter.yaml) */}
+              <td className="num" data-testid="in">
+                {a.arrived ? `${a.arrived} of ${a.copies}` : <span className="text-basalt/45">—</span>}
+              </td>
+              <td className="num" data-testid={a.waiting ? "to-check" : undefined}>
+                {a.waiting ? a.waiting : <span className="text-basalt/45">—</span>}
+              </td>
               <td className="num whitespace-nowrap max-md:hidden">{a.scored ? `${a.right} of ${a.scored}` : <span className="text-basalt/45">—</span>}</td>
             </tr>,
             open ? (
               <tr key={`${key}|copies`} data-copies={key}>
-                <td colSpan={7} className="!pl-8">
+                <td colSpan={8} className="!pl-8">
                   {a.section ? (
                     <Link href={cardHref(a)} className="btn secondary mb-2">
                       Open its card →

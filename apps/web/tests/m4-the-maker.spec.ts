@@ -10,6 +10,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { TEST_STAFF } from "./global-setup";
+import { openMake } from "./papers-page";
 import { aLine } from "./rows";
 
 test.describe.configure({ mode: "serial" });
@@ -77,7 +78,8 @@ const CODES = /\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/
 test("an educator picks the kind, the children and the way, sees every paper, makes them, and prints them as one", async ({ page }) => {
   // the maker opens from Assessments' first way to make one (goals/ui2-assessments.yaml), for a class
   await page.goto("/papers");
-  await page.getByRole("region", { name: "Make an assessment" }).getByRole("link", { name: /^For a class/ }).click();
+  await openMake(page);
+  await page.getByRole("link", { name: /^For a class/ }).click();
   await expect(page).toHaveURL(/\/papers\/make\?/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Make papers");
   const form = page.getByRole("form", { name: "Choose the papers" });

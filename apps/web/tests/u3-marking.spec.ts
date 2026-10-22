@@ -130,7 +130,8 @@ async function counts(where = sql`true`): Promise<Counts> {
            count(*) filter (where ${STANDING} = 'waiting')::int as waiting
     from item_result r join capture c on c.id = r.capture_id join sheet_instance si on si.id = c.sheet_instance_id
     join child ch on ch.id = si.child_id join sheet_template t on t.id = si.sheet_template_id
-    where c.superseded_by is null and ${where}`;
+    -- S2b (goals/s2b-assessments-declutter.yaml), 2026-10-22: a paper put away is not marked, so its answers are no one's to check
+    where c.superseded_by is null and si.print_status <> 'void' and ${where}`;
   return c;
 }
 
@@ -201,7 +202,11 @@ test("by class, by child and by worksheet, each count is where the engine says e
 
 test("the queue of answers to check sits inside marking with its count, one click away", async ({ page }) => {
   const [{ n }] = await sql<{ n: number }[]>`
+    -- S2b (goals/s2b-assessments-declutter.yaml), 2026-10-22: one meaning everywhere — an answer waits only if its paper is
+    -- not put away and belongs to a child, since an answer no one can be shown cannot be checked
     select count(*)::int as n from item_result r join capture c on c.id = r.capture_id
+    join item i on i.id = r.item_id
+    join sheet_instance si on si.id = c.sheet_instance_id and si.print_status <> 'void' join child ch on ch.id = si.child_id
     where c.superseded_by is null and r.status in ('unreadable', 'needs_teacher')`;
   expect(n).toBeGreaterThanOrEqual(3);
   await page.goto("/capture");

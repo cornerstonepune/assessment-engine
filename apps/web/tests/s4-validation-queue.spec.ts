@@ -60,9 +60,14 @@ const NUMBER = sql`coalesce(i.spec ->> 'answer', i.responses -> 0 ->> 'answer') 
 // A wrong or a blank the engine holds for a person (ADR 0029) is a reading to confirm, not a judgement.
 const notHeld = sql`coalesce(r.raw_read::jsonb ->> 'why', '') not like '%a person checks every%'`;
 
-// The engine's own definition (`engine read waiting`), so the screen's count is checked against it.
+// The engine's own definition (`engine read waiting`: answer_standing), less the answers no one can be shown — on a paper
+// put away, or given to no child (S2b, goals/s2b-assessments-declutter.yaml: one count, one meaning on every screen).
 const waiting = async () =>
-  (await sql<{ n: number }[]>`select count(*)::int as n ${ALL} and r.status in ('unreadable', 'needs_teacher')`)[0].n;
+  (await sql<{ n: number }[]>`
+    select count(*)::int as n ${ALL}
+      and r.status in ('unreadable', 'needs_teacher')
+      and exists (select 1 from sheet_instance si join child ch on ch.id = si.child_id
+                  where si.id = c.sheet_instance_id and si.print_status <> 'void')`)[0].n;
 
 type Row = { id: string; status: string; state: string; misconception_codes: string[]; working_shown: string };
 const keep = async (id: string) =>

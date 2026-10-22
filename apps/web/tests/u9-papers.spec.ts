@@ -15,6 +15,7 @@
  */
 import { expect, type Page, test } from "@playwright/test";
 import postgres from "postgres";
+import { filterBy } from "./papers-page";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -130,10 +131,12 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
 
   // each stage is counted, and a count is the filter
   await page.goto(`/papers?class=${SECTION}`);
-  const stages = page.getByRole("navigation", { name: "Papers by stage" });
   // each stage said as the work it waits for (goals/ui2-assessments.yaml); its filter value stays the stored stage
-  await expect(stages.getByRole("link", { name: /^To check/ })).toContainText("1");
-  await stages.getByRole("link", { name: /^To check/ }).click();
+  // (S2b, 2026-10-22: the stage chips are one Filter)
+  await page.getByText("Filter", { exact: true }).click();
+  await expect(page.locator("[data-filters] select[name=stage] option", { hasText: "To check" })).toHaveCount(1);
+  await page.getByText("Filter", { exact: true }).click();
+  await filterBy(page, { stage: { value: "scanned" } });
   await expect(page).toHaveURL(/stage=scanned/);
   await expect(page).toHaveURL(new RegExp(`class=${SECTION}`));
   await expect(lines).toHaveCount(1);
@@ -141,14 +144,10 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
 
   // the other filters are a form, folded under one line, any of them narrowing
   await page.goto(`/papers?class=${SECTION}`);
-  await expect(page.locator("details[data-filters]")).toHaveAttribute("open", "");
-  await page.getByLabel("Kind").selectOption({ label: "Home assessment" });
-  await page.getByRole("button", { name: "Show" }).click();
+  await filterBy(page, { kind: { label: "Home assessment" } });
   await expect(lines).toHaveCount(1);
   await expect(lines).toContainText("Home assessments");
-  await page.getByLabel("Child").selectOption({ label: `Bina · ${SECTION} roll 2` });
-  await page.getByLabel("Kind").selectOption({ label: "Any kind" });
-  await page.getByRole("button", { name: "Show" }).click();
+  await filterBy(page, { child: { label: `Bina · ${SECTION} roll 2` }, kind: { label: "Any kind" } });
   await expect(lines).toHaveCount(2);
   await expect(page.locator("tbody tr[data-paper]")).toHaveCount(2);
 });
@@ -160,7 +159,8 @@ test("one Assessments in the menu for marking and making, and a row opens the pa
   await expect(menu.getByRole("link", { name: "Marking" })).toHaveCount(0);
   await expect(menu.getByRole("link", { name: "Make papers" })).toHaveCount(0);
   // making, reading a scan and the queue of answers to check are all here
-  await expect(page.getByRole("region", { name: "Make an assessment" }).getByRole("link", { name: /^For a class/ })).toHaveAttribute("href", /^\/papers\/make\?/);
+  await page.getByText("Make an assessment", { exact: true }).click(); // one button, S2b (goals/s2b-assessments-declutter.yaml)
+  await expect(page.getByRole("link", { name: /^For a class/ })).toHaveAttribute("href", /^\/papers\/make\?/);
   await expect(page.getByRole("region", { name: "Read a scan" })).toBeVisible();
   await expect(page.getByRole("link", { name: /answers? to check/ })).toHaveAttribute("href", "/capture/check");
   // the pages it merged are still Assessments

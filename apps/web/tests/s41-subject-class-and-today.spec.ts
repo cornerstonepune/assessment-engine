@@ -150,7 +150,7 @@ test("Today opens on five lines of what the system knows this week, then the nex
   await expect(lines).toHaveCount(5);
   // every number is the class's own, counted by code
   await expect(lines.nth(0)).toHaveText(/1 paper came back this week, and 2 answers were read/);
-  await expect(lines.nth(1)).toHaveText(/1 answer waits for a person/);
+  await expect(lines.nth(1)).toHaveText(/1 answer from this week waits for a person/);
   await expect(lines.nth(2)).toHaveText(/1 of 3 children is secure on a skill; 1 needs help/);
   await expect(lines.nth(3)).toContainText(mistake);
   await expect(lines.nth(3)).toHaveText(/1 child/);
