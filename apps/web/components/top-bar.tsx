@@ -64,7 +64,7 @@ function Search() {
   const open = openOn === path;
   const setOpen = (yes: boolean) => setOpenOn(yes ? path : null);
   return (
-    <form action={search} onSubmit={() => setOpen(true)} className="ml-auto min-w-0 max-md:flex-1 md:shrink-0">
+    <form action={search} onSubmit={() => setOpen(true)} className="ml-auto min-w-0 max-md:flex-1 max-md:basis-0 md:shrink-0">
       <label className="sr-only" htmlFor="bar-search">
         Search
       </label>
@@ -77,7 +77,7 @@ function Search() {
         id="bar-search"
         name="q"
         type="search"
-        className="input min-h-[40px] !w-[240px] !pl-9 !text-[15px] transition-[width] focus:!w-[340px] max-md:min-h-11 max-md:!w-full"
+        className="input min-h-[40px] !w-full md:!w-[240px] !pl-9 !text-[15px] md:focus:!w-[340px] max-md:min-h-11"
         placeholder="Find a child or paper"
         autoComplete="off"
         defaultValue={found?.q}

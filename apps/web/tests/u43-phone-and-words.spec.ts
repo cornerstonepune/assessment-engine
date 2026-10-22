@@ -202,7 +202,8 @@ test("a date is one format on every page", () => {
   expect(seen.coordinator.length).toBeGreaterThan(20);
   // one date at least, in the one format: Asha's paper was read today
   expect(found(new RegExp(`\\b\\d{2}-${MONTH}-\\d{4}\\b`)).length).toBeGreaterThan(0);
-  expect(found(/\b\d{4}-\d{2}-\d{2}\b/), "a date written as 2026-10-21").toEqual([]);
+  // a date standing alone; a paper's own name that ends in one ("U10-2026-08-02", a test's title) is the name's
+  expect(found(/(?<![\w-])\d{4}-\d{2}-\d{2}\b/), "a date written as 2026-10-21").toEqual([]);
   // "21 Oct", "21 October 2026": a date said any other way; a week's own words ("week of 19 Oct") are a week's, and a
   // row's own prose ("the 24 September paper", an ask's question as the seed words it) is the row's
   expect(found(new RegExp(`(?<!week of )\\b\\d{1,2} ${MONTH}\\b(?!-)`)), "a date in another format").toEqual([]);
