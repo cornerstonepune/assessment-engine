@@ -29,10 +29,11 @@ conn, worksheet = test_copies.conn, test_copies.worksheet  # a worksheet as the 
 def test_a_childs_own_pages_are_one_copy_wherever_they_lie_and_a_worksheets_copies_stay_apart():
     got = sorting.gather(sorting.group(["CS00AAAA", "CS00BBBB", "CS00BBBB", "CS00AAAA", None]))
     assert [(p["qr"], p["pages"], p["runs"], p["unread"]) for p in got] == [
-        ("CS00AAAA", [1, 4, 5], [[1], [4, 5]], [5]),
+        ("CS00AAAA", [1, 4], [[1], [4]], []),
         ("CS00BBBB", [2, 3], [[2, 3]], []),
+        (None, [5], [[5]], [5]),  # no code: nobody's (goals/ux9a-no-guessed-pages.yaml)
     ]
-    assert [sorting.pages_said(p["pages"]) for p in got] == ["p1, p4–5", "p2–3"]
+    assert [sorting.pages_said(p["pages"]) for p in got] == ["p1, p4", "p2–3", "p5"]
     # a library worksheet's code is on every child's copy of it: copies apart in the file are different children's
     two = {"R2-E12": 2}.get
     got = sorting.gather(

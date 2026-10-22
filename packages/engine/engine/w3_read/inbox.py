@@ -154,7 +154,7 @@ def start(tenant, path: Path, actor: str, pages: int | None = None) -> str:
             db.one(
                 conn,
                 "insert into flow_run (tenant_id, flow, trigger, result) values (%s, %s, %s, %s::jsonb) returning id",
-                (tenant, FLOW, f"{actor}: {path.name}", json.dumps({"pages": pages})),
+                (tenant, FLOW, f"{actor}: {path.name}", json.dumps({"pages": pages, "file": path.name})),
             )["id"]
         )
 
@@ -167,7 +167,7 @@ def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]
     was not in the file (goals/l11-a-scan-is-read-whole.yaml)."""
     with db.connect() as conn:
         try:
-            out = copies.read(conn, str(path), "", None, actor, again=again)
+            out = copies.read(conn, str(path), "", None, actor, again=again, given=given(conn, path.name))
             conn.execute(
                 "update flow_run set status = 'ok', result = coalesce(result, '{}') || %s::jsonb, finished_at = now(),"
                 " updated_at = now()"
@@ -187,3 +187,67 @@ def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]
             # `ConfigParseError` (2026-09-25).
             conn.commit()
             raise
+
+
+# the file a run read: kept on the run from 2026-10-22, before that only in its trigger ("who: file")
+_FILE = "coalesce(result ->> 'file', substr(trigger, strpos(trigger, ': ') + 2))"
+
+
+def given(conn, name: str) -> dict[int, str]:
+    """{page: child} for one file: each page on which no code could be read that a person said is a child's, on any run
+    of the file, the latest word on a page standing (goals/ux9a-no-guessed-pages.yaml)."""
+    out = {}
+    for r in conn.execute(
+        f"select result -> 'given' as given from flow_run where flow = %s and {_FILE} = %s"
+        " and result ? 'given' order by started_at",
+        (FLOW, name),
+    ):
+        out |= {int(g["page"]): g["child_id"] for g in r["given"]}
+    return out
+
+
+def give(conn, run_id: str, page: int, child_id: str, by: str) -> Path:
+    """A person says whose a page with no code is: kept on the file's run, which is marked to be read again (`read`,
+    started by the caller), and the file to read. Only a page of the run that waits for its child, given to a child
+    whose own paper is in the file, and not while the file is being read."""
+    run = conn.execute(
+        f"select status, result, {_FILE} as file from flow_run where id = %s and flow = %s for update",
+        (run_id, FLOW),
+    ).fetchone()
+    if not run:
+        raise Refused(404, "no such scan")
+    if run["status"] == "running":
+        raise Refused(409, "this scan is still being read: say whose the page is once it is read")
+    result = run["result"] or {}
+    lines = result.get("copies") or []
+    done = {int(g["page"]) for g in result.get("given") or []}
+    waiting = {n for c in lines for n in (c.get("no_code") or [])} - done
+    if page not in waiting:
+        raise Refused(409, f"page {page} of this file is not one waiting for its child")
+    if child_id not in {c["child_id"] for c in lines if c.get("child_id") and c.get("by_code", True)}:
+        raise Refused(409, "no paper of that child is in this file, so the page cannot be read as theirs")
+    path = INBOX / Path(run["file"]).name
+    if not path.exists():
+        raise Refused(410, f"{path.name} is no longer kept by the engine: send the scan again")
+    word = {"page": page, "child_id": child_id, "by": by}
+    conn.execute(
+        "update flow_run set status = 'running', error = null, finished_at = null, updated_at = now(),"
+        " result = result || jsonb_build_object('given', coalesce(result -> 'given', '[]'::jsonb) || %s::jsonb)"
+        " where id = %s",
+        (json.dumps([word]), run_id),
+    )
+    return path
+
+
+def page_jpg(conn, run_id: str, page_no: int) -> bytes:
+    """One page of the file a run read, drawn small: enough for a person to see whose name is on it."""
+    run = conn.execute(
+        f"select {_FILE} as file from flow_run where id = %s and flow = %s", (run_id, FLOW)
+    ).fetchone()
+    path = run and INBOX / Path(run["file"]).name
+    if not path or not path.exists():
+        raise Refused(404, "the scan is not on this machine")
+    with pymupdf.open(path) as doc:
+        if not 1 <= page_no <= len(doc):
+            raise Refused(404, f"the file has no page {page_no}")
+        return doc[page_no - 1].get_pixmap(dpi=60).tobytes("jpeg")

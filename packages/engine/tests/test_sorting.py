@@ -24,10 +24,13 @@ from engine.core import db
 from engine.w3_read import render_pdf, sorting
 
 
-def test_pages_group_by_their_code_and_a_page_with_none_joins_the_paper_before_it():
+def test_pages_group_by_their_code_and_a_page_with_none_is_a_paper_of_its_own():
+    """Until 2026-10-22 a page with no code joined the paper before it; Nimish: "yes, stop guessing" (ux9a)."""
     assert sorting.group(["CS00AAAA", "CS00AAAA", None, "CS00BBBB", None]) == [
-        {"qr": "CS00AAAA", "pages": [1, 2, 3], "unread": [3]},
-        {"qr": "CS00BBBB", "pages": [4, 5], "unread": [5]},
+        {"qr": "CS00AAAA", "pages": [1, 2], "unread": []},
+        {"qr": None, "pages": [3], "unread": [3]},
+        {"qr": "CS00BBBB", "pages": [4], "unread": []},
+        {"qr": None, "pages": [5], "unread": [5]},
     ]
     assert sorting.group([None, "CS00AAAA"]) == [
         {"qr": None, "pages": [1], "unread": [1]},
@@ -35,25 +38,24 @@ def test_pages_group_by_their_code_and_a_page_with_none_joins_the_paper_before_i
     ]
 
 
-def test_copies_of_one_worksheet_in_a_row_are_cut_at_its_length_and_a_missing_code_starts_the_next_copy():
+def test_copies_of_one_worksheet_in_a_row_are_cut_at_its_length_and_a_missing_code_is_no_copys():
     three = {"R8-H02": 3}.get
     got = sorting.group(["R8-H02"] * 6 + [None, "R8-H02", "R8-H02"], lambda c: three(c, 0))
-    assert [p["pages"] for p in got] == [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-    assert got[2] == {"qr": "R8-H02", "pages": [7, 8, 9], "unread": [7]}
+    assert [p["pages"] for p in got] == [[1, 2, 3], [4, 5, 6], [7], [8, 9]]
+    assert got[2] == {"qr": None, "pages": [7], "unread": [7]}
 
 
-def test_a_first_page_whose_code_did_not_read_belongs_to_the_copy_after_it_when_that_copy_is_short_by_it():
-    """The Grade 2 scan of 2026-09-23: page 27 (R5-H14's first page) read no code, after a whole R2-E12 copy."""
+def test_a_first_page_whose_code_did_not_read_is_not_taken_for_the_copy_after_it():
+    """The Grade 2 scan of 2026-09-23: page 27 (R5-H14's first page) read no code, after a whole R2-E12 copy. It was
+    taken for R5-H14's, a copy short by it; from 2026-10-22 a person says whose it is (ux9a)."""
     two = {"R2-E12": 2, "R5-H14": 2}.get
     got = sorting.group(["R2-E12", "R2-E12", None, "R5-H14", "R2-E12", "R2-E12"], lambda c: two(c, 0))
     assert [(p["qr"], p["pages"], p["unread"]) for p in got] == [
         ("R2-E12", [1, 2], []),
-        ("R5-H14", [3, 4], [3]),
+        (None, [3], [3]),
+        ("R5-H14", [4], []),
         ("R2-E12", [5, 6], []),
     ]
-    # A whole copy after it takes nothing: the page stays the copy it was taken for, flagged.
-    got = sorting.group(["R2-E12", "R2-E12", None, "R2-E12", "R2-E12", "R2-E12"], lambda c: two(c, 0))
-    assert [p["pages"] for p in got] == [[1, 2], [3, 4], [5, 6]]
 
 
 def _printed(tmp_path, qr, n):

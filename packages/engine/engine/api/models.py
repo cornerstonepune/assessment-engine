@@ -311,5 +311,15 @@ class ReadFileResponse(BaseModel):
     pages: int
 
 
+class GivePageRequest(BaseModel):
+    page: int  # the file's page on which no code could be read
+    child_id: str  # whose a person says it is: a child whose own paper is in the file
+    by: str
+
+
+class GivePageResponse(BaseModel):
+    run_id: str  # the file's run, being read again with the page as the child's
+
+
 class UploadResponse(ReadFileResponse):
     file: str  # the name it is kept under in the inbox, as Marking lists it
