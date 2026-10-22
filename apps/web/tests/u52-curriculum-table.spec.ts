@@ -1,5 +1,5 @@
 /**
- * UXN2 — Curriculum is a table (goals/uxn2-curriculum-table.yaml). Nimish, 2026-10-22: "the tags of subject names and all
+ * U52 — Curriculum is a table (goals/uxn2-curriculum-table.yaml). Nimish, 2026-10-22: "the tags of subject names and all
  * are never aligned, like on the curriculum page ... Can we use tables more for easier viewing, and use icons or red, amber,
  * green ... Use filters wherever possible." Read as it renders at 1440 px: a skill to a row, grade, subject, topic, skill,
  * levels and status as columns, one chip for the state, one filter row, ten rows to a page.
@@ -14,7 +14,7 @@ test("Curriculum is one table of skills: grade, subject, topic, skill, levels, s
   await page.goto("/");
   const table = page.getByRole("table", { name: "The curriculum" });
   await expect(table).toBeVisible();
-  const heads = await table.locator("thead th").allInnerTexts();
+  const heads = await table.locator("thead th").allTextContents();
   expect(heads.map((h) => h.trim())).toEqual([
     "Grade",
     "Subject",
@@ -50,6 +50,7 @@ test("the filter row narrows the table and one click clears it", async ({
   const rows = page
     .getByRole("table", { name: "The curriculum" })
     .locator("tbody tr");
+  await expect(rows.first()).toBeVisible();
   expect(await rows.count()).toBeGreaterThan(0);
   for (const g of await rows.locator("td:first-child").allInnerTexts())
     expect(g.trim()).toBe("Grade 1");
@@ -73,6 +74,7 @@ test("a search finds a skill, and the skill's link opens its page", async ({
   const rows = page
     .getByRole("table", { name: "The curriculum" })
     .locator("tbody tr");
+  await expect(rows.first()).toBeVisible();
   expect(await rows.count()).toBeGreaterThan(0);
   await rows.first().locator("a").first().click();
   await expect(page).toHaveURL(/\/skill-sets\//);

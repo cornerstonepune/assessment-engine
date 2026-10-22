@@ -9,7 +9,7 @@ DataTable, FilterBar, StatusChip, top bar). Web only, no migration, no new table
 
 - **Failing first:** the audit (PR #289, `docs/notes/ui-night-2-audit.md`) walked the old page at 1440 px: four closed "Grade n"
   bars, an "Open everything" button, no filter, no status chip, no column per grade, subject, topic. The new spec
-  `tests/uxn2-curriculum-table.spec.ts` asserts the table named "The curriculum" with the six columns, a filter row and a
+  `tests/u52-curriculum-table.spec.ts` asserts the table named "The curriculum" with the six columns, a filter row and a
   search, so it cannot pass on that page.
 - **The page:** `/` is a `PageShell` page: one table of skills (Grade, Subject, Topic, Skill, Levels, Status), a `FilterBar`
   (grade, topic, status with counts, a search), ten rows to a page, the skills waiting for approval first. The one action
