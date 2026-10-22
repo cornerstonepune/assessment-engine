@@ -34,7 +34,7 @@ export function Nav({ items }: { items: readonly NavItem[] }) {
             {it.label}
             {/* the count is the link's description, not its name: the tab is "Assessments" to a reader and a test */}
             {it.count ? (
-              <span data-testid="waiting" aria-hidden="true" className="absolute top-0 right-0 min-w-[18px] bg-terracotta px-[4px] py-[1px] text-center text-[10px] text-chalk tabular-nums md:static md:ml-auto md:min-w-[22px] md:px-[6px] md:text-[11.5px]">
+              <span data-testid="waiting" data-count={it.label} aria-hidden="true" className="absolute top-0 right-0 min-w-[18px] bg-terracotta px-[4px] py-[1px] text-center text-[10px] text-chalk tabular-nums md:static md:ml-auto md:min-w-[22px] md:px-[6px] md:text-[11.5px]">
                 {it.count.toLocaleString("en-IN")}
               </span>
             ) : null}

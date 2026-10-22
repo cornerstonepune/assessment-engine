@@ -55,6 +55,7 @@ n8n/workflows/                  exported JSON, reviewed in PRs like code
 data/                           gitignored — scans, renders, print packs
 docs/adr/                       one decision per file, numbered
 docs/sources/                   team documents this design incorporates
+docs/ux-rules.md                the eight rules of the educator's site, the shared blocks, the pages still off them
 ```
 
 A workflow imports only `core`, `assess`, `adapters`, and another workflow through a hand-over the map
