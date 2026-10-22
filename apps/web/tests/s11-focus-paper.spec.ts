@@ -119,5 +119,6 @@ test("a home assessment is made again the same week and the newest is the week's
   await expect(row.locator('[data-n="approved"]')).toHaveText("1");
   // the Papers list: the two earlier copies replaced, the newest with the child
   await page.goto(`/papers?child=${child}`);
-  await expect(page.getByText("replaced by a newer one").first()).toBeVisible();
+  // (the Status filter's own option says it too, hidden: the papers are read in the table)
+  await expect(page.getByRole("region", { name: "Papers" }).getByText("replaced by a newer one").first()).toBeVisible();
 });
