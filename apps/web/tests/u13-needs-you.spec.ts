@@ -65,7 +65,7 @@ test("an educator switches a topic on, in their name, and its skills are on Curr
   expect(topic.taught, "division waits for an educator's word").toBe(false);
   const said = () => sql`select bool_and(taught) as taught, min(taught_by) as taught_by from class_skill where section = ${CLASS} and skill_set_code in (select code from skill where topic_code = 'DIV')`;
   try {
-    await page.goto("/?taught=1");
+    await page.goto("/taught");
     const off = page.getByRole("region", { name: "Not taught yet", exact: true });
     const row = off.getByRole("listitem").filter({ hasText: topic.name });
     await expect(row).toContainText("2-digit ÷ 1-digit");
@@ -79,7 +79,7 @@ test("an educator switches a topic on, in their name, and its skills are on Curr
     await page.goto("/library?set=DIV.2D1D");
     await expect(page.getByRole("main")).toContainText("2-digit ÷ 1-digit");
     // and said not taught again, in a person's name, it is not
-    await page.goto("/?taught=1");
+    await page.goto("/taught");
     const on = page.getByRole("region", { name: "Taught", exact: true });
     await on.locator("summary").click(); // saying a class was not taught is folded away from a stray click
     await on

@@ -97,7 +97,7 @@ export function Topics({ topics, me, open, fold = false }: { topics: Topic[]; me
                           </span>
                           <Switch code={t.code} section={c.section} on={false} label={`Not taught in ${c.section}, as ${me}`} />
                         </span>
-                        <Link className="text-basalt/70 underline" href={`/?skills=${t.code}&in=${c.section}#skills`}>
+                        <Link className="text-basalt/70 underline" href={`/taught?skills=${t.code}&in=${c.section}#skills`}>
                           {c.skills.filter((k) => k.taught).length} of {c.skills.length} skills taught in {c.section} · say which →
                         </Link>
                       </div>

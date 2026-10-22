@@ -88,7 +88,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
         {s.taught ? null : (
           <Notice tone="terracotta">
             Not taught yet: no class you see has been taught {s.topic_name ?? "its topic"}, so this skill is on none of
-            their pages or papers. Read and approve it now; <Link href="/?taught=1#not-taught">say a class has been taught it</Link>{" "}
+            their pages or papers. Read and approve it now; <Link href="/taught#not-taught">say a class has been taught it</Link>{" "}
             when one has.
           </Notice>
         )}
