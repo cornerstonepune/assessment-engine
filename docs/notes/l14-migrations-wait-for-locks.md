@@ -43,9 +43,34 @@ now `20261126100000`, and `tests/test_migration_order.py` fails any change whose
   sorts before main's newest migration 20261126090000 … e.g. 20261126100000_question_types_are_rows.sql". With B2's
   renamed one: `2 passed`. On this branch: `2 passed`.
 
+## After the merge (2026-10-22)
+
+**The first try did not reach live.** #250 merged at 01:05 UTC. migrate live's run 39709016021 (02:01, commit
+1a82d28, #258, no new migration) stopped at the step's own check: `psql "$LIVE" -tAc 'show lock_timeout'` with PGOPTIONS
+set did not print `3s` (psql was there and connected: no error in the log). So settings given at connection start do
+not reach live's session; I am not certain why (likely the pooler live's address goes through drops startup
+options; worth verifying). Nothing was pushed; `live database` was set red on 1a82d28 and Vercel held #258's build.
+
+**The fix: the settings are the migration's own first statements.** The step writes
+`set lock_timeout = '3s'; set statement_timeout = '10min';` at the top of each file in the runner's checkout, so they
+run inside the migration's own transaction on whatever connection live gives. Files live has applied are skipped by
+`db push`, so only new ones run with the lines; the repository's files are unchanged. The CLI does the same for its
+own table (`SET lock_timeout = '4s'` in the batch that creates `supabase_migrations.schema_migrations`).
+
+Rehearsed on this machine (Postgres 16, supabase CLI 2.121.0; the role's default `statement_timeout` set to 2 s as
+live's is 2 min; a reader holding the view, its own timeout off):
+
+| | result |
+|---|---|
+| migration with the two lines, reader holding the view | exit 1 after 4 s, "lock timeout (SQLSTATE 55P03) At statement: 2", 0 versions recorded |
+| the same once the reader finished; the migration sleeps 4 s | applied in 5 s: the 10-minute setting overrode the role's 2 s |
+| a later push with the repository's unchanged file | "Remote database is up to date." |
+
+- `cd packages/engine && uv run pytest -q tests/test_deploy.py`: 20 passed. On main's `migrate.yml` the 4 tests fail.
+
 ## Handoff
 
-- Live: nothing yet. The first merge with a migration proves the one thing this machine could not: that live's
-  connection takes PGOPTIONS (the step checks `show lock_timeout` is 3s and pushes nothing otherwise).
+- Live: #258's website build is held until this merges and migrate live runs green on main's newest commit.
+- The next migrate live run proves it: 'apply what live is missing' applies and `live database` goes green.
 - Not changed, by the scope: `bin/update-live` runs the same `supabase db push` on live by hand, without these
   settings. `rehearse-update-live.yml` applies migrations only to its copy, with psql.

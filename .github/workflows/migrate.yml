@@ -61,20 +61,22 @@ jobs:
       # 2026-10-21 12:52 UTC, school in session: `create or replace view answer_checked`, a change to the catalogue only,
       # waited 121 s for a lock live's readers of that view held, until live's 2-minute statement timeout cancelled it
       # (SQLSTATE 57014); every educator's query on that view queued behind it meanwhile. A re-run at 13:25 took 14 s.
-      # So the migration's session gives up a lock it cannot have within 3 s (SQLSTATE 55P03; its transaction rolls back
-      # whole, nothing recorded), and this step tries again shortly; any other failure stops at once. A migration that
-      # holds its locks and has real work to do gets 10 minutes, not live's 2. The CLI connects with PGOPTIONS
-      # (rehearsed: supabase 2.121.0, a reader holding the view, 55P03 after 3 s; docs/notes/l14-migrations-wait-for-locks.md).
+      # So each migration gives up a lock it cannot have within 3 s (SQLSTATE 55P03; its transaction rolls back whole,
+      # nothing recorded), and this step tries again shortly; any other failure stops at once. A migration that holds
+      # its locks and has real work to do gets 10 minutes, not live's 2. The settings are written as the first lines of
+      # each migration in this runner's checkout, so they travel inside the migration's own transaction whatever
+      # connection live gives: on 2026-10-22 02:01 the first try, PGOPTIONS at connection start, reached the session
+      # here but not on live (`show lock_timeout` there was not 3s). Live has already applied every file but the new
+      # ones, so only those run with the lines; the repository's files are unchanged
+      # (rehearsed: docs/notes/l14-migrations-wait-for-locks.md).
       - name: apply what live is missing
         if: steps.plan.outputs.go == 'yes'
-        env:
-          LIVE: "${{ secrets.LIVE_DATABASE_URL }}"
-          PGOPTIONS: "-c lock_timeout=3s -c statement_timeout=10min"
+        env: { LIVE: "${{ secrets.LIVE_DATABASE_URL }}" }
         run: |
-          if [ "$(psql "$LIVE" -tAc 'show lock_timeout')" != 3s ]; then
-            echo "::error::live's connection ignores PGOPTIONS, so a migration would wait on educators' locks again"
-            exit 1
-          fi
+          for f in supabase/migrations/*.sql; do
+            { printf "set lock_timeout = '3s';\nset statement_timeout = '10min';\n"; cat "$f"; } > "$f.new"
+            mv "$f.new" "$f"
+          done
           for try in 1 2 3 4 5 6; do
             if out=$(supabase db push --db-url "$LIVE" --yes 2>&1); then echo "$out"; exit 0; fi
             echo "$out"

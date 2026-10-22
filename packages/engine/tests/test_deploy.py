@@ -258,19 +258,22 @@ def _push_step() -> dict:
     return next(s for s in job["steps"] if "supabase db push" in s.get("run", ""))
 
 
-def _push(tmp_path, answers, lock_timeout="3s"):
-    """migrate live's push step run as the runner runs it (`bash -e`), with a `supabase` that answers each try from
-    `answers` ("ok", "lock" for SQLSTATE 55P03, anything else another failure), and psql and sleep that only write
-    down what they were asked → (exit code, every call in order)."""
+SETTINGS = ["set lock_timeout = '3s';", "set statement_timeout = '10min';"]
+
+
+def _push(tmp_path, answers):
+    """migrate live's push step run as the runner runs it (`bash -e`, in a checkout holding one migration), with a
+    `supabase` that writes down the first lines of the migration it would apply and answers each try from `answers`
+    ("ok", "lock" for SQLSTATE 55P03, anything else another failure), and a sleep that only writes down what it was
+    asked → (exit code, every call in order, the migration as the CLI read it)."""
     import os
     import subprocess
 
     bin_ = tmp_path / "bin"
     bin_.mkdir()
     fakes = {
-        "psql": f'echo "psql $3 $PGOPTIONS" >> "$LOG"; echo {lock_timeout}\n',
         "sleep": 'echo "sleep $1" >> "$LOG"\n',
-        "supabase": 'echo "push $PGOPTIONS" >> "$LOG"; a=$(head -1 "$ANSWERS"); sed -i 1d "$ANSWERS"\n'
+        "supabase": 'echo "push" >> "$LOG"; a=$(head -1 "$ANSWERS"); sed -i 1d "$ANSWERS"\n'
         'case "$a" in ok) echo "Finished supabase db push." ;;\n'
         '  lock) echo "ERROR: canceling statement due to lock timeout (SQLSTATE 55P03)"; exit 1 ;;\n'
         '  *) echo "ERROR: relation \\"x\\" does not exist (SQLSTATE 42P01)"; exit 1 ;; esac\n',
@@ -278,6 +281,10 @@ def _push(tmp_path, answers, lock_timeout="3s"):
     for name, body in fakes.items():
         (bin_ / name).write_text("#!/usr/bin/env bash\n" + body)
         (bin_ / name).chmod(0o755)
+    migrations = tmp_path / "supabase" / "migrations"
+    migrations.mkdir(parents=True)
+    migration = migrations / "20990101000000_a_view.sql"
+    migration.write_text("create or replace view v as select 1 as a;\n")
     log, said = tmp_path / "calls", tmp_path / "answers"
     log.touch()
     said.write_text("\n".join(answers) + "\n")
@@ -290,46 +297,44 @@ def _push(tmp_path, answers, lock_timeout="3s"):
         "ANSWERS": str(said),
     }
     env["LIVE"] = "postgresql://nobody@127.0.0.1:1/none"
-    done = subprocess.run(["bash", "-e", "-c", step["run"]], env=env, capture_output=True, text=True)
-    return done.returncode, log.read_text().splitlines()
-
-
-def test_a_migration_waits_briefly_for_a_lock_and_long_for_its_work():
-    """2026-10-21 12:52 UTC: a view's replacement waited 121 s behind live's readers until live's 2-minute statement
-    timeout cancelled it (SQLSTATE 57014), educators' queries on that view queued behind it all the while."""
-    options = _push_step()["env"]["PGOPTIONS"].split()
-    assert "lock_timeout=3s" in options, (
-        "a migration still waits on educators' locks until the statement timeout"
+    done = subprocess.run(
+        ["bash", "-e", "-c", step["run"]], cwd=tmp_path, env=env, capture_output=True, text=True
     )
-    assert "statement_timeout=10min" in options, "a migration with real work still dies at live's 2 minutes"
+    return done.returncode, log.read_text().splitlines(), migration.read_text().splitlines()
+
+
+def test_a_migration_waits_briefly_for_a_lock_and_long_for_its_work(tmp_path):
+    """2026-10-21 12:52 UTC: a view's replacement waited 121 s behind live's readers until live's 2-minute statement
+    timeout cancelled it (SQLSTATE 57014), educators' queries on that view queued behind it all the while. The settings
+    are the migration's own first statements: on 2026-10-22 the same settings given at connection start (PGOPTIONS)
+    never reached live's session."""
+    code, _, applied = _push(tmp_path, ["ok"])
+    assert code == 0
+    assert applied[:2] == SETTINGS, (
+        "a migration still waits on educators' locks until live's statement timeout"
+    )
+    assert applied[2:] == ["create or replace view v as select 1 as a;"], "the migration itself was changed"
+    assert "PGOPTIONS" not in _push_step().get("env", {}), (
+        "settings at connection start never reach live's session"
+    )
 
 
 def test_a_migration_held_by_a_lock_tries_again_by_itself(tmp_path):
-    code, calls = _push(tmp_path, ["lock", "lock", "ok"])
+    code, calls, _ = _push(tmp_path, ["lock", "lock", "ok"])
     assert code == 0
-    pushes = [c for c in calls if c.startswith("push ")]
-    assert pushes == ["push -c lock_timeout=3s -c statement_timeout=10min"] * 3, calls
-    assert calls.count("sleep 20") == 2, calls
+    assert calls == ["push", "sleep 20", "push", "sleep 20", "push"], calls
 
 
 def test_a_migration_that_fails_for_another_reason_stops_at_once(tmp_path):
-    code, calls = _push(tmp_path, ["other", "ok"])
+    code, calls, _ = _push(tmp_path, ["other", "ok"])
     assert code == 1
-    assert [c for c in calls if c.startswith(("push", "sleep"))] == [
-        "push -c lock_timeout=3s -c statement_timeout=10min"
-    ]
+    assert calls == ["push"], calls
 
 
 def test_a_migration_still_held_after_six_tries_fails(tmp_path):
-    code, calls = _push(tmp_path, ["lock"] * 7)
+    code, calls, _ = _push(tmp_path, ["lock"] * 7)
     assert code == 1
-    assert sum(c.startswith("push") for c in calls) == 6, calls
-
-
-def test_nothing_is_pushed_when_lives_connection_ignores_the_settings(tmp_path):
-    code, calls = _push(tmp_path, ["ok"], lock_timeout="0")
-    assert code == 1
-    assert not any(c.startswith("push") for c in calls), calls
+    assert calls.count("push") == 6, calls
 
 
 def test_the_model_key_reaches_the_server_from_the_repositorys_secret():

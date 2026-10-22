@@ -3,12 +3,15 @@ goal: >
   A change to live's database never queues educators' pages behind it, and never fails because they were busy. The
   migration gives up a lock it cannot have within 3 seconds and tries again, six times 20 seconds apart; a migration
   that fails for any other reason fails at once; one that holds its locks has 10 minutes for its work, not live's 2.
-  If live's connection would ignore those settings, nothing is pushed and the run says so.
+  The settings are the migration's own first statements, so they hold whatever connection live gives.
 # Written 2026-10-21, before the code. Measured first, on migrate live's own log (run 39603041282, attempt 1, read
 # with `gh api`; nothing run on live): at 12:52 UTC, school in session, `create or replace view answer_checked` —
 # a catalogue change, milliseconds of work — waited 121 s for a lock live's readers of the view held, until live's
 # 2-minute statement timeout cancelled it (SQLSTATE 57014). Attempt 2 at 13:25 applied it in 14 s
 # (docs/notes/l14-migrations-wait-for-locks.md). Named L14: L9 is goals/l9-not-taught-is-said-where-it-shows.yaml.
+# 2026-10-22, after the merge: the settings given at connection start (PGOPTIONS) did not reach live's session, the
+# step's own check stopped the 02:01 run before any change, and the website's build of #258 was held. They are now
+# written into the migration itself (the same note, "After the merge").
 says:
   - words: "a database update waits briefly and tries again by itself instead of failing"
     proved_by: packages/engine/tests/test_deploy.py::test_a_migration_waits_briefly_for_a_lock_and_long_for_its_work
@@ -18,10 +21,8 @@ says:
     proved_by: packages/engine/tests/test_deploy.py::test_a_migration_that_fails_for_another_reason_stops_at_once
   - words: "a database update waits briefly and tries again by itself instead of failing"
     proved_by: packages/engine/tests/test_deploy.py::test_a_migration_still_held_after_six_tries_fails
-  - words: "a database update waits briefly and tries again by itself instead of failing"
-    proved_by: packages/engine/tests/test_deploy.py::test_nothing_is_pushed_when_lives_connection_ignores_the_settings
 manual:
-  - "The next merge with a migration: migrate live's 'apply what live is missing' step passes its check that live's connection takes lock_timeout 3s, then applies; any 'try n of 6' warning names a lock it waited out."
+  - "The next migrate live run: 'apply what live is missing' applies and the commit's 'live database' status is green; any 'try n of 6' warning names a lock it waited out."
 scenarios: []
 criteria:
   - name: the push's settings and its retry are as the tests say
