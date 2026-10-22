@@ -221,7 +221,7 @@ def _shaped(rng: random.Random, code: str, name: str) -> tuple[str, dict[str, An
                 return None
             return _first_wrong_column(sum(xs), wrong), (xs, wrong)
 
-        xs, wrong = _spread(rng, draw, "three numbers that need a carry of 2")
+        xs, wrong = _spread(rng, draw, "three numbers whose ones make 20 or more")
         right = sum(xs)
         stem = f"{name} added {' + '.join(map(str, xs))} in columns and wrote {wrong}. That is not right."
         spec = dict(addends=xs, op="+", layout="column", wrong=wrong, planted=code)

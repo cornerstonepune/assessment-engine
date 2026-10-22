@@ -81,7 +81,7 @@
       "code": "R17",
       "band": "G3",
       "ladder_order": null,
-      "descriptor": "Missing digits across a carry or an exchange (Olympiad-style)",
+      "descriptor": "Missing digits across a regrouping or an exchange (Olympiad-style)",
       "skill_codes": [
         "NUM.PRB.03",
         "NUM.OPS.01",

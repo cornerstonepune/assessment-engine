@@ -12,6 +12,7 @@ from collections.abc import Iterable
 BANNED = (
     r"teachers?",
     r"borrow\w*",
+    r"carr(?:y|ies|ied|ying)(?!\sout)",  # 2026-10-22, Nimish: the school's word is "regroup" (goals/ux9b-regroup.yaml)
     r"weak\w*",
     r"poor\w*",
     r"behind",

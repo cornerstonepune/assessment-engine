@@ -4073,7 +4073,7 @@
   },
   "NUM.OPS.01": {
    "name": "Addition",
-   "desc": "Addition through number line, quantities and counters; 2-digit then 3-digit addition with carrying; regrouping and reordering.",
+   "desc": "Addition through number line, quantities and counters; 2-digit then 3-digit addition with regrouping; regrouping and reordering.",
    "src": "report_items.csv G1-G3 Numeracy; G4 syllabus",
    "type": "academic",
    "pillar": "CRT",
@@ -4083,19 +4083,19 @@
    "ms": [
     {
      "b": "G1",
-     "d": "Concept of Addition through Number Line - 20 | Concept of Addition through quantities | Concept of Addition through counters | Concept of 2 digits Addition with carrying",
+     "d": "Concept of Addition through Number Line - 20 | Concept of Addition through quantities | Concept of Addition through counters | Concept of 2 digits Addition with regrouping",
      "s": "score_10",
      "src": "G1 Developmental Update (Sept format)"
     },
     {
      "b": "G2",
-     "d": "Concept of 3 digits addition with carrying",
+     "d": "Concept of 3 digits addition with regrouping",
      "s": "score_10",
      "src": "G2 Developmental Update (Sept format)"
     },
     {
      "b": "G3",
-     "d": "Concept of 3 digits addition with carrying | Addition: Regrouping tens and reordering",
+     "d": "Concept of 3 digits addition with regrouping | Addition: Regrouping tens and reordering",
      "s": "score_10",
      "src": "G3 Developmental Update (Sept format)"
     },
@@ -4109,7 +4109,7 @@
   },
   "NUM.OPS.02": {
    "name": "Subtraction",
-   "desc": "Subtraction through number line; 2-digit subtraction without and with borrowing.",
+   "desc": "Subtraction through number line; 2-digit subtraction without and with regrouping.",
    "src": "report_items.csv G1-G3 Numeracy; G4 syllabus",
    "type": "academic",
    "pillar": "CRT",
@@ -4119,19 +4119,19 @@
    "ms": [
     {
      "b": "G1",
-     "d": "Concept of Subtraction through Number Line - 10 | Concept of 2 digits Subtraction without borrowing",
+     "d": "Concept of Subtraction through Number Line - 10 | Concept of 2 digits Subtraction without regrouping",
      "s": "score_10",
      "src": "G1 Developmental Update (Sept format)"
     },
     {
      "b": "G2",
-     "d": "Concept of 2 digits Subtraction without borrowing | Concept of 2 digits Subtraction with borrowing",
+     "d": "Concept of 2 digits Subtraction without regrouping | Concept of 2 digits Subtraction with regrouping",
      "s": "score_10",
      "src": "G2 Developmental Update (Sept format)"
     },
     {
      "b": "G3",
-     "d": "Concept of 2 digits Subtraction without borrowing | Concept of 2 digits Subtraction with borrowing",
+     "d": "Concept of 2 digits Subtraction without regrouping | Concept of 2 digits Subtraction with regrouping",
      "s": "score_10",
      "src": "G3 Developmental Update (Sept format)"
     },
@@ -90434,7 +90434,7 @@
    "band": "G1",
    "section": "3",
    "skill": "NUM.OPS.01",
-   "title": "Concept of 2 digits Addition with carrying"
+   "title": "Concept of 2 digits Addition with regrouping"
   },
   {
    "band": "G1",
@@ -90458,7 +90458,7 @@
    "band": "G2",
    "section": "3",
    "skill": "NUM.OPS.01",
-   "title": "Concept of 3 digits addition with carrying"
+   "title": "Concept of 3 digits addition with regrouping"
   },
   {
    "band": "G3",
@@ -90470,13 +90470,13 @@
    "band": "G3",
    "section": "3",
    "skill": "NUM.OPS.01",
-   "title": "Concept of 3 digits addition with carrying"
+   "title": "Concept of 3 digits addition with regrouping"
   },
   {
    "band": "G1",
    "section": "3",
    "skill": "NUM.OPS.02",
-   "title": "Concept of 2 digits Subtraction without borrowing"
+   "title": "Concept of 2 digits Subtraction without regrouping"
   },
   {
    "band": "G1",
@@ -90488,25 +90488,25 @@
    "band": "G2",
    "section": "3",
    "skill": "NUM.OPS.02",
-   "title": "Concept of 2 digits Subtraction with borrowing"
+   "title": "Concept of 2 digits Subtraction with regrouping"
   },
   {
    "band": "G2",
    "section": "3",
    "skill": "NUM.OPS.02",
-   "title": "Concept of 2 digits Subtraction without borrowing"
+   "title": "Concept of 2 digits Subtraction without regrouping"
   },
   {
    "band": "G3",
    "section": "3",
    "skill": "NUM.OPS.02",
-   "title": "Concept of 2 digits Subtraction with borrowing"
+   "title": "Concept of 2 digits Subtraction with regrouping"
   },
   {
    "band": "G3",
    "section": "3",
    "skill": "NUM.OPS.02",
-   "title": "Concept of 2 digits Subtraction without borrowing"
+   "title": "Concept of 2 digits Subtraction without regrouping"
   },
   {
    "band": "G2",
@@ -92253,7 +92253,7 @@
    "label": "Critical Thinker",
    "positive": "Answering evaluative, extrapolative and value-based questions (G1:1:14) with a reason | Shows working / explains how they got the answer when asked (Diagnostic: 'working shown') | Spots their own mistake when checking and corrects it (Find the Mistake, metacognitive) | Tries a second strategy on a word problem before asking | Asks a question that connects two things ('is that like…?'); Fun Riddles reasoning",
    "concern": "Writes an answer with no working and cannot say how they got it, most tasks | Erases and asks the teacher at the first difficulty, every time | Copies a neighbour's answer rather than attempting, repeatedly | Answers 'why' questions with a restated fact rather than a reason, most times",
-   "expected": "Sara found her own carrying mistake while checking and explained to Advik why the tens column changes.",
+   "expected": "Sara found her own regrouping mistake while checking and explained to Advik why the tens column changes.",
    "exceeding": "Ruhi has handed in every word-problem sheet with answers only and says 'I just knew' when I ask how - she copied two from Neel today.",
    "linked": [
     "NUM.PRB.02",

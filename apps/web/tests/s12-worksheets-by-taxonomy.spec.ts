@@ -31,7 +31,7 @@ test("the library reads case by case, each case with the worksheets that hold it
 
   // a pattern that questions at many levels show is named as that, not as a gap
   await page.goto("/worksheets/taxonomy");
-  await page.getByRole("link", { name: "§5 Carry and exchange patterns" }).click();
+  await page.getByRole("link", { name: "§5 Regrouping and exchange patterns" }).click();
   const p06 = page.getByRole("table", { name: "Cases in §5.1" }).getByRole("row").filter({ hasText: "P06" });
   await expect(p06.getByText("across levels")).toBeVisible();
 });

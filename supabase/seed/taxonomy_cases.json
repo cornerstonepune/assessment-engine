@@ -152,7 +152,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.2",
       "section_name": "Two-digit and one-digit",
-      "label": "2-digit + 1-digit in columns, no carry",
+      "label": "2-digit + 1-digit in columns, no regrouping",
       "example_text": "43 + 5 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -181,7 +181,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.2",
       "section_name": "Two-digit and one-digit",
-      "label": "2-digit + 1-digit in a line, no carry",
+      "label": "2-digit + 1-digit in a line, no regrouping",
       "example_text": "43 + 5 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -210,7 +210,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.2",
       "section_name": "Two-digit and one-digit",
-      "label": "1-digit + 2-digit in columns, no carry — the smaller number first",
+      "label": "1-digit + 2-digit in columns, no regrouping — the smaller number first",
       "example_text": "5 + 43 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -239,7 +239,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.2",
       "section_name": "Two-digit and one-digit",
-      "label": "1-digit + 2-digit in a line, no carry",
+      "label": "1-digit + 2-digit in a line, no regrouping",
       "example_text": "5 + 43 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -268,7 +268,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.2",
       "section_name": "Two-digit and one-digit",
-      "label": "2-digit + 1-digit in columns, a carry, the answer stays 2 digits",
+      "label": "2-digit + 1-digit in columns, a regrouping, the answer stays 2 digits",
       "example_text": "47 + 6 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -298,7 +298,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.2",
       "section_name": "Two-digit and one-digit",
-      "label": "2-digit + 1-digit in a line, a carry, the answer stays 2 digits",
+      "label": "2-digit + 1-digit in a line, a regrouping, the answer stays 2 digits",
       "example_text": "47 + 6 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -328,7 +328,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.2",
       "section_name": "Two-digit and one-digit",
-      "label": "1-digit + 2-digit in columns, a carry, the answer stays 2 digits",
+      "label": "1-digit + 2-digit in columns, a regrouping, the answer stays 2 digits",
       "example_text": "6 + 47 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -358,7 +358,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.2",
       "section_name": "Two-digit and one-digit",
-      "label": "1-digit + 2-digit in a line, a carry, the answer stays 2 digits",
+      "label": "1-digit + 2-digit in a line, a regrouping, the answer stays 2 digits",
       "example_text": "6 + 47 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -388,7 +388,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.2",
       "section_name": "Two-digit and one-digit",
-      "label": "2-digit + 1-digit in columns, the carry makes a 3-digit answer",
+      "label": "2-digit + 1-digit in columns, the regrouping makes a 3-digit answer",
       "example_text": "96 + 8 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -417,7 +417,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.2",
       "section_name": "Two-digit and one-digit",
-      "label": "2-digit + 1-digit in a line, the carry makes a 3-digit answer",
+      "label": "2-digit + 1-digit in a line, the regrouping makes a 3-digit answer",
       "example_text": "96 + 8 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -446,7 +446,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.2",
       "section_name": "Two-digit and one-digit",
-      "label": "1-digit + 2-digit, the carry makes a 3-digit answer",
+      "label": "1-digit + 2-digit, the regrouping makes a 3-digit answer",
       "example_text": "8 + 96 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -474,7 +474,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.3",
       "section_name": "Two-digit + two-digit",
-      "label": "In columns, no carry",
+      "label": "In columns, no regrouping",
       "example_text": "23 + 45 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -503,7 +503,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.3",
       "section_name": "Two-digit + two-digit",
-      "label": "In a line, no carry",
+      "label": "In a line, no regrouping",
       "example_text": "23 + 45 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -532,7 +532,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.3",
       "section_name": "Two-digit + two-digit",
-      "label": "In columns, a carry from the ones only",
+      "label": "In columns, a regrouping from the ones only",
       "example_text": "27 + 36 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -561,7 +561,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.3",
       "section_name": "Two-digit + two-digit",
-      "label": "In a line, a carry from the ones only",
+      "label": "In a line, a regrouping from the ones only",
       "example_text": "27 + 36 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -590,7 +590,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.3",
       "section_name": "Two-digit + two-digit",
-      "label": "In columns, a carry from the tens only",
+      "label": "In columns, a regrouping from the tens only",
       "example_text": "61 + 42 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -619,7 +619,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.3",
       "section_name": "Two-digit + two-digit",
-      "label": "In a line, a carry from the tens only",
+      "label": "In a line, a regrouping from the tens only",
       "example_text": "61 + 42 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -648,7 +648,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.3",
       "section_name": "Two-digit + two-digit",
-      "label": "In columns, carries from the ones and the tens",
+      "label": "In columns, regrouping from the ones and the tens",
       "example_text": "68 + 47 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -677,7 +677,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.3",
       "section_name": "Two-digit + two-digit",
-      "label": "In a line, carries from the ones and the tens",
+      "label": "In a line, regrouping from the ones and the tens",
       "example_text": "68 + 47 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -706,7 +706,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "3-digit + 1-digit in columns, no carry — the 5 goes under the ones",
+      "label": "3-digit + 1-digit in columns, no regrouping — the 5 goes under the ones",
       "example_text": "342 + 5 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -735,7 +735,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "3-digit + 1-digit in a line, no carry",
+      "label": "3-digit + 1-digit in a line, no regrouping",
       "example_text": "342 + 5 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -764,7 +764,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "1-digit + 3-digit in columns, no carry — the order changes, the columns do not",
+      "label": "1-digit + 3-digit in columns, no regrouping — the order changes, the columns do not",
       "example_text": "5 + 342 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -793,7 +793,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "1-digit + 3-digit in a line, no carry",
+      "label": "1-digit + 3-digit in a line, no regrouping",
       "example_text": "5 + 342 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -822,7 +822,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "3-digit + 1-digit in columns, a carry from the ones only",
+      "label": "3-digit + 1-digit in columns, a regrouping from the ones only",
       "example_text": "347 + 5 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -851,7 +851,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "3-digit + 1-digit in a line, a carry from the ones only",
+      "label": "3-digit + 1-digit in a line, a regrouping from the ones only",
       "example_text": "347 + 5 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -880,7 +880,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "1-digit first, a carry from the ones, in columns",
+      "label": "1-digit first, a regrouping from the ones, in columns",
       "example_text": "5 + 347 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -909,7 +909,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "1-digit first, a carry from the ones, in a line",
+      "label": "1-digit first, a regrouping from the ones, in a line",
       "example_text": "5 + 347 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -938,7 +938,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "The carry ripples one more place (399 + 4), in columns",
+      "label": "The regrouping ripples one more place (399 + 4), in columns",
       "example_text": "399 + 4 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -983,7 +983,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "The carry ripples one more place, in a line",
+      "label": "The regrouping ripples one more place, in a line",
       "example_text": "399 + 4 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1028,7 +1028,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "The carry ripples through the 9s and makes a new digit (999 + 7), in columns",
+      "label": "The regrouping ripples through the 9s and makes a new digit (999 + 7), in columns",
       "example_text": "999 + 7 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1071,7 +1071,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.4",
       "section_name": "Three-digit and one-digit",
-      "label": "The carry ripples through the 9s and makes a new digit, in a line",
+      "label": "The regrouping ripples through the 9s and makes a new digit, in a line",
       "example_text": "999 + 7 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1114,7 +1114,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "3-digit + 2-digit in columns, no carry",
+      "label": "3-digit + 2-digit in columns, no regrouping",
       "example_text": "345 + 23 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1143,7 +1143,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "3-digit + 2-digit written in a line, no carry",
+      "label": "3-digit + 2-digit written in a line, no regrouping",
       "example_text": "345 + 23 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1172,7 +1172,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "2-digit + 3-digit (the shorter number first) in columns, no carry",
+      "label": "2-digit + 3-digit (the shorter number first) in columns, no regrouping",
       "example_text": "23 + 345 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1201,7 +1201,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "2-digit + 3-digit (the shorter number first) written in a line, no carry",
+      "label": "2-digit + 3-digit (the shorter number first) written in a line, no regrouping",
       "example_text": "23 + 345 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1230,7 +1230,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "3-digit + 2-digit in columns, a carry from the ones only",
+      "label": "3-digit + 2-digit in columns, a regrouping from the ones only",
       "example_text": "347 + 25 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1259,7 +1259,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "3-digit + 2-digit written in a line, a carry from the ones only",
+      "label": "3-digit + 2-digit written in a line, a regrouping from the ones only",
       "example_text": "347 + 25 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1288,7 +1288,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "2-digit + 3-digit (the shorter number first) in columns, a carry from the ones only",
+      "label": "2-digit + 3-digit (the shorter number first) in columns, a regrouping from the ones only",
       "example_text": "25 + 347 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1317,7 +1317,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "2-digit + 3-digit (the shorter number first) written in a line, a carry from the ones only",
+      "label": "2-digit + 3-digit (the shorter number first) written in a line, a regrouping from the ones only",
       "example_text": "25 + 347 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1346,7 +1346,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "3-digit + 2-digit in columns, a carry from the tens only",
+      "label": "3-digit + 2-digit in columns, a regrouping from the tens only",
       "example_text": "361 + 42 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1375,7 +1375,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "3-digit + 2-digit written in a line, a carry from the tens only",
+      "label": "3-digit + 2-digit written in a line, a regrouping from the tens only",
       "example_text": "361 + 42 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1404,7 +1404,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "2-digit + 3-digit (the shorter number first) in columns, a carry from the tens only",
+      "label": "2-digit + 3-digit (the shorter number first) in columns, a regrouping from the tens only",
       "example_text": "42 + 361 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1433,7 +1433,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "2-digit + 3-digit (the shorter number first) written in a line, a carry from the tens only",
+      "label": "2-digit + 3-digit (the shorter number first) written in a line, a regrouping from the tens only",
       "example_text": "42 + 361 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1462,7 +1462,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "3-digit + 2-digit in columns, carries from the ones and the tens",
+      "label": "3-digit + 2-digit in columns, regrouping from the ones and the tens",
       "example_text": "378 + 47 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1491,7 +1491,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "3-digit + 2-digit written in a line, carries from the ones and the tens",
+      "label": "3-digit + 2-digit written in a line, regrouping from the ones and the tens",
       "example_text": "378 + 47 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1520,7 +1520,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "2-digit + 3-digit (the shorter number first) in columns, carries from the ones and the tens",
+      "label": "2-digit + 3-digit (the shorter number first) in columns, regrouping from the ones and the tens",
       "example_text": "47 + 378 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1549,7 +1549,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "2-digit + 3-digit (the shorter number first) written in a line, carries from the ones and the tens",
+      "label": "2-digit + 3-digit (the shorter number first) written in a line, regrouping from the ones and the tens",
       "example_text": "47 + 378 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1578,7 +1578,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "3-digit + 2-digit in columns, the carry makes a 4-digit answer",
+      "label": "3-digit + 2-digit in columns, the regrouping makes a 4-digit answer",
       "example_text": "985 + 27 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1607,7 +1607,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "3-digit + 2-digit written in a line, the carry makes a 4-digit answer",
+      "label": "3-digit + 2-digit written in a line, the regrouping makes a 4-digit answer",
       "example_text": "985 + 27 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1636,7 +1636,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "2-digit + 3-digit (the shorter number first) in columns, the carry makes a 4-digit answer",
+      "label": "2-digit + 3-digit (the shorter number first) in columns, the regrouping makes a 4-digit answer",
       "example_text": "27 + 985 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1665,7 +1665,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.5",
       "section_name": "Three-digit and two-digit",
-      "label": "2-digit + 3-digit (the shorter number first) written in a line, the carry makes a 4-digit answer",
+      "label": "2-digit + 3-digit (the shorter number first) written in a line, the regrouping makes a 4-digit answer",
       "example_text": "27 + 985 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1693,8 +1693,8 @@
       "code": "A57",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In columns, no carry",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In columns, no regrouping",
       "example_text": "243 + 514 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1722,8 +1722,8 @@
       "code": "A58",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In a line, no carry",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In a line, no regrouping",
       "example_text": "243 + 514 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1751,8 +1751,8 @@
       "code": "A59",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In columns, a carry from the ones only",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In columns, a regrouping from the ones only",
       "example_text": "247 + 315 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1780,8 +1780,8 @@
       "code": "A60",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In a line, a carry from the ones only",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In a line, a regrouping from the ones only",
       "example_text": "247 + 315 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1809,8 +1809,8 @@
       "code": "A61",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In columns, a carry from the tens only",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In columns, a regrouping from the tens only",
       "example_text": "362 + 154 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1838,8 +1838,8 @@
       "code": "A62",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In a line, a carry from the tens only",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In a line, a regrouping from the tens only",
       "example_text": "362 + 154 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1867,8 +1867,8 @@
       "code": "A63",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In columns, a carry from the hundreds only — the answer gains a digit",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In columns, a regrouping from the hundreds only — the answer gains a digit",
       "example_text": "752 + 613 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1896,8 +1896,8 @@
       "code": "A64",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In a line, a carry from the hundreds only — the answer gains a digit",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In a line, a regrouping from the hundreds only — the answer gains a digit",
       "example_text": "752 + 613 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1925,8 +1925,8 @@
       "code": "A65",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In columns, carries from the ones and the tens",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In columns, regrouping from the ones and the tens",
       "example_text": "278 + 145 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -1954,8 +1954,8 @@
       "code": "A66",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In a line, carries from the ones and the tens",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In a line, regrouping from the ones and the tens",
       "example_text": "278 + 145 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -1983,8 +1983,8 @@
       "code": "A67",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In columns, carries from the ones and the hundreds, not the tens",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In columns, regrouping from the ones and the hundreds, not the tens",
       "example_text": "608 + 715 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -2012,8 +2012,8 @@
       "code": "A68",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In a line, carries from the ones and the hundreds, not the tens",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In a line, regrouping from the ones and the hundreds, not the tens",
       "example_text": "608 + 715 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -2041,8 +2041,8 @@
       "code": "A69",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In columns, carries from the tens and the hundreds",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In columns, regrouping from the tens and the hundreds",
       "example_text": "672 + 541 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -2070,8 +2070,8 @@
       "code": "A70",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In a line, carries from the tens and the hundreds",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In a line, regrouping from the tens and the hundreds",
       "example_text": "672 + 541 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -2099,8 +2099,8 @@
       "code": "A71",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In columns, carries from the ones, the tens and the hundreds",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In columns, regrouping from the ones, the tens and the hundreds",
       "example_text": "678 + 457 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -2128,8 +2128,8 @@
       "code": "A72",
       "taxonomy": "ADD_SUB",
       "section": "2.6",
-      "section_name": "Three-digit + three-digit: the carry pattern",
-      "label": "In a line, carries from the ones, the tens and the hundreds",
+      "section_name": "Three-digit + three-digit: the regrouping pattern",
+      "label": "In a line, regrouping from the ones, the tens and the hundreds",
       "example_text": "678 + 457 = ?",
       "example": {
         "fmt": "bare_sum",
@@ -2272,7 +2272,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.7",
       "section_name": "Adding with zeros",
-      "label": "A carry lands on a zero column",
+      "label": "A regrouping lands on a zero column",
       "example_text": "208 + 96 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -2298,7 +2298,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.7",
       "section_name": "Adding with zeros",
-      "label": "A carry ripples through 9s and ends on a zero",
+      "label": "A regrouping ripples through 9s and ends on a zero",
       "example_text": "1099 + 8 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -2390,7 +2390,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.8",
       "section_name": "Three or more numbers",
-      "label": "Three 1-digit numbers — a carry can be more than 1",
+      "label": "Three 1-digit numbers — a regrouping can be more than 1",
       "example_text": "8 + 7 + 9 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -2420,7 +2420,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.8",
       "section_name": "Three or more numbers",
-      "label": "Three 2-digit numbers, no carry",
+      "label": "Three 2-digit numbers, no regrouping",
       "example_text": "21 + 34 + 12 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -2452,7 +2452,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.8",
       "section_name": "Three or more numbers",
-      "label": "Three 2-digit numbers, with a carry",
+      "label": "Three 2-digit numbers, with a regrouping",
       "example_text": "78 + 67 + 89 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -2648,7 +2648,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.8",
       "section_name": "Three or more numbers",
-      "label": "A column adds up to 20 or more, so it carries 2 or more",
+      "label": "A column adds up to 20 or more, so it regroups 2 or more",
       "example_text": "9 + 8 + 7 + 6 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -2831,7 +2831,7 @@
       "taxonomy": "ADD_SUB",
       "section": "2.9",
       "section_name": "Four-digit addition",
-      "label": "A 4-digit carry that ripples through 9s",
+      "label": "A 4-digit regrouping that ripples through 9s",
       "example_text": "1999 + 6 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -4956,8 +4956,8 @@
       "code": "P01",
       "taxonomy": "ADD_SUB",
       "section": "5.1",
-      "section_name": "Carry patterns",
-      "label": "No carry",
+      "section_name": "Regrouping patterns",
+      "label": "No regrouping",
       "example_text": "243 + 514 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -4983,8 +4983,8 @@
       "code": "P02",
       "taxonomy": "ADD_SUB",
       "section": "5.1",
-      "section_name": "Carry patterns",
-      "label": "One carry",
+      "section_name": "Regrouping patterns",
+      "label": "One regrouping",
       "example_text": "247 + 315 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -5010,8 +5010,8 @@
       "code": "P03",
       "taxonomy": "ADD_SUB",
       "section": "5.1",
-      "section_name": "Carry patterns",
-      "label": "More than one carry",
+      "section_name": "Regrouping patterns",
+      "label": "More than one regrouping",
       "example_text": "286 + 157 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -5037,8 +5037,8 @@
       "code": "P04",
       "taxonomy": "ADD_SUB",
       "section": "5.1",
-      "section_name": "Carry patterns",
-      "label": "Carries in columns side by side",
+      "section_name": "Regrouping patterns",
+      "label": "Regrouping in columns side by side",
       "example_text": "286 + 157 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -5064,8 +5064,8 @@
       "code": "P05",
       "taxonomy": "ADD_SUB",
       "section": "5.1",
-      "section_name": "Carry patterns",
-      "label": "Carries in columns apart from each other",
+      "section_name": "Regrouping patterns",
+      "label": "Regrouping in columns apart from each other",
       "example_text": "608 + 715 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -5091,8 +5091,8 @@
       "code": "P06",
       "taxonomy": "ADD_SUB",
       "section": "5.1",
-      "section_name": "Carry patterns",
-      "label": "A carry that sets off another because of a 9",
+      "section_name": "Regrouping patterns",
+      "label": "A regrouping that sets off another because of a 9",
       "example_text": "399 + 4 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -5118,8 +5118,8 @@
       "code": "P07",
       "taxonomy": "ADD_SUB",
       "section": "5.1",
-      "section_name": "Carry patterns",
-      "label": "The top column carries — a new leading digit",
+      "section_name": "Regrouping patterns",
+      "label": "The top column regroups — a new leading digit",
       "example_text": "678 + 457 (in columns)",
       "example": {
         "fmt": "column_grid",
@@ -5363,7 +5363,7 @@
       "taxonomy": "ADD_SUB",
       "section": "6.1",
       "section_name": "Missing number in an addition",
-      "label": "A 2-digit number missing, no carry",
+      "label": "A 2-digit number missing, no regrouping",
       "example_text": "23 + 35 = ?",
       "example": {
         "fmt": "missing_number",
@@ -5392,7 +5392,7 @@
       "taxonomy": "ADD_SUB",
       "section": "6.1",
       "section_name": "Missing number in an addition",
-      "label": "A 2-digit number missing across a carry",
+      "label": "A 2-digit number missing across a regrouping",
       "example_text": "47 + 36 = ?",
       "example": {
         "fmt": "missing_number",
@@ -5479,7 +5479,7 @@
       "taxonomy": "ADD_SUB",
       "section": "6.2",
       "section_name": "Missing digit in an addition",
-      "label": "One missing digit, no carry",
+      "label": "One missing digit, no regrouping",
       "example_text": "2□ + 34 = 59",
       "example": {
         "fmt": "missing_digit",
@@ -5507,7 +5507,7 @@
       "taxonomy": "ADD_SUB",
       "section": "6.2",
       "section_name": "Missing digit in an addition",
-      "label": "One missing digit, a carry needed",
+      "label": "One missing digit, a regrouping needed",
       "example_text": "4□ + 38 = 85",
       "example": {
         "fmt": "missing_digit",
@@ -7266,8 +7266,8 @@
       "taxonomy": "ADD_SUB",
       "section": "11",
       "section_name": "Finding the mistake",
-      "label": "A forgotten carry",
-      "example_text": "A forgotten carry",
+      "label": "A forgotten regrouping",
+      "example_text": "A forgotten regrouping",
       "example": {
         "fmt": "find_mistake",
         "spec": {
@@ -7289,8 +7289,8 @@
       "taxonomy": "ADD_SUB",
       "section": "11",
       "section_name": "Finding the mistake",
-      "label": "A carry written above the wrong column",
-      "example_text": "A carry written above the wrong column",
+      "label": "A regrouping written above the wrong column",
+      "example_text": "A regrouping written above the wrong column",
       "example": {
         "fmt": "find_mistake",
         "spec": {
@@ -7312,8 +7312,8 @@
       "taxonomy": "ADD_SUB",
       "section": "11",
       "section_name": "Finding the mistake",
-      "label": "A carry of 1 where the column needs 2",
-      "example_text": "A carry of 1 where the column needs 2",
+      "label": "A regrouping of 1 where the column needs 2",
+      "example_text": "A regrouping of 1 where the column needs 2",
       "example": {
         "fmt": "find_mistake",
         "spec": {
@@ -7335,8 +7335,8 @@
       "taxonomy": "ADD_SUB",
       "section": "11",
       "section_name": "Finding the mistake",
-      "label": "The final carry dropped",
-      "example_text": "The final carry dropped",
+      "label": "The final regrouping dropped",
+      "example_text": "The final regrouping dropped",
       "example": {
         "fmt": "find_mistake",
         "spec": {
@@ -8779,7 +8779,7 @@
       "taxonomy": "MUL_DIV",
       "section": "3",
       "section_name": "Multiplication by digit shape",
-      "label": "Regroup from the ones, carry 1, 2-digit answer",
+      "label": "Regroup 1 from the ones, 2-digit answer",
       "example_text": "13 × 4",
       "example": {
         "fmt": "column_grid",
@@ -8822,7 +8822,7 @@
       "taxonomy": "MUL_DIV",
       "section": "3",
       "section_name": "Multiplication by digit shape",
-      "label": "Regroup from the ones, carry more than 1, 2-digit answer",
+      "label": "Regroup more than 1 from the ones, 2-digit answer",
       "example_text": "19 × 5",
       "example": {
         "fmt": "column_grid",
@@ -8951,7 +8951,7 @@
       "taxonomy": "MUL_DIV",
       "section": "3",
       "section_name": "Multiplication by digit shape",
-      "label": "The carry takes the tens to ten (knock-on): a zero only in the answer",
+      "label": "The regrouping takes the tens to ten (knock-on): a zero only in the answer",
       "example_text": "18 × 6",
       "example": {
         "fmt": "column_grid",
@@ -9035,7 +9035,7 @@
       "taxonomy": "MUL_DIV",
       "section": "3",
       "section_name": "Multiplication by digit shape",
-      "label": "The largest carry: 99 × 9",
+      "label": "The largest regrouping: 99 × 9",
       "example_text": "99 × 9",
       "example": {
         "fmt": "column_grid",
@@ -9440,7 +9440,7 @@
       "taxonomy": "MUL_DIV",
       "section": "3",
       "section_name": "Multiplication by digit shape",
-      "label": "2 × 2 digits, both rows regroup and adding the rows carries into a 4th digit",
+      "label": "2 × 2 digits, both rows regroup and adding the rows regroups into a 4th digit",
       "example_text": "47 × 23",
       "example": {
         "fmt": "column_grid",
@@ -9486,7 +9486,7 @@
       "taxonomy": "MUL_DIV",
       "section": "3",
       "section_name": "Multiplication by digit shape",
-      "label": "2 × 2 digits, a 4-digit answer with no carry in adding the rows",
+      "label": "2 × 2 digits, a 4-digit answer with no regrouping in adding the rows",
       "example_text": "52 × 34",
       "example": {
         "fmt": "column_grid",
@@ -9724,7 +9724,7 @@
       "taxonomy": "MUL_DIV",
       "section": "3",
       "section_name": "Multiplication by digit shape",
-      "label": "2 × 2 digits, adding the rows carries, a 3-digit answer",
+      "label": "2 × 2 digits, adding the rows regroups, a 3-digit answer",
       "example_text": "19 × 14",
       "example": {
         "fmt": "column_grid",
@@ -9769,7 +9769,7 @@
       "taxonomy": "MUL_DIV",
       "section": "3",
       "section_name": "Multiplication by digit shape",
-      "label": "2 × 2 digits, one row or none regroups and adding the rows carries into a 4th digit",
+      "label": "2 × 2 digits, one row or none regroups and adding the rows regroups into a 4th digit",
       "example_text": "68 × 17",
       "example": {
         "fmt": "column_grid",
@@ -9817,7 +9817,7 @@
       "code": "TC01",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "Regroup from the ones: no · from the tens: no · answer grows to 4 digits: no",
       "example_text": "434 × 2",
       "example": {
@@ -9863,7 +9863,7 @@
       "code": "TC02",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "Regroup from the ones: no · from the tens: no · answer grows to 4 digits: yes",
       "example_text": "412 × 3",
       "example": {
@@ -9909,7 +9909,7 @@
       "code": "TC03",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "Regroup from the ones: no · from the tens: yes · answer grows to 4 digits: no",
       "example_text": "374 × 2",
       "example": {
@@ -9955,7 +9955,7 @@
       "code": "TC04",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "Regroup from the ones: no · from the tens: yes · answer grows to 4 digits: yes",
       "example_text": "931 × 4",
       "example": {
@@ -10001,7 +10001,7 @@
       "code": "TC05",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "Regroup from the ones: yes · from the tens: no · answer grows to 4 digits: no",
       "example_text": "119 × 4",
       "example": {
@@ -10047,7 +10047,7 @@
       "code": "TC06",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "Regroup from the ones: yes · from the tens: no · answer grows to 4 digits: yes",
       "example_text": "416 × 6",
       "example": {
@@ -10093,7 +10093,7 @@
       "code": "TC07",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "Regroup from the ones: yes · from the tens: yes · answer grows to 4 digits: no",
       "example_text": "487 × 2",
       "example": {
@@ -10139,7 +10139,7 @@
       "code": "TC08",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "Regroup from the ones: yes · from the tens: yes · answer grows to 4 digits: yes",
       "example_text": "194 × 6",
       "example": {
@@ -10185,8 +10185,8 @@
       "code": "TC09",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
-      "label": "A carry bigger than 1",
+      "section_name": "Multiplication regrouping and zeros",
+      "label": "A regrouping bigger than 1",
       "example_text": "28 × 7",
       "example": {
         "fmt": "column_grid",
@@ -10227,8 +10227,8 @@
       "code": "TC10",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
-      "label": "3 × 1 digits, a carry takes a column to ten (knock-on)",
+      "section_name": "Multiplication regrouping and zeros",
+      "label": "3 × 1 digits, a regrouping takes a column to ten (knock-on)",
       "example_text": "125 × 4",
       "example": {
         "fmt": "column_grid",
@@ -10268,7 +10268,7 @@
       "code": "TC11",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "Every column regroups, the answer full of zeros",
       "example_text": "667 × 3",
       "example": {
@@ -10310,7 +10310,7 @@
       "code": "TZ01",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "A zero at the end of the larger number",
       "example_text": "230 × 4",
       "example": {
@@ -10351,8 +10351,8 @@
       "code": "TZ02",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
-      "label": "A zero in the middle, no carry reaches it",
+      "section_name": "Multiplication regrouping and zeros",
+      "label": "A zero in the middle, no regrouping reaches it",
       "example_text": "302 × 3",
       "example": {
         "fmt": "column_grid",
@@ -10394,8 +10394,8 @@
       "code": "TZ03",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
-      "label": "A zero in the middle that a carry lands on",
+      "section_name": "Multiplication regrouping and zeros",
+      "label": "A zero in the middle that a regrouping lands on",
       "example_text": "506 × 7",
       "example": {
         "fmt": "column_grid",
@@ -10436,7 +10436,7 @@
       "code": "TZ04",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "Two zeros in the larger number",
       "example_text": "1008 × 6",
       "example": {
@@ -10478,7 +10478,7 @@
       "code": "TZ05",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "A zero only in the answer",
       "example_text": "25 × 4",
       "example": {
@@ -10519,7 +10519,7 @@
       "code": "TZ06",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "The answer is a round number",
       "example_text": "125 × 8",
       "example": {
@@ -10560,7 +10560,7 @@
       "code": "TZ07",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "A 2-digit multiplier ending in zero: one row",
       "example_text": "23 × 40",
       "example": {
@@ -10594,7 +10594,7 @@
       "code": "TZ08",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
+      "section_name": "Multiplication regrouping and zeros",
       "label": "Both numbers end in zero",
       "example_text": "120 × 30",
       "example": {
@@ -10635,8 +10635,8 @@
       "code": "TZ09",
       "taxonomy": "MUL_DIV",
       "section": "4",
-      "section_name": "Multiplication carries and zeros",
-      "label": "A zero in the middle, no carry reaches it, the answer grows to 4 digits",
+      "section_name": "Multiplication regrouping and zeros",
+      "label": "A zero in the middle, no regrouping reaches it, the answer grows to 4 digits",
       "example_text": "401 × 3",
       "example": {
         "fmt": "column_grid",
@@ -12996,7 +12996,7 @@
       "taxonomy": "MUL_DIV",
       "section": "8",
       "section_name": "Methods and pictures",
-      "label": "Compact columns (the carry written small)",
+      "label": "Compact columns (the regrouping written small)",
       "example_text": "34 × 6 in columns",
       "example": {
         "fmt": "column_grid",
@@ -15509,7 +15509,7 @@
       "taxonomy": "MUL_DIV",
       "section": "14",
       "section_name": "Error diagnosis",
-      "label": "Find the mistake: carries left out",
+      "label": "Find the mistake: regrouping left out",
       "example_text": "34 × 6 = 84",
       "example": {
         "fmt": "find_mistake",
@@ -15682,7 +15682,7 @@
       "taxonomy": "MUL_DIV",
       "section": "14",
       "section_name": "Error diagnosis",
-      "label": "Find the mistake: the carry onto the zero left out",
+      "label": "Find the mistake: the regrouping onto the zero left out",
       "example_text": "506 × 7 = 3502",
       "example": {
         "fmt": "find_mistake",

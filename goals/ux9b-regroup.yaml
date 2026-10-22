@@ -1,0 +1,36 @@
+name: ux9b-regroup
+goal: >
+  The school's word is "regroup". Wherever a person reads about a column that passes ten — a screen, a printed paper,
+  a mistake's name or how to help with it, a level's words, a case of the taxonomy, a report item, a parent's report —
+  it says "regroup" or "regrouping", never "carry", "carrying" or "borrow". Codes stay (M_NOCARRY, carry_into_zero).
+  The seed says the new words; the migration replaces a skill's level words and objectives on live where they are still
+  the seed's old words, and renames the report items whose title is their key. A parent report the model writes with
+  "carry" in it is refused by the code that checks it. The "carry" of a van carrying children stays English.
+# Written 2026-10-22, before the code. The audit's question D1 (docs/notes/ux8-every-screen.md): addition's skills said
+# "carrying", subtraction's "exchanging", and CLAUDE.md names "exchange / regroup". Nimish chose "regroup". A
+# multiplication's carry is the same act, and asks.json already said "regroup" for it, so it reads "regroup" too.
+# "Exchange" for subtraction is left as it is: the decision named carry and borrow only.
+says:
+  - words: "regroup"
+    proved_by: "packages/engine/tests/test_school_words.py::test_no_screen_says_carry_or_borrow"
+  - words: "regroup"
+    proved_by: "packages/engine/tests/test_school_words.py::test_no_printed_paper_mistake_or_report_the_engine_writes_says_carry_or_borrow"
+  - words: "regroup"
+    proved_by: "packages/engine/tests/test_school_words.py::test_no_row_the_seed_loads_says_carry_or_borrow"
+  - words: "regroup"
+    proved_by: "packages/engine/tests/test_school_words.py::test_a_parent_report_that_says_carry_is_refused_and_one_that_says_regroup_is_not"
+  - words: "regroup"
+    proved_by: "packages/engine/tests/test_school_words.py::test_no_row_a_person_reads_says_carry_or_borrow_once_the_migration_and_the_seed_have_run"
+manual:
+  - "On live, once deployed: select code from skill_set where difficulty::text ~* 'carr|borrow' or learning_objective ~* 'carr|borrow' returns no row (a level an educator reworded since the seed is left as they wrote it, and is listed here if it says carry)."
+scenarios: []
+criteria:
+  - name: the school's words, the seed, the mistakes and the parent report's check
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_school_words.py tests/test_loaders.py tests/test_learned_rules.py tests/test_parent_report.py tests/test_misconceptions.py tests/test_taxonomy.py
+    expect: "passed"
+  - name: the taxonomy page and the worksheets by taxonomy
+    run: cd apps/web && npx playwright test tests/s12-worksheets-by-taxonomy.spec.ts tests/s8-taxonomy.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

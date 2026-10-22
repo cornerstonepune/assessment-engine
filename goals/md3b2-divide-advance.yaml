@@ -64,7 +64,7 @@ manual:
   - "On live, once merged: `bin/update-live`. The two Advance levels, their questions and worksheets reach live only
     through `engine load`, `bank refill` and `library build`."
   - "Achal: each box is keyed by the act that finds it, drafted here for you to correct. A digit missing in the number
-    divided names the multiplication's mistakes (7□ ÷ 4 = 18: 18 × 4 with the carry left out gives 42, so 4 in a tens
+    divided names the multiplication's mistakes (7□ ÷ 4 = 18: 18 × 4 with the regrouping left out gives 42, so 4 in a tens
     box); a remainder missing names the taking away's (38 ÷ 5 = 7 r □: 38 − 35); a digit missing in the quotient names
     only a wrong quotient as long as the one printed. An estimate rounds the number divided to the nearest hundred, and
     is asked only where that hundred divides exactly (412 ÷ 8 ≈ 400 ÷ 8 = 50). Not added, for you to decide: a digit that

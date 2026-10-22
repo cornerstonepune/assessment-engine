@@ -343,7 +343,7 @@
  {
   "code": "T04",
   "section": 3,
-  "label": "Regroup from the ones, carry 1, 2-digit answer",
+  "label": "Regroup 1 from the ones, 2-digit answer",
   "example": "13 × 4",
   "answer": "52",
   "op": "×",
@@ -354,7 +354,7 @@
  {
   "code": "T05",
   "section": 3,
-  "label": "Regroup from the ones, carry more than 1, 2-digit answer",
+  "label": "Regroup more than 1 from the ones, 2-digit answer",
   "example": "19 × 5",
   "answer": "95",
   "op": "×",
@@ -387,7 +387,7 @@
  {
   "code": "T08",
   "section": 3,
-  "label": "The carry takes the tens to ten (knock-on): a zero only in the answer",
+  "label": "The regrouping takes the tens to ten (knock-on): a zero only in the answer",
   "example": "18 × 6",
   "answer": "108",
   "op": "×",
@@ -409,7 +409,7 @@
  {
   "code": "T10",
   "section": 3,
-  "label": "The largest carry: 99 × 9",
+  "label": "The largest regrouping: 99 × 9",
   "example": "99 × 9",
   "answer": "891",
   "op": "×",
@@ -515,7 +515,7 @@
  {
   "code": "T20",
   "section": 3,
-  "label": "2 × 2 digits, both rows regroup and adding the rows carries into a 4th digit",
+  "label": "2 × 2 digits, both rows regroup and adding the rows regroups into a 4th digit",
   "example": "47 × 23",
   "answer": "1081",
   "op": "×",
@@ -526,7 +526,7 @@
  {
   "code": "T21",
   "section": 3,
-  "label": "2 × 2 digits, a 4-digit answer with no carry in adding the rows",
+  "label": "2 × 2 digits, a 4-digit answer with no regrouping in adding the rows",
   "example": "52 × 34",
   "answer": "1768",
   "op": "×",
@@ -584,7 +584,7 @@
  {
   "code": "T27",
   "section": 3,
-  "label": "2 × 2 digits, adding the rows carries, a 3-digit answer",
+  "label": "2 × 2 digits, adding the rows regroups, a 3-digit answer",
   "example": "19 × 14",
   "answer": "266",
   "op": "×",
@@ -595,7 +595,7 @@
  {
   "code": "T28",
   "section": 3,
-  "label": "2 × 2 digits, one row or none regroups and adding the rows carries into a 4th digit",
+  "label": "2 × 2 digits, one row or none regroups and adding the rows regroups into a 4th digit",
   "example": "68 × 17",
   "answer": "1156",
   "op": "×",
@@ -694,7 +694,7 @@
  {
   "code": "TC09",
   "section": 4,
-  "label": "A carry bigger than 1",
+  "label": "A regrouping bigger than 1",
   "example": "28 × 7",
   "answer": "196",
   "op": "×",
@@ -705,7 +705,7 @@
  {
   "code": "TC10",
   "section": 4,
-  "label": "3 × 1 digits, a carry takes a column to ten (knock-on)",
+  "label": "3 × 1 digits, a regrouping takes a column to ten (knock-on)",
   "example": "125 × 4",
   "answer": "500",
   "op": "×",
@@ -738,7 +738,7 @@
  {
   "code": "TZ02",
   "section": 4,
-  "label": "A zero in the middle, no carry reaches it",
+  "label": "A zero in the middle, no regrouping reaches it",
   "example": "302 × 3",
   "answer": "906",
   "op": "×",
@@ -749,7 +749,7 @@
  {
   "code": "TZ03",
   "section": 4,
-  "label": "A zero in the middle that a carry lands on",
+  "label": "A zero in the middle that a regrouping lands on",
   "example": "506 × 7",
   "answer": "3542",
   "op": "×",
@@ -813,7 +813,7 @@
  {
   "code": "TZ09",
   "section": 4,
-  "label": "A zero in the middle, no carry reaches it, the answer grows to 4 digits",
+  "label": "A zero in the middle, no regrouping reaches it, the answer grows to 4 digits",
   "example": "401 × 3",
   "answer": "1203",
   "op": "×",
@@ -1530,7 +1530,7 @@
  {
   "code": "G11",
   "section": 8,
-  "label": "Compact columns (the carry written small)",
+  "label": "Compact columns (the regrouping written small)",
   "example": "34 × 6 in columns",
   "answer": "204",
   "op": "×",
@@ -2695,7 +2695,7 @@
  {
   "code": "C02",
   "section": 14,
-  "label": "Find the mistake: carries left out",
+  "label": "Find the mistake: regrouping left out",
   "example": "34 × 6 = 84",
   "answer": "M_MUL_NO_CARRY",
   "op": "×",
@@ -2772,7 +2772,7 @@
  {
   "code": "C09",
   "section": 14,
-  "label": "Find the mistake: the carry onto the zero left out",
+  "label": "Find the mistake: the regrouping onto the zero left out",
   "example": "506 × 7 = 3502",
   "answer": "M_MUL_CARRY_ONTO_ZERO_LOST: the tens are 0 × 7 + 4 = 4",
   "op": "×",
