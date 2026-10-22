@@ -1,9 +1,10 @@
 """Who signs in to the website (goals/ui4a-staff-and-search.yaml).
 
 Nimish, 2026-10-11: "Maybe we can simply add a user ID/password for them: simple user ID/password, nothing complex."
-`engine staff add` puts an educator on the staff list in the database — their email, name and role, and a password
-typed where only the person running it sees it, hashed as the website checks it. The list is the database's alone:
-the seed in the public repository holds no one's email, so Achal's and Neha's never pass through it.
+Since 2026-10-22 everyone signs in with their school Google account (goals/a1-sign-in-with-google.yaml); `engine staff
+add` puts a person on the staff list in the database first — their email, name and role — when they must hold another
+role than a first sign-in gives. The list is the database's alone: the seed in the public repository holds no one's
+email, so Achal's and Neha's never pass through it.
 """
 
 import json
@@ -13,12 +14,10 @@ import pathlib
 import pytest
 
 from engine.core import db
-from engine.core.staff import staff_hash
 from tests.test_cli import run
 
 SEED = pathlib.Path(__file__).resolve().parents[3] / "supabase" / "seed" / "config.json"
 EMAIL = "new-educator@cornerstone.test"
-PASSWORD = "a-long-test-password"
 needs_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
 
@@ -27,9 +26,7 @@ def _staff():
         return conn.execute("select value from config where key = 'app.staff'").fetchone()["value"]
 
 
-def _add(monkeypatch, *args, typed=(PASSWORD, PASSWORD)):
-    said = iter(typed)
-    monkeypatch.setattr("getpass.getpass", lambda prompt="": next(said))
+def _add(*args):
     return run("staff", "add", *args)
 
 
@@ -47,37 +44,29 @@ def clean():
 
 
 @needs_db
-def test_a_person_is_put_on_the_staff_list_with_a_password_the_sign_in_accepts(monkeypatch, clean):
+def test_a_person_is_put_on_the_staff_list_by_one_command(clean):
     before = _staff()
-    r = _add(monkeypatch, EMAIL.upper(), "--name", "Test Educator")
+    r = _add(EMAIL.upper(), "--name", "Test Educator", "--role", "coordinator")
     assert r.exit_code == 0, r.output_plain
-    assert "Test Educator (educator)" in r.output_plain and PASSWORD not in r.output_plain
+    assert "Test Educator (coordinator) can sign in with Google" in r.output_plain
     after = _staff()
     assert after[: len(before)] == before, "no one already on the list is changed"
     [me] = [s for s in after if s["email"] == EMAIL]
-    assert (me["name"], me["role"]) == ("Test Educator", "educator")
-    scheme, salt, _ = me["password"].split("$")
-    assert scheme == "scrypt" and me["password"] == staff_hash(PASSWORD, salt), "the hash the website checks"
+    assert (me["name"], me["role"]) == ("Test Educator", "coordinator")
+    assert "password" not in me, "no password: Google proves who signs in"
 
 
 @needs_db
-def test_a_person_already_on_the_list_a_role_no_one_holds_or_a_short_password_is_refused(monkeypatch, clean):
-    assert _add(monkeypatch, EMAIL, "--name", "Test Educator").exit_code == 0
-    again = _add(monkeypatch, EMAIL, "--name", "Someone Else")
+def test_a_person_already_on_the_list_or_a_role_no_one_holds_is_refused(clean):
+    assert _add(EMAIL, "--name", "Test Educator").exit_code == 0
+    again = _add(EMAIL, "--name", "Someone Else")
     assert again.exit_code != 0 and "already on the staff list" in again.output_plain
     assert [s["name"] for s in _staff() if s["email"] == EMAIL] == ["Test Educator"]
 
     # a role is one the school's decisions name (people.decides) or one someone on the list already holds
-    odd = _add(monkeypatch, "odd@cornerstone.test", "--name", "Odd", "--role", "headmaster")
+    odd = _add("odd@cornerstone.test", "--name", "Odd", "--role", "headmaster")
     assert odd.exit_code != 0 and "headmaster" in odd.output_plain
-    short = _add(monkeypatch, "short@cornerstone.test", "--name", "Short", typed=("short", "short"))
-    assert short.exit_code != 0 and "10" in short.output_plain
-    differ = _add(
-        monkeypatch, "differ@cornerstone.test", "--name", "Differ", typed=(PASSWORD, PASSWORD + "x")
-    )
-    assert differ.exit_code != 0
-    emails = {s["email"] for s in _staff()}
-    assert not emails & {"odd@cornerstone.test", "short@cornerstone.test", "differ@cornerstone.test"}
+    assert "odd@cornerstone.test" not in {s["email"] for s in _staff()}
 
 
 def test_the_staff_list_is_not_in_the_public_repository():
@@ -117,8 +106,8 @@ def _staff_cli(*args):
 
 
 @needs_db
-def test_a_person_is_put_on_the_list_with_the_classes_they_teach(monkeypatch, clean, two_classes):
-    r = _add(monkeypatch, EMAIL, "--name", "Test Educator", "--class", "F1A-TWO", "--class", "F1A-ONE")
+def test_a_person_is_put_on_the_list_with_the_classes_they_teach(clean, two_classes):
+    r = _add(EMAIL, "--name", "Test Educator", "--class", "F1A-TWO", "--class", "F1A-ONE")
     assert r.exit_code == 0, r.output_plain
     assert "F1A-ONE, F1A-TWO" in r.output_plain, "the command says the classes it put them on"
     [me] = [s for s in _staff() if s["email"] == EMAIL]
@@ -128,16 +117,16 @@ def test_a_person_is_put_on_the_list_with_the_classes_they_teach(monkeypatch, cl
 
 
 @needs_db
-def test_a_class_with_no_child_in_it_is_refused_and_nothing_changes(monkeypatch, clean, two_classes):
+def test_a_class_with_no_child_in_it_is_refused_and_nothing_changes(clean, two_classes):
     before = _staff()
-    r = _add(monkeypatch, EMAIL, "--name", "Test Educator", "--class", "F1A-ONE", "--class", "F1A-NOBODY")
+    r = _add(EMAIL, "--name", "Test Educator", "--class", "F1A-ONE", "--class", "F1A-NOBODY")
     assert r.exit_code != 0 and "F1A-NOBODY" in r.output_plain and "no child" in r.output_plain
     assert _staff() == before, "a typed class that is no class puts no one on the list"
 
 
 @needs_db
-def test_an_educators_classes_are_changed_by_one_command(monkeypatch, clean, two_classes):
-    assert _add(monkeypatch, EMAIL, "--name", "Test Educator", "--class", "F1A-ONE").exit_code == 0
+def test_an_educators_classes_are_changed_by_one_command(clean, two_classes):
+    assert _add(EMAIL, "--name", "Test Educator", "--class", "F1A-ONE").exit_code == 0
     others = [s for s in _staff() if s["email"] != EMAIL]
 
     moved = _staff_cli("classes", EMAIL.upper(), "F1A-TWO")

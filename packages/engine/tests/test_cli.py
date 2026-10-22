@@ -100,20 +100,6 @@ def test_read_eval_offers_both_readers_so_the_comparison_stays_one_command():
     assert "--runs" in out
 
 
-def test_a_staff_password_is_hashed_exactly_as_the_web_app_checks_it():
-    """The web app verifies with node's `scryptSync`. The expected value below is node's own output
-    for this fixture (`node -e 'scryptSync("fixture-not-a-real-password", "0011…eeff", 64)'`), so a
-    hash this command writes is one the sign-in form will accept — the only property that matters,
-    and one no Python-only test could show."""
-    from engine.core.staff import staff_hash
-
-    assert staff_hash("fixture-not-a-real-password", "00112233445566778899aabbccddeeff") == (
-        "scrypt$00112233445566778899aabbccddeeff$"
-        "92cad9873f497b8ec938f72a226440454cd71d3477e50efc413b1521d5c320838873d38d868e41b58e3e3c897782"
-        "bce759d39894350757661630bb4d5804b25c"
-    )
-
-
 def test_a_next_paper_prints_only_with_the_person_who_approves_it_named():
     """`week focus --make` is an approval (BUILD-ORDER, U2): without --by it refuses before touching the database."""
     r = run("week", "focus", "G2", "Asha", "2026-W39", "--make")

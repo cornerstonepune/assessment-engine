@@ -7,17 +7,15 @@
  *   answers waiting for a person; Bina, with nothing yet;
  * - U50-QUIET: Cara and Dev, with nothing yet — so nothing in their table has a number to show.
  */
-import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
+import { signIn } from "./sign-in";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const BUSY = "U50-BUSY";
 const QUIET = "U50-QUIET";
 const EDUCATOR = { email: "u50-educator@cornerstone.test", name: "U50 Educator", role: "educator", classes: [BUSY, QUIET] };
-const PASSWORD = "u50-a-long-test-password";
-const SALT = "00112233445566778899aabbccddeeff";
 let kids: Record<string, string> = {};
 
 test.beforeAll(async () => {
@@ -46,10 +44,9 @@ test.beforeAll(async () => {
     items: w.item_ids.slice(0, 3),
     reads: [{ status: "needs_teacher", read: "41" }, { status: "needs_teacher", read: "7" }, { status: "correct", read: "12" }],
   });
-  const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
-                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([{ ...EDUCATOR, password }])}
+                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([EDUCATOR])}
     where key = 'app.staff'`;
 });
 test.afterAll(async () => {
@@ -63,10 +60,7 @@ test.afterAll(async () => {
 async function asEducator(browser: Browser): Promise<Page> {
   const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
   const page = await context.newPage();
-  await page.goto("/login");
-  await page.getByLabel("School email").fill(EDUCATOR.email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await signIn(page, EDUCATOR.email);
   await expect(page).toHaveURL(/\/today$/);
   return page;
 }

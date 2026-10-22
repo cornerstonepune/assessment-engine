@@ -13,9 +13,17 @@
     },
     {
       "key": "app.staff",
-      "description": "Who may sign in to the app: email, name, role, password hash and the classes they teach, held in the database alone and put there by `engine staff add` (goals/ui4a-staff-and-search.yaml); `engine staff classes` changes the classes (ADR 0073). Empty here, so no one's email is in the public repository. Roles: coordinator, educator, specialist.",
+      "description": "Who may sign in to the app: email, name, role and the classes they teach, held in the database alone, put there by `engine staff add` (goals/ui4a-staff-and-search.yaml) or by a school email's first Google sign-in (app.sign_in, goals/a1-sign-in-with-google.yaml); `engine staff classes` changes the classes (ADR 0073). Empty here, so no one's email is in the public repository. Roles: coordinator, educator, specialist.",
       "value": [],
       "seed_once": true
+    },
+    {
+      "key": "app.sign_in",
+      "description": "Who may sign in with Google, and as what (goals/a1-sign-in-with-google.yaml). Nimish, 2026-10-22: \"the default, irrespective of anything, should be the Cornerstone email ID, so no one can log in without the Cornerstone email ID … right now, we just put me as the admin and everyone else as the educator.\" `domain`: an account must be a verified email ending @domain and belong to that Google Workspace (`hd`). `new_staff_role`: the role a school email signing in for the first time is put on `app.staff` with; anyone already on it keeps theirs. The coordinator is put on the list by `engine staff add --role coordinator`.",
+      "value": {
+        "domain": "cornerstoneschool.in",
+        "new_staff_role": "educator"
+      }
     },
     {
       "key": "people.decides",

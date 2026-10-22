@@ -10,11 +10,11 @@
  *   Esha joined after the week was planned;
  * - a week long past, a class practice: Asha's copy with the children.
  */
-import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
 import { isoWeek, weekWords } from "../lib/week";
+import { signIn } from "./sign-in";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -24,8 +24,6 @@ const OLD = "2026-W30";
 const QR = { asha: "CS370A01", bina: "CS370B02", chetan: "CS370C03", spare: "CS3705A1", old: "CS3700D1" };
 const WHY = "has sat every worksheet at Hard (4)";
 const EDUCATOR = { email: "u37-educator@cornerstone.test", name: "U37 Educator", role: "educator", classes: [SECTION] };
-const PASSWORD = "u37-a-long-test-password";
-const SALT = "00112233445566778899aabbccddeeff";
 let kids: Record<string, string> = {};
 let skill = "";
 
@@ -77,10 +75,9 @@ test.beforeAll(async () => {
               ${qr ? await sheet(qr) : null}, ${qr ? null : WHY}, now() - interval '1 day')`;
   }
   await sql`update child set created_at = now() where id = ${kids.Esha}`;
-  const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
-                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([{ ...EDUCATOR, password }])}
+                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([EDUCATOR])}
     where key = 'app.staff'`;
 });
 test.afterAll(async () => {
@@ -94,10 +91,7 @@ test.afterAll(async () => {
 async function asEducator(browser: Browser): Promise<Page> {
   const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
   const page = await context.newPage();
-  await page.goto("/login");
-  await page.getByLabel("School email").fill(EDUCATOR.email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await signIn(page, EDUCATOR.email);
   await expect(page).toHaveURL(/\/today$/);
   return page;
 }

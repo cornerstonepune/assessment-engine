@@ -47,10 +47,10 @@ def test_load_does_not_overwrite_a_skill_set_edited_in_the_app():
         assert live["difficulty"]["Easy"]["words"] == before["Easy"]["words"], "and nothing was left behind"
 
 
-def test_load_config_keeps_a_password_set_in_the_app():
-    """`engine set-password` writes a hash into `app.staff`; the seed's copy of the list has none. The
-    loader upserted every config row, so the next `engine load` silently took every password away and
-    no one could sign in. A row the app owns is seeded once and then left alone (`seed_once`)."""
+def test_load_config_keeps_a_person_the_app_put_on_the_staff_list():
+    """`engine staff add` and a first Google sign-in write into `app.staff`; the seed's copy of the list is empty. The
+    loader once upserted every config row, so the next `engine load` silently took every password (then the way in)
+    away and no one could sign in. A row the app owns is seeded once and then left alone (`seed_once`)."""
     with db.connect() as conn:
         tenant = loaders._tenant(conn)
         staff = conn.execute("select value from config where key = 'app.staff'").fetchone()["value"]
@@ -60,7 +60,6 @@ def test_load_config_keeps_a_password_set_in_the_app():
                 "email": "kept@cornerstone.test",
                 "name": "Kept",
                 "role": "educator",
-                "password": "scrypt$test$hash",
             }
         )
         conn.execute("update config set value = %s where key = 'app.staff'", (json.dumps(staff),))
@@ -68,7 +67,7 @@ def test_load_config_keeps_a_password_set_in_the_app():
         settings.load_config(conn, tenant)
 
         after = conn.execute("select value from config where key = 'app.staff'").fetchone()["value"]
-        assert after == staff, "loading the seed took someone, or a password, away"
+        assert after == staff, "loading the seed took someone away"
         conn.rollback()
 
 

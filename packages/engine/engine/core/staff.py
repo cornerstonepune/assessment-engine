@@ -1,25 +1,17 @@
 """Who signs in to the website: the staff list, `config.app.staff`, the database's alone (goals/ui4a-staff-and-search.yaml).
 
-Each person is an email, a name, a role, a password hash the website checks, and the classes they teach (ADR 0073,
-D1: the grade follows from the class; the coordinator's classes are every class). The seed's list is empty, so no
-one's email is in the public repository; a person is put on the list by `engine staff add`, run by Nimish on his own
-machine, and their password is typed there and nowhere else.
+Each person is an email, a name, a role, and the classes they teach (ADR 0073, D1: the grade follows from the class;
+the coordinator's classes are every class). The seed's list is empty, so no one's email is in the public repository.
+A person signs in with their school Google account (goals/a1-sign-in-with-google.yaml): a school email new to the list
+joins it as `app.sign_in` says, and `engine staff add`, run by Nimish on his own machine, puts someone on it first with
+another role (the coordinator).
 """
 
-import hashlib
 import json
 from collections.abc import Sequence
 from typing import Any
 
 from engine.core import db
-
-
-def staff_hash(password: str, salt: str) -> str:
-    """`scrypt$salt$hash` exactly as `apps/web/lib/auth.ts` checks it: node's `scryptSync` defaults
-    (N=16384, r=8, p=1), 64 bytes, and the hex salt used as TEXT, not decoded — node takes a string
-    salt as its UTF-8 bytes, and decoding it here would make every password look wrong."""
-    digest = hashlib.scrypt(password.encode(), salt=salt.encode(), n=16384, r=8, p=1, dklen=64)
-    return f"scrypt${salt}${digest.hex()}"
 
 
 def staff(conn: db.Conn) -> list[dict[str, Any]]:
@@ -52,9 +44,7 @@ def classes(conn: db.Conn, wanted: Sequence[str]) -> list[str]:
     return named
 
 
-def add(
-    conn: db.Conn, email: str, name: str, role: str, password: str, teaches: Sequence[str] = ()
-) -> dict[str, Any]:
+def add(conn: db.Conn, email: str, name: str, role: str, teaches: Sequence[str] = ()) -> dict[str, Any]:
     """→ the person as put on the list. Refuses an email already on it, a role no decision names, and a class no child
     is in, changing nothing."""
     email = email.strip().lower()
@@ -67,7 +57,6 @@ def add(
         "email": email,
         "name": name.strip(),
         "role": role,
-        "password": password,
         "classes": classes(conn, teaches),
     }
     save(conn, [*people, person])

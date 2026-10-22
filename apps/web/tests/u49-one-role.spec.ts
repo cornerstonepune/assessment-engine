@@ -9,27 +9,24 @@
  * is offered too, and no page refuses them. Their own class and grade are where pages open; "Every class" in the
  * bar at the top, one choice, shows every class as the coordinator sees them, and that is what is compared.
  */
-import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { TEST_STAFF } from "./global-setup";
 import { aClass, aWaitingSkill } from "./rows";
+import { signIn } from "./sign-in";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const MINE = "U49-MINE";
 const OTHER = "U49-OTHER";
 const EDUCATOR = { email: "u49-educator@cornerstone.test", name: "U49 Educator", role: "educator", classes: [MINE] };
-const PASSWORD = "u49-a-long-test-password";
-const SALT = "00112233445566778899aabbccddeeff";
 const others = sql`(select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s where s ->> 'email' <> ${EDUCATOR.email})`;
 let pages: string[] = [];
 
 test.beforeAll(async () => {
   await aClass(sql, MINE, "G2", ["Ira", "Jai"]);
   const other = await aClass(sql, OTHER, "G3", ["Kavi", "Lata"]);
-  const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
-  await sql`update config set value = ${others} || ${sql.json([{ ...EDUCATOR, password }])} where key = 'app.staff'`;
+  await sql`update config set value = ${others} || ${sql.json([EDUCATOR])} where key = 'app.staff'`;
   const [{ code: draft }] = await sql<{ code: string }[]>`select code from skill_set order by status = 'ratified', code limit 1`;
   pages = [
     // a page that opens on the person's own grade is compared at "Every grade", its one tap
@@ -45,10 +42,7 @@ test.afterAll(async () => {
 
 async function asEducator(browser: Browser): Promise<Page> {
   const page = await (await browser.newContext({ storageState: { cookies: [], origins: [] } })).newPage();
-  await page.goto("/login");
-  await page.getByLabel("School email").fill(EDUCATOR.email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await signIn(page, EDUCATOR.email);
   await expect(page).toHaveURL(/\/today$/);
   // their own class first; every class one choice away in the bar at the top, as the coordinator sees them
   await Promise.all([

@@ -1,17 +1,15 @@
-import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
-import { sql, TENANT_SLUG } from "./db";
 import { deadline } from "./deadline";
 import { staffList, type Staff } from "./queries";
 import { devBypass, SESSION_COOKIE, SESSION_DAYS, sessionEmail, sessionValue } from "./session-cookie";
 
-// Who is signed in, without the password hash: a session can reach a client component, and the hash must not.
+// Who is signed in.
 /** What the bar at the top shows (`choose`, goals/s1-subject-class-and-today.yaml): `everyClass`, every class rather
  *  than the person's own (goals/ux9c-one-role.yaml); `oneClass`, one class alone; `subject`, the subject chosen, a code
  *  of `subject` (null: the first). A view, never a permission. */
-export type Session = Omit<Staff, "password"> & { devBypass: boolean; everyClass: boolean; oneClass: string | null; subject: string | null };
+export type Session = Staff & { devBypass: boolean; everyClass: boolean; oneClass: string | null; subject: string | null };
 /** The cookie that keeps a person's choice of class: "every", or "class:" and one class; none is their own classes. */
 export const CLASSES_COOKIE = "cs_classes";
 /** The cookie that keeps the subject chosen at the top. */
@@ -23,18 +21,13 @@ export function classChoice(value: string | undefined): { everyClass: boolean; o
   return { everyClass: false, oneClass: value?.startsWith("class:") && value.length > 6 ? value.slice(6) : null };
 }
 
-// `scrypt$salt$hash`, both hex. scrypt is in node's standard library, so no dependency and no
-// bcrypt build step; the salt is per person so two people with the same password differ.
-export function hashPassword(password: string, salt = randomBytes(16).toString("hex")): string {
-  return `scrypt$${salt}$${scryptSync(password, salt, 64).toString("hex")}`;
-}
+// Google's short-lived state and PKCE verifier, between sending a person to Google and their coming back
+// (app/login/google). Read under /login only.
+export const GOOGLE_COOKIE = "cs_google";
 
-function passwordMatches(password: string, stored: string | undefined): boolean {
-  const [scheme, salt, want] = (stored ?? "").split("$");
-  if (scheme !== "scrypt" || !salt || !want) return false;
-  const got = scryptSync(password, salt, 64);
-  const expected = Buffer.from(want, "hex");
-  return got.length === expected.length && timingSafeEqual(got, expected);
+/** Where Google sends a person back to: this site's own address, so production and a preview each name their own. */
+export function callbackUrl(request: Request): string {
+  return new URL("/login/google/callback", request.url).toString();
 }
 
 export async function startSession(email: string): Promise<void> {
@@ -51,28 +44,6 @@ export async function endSession(): Promise<void> {
   (await cookies()).delete(SESSION_COOKIE);
 }
 
-// A password is not guessed by trying: past `sign_in.max_failures` wrong ones for an email inside
-// `sign_in.window_minutes`, that email waits out the window (goals/p2-live-recovers.yaml).
-// ponytail: per email, so anyone can make a known email wait; add a limit per address if that is ever used.
-export async function signInRefused(email: string): Promise<boolean> {
-  const [row] = await sql<{ refused: boolean | null }[]>`
-    select (select count(*) from sign_in_failure where email = ${email} and created_at > now()
-              - make_interval(mins => (select value from threshold where key = 'sign_in.window_minutes')::int))
-           >= (select value from threshold where key = 'sign_in.max_failures') as refused`;
-  return Boolean(row?.refused);
-}
-
-export async function signInFailed(email: string): Promise<void> {
-  await sql`insert into sign_in_failure (tenant_id, email) select id, ${email} from tenant where slug = ${TENANT_SLUG}`;
-}
-
-/** The staff member whose password matched, or null. Both misses read the same to the caller so
- * the form cannot be used to find out which emails are on the list. */
-export async function verifyStaff(email: string, password: string): Promise<Staff | null> {
-  const staff = (await staffList()).find((s) => s.email.toLowerCase() === email.trim().toLowerCase());
-  return staff && passwordMatches(password, staff.password) ? staff : null;
-}
-
 // Who is signed in, or null when the cookie is missing, edited, expired or names nobody on the
 // staff list. A database that does not answer is NOT "signed out": it throws, and the person reads
 // that the database did not answer (app/error.tsx). Swallowing it once sent a signed-in founder to
@@ -84,7 +55,7 @@ export const currentStaff = cache(async (): Promise<Session | null> => {
   const email = sessionEmail(jar.get(SESSION_COOKIE)?.value);
   if (!email) return null;
   const staff = (await deadline(staffList())).find((s) => s.email.toLowerCase() === email.toLowerCase());
-  // named fields, never the record: the password hash stays on the server
+  // named fields, never the record: an old password hash some rows still carry stays on the server
   return staff
     ? {
         email: staff.email,

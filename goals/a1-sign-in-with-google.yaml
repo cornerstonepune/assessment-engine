@@ -1,0 +1,68 @@
+name: a1-sign-in-with-google
+goal: >
+  Staff sign in with their Cornerstone school Google account, and only with it: the sign-in page offers "Sign in with
+  Google" and no password. Google's ID token is checked on the server (its signature against Google's keys, its
+  issuer, its audience and its expiry), and only an email Google has verified, ending @cornerstoneschool.in, of the
+  school's own Google Workspace (`hd`), is let in; anyone else reads "Use your Cornerstone school Google account". A
+  school email signing in for the first time joins the staff list as an educator, with no form; someone already on it
+  keeps their role, and the coordinator is put on it by `engine staff add --role coordinator`, a row, never an address
+  in code. The domain and the first role are a row (`config.app.sign_in`). The session cookie and every page's
+  `requireStaff` are as they were; only how a session starts changes. Without the Google secrets the sign-in page says
+  sign-in is not set up.
+# Written 2026-10-22 from Nimish's words that day. The flow is arctic's (authorization code, PKCE, state) and the token
+# is checked by jose; adopted rather than written (Athena: "Adopt before you build"). Google is faked at the boundary
+# for the browser tests (apps/web/tests/fake-google.mts): everything past it is the website's own code.
+says:
+  - words: "the default, irrespective of anything, should be the Cornerstone email ID, so no one can log in without the Cornerstone email ID"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::an email outside the school's domain is refused"
+  - words: "the default, irrespective of anything, should be the Cornerstone email ID, so no one can log in without the Cornerstone email ID"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::an email Google has not verified is refused"
+  - words: "the default, irrespective of anything, should be the Cornerstone email ID, so no one can log in without the Cornerstone email ID"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::an account with no Workspace domain, or another Workspace, is refused"
+  - words: "the default, irrespective of anything, should be the Cornerstone email ID, so no one can log in without the Cornerstone email ID"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a verified school account of the school's Workspace is let in, by its email"
+  - words: "sign in using gmail"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a school account signs in with Google and lands on Today"
+  - words: "sign in using gmail"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::the sign-in page asks for no password, only the school Google account"
+  - words: "sign in using gmail"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::without the Google secrets, sign-in is not set up"
+  - words: "right now, we just put me as the admin and everyone else as the educator"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a school email new to the list joins it as an educator, with no form"
+  - words: "right now, we just put me as the admin and everyone else as the educator"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::the coordinator put on the list by engine staff add keeps the role on signing in"
+  - words: "right now, we just put me as the admin and everyone else as the educator"
+    proved_by: "packages/engine/tests/test_staff.py::test_a_person_is_put_on_the_staff_list_by_one_command"
+  - words: "no one outside of the school is going to have access"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::someone outside the school is refused with a plain page, and is put on no list"
+  - words: "no one outside of the school is going to have access"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a token made for another site is refused"
+  - words: "no one outside of the school is going to have access"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::an expired token is refused"
+  - words: "no one outside of the school is going to have access"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a token not signed by Google, or not issued by Google, is refused"
+  - words: "no one outside of the school is going to have access"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a sign-in this browser did not start is refused"
+manual:
+  - "Nimish, in Google Cloud Console (signed in as the school's Google Workspace): an OAuth client of type Web
+    application, user type Internal, with the redirect URI https://cornerstone-assessment.vercel.app/login/google/callback.
+    Its client ID and secret go into Vercel as GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET (Production), then a redeploy."
+  - "Nimish, before his first Google sign-in: ~/cornerstone/assessment-engine/bin/engine staff list; if his
+    @cornerstoneschool.in address is not on it, ~/cornerstone/assessment-engine/bin/engine staff add
+    <his school address> --name Nimish --role coordinator. Anyone else signing in joins as an educator."
+  - "After merge the engine's deploy runs `engine load --settings`, which writes the `app.sign_in` row live; until it
+    has, the sign-in page says sign-in is not set up."
+scenarios: []
+criteria:
+  - name: the staff commands and the seed
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_staff.py tests/test_cli.py tests/test_loaders.py tests/test_asks.py tests/test_roles.py
+    expect: "passed"
+  - name: the sign-in, its token checks and the gate, on a production build with Google faked at the boundary
+    run: cd apps/web && npx playwright test tests/p5-sign-in-with-google.spec.ts tests/gate.spec.ts
+    expect: "passed"
+  - name: the website type-checks and lints clean
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "passed"
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
