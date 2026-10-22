@@ -17,7 +17,6 @@ from engine.assess import draw, graph
 from engine.checks import links, past
 from engine.core import db, loaders, settings
 from engine.w1_bank import cases, kinds, spec
-
 from tests.rows import data_steps
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
