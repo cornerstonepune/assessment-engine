@@ -40,11 +40,13 @@ with db.connect() as c:
             (cp["capture_id"],),
         ).fetchone()
         pdf = cap and cap["pdf_path"]
-        print("  printed pdf kept:", bool(pdf and Path(pdf).exists()))
-        if pdf and Path(pdf).exists() and cap["path"] and Path(cap["path"]).exists():
+        scan = cap and cap["path"] and Path(cap["path"]).expanduser()
+        print("  printed pdf kept:", bool(pdf and Path(pdf).exists()), "| scan kept:", bool(scan and scan.exists()))
+        if pdf and Path(pdf).exists() and scan and scan.exists():
             for p in range(1, 3):
                 try:
-                    print("  lineup page", p, "found / tiles / needs", _lines_up(cap["path"], pdf, p))
+                    img, _ = render_pdf.photo(scan, p)
+                    print("  lineup page", p, "photo px", img.shape[:2], "found / tiles / needs", _lines_up(scan, pdf, p))
                 except Exception as e:  # noqa: BLE001 — a measure says what failed and goes on
                     print("  lineup page", p, "failed:", type(e).__name__)
         rows = []
