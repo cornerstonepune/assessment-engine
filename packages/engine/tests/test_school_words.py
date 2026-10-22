@@ -114,12 +114,11 @@ def test_a_parent_report_that_says_carry_is_refused_and_one_that_says_regroup_is
 
 
 ROWS = {
-    "skill_set": ("name", "learning_objective", "difficulty"),
+    "skill": ("name", "learning_objective", "difficulty", "descriptor"),
     "skill_level": ("looks_like",),
     "misconception": ("name", "description", "repair_hint"),
     "taxonomy_case": ("section_name", "label", "example_text"),
     "case_dimension": ("description",),
-    "rung": ("descriptor",),
     "report_item": ("title",),
 }
 

@@ -23,6 +23,10 @@
   `test_question_types`, `test_vocabulary`, `test_roster`: 45 passed. `engine live rules --write`: 317 rules.
   `bin/check`: 30 passed.
 
+- **Whole suite with a browser, fresh build of this branch:** first run `2 failed, 2727 passed` — the roles test named
+  `public.skill_set` as the table the website may update, and the school's-words test read `rung` by a table name in a
+  list (an f-string, which the file scan cannot see). Both fixed; those two files: 10 passed.
+
 ## Handoff
 
 - **Live:** nothing; B4 is merged and waits for `migrate live` (after main's CI), this waits on B4 being there.
