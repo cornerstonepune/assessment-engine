@@ -6,6 +6,7 @@ a school scanner hands them over (`test_sorting._scanned`), and the reader is st
 so the test is about which child each copy lands on and how it is marked, not about handwriting.
 """
 
+import dataclasses
 import json
 import os
 import random
@@ -51,6 +52,11 @@ def worksheet(conn, tmp_path, monkeypatch):
             made.append(words.word_2step(rng, "R14", "Application", 4))
         except (RuntimeError, ValueError):  # these numbers do not make this story: the next draw
             continue
+    # each names its skill set's registry skills, as `bank.fill` gives every question it makes (C1)
+    skills = conn.execute("select registry_codes from skill where code = 'WORD.1_2STEP'").fetchone()[
+        "registry_codes"
+    ]
+    made = [dataclasses.replace(it, skills=list(skills)) for it in made]
     for it in made:
         bank._insert(conn, tenant["id"], it, "WORD.1_2STEP", "Hard")
     ids = [
