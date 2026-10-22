@@ -12,7 +12,7 @@ Run 2026-10-22 against `bin/testdb fresh` on a local Postgres 16 (CI uses 17).
   30 passed). It printed NOT DONE only because "the live database did not answer from here (ConnectionTimeout)". This
   branch has no migration.
 - The tests catch a broken rule: with the `hd` check removed from `lib/google.ts`,
-  `npx playwright test tests/u50-sign-in-with-google.spec.ts -g "Workspace"` → 1 failed. Then restored.
+  `npx playwright test tests/p5-sign-in-with-google.spec.ts -g "Workspace"` → 1 failed. Then restored.
 - The 18 specs moved from the password form to `tests/sign-in.ts`: `npx playwright test <those specs>` → 66 passed and
   1 failed. The failure is `u18 … Children finds a child`, which expects more than 2 children school-wide; run on its
   own on a fresh copy only u18's 2 exist. That depends on test order and was there before this branch. CI runs the

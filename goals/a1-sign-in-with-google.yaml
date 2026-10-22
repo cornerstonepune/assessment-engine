@@ -14,35 +14,35 @@ goal: >
 # for the browser tests (apps/web/tests/fake-google.mts): everything past it is the website's own code.
 says:
   - words: "the default, irrespective of anything, should be the Cornerstone email ID, so no one can log in without the Cornerstone email ID"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::an email outside the school's domain is refused"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::an email outside the school's domain is refused"
   - words: "the default, irrespective of anything, should be the Cornerstone email ID, so no one can log in without the Cornerstone email ID"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::an email Google has not verified is refused"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::an email Google has not verified is refused"
   - words: "the default, irrespective of anything, should be the Cornerstone email ID, so no one can log in without the Cornerstone email ID"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::an account with no Workspace domain, or another Workspace, is refused"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::an account with no Workspace domain, or another Workspace, is refused"
   - words: "the default, irrespective of anything, should be the Cornerstone email ID, so no one can log in without the Cornerstone email ID"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::a verified school account of the school's Workspace is let in, by its email"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a verified school account of the school's Workspace is let in, by its email"
   - words: "sign in using gmail"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::a school account signs in with Google and lands on Today"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a school account signs in with Google and lands on Today"
   - words: "sign in using gmail"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::the sign-in page asks for no password, only the school Google account"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::the sign-in page asks for no password, only the school Google account"
   - words: "sign in using gmail"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::without the Google secrets, sign-in is not set up"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::without the Google secrets, sign-in is not set up"
   - words: "right now, we just put me as the admin and everyone else as the educator"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::a school email new to the list joins it as an educator, with no form"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a school email new to the list joins it as an educator, with no form"
   - words: "right now, we just put me as the admin and everyone else as the educator"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::the coordinator put on the list by engine staff add keeps the role on signing in"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::the coordinator put on the list by engine staff add keeps the role on signing in"
   - words: "right now, we just put me as the admin and everyone else as the educator"
     proved_by: "packages/engine/tests/test_staff.py::test_a_person_is_put_on_the_staff_list_by_one_command"
   - words: "no one outside of the school is going to have access"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::someone outside the school is refused with a plain page, and is put on no list"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::someone outside the school is refused with a plain page, and is put on no list"
   - words: "no one outside of the school is going to have access"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::a token made for another site is refused"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a token made for another site is refused"
   - words: "no one outside of the school is going to have access"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::an expired token is refused"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::an expired token is refused"
   - words: "no one outside of the school is going to have access"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::a token not signed by Google, or not issued by Google, is refused"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a token not signed by Google, or not issued by Google, is refused"
   - words: "no one outside of the school is going to have access"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::a sign-in this browser did not start is refused"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a sign-in this browser did not start is refused"
 manual:
   - "Nimish, in Google Cloud Console (signed in as the school's Google Workspace): an OAuth client of type Web
     application, user type Internal, with the redirect URI https://cornerstone-assessment.vercel.app/login/google/callback.
@@ -58,7 +58,7 @@ criteria:
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_staff.py tests/test_cli.py tests/test_loaders.py tests/test_asks.py tests/test_roles.py
     expect: "passed"
   - name: the sign-in, its token checks and the gate, on a production build with Google faked at the boundary
-    run: cd apps/web && npx playwright test tests/u50-sign-in-with-google.spec.ts tests/gate.spec.ts
+    run: cd apps/web && npx playwright test tests/p5-sign-in-with-google.spec.ts tests/gate.spec.ts
     expect: "passed"
   - name: the website type-checks and lints clean
     run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "passed"

@@ -1,5 +1,5 @@
 /**
- * U50 — sign in with Google, school accounts only (goals/a1-sign-in-with-google.yaml). Nimish, 2026-10-22: "the
+ * P5 — sign in with Google, school accounts only (goals/a1-sign-in-with-google.yaml). Nimish, 2026-10-22: "the
  * default, irrespective of anything, should be the Cornerstone email ID, so no one can log in without the Cornerstone
  * email ID … sign in using gmail … right now, we just put me as the admin and everyone else as the educator … no one
  * outside of the school is going to have access."
@@ -110,7 +110,7 @@ test.describe("through the door", () => {
   });
 
   function schoolAccount(name: string) {
-    const email = `u50-${randomUUID().slice(0, 8)}@${DOMAIN}`;
+    const email = `p5-${randomUUID().slice(0, 8)}@${DOMAIN}`;
     made.push(email);
     return { email, email_verified: true, hd: DOMAIN, name };
   }
@@ -136,7 +136,7 @@ test.describe("through the door", () => {
   });
 
   test("someone outside the school is refused with a plain page, and is put on no list", async ({ page }) => {
-    const email = `u50-${randomUUID().slice(0, 8)}@gmail.com`;
+    const email = `p5-${randomUUID().slice(0, 8)}@gmail.com`;
     await signInWithGoogle(page, { email, email_verified: true, name: "Not School" });
     await expect(page).toHaveURL(/\/login\?error=school$/);
     await expect(page.getByRole("main").getByRole("alert")).toHaveText("Use your Cornerstone school Google account.");
@@ -146,23 +146,23 @@ test.describe("through the door", () => {
   });
 
   test("a school account signs in with Google and lands on Today", async ({ page }) => {
-    await signInWithGoogle(page, schoolAccount("U50 Lands"));
+    await signInWithGoogle(page, schoolAccount("P5 Lands"));
     await expect(page).toHaveURL(/\/today$/);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today");
-    await expect(page.getByRole("complementary").getByRole("group", { name: "Signed in" })).toContainText("U50 Lands");
+    await expect(page.getByRole("complementary").getByRole("group", { name: "Signed in" })).toContainText("P5 Lands");
   });
 
   test("a school email new to the list joins it as an educator, with no form", async ({ page }) => {
-    const account = schoolAccount("U50 New Educator");
+    const account = schoolAccount("P5 New Educator");
     expect(await staffRow(account.email)).toBeUndefined();
     await signInWithGoogle(page, account);
     await expect(page).toHaveURL(/\/today$/);
-    expect(await staffRow(account.email)).toEqual({ email: account.email, name: "U50 New Educator", role: "educator", classes: [] });
+    expect(await staffRow(account.email)).toEqual({ email: account.email, name: "P5 New Educator", role: "educator", classes: [] });
   });
 
   test("the coordinator put on the list by engine staff add keeps the role on signing in", async ({ page }) => {
-    const account = schoolAccount("U50 Coordinator");
-    const row = { email: account.email, name: "U50 Coordinator", role: "coordinator", classes: [] };
+    const account = schoolAccount("P5 Coordinator");
+    const row = { email: account.email, name: "P5 Coordinator", role: "coordinator", classes: [] };
     await sql`update config set value = value || ${sql.json([row])} where key = 'app.staff'`;
     await signInWithGoogle(page, { ...account, name: "A Different Google Name" });
     await expect(page).toHaveURL(/\/today$/);

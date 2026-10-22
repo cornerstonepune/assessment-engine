@@ -107,7 +107,7 @@ test.afterAll(async () => {
   await sql.end();
 });
 
-test("the menu is Today, Curriculum, Assessments, Children, each with the count of what waits in it", async ({ page }) => {
+test("the menu is Today, Curriculum, Assessments, Children, and only Today carries the count of what waits", async ({ page }) => {
   await page.goto("/today");
   const menu = page.getByRole("navigation", { name: "Sections" });
   const names = await menu.getByRole("link").allInnerTexts();
@@ -116,7 +116,8 @@ test("the menu is Today, Curriculum, Assessments, Children, each with the count 
   let total = 0;
   for (const tab of ["Curriculum", "Assessments", "Children"]) {
     const waiting = (await lines(page, tab)).filter((l) => l.waits).reduce((s, l) => s + l.n, 0);
-    expect(await badge(page, tab), `${tab}'s count is its lines on Today`).toBe(waiting);
+    // a red count only on Today (goals/ux10-declutter.yaml): the tab's lines are counted on Today, not on the tab
+    expect(await badge(page, tab), `${tab} carries no count`).toBe(0);
     total += waiting;
   }
   expect(await badge(page, "Today"), "Today's count is every tab's").toBe(total);

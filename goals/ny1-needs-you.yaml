@@ -21,7 +21,7 @@ says:
   - words: "I'm not even now able to figure out what all papers I need to validate or for Achal to validate"
     proved_by: packages/engine/tests/test_asks.py::test_every_kind_of_waiting_names_who_decides_it
   - words: "I'm not even able to see that"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::a school account signs in with Google and lands on Today"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::a school account signs in with Google and lands on Today"
   - words: "for Achal to validate"
     proved_by: packages/engine/tests/test_asks.py::test_every_question_drafted_for_achal_is_a_row
   - words: "for Achal to validate"

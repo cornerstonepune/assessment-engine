@@ -209,8 +209,11 @@ def read_page(jpeg, slots, cfg, cli, form=None, page_no=1, symbolic=(), use_boxe
             lined_up = n
     boxes = ocr.printed_boxes(jpeg, cfg) if use_boxes else ()
     out = ocr.answers_for(page, slots, cfg, symbolic, boxes, reread)
-    if lined_up:
-        for r in out.values():
+    for r in out.values():
+        # where the reader looked, not where the question prints: the picture a person is shown for an answer is that
+        # question's own part of the page or the whole page, never a region found by words (goals/ck1)
+        r.pop("box", None)
+        if lined_up:
             r["stencil"] = lined_up
     return out
 

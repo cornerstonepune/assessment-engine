@@ -20,7 +20,8 @@ const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const MINE = "U35-MINE";
 const OTHER = "U35-OTHER";
 const EDUCATOR = { email: "u35-educator@cornerstone.test", name: "U35 Educator", role: "educator", classes: [MINE] };
-const COLUMNS = ["Roll", "Child", "Needs help on", "Needs help", "Practising", "Secure", "Waiting on you", "Parent report"];
+// the columns with something in them in this class: nobody is practising, so that column is left out (goals/ux10-declutter.yaml)
+const COLUMNS = ["Roll", "Child", "Needs help on", "Needs help", "Secure", "Waiting on you", "Parent report"];
 let kids: Record<string, string> = {};
 let mistake = "";
 
@@ -126,12 +127,12 @@ test("a class's table has the columns that matter, children who need help first"
   await expect(asha.nth(1)).toHaveText("Asha");
   await expect(asha.nth(2)).toContainText(mistake);
   await expect(asha.nth(3)).toHaveText("1");
-  await expect(asha.nth(6)).toHaveText("2");
-  await expect(asha.nth(7)).toContainText(/out of date/i);
+  await expect(asha.nth(5)).toHaveText("2");
+  await expect(asha.nth(6)).toContainText(/out of date/i);
   // a report already approved is nobody's work: the cell is empty
   const chetan = mine.locator(`tbody tr[data-child="${kids.Chetan}"] td`);
-  await expect(chetan.nth(5)).toHaveText("1");
-  await expect(chetan.nth(7)).toHaveText(/^\s*$/);
+  await expect(chetan.nth(4)).toHaveText("1");
+  await expect(chetan.nth(6)).toHaveText(/^\s*$/);
   await page.context().close();
 });
 
@@ -139,7 +140,8 @@ test("the colour key is one line, and at 400 px nothing scrolls sideways", async
   const page = await asEducator(browser);
   await page.setViewportSize({ width: 400, height: 860 });
   await page.goto("/growth");
-  // read once the page has streamed in
+  // the key is put away behind "Details" (goals/ux10-declutter.yaml); read once the page has streamed in
+  await page.getByText("Details", { exact: true }).click();
   const key = page.locator("details[data-colour-key]");
   await expect(key.locator("summary")).toBeVisible();
   await expect(key).toHaveCount(1);

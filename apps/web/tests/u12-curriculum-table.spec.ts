@@ -19,7 +19,7 @@ const table = (page: Page) => page.getByRole("table", { name: "The curriculum, g
 const depth = (page: Page, d: number) => table(page).locator(`tbody tr[data-depth="${d}"]`);
 
 test("the curriculum is one table that opens grade by grade, topic by topic, and closes again", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?details=1");
   await expect(page.getByRole("table")).toHaveCount(1);
   // at first, the grades only
   await expect(depth(page, 0).first()).toBeVisible();
@@ -51,7 +51,7 @@ test("the curriculum is one table that opens grade by grade, topic by topic, and
 });
 
 test("every row has the same columns, and every number is the database's own", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?details=1");
   await expect(table(page).locator("thead th")).toHaveText([
     "Grade · subject · topic · skill",
     "Questions",
@@ -120,7 +120,7 @@ test("the skills waiting for approval are counted once, though a skill shows und
   const putBack = await aWaitingSkill(sql, skill.code);
   await sql`update skill_set set level_band = ${sql.json({ [skill.easiest]: "G1" })} where code = ${skill.code}`;
   try {
-    await page.goto("/");
+    await page.goto("/?details=1");
     await page.getByRole("button", { name: "Open everything" }).click();
     const rows = depth(page, 3).filter({ hasText: "waiting for approval" });
     const ids = await rows.evaluateAll((trs) => trs.map((tr) => tr.getAttribute("data-row") ?? ""));

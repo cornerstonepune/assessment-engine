@@ -42,7 +42,7 @@ test("an educator put on the staff list signs in, and a decision carries their n
     await expect(page).toHaveURL(/\/today$/);
 
     // what they decide carries their name
-    await page.goto("/");
+    await page.goto("/?taught=1");
     const row = page.getByRole("region", { name: "Not taught yet", exact: true }).getByRole("listitem").filter({ hasText: topic.name });
     await row.getByText("Say it is taught", { exact: true }).click();
     await row.getByRole("button", { name: `Taught in ${SECTION}, as ${EDUCATOR.name}` }).click();
@@ -56,37 +56,11 @@ test("an educator put on the staff list signs in, and a decision carries their n
   }
 });
 
-test("Children finds a child by name or roll as it is typed, and the name stays out of the address", async ({ page }) => {
+// goals/ux10-declutter.yaml: Children had a second "find a child" box beside the bar at the top; the bar's search finds a
+// child by name or roll without the name entering an address (s41-subject-class-and-today.spec.ts), so the page has one way.
+test("Children has no second box to find a child: the bar at the top finds them", async ({ page }) => {
   await page.goto("/growth");
-  const find = page.getByRole("searchbox", { name: "Find a child" });
-  // the children's rows, class by class (the page's colour key is a table too); for the coordinator every class starts
-  // closed (goals/ux3-children-grouped.yaml), so a row is on the page whether or not its class is open
-  const rows = page.getByRole("table", { name: /: its children$/, includeHidden: true }).locator("tbody tr");
-  await expect(find).toBeVisible();
-  const all = await rows.count();
-  expect(all).toBeGreaterThan(2);
-
-  // part of a name, in any case: only the children whose name holds it, in every grade, their classes opened
-  await find.fill("ZORA");
-  const shown = rows.filter({ visible: true });
-  await expect(shown).not.toHaveCount(all);
-  for (const r of await shown.all()) await expect(r).toContainText(/zora/i);
-  await expect(shown.filter({ hasText: "Zorawar" })).toHaveCount(1);
-  expect(page.url(), "a child's name in the address").not.toMatch(/zora/i);
-  // a grade with no child found is put away: only Grade 2 is left on the page
-  await expect(page.locator("#children section").filter({ visible: true })).toHaveCount(1);
-  await expect(page.getByRole("region", { name: "Grade 2" })).toBeVisible();
-
-  // a number is a roll number: the children with that roll, class by class
-  await find.fill("2");
-  for (const r of await shown.all()) await expect(r.locator("td").first()).toHaveText("2");
-  await expect(shown.filter({ hasText: "Mehrunissa" })).toHaveCount(1);
-
-  // nothing found says so; clearing brings every child back and every class as it was, closed
-  await find.fill("qqzzqq");
-  await expect(shown).toHaveCount(0);
-  await expect(page.getByRole("status").filter({ hasText: "No child matches" })).toBeVisible();
-  await find.fill("");
-  await expect(page.locator("#children tr[data-name][hidden]")).toHaveCount(0);
-  await expect(page.locator("#children details[data-class][open]")).toHaveCount(0);
+  await expect(page.getByRole("search", { name: "Subject, class and search" }).getByRole("searchbox")).toBeVisible();
+  await expect(page.getByRole("searchbox", { name: "Find a child" })).toHaveCount(0);
+  await expect(page.getByRole("main").getByRole("searchbox")).toHaveCount(0);
 });

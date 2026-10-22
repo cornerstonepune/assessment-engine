@@ -18,7 +18,7 @@ says:
   - words: "go ahead with phase 2"
     proved_by: packages/engine/tests/test_graph.py::test_two_rebuilds_of_one_child_at_once_both_finish
   - words: "go ahead with phase 2"
-    proved_by: "apps/web/tests/u50-sign-in-with-google.spec.ts::the sign-in page asks for no password, only the school Google account"
+    proved_by: "apps/web/tests/p5-sign-in-with-google.spec.ts::the sign-in page asks for no password, only the school Google account"
 manual: []
 scenarios: []
 criteria:
