@@ -15,7 +15,7 @@ import { weekWords } from "@/lib/week";
 export default async function Today() {
   const me = await requireStaff();
   const scope = scopeOf(me);
-  const [lines, weeks, trust] = await deadline(Promise.all([needsYou(me), queueByWeek(), trustNow()]));
+  const [lines, weeks, trust] = await deadline(Promise.all([needsYou(me), queueByWeek(scope), trustNow()]));
   return (
     <>
       <PageHeader stage="Today" title="Today" sub="Everything that waits on a person, under the tab where it is done. Each line opens the place to do it." />
