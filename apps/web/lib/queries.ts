@@ -2,6 +2,7 @@ import { cache } from "react";
 import { sql, TENANT_SLUG } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { skillTaughtFor, skillTaughtIn } from "./taught";
+import { paperName } from "./queries-papers";
 
 /** A level's name, a row of `difficulty` (lib/levels.ts). */
 export type Difficulty = string;
@@ -240,6 +241,8 @@ export type PendingResult = {
   paper: string;
   date: string | null;
   item_key: string;
+  /** The question's number on its page, as the paper prints it: never the bank's key. */
+  slot: string;
   question: string;
   answer: string | null;
   read: string;
@@ -260,8 +263,8 @@ export type PendingResult = {
 
 export async function pendingResults(id: string): Promise<PendingResult[]> {
   return sql<PendingResult[]>`
-    select r.id, coalesce(t.key ->> 'title', t.code) as paper, coalesce(t.key ->> 'date', c.created_at::date::text) as date,
-           i.item_key, coalesce(i.spec ->> 'question', i.stem) as question, result_response(i.responses, r.rid) ->> 'answer' as answer,
+    select r.id, ${paperName("t")} as paper, coalesce(t.key ->> 'date', c.created_at::date::text) as date,
+           i.item_key, result_slot(i.item_key, r.raw_read::jsonb) as slot, coalesce(i.spec ->> 'question', i.stem) as question, result_response(i.responses, r.rid) ->> 'answer' as answer,
            r.capture_id, si.id as paper_id,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
@@ -287,6 +290,8 @@ export type Evidence = {
   date: string | null;
   paper: string;
   item_key: string;
+  /** The question's number on its page, as the paper prints it: never the bank's key. */
+  slot: string;
   question: string;
   answer: string | null;
   read: string;
@@ -301,7 +306,8 @@ export type Evidence = {
 // opened up to the work it rests on.
 export async function childEvidence(id: string): Promise<Evidence[]> {
   return sql<Evidence[]>`
-    select coalesce(i.rung_code, e.rung_code) as rung_code, e.skill_code, t.key ->> 'date' as date, coalesce(t.key ->> 'title', t.code) as paper, i.item_key,
+    select coalesce(i.rung_code, e.rung_code) as rung_code, e.skill_code, t.key ->> 'date' as date, ${paperName("t")} as paper, i.item_key,
+           result_slot(i.item_key, r.raw_read::jsonb) as slot,
            coalesce(i.spec ->> 'question', i.stem) as question,
            coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,

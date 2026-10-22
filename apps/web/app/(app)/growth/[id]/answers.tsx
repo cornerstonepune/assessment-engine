@@ -6,7 +6,7 @@ import { dateWords } from "@/lib/week";
 
 export const fmtDate = dateWords;
 
-type AnswerRow = Pick<Evidence, "date" | "item_key" | "question" | "read" | "answer" | "working" | "status" | "misconception_codes" | "skill_code" | "op"> & {
+type AnswerRow = Pick<Evidence, "date" | "item_key" | "slot" | "question" | "read" | "answer" | "working" | "status" | "misconception_codes" | "skill_code" | "op"> & {
   id?: string;
   mistake_skills?: Record<string, string> | null;
 };
@@ -30,7 +30,7 @@ export function AnswerTable({ rows, names }: { rows: AnswerRow[]; names: Record<
           {rows.map((a, i) => (
             <tr key={a.id ?? i}>
               <td className="fact whitespace-nowrap">{fmtDate(a.date)}</td>
-              <td className="fact">{a.item_key.split("/").pop()}</td>
+              <td className="fact">{a.slot}</td>
               <td className="max-w-[300px] text-[13px]">
                 {a.question}
                 {a.working ? <div className="mt-1 text-[12px] text-basalt/55">{a.working}</div> : null}

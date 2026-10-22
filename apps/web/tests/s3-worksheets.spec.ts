@@ -66,7 +66,8 @@ test("the library on the Worksheets page holds exactly what the database holds",
 
 test("a worksheet shows its twelve questions with their answers, and prints", async ({ page }) => {
   await page.goto("/worksheets/R22-H03");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Worksheet R22-H03");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("2-digit + 2-digit · Hard · sheet 3");
+  await expect(page.getByText("Worksheet R22-H03.")).toBeVisible();
   const rows = page.getByRole("table", { name: "Questions and answers" }).locator("tbody tr");
   await expect(rows).toHaveCount(12);
   const first = await rows.first().getByRole("link").getAttribute("href");
@@ -85,7 +86,7 @@ test("a question names the worksheets it is on, and each opens", async ({ page }
     where t.source = 'library' and t.retired_at is null order by t.code, i.item_key limit 1`;
   await page.goto(`/library/${q.item_key}`);
   await page.getByRole("link", { name: q.code, exact: true }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Worksheet ${q.code}`);
+  await expect(page.getByText(`Worksheet ${q.code}.`)).toBeVisible();
   await expect(page.locator(`a[href="/library/${q.item_key}"]`)).toBeVisible();
 });
 
