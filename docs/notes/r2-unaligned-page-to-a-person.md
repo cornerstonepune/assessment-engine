@@ -32,4 +32,4 @@ page goes whole to a person.
 ## Handoff
 
 - Live: nothing yet; reaches live when Nimish merges and it deploys.
-- Next: R1b's re-read, which waits on a Drive link to the file (see the R1b note).
+- Blocked, R1b: the 22 Oct file was put in on Marking, so it is in no Drive folder; the only read-again route (`POST /read/file` with `again`) takes a Drive link. Needs Nimish: the file in Drive, shared by link, or his approval for a route that reads an inbox file again.
