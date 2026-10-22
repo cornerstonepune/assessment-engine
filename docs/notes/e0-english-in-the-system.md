@@ -7,6 +7,11 @@ Decision record: ADR 0093. PR #284.
 
 On a database built fresh from this branch (`bin/testdb fresh`), the website run as its own role
 (`TEST_WEB_DATABASE_URL`, as CI does), 2026-10-22, before the last merge of main (UXF, #279).
+After the merge of main with B4b (#285, `skill_set` is now `skill`), B4 (`registry_skill`), S2, CK2 and L14d: a fresh
+database built from the merged branch; `bin/check` passed; the engine tests for the loader, the bank, the library,
+`test_rung_folded`, the topics, levels, links, audit, roles and taught-per-class files `135 passed`; the E0 page spec and
+the seven Curriculum specs `31 passed`; `bin/engine done` as above. E0's own SQL is written against `skill` and
+`registry_skill`, not the stand-in view.
 
 - `bin/engine done e0-english-in-the-system`: each of Nimish's 7 sentences `PROVED` (loaded as drafts, loading twice
   moves nothing; nothing English drawn before approval; an approval keeps the name and the date; the maths exactly as it
@@ -45,7 +50,6 @@ member of staff, saved with their name and the date.
 ## Handoff
 
 - Live: nothing. Draft PR #284, not merged.
-- Merge order: #285 (B4b) renames `skill_set` to `skill`. This branch names `skill_set` in its queries, loader and tests, so
-  whichever merges second renames those too; the one new migration (a grant on `question_type_approval`) is unaffected.
-  Its timestamp (20261203…) must sort after the newest on main (`test_migration_order`).
+- Main (B4b, B4) is merged in and E0 uses the new names. The one migration (a grant on `question_type_approval`) is
+  unaffected; its timestamp (20261203…) sorts after the newest on main (20261202…, `test_migration_order`).
 - Next: the rehearsal, then Nimish merges. After the merge, `bin/update-live` loads English as drafts on live.
