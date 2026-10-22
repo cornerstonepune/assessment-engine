@@ -13,7 +13,7 @@ says:
   - words: "Ayush is a part of Cornerstone. He has the account"
     proved_by: "apps/web/tests/u53-staff-and-school.spec.ts::School shows each class with its grade, its children and who teaches it"
 manual:
-  - "Subject per teacher (Ayush English, Achal Maths): the existing staff list has no subject field; needs a schema decision from the core track."
+  - "Subject per teacher: the existing staff list has no subject field (Ayush English, Achal Maths); needs a schema decision from the core track."
 scenarios: []
 criteria:
   - name: the rules, the ratchet and the layout hold
