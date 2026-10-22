@@ -1,0 +1,148 @@
+{
+ "question_types": [
+  {
+   "code": "ENG.CHOOSE",
+   "subject": "ENG",
+   "name": "Tick the right answer",
+   "reaches": "printed",
+   "marked_by": "code",
+   "how": "The answer is one of the printed options; the engine compares the option ticked with the key."
+  },
+  {
+   "code": "ENG.MATCH",
+   "subject": "ENG",
+   "name": "Match each one to its partner",
+   "reaches": "printed",
+   "marked_by": "code",
+   "how": "Each line drawn is a pair; the engine compares every pair with the key."
+  },
+  {
+   "code": "ENG.ORDER",
+   "subject": "ENG",
+   "name": "Number them in order",
+   "reaches": "printed",
+   "marked_by": "code",
+   "how": "The numbers written are an order; the engine compares the order with the key, which code computes where it can (alphabetical order, the order of events in the passage)."
+  },
+  {
+   "code": "ENG.SORT",
+   "subject": "ENG",
+   "name": "Write each one in the right group",
+   "reaches": "printed",
+   "marked_by": "code",
+   "how": "Each item belongs to one group; the engine compares every item's group with the key."
+  },
+  {
+   "code": "ENG.GAP",
+   "subject": "ENG",
+   "name": "Fill the gap",
+   "reaches": "printed",
+   "marked_by": "code",
+   "how": "One word or a short phrase in a gap; the engine compares it with the key and the list of accepted answers, spelling exact."
+  },
+  {
+   "code": "ENG.WRITE_WORD",
+   "subject": "ENG",
+   "name": "Write the word",
+   "reaches": "printed",
+   "marked_by": "code",
+   "how": "One written word; the engine compares the spelling letter by letter with the key, which code computes from the rule where it can."
+  },
+  {
+   "code": "ENG.DICTATION",
+   "subject": "ENG",
+   "name": "Listen and write",
+   "reaches": "read_aloud",
+   "marked_by": "code",
+   "how": "The educator reads a word or sentence aloud from the paper's list; the child writes it; the engine compares the spelling letter by letter with the key."
+  },
+  {
+   "code": "ENG.MARK_WORDS",
+   "subject": "ENG",
+   "name": "Underline or circle the words",
+   "reaches": "printed",
+   "marked_by": "code",
+   "how": "The words underlined are a set; the engine compares the set with the key: every target word, and no other."
+  },
+  {
+   "code": "ENG.COPY",
+   "subject": "ENG",
+   "name": "Copy the words from the passage",
+   "reaches": "printed",
+   "marked_by": "code",
+   "how": "The words copied must be in the passage; the engine compares them with the key and accepted answers, ignoring case and end punctuation."
+  },
+  {
+   "code": "ENG.PUNCTUATE",
+   "subject": "ENG",
+   "name": "Write it again with the punctuation",
+   "reaches": "printed",
+   "marked_by": "code",
+   "how": "The sentence written again; the engine checks that its words are unchanged and that every mark is in its place."
+  },
+  {
+   "code": "ENG.CORRECT",
+   "subject": "ENG",
+   "name": "Find and fix the mistakes",
+   "reaches": "printed",
+   "marked_by": "code",
+   "how": "The corrected words; the engine compares each correction with the key and counts a correct word changed as a new mistake."
+  },
+  {
+   "code": "ENG.TABLE",
+   "subject": "ENG",
+   "name": "Complete the table",
+   "reaches": "printed",
+   "marked_by": "code",
+   "how": "One fact per box; the engine compares each box with the key and its accepted answers."
+  },
+  {
+   "code": "ENG.SHORT_ANSWER",
+   "subject": "ENG",
+   "name": "Answer in a sentence or two",
+   "reaches": "printed",
+   "marked_by": "model_rubric",
+   "how": "A short written answer; a model marks it against the question's key points and the rubric, and the educator confirms any mark the model is unsure of."
+  },
+  {
+   "code": "ENG.REWRITE",
+   "subject": "ENG",
+   "name": "Write the sentence again so that it does what is asked",
+   "reaches": "printed",
+   "marked_by": "model_rubric",
+   "how": "The rewritten sentence; code first checks what it can (the asked-for word or mark is there), then a model marks it against the rubric, and the educator confirms any mark the model is unsure of."
+  },
+  {
+   "code": "ENG.SHORT_WRITE",
+   "subject": "ENG",
+   "name": "Write a short piece",
+   "reaches": "printed",
+   "marked_by": "model_rubric",
+   "how": "Three to eight sentences; a model suggests a level for each line of the rubric with the words that show it, and the educator confirms or changes it."
+  },
+  {
+   "code": "ENG.READ_ALOUD",
+   "subject": "ENG",
+   "name": "Read aloud to the educator",
+   "reaches": "observed",
+   "marked_by": "educator",
+   "how": "Not on a paper: the educator listens and records what they saw against the objective."
+  },
+  {
+   "code": "ENG.TALK",
+   "subject": "ENG",
+   "name": "Talk, listen and discuss",
+   "reaches": "observed",
+   "marked_by": "educator",
+   "how": "Not on a paper: the educator watches talk, discussion or performance and records what they saw."
+  },
+  {
+   "code": "ENG.EXTENDED",
+   "subject": "ENG",
+   "name": "Extended writing in the exercise book",
+   "reaches": "observed",
+   "marked_by": "educator",
+   "how": "Not on a paper: a full piece written over a lesson or more, judged by the educator across the term."
+  }
+ ]
+}

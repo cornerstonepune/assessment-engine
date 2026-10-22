@@ -1,0 +1,769 @@
+{
+ "skill_objectives": [
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rw.01"
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rw.04"
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rw.03"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ww.01"
+  },
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ww.02"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ww.03"
+  },
+  {
+   "skill_code": "EN3.SPELL.HOMOPHONE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ww.04"
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.01"
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.03"
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rw.02"
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rg.03"
+  },
+  {
+   "skill_code": "EN3.PUNCT.APOSTROPHE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wg.02"
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wg.01"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rg.01"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rg.02"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rg.05"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.06"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.14"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.16"
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.08"
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rs.01"
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ra.04"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wc.02"
+  },
+  {
+   "skill_code": "EN3.WRITE.DESCRIBE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wc.03"
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rv.03"
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.15"
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.05"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rs.02"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rs.03"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ws.04"
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ws.02"
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.07"
+  },
+  {
+   "skill_code": "EN3.VOCAB.TOPIC",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wv.01"
+  },
+  {
+   "skill_code": "EN3.WRITE.TABLE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wp.02"
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rg.07"
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rg.08"
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rg.09"
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wg.08"
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ww.05"
+  },
+  {
+   "skill_code": "EN3.VOCAB.CONTEXT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rv.01"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rv.02"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wv.02"
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rv.04"
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wv.05"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rv.07"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wv.06"
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.10"
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.12"
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.17"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ra.05"
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.11"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rg.10"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wg.06"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rg.11"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wg.07"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rv.06"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wv.04"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rs.04"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ws.03"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rg.06"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wg.05"
+  },
+  {
+   "skill_code": "EN3.WRITE.SEQUENCE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ws.01"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAYSCRIPT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wc.04"
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rg.04"
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wg.03"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Rv.05"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wv.03"
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wp.04"
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.09"
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ri.13"
+  },
+  {
+   "skill_code": "EN3.WRITE.REVIEW",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Ra.03"
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wg.04"
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "3Wp.05"
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rw.01"
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rw.02"
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rw.03"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ww.01"
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ww.02"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ww.03"
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ww.05"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ww.06"
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ww.07"
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ww.08"
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.01"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.03"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.06"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.14"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.15"
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.08"
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rs.01"
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wg.01"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rg.01"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rg.02"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wg.02"
+  },
+  {
+   "skill_code": "EN4.WRITE.DESCRIBE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wc.04"
+  },
+  {
+   "skill_code": "EN4.WRITE.ENDING",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wc.05"
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rv.04"
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wv.01"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ww.04"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rv.02"
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.07"
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.13"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rs.03"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ws.02"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rs.02"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ws.04"
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rs.04"
+  },
+  {
+   "skill_code": "EN4.WRITE.NOTES",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wp.02"
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rv.01"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rv.03"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wv.02"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rv.06"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wv.03"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rv.07"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rv.08"
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wv.05"
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.09"
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.11"
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.10"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.16"
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ra.04"
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rg.09"
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wg.06"
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wg.07"
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rg.10"
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wg.08"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rg.04"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rg.05"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wg.05"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ws.03"
+  },
+  {
+   "skill_code": "EN4.WRITE.SEQUENCE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ws.01"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAYSCRIPT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wc.07"
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.17"
+  },
+  {
+   "skill_code": "EN4.READ.RESPOND",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ra.02"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rg.03"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wg.04"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rv.05"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wv.04"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAN",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wc.02"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROFILE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wc.03"
+  },
+  {
+   "skill_code": "EN4.WRITE.VIEWPOINT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wc.06"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.05"
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Ri.12"
+  },
+  {
+   "skill_code": "EN4.WRITE.ARGUE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wc.10"
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rg.06"
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wg.09"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rg.07"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rg.08"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wg.10"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wg.03"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Rg.02"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROOFREAD",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wp.05"
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "framework": "CAM-PRI-ENG-0058",
+   "objective": "4Wp.04"
+  }
+ ]
+}

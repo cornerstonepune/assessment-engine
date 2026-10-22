@@ -1,0 +1,347 @@
+{
+ "rubrics": [
+  {
+   "code": "R_ENG_ANSWER",
+   "name": "A short answer about a text",
+   "applies_to": "ENG.SHORT_ANSWER on a passage",
+   "criteria": [
+    {
+     "code": "POINT",
+     "name": "Answers the question",
+     "levels": {
+      "Beginning": "With help, gives an answer that is about the passage but not about the question asked.",
+      "Developing": "Gives an answer to the question that is partly right or misses one of its key points.",
+      "Secure": "Gives an answer that matches every key point the question needs.",
+      "Extending": "Gives every key point and adds a reason of their own that fits the passage."
+     }
+    },
+    {
+     "code": "EVIDENCE",
+     "name": "Uses the text",
+     "levels": {
+      "Beginning": "Gives no detail from the passage, or a detail that does not fit.",
+      "Developing": "Gives one detail from the passage in their own words.",
+      "Secure": "Gives a detail or a short quote from the passage that supports the answer.",
+      "Extending": "Gives two or more details or quotes and says how each supports the answer."
+     }
+    }
+   ],
+   "scale": [
+    "Beginning",
+    "Developing",
+    "Secure",
+    "Extending"
+   ],
+   "skill_codes": [
+    "EN3.READ.BLURB",
+    "EN3.READ.CHARACTER",
+    "EN3.READ.COMPARE",
+    "EN3.READ.FIND",
+    "EN3.READ.INFER",
+    "EN3.READ.MAIN",
+    "EN3.READ.PREDICT",
+    "EN3.READ.THEME",
+    "EN3.TEXT.GENRE",
+    "EN3.VOCAB.CONTEXT",
+    "EN4.READ.CHARACTER",
+    "EN4.READ.CONTEXT",
+    "EN4.READ.FIND",
+    "EN4.READ.INFER",
+    "EN4.READ.PREDICT",
+    "EN4.READ.RESPOND",
+    "EN4.READ.THEME",
+    "EN4.TEXT.GENRE",
+    "EN4.TEXT.PERSUADE",
+    "EN4.VOCAB.FIGURE",
+    "EN4.VOCAB.VERBCHOICE"
+   ]
+  },
+  {
+   "code": "R_ENG_SENTENCE",
+   "name": "A sentence written or rewritten to a brief",
+   "applies_to": "ENG.REWRITE",
+   "criteria": [
+    {
+     "code": "BRIEF",
+     "name": "Does what was asked",
+     "levels": {
+      "Beginning": "Writes a sentence, but without the change that was asked for.",
+      "Developing": "Makes the change asked for, but the sentence reads awkwardly or changes its meaning.",
+      "Secure": "Makes the change asked for and keeps the meaning.",
+      "Extending": "Makes the change and chooses words that make the sentence stronger than the original."
+     }
+    },
+    {
+     "code": "ACCURACY",
+     "name": "Writes it correctly",
+     "levels": {
+      "Beginning": "Writes the sentence with three or more mistakes of spelling, grammar or punctuation.",
+      "Developing": "Writes the sentence with one or two mistakes.",
+      "Secure": "Writes the sentence with no mistakes in the words and marks asked for.",
+      "Extending": "Writes the sentence with no mistakes and uses a mark or word beyond the brief correctly."
+     }
+    }
+   ],
+   "scale": [
+    "Beginning",
+    "Developing",
+    "Secure",
+    "Extending"
+   ],
+   "skill_codes": [
+    "EN3.GRAM.JOIN",
+    "EN3.GRAM.WRITETYPE",
+    "EN3.TEXT.FEATURES",
+    "EN3.VOCAB.DESCRIBE",
+    "EN3.VOCAB.OPENER",
+    "EN4.GRAM.ADVERB",
+    "EN4.GRAM.CONNECT",
+    "EN4.TEXT.FEATURES",
+    "EN4.VOCAB.SYNONYM",
+    "EN4.VOCAB.WRITEFIGURE"
+   ]
+  },
+  {
+   "code": "R_ENG_WRITE",
+   "name": "A short piece of writing",
+   "applies_to": "ENG.SHORT_WRITE: describing, telling events, a profile, a new ending",
+   "criteria": [
+    {
+     "code": "CONTENT",
+     "name": "Says what the task asks",
+     "levels": {
+      "Beginning": "With help, writes one or two sentences on the topic.",
+      "Developing": "Writes on the topic but leaves out a part the task asked for.",
+      "Secure": "Writes every part the task asked for, with at least two chosen details.",
+      "Extending": "Writes every part with details that would surprise or interest a reader."
+     }
+    },
+    {
+     "code": "ORDER",
+     "name": "Puts ideas in order",
+     "levels": {
+      "Beginning": "Writes ideas in an order that is hard to follow.",
+      "Developing": "Writes ideas in order, linked only by and or then.",
+      "Secure": "Writes ideas in a clear order and links them with at least two different linking words.",
+      "Extending": "Orders ideas so each builds on the last, with links chosen for time, cause or contrast."
+     }
+    },
+    {
+     "code": "WORDS",
+     "name": "Chooses words",
+     "levels": {
+      "Beginning": "Uses mostly general words (nice, good, went).",
+      "Developing": "Uses one or two chosen words, such as a describing word or a strong verb.",
+      "Secure": "Uses chosen words in most sentences: describing words, strong verbs or senses.",
+      "Extending": "Uses chosen words and one comparison, such as a simile, that fits the piece."
+     }
+    },
+    {
+     "code": "SENTENCES",
+     "name": "Writes correct sentences",
+     "levels": {
+      "Beginning": "Writes sentences that run together, with few capitals or full stops.",
+      "Developing": "Writes most sentences with a capital and an end mark; three or more slips.",
+      "Secure": "Writes sentences with capitals and end marks; at most two slips of spelling or grammar.",
+      "Extending": "Writes varied sentences, including one with two clauses, with at most one slip."
+     }
+    }
+   ],
+   "scale": [
+    "Beginning",
+    "Developing",
+    "Secure",
+    "Extending"
+   ],
+   "skill_codes": [
+    "EN3.GRAM.WRITETYPE",
+    "EN3.WRITE.DESCRIBE",
+    "EN3.WRITE.SEQUENCE",
+    "EN4.WRITE.DESCRIBE",
+    "EN4.WRITE.ENDING",
+    "EN4.WRITE.PROFILE",
+    "EN4.WRITE.SEQUENCE"
+   ]
+  },
+  {
+   "code": "R_ENG_SCRIPT",
+   "name": "A playscript",
+   "applies_to": "ENG.SHORT_WRITE: a playscript",
+   "criteria": [
+    {
+     "code": "LAYOUT",
+     "name": "Sets it out as a playscript",
+     "levels": {
+      "Beginning": "Writes the lines as a story, with speech marks.",
+      "Developing": "Writes speakers' names, but misses colons or new lines for some speakers.",
+      "Secure": "Writes each speaker's name, a colon and their words on a new line, with no speech marks.",
+      "Extending": "Sets it out correctly and adds a scene heading and a list of characters."
+     }
+    },
+    {
+     "code": "DIRECTION",
+     "name": "Uses stage directions",
+     "levels": {
+      "Beginning": "Writes no stage directions.",
+      "Developing": "Writes one stage direction, but not in brackets or not in the present tense.",
+      "Secure": "Writes at least two stage directions in brackets, in the present tense.",
+      "Extending": "Writes stage directions that show feeling or movement the lines do not say."
+     }
+    },
+    {
+     "code": "STORY",
+     "name": "Tells the scene through talk",
+     "levels": {
+      "Beginning": "Writes lines that do not follow the story or the brief.",
+      "Developing": "Writes lines that follow the brief, but a narrator would be needed to follow them.",
+      "Secure": "Writes lines from which a listener can follow what happens.",
+      "Extending": "Writes lines that also show each character's personality."
+     }
+    }
+   ],
+   "scale": [
+    "Beginning",
+    "Developing",
+    "Secure",
+    "Extending"
+   ],
+   "skill_codes": [
+    "EN3.WRITE.PLAYSCRIPT",
+    "EN4.WRITE.PLAYSCRIPT"
+   ]
+  },
+  {
+   "code": "R_ENG_VIEW",
+   "name": "A view, opinion or review",
+   "applies_to": "ENG.SHORT_WRITE: a review, a character's opinion, a view for a reader",
+   "criteria": [
+    {
+     "code": "VIEW",
+     "name": "States a view",
+     "levels": {
+      "Beginning": "Writes about the topic without saying what they, or the character, think.",
+      "Developing": "States a view, but it changes or is unclear by the end.",
+      "Secure": "States one clear view at the start and keeps to it.",
+      "Extending": "States a clear view and answers one point someone might make against it."
+     }
+    },
+    {
+     "code": "REASONS",
+     "name": "Gives reasons",
+     "levels": {
+      "Beginning": "Gives no reason.",
+      "Developing": "Gives one reason.",
+      "Secure": "Gives two reasons, each with a detail or an example.",
+      "Extending": "Gives two or more reasons with details and says which matters most."
+     }
+    },
+    {
+     "code": "READER",
+     "name": "Writes for the reader",
+     "levels": {
+      "Beginning": "Writes in a way that does not suit the reader named in the task.",
+      "Developing": "Writes mostly for the reader, with a slip in tone, such as being too casual.",
+      "Secure": "Writes for the reader named, with a fitting greeting, tone and ending.",
+      "Extending": "Writes for the reader and chooses words likely to persuade or interest that reader."
+     }
+    }
+   ],
+   "scale": [
+    "Beginning",
+    "Developing",
+    "Secure",
+    "Extending"
+   ],
+   "skill_codes": [
+    "EN3.WRITE.REVIEW",
+    "EN4.WRITE.ARGUE",
+    "EN4.WRITE.VIEWPOINT"
+   ]
+  },
+  {
+   "code": "R_ENG_PLAN",
+   "name": "A plan or notes",
+   "applies_to": "ENG.SHORT_WRITE and ENG.TABLE: a plan, notes from a text",
+   "criteria": [
+    {
+     "code": "POINTS",
+     "name": "Records the main points",
+     "levels": {
+      "Beginning": "Records one point, or points that do not fit the task.",
+      "Developing": "Records some main points but leaves one out.",
+      "Secure": "Records every main point the task or text needs.",
+      "Extending": "Records every main point and marks which matters most."
+     }
+    },
+    {
+     "code": "NOTES",
+     "name": "Writes notes, not sentences",
+     "levels": {
+      "Beginning": "Copies whole sentences or writes a full story.",
+      "Developing": "Writes some points as short notes and some as long sentences.",
+      "Secure": "Writes each point as a short note of a few key words.",
+      "Extending": "Writes short notes and uses symbols or arrows to show links."
+     }
+    },
+    {
+     "code": "ORDER",
+     "name": "Puts points in an order to write from",
+     "levels": {
+      "Beginning": "Writes points in no clear order.",
+      "Developing": "Writes points in order, but one is out of place.",
+      "Secure": "Writes points in the order they would be written up.",
+      "Extending": "Writes points in order and groups them as paragraphs or sections."
+     }
+    }
+   ],
+   "scale": [
+    "Beginning",
+    "Developing",
+    "Secure",
+    "Extending"
+   ],
+   "skill_codes": [
+    "EN3.WRITE.PLAN",
+    "EN4.WRITE.NOTES",
+    "EN4.WRITE.PLAN"
+   ]
+  },
+  {
+   "code": "R_ENG_IMPROVE",
+   "name": "Improving a piece of writing",
+   "applies_to": "ENG.SHORT_ANSWER and ENG.REWRITE: suggesting and making an improvement",
+   "criteria": [
+    {
+     "code": "SPOTS",
+     "name": "Finds what to improve",
+     "levels": {
+      "Beginning": "Names a change that would not improve the writing.",
+      "Developing": "Names a general change, such as 'add more detail', without saying where.",
+      "Secure": "Names one exact place to improve and what is weak there.",
+      "Extending": "Names the place, what is weak and why it matters to the reader."
+     }
+    },
+    {
+     "code": "BETTER",
+     "name": "Writes the better version",
+     "levels": {
+      "Beginning": "Writes no new version, or one with the same weakness.",
+      "Developing": "Writes a new version that is a little better but adds a new mistake.",
+      "Secure": "Writes a new version that fixes the weakness with no new mistakes.",
+      "Extending": "Writes a new version that fixes it and makes the passage more interesting to read."
+     }
+    }
+   ],
+   "scale": [
+    "Beginning",
+    "Developing",
+    "Secure",
+    "Extending"
+   ],
+   "skill_codes": [
+    "EN3.WRITE.IMPROVE",
+    "EN4.WRITE.IMPROVE"
+   ]
+  }
+ ]
+}
