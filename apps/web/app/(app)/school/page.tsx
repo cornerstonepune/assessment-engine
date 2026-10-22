@@ -16,7 +16,13 @@ export default async function SchoolPage({ searchParams }: Props) {
   const q = await searchParams;
   const [lines, g] = await Promise.all([classLines(), grades()]);
   const words = new Map(g.list.map((x) => [x.code, x.name]));
-  const shown = lines.filter((l) => !q.grade || l.band === q.grade);
+  const text = q.q?.trim().toLowerCase();
+  const shown = lines.filter(
+    (l) =>
+      (!q.grade || l.band === q.grade) &&
+      (!text ||
+        `${l.section} ${l.teachers.join(" ")}`.toLowerCase().includes(text)),
+  );
   const page = Math.max(1, Number(q.page) || 1);
   const columns: Column<ClassLine>[] = [
     {
@@ -78,6 +84,11 @@ export default async function SchoolPage({ searchParams }: Props) {
               .map((x) => [x.code, x.name] as const),
           },
         ]}
+        search={{
+          name: "q",
+          value: q.q,
+          placeholder: "Find a class or a teacher",
+        }}
       />
       <DataTable
         label="Classes"
@@ -87,11 +98,11 @@ export default async function SchoolPage({ searchParams }: Props) {
         more={{
           page,
           href: (n: number) =>
-            `/school?${new URLSearchParams({ ...(q.grade ? { grade: q.grade } : {}), ...(n > 1 ? { page: String(n) } : {}) })}`,
+            `/school?${new URLSearchParams({ ...(q.grade ? { grade: q.grade } : {}), ...(q.q ? { q: q.q } : {}), ...(n > 1 ? { page: String(n) } : {}) })}`,
         }}
       />
       {shown.length === 0 ? (
-        <p className="note mt-2">No class matches this grade.</p>
+        <p className="note mt-2">No class matches these filters.</p>
       ) : null}
     </PageShell>
   );

@@ -94,7 +94,7 @@ test("School shows each class with its grade, its children and who teaches it", 
   page,
 }) => {
   await teaches([CLASS]);
-  await page.goto("/school");
+  await page.goto(`/school?q=${CLASS}`);
   const row = page
     .getByRole("table", { name: "Classes" })
     .locator("tbody tr", { hasText: CLASS });
