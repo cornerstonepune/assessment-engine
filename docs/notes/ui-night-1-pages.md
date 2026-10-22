@@ -16,3 +16,18 @@ section below is one stacked PR. Desktop (1440 px) first; screenshots before and
 
 **Handoff**: the page's panels are folds of switches (held by u30/u31/u40). A table of every class and topic, with a
 filter row, is its own slice. Schema follow-up: none.
+
+## The menu (`components/shell.tsx`, `nav.tsx`) — goals/uxn3-the-menu.yaml
+
+**Verified**
+- Failing first: `u53-the-menu.spec.ts` (the menu had four tabs).
+- Menu in the order of the week: Today · Taught this week · Papers to approve · Assessments · Upload papers · Check answers ·
+  Class results; then, under "Setup": Curriculum · Question bank. Current page marked; only Today has a count; no subject named.
+- Renamed on purpose, so the menu and the page say the same words: Marking → **Upload papers**; Check the answers →
+  **Check answers** (back link "← Upload papers"); Children → **Class results**; Class papers to approve (the page) →
+  **Papers to approve** (Today's own section keeps its name). The Question bank pages say "Question bank" above their title.
+- Specs changed only for those words and for the menu's new items: `u1`, `u2`, `u3`, `u9`, `u15`, `u17`, `u50`, `screens`,
+  `e2e`, `s1`, `s4`, `s42`, `u51`; `s1` lists `/taught` and `/papers/approve` among the pages the menu may pre-load.
+  `u51`'s empty-column rule skips a paged table (its columns stay the same on every page).
+- Phone: the row of nine tabs scrolls sideways (must not break); the top bar's search no longer pushes the page wider
+  (a width transition measured mid-resize was the cause; removed).

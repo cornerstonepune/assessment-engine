@@ -75,11 +75,11 @@ test("the menu is the teacher's week, and says where they are", async ({ page })
   await page.goto("/today");
   const menu = page.getByRole("navigation", { name: "Sections" });
   // the school's order of work (goals/ui1-menu-and-today.yaml); a tab's count of what waits follows its name
-  await expect(menu.getByRole("link")).toHaveText([/^Today/, /^Curriculum/, /^Assessments/, /^Children/]);
+  await expect(menu.getByRole("link")).toHaveText([/^Today/, /^Taught this week/, /^Papers to approve/, /^Assessments/, /^Upload papers/, /^Check answers/, /^Class results/, /^Curriculum/, /^Question bank/]);
   for (const [label, heading] of [
     ["Curriculum", "Curriculum"],
     ["Assessments", "Assessments"],
-    ["Children", "Children"],
+    ["Class results", "Class results"],
     ["Today", "Today"],
   ]) {
     await menu.getByRole("link", { name: label, exact: true }).click();

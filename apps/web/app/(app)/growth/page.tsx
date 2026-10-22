@@ -239,8 +239,8 @@ export default async function ChildrenPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Children"
-        title="Children"
+        stage="Class results"
+        title="Class results"
         sub={own ? "Your classes. The children who need you come first." : "Every class, grade by grade. The children who need you come first."}
       />
       <Body>

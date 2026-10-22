@@ -1,0 +1,31 @@
+name: uxn3-the-menu
+goal: >
+  The menu is the educator's week, in its order: Today, Taught this week, Papers to approve, Assessments, Upload papers,
+  Check answers, Class results, then the setup apart (Curriculum, Question bank). The current page is marked, the words
+  are the pages' own titles, only Today carries a count, and nothing in it names a subject. On a phone the row of tabs
+  scrolls sideways (it must not break). No migration.
+# Written 2026-10-22 (night), before the code. Renames on purpose, in step with the menu: Marking is "Upload papers",
+# Check the answers is "Check answers", Children is "Class results", Class papers to approve (the page) is "Papers to
+# approve". Today's own groups keep their names (Assessments, Curriculum, Children) until Today moves (UI-3).
+says:
+  - words: "Make sure that the navigation and all the menu items are perfect"
+    proved_by: "apps/web/tests/u53-the-menu.spec.ts::the menu lists the week's steps in order, then the setup apart, and each page is marked and titled by its own words"
+  - words: "make it easy to navigate"
+    proved_by: "apps/web/tests/u53-the-menu.spec.ts::no step of the week is a dead end: each page of the menu ends on a next step or opens one"
+  - words: "Subject-agnostic: nothing in the shared blocks or the menu names Maths or English"
+    proved_by: "apps/web/tests/u53-the-menu.spec.ts::only Today carries a count, and no word of the menu names a subject"
+manual: []
+scenarios: []
+criteria:
+  - name: the rules and the ratchet hold
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_ux_rules.py tests/test_ratchet.py tests/test_layout.py -q -p no:cacheprovider -o addopts=
+    expect: "passed"
+  - name: the menu and every spec that reads it
+    run: cd apps/web && npx playwright test tests/u53-the-menu.spec.ts tests/u15-menu-and-today.spec.ts tests/u1-today.spec.ts tests/u17-curriculum.spec.ts tests/screens.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

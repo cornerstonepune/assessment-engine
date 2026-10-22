@@ -63,7 +63,7 @@ test("at Made the card shows each child's proposed paper and opens the place to 
   }
   await page.getByRole("link", { name: "Look over and approve for print →" }).click();
   await expect(page).toHaveURL(new RegExp(`/papers/approve\\?section=${SECTION}&week=${week}&kind=practice`));
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Class papers to approve");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Papers to approve");
 });
 
 test("the upload box is at the top of the card, Assessments and Marking", async ({ page }) => {

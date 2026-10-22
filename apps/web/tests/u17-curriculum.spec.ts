@@ -146,10 +146,10 @@ test("the question bank finds a question by its words, within the choices made",
 test("every page says the tab it is under, above its title, and the menu marks that tab", async ({ page }) => {
   const [{ key }] = await sql<{ key: string }[]>`select item_key as key from item where source = 'generated' and status = 'active' order by item_key limit 1`;
   const pages: [string, string][] = [
-    ["/", "Curriculum"], ["/skill-sets/approve", "Curriculum"], ["/skill-sets/ADD.2D2D", "Curriculum"], ["/library", "Curriculum"],
-    [`/library/${key}`, "Curriculum"], ["/worksheets", "Curriculum"], ["/worksheets/taxonomy", "Curriculum"], ["/asks", "Curriculum"],
-    ["/papers", "Assessments"], ["/papers/make", "Assessments"], ["/papers/approve", "Assessments"], ["/make", "Assessments"],
-    ["/home", "Assessments"], ["/capture", "Assessments"], ["/growth", "Children"],
+    ["/", "Curriculum"], ["/skill-sets/approve", "Curriculum"], ["/skill-sets/ADD.2D2D", "Curriculum"], ["/library", "Question bank"],
+    [`/library/${key}`, "Question bank"], ["/worksheets", "Curriculum"], ["/worksheets/taxonomy", "Question bank"], ["/asks", "Curriculum"],
+    ["/papers", "Assessments"], ["/papers/make", "Assessments"], ["/papers/approve", "Papers to approve"], ["/make", "Assessments"],
+    ["/home", "Assessments"], ["/capture", "Upload papers"], ["/growth", "Class results"],
   ];
   for (const [path, tab] of pages) {
     await page.goto(path);
@@ -167,5 +167,5 @@ test("a class's papers are approved under Assessments, and Worksheets is the lib
   // a class's week, asked for at its old address, opens where it is approved now
   await page.goto("/worksheets?section=NO-SUCH&week=2026-W41&kind=practice");
   await expect(page).toHaveURL(/\/papers\/approve\?section=NO-SUCH&week=2026-W41&kind=practice/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Class papers to approve");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Papers to approve");
 });

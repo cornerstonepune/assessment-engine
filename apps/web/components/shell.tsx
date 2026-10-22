@@ -6,15 +6,21 @@ import type { Session } from "@/lib/auth";
 import { mayUse } from "@/lib/access";
 import type { Choices } from "@/lib/choices";
 
-// The menu is the school's order of work (goals/ui1-menu-and-today.yaml): what waits today, what is taught, the
-// assessments made from it, and the children they tell about. Only Today carries a count, the one red number, from the
+// The menu is the educator's week, in its order (goals/uxn3-the-menu.yaml, docs/ux-rules.md): what waits today, what was
+// taught, the papers to approve, the assessments, the papers that come back, their answers, the class's results; then the
+// setup apart. The words are the pages' own titles. Nothing here names a subject. Only Today carries a count, the one red number, from the
 // list it shows (lib/needs-you.ts; goals/ux10-declutter.yaml): each page says for itself what waits on it. A child's own paper (CS + six hex) is an assessment; a library worksheet is
-// curriculum. Papers, marking and making a paper are one tab (goals/u9-papers.yaml); its address stays /papers.
+// curriculum. Making a paper and following it are the Assessments page (goals/u9-papers.yaml); its address stays /papers.
 export const NAV: readonly NavItem[] = [
-  { href: "/today", label: "Today", icon: "check", match: ["/today"] },
-  { href: "/", label: "Curriculum", icon: "map", match: ["/", "/skill-sets", "/library", "/worksheets", "/asks"] },
-  { href: "/papers", label: "Assessments", icon: "sheet", match: ["/papers", "/capture", "/make", "/home", "/worksheets/CS"] },
-  { href: "/growth", label: "Children", icon: "growth", match: ["/growth"] },
+  { href: "/today", label: "Today", icon: "check", match: ["/today"], group: "This week" },
+  { href: "/taught", label: "Taught this week", icon: "flow", match: ["/taught"] },
+  { href: "/papers/approve", label: "Papers to approve", icon: "approve", match: ["/papers/approve"] },
+  { href: "/papers", label: "Assessments", icon: "sheet", match: ["/papers", "/make", "/home", "/worksheets/CS"] },
+  { href: "/capture", label: "Upload papers", icon: "camera", match: ["/capture"] },
+  { href: "/capture/check", label: "Check answers", icon: "pencil", match: ["/capture/check"] },
+  { href: "/growth", label: "Class results", icon: "growth", match: ["/growth"] },
+  { href: "/", label: "Curriculum", icon: "map", match: ["/", "/skill-sets", "/worksheets", "/asks"], group: "Setup" },
+  { href: "/library", label: "Question bank", icon: "bank", match: ["/library", "/worksheets/taxonomy"] },
 ];
 
 export function Shell({ me, waiting, grades, choices, children }: { me: Session; waiting: Partial<Record<string, number>>; grades: string; choices: Choices; children: ReactNode }) {
