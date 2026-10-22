@@ -366,7 +366,7 @@ def test_a_made_paper_keeps_how_it_was_chosen_and_what_it_works_on_for_its_own_p
         "key"
     ]
     key = key if isinstance(key, dict) else json.loads(key)
-    name = conn.execute("select name from skill_set where code = 'SUB.3D3D'").fetchone()["name"]
+    name = conn.execute("select name from skill where code = 'SUB.3D3D'").fetchone()["name"]
     assert key["how"] == "chosen by their educator"
     assert key["areas"] == [{"name": name, "level": "Easy"}]
 
@@ -432,7 +432,7 @@ def test_an_educator_may_choose_a_skill_of_a_higher_grade_or_one_the_class_was_n
     takes both, from two topics; so does a paper for one child. The class's own list of what it was taught, which the
     engine's own choices read, is unchanged."""
     kids = [_child(conn, str(roll), section="L7-G3", band="G3") for roll in (1, 2)]
-    conn.execute("update skill_set set taught = false where code in ('MUL.2D2D', 'MD.MULTIPLES')")
+    conn.execute("update skill set taught = false where code in ('MUL.2D2D', 'MD.MULTIPLES')")
     ask = [
         {"skill_set": "MUL.2D2D", "level": "Medium", "n": 3},
         {"skill_set": "MD.MULTIPLES", "level": "Hard", "n": 3},

@@ -73,7 +73,7 @@ def _catalog(conn, section, every=False) -> list[dict]:
         "   then s.registry_codes[1] end as own,"
         " (select coalesce(array_agg(distinct x), '{}') from drawable_item i, unnest(i.skill_codes) x"
         "   where i.skill_set_code = s.code) as skills"
-        " from skill_set s"
+        " from skill s"
         " where %s or skill_taught_in(s.tenant_id, s.code, %s)",
         (every, section),
     ).fetchall()
@@ -104,7 +104,7 @@ def _read_levels(conn, band) -> dict:
         " coalesce((select jsonb_agg(jsonb_build_array(l.difficulty, coalesce(grade_ord(l.tenant_id, l.grade), -1))"
         "  order by d.ord) from skill_level l join difficulty d on d.tenant_id = l.tenant_id and d.code = l.difficulty"
         "  where l.tenant_id = s.tenant_id and l.skill_code = s.code), '[]') as levels"
-        " from skill_set s",
+        " from skill s",
         {"band": band},
     ):
         defined = tuple(
@@ -118,7 +118,7 @@ def approved_levels(conn) -> dict:
     """{skill set: the levels whose questions the coordinator has approved} (`skill_level.confirmed_at`,
     goals/f1d-questions-approved-per-level.yaml): the levels a paper may draw on once F1g ships
     (goals/f1g-approval-gates-papers.yaml)."""
-    out: dict = {r["code"]: set() for r in conn.execute("select code from skill_set")}
+    out: dict = {r["code"]: set() for r in conn.execute("select code from skill")}
     for r in conn.execute("select skill_code, difficulty from skill_level where confirmed_at is not null"):
         out[r["skill_code"]].add(r["difficulty"])
     return out

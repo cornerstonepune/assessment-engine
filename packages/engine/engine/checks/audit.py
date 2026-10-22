@@ -21,7 +21,7 @@ PREDICTOR_CODES = {c for table in (M.ADD_PREDICTORS, M.SUB_PREDICTORS, M.MULTI_P
 def _skill_sets(conn):
     return conn.execute(
         f"select s.code, s.rung_code, s.status, s.formats, {levels.LEVELS} as difficulty,"
-        " s.misconception_codes as curated from skill_set s order by s.code"
+        " s.misconception_codes as curated from skill s order by s.code"
     ).fetchall()
 
 

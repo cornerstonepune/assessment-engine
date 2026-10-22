@@ -158,9 +158,7 @@ def _unit(conn, code="SUB.2D2D", d="Hard"):
 def test_building_makes_every_level_ready_and_building_again_changes_nothing(conn):
     conn.execute("delete from sheet_template where source = 'library'")  # from nothing; rolled back after
     first = library.build(conn)
-    levels = conn.execute("select count(*) as n from skill_set, jsonb_object_keys(difficulty)").fetchone()[
-        "n"
-    ]
+    levels = conn.execute("select count(*) as n from skill, jsonb_object_keys(difficulty)").fetchone()["n"]
     assert first["made"] >= levels * 10
     units, problems = library.check(conn)
     assert problems == {}
@@ -237,7 +235,7 @@ def _six_sums(conn):
     from engine.assess import items
 
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
-    rung = conn.execute("select rung_code from skill_set order by rung_code limit 1").fetchone()[
+    rung = conn.execute("select rung_code from skill order by rung_code limit 1").fetchone()[
         "rung_code"
     ]  # any: layout only
     rng, ids = random.Random(7), []
@@ -299,7 +297,7 @@ def test_a_worksheet_prints_at_its_levels_grade_and_one_printed_at_another_is_re
     easy = _printed_as(conn, "ADD.2D2D", "Easy")
     assert easy and {s["band"] for s in easy} == {"G1"}
     assert {s["band"] for s in _printed_as(conn, "ADD.2D2D", "Hard")} == {"G2"}
-    conn.execute("update skill_set set level_band = '{}'::jsonb where code = 'ADD.2D2D'")
+    conn.execute("update skill set level_band = '{}'::jsonb where code = 'ADD.2D2D'")
     library.build(conn)
     again = _printed_as(conn, "ADD.2D2D", "Easy")
     assert {s["band"] for s in again} == {"G2"}

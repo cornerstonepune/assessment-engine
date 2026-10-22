@@ -87,13 +87,13 @@ def propose_levels(conn, codes=None):
 
     seed = {s["code"]: s for s in settings.seed("skill_sets.json", "skill_sets")}
     changed = []
-    for r in conn.execute("select code, difficulty, formats from skill_set order by code").fetchall():
+    for r in conn.execute("select code, difficulty, formats from skill order by code").fetchall():
         s = seed.get(r["code"])
         if not s or (codes and r["code"] not in codes):
             continue
         if s["difficulty"] != r["difficulty"] or list(s["formats"]) != list(r["formats"]):
             conn.execute(
-                "update skill_set set difficulty = %s, formats = %s where code = %s",
+                "update skill set difficulty = %s, formats = %s where code = %s",
                 (json.dumps(s["difficulty"]), list(s["formats"]), r["code"]),
             )
             changed.append(r["code"])
@@ -121,7 +121,7 @@ def holds(conn):
     holds it, empty when it does (`outside_their_level`, and `refill.reinstate` for a retired one)."""
     regions = {
         (s["code"], band): spec.get("check", {})
-        for s in conn.execute(f"select s.code, {levels.LEVELS} as difficulty from skill_set s").fetchall()
+        for s in conn.execute(f"select s.code, {levels.LEVELS} as difficulty from skill s").fetchall()
         for band, spec in s["difficulty"].items()
     }
     case_matches = matches(conn)
@@ -153,7 +153,7 @@ def placed(conn):
     row = conn.execute("select value from config where key = 'taxonomy.across_levels'").fetchone()
     across = set((row["value"] if row else {}).get("sections", []))
     named = defaultdict(list)
-    for s in conn.execute(f"select s.code, {levels.LEVELS} as difficulty from skill_set s order by s.code"):
+    for s in conn.execute(f"select s.code, {levels.LEVELS} as difficulty from skill s order by s.code"):
         for level, spec in s["difficulty"].items():
             check = spec.get("check", {})
             for c in [*check.get("cases", []), *check.get("methods", [])]:

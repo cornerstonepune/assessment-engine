@@ -11,6 +11,7 @@ import psycopg
 import pytest
 
 from engine.core import db, loaders, settings, vocabulary
+from tests.rows import data_steps
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -27,7 +28,7 @@ COLUMNS = {"grade": "code, name", "difficulty": "code", "child_state": "code, wo
 # (table, column) -> the table its word must be a row of
 KEYS = {
     ("topic", "subject_code"): "subject",
-    ("skill_set", "topic_code"): "topic",
+    ("skill", "topic_code"): "topic",
     ("item", "difficulty"): "difficulty",
     ("prescription", "difficulty"): "difficulty",
     ("sheet_template", "difficulty"): "difficulty",
@@ -86,7 +87,7 @@ def test_every_link_is_a_key_the_database_checks(conn):
         assert listed == [], f"{table}.{column} still lists its words: {listed}"
     for sql in (
         "update topic set subject_code = 'NOPE' where code = 'MUL'",
-        "update skill_set set topic_code = 'NOPE' where code = 'SUB.2D2D'",
+        "update skill set topic_code = 'NOPE' where code = 'SUB.2D2D'",
         "update item set difficulty = 'Expert' where id = (select id from item limit 1)",
     ):
         with pytest.raises(psycopg.errors.ForeignKeyViolation), conn.transaction():
@@ -104,7 +105,7 @@ def test_a_new_school_has_the_seed_rows_from_the_moment_it_exists(conn):
     ).fetchone()["id"]
     for table, seeded in SEEDED.items():
         assert _rows(conn, school, table) == seeded, f"{table}: a new school and the seed disagree"
-    conn.execute(MIGRATION.read_text())
+    conn.execute(data_steps(MIGRATION))
     for table, seeded in SEEDED.items():
         assert _rows(conn, school, table) == seeded, f"{table}: the migration and the seed disagree"
         assert _rows(conn, t, table) == before[table], f"{table}: running the migration again moved a row"

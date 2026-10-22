@@ -40,7 +40,7 @@ test.beforeAll(async () => {
                             and band = 'G2' and difficulty = 'Hard' order by skill_set_code limit 1)
       and difficulty in ('Medium', 'Hard')
     order by difficulty = 'Hard' desc, code limit 4`;
-  [{ name: skill }] = await sql<{ name: string }[]>`select name from skill_set where code = ${ws[0].skill}`;
+  [{ name: skill }] = await sql<{ name: string }[]>`select name from skill where code = ${ws[0].skill}`;
   const paper = (qr: string, w: string, child: string | null, week: string, kind: string, status: string) => sql`
     insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, section, kind, print_status,
                                 approved_by, approved_at)

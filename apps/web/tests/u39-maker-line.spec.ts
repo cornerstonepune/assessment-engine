@@ -18,11 +18,11 @@ test.afterAll(async () => {
 });
 
 const names = async (codes: string[]) =>
-  Object.fromEntries((await sql<{ code: string; name: string }[]>`select code, name from skill_set where code = any(${codes})`).map((r) => [r.code, r.name]));
+  Object.fromEntries((await sql<{ code: string; name: string }[]>`select code, name from skill where code = any(${codes})`).map((r) => [r.code, r.name]));
 
 test("a line's skills are its topic's, and one paper takes lines from different topics", async ({ page }) => {
   await aClass(sql, CLASS, "G3", ["Ira", "Jai"]);
-  const mul = await sql<{ code: string }[]>`select code from skill_set where topic_code = 'MUL' and difficulty <> '{}'::jsonb`;
+  const mul = await sql<{ code: string }[]>`select code from skill where topic_code = 'MUL' and difficulty <> '{}'::jsonb`;
   const name = await names(["MUL.2D2D", "MD.MULTIPLES"]);
   await page.goto(`/papers/make?class=${CLASS}&kind=assessment&way=same`);
   const form = page.getByRole("form", { name: "Choose the papers" });

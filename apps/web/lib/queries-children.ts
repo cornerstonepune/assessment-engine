@@ -44,7 +44,7 @@ export async function childTable(actor: string, topic: string | null = null, sco
                 filter (where s.repeating_misconception is not null))[1] as mistake
       from child_skill_state s
       join child_state cs on cs.tenant_id = s.tenant_id and cs.code = s.state
-      join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
+      join skill ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
       join child sc on sc.id = s.child_id
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
         and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, sql`sc.section`)} ${topic ? sql`and t.code = ${topic}` : sql``}
@@ -119,7 +119,7 @@ export async function classGrid(
       select distinct s.skill_code, ss.name as skill_name, ss.rung_code, ss.name as descriptor, t.code as topic_code, t.name as topic_name,
              ss.code as skill_set, ${levelsUsedBy(sql`class_band(ss.tenant_id, ${section})`)} as levels, t.ord, ss.ladder_order
       from child_skill_state s join child c on c.id = s.child_id
-      join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code and s.skill_code = any(ss.registry_codes)
+      join skill ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code and s.skill_code = any(ss.registry_codes)
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, section)}
       where c.section = ${section} and c.active and s.n_events > 0
       order by t.ord, ss.ladder_order nulls last, ss.rung_code`,
@@ -128,7 +128,7 @@ export async function classGrid(
       select s.child_id, s.skill_code, s.rung_code, s.state, s.n_events, s.n_correct
       from child_skill_state s join child c on c.id = s.child_id where c.section = ${section} and c.active`,
     sql<Unanswered[]>`
-      select ss.code, ss.name, ${levelsUsedBy(sql`class_band(ss.tenant_id, ${section})`)} as levels, t.code as topic_code from skill_set ss
+      select ss.code, ss.name, ${levelsUsedBy(sql`class_band(ss.tenant_id, ${section})`)} as levels, t.code as topic_code from skill ss
       join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, section)}
       where ss.grade in (select band from child where section = ${section} and active)
         and not exists (select 1 from child_skill_state s join child c on c.id = s.child_id
@@ -176,7 +176,7 @@ export async function childSkills(id: string): Promise<ChildSkill[]> {
            ${levelsUsedBy(sql`(select band from child where id = ${id}::uuid)`)} as levels,
            coalesce(s.n_events, 0)::int as n_events, coalesce(s.n_correct, 0)::int as n_correct,
            s.repeating_misconception, s.last_seen
-    from skill_set ss
+    from skill ss
     join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
       and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, sql`(select section from child where id = ${id}::uuid)`)}
     left join child_skill_state s on s.child_id = ${id}::uuid and s.rung_code = ss.rung_code and s.skill_code = any(ss.registry_codes)
@@ -250,7 +250,7 @@ export async function classLatest(section: string): Promise<string[]> {
   const rows = await sql<{ code: string }[]>`
     select ss.code from child_skill_state s
     join child c on c.id = s.child_id and c.section = ${section}
-    join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
+    join skill ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
     where s.n_events > 0
     group by ss.code order by max(s.last_seen) desc, ss.code`;
   return rows.map((r) => r.code);
@@ -269,7 +269,7 @@ export async function repeatedMistakes(id: string): Promise<Repeated[]> {
                and e.confirmed_by is not null and (c.id is null or c.superseded_by is null)
                and s.repeating_misconception = any(e.misconception_codes)) as times
     from child_skill_state s
-    join skill_set r on r.tenant_id = s.tenant_id and r.rung_code = s.rung_code
+    join skill r on r.tenant_id = s.tenant_id and r.rung_code = s.rung_code
     left join lateral (select name from registry_skill where code = s.skill_code limit 1) k on true
     left join lateral (select mistake_name(s.repeating_misconception, s.skill_code) as name) m on true
     where s.child_id = ${id}::uuid and s.repeating_misconception is not null

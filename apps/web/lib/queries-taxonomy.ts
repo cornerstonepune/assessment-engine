@@ -24,7 +24,7 @@ export async function taxonomyMap(): Promise<TaxonomyCase[]> {
     with set_at as (
       select c.code, jsonb_agg(jsonb_build_object('set', s.code, 'name', s.name, 'level', l.difficulty)
                                order by s.code, o.ord) as places
-      from skill_set s
+      from skill s
       join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code
       left join difficulty o on o.tenant_id = s.tenant_id and o.code = l.difficulty
       cross join lateral jsonb_array_elements_text(coalesce(l.rule -> 'check' -> 'cases', '[]'::jsonb)) c(code)
@@ -35,7 +35,7 @@ export async function taxonomyMap(): Promise<TaxonomyCase[]> {
              count(distinct t.id)::int as worksheets, count(*)::int as questions,
              (array_agg(distinct t.code order by t.code))[1:8] as codes
       from sheet_template t
-      join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
+      join skill s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
       cross join lateral unnest(t.item_ids) u(id)
       join item i on i.id = u.id
       cross join lateral unnest(i.case_codes) x

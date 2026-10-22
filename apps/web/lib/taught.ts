@@ -42,10 +42,10 @@ export async function taughtByGrade(scope: Scope): Promise<(band: string, skill:
   const [rows, school] = await Promise.all([
     sql<{ band: string; skill: string; taught: boolean }[]>`
       select k.band, s.code as skill, bool_or(skill_taught_in(s.tenant_id, s.code, k.section)) as taught
-      from skill_set s
+      from skill s
       cross join (select distinct section, band from child where active and ${inScope(scope, sql`section`)}) k
       group by 1, 2`,
-    sql<{ code: string; taught: boolean }[]>`select code, skill_taught_in(tenant_id, code, null) as taught from skill_set`,
+    sql<{ code: string; taught: boolean }[]>`select code, skill_taught_in(tenant_id, code, null) as taught from skill`,
   ]);
   const by = new Map(rows.map((r) => [`${r.band}|${r.skill}`, r.taught]));
   const own = new Map(school.map((t) => [t.code, t.taught]));
@@ -57,7 +57,7 @@ export async function taughtByGrade(scope: Scope): Promise<(band: string, skill:
 export async function untaughtByGrade(scope: Scope): Promise<(band: string, skill: string) => string[]> {
   const rows = await sql<{ band: string; skill: string; sections: string[] }[]>`
     select k.band, s.code as skill, array_agg(k.section order by k.section) as sections
-    from skill_set s
+    from skill s
     cross join (select distinct section, band from child where active and ${inScope(scope, sql`section`)}) k
     where not skill_taught_in(s.tenant_id, s.code, k.section)
     group by 1, 2`;

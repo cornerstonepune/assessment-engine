@@ -30,7 +30,7 @@ test.beforeAll(async () => {
   const other = await aClass(sql, OTHER, "G3", ["Kavi", "Lata"]);
   const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`update config set value = ${others} || ${sql.json([{ ...EDUCATOR, password }])} where key = 'app.staff'`;
-  const [{ code: draft }] = await sql<{ code: string }[]>`select code from skill_set order by status = 'ratified', code limit 1`;
+  const [{ code: draft }] = await sql<{ code: string }[]>`select code from skill order by status = 'ratified', code limit 1`;
   pages = [
     // a page that opens on the person's own grade is compared at "Every grade", its one tap
     "/today", "/", "/papers", "/growth", "/asks", "/library?grade=all", "/worksheets?grade=all", "/worksheets/taxonomy", "/skill-sets/approve",
@@ -103,7 +103,7 @@ test("an educator reaches every page and every action the coordinator does", asy
 
 test("an educator takes a decision once the coordinator's alone: approving a skill", async ({ browser }) => {
   // a skill waiting for approval (`aWaitingSkill`), put back as it was after
-  const [waiting] = await sql<{ code: string }[]>`select code from skill_set order by code limit 1`;
+  const [waiting] = await sql<{ code: string }[]>`select code from skill order by code limit 1`;
   const putBack = await aWaitingSkill(sql, waiting.code);
   const educator = await asEducator(browser);
   try {

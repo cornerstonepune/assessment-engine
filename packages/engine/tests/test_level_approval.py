@@ -12,6 +12,7 @@ import os
 import pytest
 
 from engine.core import db
+from tests.rows import data_steps
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -22,20 +23,20 @@ MIGRATION = db.REPO_ROOT / "supabase" / "migrations" / "20261109090000_a_skill_i
 @pytest.fixture
 def conn():
     with db.connect() as c:
-        c.execute("update skill_set set level_approved = '{}' where code = %s", (SET,))
+        c.execute("update skill set level_approved = '{}' where code = %s", (SET,))
         yield c
         c.rollback()
 
 
 def _levels(conn) -> list[str]:
     return sorted(
-        conn.execute("select difficulty from skill_set where code = %s", (SET,)).fetchone()["difficulty"]
+        conn.execute("select difficulty from skill where code = %s", (SET,)).fetchone()["difficulty"]
     )
 
 
 def _approve(conn, levels, by="Aseem"):
     conn.execute(
-        "update skill_set set level_approved = level_approved"
+        "update skill set level_approved = level_approved"
         " || (select jsonb_object_agg(l, jsonb_build_object('by', %s::text, 'at', now())) from unnest(%s::text[]) l)"
         " where code = %s",
         (by, list(levels), SET),
@@ -44,14 +45,14 @@ def _approve(conn, levels, by="Aseem"):
 
 def _state(conn):
     return conn.execute(
-        "select status, ratified_by, version, level_approved from skill_set where code = %s", (SET,)
+        "select status, ratified_by, version, level_approved from skill where code = %s", (SET,)
     ).fetchone()
 
 
 def _change(conn, level, **fields):
-    d = conn.execute("select difficulty from skill_set where code = %s", (SET,)).fetchone()["difficulty"]
+    d = conn.execute("select difficulty from skill where code = %s", (SET,)).fetchone()["difficulty"]
     d[level] = {**d[level], **fields}
-    conn.execute("update skill_set set difficulty = %s where code = %s", (json.dumps(d), SET))
+    conn.execute("update skill set difficulty = %s where code = %s", (json.dumps(d), SET))
 
 
 def test_a_skill_is_approved_when_every_level_it_has_is(conn):
@@ -72,7 +73,7 @@ def test_a_changed_rule_withdraws_its_own_level_and_no_other(conn):
     levels = _levels(conn)
     _approve(conn, levels)
     rule = conn.execute(
-        "select difficulty -> 'Hard' -> 'check' as c from skill_set where code = %s", (SET,)
+        "select difficulty -> 'Hard' -> 'check' as c from skill where code = %s", (SET,)
     ).fetchone()
     _change(conn, "Hard", check={**rule["c"], "changed_by_a_test": True})
     s = _state(conn)
@@ -83,9 +84,7 @@ def test_a_changed_rule_withdraws_its_own_level_and_no_other(conn):
 
     # the kinds of question are every level's: changing them withdraws every level
     _approve(conn, ["Hard"])
-    conn.execute(
-        "update skill_set set formats = formats || '{a_kind_added_by_a_test}' where code = %s", (SET,)
-    )
+    conn.execute("update skill set formats = formats || '{a_kind_added_by_a_test}' where code = %s", (SET,))
     assert _state(conn)["level_approved"] == {}
 
 
@@ -94,7 +93,7 @@ def test_changed_words_withdraw_nothing(conn):
     _approve(conn, levels)
     before = _state(conn)
     conn.execute(
-        "update skill_set set name = name || ' (reworded)', learning_objective = learning_objective || ' Reworded.'"
+        "update skill set name = name || ' (reworded)', learning_objective = learning_objective || ' Reworded.'"
         " where code = %s",
         (SET,),
     )
@@ -107,18 +106,18 @@ def test_changed_words_withdraw_nothing(conn):
 def test_a_skill_approved_before_is_approved_at_every_level(conn):
     """A skill approved whole before this keeps its approval at every level it has, by the same person — the state live
     holds, made here with the trigger set aside, then the migration run again over it."""
-    conn.execute("alter table skill_set disable trigger skill_set_version_on_change")
+    conn.execute("alter table skill disable trigger skill_set_version_on_change")
     conn.execute(
-        "update skill_set set status = 'ratified', ratified_by = 'Aseem', level_approved = '{}' where code = %s",
+        "update skill set status = 'ratified', ratified_by = 'Aseem', level_approved = '{}' where code = %s",
         (SET,),
     )
-    conn.execute("alter table skill_set enable trigger skill_set_version_on_change")
-    conn.execute(MIGRATION.read_text())
+    conn.execute("alter table skill enable trigger skill_set_version_on_change")
+    conn.execute(data_steps(MIGRATION))
     s = _state(conn)
     assert sorted(s["level_approved"]) == _levels(conn) and s["status"] == "ratified"
     assert {a["by"] for a in s["level_approved"].values()} == {"Aseem"}
     every = conn.execute(
         "select count(*) filter (where (status = 'ratified') <> (select bool_and(level_approved ? k)"
-        "   from jsonb_object_keys(difficulty) k)) as wrong from skill_set"
+        "   from jsonb_object_keys(difficulty) k)) as wrong from skill"
     ).fetchone()
     assert every["wrong"] == 0, "a skill is approved exactly when every level it has is"

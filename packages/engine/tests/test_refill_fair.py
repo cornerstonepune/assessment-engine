@@ -56,12 +56,10 @@ def test_a_group_made_by_a_rule_since_corrected_is_drawn_again(conn):
 
 
 def test_a_level_whose_own_design_fixes_the_answer_waits_for_a_person(conn):
-    level = conn.execute("select difficulty from skill_set where code = %s", (LEVEL[0],)).fetchone()[
-        "difficulty"
-    ]
+    level = conn.execute("select difficulty from skill where code = %s", (LEVEL[0],)).fetchone()["difficulty"]
     fixed = dict(level[LEVEL[1]], check=dict(level[LEVEL[1]]["check"], claim_is_true=True))
     conn.execute(
-        "update skill_set set difficulty = %s where code = %s",
+        "update skill set difficulty = %s where code = %s",
         (json.dumps(dict(level, Easy=fixed)), LEVEL[0]),
     )
     _all_yes(conn)

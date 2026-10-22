@@ -54,7 +54,7 @@ def conn():
 def _sheet(conn, code, level):
     return conn.execute(
         "select t.code, t.band, t.item_ids, s.rung_code, s.topic_code, s.level_band ->> t.difficulty as grade"
-        " from sheet_template t join skill_set s"
+        " from sheet_template t join skill s"
         " on s.code = t.skill_set_code where t.source = 'library' and t.retired_at is null"
         " and t.skill_set_code = %s and t.difficulty = %s"
         " order by t.code limit 1",
@@ -185,7 +185,7 @@ def test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage(
         pytest.skip(f"{code} has no {level} level")
     assert sheet, f"{code} {level}: no library worksheet to print"
     conn.execute(
-        "update skill_set set taught = true, taught_by = %s, taught_at = now() where code = %s",
+        "update skill set taught = true, taught_by = %s, taught_at = now() where code = %s",
         (PERSON, code),
     )
     mistake, on = _planted(_slots(conn, sheet["item_ids"]))

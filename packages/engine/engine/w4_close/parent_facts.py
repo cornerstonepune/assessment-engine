@@ -31,7 +31,7 @@ def _sets(conn):
     return {
         r["rung_code"]: r
         for r in conn.execute(
-            "select code, name, learning_objective, rung_code from skill_set where status is distinct from 'retired'"
+            "select code, name, learning_objective, rung_code from skill where status is distinct from 'retired'"
         )
     }
 

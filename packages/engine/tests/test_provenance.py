@@ -26,16 +26,16 @@ def conn():
 
 
 def _edit_rule(conn, code, words):
-    row = conn.execute("select difficulty from skill_set where code = %s", (code,)).fetchone()
+    row = conn.execute("select difficulty from skill where code = %s", (code,)).fetchone()
     d = dict(row["difficulty"])
     d["Hard"] = {**d["Hard"], "words": words}
-    conn.execute("update skill_set set difficulty = %s where code = %s", (json.dumps(d), code))
+    conn.execute("update skill set difficulty = %s where code = %s", (json.dumps(d), code))
 
 
 def test_editing_a_rule_files_the_old_one_and_bumps_the_version(conn):
-    before = conn.execute("select version from skill_set where code = %s", (SET,)).fetchone()["version"]
+    before = conn.execute("select version from skill where code = %s", (SET,)).fetchone()["version"]
     _edit_rule(conn, SET, "edited by a test")
-    after = conn.execute("select version, difficulty from skill_set where code = %s", (SET,)).fetchone()
+    after = conn.execute("select version, difficulty from skill where code = %s", (SET,)).fetchone()
     assert after["version"] == before + 1
     filed = conn.execute(
         "select version, difficulty from skill_set_version where code = %s order by version desc limit 1",
@@ -47,7 +47,7 @@ def test_editing_a_rule_files_the_old_one_and_bumps_the_version(conn):
 
 def _approve_every_level(conn, code):
     conn.execute(
-        "update skill_set set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', 'aseem', 'at', now()))"
+        "update skill set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', 'aseem', 'at', now()))"
         " from jsonb_object_keys(difficulty) k) where code = %s",
         (code,),
     )
@@ -57,20 +57,20 @@ def test_editing_a_rule_withdraws_its_ratification(conn):
     """Aseem approved the rule he read. A changed rule has not been approved by anyone — the level whose rule changed
     (goals/f1d-questions-approved-per-level.yaml): its words alone are not its rule."""
     _approve_every_level(conn, SET)
-    d = conn.execute("select difficulty from skill_set where code = %s", (SET,)).fetchone()["difficulty"]
+    d = conn.execute("select difficulty from skill where code = %s", (SET,)).fetchone()["difficulty"]
     d["Hard"] = {**d["Hard"], "check": {**d["Hard"]["check"], "changed_after_ratification": True}}
-    conn.execute("update skill_set set difficulty = %s where code = %s", (json.dumps(d), SET))
+    conn.execute("update skill set difficulty = %s where code = %s", (json.dumps(d), SET))
     row = conn.execute(
-        "select status, ratified_by, level_approved from skill_set where code = %s", (SET,)
+        "select status, ratified_by, level_approved from skill where code = %s", (SET,)
     ).fetchone()
     assert (row["status"], row["ratified_by"]) == ("draft", None)
     assert "Hard" not in row["level_approved"]
 
 
 def test_ratifying_is_not_an_edit_and_does_not_bump_the_version(conn):
-    before = conn.execute("select version from skill_set where code = %s", (SET,)).fetchone()["version"]
+    before = conn.execute("select version from skill where code = %s", (SET,)).fetchone()["version"]
     _approve_every_level(conn, SET)
-    after = conn.execute("select version from skill_set where code = %s", (SET,)).fetchone()["version"]
+    after = conn.execute("select version from skill where code = %s", (SET,)).fetchone()["version"]
     assert after == before, "approving a rule is not writing a new one"
 
 
@@ -87,10 +87,10 @@ def test_a_generated_item_records_what_made_it(conn):
 def test_the_offline_sampler_records_itself_as_the_generator(conn):
     # the sampler's path is a level with a plain rule; since step 8h this level holds taxonomy cases,
     # so the rule it had before is set again inside this test's own transaction
-    d = conn.execute("select difficulty from skill_set where code = %s", (SET,)).fetchone()["difficulty"]
+    d = conn.execute("select difficulty from skill where code = %s", (SET,)).fetchone()["difficulty"]
     rule = {"op": "-", "digits": [3, 2], "regroups": [1]}
     conn.execute(
-        "update skill_set set difficulty = %s where code = %s",
+        "update skill set difficulty = %s where code = %s",
         (json.dumps(d | {"Hard": {**d["Hard"], "check": rule}}), SET),
     )
     counts, _, accepted = bank.fill(conn, SET, "Hard", 2, offline=True)

@@ -30,7 +30,7 @@ FILLED_TABLES = (
     "prompt",
     "threshold",
     "config",
-    "skill_set",
+    "skill",
     "skill_level",
     "skill_level_sample",
     "skill_mistake",
@@ -314,7 +314,7 @@ def _skill_sets(conn: db.Conn, t: db.Id) -> None:
         r = rungs[s["rung_code"]]
         rung = (r["band"], r["ladder_order"], r["descriptor"], r["skill_codes"])
         conn.execute(
-            "insert into skill_set (tenant_id, code, rung_code, name, learning_objective,"
+            "insert into skill (tenant_id, code, rung_code, name, learning_objective,"
             " philosophy, formats, misconception_codes, difficulty, eval_type, level_band,"
             " grade, ladder_order, descriptor, registry_codes)"
             " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
@@ -330,7 +330,7 @@ def _skill_sets(conn: db.Conn, t: db.Id) -> None:
             ),
         )
         conn.execute(
-            "update skill_set set grade = %s, ladder_order = %s, descriptor = %s, registry_codes = %s"
+            "update skill set grade = %s, ladder_order = %s, descriptor = %s, registry_codes = %s"
             " where tenant_id = %s and rung_code = %s"
             " and row(grade, ladder_order, descriptor, registry_codes) is distinct from row(%s, %s, %s, %s::text[])",
             (*rung, t, s["rung_code"], *rung),

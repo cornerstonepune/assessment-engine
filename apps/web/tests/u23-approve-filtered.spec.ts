@@ -19,15 +19,15 @@ test.afterAll(async () => {
 // every skill approved but these, the mistake table as it was; put back after
 async function onlyThese(run: () => Promise<void>) {
   const before = await sql<{ code: string; status: string; ratified_by: string | null }[]>`
-    select code, status, ratified_by from skill_set order by code`;
+    select code, status, ratified_by from skill order by code`;
   const [table] = await sql<{ value: unknown }[]>`select value from config where key = 'skills.charges_by_kind.approved'`;
   try {
-    await sql`update skill_set set status = 'ratified', ratified_by = 'someone earlier'`;
-    await sql`update skill_set set status = 'draft', ratified_by = null where code = any(${DRAFTS})`;
+    await sql`update skill set status = 'ratified', ratified_by = 'someone earlier'`;
+    await sql`update skill set status = 'draft', ratified_by = null where code = any(${DRAFTS})`;
     await run();
   } finally {
     for (const b of before) {
-      await sql`update skill_set set status = ${b.status}, ratified_by = ${b.ratified_by} where code = ${b.code}`;
+      await sql`update skill set status = ${b.status}, ratified_by = ${b.ratified_by} where code = ${b.code}`;
     }
     await sql`update config set value = ${sql.json((table?.value ?? {}) as never)} where key = 'skills.charges_by_kind.approved'`;
   }
@@ -46,7 +46,7 @@ test("each waiting skill is one row, its levels folded until opened", async ({ p
     await page.goto("/skill-sets/approve");
     await expectRows(page, DRAFTS);
     // no skill is a card of its own any more
-    const [{ name }] = await sql<{ name: string }[]>`select name from skill_set where code = 'ADD.2D2D'`;
+    const [{ name }] = await sql<{ name: string }[]>`select name from skill where code = 'ADD.2D2D'`;
     await expect(page.getByRole("region", { name, exact: true })).toHaveCount(0);
     const row = rows(page).and(page.locator('[data-row="ADD.2D2D"]'));
     await expect(row.getByRole("rowheader")).toHaveText(name);
@@ -93,7 +93,7 @@ test("a grade and a topic narrow the rows, and approving these approves only the
     await expect(page).toHaveURL(/\/skill-sets\/approve\?grade=G2&approved=2$/);
     await expect(page.getByRole("status").filter({ hasText: "Approved, in your name. 2 still wait." })).toBeVisible();
     const after = await sql<{ code: string; status: string; ratified_by: string | null }[]>`
-      select code, status, ratified_by from skill_set where code = any(${DRAFTS}) order by code`;
+      select code, status, ratified_by from skill where code = any(${DRAFTS}) order by code`;
     expect(after).toEqual([
       { code: "ADD.1D1D", status: "draft", ratified_by: null },
       { code: "ADD.2D2D", status: "ratified", ratified_by: TEST_STAFF.name },

@@ -38,7 +38,7 @@ def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
         raise ValueError(f"skill sets in no topic: {', '.join(sorted(seeded - placed.keys()))}")
     for code, topic in placed.items():
         conn.execute(
-            "update skill_set set topic_code = %s,"
+            "update skill set topic_code = %s,"
             " taught = case when taught_by is null then %s else taught end"
             " where tenant_id = %s and code = %s",
             (topic, code in taught, tenant, code),

@@ -44,7 +44,7 @@ export async function weekPlan(section: string, week: string, kind: string, acto
     from prescription p
     join child c on c.id = p.child_id
     cross join lateral pii.read_child(c.id, ${actor}) n
-    left join skill_set s on s.tenant_id = p.tenant_id and s.code = p.skill_set_code
+    left join skill s on s.tenant_id = p.tenant_id and s.code = p.skill_set_code
     left join sheet_instance si on si.id = p.sheet_instance_id
     left join sheet_template st on st.id = si.sheet_template_id
     where c.section = ${section} and p.week = ${week} and p.kind = ${kind}

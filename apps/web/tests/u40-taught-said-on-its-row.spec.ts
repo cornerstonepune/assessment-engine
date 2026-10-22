@@ -54,7 +54,7 @@ const grade2 = async (page: Page) => {
 };
 
 test("a skill not taught yet is said taught from its own row, for one class", async ({ page }) => {
-  const [{ name }] = await sql<{ name: string }[]>`select name from skill_set where code = 'MUL.THREE'`;
+  const [{ name }] = await sql<{ name: string }[]>`select name from skill where code = 'MUL.THREE'`;
   const table = await grade2(page);
   await table.getByRole("button", { name: "Multiplication", exact: true }).click();
   const row = table.locator('tr[data-row="G2/MUL.THREE"]');
@@ -76,7 +76,7 @@ test("a topic not taught yet is said taught from its own row, every skill in it"
   await expect(page.getByRole("main")).toContainText(`is taught in ${CLASS} now`);
   const said = await sql<{ skill: string }[]>`
     select skill_set_code as skill from class_skill where section = ${CLASS} and taught order by 1`;
-  const every = await sql<{ code: string }[]>`select code from skill_set where topic_code = 'FACTORS' order by 1`;
+  const every = await sql<{ code: string }[]>`select code from skill where topic_code = 'FACTORS' order by 1`;
   expect(said.map((r) => r.skill)).toEqual(every.map((r) => r.code));
   await page.context().close();
 });

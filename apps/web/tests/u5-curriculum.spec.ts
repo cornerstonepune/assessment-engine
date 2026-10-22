@@ -17,7 +17,7 @@ const levels = () => sql<Level[]>`
          (select count(*)::int from item i where i.skill_set_code = s.code and i.difficulty = d.key and i.status = 'active') as questions,
          array(select t.code from sheet_template t where t.skill_set_code = s.code and t.difficulty = d.key
                and t.source = 'library' and t.retired_at is null order by t.code) as worksheets
-  from skill_set s, jsonb_each(s.difficulty) d
+  from skill s, jsonb_each(s.difficulty) d
   where s.taught
   order by s.ladder_order nulls last, s.code`;
 
@@ -59,7 +59,7 @@ test("the tree reads grade, subject, skill, level, worksheets, and every count i
 
 test("a skill waiting for approval says so in the tree and opens where it is edited and approved", async ({ page }) => {
   const [s] = await sql<{ code: string; outcome: string; status: string; band: string }[]>`
-    select s.code, s.learning_objective as outcome, s.status, s.grade as band from skill_set s
+    select s.code, s.learning_objective as outcome, s.status, s.grade as band from skill s
     where s.taught
     order by s.status = 'draft' desc, s.code limit 1`;
   await page.goto("/?details=1");
@@ -86,7 +86,7 @@ test("the taxonomy is two clicks from the tree, behind Question bank details, an
 test("each grade's skills sit under their topics, in the topics' order, each topic with its own skills", async ({ page }) => {
   const rows = await sql<{ band: string; topic: string; code: string; ord: number }[]>`
     select s.grade as band, t.code as topic, s.code, t.ord
-    from skill_set s
+    from skill s
     join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code and s.taught
     where s.grade = 'G3' and coalesce(s.level_band, '{}'::jsonb) = '{}'::jsonb order by t.ord`;
   expect(rows.length).toBeGreaterThan(0);

@@ -39,7 +39,7 @@ def test_each_class_is_told_the_levels_its_papers_would_lose(conn):
     drew on it — nor is a skill the class has not been taught."""
     _class(conn, "F1G-TWO", "G2")
     conn.execute(
-        "update skill_set set level_approved = jsonb_build_object('Easy', jsonb_build_object('by', %s::text, 'at', now()))"
+        "update skill set level_approved = jsonb_build_object('Easy', jsonb_build_object('by', %s::text, 'at', now()))"
         " where code = 'ADD.2D1D'",
         (BY,),
     )
@@ -66,17 +66,17 @@ def test_the_command_lists_them_and_writes_nothing(conn, monkeypatch):
     approved there, as on live (bin/testdb), so the test withdraws one itself: 2-digit + 1-digit keeps only Easy."""
     _class(conn, "F1G-COMMAND", "G2")
     conn.execute(
-        "update skill_set set level_approved = jsonb_build_object('Easy', jsonb_build_object('by', %s::text, 'at', now()))"
+        "update skill set level_approved = jsonb_build_object('Easy', jsonb_build_object('by', %s::text, 'at', now()))"
         " where code = 'ADD.2D1D'",
         (BY,),
     )
     monkeypatch.setattr(cli_week.db, "connect", contextlib.contextmanager(lambda: (yield conn)))
     expected = [r for r in shelf.closing(conn) if r["class"] == "F1G-COMMAND"]
-    before = conn.execute("select count(*) as n, max(updated_at) as at from skill_set").fetchone()
+    before = conn.execute("select count(*) as n, max(updated_at) as at from skill").fetchone()
     r = run("week", "unapproved")
     assert r.exit_code == 0, r.output_plain
     assert "would close" in r.output_plain
     lines = [line for line in r.output_plain.splitlines() if "F1G-COMMAND" in line]
     assert expected and len(lines) == len(expected)
     assert all(any(e["skill"] in line and e["level"] in line for line in lines) for e in expected)
-    assert conn.execute("select count(*) as n, max(updated_at) as at from skill_set").fetchone() == before
+    assert conn.execute("select count(*) as n, max(updated_at) as at from skill").fetchone() == before

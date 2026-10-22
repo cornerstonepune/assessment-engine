@@ -53,7 +53,7 @@ def build(conn, section):
     sets = {
         r["rung_code"]: r
         for r in conn.execute(
-            "select code, name, rung_code from skill_set where status is distinct from 'retired'"
+            "select code, name, rung_code from skill where status is distinct from 'retired'"
         )
     }
     name_of = mistake_names.names(conn)

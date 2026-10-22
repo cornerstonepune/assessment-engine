@@ -58,8 +58,8 @@ MOVED = [
 ]
 # a read of the blob: its levels selected, walked or asked after; its grades; its approvals; a skill selected whole
 BLOB = re.compile(
-    r"select code, difficulty|(?<!as )difficulty from skill_set|jsonb_(?:each|object_keys)\((?:\w+\.)?difficulty\)"
-    r"|\b\w+\.difficulty (?:\?|->) \w+\.|level_band|level_approved|select \* from skill_set"
+    r"select code, difficulty|(?<!as )difficulty from skill\b(?!_)|jsonb_(?:each|object_keys)\((?:\w+\.)?difficulty\)"
+    r"|\b\w+\.difficulty (?:\?|->) \w+\.|level_band|level_approved|select \* from skill"
 )
 
 
@@ -79,7 +79,7 @@ def _level(conn, code, difficulty):
 def test_every_level_is_a_row_with_keys_the_database_checks(conn):
     """One row per skill and level, its level a key into `difficulty`, its grade a key into `grade`, its skill a key into
     `skill_set`: a level or a grade that is not a row is refused, and the website cannot write a level behind the blob."""
-    n = conn.execute("select count(*) as n from skill_set, jsonb_object_keys(difficulty)").fetchone()["n"]
+    n = conn.execute("select count(*) as n from skill, jsonb_object_keys(difficulty)").fetchone()["n"]
     assert n == conn.execute("select count(*) as n from skill_level").fetchone()["n"] > 0
     keys = {
         (r["target"], tuple(r["cols"]))
@@ -91,7 +91,7 @@ def test_every_level_is_a_row_with_keys_the_database_checks(conn):
         )
     }
     assert {
-        ("skill_set", ("tenant_id", "skill_code")),
+        ("skill", ("tenant_id", "skill_code")),
         ("difficulty", ("tenant_id", "difficulty")),
         ("grade", ("tenant_id", "grade")),
     } <= keys
@@ -116,7 +116,7 @@ def test_the_rows_hold_what_the_blob_holds_grades_and_approvals_counted_equal(co
     assert report["levels"] == report["rows"] > 0
     assert report["grades"]["blob"] == report["grades"]["rows"]
     assert report["approved"]["blob"] == report["approved"]["rows"]
-    s = conn.execute("select difficulty from skill_set where code = %s", (SKILL,)).fetchone()
+    s = conn.execute("select difficulty from skill where code = %s", (SKILL,)).fetchone()
     assert levels.of(conn, SKILL) == s["difficulty"]
 
 
@@ -136,21 +136,21 @@ def test_a_change_to_the_blob_is_a_change_to_the_rows_whoever_writes_it(conn):
     """While the blob is still what the website and the loader write, every write reaches the rows at once: a level's
     words, its grade moved, its approval, a level added or taken away, the skill's own grade moved."""
     conn.execute(
-        "update skill_set set difficulty = jsonb_set(difficulty, '{Easy,words}', '\"Two 2-digit numbers, no exchange.\"'),"
+        "update skill set difficulty = jsonb_set(difficulty, '{Easy,words}', '\"Two 2-digit numbers, no exchange.\"'),"
         ' level_band = level_band || \'{"Hard": "G3"}\' where code = %s',
         (SKILL,),
     )
     assert _level(conn, SKILL, "Easy")["looks_like"] == "Two 2-digit numbers, no exchange."
     assert _level(conn, SKILL, "Hard")["grade"] == "G3"
     conn.execute(
-        "update skill_set set level_approved = level_approved || jsonb_build_object('Medium',"
+        "update skill set level_approved = level_approved || jsonb_build_object('Medium',"
         " jsonb_build_object('by', 'Achal', 'at', now())) where code = %s",
         (SKILL,),
     )
     assert _level(conn, SKILL, "Medium")["confirmed_by"] == "Achal"
-    conn.execute("update skill_set set difficulty = difficulty - 'Advance' where code = %s", (SKILL,))
+    conn.execute("update skill set difficulty = difficulty - 'Advance' where code = %s", (SKILL,))
     assert _level(conn, SKILL, "Advance") is None
-    conn.execute("update skill_set set grade = 'G4' where code = %s", (SKILL,))
+    conn.execute("update skill set grade = 'G4' where code = %s", (SKILL,))
     assert _level(conn, SKILL, "Medium")["grade"] == "G4", "a level not moved follows its skill's grade"
     assert _level(conn, SKILL, "Hard")["grade"] == "G3", "a level moved keeps the grade it was moved to"
     assert check.compare(conn, draws=0)["disagree"] == []
@@ -166,7 +166,7 @@ def test_a_level_keeps_its_own_version_history(conn):
     }
     old = _level(conn, SKILL, "Medium")
     conn.execute(
-        "update skill_set set difficulty = jsonb_set(difficulty, '{Medium,words}', '\"Changed words.\"') where code = %s",
+        "update skill set difficulty = jsonb_set(difficulty, '{Medium,words}', '\"Changed words.\"') where code = %s",
         (SKILL,),
     )
     after = {
@@ -220,9 +220,7 @@ def test_the_moved_readers_read_the_rows_not_the_blob(conn):
     assert spec.row(conn, SKILL)["difficulty"]["Easy"]["words"] == "Read from the row."
     prompt_input, s, _ = spec.read(conn, SKILL, "Easy")
     assert prompt_input["difficulty"] == "Easy: Read from the row."
-    blob = conn.execute(
-        "select difficulty -> 'Easy' ->> 'words' as w from skill_set where code = %s", (SKILL,)
-    )
+    blob = conn.execute("select difficulty -> 'Easy' ->> 'words' as w from skill where code = %s", (SKILL,))
     assert blob.fetchone()["w"] != "Read from the row."
     assert levels.every(conn)[SKILL]["Easy"]["words"] == "Read from the row."
     # a level approved and moved to another grade in its row alone: the papers' shelf sees both
@@ -233,11 +231,11 @@ def test_the_moved_readers_read_the_rows_not_the_blob(conn):
         " where skill_code = %s and difficulty = 'Easy'",
         (top, SKILL),
     )
-    conn.execute("update skill_set set level_approved = '{}' where code = %s", (SKILL,))
+    conn.execute("update skill set level_approved = '{}' where code = %s", (SKILL,))
     conn.execute("set local session_replication_role = origin")
     assert "Easy" in shelf.approved_levels(conn)[SKILL]
     own = conn.execute(
-        "select grade from skill_set where code = %s",
+        "select grade from skill where code = %s",
         (SKILL,),
     ).fetchone()["grade"]
     assert "Easy" not in shelf._read_levels(conn, own)[SKILL]
@@ -245,9 +243,9 @@ def test_the_moved_readers_read_the_rows_not_the_blob(conn):
     # the writers still write the blob (the seed's levels, an approval of every level), and read what they write;
     # nothing else in a moved file reads it
     writers = {
-        "cases.py": ['"select code, difficulty, formats from skill_set order by code"'],
+        "cases.py": ['"select code, difficulty, formats from skill order by code"'],
         "spec.py": [
-            "\"update skill_set set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', %s::text,"
+            "\"update skill set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', %s::text,"
             ' \'at\', now()))"\n        " from jsonb_object_keys(difficulty) k), updated_at = now()"'
         ],
         # who last moved a level to another grade is the skill's record (goals/c1-whole-curriculum.yaml), not a level's

@@ -26,7 +26,7 @@ def for_class(conn, section: str, week: str, skill_set: str, kind: str = "practi
     ).fetchall()
     if not children:
         raise ValueError(f"no active children in section {section!r}")
-    if not conn.execute("select 1 from skill_set where code = %s", (skill_set,)).fetchone():
+    if not conn.execute("select 1 from skill where code = %s", (skill_set,)).fetchone():
         raise ValueError(f"no skill set {skill_set!r}")
 
     defaults = settings.config(conn, "prescribe.band_default", {})
@@ -40,7 +40,7 @@ def for_class(conn, section: str, week: str, skill_set: str, kind: str = "practi
             # the strand is the subject of the skill set's topic (skill_set → topic → subject), never a code here
             "insert into prescription (tenant_id, child_id, week, kind, skill_set_code, difficulty,"
             " rule_fired, misconception_targets, strand) select %s,%s,%s,%s,%s,%s,%s,%s,"
-            " (select t.subject_code from skill_set ss join topic t on t.tenant_id = ss.tenant_id"
+            " (select t.subject_code from skill ss join topic t on t.tenant_id = ss.tenant_id"
             "  and t.code = ss.topic_code where ss.code = %s)"
             " on conflict (tenant_id, child_id, week, kind) do update set"
             " skill_set_code = excluded.skill_set_code, difficulty = excluded.difficulty,"
