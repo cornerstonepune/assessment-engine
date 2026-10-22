@@ -29,3 +29,30 @@ What this means for the work, in force until Nimish says otherwise:
   CI that cannot be fixed at its cause, reported in the PR.
 - **English is ready for the educator's approval** (E0, PR #284), and Ayush can use it: the staff table of who teaches
   which class and subject is edited on a Staff page, not by commands.
+
+## Added later the same evening: the look and feel every subject will inherit
+
+Nimish's words: "for teachers, in most of the places, can we use tables instead of a lot of places where the tags of
+subject names and all are never aligned, like on the curriculum page or on the assessments page? Can we use tables more
+for easier viewing, and use icons or red, amber, green in places that make it easier for people to navigate? Use
+filters wherever possible. Even on the page that we have made, at the top, the class and the subject buttons are too
+small, and then there is this massive strip for just typing the student name. These are very simple hacks, simple things
+that you need to be consistent with when you're designing the frontend. Make sure that all these elements are
+incorporated and the frontend is really easy and nice for teachers to start operating. Because this is going to become
+the basis for all the other subjects as well, right? Do it well."
+
+What this means, in force until Nimish says otherwise:
+
+- **A list is a table.** Rows and aligned columns (subject, class, grade, status and the like are columns, never tags
+  floating in a line). Fixed, consistent column widths and alignment (text left, numbers right, status centred). The
+  Curriculum and Assessments pages are the first to be rebuilt this way.
+- **Status is an icon plus a word plus red, amber or green** (never colour alone), the same three everywhere, from one
+  block (StatusChip). Red stays rare and means "needs you now".
+- **Every table has a filter row** (class, subject, grade, status, week as fits, plus a compact search), built from one
+  FilterBar block, in the same place on every page, with the active filters visible and a one-click clear.
+- **The top bar**: the Class and Subject selectors are full-size controls (at least 40 px tall, 15 px text, clearly
+  clickable, showing the current choice); the student search is a compact field (about 240 px, search icon, grows when
+  focused), never a wide strip.
+- **Subject-agnostic**: nothing in the shared blocks or the menu names Maths or English; every subject inherits them.
+- **Enforced by the build**: the rules (target sizes, table instead of tag lists, filter row on a long list, status
+  chip with icon) go into docs/ux-rules.md and the rule tests, like the existing ones, so a page that breaks them fails.
