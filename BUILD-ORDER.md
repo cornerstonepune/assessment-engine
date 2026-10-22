@@ -38,6 +38,13 @@ content (skills, kinds of question, samples for the English educator to approve)
 | S4 | results and the child's profile, a tab per subject; a one-page summary per child for parent meetings, approved before print |
 | S5–S9 | the question bank page; the curriculum page with versions; the coordinator's page across classes; a substitute's dated access; KG observation on a phone |
 
+**E0, approved by Nimish on 2026-10-22** ("Ayush is a part of Cornerstone. He has the account... This entire thing
+should fold within our system itself... a part of a curriculum system that will finally connect to the assessment
+engine... he'll log into the system and all his responses will be logged in properly"): the English Grades 3–4 content
+(PR #254, #272) is loaded as drafts into the existing tables and reviewed on the Curriculum page by the English educator,
+approvals saved with his name and date. It runs beside the C slices because it adds no table; a part that needs a table
+waits on its C slice.
+
 Out of scope: WhatsApp, engine marking of Hindi, the observation engine (the next build, which C2 prepares), a
 workflow engine, mastery models, selling to other schools. Each slice gets its goal file before its code (rule 12).
 
