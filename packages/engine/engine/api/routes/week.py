@@ -13,6 +13,8 @@ from fastapi.responses import FileResponse
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.api.idempotency import derive_key, run_idempotent
 from engine.api.models import (
+    PaperAbsentRequest,
+    PapersGivenRequest,
     WeekApproveRequest,
     WeekApproveResponse,
     WeekAssembleRequest,
@@ -25,7 +27,7 @@ from engine.api.models import (
     WeekRenderResponse,
 )
 from engine.core import db, roster
-from engine.w2_print import assemble, pack, prescribe, week_note
+from engine.w2_print import assemble, given, pack, prescribe, week_note
 from engine.w3_read import legacy
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
@@ -139,6 +141,32 @@ def approve_week(
         return {**run(), "already": False}
     result, already = run_idempotent(conn, tenant_id, "week_approve", idempotency_key, body.model_dump(), run)
     return {**result, "already": already}
+
+
+@router.post("/papers/given")
+def papers_given(
+    body: PapersGivenRequest,
+    conn=Depends(get_conn, scope="function"),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """An educator's "Given on" for an assessment's papers (goals/s2-the-assessment-card.yaml), refused in words."""
+    try:
+        return given.given(conn, tenant_id, body.qrs, body.on, body.by)
+    except (ValueError, LookupError) as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+@router.post("/papers/absent")
+def paper_absent(
+    body: PaperAbsentRequest,
+    conn=Depends(get_conn, scope="function"),
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """A child away the day their paper was given, or back: the paper is carried, not missing."""
+    try:
+        return given.absent(conn, tenant_id, body.qr, body.away, body.by)
+    except (ValueError, LookupError) as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
 
 
 @router.get("/week/{section}/{week}/{kind}/pack.pdf")

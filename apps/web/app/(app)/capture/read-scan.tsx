@@ -1,6 +1,6 @@
 import { Panel } from "@/components/shell";
 import type { Scan } from "@/lib/queries-scans";
-import { givePage, readScan } from "./actions";
+import { givePage, readAgain, readScan } from "./actions";
 import { UploadScans } from "./upload-scans";
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
@@ -29,6 +29,7 @@ export function ReadScan({ from, read, why, pages, scans = [] }: { from: "/paper
     "not-a-link": "Paste the link to the scan on Google Drive (drive.google.com/…).",
     engine: "The engine is not answering; nothing was read.",
     given: `Page ${Number(pages) || ""} is being read now as the paper of the child you gave it to.`,
+    again: `Reading ${Number(pages) || ""} pages again. Answers a person has checked stay as they left them; the rest are read anew — a minute or two.`,
   }[read ?? ""];
   return (
     <Panel title="Read a scan" label="Read a scan" id="read-scan">
@@ -58,6 +59,15 @@ export function ReadScan({ from, read, why, pages, scans = [] }: { from: "/paper
               <p>
                 <strong>{s.file}</strong> · {s.when} · {found(s)}
               </p>
+              {s.status !== "running" ? (
+                <form action={readAgain} aria-label={`Read ${s.file} again`} className="mt-1">
+                  <input type="hidden" name="run" value={s.id} />
+                  <input type="hidden" name="from" value={from} />
+                  <button type="submit" className="btn secondary">
+                    Read again
+                  </button>
+                </form>
+              ) : null}
               {s.given.length ? (
                 <p>
                   {s.given.map((g) => `Page ${g.page} given to ${g.who}`).join("; ")}
