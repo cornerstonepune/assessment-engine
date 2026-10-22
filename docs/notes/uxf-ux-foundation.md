@@ -43,6 +43,15 @@ Slice UXF of the locked scope of 22 Oct, beside S1: web only, no migration, no n
   `u51-ux-rules` → 12 passed, and the six specs that read the card (`m4`, `s7`, `u11`, `u17`, `u36`, `u37`) → 34 passed,
   on a `bin/testdb fresh` copy of this branch. `DataTable` now has a rendered page (the card's table).
 
+- **CI on head 5fcc0e2: all 17 checks green** (12 engine shards, engine, engine-checks, web, browser, Vercel).
+- `bin/engine done uxf-ux-foundation` on a `bin/testdb fresh` copy of this branch: all five of Nimish's sentences PROVED;
+  "no hand-built table and no long purpose line" PASSED (8); "Check answers on the blocks, and every page against the
+  rules, rendered" PASSED (34); `bin/check` PASSED (30); "every page still holds" 328 passed and the same two failures as
+  before, `u15-menu-and-today` ("Today lists everything…") and `u26-my-classes-first` ("the coordinator sees every
+  class"): Today shows five class packs and "and 2 more", and a copy that has run 328 specs holds more classes than five.
+  They fail the same way on unchanged main on the same copy, and the same specs pass in CI's browser job on a fresh copy.
+  So `done` reads NOT DONE on a used copy; CI's fresh copy is the decider. Today is not touched here.
+
 ## Not held yet, said plainly
 
 - The menu shows a red count on every tab; rule 5 allows red on Today alone. It changes every page, so it waits for the
