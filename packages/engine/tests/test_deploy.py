@@ -258,19 +258,25 @@ def _push_step() -> dict:
     return next(s for s in job["steps"] if "supabase db push" in s.get("run", ""))
 
 
-def _push(tmp_path, answers, lock_timeout="3s"):
-    """migrate live's push step run as the runner runs it (`bash -e`), with a `supabase` that answers each try from
-    `answers` ("ok", "lock" for SQLSTATE 55P03, anything else another failure), and psql and sleep that only write
-    down what they were asked → (exit code, every call in order)."""
+IN_BAND = "set lock_timeout = '3s'; set statement_timeout = '10min';"
+SQL = "create view {} as select 1;\n"
+
+
+def _push(tmp_path, answers):
+    """migrate live's push step run as the runner runs it (`bash -e`, in a checkout holding two migrations), with a
+    `supabase` that answers each try from `answers` ("ok", "lock" for SQLSTATE 55P03, anything else another failure)
+    and writes down the first line of the migrations it was handed, and psql and sleep that only write down that they
+    were called → (exit code, every call in order, the checkout's migrations)."""
     import os
     import subprocess
 
     bin_ = tmp_path / "bin"
     bin_.mkdir()
     fakes = {
-        "psql": f'echo "psql $3 $PGOPTIONS" >> "$LOG"; echo {lock_timeout}\n',
+        "psql": 'echo "psql" >> "$LOG"\n',
         "sleep": 'echo "sleep $1" >> "$LOG"\n',
-        "supabase": 'echo "push $PGOPTIONS" >> "$LOG"; a=$(head -1 "$ANSWERS"); sed -i 1d "$ANSWERS"\n'
+        "supabase": 'echo "push $(head -qn1 supabase/migrations/*.sql | sort -u)" >> "$LOG"\n'
+        'a=$(head -1 "$ANSWERS"); sed -i 1d "$ANSWERS"\n'
         'case "$a" in ok) echo "Finished supabase db push." ;;\n'
         '  lock) echo "ERROR: canceling statement due to lock timeout (SQLSTATE 55P03)"; exit 1 ;;\n'
         '  *) echo "ERROR: relation \\"x\\" does not exist (SQLSTATE 42P01)"; exit 1 ;; esac\n',
@@ -281,55 +287,89 @@ def _push(tmp_path, answers, lock_timeout="3s"):
     log, said = tmp_path / "calls", tmp_path / "answers"
     log.touch()
     said.write_text("\n".join(answers) + "\n")
+    migrations = tmp_path / "checkout" / "supabase" / "migrations"
+    migrations.mkdir(parents=True)
+    for name in ("20990101000000_a", "20990102000000_b"):
+        (migrations / f"{name}.sql").write_text(SQL.format(name[-1]))
     step = _push_step()
     env = {
-        **os.environ,
+        **{k: v for k, v in os.environ.items() if k != "PGOPTIONS"},
         **step["env"],
         "PATH": f"{bin_}:{os.environ['PATH']}",
         "LOG": str(log),
         "ANSWERS": str(said),
     }
     env["LIVE"] = "postgresql://nobody@127.0.0.1:1/none"
-    done = subprocess.run(["bash", "-e", "-c", step["run"]], env=env, capture_output=True, text=True)
-    return done.returncode, log.read_text().splitlines()
+    done = subprocess.run(
+        ["bash", "-e", "-c", step["run"]],
+        env=env,
+        cwd=migrations.parent.parent,
+        capture_output=True,
+        text=True,
+    )
+    return done.returncode, log.read_text().splitlines(), migrations
+
+
+def _pushed() -> str:
+    return "push " + _push_step()["env"]["SETTINGS"]
 
 
 def test_a_migration_waits_briefly_for_a_lock_and_long_for_its_work():
     """2026-10-21 12:52 UTC: a view's replacement waited 121 s behind live's readers until live's 2-minute statement
     timeout cancelled it (SQLSTATE 57014), educators' queries on that view queued behind it all the while."""
-    options = _push_step()["env"]["PGOPTIONS"].split()
-    assert "lock_timeout=3s" in options, (
-        "a migration still waits on educators' locks until the statement timeout"
+    assert _push_step()["env"]["SETTINGS"].startswith(IN_BAND), (
+        "a migration still waits on educators' locks, or dies at live's 2 minutes"
     )
-    assert "statement_timeout=10min" in options, "a migration with real work still dies at live's 2 minutes"
+
+
+def test_the_settings_travel_inside_each_migration_not_with_the_connection(tmp_path):
+    """2026-10-22 02:01 and 02:09 UTC (run 39709016021, both attempts): live is reached through Supabase's pooler,
+    which does not pass a connection's startup options on, so PGOPTIONS never reached live, and the check that read
+    them back over a second connection failed and held the website with nothing to apply. The settings are now the
+    first statements of every migration, inside the transaction the push runs it in, whatever the pooler does."""
+    code, calls, migrations = _push(tmp_path, ["ok"])
+    assert code == 0
+    assert "PGOPTIONS" not in _push_step()["env"], "the settings still ride on the connection a pooler drops"
+    assert calls == [_pushed()], f"{calls}: no push, or a check on a connection other than the migration's"
+    for migration in migrations.glob("*.sql"):
+        assert migration.read_text() == _push_step()["env"]["SETTINGS"] + "\n" + SQL.format(
+            migration.stem[-1]
+        )
+
+
+def test_a_migration_whose_session_lacks_the_settings_stops_before_any_change():
+    """The check runs inside the migration's own transaction, on the backend that runs it: with the settings it
+    passes; without them it raises, so the migration's transaction rolls back before any change."""
+    import psycopg
+    import pytest
+
+    settings = _push_step()["env"]["SETTINGS"]
+    with db.connect() as conn:
+        conn.execute(settings)
+        took = "select current_setting('lock_timeout') as l, current_setting('statement_timeout') as s"
+        assert conn.execute(took).fetchone() == {"l": "3s", "s": "10min"}
+        conn.execute("reset all")
+        with pytest.raises(psycopg.errors.RaiseException, match="did not take lock_timeout 3s"):
+            conn.execute(settings.removeprefix(IN_BAND))
 
 
 def test_a_migration_held_by_a_lock_tries_again_by_itself(tmp_path):
-    code, calls = _push(tmp_path, ["lock", "lock", "ok"])
+    code, calls, _ = _push(tmp_path, ["lock", "lock", "ok"])
     assert code == 0
-    pushes = [c for c in calls if c.startswith("push ")]
-    assert pushes == ["push -c lock_timeout=3s -c statement_timeout=10min"] * 3, calls
+    assert [c for c in calls if c.startswith("push ")] == [_pushed()] * 3, calls
     assert calls.count("sleep 20") == 2, calls
 
 
 def test_a_migration_that_fails_for_another_reason_stops_at_once(tmp_path):
-    code, calls = _push(tmp_path, ["other", "ok"])
+    code, calls, _ = _push(tmp_path, ["other", "ok"])
     assert code == 1
-    assert [c for c in calls if c.startswith(("push", "sleep"))] == [
-        "push -c lock_timeout=3s -c statement_timeout=10min"
-    ]
+    assert [c for c in calls if c.startswith(("push", "sleep"))] == [_pushed()]
 
 
 def test_a_migration_still_held_after_six_tries_fails(tmp_path):
-    code, calls = _push(tmp_path, ["lock"] * 7)
+    code, calls, _ = _push(tmp_path, ["lock"] * 7)
     assert code == 1
     assert sum(c.startswith("push") for c in calls) == 6, calls
-
-
-def test_nothing_is_pushed_when_lives_connection_ignores_the_settings(tmp_path):
-    code, calls = _push(tmp_path, ["ok"], lock_timeout="0")
-    assert code == 1
-    assert not any(c.startswith("push") for c in calls), calls
 
 
 def test_the_model_key_reaches_the_server_from_the_repositorys_secret():

@@ -19,9 +19,14 @@ says:
   - words: "a database update waits briefly and tries again by itself instead of failing"
     proved_by: packages/engine/tests/test_deploy.py::test_a_migration_still_held_after_six_tries_fails
   - words: "a database update waits briefly and tries again by itself instead of failing"
-    proved_by: packages/engine/tests/test_deploy.py::test_nothing_is_pushed_when_lives_connection_ignores_the_settings
+    proved_by: packages/engine/tests/test_deploy.py::test_the_settings_travel_inside_each_migration_not_with_the_connection
+  - words: "a database update waits briefly and tries again by itself instead of failing"
+    proved_by: packages/engine/tests/test_deploy.py::test_a_migration_whose_session_lacks_the_settings_stops_before_any_change
+# 2026-10-22 (L14b, docs/notes/l14b-timeouts-in-band.md): the settings rode on the connection (PGOPTIONS), which
+# Supabase's pooler does not pass on; the check on a second connection failed both times it ran and held the website.
+# They are now the first statements of each migration, and the migration checks them itself.
 manual:
-  - "The next merge with a migration: migrate live's 'apply what live is missing' step passes its check that live's connection takes lock_timeout 3s, then applies; any 'try n of 6' warning names a lock it waited out."
+  - "The next merge with a migration: migrate live's 'apply what live is missing' step applies it, and live's supabase_migrations.schema_migrations row for it starts with the set lock_timeout and statement_timeout lines; any 'try n of 6' warning names a lock it waited out."
 scenarios: []
 criteria:
   - name: the push's settings and its retry are as the tests say
