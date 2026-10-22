@@ -9,18 +9,18 @@ def orphans() -> dict[str, list[str]]:
     """Referential checks the schema cannot express, because the codes live in arrays."""
     with db.connect() as conn:
         return {
-            "rung skill_codes missing from the registry": [
+            "skill registry codes missing from the registry": [
                 r["s"]
                 for r in conn.execute(
-                    "select distinct s from rung, unnest(skill_codes) s"
-                    " where not exists (select 1 from skill k where k.code = s)"
+                    "select distinct s from skill_set, unnest(registry_codes) s"
+                    " where not exists (select 1 from registry_skill k where k.code = s)"
                 ).fetchall()
             ],
             "level_rule rungs missing from the ladder": [
                 r["s"]
                 for r in conn.execute(
                     "select distinct s from level_rule, unnest(rung_codes) s"
-                    " where not exists (select 1 from rung g where g.code = s)"
+                    " where not exists (select 1 from skill_set g where g.rung_code = s)"
                 ).fetchall()
             ],
             "skill_set misconception codes missing from the vocabulary": [

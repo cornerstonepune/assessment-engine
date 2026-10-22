@@ -22,8 +22,8 @@ def _a_child_with_an_answer() -> str:
         child = a_child(c)
         on = db.one(
             c,
-            "select code, skill_codes[1] as skill from rung where tenant_id = %s and cardinality(skill_codes) > 0"
-            " order by code limit 1",
+            "select rung_code as code, registry_codes[1] as skill from skill_set"
+            " where tenant_id = %s and cardinality(registry_codes) > 0 order by rung_code limit 1",
             (tenant(c),),
         )
         c.execute(

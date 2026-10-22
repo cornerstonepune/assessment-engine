@@ -3,6 +3,7 @@ built from the repository (`bin/testdb fresh`, what CI runs) as on a copy of liv
 """
 
 import json
+import re
 import uuid
 
 from engine.core import db
@@ -97,3 +98,10 @@ def a_read_paper(conn, answers, path="scan.pdf", paper="TEST-P1", fmt="column"):
             )
         results.append(res)
     return {"child": child, "capture": cap, "results": results}
+
+
+def data_steps(migration):
+    """A migration's data steps (its `do $$ … end $$;` blocks), to run again on today's schema and functions. A later
+    migration can make an earlier one's DDL impossible to repeat (B4 dropped the `rung` table B1 and B3 put triggers
+    on); what those tests prove — running the migration's rows again changes nothing — is these blocks."""
+    return "\n".join(re.findall(r"^do \$\$.*?^end \$\$;", migration.read_text(), re.S | re.M))

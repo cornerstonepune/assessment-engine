@@ -16,6 +16,7 @@ from engine.checks import levels as check
 from engine.core import db, levels, loaders
 from engine.w1_bank import spec
 from engine.w2_print import shelf
+from tests.rows import data_steps
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -149,8 +150,7 @@ def test_a_change_to_the_blob_is_a_change_to_the_rows_whoever_writes_it(conn):
     assert _level(conn, SKILL, "Medium")["confirmed_by"] == "Achal"
     conn.execute("update skill_set set difficulty = difficulty - 'Advance' where code = %s", (SKILL,))
     assert _level(conn, SKILL, "Advance") is None
-    rung = conn.execute("select rung_code from skill_set where code = %s", (SKILL,)).fetchone()["rung_code"]
-    conn.execute("update rung set band = 'G4' where code = %s", (rung,))
+    conn.execute("update skill_set set grade = 'G4' where code = %s", (SKILL,))
     assert _level(conn, SKILL, "Medium")["grade"] == "G4", "a level not moved follows its skill's grade"
     assert _level(conn, SKILL, "Hard")["grade"] == "G3", "a level moved keeps the grade it was moved to"
     assert check.compare(conn, draws=0)["disagree"] == []
@@ -184,7 +184,7 @@ def test_a_level_keeps_its_own_version_history(conn):
     rows = conn.execute(
         "select count(*) as n from skill_level_version where tenant_id = %s", (t,)
     ).fetchone()["n"]
-    conn.execute(MIGRATION.read_text())
+    conn.execute(data_steps(MIGRATION))
     assert (
         conn.execute("select count(*) as n from skill_level_version where tenant_id = %s", (t,)).fetchone()[
             "n"
@@ -194,7 +194,7 @@ def test_a_level_keeps_its_own_version_history(conn):
     # the migration's first run on a database whose skills have a history: each level's carried onto it
     conn.execute("delete from skill_level_version")
     conn.execute("delete from skill_level")
-    conn.execute(MIGRATION.read_text())
+    conn.execute(data_steps(MIGRATION))
     assert {
         r["difficulty"]: r["version"]
         for r in conn.execute("select difficulty, version from skill_level where skill_code = %s", (SKILL,))
@@ -237,10 +237,9 @@ def test_the_moved_readers_read_the_rows_not_the_blob(conn):
     conn.execute("set local session_replication_role = origin")
     assert "Easy" in shelf.approved_levels(conn)[SKILL]
     own = conn.execute(
-        "select r.band from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
-        " where s.code = %s",
+        "select grade from skill_set where code = %s",
         (SKILL,),
-    ).fetchone()["band"]
+    ).fetchone()["grade"]
     assert "Easy" not in shelf._read_levels(conn, own)[SKILL]
     assert "Easy" in shelf._read_levels(conn, None)[SKILL]
     # the writers still write the blob (the seed's levels, an approval of every level), and read what they write;

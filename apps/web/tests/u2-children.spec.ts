@@ -172,9 +172,9 @@ test("a child's page opens on one plain sentence that counts what their answers 
   // not yet: the taught skills of the grade no checked answer of hers has reached
   const [{ notYet }] = await sql<{ notYet: number }[]>`
     select count(*)::int as "notYet" from skill_set ss
-    join topic t on t.code = ss.topic_code and ss.taught join rung r on r.code = ss.rung_code
-    where r.band = 'G2' and not exists (select 1 from child_skill_state s
-      where s.child_id = ${ids.Asha}::uuid and s.rung_code = r.code and s.n_events > 0)`;
+    join topic t on t.code = ss.topic_code and ss.taught
+    where ss.grade = 'G2' and not exists (select 1 from child_skill_state s
+      where s.child_id = ${ids.Asha}::uuid and s.rung_code = ss.rung_code and s.n_events > 0)`;
   await page.goto(`/growth/${ids.Asha}`);
   await expect(page.getByTestId("summary")).toHaveText(
     `Asha needs help on 1 skill, is practising 1 and is secure on 1; 1 skill has too few answers to say; ${notYet} skill${notYet === 1 ? "" : "s"} of the grade not assessed yet.`,

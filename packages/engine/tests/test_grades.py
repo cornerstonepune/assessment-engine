@@ -145,7 +145,7 @@ def conn():
 
 # Every column that holds a grade.
 GRADE_COLUMNS = [
-    ("rung", "band"),
+    ("skill_set", "grade"),
     ("child", "band"),
     ("sheet_template", "band"),
     ("blueprint", "band"),
@@ -175,7 +175,7 @@ def test_every_grade_a_row_holds_is_a_key_into_grade(conn):
         )
     t = loaders._tenant(conn)
     for bad in (
-        "update rung set band = 'G11' where code = 'R11'",
+        "update skill_set set grade = 'G11' where rung_code = 'R11'",
         f"insert into child (tenant_id, roll_no, section, band) values ('{t}', '1', 'B0B', 'Grade 3')",
     ):
         with pytest.raises(psycopg.errors.ForeignKeyViolation), conn.transaction():
@@ -230,7 +230,7 @@ def test_grade_10_sorts_after_grade_9_and_is_never_read_as_grade_1(conn):
 
     conn.execute("update skill_set set level_band = '{}'::jsonb where code = 'ADD.2D2D'")
     conn.execute(
-        "update rung set band = 'G10' where tenant_id = %s and code = (select rung_code from skill_set where code = 'ADD.2D2D')",
+        "update skill_set set grade = 'G10' where tenant_id = %s and code = 'ADD.2D2D'",
         (t,),
     )
     assert shelf._read_levels(conn, "G10")["ADD.2D2D"], "a Grade 10 skill is a Grade 10 child's"

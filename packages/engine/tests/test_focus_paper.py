@@ -273,8 +273,8 @@ def test_a_skill_the_school_does_not_teach_yet_is_never_on_a_paper_the_engine_ch
 def test_each_level_belongs_to_one_grade_and_a_child_meets_only_their_own_grade_or_below(conn):
     """`skill_set.level_band`: a level named there belongs to that grade, any other to the skill's own."""
     s = conn.execute(
-        "select s.code, r.band from skill_set s join rung r on r.code = s.rung_code"
-        " where r.band = 'G2' and s.difficulty ? 'Easy' and s.difficulty ? 'Hard' limit 1"
+        "select s.code, s.grade as band from skill_set s"
+        " where s.grade = 'G2' and s.difficulty ? 'Easy' and s.difficulty ? 'Hard' limit 1"
     ).fetchone()
     if not s:
         pytest.skip("needs a Grade 2 skill with Easy and Hard on the copy")
@@ -354,9 +354,8 @@ def test_no_question_at_a_grade_1_level_needs_an_exchange(conn):
     2-digit skill is measured again from its own numbers, and not one needs an exchange."""
     rows = conn.execute(
         "select i.fmt, i.stem, i.spec, s.rung_code from item i join skill_set s on s.code = i.skill_set_code"
-        " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
         " where i.status = 'active' and i.skill_set_code like any (array['ADD.2D%', 'SUB.2D%'])"
-        " and coalesce(s.level_band ->> i.difficulty, r.band) = 'G1'"
+        " and coalesce(s.level_band ->> i.difficulty, s.grade) = 'G1'"
     ).fetchall()
     assert rows, "the bank holds Grade 1's 2-digit questions"
     assert [r["spec"] for r in rows if labels.tags_of(r).get("regroup_columns")] == []

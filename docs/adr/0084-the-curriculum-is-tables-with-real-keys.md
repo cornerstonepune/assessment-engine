@@ -59,3 +59,21 @@ some one-time random effort". All backend first: B0–B4 (BUILD-ORDER.md), befor
   order would still live in code.
 - **A level's letter as its initial, computed (B0c).** Easy, Medium, Hard and Advance each start with a different
   letter, but a school adding "Expert" could not: its codes would clash with Easy's. The letter is written down instead.
+
+## B4: the rung folded into the skill (2026-10-22)
+
+- **A rung was one skill's**, 46 of 46, so its grade, place on the ladder, description and registry skills are the
+  skill's columns (`grade`, `ladder_order`, `descriptor`, `registry_codes`), and its code the skill's second code, a
+  unique key that a question's `rung_code` points at. Nothing recorded is rewritten (B4-2): evidence, a child's states
+  and a class card keep `rung_code` as they hold it.
+- **The registry's list keeps its order on the skill** (`registry_codes`): its first is the skill's own (the catalogue a
+  paper is drawn from, the lane of a child's map), which B3's `skill_registry_link` rows do not hold. The rows stay equal
+  to the list by the trigger that kept them equal to the rung's.
+- **Two deploys, registry first (B4-1).** `skill` → `registry_skill` with the fold; `skill_set` → `skill` in the next.
+  The live database takes a merge's migration before the engine and the website take its code (`migrate live`), so for
+  that one deploy each old name answers as a read-only view; the next deploy drops them. A file still reading an old
+  name fails `test_rung_folded.py` in CI, so a reader left behind is caught before it can read the school's skills as
+  the registry's.
+- **Rejected: the registry's links as the only list, ordered by a new column on `skill_registry_link`.** It would move
+  every reader of the first registry skill onto a subquery in this step; the list moves with its writers, as B3 decided
+  for the mistakes.
