@@ -69,7 +69,10 @@ test("at Made the card shows each child's proposed paper and opens the place to 
 test("the upload box is at the top of the card, Assessments and Marking", async ({ page }) => {
   for (const path of [card("practice"), "/papers", "/capture"]) {
     await page.goto(path);
-    const upload = (await page.getByLabel("Choose scans").first().boundingBox())!;
+    // the page itself, past its loading screen, and the upload box drawn on it
+    const box = page.getByText("Choose scans or drop them here").first();
+    await expect(box, path).toBeVisible();
+    const upload = (await box.boundingBox())!;
     const h1 = (await page.getByRole("heading", { level: 1 }).boundingBox())!;
     expect(upload.y, path).toBeGreaterThan(h1.y);
     // above everything else the page holds: the first panel under the heading
