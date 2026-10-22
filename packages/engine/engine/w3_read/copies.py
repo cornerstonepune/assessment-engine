@@ -180,20 +180,26 @@ def _owner(conn, scan, k, copy, who, named):
     return code, name, cid
 
 
-def read(conn, scan, section, names, actor, pages_of=None, read_text=None, again=False, given=None):
+def read(
+    conn, scan, section, names, actor, pages_of=None, read_text=None, again=False, given=None, progress=None
+):
     """Every copy in the file, in order, read for its child (`READ`): a copy printed for a child (`handout`, Make papers,
     the paper maker, a home paper) by the code on it; a copy printed bare, or a spare, by the name said for it, in file
     order ("?" leaves one unread), or — `names` None — by the child a person named for it before (`_named_before`).
     `again`: a copy read before is read afresh (a better reader), unless a person has already worked on it.
     → one dict per copy, read or not: its pages, code, child, answers read, questions a person marks — or why it was
     not read — and the file's pages in it on which no code could be read (`no_code`), said by number, never guessed:
-    such a page is read only as the child a person gave it to (`given`, {page: child}; `sorting.give`)."""
+    such a page is read only as the child a person gave it to (`given`, {page: child}; `sorting.give`).
+    `progress(done, of)` is told the file's pages read so far after each copy (goals/s2-the-assessment-card.yaml)."""
     papers = sorting.give(sorting.sort_file(conn, scan, pages_of, read_text), given or {})
+    tell = progress or (lambda done, of: None)
+    of = sum(len(c["pages"]) for c in papers)
     own, bare = _sorted_out(papers)
     named = names is not None
     who = _said(conn, bare, section, names if named else ["?"] * len(bare), actor)
     out = []
     for k, copy in enumerate(papers, 1):  # every copy in the file has its line: read, or why not
+        tell(sum(len(c["pages"]) for c in papers[: k - 1]), of)  # the pages of the copies before this one
         if not copy["qr"] or not (any(copy is p for p in own) or id(copy) in who):
             out.append({"copy": k, "pages": copy["pages"], "code": copy["qr"] or "?", "child_id": None, "answers": 0,
                         "by_code": False, "skipped": True, "why": _not_read(copy),
@@ -209,6 +215,8 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None, again
             )
             continue
         out.append(_read_copy(conn, scan, copy, row, name, actor, again))
+    if papers:
+        tell(of, of)
     return out
 
 

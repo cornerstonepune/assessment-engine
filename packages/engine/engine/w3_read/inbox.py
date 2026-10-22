@@ -167,7 +167,16 @@ def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]
     was not in the file (goals/l11-a-scan-is-read-whole.yaml)."""
     with db.connect() as conn:
         try:
-            out = copies.read(conn, str(path), "", None, actor, again=again, given=given(conn, path.name))
+            out = copies.read(
+                conn,
+                str(path),
+                "",
+                None,
+                actor,
+                again=again,
+                given=given(conn, path.name),
+                progress=_progress(run_id),
+            )
             conn.execute(
                 "update flow_run set status = 'ok', result = coalesce(result, '{}') || %s::jsonb, finished_at = now(),"
                 " updated_at = now()"
@@ -187,6 +196,22 @@ def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]
             # `ConfigParseError` (2026-09-25).
             conn.commit()
             raise
+
+
+def _progress(run_id: str):
+    """How far the reading has got, written on the run as each copy is read (goals/s2-the-assessment-card.yaml: "page n
+    of N, about how long"): on a connection of its own, committed at once, since the reading's own transaction is open
+    until the whole file is read. The card says the time left from `at` and the pages still to read."""
+
+    def tell(done: int, of: int) -> None:
+        with db.connect() as c:
+            c.execute(
+                "update flow_run set result = coalesce(result, '{}') || jsonb_build_object('read',"
+                " jsonb_build_object('pages', %s::int, 'of', %s::int, 'at', now())), updated_at = now() where id = %s",
+                (done, of, run_id),
+            )
+
+    return tell
 
 
 # the file a run read: kept on the run from 2026-10-22, before that only in its trigger ("who: file")
