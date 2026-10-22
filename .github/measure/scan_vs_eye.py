@@ -37,7 +37,33 @@ def _why(scan, pdf, page):
     return {"orb": orb, "orb_inliers": inl, "sift_keys": len(k1), "sift_ref_keys": len(printed[2][2]),
             "by_sift": lineup._by_sift(img, printed) is not None, "grey_mean": round(float(g.mean()), 1),
             "grey_p5_p95": [int(v) for v in np.percentile(g, [5, 95])], "dtype": str(img.dtype), "shape": img.shape,
-            "found_turned_180": found180}
+            "found_turned_180": found180, **_area(Hm, small.shape, printed[0].shape), **_images(scan, page)}
+
+
+def _area(Hm, src, dst):
+    """The photograph's corners where ORB's map puts them, as a share of the printed page, and whether convex."""
+    import cv2
+
+    if Hm is None:
+        return {}
+    h, w = src[:2]
+    quad = cv2.perspectiveTransform(np.array([[0, 0], [w, 0], [w, h], [0, h]], np.float32).reshape(-1, 1, 2), Hm)
+    return {"area_ratio": round(float(cv2.contourArea(quad) / (dst[0] * dst[1])), 3),
+            "convex": bool(cv2.isContourConvex(quad.astype(np.float32))),
+            "corners": [[round(float(v)) for v in pt[0]] for pt in quad]}
+
+
+def _images(scan, page):
+    """How the scan's page holds its picture: how many images, each one's size and share of the page."""
+    import pymupdf
+
+    with pymupdf.open(str(scan)) as doc:
+        pg = doc[page - 1]
+        out = []
+        for im in pg.get_images():
+            for r in pg.get_image_rects(im[0]):
+                out.append({"px": [im[2], im[3]], "share": round(abs(r) / abs(pg.rect), 3)})
+        return {"page_pt": [round(pg.rect.width), round(pg.rect.height)], "images": out[:6], "n_images": len(out)}
 
 
 def _lines_up(scan, pdf, page):
