@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { CLASSES_COOKIE, endSession, requireStaff, signInFailed, signInRefused, startSession, verifyStaff } from "./auth";
+import { CLASSES_COOKIE, endSession, requireStaff, signInFailed, signInRefused, startSession, SUBJECT_COOKIE, verifyStaff } from "./auth";
 
 export async function signIn(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -24,18 +24,21 @@ export async function signOut(): Promise<void> {
   redirect("/login");
 }
 
-/** Every class, or the person's own first: one tap in the menu (goals/ux9c-one-role.yaml). A view kept in a cookie, never
- *  a permission: whichever is chosen, every class's page opens for every member of staff. */
-export async function seeClasses(formData: FormData): Promise<void> {
+/** The class and the subject chosen in the bar at the top of every screen (goals/s1-subject-class-and-today.yaml): the
+ *  person's own classes ("mine"), every class ("every"), or one class ("class:2B"); a subject by its code. A view kept in
+ *  a cookie, never a permission: whichever is chosen, every class's page opens for every member of staff
+ *  (goals/ux9c-one-role.yaml). */
+export async function choose(formData: FormData): Promise<void> {
   await requireStaff();
   const jar = await cookies();
-  if (formData.get("classes") === "every") {
-    jar.set(CLASSES_COOKIE, "every", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/" });
-  } else {
-    jar.delete(CLASSES_COOKIE);
-  }
+  const keep = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/" } as const;
+  const classes = String(formData.get("class") ?? "");
+  if (classes === "every" || classes.startsWith("class:")) jar.set(CLASSES_COOKIE, classes, keep);
+  else jar.delete(CLASSES_COOKIE);
+  const subject = String(formData.get("subject") ?? "");
+  if (subject) jar.set(SUBJECT_COOKIE, subject, keep);
   revalidatePath("/", "layout");
-  // back to the page the menu was on, now showing what was chosen: only a path of this site is followed
+  // back to the page the bar was on, now showing what was chosen: only a path of this site is followed
   const from = (await headers()).get("referer");
   const path = from ? new URL(from).pathname + new URL(from).search : "/today";
   redirect(path.startsWith("/") && !path.startsWith("//") ? path : "/today");

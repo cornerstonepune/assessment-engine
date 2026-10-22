@@ -105,7 +105,11 @@ test("a worksheet's print list opens on the educator's own children, every class
     const print = page.locator("section").filter({ has: page.getByRole("heading", { name: "Print for children" }) });
     await expect(print).toContainText("Ira");
     await expect(print).not.toContainText("Kavi");
-    await page.getByRole("complementary").getByRole("button", { name: "See every class" }).click();
+    await Promise.all([
+      page.waitForResponse((r) => r.request().method() === "POST"),
+      page.getByRole("search", { name: "Subject, class and search" }).getByLabel("Class").selectOption("every"),
+    ]);
+    await page.waitForLoadState("networkidle");
     for (const name of ["Ira", "Jai", "Kavi", "Lata"]) await expect(print).toContainText(name);
   } finally {
     await page.context().close();

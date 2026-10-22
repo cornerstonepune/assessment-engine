@@ -7,16 +7,23 @@ import { kindWords } from "@/components/question";
 import { questionKinds } from "@/lib/question-types";
 import { type Line, needsYou, TODAY_ORDER } from "@/lib/needs-you";
 import { queueByWeek, type Trust, trustNow, type Week } from "@/lib/queries-today";
-import { weekWords } from "@/lib/week";
+import { isoWeek, weekWords } from "@/lib/week";
+import { choices } from "@/lib/choices";
+import { noteLines, weekNote } from "@/lib/queries-week-note";
 
 // Today — everything that waits on a person, in one list under the tab where it is done (goals/ui1-menu-and-today.yaml,
-// goals/u1-today.yaml), each line opening that place. The menu's counts are this list's (lib/needs-you.ts). Every line
+// goals/u1-today.yaml), each line opening that place, under five lines of what the system now knows this week
+// (goals/s1-subject-class-and-today.yaml). The menu's counts are this list's (lib/needs-you.ts). Every line
 // is the signed-in person's: in their classes, and only where the decision is theirs (goals/ux1-who-sees-what.yaml). The
 // engine proposes; a person approves.
 export default async function Today() {
   const me = await requireStaff();
   const scope = scopeOf(me);
-  const [lines, weeks, trust, { words }] = await deadline(Promise.all([needsYou(me), queueByWeek(scope), trustNow(), questionKinds()]));
+  const { subjects } = await deadline(choices());
+  const subject = subjects.find((x) => x.code === me.subject) ?? subjects[0];
+  const [lines, weeks, trust, { words }, note] = await deadline(
+    Promise.all([needsYou(me), queueByWeek(scope), trustNow(), questionKinds(), weekNote(scope, subject?.code ?? "")]),
+  );
   // the one loud colour, once (design-system/PRINCIPLES.md): the first thing that waits, in Today's order, is the page's
   // main action; every other line's is outlined (goals/ux8d-phone-and-one-action.yaml)
   const first = TODAY_ORDER.flatMap((t) => lines[t]).find((l) => l.waits && l.href && l.action);
@@ -29,6 +36,18 @@ export default async function Today() {
             {scope.note}
           </p>
         ) : null}
+        {/* what the system now knows, five lines, before what waits (goals/s1-subject-class-and-today.yaml) */}
+        <section aria-label="What the system now knows" className="panel mb-6 p-4">
+          <h2 className="font-heading text-[17px]">What the system now knows</h2>
+          <p className="mt-1 text-[12.5px] text-basalt/62">
+            {subject?.label ?? "Every subject"}, {weekWords(isoWeek())}, in the classes chosen at the top
+          </p>
+          <ol className="mt-2 grid list-decimal gap-1 pl-5 text-[14px] leading-snug">
+            {noteLines(note).map((l) => (
+              <li key={l}>{l}</li>
+            ))}
+          </ol>
+        </section>
         {TODAY_ORDER.map((tab) => (
           <section key={tab} aria-label={tab} className="mb-6">
             <h2 className="label mb-2">{tab}</h2>
