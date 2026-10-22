@@ -100,9 +100,8 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
   // (goals/ux5-papers-grouped.yaml): a class chosen opens every week it leaves
   await page.goto(`/papers?class=${SECTION}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Assessments");
-  const week = page.locator(`details[data-week="${WEEK}"]`);
-  await expect(week).toHaveAttribute("open", "");
-  const lines = week.locator("tr[data-assessment]");
+  // one table of aligned columns (goals/uxn1-design-system.yaml): the week is a filter and a line under each name
+  const lines = page.locator("tr[data-assessment]");
   await expect(lines).toHaveCount(4);
   for (const [title, kind] of [
     [await setName("ADD.2D2D"), "Class practice"],
@@ -115,40 +114,36 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
     await expect(line).toContainText(kind);
     await expect(line).toContainText(`Grade 2 · ${SECTION}`);
   }
-  // a child chosen: their copy under each assessment — whose, how hard, where it stands, what waits, the score
+  // a child chosen: their copy under each assessment — whose, how hard, where it stands, what waits, the score (a column
+  // nothing in that assessment fills is not drawn)
   const cells = (p: Paper) => row(page, p).locator("td");
   await page.goto(`/papers?class=${SECTION}&child=${kids.Bina}`);
   await expect(page.locator("tbody tr[data-paper]")).toHaveCount(2);
-  await expect(cells(papers.made)).toHaveText(["2", "Bina", "Easy", "to approve", "—", "—"]);
-  await expect(cells(papers.signed)).toHaveText(["2", "Bina", "Hard", "done", "—", "1 of 2"]);
+  await expect(cells(papers.made)).toHaveText(["2", "Bina", "Easy", "to approve"]);
+  await expect(cells(papers.signed)).toHaveText(["2", "Bina", "Hard", "done", "1 of 2"]);
   await page.goto(`/papers?class=${SECTION}&child=${kids.Asha}`);
   await expect(page.locator("tbody tr[data-paper]")).toHaveCount(2);
-  await expect(cells(papers.printed)).toHaveText(["1", "Asha", "—", "with the children", "—", "—"]);
-  await expect(cells(papers.scanned)).toHaveText(["1", "Asha", "—", "to check", "1", "—"]);
+  await expect(cells(papers.printed)).toHaveText(["1", "Asha", "with the children"]);
+  await expect(cells(papers.scanned)).toHaveText(["1", "Asha", "to check", "1"]);
   // in the school's words: no rung, skill or mistake code reaches a teacher
   await expect(page.getByRole("region", { name: "Papers" })).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/);
 
-  // each stage is counted, and a count is the filter
+  // the status is a filter in the one filter row, and its choice shows as a filter that is on
   await page.goto(`/papers?class=${SECTION}`);
-  const stages = page.getByRole("navigation", { name: "Papers by stage" });
-  // each stage said as the work it waits for (goals/ui2-assessments.yaml); its filter value stays the stored stage
-  await expect(stages.getByRole("link", { name: /^To check/ })).toContainText("1");
-  await stages.getByRole("link", { name: /^To check/ }).click();
+  const filters = page.locator("[data-filterbar]");
+  await filters.locator('select[name="stage"]').selectOption("scanned");
   await expect(page).toHaveURL(/stage=scanned/);
   await expect(page).toHaveURL(new RegExp(`class=${SECTION}`));
   await expect(lines).toHaveCount(1);
   await expect(lines).toContainText("U9 September paper");
 
-  // the other filters are a form, folded under one line, any of them narrowing
+  // the other filters are dropdowns in the same row, any of them narrowing; a child is chosen from the child's own page
   await page.goto(`/papers?class=${SECTION}`);
-  await expect(page.locator("details[data-filters]")).toHaveAttribute("open", "");
-  await page.getByLabel("Kind").selectOption({ label: "Home assessment" });
-  await page.getByRole("button", { name: "Show" }).click();
+  await filters.locator('select[name="kind"]').selectOption({ label: "Home assessment" });
+  await expect(page).toHaveURL(/kind=focus/);
   await expect(lines).toHaveCount(1);
   await expect(lines).toContainText("Home assessments");
-  await page.getByLabel("Child").selectOption({ label: `Bina · ${SECTION} roll 2` });
-  await page.getByLabel("Kind").selectOption({ label: "Any kind" });
-  await page.getByRole("button", { name: "Show" }).click();
+  await page.goto(`/papers?class=${SECTION}&child=${kids.Bina}`);
   await expect(lines).toHaveCount(2);
   await expect(page.locator("tbody tr[data-paper]")).toHaveCount(2);
 });

@@ -26,7 +26,7 @@ export function TopBar({ choices, subject, chosen, own }: { choices: Choices; su
         <label className="sr-only" htmlFor="bar-subject">
           Subject
         </label>
-        <select key={subject} id="bar-subject" name="subject" defaultValue={subject} onChange={submit} className="select min-h-[40px] !w-auto text-[15px] font-medium">
+        <select key={subject} id="bar-subject" name="subject" defaultValue={subject} onChange={submit} className="select min-h-[40px] !w-auto !text-[15px] font-medium max-md:min-h-11 max-md:max-w-[90px]">
           {choices.subjects.map((s) => (
             <option key={s.code} value={s.code}>
               {s.label}
@@ -36,7 +36,7 @@ export function TopBar({ choices, subject, chosen, own }: { choices: Choices; su
         <label className="sr-only" htmlFor="bar-class">
           Class
         </label>
-        <select key={chosen} id="bar-class" name="class" defaultValue={chosen} onChange={submit} className="select min-h-[40px] !w-auto text-[15px] font-medium">
+        <select key={chosen} id="bar-class" name="class" defaultValue={chosen} onChange={submit} className="select min-h-[40px] !w-auto !text-[15px] font-medium max-md:min-h-11 max-md:max-w-[120px]">
           {own.length ? <option value="mine">Your classes ({own.join(", ")})</option> : null}
           <option value="every">Every class</option>
           {choices.classes.map((c) => (
@@ -64,7 +64,7 @@ function Search() {
   const open = openOn === path;
   const setOpen = (yes: boolean) => setOpenOn(yes ? path : null);
   return (
-    <form action={search} onSubmit={() => setOpen(true)} className="ml-auto shrink-0">
+    <form action={search} onSubmit={() => setOpen(true)} className="ml-auto min-w-0 max-md:flex-1 md:shrink-0">
       <label className="sr-only" htmlFor="bar-search">
         Search
       </label>
@@ -77,7 +77,7 @@ function Search() {
         id="bar-search"
         name="q"
         type="search"
-        className="input min-h-[40px] !w-[240px] pl-9 text-[15px] transition-[width] focus:!w-[340px]"
+        className="input min-h-[40px] !w-[240px] !pl-9 !text-[15px] transition-[width] focus:!w-[340px] max-md:min-h-11 max-md:!w-full"
         placeholder="Find a child or paper"
         autoComplete="off"
         defaultValue={found?.q}

@@ -89,6 +89,8 @@ export default async function PapersPage({ searchParams }: Props) {
     const key = assessmentKey(p);
     if (f.child || key === opened) copies.set(key, [...(copies.get(key) ?? []), p]);
   }
+  // the newest week first, a paper with no week last; within a week the query's order stands
+  groups.rows.sort((a, b) => (a.week && b.week ? b.week.localeCompare(a.week) : a.week ? -1 : b.week ? 1 : 0));
   const toCheck = queue.filter((e) => !e.spot).length;
   const [{ subjects }, given] = await Promise.all([choices(), givenOn(groups.rows)]);
   const folded = !!(f.class || f.child || f.kind || f.week || f.subject || f.q || f.stage || f.topic || f.set);
@@ -125,9 +127,10 @@ export default async function PapersPage({ searchParams }: Props) {
 
       <FilterBar
         action="/papers"
-        keep={{ topic: f.topic, set: f.set, child: f.child }}
+        keep={{ set: f.set, child: f.child }}
         filters={[
           { name: "class", label: "Class", value: f.class, all: "Every class", options: options.classes.map((c) => [c, c] as const) },
+          { name: "topic", label: "Topic", value: f.topic, all: "Every topic", options: taught.map((t) => [t.code, t.name] as const) },
           { name: "subject", label: "Subject", value: f.subject, all: "Every subject", options: subjects.map((s) => [s.code, s.label] as const) },
           { name: "kind", label: "Kind", value: f.kind, all: "Any kind", options: Object.entries(KIND_WORDS) },
           { name: "week", label: "Week", value: f.week, all: "Every week", options: options.weeks.map((w) => [w, weekWords(w)] as const) },

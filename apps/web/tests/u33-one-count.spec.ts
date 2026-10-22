@@ -72,10 +72,11 @@ test("the class papers Today counts are the copies the pages it opens show waiti
 
   // Assessments: the two children's copies wait to be approved; the spare rides with them, counted apart
   await page.goto(`/papers?class=${CLASS}`);
-  await expect(ours(page)).toContainText("2 to approve");
+  await expect(ours(page)).toContainText("to approve");
+  await expect(ours(page)).toContainText("0 of 2");
   await expect(ours(page)).toContainText("and 1 spare");
-  const stage = page.getByRole("navigation", { name: "Papers by stage" }).getByRole("link", { name: /^To approve/ });
-  await expect(stage, "the class's papers to approve: its children's copies").toHaveText(/To approve\s*2$/);
+  const stage = page.locator('[data-filterbar] select[name="stage"] option[value="made"]');
+  await expect(stage, "the class's papers to approve: its children's copies").toHaveText(/^To approve \(2\)$/);
 
   // the approve page Today's line opens: two copies to approve, the spare among the spare copies, the button counting
   // them as Today does (goals/ux5-papers-grouped.yaml)

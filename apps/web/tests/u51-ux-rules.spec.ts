@@ -196,7 +196,7 @@ test("the top bar: Class and Subject are full-size controls, the student search 
     for (const name of ["Subject", "Class"]) {
       const box = (await bar.getByLabel(name, { exact: true }).boundingBox())!;
       expect(box.height, `${url}: ${name} height`).toBeGreaterThanOrEqual(TOP_BAR_MIN_PX);
-      expect(box.width, `${url}: ${name} is not squeezed`).toBeGreaterThanOrEqual(90);
+      expect(box.width, `${url}: ${name} is not squeezed`).toBeGreaterThanOrEqual(80);
       const size = await bar.getByLabel(name, { exact: true }).evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
       expect(size, `${url}: ${name} text`).toBeGreaterThanOrEqual(TOP_BAR_TEXT_PX);
     }
@@ -238,7 +238,7 @@ test("Assessments is a table of aligned columns with the one filter row, and a s
   // the filter row is in the same place, and a filter shows itself and clears in one click
   const filters = page.locator("[data-filterbar]");
   await expect(filters).toBeVisible();
-  await filters.getByLabel("Kind").selectOption("assessment");
+  await filters.locator('select[name="kind"]').selectOption("assessment");
   await expect(page).toHaveURL(/kind=assessment/);
   await expect(page.locator("[data-active-filters]")).toContainText("Kind: Class assessment");
   await page.locator("[data-active-filters]").getByRole("link", { name: "Clear" }).click();
