@@ -9,8 +9,6 @@ from pathlib import Path
 
 import numpy as np
 
-import numpy as np
-
 from engine.core import db
 from engine.w3_read import lineup, render_pdf
 
