@@ -3,6 +3,7 @@ import { sql, TENANT_SLUG } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { skillTaughtFor, skillTaughtIn } from "./taught";
 import { paperName } from "./queries-papers";
+import { ownBox } from "./own-box";
 
 /** A level's name, a row of `difficulty` (lib/levels.ts). */
 export type Difficulty = string;
@@ -267,8 +268,7 @@ export async function pendingResults(id: string): Promise<PendingResult[]> {
            r.capture_id, si.id as paper_id,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
-           case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
-                then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
+           ${ownBox} as box,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
            coalesce((r.raw_read::jsonb ->> 'attempted')::boolean, false) as attempted,
            coalesce(r.raw_read::jsonb ->> 'working_summary', '') as working,

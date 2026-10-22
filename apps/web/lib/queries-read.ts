@@ -7,6 +7,7 @@
  * off the paper either way.
  */
 import { sql } from "./db";
+import { ownBox } from "./own-box";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { paperName } from "./queries-papers";
 
@@ -176,8 +177,7 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
            nullif(r.raw_read::jsonb ->> 'guess_by', '') as guess_by,
            r.raw_read::jsonb ->> 'second_read' as second_read,
            (r.raw_read::jsonb ->> 'confidence')::numeric as confidence,
-           case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
-                then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
+           ${ownBox} as box,
            r.status, r.state, r.working_shown, r.misconception_codes,
            k.human_read, k.by as corrected_by,
            nullif(r.raw_read::jsonb ->> 'guess', '') as guess
@@ -327,8 +327,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
            nullif(r.raw_read::jsonb ->> 'guess_by', '') as guess_by,
            r.raw_read::jsonb ->> 'second_read' as second_read,
            (r.raw_read::jsonb ->> 'confidence')::numeric as confidence,
-           case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
-                then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
+           ${ownBox} as box,
            r.status, r.state, r.working_shown, r.misconception_codes,
            k.human_read, k.by as corrected_by,
            si.id as paper_id, p.first_name, ${paperName("t")} as paper_title, t.key ->> 'date' as sat,

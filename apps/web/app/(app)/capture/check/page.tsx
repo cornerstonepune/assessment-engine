@@ -6,6 +6,7 @@ import { deadline } from "@/lib/deadline";
 import { checkItem, checkQueue, held, toJudge, type CheckItem } from "@/lib/queries-read";
 import { EngineDown, engineGet } from "@/lib/engine";
 import { correctRead, judgeOne } from "../actions";
+import { ZoomPage } from "./zoom-page";
 import type { Key } from "../[id]/card";
 import { dateWords } from "@/lib/week";
 
@@ -102,14 +103,26 @@ export default async function CheckAnswers({ searchParams }: Props) {
           >
             <div className="grid gap-[18px] lg:grid-cols-[minmax(0,1fr)_380px]">
               <figure className="min-w-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/api/scan/${a.capture_id}/${a.file_page}${box}`}
-                  alt={`What ${a.first_name} wrote for question ${a.slot}`}
-                  className="max-h-[420px] w-full border border-basalt/14 bg-chalk object-contain"
-                />
+                <p className="mb-2 text-[15px] leading-snug">
+                  <strong>Question {a.slot}</strong> · {a.question}
+                </p>
+                {box ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`/api/scan/${a.capture_id}/${a.file_page}${box}`}
+                    alt={`What ${a.first_name} wrote for question ${a.slot}`}
+                    className="max-h-[560px] w-full border border-basalt/14 bg-chalk object-contain"
+                  />
+                ) : (
+                  <ZoomPage
+                    src={`/api/scan/${a.capture_id}/${a.file_page}`}
+                    alt={`Page ${a.page}, where ${a.first_name} wrote question ${a.slot}`}
+                  />
+                )}
                 <figcaption className="note mt-1">
-                  {box ? "The part of the page the answer was read from." : `Page ${a.page}, as it was photographed.`}{" "}
+                  {box
+                    ? `The part of page ${a.page} that is question ${a.slot}.`
+                    : `We could not find question ${a.slot} on this page: it is somewhere on this page. Click the page to enlarge it.`}{" "}
                   <Link href={`/capture/${a.paper_id}#a-${a.id}`}>Open the whole paper →</Link>
                 </figcaption>
               </figure>
