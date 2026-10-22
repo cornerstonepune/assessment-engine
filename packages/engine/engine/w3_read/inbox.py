@@ -4,14 +4,23 @@ n8n Drive-folder flow (`n8n/workflows/f3-read-scans.json`) both hand the engine 
 fetches the file to `~/cornerstone/assessments/inbox`, sorts its pages by code (`sorting`), reads and marks every copy
 whose code names its child (`copies.read`), and puts the answers on Marking.
 
-What arrives is a link, never the file: the file stays on Drive and in the assessments folder, never in the database
-or the repository (rule 6). A copy printed bare — no child's code — is reported, not guessed at.
+Or the file itself, put in on Marking: the browser sends it straight to the engine (`POST /read/upload`, ADR 0092) — a
+PDF as it is, or the photos of one paper's pages, made one PDF here in the order the phone took them (`take`).
+
+The file stays in the assessments folder, never in the database, the repository or a log (rule 6). A copy printed bare
+— no child's code — is reported, not guessed at.
 """
 
+import hashlib
+import io
 import json
 import re
 import urllib.request
 from pathlib import Path
+
+import pillow_heif
+import pymupdf
+from PIL import Image, ImageOps
 
 from engine.core import db
 from engine.w3_read import copies
@@ -21,7 +30,21 @@ FLOW = "read-scan"
 # a Drive link as people paste it: /file/d/<id>/view, open?id=<id>, uc?id=<id>&export=download
 _DRIVE = re.compile(r"(?:/file/d/|[?&]id=)([A-Za-z0-9_-]{20,})")
 _NAME = re.compile(r'filename\*?=(?:UTF-8\'\')?"?([^";]+)')
-MOST = 64 * 1024 * 1024  # a scan of a class is 10-20 MB; a file larger than this is not one
+MOST = 64 * 1024 * 1024  # a scan of a class is 10-60 MB; a file larger than this is not one
+# what a file is, by its first bytes, never by its name: HEIC is an ISO box whose brand names it
+_HEIC = (b"heic", b"heix", b"heim", b"heis", b"hevc", b"hevx", b"mif1", b"msf1")
+pillow_heif.register_heif_opener()
+
+
+def kind(data: bytes) -> str | None:
+    """ "pdf", "photo", or None for anything else."""
+    if data.startswith(b"%PDF"):
+        return "pdf"
+    if data.startswith((b"\xff\xd8\xff", b"\x89PNG\r\n\x1a\n")) or (
+        data[4:8] == b"ftyp" and data[8:12] in _HEIC
+    ):
+        return "photo"
+    return None
 
 
 def drive_id(url: str) -> str | None:
@@ -46,28 +69,92 @@ def fetch(url: str, download=_download) -> Path:
         raise ValueError("that file is larger than any scan of a class")
     if not data.startswith(b"%PDF"):
         raise ValueError("that file is not a PDF: is the scan shared with anyone who has the link?")
-    name = Path(named.group(1)).name if named else f"{fid}.pdf"
+    return _kept(Path(named.group(1)).name if named else f"{fid}.pdf", data)
+
+
+def _kept(name: str, data: bytes) -> Path:
+    """The PDF saved in the inbox under its own name; a different file of the same name keeps both."""
+    name = Path(name).name or "scan.pdf"
     if not name.lower().endswith(".pdf"):
         name += ".pdf"
     INBOX.mkdir(parents=True, exist_ok=True)
     out = INBOX / name
-    if out.exists() and out.read_bytes() != data:  # a different file of the same name: keep both
-        out = INBOX / f"{out.stem}-{fid[:6]}.pdf"
+    if out.exists() and out.read_bytes() != data:
+        out = INBOX / f"{out.stem}-{hashlib.sha256(data).hexdigest()[:6]}.pdf"
     out.write_bytes(data)
     return out
 
 
-def start(tenant, path: Path, actor: str) -> str:
+class Refused(ValueError):
+    """What the engine will not take, in words, with the HTTP status that says why."""
+
+    def __init__(self, status: int, why: str):
+        super().__init__(why)
+        self.status = status
+
+
+def take(files: list[tuple[str, bytes]]) -> Path:
+    """One upload, saved in the inbox: a PDF as it is, or photos (JPG, PNG, HEIC) as one PDF (`_one_paper`). Refuses
+    a file that is neither, one larger than any scan of a class, and a PDF sent with anything else (`_checked`)."""
+    _checked(files)
+    if kind(files[0][1]) == "pdf":
+        name, data = files[0]
+        try:
+            pymupdf.open(stream=data, filetype="pdf").close()
+        except Exception as e:
+            raise Refused(415, f"{name} is not a PDF or a photo (JPG, PNG or HEIC): it does not open") from e
+        return _kept(name, data)
+    return _one_paper(files)
+
+
+def _checked(files: list[tuple[str, bytes]]) -> None:
+    """Every file a PDF or a photo, by its first bytes, within the size of a scan of a class; a PDF alone."""
+    if not files:
+        raise Refused(400, "no file was sent")
+    most = f"{MOST // 2**20} MB at most"
+    for name, data in files:
+        if len(data) > MOST:
+            raise Refused(413, f"{name} is larger than any scan of a class ({most})")
+        if kind(data) is None:
+            raise Refused(415, f"{name} is not a PDF or a photo (JPG, PNG or HEIC)")
+    if sum(len(d) for _, d in files) > MOST:
+        raise Refused(413, f"these photos are larger together than any scan of a class ({most})")
+    if len(files) > 1 and any(kind(d) == "pdf" for _, d in files):
+        raise Refused(400, "send a PDF on its own; photos together are one paper")
+
+
+def _one_paper(photos: list[tuple[str, bytes]]) -> Path:
+    """The photos of one paper as one PDF, a page each, in the order of their names: a phone names its photos in the
+    order they were taken, so the paper's pages come out in page order. Each turned upright by its EXIF first, which a
+    PDF page does not carry."""
+    photos = sorted(
+        photos, key=lambda f: [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", f[0])]
+    )
+    doc = pymupdf.open()
+    for name, data in photos:
+        try:
+            img = ImageOps.exif_transpose(Image.open(io.BytesIO(data))).convert("RGB")
+        except Exception as e:
+            raise Refused(415, f"{name} is not a PDF or a photo (JPG, PNG or HEIC): it does not open") from e
+        jpg = io.BytesIO()
+        img.save(jpg, "JPEG", quality=90)
+        page = doc.new_page(width=img.width * 72 / 150, height=img.height * 72 / 150)  # drawn at 150 dpi
+        page.insert_image(page.rect, stream=jpg.getvalue())
+    return _kept(f"{Path(photos[0][0]).stem}.pdf", doc.tobytes())
+
+
+def start(tenant, path: Path, actor: str, pages: int | None = None) -> str:
     """The run a person or a flow can look at (`/runs/{id}`): what the engine is doing with this file. Written and
     committed on its own connection, before the reading starts: FastAPI runs a background task BEFORE the
     request's own transaction commits (2026-09-25, the first live run: `/runs/{id}` said "no run" for minutes,
-    and the reading could not mark a row it could not see)."""
+    and the reading could not mark a row it could not see). The file's pages are on it from the start, so Marking can
+    say how many were found while the reading goes on."""
     with db.connect() as conn:
         return str(
             db.one(
                 conn,
-                "insert into flow_run (tenant_id, flow, trigger) values (%s, %s, %s) returning id",
-                (tenant, FLOW, f"{actor}: {path.name}"),
+                "insert into flow_run (tenant_id, flow, trigger, result) values (%s, %s, %s, %s::jsonb) returning id",
+                (tenant, FLOW, f"{actor}: {path.name}", json.dumps({"pages": pages})),
             )["id"]
         )
 
@@ -82,7 +169,8 @@ def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]
         try:
             out = copies.read(conn, str(path), "", None, actor, again=again)
             conn.execute(
-                "update flow_run set status = 'ok', result = %s::jsonb, finished_at = now(), updated_at = now()"
+                "update flow_run set status = 'ok', result = coalesce(result, '{}') || %s::jsonb, finished_at = now(),"
+                " updated_at = now()"
                 " where id = %s",
                 (json.dumps({"copies": out}, default=str), run_id),
             )

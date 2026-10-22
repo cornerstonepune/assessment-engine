@@ -1,0 +1,6353 @@
+{
+ "skill_levels": [
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "One-syllable verbs that just add -s, -ed or -ing; no letter changes.",
+   "rule": {
+    "answer_letters": [
+     4,
+     8
+    ],
+    "support": "the base verb is printed"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Verbs ending in e: drop the e before -ing, add only -d for -ed.",
+   "rule": {
+    "answer_letters": [
+     5,
+     9
+    ],
+    "pattern": "(ing|ed)$"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Short-vowel verbs that double the last consonant before -ed or -ing.",
+   "rule": {
+    "answer_letters": [
+     6,
+     9
+    ],
+    "pattern": "([bdgmnprt])\\1(ing|ed)$"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Mixed rules in one sentence: the child chooses the rule, including y to ied and -es after ch, sh or x.",
+   "rule": {
+    "answer_letters": [
+     5,
+     10
+    ],
+    "context": "unfamiliar verbs"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Short words, two sound groups or three choices, with a key word that shows each sound.",
+   "rule": {
+    "answer_letters": [
+     2,
+     5
+    ],
+    "items": [
+     3,
+     4
+    ],
+    "support": "a key word shows each sound"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Short everyday words, up to six to sort, no picture help; the child hears the sound alone.",
+   "rule": {
+    "answer_letters": [
+     3,
+     6
+    ],
+    "items": [
+     3,
+     6
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Three sound groups for one spelling, or finding the word whose letters say a different sound.",
+   "rule": {
+    "answer_letters": [
+     4,
+     7
+    ],
+    "items": [
+     4,
+     6
+    ],
+    "focus": "one spelling, two or three sounds"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Less familiar words; the child spots a word sorted into the wrong sound group and picks it out.",
+   "rule": {
+    "answer_letters": [
+     4,
+     8
+    ],
+    "items": [
+     4,
+     6
+    ],
+    "context": "less familiar words, finding the mistake"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short, familiar sentence and two words to choose from that sound the same.",
+   "rule": {
+    "text_words": [
+     4,
+     9
+    ],
+    "options": 2,
+    "support": "two words to choose from"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A longer everyday sentence and three look-alike or sound-alike words; the child reads alone.",
+   "rule": {
+    "text_words": [
+     6,
+     12
+    ],
+    "options": 3
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Sentences of eight words or more with three close choices, such as through, though and thought.",
+   "rule": {
+    "text_words": [
+     8,
+     14
+    ],
+    "options": 3,
+    "focus": "near-homophones and look-alikes"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Long sentences in less familiar settings with four close choices; only the meaning tells them apart.",
+   "rule": {
+    "text_words": [
+     10,
+     18
+    ],
+    "options": 4,
+    "context": "less familiar sentences"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Two-syllable words, split for the child, or three words that start the same and a short sentence.",
+   "rule": {
+    "answer_letters": [
+     5,
+     8
+    ],
+    "support": "the word is printed in its parts"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Three-syllable everyday words; the child joins the parts or reads the word in a sentence alone.",
+   "rule": {
+    "answer_letters": [
+     7,
+     10
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Longer words of three or four syllables; the child splits, reads and checks the word fits the sentence.",
+   "rule": {
+    "answer_letters": [
+     8,
+     13
+    ],
+    "focus": "segmenting and using the sentence"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Unfamiliar long words from other subjects; the child fixes a word read or written with a part missing.",
+   "rule": {
+    "answer_letters": [
+     9,
+     14
+    ],
+    "context": "unfamiliar words, finding the mistake"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Short words that start with the k sound: c or k, with a word bank or the word said in a sentence.",
+   "rule": {
+    "answer_letters": [
+     3,
+     5
+    ],
+    "pattern": "^(c|k)",
+    "support": "word bank or the word said aloud"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Short words that end in the k sound: ck after a short vowel, k after a consonant.",
+   "rule": {
+    "answer_letters": [
+     4,
+     6
+    ],
+    "pattern": "(ck|k)$"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Words ending in the j or k sound: dge or ck after a short vowel, ge or k otherwise, four groups mixed.",
+   "rule": {
+    "answer_letters": [
+     4,
+     6
+    ],
+    "pattern": "(dge|ge|ck|k)$",
+    "focus": "choosing by the letters around the sound"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Longer, less familiar words of two syllables where the child must choose dge, ge or ck alone.",
+   "rule": {
+    "answer_letters": [
+     5,
+     8
+    ],
+    "context": "two-syllable and less familiar words"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "The root and the prefix or suffix are printed; the child joins them with no letter change.",
+   "rule": {
+    "answer_letters": [
+     6,
+     9
+    ],
+    "support": "root and affix printed"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Roots that need no change, with in- and -ment added; the child also matches each word to its meaning.",
+   "rule": {
+    "answer_letters": [
+     6,
+     11
+    ],
+    "focus": "meaning of re-, in-, -ment, -ness and -less"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Roots ending in a consonant and y: the y changes to i before -ness, -less or -ment.",
+   "rule": {
+    "answer_letters": [
+     7,
+     10
+    ],
+    "pattern": "i(ness|less|ment)$"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Longer roots, a double letter where root and suffix meet, and fixing a word another child spelt wrong.",
+   "rule": {
+    "answer_letters": [
+     7,
+     12
+    ],
+    "context": "less familiar roots, finding and fixing the mistake"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.HOMOPHONE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short sentence and a box of two words: to or two, to or too.",
+   "rule": {
+    "text_words": [
+     4,
+     9
+    ],
+    "options": 2,
+    "answer_from": [
+     "to",
+     "two",
+     "too"
+    ],
+    "support": "two words in a box"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.HOMOPHONE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A longer sentence and all three of to, two and too, or right, write and rite, to choose from.",
+   "rule": {
+    "text_words": [
+     5,
+     12
+    ],
+    "options": 3,
+    "answer_from": [
+     "to",
+     "two",
+     "too",
+     "right",
+     "write"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.HOMOPHONE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "No word box: the child writes the homophone, or finds and fixes the one wrong word in a sentence.",
+   "rule": {
+    "text_words": [
+     7,
+     16
+    ],
+    "errors": [
+     1,
+     1
+    ],
+    "focus": "to, two, too; right, write; there, their, they're"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.HOMOPHONE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A longer sentence or two with two or three wrong homophones to find and fix, and correct words left alone.",
+   "rule": {
+    "text_words": [
+     14,
+     30
+    ],
+    "errors": [
+     2,
+     3
+    ],
+    "context": "more than one mistake to find"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Two short, familiar words printed with a plus sign; the child joins them into one compound word.",
+   "rule": {
+    "answer_letters": [
+     6,
+     8
+    ],
+    "support": "the two words are printed"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Common tricky words said aloud in a sentence, and a longer compound built from a clue.",
+   "rule": {
+    "answer_letters": [
+     4,
+     10
+    ],
+    "focus": "common tricky words"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Words with a silent letter or an unusual part, such as Wednesday and cupboard, said aloud or joined.",
+   "rule": {
+    "answer_letters": [
+     6,
+     9
+    ],
+    "focus": "silent letters and unusual spellings"
+   }
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Long compounds with a double letter where words meet, and fixing a tricky word another child spelt wrong.",
+   "rule": {
+    "answer_letters": [
+     7,
+     13
+    ],
+    "context": "long words, finding and fixing the mistake"
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A familiar root with one prefix or suffix, in a short sentence; three meanings to choose from.",
+   "rule": {
+    "options": 3,
+    "support": "a short familiar word in a short sentence"
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A root with two parts added, such as a prefix and a suffix, in a longer everyday sentence; read alone.",
+   "rule": {
+    "options": 3,
+    "context": "everyday sentence, read alone"
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Unfamiliar long words where the root changes its spelling; the sentence is used to check the meaning; four choices.",
+   "rule": {
+    "options": 4,
+    "context": "unfamiliar words whose root changes"
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Rare long words in new contexts: finding the root of a three-part word, fixing a wrong split, working out the meaning.",
+   "rule": {
+    "options": 4,
+    "context": "rare words, a wrong split to fix"
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Two-syllable everyday words with the strong beat first; the word is printed in its parts and read aloud.",
+   "rule": {
+    "text_words": [
+     2,
+     2
+    ],
+    "options": 2,
+    "support": "the educator says the word"
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Two- and three-syllable words where the strong beat may come later; also finding the weak syllable.",
+   "rule": {
+    "text_words": [
+     2,
+     3
+    ],
+    "options": 2
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Three- and four-syllable words: the child finds the one strong syllable among several weak ones, alone.",
+   "rule": {
+    "text_words": [
+     3,
+     4
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Words in a sentence where the meaning moves the strong beat, such as a noun and verb spelt the same.",
+   "rule": {
+    "text_words": [
+     7,
+     14
+    ],
+    "options": 2,
+    "context": "the sentence decides the stress"
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Two words that sound the same, in a short familiar sentence, with both words printed to choose from.",
+   "rule": {
+    "text_words": [
+     5,
+     9
+    ],
+    "options": 2,
+    "support": "word bank of two"
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Near-alike pairs such as then and than, in a longer sentence; the child chooses alone by meaning.",
+   "rule": {
+    "text_words": [
+     8,
+     13
+    ],
+    "options": 2
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Three look-alike or sound-alike words to choose from, such as quiet, quite and quit, in a longer sentence.",
+   "rule": {
+    "text_words": [
+     10,
+     16
+    ],
+    "options": 3
+   }
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Less common near-alike pairs in long sentences, often with no word bank: the child writes the word the meaning needs.",
+   "rule": {
+    "text_words": [
+     10,
+     18
+    ],
+    "context": "less common pairs, no word bank"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Short words with a silent k, w or b at the start or end, with a word bank or the silent letter named.",
+   "rule": {
+    "answer_letters": [
+     4,
+     6
+    ],
+    "pattern": "^(kn|wr)|mb$",
+    "support": "word bank or the group named"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Words where the short u sound is spelt o or ou, such as month and touch, written alone.",
+   "rule": {
+    "answer_letters": [
+     3,
+     6
+    ],
+    "focus": "o and ou for the short u sound"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Mixed: silent letters and the vowel changes after w (wa, war, wor), written alone in a sentence.",
+   "rule": {
+    "answer_letters": [
+     4,
+     7
+    ],
+    "focus": "vowel sounds after w, silent letters"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Rarer silent letters (g, t, h, n) in longer words, written from a sentence read aloud or sorted by the letter not said.",
+   "rule": {
+    "answer_letters": [
+     4,
+     8
+    ],
+    "context": "rarer silent letters"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Nouns that add -s, or -es after s, x, ch or sh; the singular word is printed.",
+   "rule": {
+    "answer_letters": [
+     4,
+     8
+    ],
+    "pattern": "s$",
+    "support": "the singular is printed"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Nouns ending in y: keep the y after a vowel and add -s, or change y to -ies after a consonant.",
+   "rule": {
+    "answer_letters": [
+     4,
+     9
+    ],
+    "pattern": "(ies|[aeiou]ys)$"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Nouns ending in f or fe that change to -ves, written alone and fixed in a sentence.",
+   "rule": {
+    "pattern": "ves",
+    "errors": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "All the rules mixed, with o to -oes and f words that keep -s; two or three mistakes to find and fix in a sentence.",
+   "rule": {
+    "errors": [
+     2,
+     3
+    ],
+    "context": "mixed rules and exceptions"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "The prefix trans- or pre- added to a short root that does not change; the root is printed.",
+   "rule": {
+    "answer_letters": [
+     6,
+     11
+    ],
+    "pattern": "^(trans|pre)",
+    "support": "root printed"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "The suffix -ion or -ous added to a root that keeps its spelling, such as collect and poison.",
+   "rule": {
+    "answer_letters": [
+     3,
+     11
+    ],
+    "focus": "no change to the root"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Roots that change before -ion, -ation or -ous: drop the e, or change y to i, written alone.",
+   "rule": {
+    "answer_letters": [
+     6,
+     12
+    ],
+    "pattern": "(ion|ous)$"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Choosing between -ion and -ation, and roots that change, in less familiar words, with a mistake to avoid.",
+   "rule": {
+    "answer_letters": [
+     4,
+     14
+    ],
+    "context": "less familiar words"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "One short sentence with a clear clue, and there, their and they're printed to choose from.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     4,
+     10
+    ],
+    "support": "word bank of the three words"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer sentence, no word bank; or one wrong word to find and fix in a sentence.",
+   "rule": {
+    "text_words": [
+     7,
+     14
+    ],
+    "errors": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Two mistakes in a sentence, mixing there, their and they're with your and you're; the child works alone.",
+   "rule": {
+    "text_words": [
+     12,
+     24
+    ],
+    "errors": [
+     2,
+     2
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A short paragraph with three or four mistakes among correct uses; changing a right word counts as a new mistake.",
+   "rule": {
+    "text_words": [
+     25,
+     45
+    ],
+    "errors": [
+     3,
+     4
+    ],
+    "context": "correct uses left in on purpose"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Short ear words with two sounds, four words to sort, or a choice of two spellings.",
+   "rule": {
+    "answer_letters": [
+     3,
+     5
+    ],
+    "pattern": "ear",
+    "support": "two spellings printed, or a sound picture for each group"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Common -ough words with two sounds, such as enough and bought, written alone in a sentence.",
+   "rule": {
+    "answer_letters": [
+     5,
+     7
+    ],
+    "pattern": "ough$|ought$"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Eight -ough words in four sounds; less common words like dough, cough and drought, written alone.",
+   "rule": {
+    "answer_letters": [
+     5,
+     8
+    ],
+    "pattern": "ough",
+    "items": [
+     8,
+     8
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Mixed and unfamiliar words, ear in four sounds or -ough in thorough and drought, with no clue to the sound.",
+   "rule": {
+    "answer_letters": [
+     4,
+     8
+    ],
+    "pattern": "ear|ough",
+    "context": "less familiar words"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "The rule is shown with two or three examples; the child uses it on one new short word or spots the misfit.",
+   "rule": {
+    "answer_letters": [
+     3,
+     7
+    ],
+    "options": 3,
+    "support": "the pattern is printed with examples"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Four examples and no rule given: the child picks the rule they show, then uses it on a new word.",
+   "rule": {
+    "answer_words": [
+     1,
+     8
+    ],
+    "options": 3
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "The child finds the rule from a set, spots the word that breaks it, and tests it on a word that does not fit.",
+   "rule": {
+    "answer_letters": [
+     5,
+     8
+    ],
+    "options": 4
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Longer, less familiar words: the exceptions to a rule, such as doubling in two-syllable words or keeping ee before -ing.",
+   "rule": {
+    "answer_letters": [
+     7,
+     10
+    ],
+    "options": 4,
+    "context": "two-syllable and unfamiliar words"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Common tricky words of five to seven letters, said in a short sentence, then said again in parts.",
+   "rule": {
+    "answer_letters": [
+     5,
+     7
+    ],
+    "text_words": [
+     5,
+     10
+    ],
+    "support": "the educator says the word in parts"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Seven to nine letter tricky words alone in a sentence, or one misspelt word to find and fix.",
+   "rule": {
+    "text_words": [
+     6,
+     12
+    ],
+    "errors": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Longer words with a hidden syllable, such as February, alone; or two misspelt words in a sentence to fix.",
+   "rule": {
+    "text_words": [
+     8,
+     16
+    ],
+    "errors": [
+     2,
+     2
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A whole dictated sentence with a hard word, or a short passage with three or four misspelt words among correct ones.",
+   "rule": {
+    "text_words": [
+     14,
+     35
+    ],
+    "errors": [
+     3,
+     4
+    ],
+    "context": "unfamiliar and exception words"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Two families of common words with one ending each (help, care), four words, and a look-alike word to spot.",
+   "rule": {
+    "answer_letters": [
+     4,
+     8
+    ],
+    "options": 3,
+    "support": "the root word is printed"
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Roots with a prefix or a suffix (act, cover), six words in two families, and the family's shared meaning.",
+   "rule": {
+    "answer_words": [
+     1,
+     6
+    ],
+    "items": [
+     3,
+     6
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Three families from roots like tele, graph and port, a person word built from a root, and what a root means.",
+   "rule": {
+    "answer_letters": [
+     6,
+     10
+    ],
+    "items": [
+     4,
+     9
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Unfamiliar roots such as struct, vis and aqua, longer built words, and a look-alike that shares letters but not meaning.",
+   "rule": {
+    "answer_letters": [
+     6,
+     11
+    ],
+    "context": "unfamiliar roots and look-alike traps"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Four words, each starting with a different letter, with an alphabet strip printed to help.",
+   "rule": {
+    "items": [
+     3,
+     4
+    ],
+    "answer_letters": [
+     3,
+     8
+    ],
+    "support": "alphabet strip printed"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Five words, two of which share a first letter, so one pair needs the second letter; no strip.",
+   "rule": {
+    "items": [
+     4,
+     5
+    ],
+    "answer_letters": [
+     3,
+     8
+    ],
+    "alpha_depth": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Six words that all start with the same letter, ordered by the second letter, or a gap on a dictionary page.",
+   "rule": {
+    "items": [
+     3,
+     6
+    ],
+    "answer_letters": [
+     3,
+     6
+    ],
+    "alpha_depth": [
+     2,
+     2
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Longer, less familiar words where the third letter may decide, or a list with one word in the wrong place.",
+   "rule": {
+    "items": [
+     4,
+     6
+    ],
+    "answer_letters": [
+     4,
+     8
+    ],
+    "alpha_depth": [
+     2,
+     3
+    ],
+    "context": "unfamiliar words"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.TOPIC",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A familiar topic such as food or plants, with a word bank of three to choose from.",
+   "rule": {
+    "options": 3,
+    "answer_letters": [
+     5,
+     11
+    ],
+    "support": "word bank of three"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.TOPIC",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Weather and food words: match three words to their meanings, or choose from a bank of four.",
+   "rule": {
+    "options": 4,
+    "support": "word bank of four"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.TOPIC",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Habitat words used exactly: match four words to meanings, or choose from a bank of five close words.",
+   "rule": {
+    "options": 5,
+    "context": "habitats"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.TOPIC",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "An unfamiliar topic, the water cycle or how plants make food, with longer clues and a wrong word to fix.",
+   "rule": {
+    "options": 4,
+    "text_words": [
+     10,
+     25
+    ],
+    "context": "unfamiliar topic"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.CONTEXT",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "One short familiar sentence with the clue in the same sentence; three meanings to choose from.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     8,
+     20
+    ],
+    "clues": "clue in the same sentence"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.CONTEXT",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Two sentences; the clue is in the sentence after the new word; three meanings to choose from.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     15,
+     35
+    ],
+    "clues": "clue in the next sentence"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.CONTEXT",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A story passage; clues spread across sentences; choose from four meanings or explain the meaning and its clue.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "options": 4
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.CONTEXT",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A longer information passage on an unfamiliar subject; explain meanings, use the clues, and check a wrong meaning.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "options": 4,
+    "context": "unfamiliar subject"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "One short sentence; tick the word that means the same as the underlined word from three choices.",
+   "rule": {
+    "options": 3,
+    "answer_words": [
+     1,
+     1
+    ],
+    "support": "three choices"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A sentence with a gap; choose a stronger word than big, nice or good from a box of four.",
+   "rule": {
+    "options": 4,
+    "answer_words": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A story passage; find and copy the word that means the same as a given word, with no choices.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "answer_in_passage": true
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A longer passage where good has different meanings; choose the synonym that fits each use, or copy two synonyms.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "focus": "the meaning in this sentence"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short sentence with one describing word to underline, or one word to add from a box of three.",
+   "rule": {
+    "text_words": [
+     3,
+     8
+    ],
+    "support": "box of three words to add"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A sentence with two or three describing words to find, or a plain sentence to improve with no box.",
+   "rule": {
+    "text_words": [
+     6,
+     14
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A longer sentence with up to five describing words, or two plain nouns to turn into picture-making noun phrases.",
+   "rule": {
+    "text_words": [
+     7,
+     20
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Sentences from a descriptive passage about a trip, and a dull sentence to make as strong as the writer's.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "unfamiliar place"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Familiar animal and home sounds; choose the sound word from a box of three.",
+   "rule": {
+    "options": 3,
+    "answer_letters": [
+     3,
+     8
+    ],
+    "support": "box of three"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "One sound word to underline in a short sentence, or one to choose from a box of four.",
+   "rule": {
+    "answer_letters": [
+     4,
+     6
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A longer sentence with two sound words to find among names of sounds and actions, or a box of four.",
+   "rule": {
+    "text_words": [
+     10,
+     20
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Sentences from a story full of sounds; find the sound verbs and choose the one that fits the writer's thing.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "story with many sounds"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Two groups only, when and where; four short openers to sort, or three openers to tick from.",
+   "rule": {
+    "items": [
+     3,
+     4
+    ],
+    "support": "two groups"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Three groups, when, where and how; six openers to sort, or tick the opener that tells how.",
+   "rule": {
+    "items": [
+     3,
+     6
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Two linked sentences: choose or write the opener that joins the second sentence to the first.",
+   "rule": {
+    "text_words": [
+     8,
+     25
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A short run of sentences: find the opener that breaks the order, fix it, or start with how.",
+   "rule": {
+    "text_words": [
+     12,
+     40
+    ],
+    "focus": "finding and fixing the opener"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A clear clue such as softly or across the field; choose the speech verb from a box of three.",
+   "rule": {
+    "options": 3,
+    "answer_letters": [
+     5,
+     9
+    ],
+    "support": "box of three"
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "The clue is in the spoken words, a joke, an answer or a moan; tick one of three speech verbs.",
+   "rule": {
+    "options": 3,
+    "answer_letters": [
+     6,
+     9
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "The clue is in the sentence before the speech; choose from four close speech verbs.",
+   "rule": {
+    "options": 4
+   }
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Say what a speech verb tells us about the speaker, or fix a speech verb the writer got wrong.",
+   "rule": {
+    "options": 4,
+    "text_words": [
+     6,
+     14
+    ],
+    "focus": "what the verb adds"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Three or four short words sharing their first two letters; the third letter decides, and it is underlined.",
+   "rule": {
+    "items": [
+     3,
+     4
+    ],
+    "answer_letters": [
+     4,
+     5
+    ],
+    "alpha_depth": [
+     3,
+     3
+    ],
+    "support": "the third letter is underlined"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Five words with the same first two letters and nothing underlined: the child finds the third letter alone.",
+   "rule": {
+    "items": [
+     4,
+     5
+    ],
+    "answer_letters": [
+     4,
+     6
+    ],
+    "alpha_depth": [
+     3,
+     3
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Five or six words alike for three letters, so the fourth decides; and guide words at the top of a dictionary page.",
+   "rule": {
+    "items": [
+     3,
+     6
+    ],
+    "answer_letters": [
+     4,
+     7
+    ],
+    "alpha_depth": [
+     4,
+     4
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Six words alike for four letters or more, a short word that begins a longer one, and fixing a list put in the wrong order.",
+   "rule": {
+    "items": [
+     4,
+     6
+    ],
+    "answer_letters": [
+     3,
+     9
+    ],
+    "alpha_depth": [
+     5,
+     6
+    ],
+    "context": "glossary words and a child's list to fix"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short sentence about a familiar topic with a word bank of three; only one word belongs to the topic.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     6,
+     16
+    ],
+    "support": "word bank of three"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Four topic words to match to their meanings, or a gap with four words from the same topic to choose between.",
+   "rule": {
+    "options": 4,
+    "items": [
+     4,
+     4
+    ],
+    "context": "water cycle, plants, cricket"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A longer sentence and a bank of five topic words, several with close meanings; the child picks the exact one.",
+   "rule": {
+    "options": 5,
+    "text_words": [
+     8,
+     30
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A less familiar topic and no word bank: the child writes the exact topic word, or tells apart words with very close meanings.",
+   "rule": {
+    "text_words": [
+     16,
+     40
+    ],
+    "context": "volcanoes, farming, weather reports"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "One familiar sentence with a strong clue close to the new word; the child picks the synonym from three words.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     8,
+     18
+    ],
+    "clues": "one clue next to the word"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "The child writes their own word for the new word; the clue is in the same sentence.",
+   "rule": {
+    "text_words": [
+     12,
+     22
+    ],
+    "answer_letters": [
+     4,
+     9
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Two sentences: the clue is in the next sentence or comes after but or so, and the child writes their own synonym.",
+   "rule": {
+    "text_words": [
+     16,
+     26
+    ],
+    "answer_letters": [
+     4,
+     9
+    ],
+    "clues": "across two sentences"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A longer text where the clues are spread over several sentences; the synonym must also be the right kind of word for the gap.",
+   "rule": {
+    "text_words": [
+     24,
+     40
+    ],
+    "answer_letters": [
+     3,
+     9
+    ],
+    "context": "less familiar words and places"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short familiar story; the child copies or ticks one strong word the writer used, and the question says where to look.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "support": "the question points to the sentence"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer recount: copy two strong words, or choose a better word or phrase for nice or a lot of.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "focus": "nice, a lot of"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A full story: copy strong verbs from it, and rewrite its own sentences with a stronger word for got or nice.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "focus": "got, nice"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A long letter full of overused words: the child finds them unaided, rewrites with better choices and collects useful words.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "context": "an unfamiliar letter with no words pointed out"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Three well-known adjectives to order from weakest to strongest, or a gap with two words where the clue is plain.",
+   "rule": {
+    "items": [
+     2,
+     3
+    ],
+    "answer_letters": [
+     3,
+     8
+    ],
+    "support": "two or three familiar words"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Three or four adjectives or adverbs to order with no help, or a gap where a clue such as only a little shows the strength.",
+   "rule": {
+    "items": [
+     3,
+     4
+    ],
+    "answer_letters": [
+     5,
+     9
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Four words, adjectives or adverbs, with close meanings to order alone; a gap of four close words where only one fits exactly.",
+   "rule": {
+    "items": [
+     4,
+     4
+    ],
+    "answer_letters": [
+     4,
+     10
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A scale of five words, and fixing a word that is too strong or too weak in a child's sentence.",
+   "rule": {
+    "items": [
+     3,
+     5
+    ],
+    "answer_letters": [
+     4,
+     9
+    ],
+    "focus": "finding and fixing the wrong strength"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "One short sentence with one simile or one alliteration; the child underlines it or ticks the picture it gives.",
+   "rule": {
+    "text_words": [
+     6,
+     12
+    ],
+    "support": "one figure per sentence"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Two or three sentences: find a simile with like, tell alliteration from rhyme, and say in a sentence what a simile shows.",
+   "rule": {
+    "text_words": [
+     8,
+     20
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A whole story with several similes, alliteration and a like that is not a simile: find each one and explain its picture or sound.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "An unfamiliar poem: find two similes in one verse, choose the alliteration that copies a sound, and explain why a simile was chosen.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "context": "a poem the child has not read"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Finish a simile or an alliterative phrase about something familiar by choosing from a word bank of three.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     5,
+     9
+    ],
+    "support": "word bank of three"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Write a whole simile or a run of alliteration into a short plain sentence about a familiar thing.",
+   "rule": {
+    "text_words": [
+     4,
+     8
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Write a fresh simile and a phrase with alliteration of your own for a scene, and pick the comparison that fits a sound.",
+   "rule": {
+    "text_words": [
+     5,
+     10
+    ],
+    "focus": "fresh comparisons, not tired ones"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Fix a simile that does not fit, write alliteration that copies a sound, and choose a comparison that suits the mood.",
+   "rule": {
+    "text_words": [
+     8,
+     14
+    ],
+    "focus": "fixing a mismatched figure"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short familiar sentence with a plain verb; the child picks the stronger verb from three.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     5,
+     12
+    ],
+    "support": "three verbs to choose from"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Two sentences with a clue about mood or speed; the child chooses the strong verb that fits from four close verbs.",
+   "rule": {
+    "options": 4,
+    "text_words": [
+     10,
+     18
+    ],
+    "clues": "mood or speed in the first sentence"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "The child explains in a sentence or two what a strong verb adds to the picture, or chooses it from four.",
+   "rule": {
+    "text_words": [
+     8,
+     16
+    ],
+    "focus": "the effect on the reader"
+   }
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A long story mixing plain and strong verbs: replace a plain one, choose from close verbs, and compare the effect of two verbs.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "context": "an unfamiliar story"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Short forms made with not, such as isn't and wasn't; three to match, with the two full words printed in a box to choose from.",
+   "rule": {
+    "answer_letters": [
+     3,
+     7
+    ],
+    "options": 3,
+    "support": "the full words are printed",
+    "focus": "not"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Short forms made with am, are, is and will, such as I'm and we're; four to match or choose, on their own.",
+   "rule": {
+    "answer_letters": [
+     1,
+     8
+    ],
+    "options": 3,
+    "focus": "am, are, is, will"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A short form read inside a sentence, including have and should forms; says the two words it stands for and the letter left out.",
+   "rule": {
+    "text_words": [
+     6,
+     14
+    ],
+    "options": 3,
+    "context": "short form inside a sentence"
+   }
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Short forms beside words that sound the same, such as who's and whose, it's and its; the child decides which one means two words.",
+   "rule": {
+    "text_words": [
+     6,
+     14
+    ],
+    "options": 3,
+    "context": "soundalike words in one sentence"
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.APOSTROPHE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Two words ending in not, such as is not; the child writes the short form, with the ending n't shown in a box as a help.",
+   "rule": {
+    "answer_letters": [
+     4,
+     6
+    ],
+    "pattern": "n't$",
+    "support": "the ending n't is shown"
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.APOSTROPHE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Two words with am, are or will, such as we are; the child writes the short form alone, with no help.",
+   "rule": {
+    "answer_letters": [
+     2,
+     7
+    ],
+    "pattern": "'"
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.APOSTROPHE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Writes the short form for words inside a sentence, or fixes one or two short forms written wrongly in a sentence.",
+   "rule": {
+    "text_words": [
+     5,
+     14
+    ],
+    "errors": [
+     1,
+     2
+    ],
+    "context": "words inside a sentence"
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.APOSTROPHE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Finds and fixes two or three wrong short forms in a longer sentence, including soundalikes such as its and were.",
+   "rule": {
+    "text_words": [
+     9,
+     16
+    ],
+    "errors": [
+     2,
+     3
+    ],
+    "context": "soundalike words and missing apostrophes mixed"
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "One short sentence, a statement or a question that starts with a question word; the child adds the end mark and a capital.",
+   "rule": {
+    "text_words": [
+     3,
+     7
+    ],
+    "options": 3,
+    "support": "one sentence, familiar words"
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "One sentence of any kind, including exclamations that start with What or How and questions with no question word.",
+   "rule": {
+    "text_words": [
+     4,
+     10
+    ],
+    "options": 3
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Two sentences of different kinds run together; the child adds both end marks and the capital letter that starts the second.",
+   "rule": {
+    "text_words": [
+     8,
+     20
+    ],
+    "options": 3,
+    "text_kind": "two sentences without marks"
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Two or three sentences with tricky cases: a statement holding a question word, a question with no question word, then an exclamation.",
+   "rule": {
+    "text_words": [
+     10,
+     30
+    ],
+    "marks": [
+     ".",
+     "?"
+    ],
+    "text_kind": "two or three sentences without marks"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "One sentence with its end mark: the child says whether it is a statement or a question, two kinds only.",
+   "rule": {
+    "items": [
+     2,
+     4
+    ],
+    "support": "two kinds only, end mark printed"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "One sentence of any of the four kinds, with a clear clue: a question word, a bossy verb first, or What a.",
+   "rule": {
+    "items": [
+     4,
+     4
+    ],
+    "clues": "question word, bossy verb, What or How"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Sentences read in a short story, including a command that ends with an exclamation mark; the child names each kind.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "items": [
+     4,
+     6
+    ],
+    "text_kind": "story with speech"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Tricky sentences out of a story: a statement with a question word, a polite command, a question with no question word.",
+   "rule": {
+    "items": [
+     4,
+     6
+    ],
+    "context": "the clue words mislead"
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "One speaker, spoken words first, then said and a name; speech marks printed for reading, and the comma given for writing.",
+   "rule": {
+    "text_words": [
+     4,
+     10
+    ],
+    "answer_words": [
+     2,
+     8
+    ],
+    "support": "comma given"
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "One speaker, the spoken words first or last, including a question or an exclamation; the child adds every mark alone.",
+   "rule": {
+    "text_words": [
+     5,
+     12
+    ],
+    "answer_words": [
+     3,
+     10
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A short story with two or three speakers; the child finds each one's words and punctuates a line taken from the story.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "context": "story with several speakers"
+   }
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A longer story where speech is split by said, and some talk is only reported; the child marks only the spoken words.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "split speech and reported speech"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Changes one short sentence into another kind, with the first word given, such as Is for a question or What for an exclamation.",
+   "rule": {
+    "answer_words": [
+     3,
+     8
+    ],
+    "support": "first word given"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Writes one or two sentences of a named kind for a simple need, such as the question a friend asks, with no first word given.",
+   "rule": {
+    "answer_words": [
+     4,
+     12
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Writes three sentences for a real purpose: commands for a recipe, questions for an interview, or a notice using three kinds.",
+   "rule": {
+    "answer_words": [
+     15,
+     40
+    ],
+    "focus": "kind chosen for the purpose"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Rewrites a dull or muddled text, choosing which kinds of sentence suit it, or writes a story opening using all four kinds.",
+   "rule": {
+    "answer_words": [
+     12,
+     60
+    ],
+    "focus": "choosing the kind for its effect"
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "One short sentence with a clear time word such as yesterday or tomorrow; three verb forms to choose from.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     5,
+     12
+    ],
+    "support": "time word in the sentence"
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "The child writes the past of a verb alone in one sentence; regular verbs and a common irregular one.",
+   "rule": {
+    "text_words": [
+     6,
+     14
+    ],
+    "answer_words": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Past, present and future written alone, irregular verbs included, and one slip of tense found and fixed in a sentence.",
+   "rule": {
+    "text_words": [
+     8,
+     20
+    ],
+    "errors": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A short story in the past with speech in another tense: keep the story steady and leave the speech as spoken.",
+   "rule": {
+    "text_words": [
+     15,
+     45
+    ],
+    "errors": [
+     2,
+     2
+    ],
+    "focus": "tense inside and outside speech"
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Is or are after one clear subject in a short sentence; two choices.",
+   "rule": {
+    "options": 2,
+    "answer_from": [
+     "is",
+     "are"
+    ],
+    "support": "two choices printed"
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Was or were, has or have, chosen alone; subjects joined with and, or a pronoun such as we.",
+   "rule": {
+    "options": 2,
+    "answer_from": [
+     "was",
+     "were",
+     "has",
+     "have"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Is, are, was, were, has or have in longer sentences, including everyone, and one wrong verb found and fixed.",
+   "rule": {
+    "text_words": [
+     8,
+     16
+    ],
+    "errors": [
+     1,
+     1
+    ],
+    "answer_from": [
+     "is",
+     "are",
+     "was",
+     "were",
+     "has",
+     "have"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Subjects split from their verb by other words, such as the box of sweets; two wrong verbs to find and fix.",
+   "rule": {
+    "text_words": [
+     14,
+     40
+    ],
+    "errors": [
+     2,
+     2
+    ],
+    "answer_from": [
+     "is",
+     "are",
+     "was",
+     "were",
+     "has",
+     "have"
+    ],
+    "context": "a noun between subject and verb"
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short sentence with a familiar joining word such as because, but or before; find it or pick it from three.",
+   "rule": {
+    "text_words": [
+     8,
+     16
+    ],
+    "answer_from": [
+     "because",
+     "but",
+     "before",
+     "after",
+     "when",
+     "so"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Less familiar connectives such as unless, while and so that, found or chosen alone in one sentence.",
+   "rule": {
+    "text_words": [
+     8,
+     18
+    ],
+    "answer_from": [
+     "unless",
+     "while",
+     "so that",
+     "since",
+     "until"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Longer sentences with two connectives to find, a best-fit choice from four, and two sentences joined in writing.",
+   "rule": {
+    "text_words": [
+     12,
+     30
+    ],
+    "answer_from": [
+     "since",
+     "until",
+     "so that",
+     "unless",
+     "while",
+     "because",
+     "when",
+     "after",
+     "before"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A five-paragraph recount: find the links between paragraphs, swap one for a word of the same meaning, write a new opener.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "answer_from": [
+     "however",
+     "meanwhile",
+     "as a result",
+     "later that afternoon",
+     "at the same time",
+     "after that",
+     "finally"
+    ],
+    "text_kind": "recount"
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Many or much in a short familiar sentence, with a two-word box to choose from.",
+   "rule": {
+    "options": 2,
+    "answer_from": [
+     "many",
+     "much"
+    ],
+    "support": "word box"
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Every, few or little chosen from a box of three, where the noun shows whether one or many is meant.",
+   "rule": {
+    "options": 3,
+    "answer_from": [
+     "every",
+     "each",
+     "few",
+     "little",
+     "several"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "No word box for the gaps: the child writes a quantifier that fits the noun, or chooses from four.",
+   "rule": {
+    "text_words": [
+     8,
+     20
+    ],
+    "answer_from": [
+     "each",
+     "every",
+     "much",
+     "many",
+     "several",
+     "any",
+     "some",
+     "few",
+     "little"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Unfamiliar notices, recipes and reports: four close choices where the meaning of the sentence before decides the answer.",
+   "rule": {
+    "text_words": [
+     18,
+     40
+    ],
+    "options": 4,
+    "answer_from": [
+     "every",
+     "few",
+     "a little",
+     "several",
+     "much"
+    ],
+    "context": "notices, recipes and reports"
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "One adverb ending in -ly that tells how, in a short sentence with a clear action verb.",
+   "rule": {
+    "text_words": [
+     5,
+     12
+    ],
+    "pattern": "ly$"
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Single adverbs of how, when and where, with and without -ly, found or sorted alone.",
+   "rule": {
+    "answer_words": [
+     1,
+     6
+    ],
+    "items": [
+     6,
+     6
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Adverbial phrases such as after lunch or under the tree, found and sorted, and added to an instruction.",
+   "rule": {
+    "answer_words": [
+     2,
+     20
+    ],
+    "focus": "adverbial phrases"
+   }
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A full set of instructions: find and sort the adverbs and phrases, then rewrite a vague step so a reader can follow it.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "text_kind": "instructions"
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Two short statements run together; the child adds one full stop and one capital letter.",
+   "rule": {
+    "text_words": [
+     8,
+     16
+    ],
+    "marks": [
+     "."
+    ],
+    "support": "only full stops needed"
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A question and a statement run together; the child chooses between the question mark and the full stop.",
+   "rule": {
+    "text_words": [
+     10,
+     22
+    ],
+    "marks": [
+     "?"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Three or four sentences with no breaks shown, mixing statements, questions and exclamations.",
+   "rule": {
+    "text_words": [
+     16,
+     40
+    ],
+    "marks": [
+     "?",
+     "!"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A longer run with traps such as asked why and wondered whether, and wrong marks to find and fix.",
+   "rule": {
+    "text_words": [
+     30,
+     60
+    ],
+    "context": "reported questions and comma splices"
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A list of three things in a short sentence: add the commas, or tick the sentence that has them right.",
+   "rule": {
+    "text_words": [
+     6,
+     12
+    ],
+    "marks": [
+     ","
+    ],
+    "support": "list of three"
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "One comma after an opening phrase, or before the name of the person spoken to, in a short sentence.",
+   "rule": {
+    "text_words": [
+     5,
+     11
+    ],
+    "marks": [
+     ","
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Two kinds of comma in one sentence, and choosing the sentence whose comma gives the meaning asked for.",
+   "rule": {
+    "text_words": [
+     9,
+     22
+    ],
+    "marks": [
+     ","
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Three commas in a longer sentence, a name that is not spoken to, and how a comma changes what a list means.",
+   "rule": {
+    "text_words": [
+     14,
+     30
+    ],
+    "marks": [
+     ","
+    ],
+    "context": "comma changes the meaning"
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "The speech marks are already there; the child adds the comma and full stop to one short statement.",
+   "rule": {
+    "text_words": [
+     4,
+     10
+    ],
+    "marks": [
+     ","
+    ],
+    "support": "speech marks printed"
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "One speaker, a statement: the child adds the speech marks, the comma and the end mark alone.",
+   "rule": {
+    "text_words": [
+     5,
+     12
+    ],
+    "marks": [
+     "\""
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A question or an exclamation inside the speech marks, with asked or shouted after them.",
+   "rule": {
+    "text_words": [
+     6,
+     16
+    ],
+    "marks": [
+     "\""
+    ],
+    "focus": "? and ! inside speech marks"
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Two speakers in a short conversation: speech marks, inside marks and a new line for each new speaker.",
+   "rule": {
+    "text_words": [
+     10,
+     40
+    ],
+    "marks": [
+     "\"",
+     "?"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "One owner named in the question: write 's on the owner word, or tick it.",
+   "rule": {
+    "answer_letters": [
+     3,
+     8
+    ],
+    "pattern": "'s$",
+    "support": "owner word printed"
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Many owners whose word ends in s: write or tick the apostrophe after the s.",
+   "rule": {
+    "answer_letters": [
+     4,
+     9
+    ],
+    "pattern": "s'$"
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "One owner or many, decided from the sentence, including children's; one missing apostrophe found and fixed.",
+   "rule": {
+    "text_words": [
+     6,
+     16
+    ],
+    "focus": "deciding one or many owners"
+   }
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Longer sentences mixing owners with plain plurals: two mistakes to fix, and the meaning of the apostrophe explained by choosing.",
+   "rule": {
+    "text_words": [
+     16,
+     40
+    ],
+    "context": "plain plurals beside owners"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short, familiar story; the question names the key word, and the answer is a word or phrase in one sentence.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "answer_in_passage": true,
+    "support": "key word given in the question"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A longer information text; the child scans alone for the key word and copies or picks the exact words.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "answer_in_passage": true,
+    "clues": "the question word appears in the passage"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A recount with several similar facts close together; the child picks the right one and answers in a sentence using the text.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "focus": "near-miss facts sit next to the answer"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "An unfamiliar leaflet; the question uses different words from the text, and the answer joins two facts or gives the reason stated.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "an unfamiliar kind of text"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short story about one character; the child copies the words that describe them and says if they show kind or unkind.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "support": "the trait to look for is named"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A short description of a busy place; the child copies the words for one sense and says how a character feels there.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "focus": "setting through the senses"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A story with a place and a person both described; the child finds the words and explains what they show, alone.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "focus": "words that build a character and a setting"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "An unfamiliar coastal story where the place and the character change; the child explains each change with words from both parts.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "change across the story"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short familiar story; three events to number, and one plain cause to choose.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "items": [
+     3,
+     3
+    ],
+    "support": "three events only"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A recount with time words such as first and after; up to four events and a cause the text states with because.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "items": [
+     3,
+     4
+    ],
+    "clues": "time words in the text"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A story without time words to lean on; five events to order and the earlier event that caused a later one.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "items": [
+     3,
+     5
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A longer story; six events to order, a chain of cause and result, and finding the swap in someone else's order.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "items": [
+     3,
+     6
+    ],
+    "focus": "finding and fixing the mistake"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "One short blurb; the child picks the reader it suits and says if it is a story or facts.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "support": "one blurb, readers described plainly"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Two blurbs side by side, one story and one information book; the child matches each to a reader, alone.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "options": 2,
+    "focus": "story or information"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A blurb and a child's review; the child chooses for a reader and explains with one detail from the text.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "focus": "one detail as the reason"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Two blurbs and a librarian's review in less familiar kinds of book; the child explains why one book suits a reader and one does not.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "poems and a long adventure"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A five-line contents page; the child finds the chapter and picks its page from a word bank.",
+   "rule": {
+    "passage_words": [
+     15,
+     40
+    ],
+    "options": 3,
+    "support": "word bank of pages"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "An eight-line index in alphabetical order, one page for each entry; the child finds the page alone.",
+   "rule": {
+    "passage_words": [
+     15,
+     30
+    ],
+    "text_kind": "index"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "An index where entries have two or three pages; the child writes every page and chooses contents or index for a task.",
+   "rule": {
+    "passage_words": [
+     20,
+     45
+    ],
+    "text_kind": "index"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "The question's words are not in the index; the child picks the entry that means the same and spots a misread line.",
+   "rule": {
+    "passage_words": [
+     20,
+     45
+    ],
+    "context": "the key word is not listed"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short familiar passage where every sentence is about one topic; the child picks the main point from three.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "support": "a sentence starter is given"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "An information passage with clear details; the child picks the main point or title, alone, and writes it in one sentence.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "focus": "main point or a small detail"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A recount whose first sentence is only a detail; the child finds and writes the main point, leaving out small details.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "focus": "the main point is not in the first line"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "An unfamiliar two-paragraph information text; the child gives the point of each paragraph and fixes someone's wrong main point.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "unfamiliar subject"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short familiar story with two or three clear clues close together; the child picks a feeling from a few given words.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "support": "feeling words given as choices"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A longer story with clues spread out; feelings change once, and the child works alone with three choices or one sentence.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "clues": "clues spread across the story"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A full story where a character hides a feeling; the child explains thoughts and reasons from what the character does and says.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "focus": "feelings, thoughts and reasons"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A story in an unfamiliar place where a character says one thing and feels another; the child explains, and fixes a wrong reading.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "a new city; words and actions disagree"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A very short story with one clear lesson that is almost said; the child picks it from three choices or writes one sentence.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "support": "the lesson is nearly told"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A short story whose lesson is not said; the child names it alone and matches it to another story with the same lesson.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "focus": "naming the lesson; one matching story"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A full fable where the lesson must be worked out from the whole story; the child names it, gives a reason and finds a story sharing it.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "focus": "the grade's target: theme with a reason"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A longer story whose lesson is hidden in a change of mind; the child explains it and corrects someone else's wrong idea of the theme.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "the theme is never said; a wrong reading to fix"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Two very short tellings side by side that differ in one detail; the child fills two boxes or picks from three choices.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "support": "the tellings are labelled and short"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Two tellings with the same beginning and middle but different endings; the child works alone and finds what is the same and what changes.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "focus": "same middle, different ending"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Two tellings that change the characters, the place and the ending; the child compares several details and explains one change.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "focus": "the grade's target: several sames and changes"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Two tellings from different times and places; the child explains why details changed and fixes a wrong comparison.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "when and where each telling was written"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short familiar story that stops just before a clear ending; the child picks the likely ending from three choices.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "support": "the ending is strongly hinted"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A story that follows a well-known pattern, a kindness repaid; the child predicts alone and names the clue.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "clues": "the pattern of kindness repaid"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A full story much like a story the child knows; the child predicts the ending and gives a reason from the story or the other story.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "focus": "the grade's target: prediction from known stories"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A mystery story with clues and a false lead; the child predicts the ending, judges another child's prediction and explains.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "a mystery; checking someone else's prediction"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short recipe with numbered steps and a list of things needed; the child orders or checks two or three steps.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "support": "steps are numbered"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Numbered steps with direction words such as left, right and second; the child carries them out alone and says where they lead.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "focus": "direction and position words"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Steps written as sentences with time words such as before and after, not in doing order; the child works out the real order alone.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "focus": "the grade's target: time words decide the order"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A word puzzle where each step changes the last result; the child carries it out, finds which step someone missed and fixes it.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "steps build on each other; finding a missed step"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short advert with clear opinion words like best and sweetest; the child sorts four sentences or picks one.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "support": "opinion words are easy to spot"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A longer recount mixing facts and opinions; the child sorts five or six sentences alone.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "focus": "opinions in a true account"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "An information text where some opinions have no I think and sound sure; the child sorts every sentence alone.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "focus": "the grade's target: opinions that sound like facts"
+   }
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "An unfamiliar letter where facts and opinions sit side by side; the child sorts them, checks another child's sorting and fixes it.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "context": "a letter to a newsletter; correcting a sort"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short, familiar text or a contents page; the question uses the passage's own words, and the answer sits in one sentence.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "options": 3,
+    "support": "the question repeats the passage's words"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer information text read alone; the question uses different words from the passage, and the answer is in one place.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "options": 3
+   }
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A full story read alone; some answers need two places in the text, put together in the child's own sentence.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "options": 4
+   }
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A long letter about an unfamiliar place; the child explains a reason by joining two points and rejects close wrong answers.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "options": 4,
+    "context": "unfamiliar place"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short, familiar story about one person; the question names the quality, and the child copies the words that show it.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "support": "the quality is named in the question"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer text about a place and a person, read alone; the child finds a phrase for a named sense or quality.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "context": "a place and a person"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A full story read alone; the child explains how a character is built and quotes the key words, with no quality given.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "text_kind": "story where a character changes"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A long story in an unfamiliar place whose mood changes; the child explains how chosen words build each mood and the change.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "context": "unfamiliar place, a setting that changes"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short familiar story with three stages; each stage name comes with a hint saying what it does.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "items": [
+     3,
+     3
+    ],
+    "support": "each stage name has a hint"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A familiar story with five short paragraphs, one stage each; stage names without hints.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "items": [
+     5,
+     5
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A full story or a report read alone; the child places every part in its stage, from opening to ending or introduction to conclusion.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "text_kind": "story and report"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A report printed out of order, or a story that starts with its problem; the child sorts out the true stages.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "context": "mixed-up or unusual order"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "One short, familiar paragraph with its main point in the first sentence; choose from three printed phrases.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "options": 3,
+    "answer_in_passage": true
+   }
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Two paragraphs read alone, each with its own main point; the child separates the point from colourful details.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "options": 3,
+    "answer_in_passage": true,
+    "answer_words": [
+     3,
+     9
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Three paragraphs read alone; a main point may come at the end, and four close choices include first words and details.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "options": 4,
+    "answer_in_passage": true,
+    "answer_words": [
+     2,
+     9
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A long text on an unfamiliar topic; the child picks the key words for notes, including a point stated only at a paragraph's end.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "options": 4,
+    "answer_in_passage": true,
+    "context": "unfamiliar topic"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "One short, familiar paragraph with a clear title; three choices, one of them obviously a small detail.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "options": 3,
+    "support": "a title that names the topic"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Three short paragraphs read alone; the child uses first sentences to get the gist and match headings.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "options": 3
+   }
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Five paragraphs read alone, with a title that hints but does not name the topic; four close choices, including one too wide.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "options": 4
+   }
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A long text about an unfamiliar place whose title misleads; the child finds the true gist and judges a better title.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "options": 4,
+    "context": "unfamiliar place, misleading title"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short, familiar recount whose sentences start with time links; the child is told how many to find.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "options": 3,
+    "support": "the number of links is given"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A short story read alone; links inside sentences show reason, result, contrast and adding, and the child names each job.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "options": 3
+   }
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Four paragraphs read alone; links between paragraphs and sentences, no count given, and the child says how each point builds on the last.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "options": 4
+   }
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A long text on an unfamiliar topic; links include longer phrases and words that point back, and the child explains what each link does.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "options": 4,
+    "context": "unfamiliar topic"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short, familiar school story; three options or a box of feeling words to choose from.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "support": "feeling words given in a box",
+    "clues": "one strong clue",
+    "text_kind": "story"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer story in a less familiar place; the child works out the setting and picks the clue alone.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "clues": "two or three clues close together",
+    "text_kind": "story"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A full story; the child explains what a character's actions suggest and quotes the clue, with no options.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "clues": "clues spread across the story",
+    "text_kind": "story"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "An unfamiliar way of life; the child judges another reader's wrong idea and explains, quoting clues.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "context": "unfamiliar setting",
+    "focus": "checking an inference against the text"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short, familiar story; the clue sits right before the end and three endings are given.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "support": "three endings to choose from",
+    "clues": "one clue near the end"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer story; the child predicts alone and names the earlier event that points to it.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "clues": "a clue earlier in the story"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A clue planted early in a longer story; the child predicts and explains the link in writing.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "clues": "a clue planted at the start"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Several clues in a long story; the child judges between endings and explains why one prediction is unlikely.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "clues": "several clues, some pointing the wrong way",
+    "focus": "explaining why a prediction fails"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Two very short familiar texts with one clear shared lesson; options and a word bank are given.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "support": "word bank of themes",
+    "text_kind": "story and poem"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Two short texts of different kinds; the child names the shared theme and one difference alone.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "text_kind": "story and diary"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A tale and a recount on one theme; the child compares the theme and the features of each.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "text_kind": "tale and recount"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A poem and an information leaflet; the child explains why sharing a topic is not sharing a theme.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "text_kind": "poem and leaflet",
+    "focus": "explaining a weak comparison"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short story of a grandparent's childhood; each question names the one thing to find.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "support": "the question names the detail to copy",
+    "context": "long ago in a village"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer story set in a different part of India today; the child finds place details alone.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "context": "a different place, today"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A story set in a named year; the child finds time details and explains how life then differs from now.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "context": "a named year in the past"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "An unfamiliar time and place with one detail that does not fit; the child spots it and explains.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "context": "unfamiliar past setting",
+    "focus": "finding a detail that cannot belong"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Short familiar stories with I or he and she on every line; two options to choose from.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "support": "two options; the pronouns are printed in the options",
+    "clues": "many pronouns"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Longer stories, including one told by we; the child finds the narrator word alone.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "clues": "fewer pronouns; a we story"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Stories where characters say I inside speech marks; the child looks only outside the speech.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "clues": "I inside speech marks",
+    "focus": "speech versus narration"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Unusual narrators, such as an object, or a long story inside a story; the child explains the choice.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "context": "unusual narrator",
+    "focus": "a narrator who speaks mostly of others"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.RESPOND",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short familiar story; a sentence starter is given and the child links one feeling to one memory.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "support": "sentence starter given"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.RESPOND",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer story about a place; the child compares the setting with a place they know, alone.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "focus": "linking a setting to their own life"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.RESPOND",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A longer story with a turning point; the child explains a feeling about a character and links it to their life.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "focus": "linking a character and an event to their own life"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.RESPOND",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A character from an unfamiliar way of life; the child explains how their view changed and why.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "context": "unfamiliar life",
+    "focus": "explaining a changed response"
+   }
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short advert; four sentences to sort, each opinion marked by I think, tastiest or love.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "support": "opinion words are clear",
+    "items": [
+     4,
+     4
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer advert; six sentences to sort, with marker words such as in our opinion and best.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "items": [
+     6,
+     6
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A review by a child; sentences mix facts about a show with opinions, marked by in my view or should.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "text_kind": "review",
+    "items": [
+     6,
+     6
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A review where facts sound like praise and opinions have no I think; the child sorts and explains.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "text_kind": "review",
+    "focus": "facts that sound good, opinions without marker words",
+    "items": [
+     6,
+     8
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "One short familiar sentence; find one kind of word at a time, nouns or verbs, with the kind named.",
+   "rule": {
+    "text_words": [
+     5,
+     9
+    ],
+    "answer_words": [
+     1,
+     5
+    ],
+    "support": "one word kind at a time, everyday words"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A longer sentence, alone; find pronouns or adjectives, or sort words into noun, verb and adjective.",
+   "rule": {
+    "text_words": [
+     7,
+     14
+    ],
+    "answer_words": [
+     2,
+     5
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Sentences taken from a story; find verbs or pronouns and sort words into all four kinds.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "answer_in_passage": true,
+    "answer_words": [
+     2,
+     8
+    ],
+    "text_kind": "story"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "An information text with words that can do two jobs, such as plant, water and light; the child decides the job here.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "answer_in_passage": true,
+    "focus": "a word whose job depends on the sentence"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Words that tell where, in one short sentence, chosen from a box of three.",
+   "rule": {
+    "text_words": [
+     4,
+     11
+    ],
+    "options": 3,
+    "answer_from": [
+     "in",
+     "on",
+     "under",
+     "behind",
+     "at",
+     "next to",
+     "between",
+     "above"
+    ],
+    "support": "word bank of three; place words only"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Words that tell when, such as on, at and in, chosen from a box of four.",
+   "rule": {
+    "text_words": [
+     5,
+     10
+    ],
+    "options": 4,
+    "answer_from": [
+     "in",
+     "on",
+     "at",
+     "before",
+     "after"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "No word bank: the child writes or finds words such as during, until, since and under.",
+   "rule": {
+    "text_words": [
+     6,
+     16
+    ],
+    "answer_from": [
+     "during",
+     "throughout",
+     "until",
+     "since",
+     "through",
+     "across",
+     "along",
+     "towards",
+     "after",
+     "before",
+     "under",
+     "behind",
+     "between",
+     "beside",
+     "above",
+     "below"
+    ],
+    "support": "no word bank"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Choosing between words close in meaning, such as through or across, between or among, when or where.",
+   "rule": {
+    "text_words": [
+     6,
+     16
+    ],
+    "options": 3,
+    "answer_from": [
+     "during",
+     "throughout",
+     "until",
+     "since",
+     "through",
+     "across",
+     "along",
+     "towards",
+     "after",
+     "before",
+     "under",
+     "behind",
+     "between",
+     "beside",
+     "above",
+     "below"
+    ],
+    "focus": "two words close in meaning"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "One short sentence with a time word such as yesterday or every day; two choices, or four verbs to sort.",
+   "rule": {
+    "items": [
+     2,
+     4
+    ],
+    "answer_letters": [
+     4,
+     8
+    ],
+    "clues": "a time word in the sentence"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "No time word next to the verb: keep the second verb in the tense of the first; fix one slip.",
+   "rule": {
+    "items": [
+     3,
+     6
+    ],
+    "errors": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A short paragraph in one tense; fix two slips, and sort verbs including went and ran.",
+   "rule": {
+    "items": [
+     2,
+     8
+    ],
+    "errors": [
+     2,
+     2
+    ],
+    "focus": "one tense across a paragraph"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A longer recount with three slips to find and fix; spot verbs that only look past, such as need.",
+   "rule": {
+    "items": [
+     3,
+     8
+    ],
+    "errors": [
+     3,
+     4
+    ],
+    "context": "diary and recount"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "The most common verbs, such as go, eat and see, with the first letter of the past given.",
+   "rule": {
+    "answer_letters": [
+     2,
+     4
+    ],
+    "support": "first letter given"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Verbs that change one vowel, such as write and drink, in a sentence, with no letter given.",
+   "rule": {
+    "answer_letters": [
+     3,
+     6
+    ],
+    "support": "the present verb in brackets"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Irregular verbs in a sentence; find and fix two wrong pasts such as goed or runned.",
+   "rule": {
+    "text_words": [
+     8,
+     25
+    ],
+    "errors": [
+     2,
+     2
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Less common verbs such as catch, bring and teach; fix three wrong pasts in a short recount.",
+   "rule": {
+    "errors": [
+     3,
+     3
+    ],
+    "context": "less common verbs ending -ought or -aught"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Two short ideas joined with and, but or so, chosen from a box of three.",
+   "rule": {
+    "options": 3,
+    "answer_from": [
+     "and",
+     "but",
+     "so"
+    ],
+    "support": "word bank of three"
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Joining a cause or a condition with because or if; one rewrite joining two short sentences.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     6,
+     14
+    ],
+    "answer_from": [
+     "because",
+     "if",
+     "when",
+     "so"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Joining words of time, such as before and after, alone; the child may change the order of the ideas.",
+   "rule": {
+    "text_words": [
+     6,
+     20
+    ],
+    "answer_from": [
+     "before",
+     "after",
+     "when",
+     "if",
+     "because"
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Fixing a joining word that makes no sense, starting a sentence with If, and joining three ideas.",
+   "rule": {
+    "text_words": [
+     10,
+     30
+    ],
+    "answer_from": [
+     "and",
+     "but",
+     "so",
+     "because",
+     "when",
+     "before",
+     "after",
+     "if"
+    ],
+    "focus": "meaning of the joining word; three ideas"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "The notes are printed in a jumbled list or the first box is done; the child puts each note in its box.",
+   "rule": {
+    "answer_words": [
+     8,
+     25
+    ],
+    "support": "notes printed or first box filled"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "The child plans a familiar story or report alone: one short note for each of three boxes.",
+   "rule": {
+    "answer_words": [
+     12,
+     30
+    ],
+    "context": "familiar topic, three parts"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "The child plans alone with a problem and how it is solved, or a report under three chosen headings.",
+   "rule": {
+    "answer_words": [
+     20,
+     45
+    ],
+    "context": "story with a problem, or a report"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "An unfamiliar topic: the child chooses the parts, leaves out a note that does not fit and marks the most important point.",
+   "rule": {
+    "answer_words": [
+     15,
+     50
+    ],
+    "context": "unfamiliar topic or kind of text"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.DESCRIBE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A familiar place or person with a box of describing words; the child writes two or three sentences.",
+   "rule": {
+    "answer_words": [
+     18,
+     40
+    ],
+    "support": "word box",
+    "context": "familiar"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.DESCRIBE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A familiar place or person with no word box; three sentences with describing words chosen alone.",
+   "rule": {
+    "answer_words": [
+     22,
+     45
+    ],
+    "context": "familiar"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.DESCRIBE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A story setting or character in four or five sentences, using what is seen, heard and felt.",
+   "rule": {
+    "answer_words": [
+     35,
+     70
+    ],
+    "focus": "seen, heard and felt"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.DESCRIBE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "An unfamiliar setting or character; five sentences that show a feeling through details and one comparison.",
+   "rule": {
+    "answer_words": [
+     40,
+     90
+    ],
+    "context": "unfamiliar setting or character"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.TABLE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short information text in the order of the table; two or three boxes, each fact a few words.",
+   "rule": {
+    "passage_words": [
+     40,
+     70
+    ],
+    "answer_in_passage": true,
+    "answer_words": [
+     2,
+     8
+    ],
+    "support": "facts in table order"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.TABLE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A longer text about three things; the child fills three boxes, finding each fact alone.",
+   "rule": {
+    "passage_words": [
+     60,
+     110
+    ],
+    "answer_in_passage": true,
+    "answer_words": [
+     3,
+     10
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.TABLE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A text of five or six facts; four boxes with general labels, so the child picks the right part of each sentence.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ],
+    "answer_in_passage": true,
+    "answer_words": [
+     6,
+     16
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.TABLE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A text comparing two things, facts mixed together; the child sorts them into a two-column table or labels a diagram.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ],
+    "answer_in_passage": true,
+    "answer_words": [
+     5,
+     22
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.SEQUENCE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "The events are given as notes in order with a box of time words; the child writes three or four sentences.",
+   "rule": {
+    "answer_words": [
+     15,
+     35
+    ],
+    "support": "events and time words given"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.SEQUENCE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A familiar event told in four sentences alone, with at least two different time words.",
+   "rule": {
+    "answer_words": [
+     25,
+     50
+    ],
+    "context": "familiar event"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.SEQUENCE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Four to six sentences of a story or a day in order, the child choosing the events and the time words.",
+   "rule": {
+    "answer_words": [
+     35,
+     75
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.SEQUENCE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Jumbled or unfamiliar events: the child decides the order and shows why one event leads to the next.",
+   "rule": {
+    "answer_words": [
+     45,
+     90
+    ],
+    "context": "jumbled or unfamiliar events"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAYSCRIPT",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Two speakers and two lines of speech in the story; the child sets them out and adds a direction for each.",
+   "rule": {
+    "text_words": [
+     12,
+     30
+    ],
+    "answer_words": [
+     10,
+     30
+    ],
+    "support": "speech already in the story"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAYSCRIPT",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Two speakers, four short lines in the story; the child writes the playscript alone with two stage directions.",
+   "rule": {
+    "text_words": [
+     28,
+     55
+    ],
+    "answer_words": [
+     20,
+     45
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAYSCRIPT",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A story part with two or three speakers and actions; names, colons, new lines and directions, with no narrator.",
+   "rule": {
+    "text_words": [
+     40,
+     75
+    ],
+    "answer_words": [
+     30,
+     65
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAYSCRIPT",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "The story only reports what was said; the child makes up the lines, adds a scene heading and directions showing feelings.",
+   "rule": {
+    "text_words": [
+     35,
+     75
+    ],
+    "answer_words": [
+     35,
+     80
+    ],
+    "context": "reported speech, no lines given"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "One short sentence, and the weak part is named for the child; the child writes it again better.",
+   "rule": {
+    "text_words": [
+     4,
+     18
+    ],
+    "answer_words": [
+     6,
+     30
+    ],
+    "support": "weakness named"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Two or three sentences with one clear weakness, such as a repeated word or 'and then'; the child finds and fixes it.",
+   "rule": {
+    "text_words": [
+     8,
+     25
+    ],
+    "answer_words": [
+     8,
+     40
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A short piece with a gap in sense or content; the child names the exact place and writes a better version.",
+   "rule": {
+    "text_words": [
+     10,
+     35
+    ],
+    "answer_words": [
+     15,
+     45
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A partner's piece with more than one weakness; the child picks the most important, says why it matters to a reader and fixes it.",
+   "rule": {
+    "text_words": [
+     12,
+     40
+    ],
+    "answer_words": [
+     15,
+     55
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.REVIEW",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A short blurb of a familiar story and sentence starters; the child says what it is about and one thing liked.",
+   "rule": {
+    "text_words": [
+     25,
+     55
+    ],
+    "answer_words": [
+     18,
+     40
+    ],
+    "support": "sentence starters"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.REVIEW",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "A short blurb and no starters; three sentences giving what it is about, an opinion and one reason.",
+   "rule": {
+    "text_words": [
+     20,
+     45
+    ],
+    "answer_words": [
+     28,
+     55
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.REVIEW",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A longer blurb; a review of three to five sentences with what it is about, an opinion and two reasons.",
+   "rule": {
+    "text_words": [
+     28,
+     70
+    ],
+    "answer_words": [
+     40,
+     80
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.REVIEW",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A review for a named reader: who would enjoy it, a part liked and a part not liked, with reasons.",
+   "rule": {
+    "text_words": [
+     28,
+     70
+    ],
+    "answer_words": [
+     50,
+     95
+    ],
+    "context": "a named reader, mixed opinion"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "One or two sentences with two spelling mistakes, and the child is told how many to find.",
+   "rule": {
+    "text_words": [
+     6,
+     16
+    ],
+    "errors": [
+     2,
+     2
+    ],
+    "support": "number of mistakes given"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Two sentences with two or three mistakes of spelling and grammar; the number is given.",
+   "rule": {
+    "text_words": [
+     8,
+     25
+    ],
+    "errors": [
+     2,
+     3
+    ],
+    "support": "number of mistakes given"
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Three or four sentences with spelling, grammar and punctuation mistakes; the child finds them alone.",
+   "rule": {
+    "text_words": [
+     18,
+     40
+    ],
+    "errors": [
+     2,
+     4
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A longer piece with mixed mistakes, including sound-alike words and capitals; no number is given.",
+   "rule": {
+    "text_words": [
+     28,
+     55
+    ],
+    "errors": [
+     3,
+     5
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.DESCRIBE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Three or four sentences about a familiar place or person, with a word bank and the senses to use listed.",
+   "rule": {
+    "answer_words": [
+     30,
+     60
+    ],
+    "support": "word bank and the senses named"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.DESCRIBE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Four or five sentences about a familiar setting or person, alone, using at least two senses.",
+   "rule": {
+    "answer_words": [
+     45,
+     80
+    ],
+    "context": "familiar"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.DESCRIBE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A paragraph, alone, with chosen details, three senses and one comparison that makes the reader want to read on.",
+   "rule": {
+    "answer_words": [
+     60,
+     100
+    ],
+    "focus": "senses, comparison, a hook for the reader"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.DESCRIBE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "An unfamiliar or imagined setting or character, building a mood, or saying which detail will hook the reader.",
+   "rule": {
+    "answer_words": [
+     80,
+     130
+    ],
+    "context": "unfamiliar or imagined"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.ENDING",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short fable; the new ending or beginning is given its first sentence and what must change.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "answer_words": [
+     35,
+     65
+    ],
+    "support": "a starter sentence"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.ENDING",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer familiar story; a new ending or beginning written alone, with what must change named.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "answer_words": [
+     45,
+     80
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.ENDING",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A full story; the new opening or ending must fit the main character's personality and everything already told.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "answer_words": [
+     60,
+     100
+    ],
+    "focus": "fits the character and the events"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.ENDING",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A folk tale with a message; the ending is told by another character, changes the setting, or is explained.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "answer_words": [
+     80,
+     130
+    ],
+    "focus": "another viewpoint or explaining the change"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.NOTES",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short information text; two or three labelled boxes, each filled with a few key words copied from it.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "answer_in_passage": true,
+    "answer_words": [
+     3,
+     12
+    ],
+    "support": "labelled boxes"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.NOTES",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer text with extra detail; three boxes, choosing the key words that answer each label.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "answer_in_passage": true,
+    "answer_words": [
+     5,
+     18
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.NOTES",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A full information text; three or four boxes for a set purpose, leaving out what the purpose does not need.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "answer_in_passage": true,
+    "answer_words": [
+     8,
+     24
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.NOTES",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A long text on an unfamiliar topic; the child makes their own notes, then writes a short paragraph from them.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "answer_words": [
+     55,
+     120
+    ],
+    "focus": "notes used to inform writing"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.SEQUENCE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Four events from a short recount to number, with linking words such as first and after that as clues.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "items": [
+     4,
+     4
+    ],
+    "support": "the recount is printed"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.SEQUENCE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Five jumbled sentences with no passage; the linking words and what each sentence refers back to give the order.",
+   "rule": {
+    "items": [
+     5,
+     5
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.SEQUENCE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A paragraph written from notes, ideas in order, linked by at least three different linking words.",
+   "rule": {
+    "answer_words": [
+     60,
+     100
+    ],
+    "support": "notes given"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.SEQUENCE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A paragraph on causes and results, or ideas the child orders and explains, with links for time, cause and contrast.",
+   "rule": {
+    "answer_words": [
+     80,
+     140
+    ],
+    "focus": "cause, result and contrast"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAYSCRIPT",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "The first lines of a scene are given; the child adds four lines for two characters with one stage direction.",
+   "rule": {
+    "answer_words": [
+     25,
+     60
+    ],
+    "support": "scene heading and first lines given"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAYSCRIPT",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A one-line brief; the child writes six lines for two characters with two stage directions.",
+   "rule": {
+    "answer_words": [
+     40,
+     80
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAYSCRIPT",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "An original scene for two or three characters, with a scene heading, six to eight lines and stage directions.",
+   "rule": {
+    "answer_words": [
+     60,
+     110
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAYSCRIPT",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A story turned into a scene, or an unfamiliar setting, where stage directions show feelings the lines do not say.",
+   "rule": {
+    "answer_words": [
+     80,
+     140
+    ],
+    "context": "unfamiliar setting or a story to adapt"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAN",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short story is given; the child fills a story plan of three labelled boxes with short notes from it.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "answer_in_passage": true,
+    "answer_words": [
+     4,
+     16
+    ],
+    "support": "the story and the frame given"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAN",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "The child plans their own piece alone, in the frame named: a story mountain, a list of steps or a mind map.",
+   "rule": {
+    "answer_words": [
+     20,
+     55
+    ],
+    "support": "the frame is named"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAN",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "The child chooses the frame that suits the purpose, says which, and writes the plan in short notes.",
+   "rule": {
+    "answer_words": [
+     35,
+     75
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAN",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "An unfamiliar purpose; the child plans it, explains why the frame suits, or fixes a plan made in the wrong frame.",
+   "rule": {
+    "answer_words": [
+     50,
+     105
+    ],
+    "focus": "explaining the choice of plan"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PROFILE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short story; boxes for looks, personality, likes and a quote, each filled with words stated in the story.",
+   "rule": {
+    "passage_words": [
+     60,
+     100
+    ],
+    "answer_in_passage": true,
+    "answer_words": [
+     3,
+     20
+    ],
+    "support": "labelled boxes; facts stated"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PROFILE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A longer story; boxes ask for the detail that shows a trait, so the child finds the evidence.",
+   "rule": {
+    "passage_words": [
+     90,
+     140
+    ],
+    "answer_in_passage": true,
+    "answer_words": [
+     8,
+     28
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PROFILE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A written profile of one character: looks, personality, likes and a quote, each backed by a detail from the story.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ],
+    "answer_words": [
+     55,
+     100
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PROFILE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A longer story; the child infers a trait or a change, or profiles a new character to fit the next story.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "answer_words": [
+     75,
+     130
+    ],
+    "focus": "inference and planning a story"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.VIEWPOINT",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Two or three sentences as a character about a familiar place, with a starter: I think … because ….",
+   "rule": {
+    "answer_words": [
+     20,
+     45
+    ],
+    "support": "a sentence starter"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.VIEWPOINT",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Three or four sentences as a character, alone, giving an opinion of a place or person and one reason.",
+   "rule": {
+    "answer_words": [
+     35,
+     65
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.VIEWPOINT",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A short paragraph in the character's voice giving an opinion of a setting or another character, with two reasons.",
+   "rule": {
+    "answer_words": [
+     50,
+     90
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.VIEWPOINT",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Two opposite views of one place, a strange setting, or a character whose opinion has changed, each view made clear.",
+   "rule": {
+    "answer_words": [
+     70,
+     125
+    ],
+    "context": "unfamiliar or changing views"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.ARGUE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A short note to a familiar reader, using a printed frame for the view and two reasons.",
+   "rule": {
+    "answer_words": [
+     30,
+     60
+    ],
+    "support": "a writing frame"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.ARGUE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A note to the principal or librarian, alone, giving one view and two reasons on a school topic.",
+   "rule": {
+    "answer_words": [
+     45,
+     80
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.ARGUE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A letter, notice or newsletter piece for a named reader, with a view, two reasons with details, and fitting tone.",
+   "rule": {
+    "answer_words": [
+     60,
+     105
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.ARGUE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A speech, leaflet or letter for a wider audience that answers a point against the view or ranks the reasons.",
+   "rule": {
+    "answer_words": [
+     80,
+     140
+    ],
+    "focus": "answering the other side"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PROOFREAD",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Two or three short sentences; two or three word mistakes, and the child is told how many and of which kind.",
+   "rule": {
+    "text_words": [
+     16,
+     40
+    ],
+    "errors": [
+     2,
+     3
+    ],
+    "support": "number and kind of mistakes given"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PROOFREAD",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A short paragraph with three or four word mistakes, such as a verb tense or an apostrophe, found alone.",
+   "rule": {
+    "text_words": [
+     30,
+     60
+    ],
+    "errors": [
+     3,
+     4
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PROOFREAD",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A paragraph with speech and apostrophes; four to six word mistakes plus missing capitals or commas.",
+   "rule": {
+    "text_words": [
+     45,
+     80
+    ],
+    "errors": [
+     4,
+     6
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.PROOFREAD",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A letter, report or instructions with five to seven mistakes, including homophones, and tricky words that are already right.",
+   "rule": {
+    "text_words": [
+     65,
+     100
+    ],
+    "errors": [
+     5,
+     7
+    ],
+    "text_kind": "letter, report or instructions"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Two or three sentences; the weakness is pointed out, and the child rewrites one sentence to fix it.",
+   "rule": {
+    "text_words": [
+     15,
+     40
+    ],
+    "answer_words": [
+     8,
+     30
+    ],
+    "support": "the weakness is named"
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A short paragraph; the child finds one weakness of sense, accuracy or tense alone and fixes it.",
+   "rule": {
+    "text_words": [
+     18,
+     55
+    ],
+    "answer_words": [
+     10,
+     45
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A paragraph checked for sense, accuracy and content; the child names the weakness, fixes it and says why.",
+   "rule": {
+    "text_words": [
+     35,
+     75
+    ],
+    "answer_words": [
+     20,
+     60
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A friend's longer piece with weaknesses of fact, tone or ending; the child rewrites one part and explains it for the reader.",
+   "rule": {
+    "text_words": [
+     40,
+     100
+    ],
+    "answer_words": [
+     30,
+     80
+    ],
+    "focus": "explaining the change for the reader"
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Book titles with a one-line cover note; two groups or two choices; fiction means made up.",
+   "rule": {
+    "items": [
+     2,
+     4
+    ],
+    "text_words": [
+     0,
+     20
+    ],
+    "support": "a one-line note about each book"
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "One or two sentences from inside a book; the child decides alone whether it is made up or true.",
+   "rule": {
+    "items": [
+     2,
+     4
+    ],
+    "text_words": [
+     0,
+     45
+    ],
+    "text_kind": "short extracts"
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Places books on library shelves by subject: fiction, or a named non-fiction shelf; four to six books.",
+   "rule": {
+    "items": [
+     4,
+     6
+    ],
+    "context": "library shelves named by subject"
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Tricky books: true diaries, stories set in real places; finds and fixes a book on the wrong shelf.",
+   "rule": {
+    "items": [
+     3,
+     4
+    ],
+    "context": "books that look like the other kind"
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Short cover notes or one-sentence extracts; sorts six into fiction and non-fiction, or picks one of two.",
+   "rule": {
+    "items": [
+     2,
+     6
+    ],
+    "text_words": [
+     0,
+     30
+    ],
+    "support": "fiction and non-fiction are explained in the question"
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Places a non-fiction book in its numbered section; the section names are printed beside each number.",
+   "rule": {
+    "items": [
+     4,
+     4
+    ],
+    "text_words": [
+     0,
+     15
+    ],
+    "support": "section numbers with their subjects"
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Uses spine labels: fiction by the author's surname, non-fiction by section number; six books or a label to build.",
+   "rule": {
+    "items": [
+     4,
+     6
+    ],
+    "text_words": [
+     0,
+     40
+    ],
+    "context": "spine labels"
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "True books told like stories, stories hidden on fact shelves; finds the misplaced book and the right label.",
+   "rule": {
+    "items": [
+     3,
+     4
+    ],
+    "context": "narrative non-fiction and misplaced books"
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Three kinds of story, each with one clear clue; a short extract or a feature to match.",
+   "rule": {
+    "items": [
+     3,
+     3
+    ],
+    "text_words": [
+     0,
+     40
+    ],
+    "support": "the kinds are named in the question"
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Four kinds to choose from; an extract of two or three sentences; the child decides alone.",
+   "rule": {
+    "items": [
+     4,
+     4
+    ],
+    "text_words": [
+     0,
+     50
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A whole short story; names its kind and gives two features from the story that show it.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Two stories side by side; compares their kinds and features and explains the difference.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Two short extracts of different kinds; one feature compared at a time, with a word bank.",
+   "rule": {
+    "text_words": [
+     20,
+     70
+    ],
+    "support": "a word bank"
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Two kinds compared on characters, settings or language, from extracts of up to a hundred words; no word bank.",
+   "rule": {
+    "text_words": [
+     40,
+     100
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "Two complete short stories; compares characters, settings, plots and language, with words from the stories.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "Less familiar kinds such as science fiction and historical stories; tests a wrong claim and explains why.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ],
+    "context": "science fiction and historical stories"
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "A few lines of instructions or a recount; the purposes are said in plain words; two or three choices.",
+   "rule": {
+    "text_words": [
+     15,
+     45
+    ],
+    "items": [
+     3,
+     3
+    ],
+    "support": "purposes written in plain words"
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Names the purpose with its own word, instructs, reports, recounts or explains, from a short text.",
+   "rule": {
+    "text_words": [
+     30,
+     60
+    ],
+    "items": [
+     4,
+     4
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "A full page of report or recount; finds the purpose, the features that show it and what keeps the reader reading.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "Two texts on one topic with different purposes; compares them and fixes a wrong idea about one.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Names one familiar part (title, heading, verse, stage direction) from a picture of it; three choices.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     0,
+     10
+    ],
+    "support": "the part is shown"
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Says what a part is for, or turns a short sentence into a list with bullet points.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     0,
+     40
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Works on a whole page of instructions or a playscript: says why a part is used and sets out steps with numbers.",
+   "rule": {
+    "passage_words": [
+     90,
+     150
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A newsletter with mixed parts; finds a heading that does not fit, fixes a title mix-up and picks the right list.",
+   "rule": {
+    "passage_words": [
+     120,
+     190
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Matches four kinds of text to their main features, or names the kind from one feature shown.",
+   "rule": {
+    "options": 3,
+    "text_words": [
+     0,
+     15
+    ],
+    "support": "one feature is shown"
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Names the kind of a short text from its features and sets out a recipe with a heading and a list.",
+   "rule": {
+    "options": 4,
+    "text_words": [
+     0,
+     60
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A full playscript or set of instructions; says what each feature does and adds the headings and lists it lacks.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A long report with features used wrongly; decides which features belong, fixes them and explains the choice.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Easy",
+   "grade": "G3",
+   "looks_like": "Four short sentences into two groups with the headings given, or a heading for three simple sentences.",
+   "rule": {
+    "items": [
+     3,
+     4
+    ],
+    "text_words": [
+     0,
+     15
+    ],
+    "support": "headings given"
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Medium",
+   "grade": "G3",
+   "looks_like": "Six sentences into two groups, or a heading or a sentence that fits a short paragraph; the child works alone.",
+   "rule": {
+    "items": [
+     3,
+     6
+    ],
+    "text_words": [
+     0,
+     40
+    ]
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Hard",
+   "grade": "G3",
+   "looks_like": "Six sentences into three sections for a report or recount; some share a word but not an idea.",
+   "rule": {
+    "items": [
+     4,
+     6
+    ],
+    "text_words": [
+     0,
+     50
+    ],
+    "focus": "shared words across groups"
+   }
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Advance",
+   "grade": "G3",
+   "looks_like": "A child's two-paragraph report; finds the sentence in the wrong paragraph, picks a heading and places new sentences.",
+   "rule": {
+    "items": [
+     4,
+     4
+    ],
+    "passage_words": [
+     120,
+     190
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "Six notes into two sections with headings given, or the odd sentence in a short paragraph.",
+   "rule": {
+    "items": [
+     4,
+     6
+    ],
+    "text_words": [
+     0,
+     45
+    ],
+    "support": "section headings given"
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "Eight notes into three sections; the odd sentence shares the paragraph's topic word; headings matched alone.",
+   "rule": {
+    "items": [
+     4,
+     8
+    ],
+    "text_words": [
+     0,
+     60
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A three-paragraph report; matches headings, finds the sentence that does not belong and places left-out sentences.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "A letter whose paragraphs mix two ideas; finds where a new paragraph starts, splits it and says why each begins.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Easy",
+   "grade": "G4",
+   "looks_like": "A one- or two-line advert; underlines the words that make it sound good, or says why it asks a question.",
+   "rule": {
+    "text_words": [
+     8,
+     25
+    ],
+    "support": "the number of words to find is given"
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Medium",
+   "grade": "G4",
+   "looks_like": "A short advert of three or four sentences; finds strong adjectives, numbers and promises and says what they do.",
+   "rule": {
+    "text_words": [
+     25,
+     70
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Hard",
+   "grade": "G4",
+   "looks_like": "A full review; tells praise from plain facts and explains two ways it persuades, with examples.",
+   "rule": {
+    "passage_words": [
+     130,
+     200
+    ]
+   }
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Advance",
+   "grade": "G4",
+   "looks_like": "An advert and a review of the same camp; compares them, spots claims the review disagrees with, judges which to trust.",
+   "rule": {
+    "passage_words": [
+     170,
+     250
+    ]
+   }
+  }
+ ]
+}

@@ -8,10 +8,24 @@ import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from engine.api.idempotency import InProgress
-from engine.api.routes import bank, capture, card, children, focus, graph, library, maker, parent, runs, week
+from engine.api.routes import (
+    bank,
+    capture,
+    card,
+    children,
+    focus,
+    graph,
+    library,
+    maker,
+    parent,
+    runs,
+    upload,
+    week,
+)
 
 
 @asynccontextmanager
@@ -40,6 +54,18 @@ app.include_router(focus.router)
 app.include_router(maker.router)
 app.include_router(card.router)
 app.include_router(parent.router)
+app.include_router(upload.router)
+
+# A scan is sent by the educator's browser from the site's own address (ADR 0092), so the browser must be let read the
+# answer. Any origin: no route trusts a cookie or the caller's address — each asks for the engine's key, or for the
+# upload token only the site can sign — so a page elsewhere gains nothing it could not do without a browser.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["POST"],
+    allow_headers=["x-upload-token"],
+    max_age=3600,
+)
 
 
 @app.exception_handler(InProgress)

@@ -1,0 +1,2724 @@
+{
+ "misconceptions": [
+  {
+   "code": "M_ENG_E_KEPT",
+   "subject": "ENG",
+   "name": "Keeps the e before -ing or adds -ed after e",
+   "description": "Writes bakeing or smileed: the final e is kept before a vowel ending.",
+   "repair_hint": "Say the rule: e goes away when -ing comes to stay; build the word on a strip and fold the e under.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_NO_DOUBLE",
+   "subject": "ENG",
+   "name": "Does not double after a short vowel",
+   "description": "Writes claping or hoping for hopping: the consonant after a short vowel is not doubled, which can make another word.",
+   "repair_hint": "Clap the vowel: short vowel, one consonant, double it; compare hoping and hopping.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_Y_KEPT",
+   "subject": "ENG",
+   "name": "Keeps y after a consonant",
+   "description": "Writes flys or cryed: the y after a consonant is not changed to i.",
+   "repair_hint": "Look at the letter before y: a consonant means change y to i, then add es or ed.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ES_MISSED",
+   "subject": "ENG",
+   "name": "Adds -s where -es is needed",
+   "description": "Writes catchs or washs: -s is added after ch, sh, s or x, where the word needs -es.",
+   "repair_hint": "Say the word aloud: if adding the ending makes an extra beat, write -es.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SOUND_LOOKS",
+   "subject": "ENG",
+   "name": "Matches words by their letters, not their sound",
+   "description": "Picks the word that looks the same instead of the one that sounds the same: ticks on as rhyming with won, or puts heard with head.",
+   "repair_hint": "Say both words aloud and listen to the middle sound before choosing; cover the letters and listen.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SOUND_USUAL",
+   "subject": "ENG",
+   "name": "Says unusual letters with their usual sound",
+   "description": "Reads letters with their most common sound in a word where they say another: thinks month does not share the o of brother, or puts bread with seat.",
+   "repair_hint": "Collect a family of words where the letters make the unusual sound (bread, head, ready) and read them aloud together.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_HOMOPHONE_SWAP",
+   "subject": "ENG",
+   "name": "Writes the sound-alike word with the other meaning",
+   "description": "Chooses a word that sounds the same but means something else: here for hear, to for two, their spelt there.",
+   "repair_hint": "Ask what the word means in this sentence, then match it to the spelling with that meaning (hear has an ear in it).",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_NEAR_SWAP",
+   "subject": "ENG",
+   "name": "Mixes up two words that nearly sound alike",
+   "description": "Chooses a word that sounds or looks nearly the same: quite for quiet, were for where, off for of, then for than.",
+   "repair_hint": "Say both words slowly to hear the difference, and keep a short sentence for each one.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SIGHT_GUESS",
+   "subject": "ENG",
+   "name": "Guesses a word from its first letters",
+   "description": "Reads the start of the word and picks another word that begins the same: thought or though for through, quit for quiet.",
+   "repair_hint": "Read the whole word to the end, then read the sentence again to check it makes sense.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CHUNK_PART_DROPPED",
+   "subject": "ENG",
+   "name": "Leaves out a part of a long word",
+   "description": "Joins or reads the parts but drops one: writes diffrent for different, intresting for interesting.",
+   "repair_hint": "Clap the parts, say each one, and tick it off as it is written.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CHUNK_START_GUESS",
+   "subject": "ENG",
+   "name": "Guesses a long word from its start and does not check the sentence",
+   "description": "Picks a word that starts with the same letters but does not make sense: helmet for helicopter, carpet for carrot.",
+   "repair_hint": "Read every part of the word, then read the sentence with it and ask: does it make sense?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_DGE_GE_SWAP",
+   "subject": "ENG",
+   "name": "Mixes up -dge and -ge",
+   "description": "Writes ge after a short vowel or dge after a long vowel: fuge for fudge, hudge for huge.",
+   "repair_hint": "Short vowel just before the j sound: dge (badge, hedge). Long vowel or a consonant: ge (huge, large).",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_J_AT_END",
+   "subject": "ENG",
+   "name": "Ends a word with j",
+   "description": "Writes j for the j sound at the end of a word: fudj for fudge, huj for huge.",
+   "repair_hint": "English words do not end in j; at the end, the j sound is written ge or dge.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CK_K_SWAP",
+   "subject": "ENG",
+   "name": "Mixes up -ck and -k",
+   "description": "Writes k or c after a short vowel, or ck after a consonant: duk for duck, tiket for ticket, milck for milk.",
+   "repair_hint": "Short vowel just before the k sound: ck (duck, sock). After a consonant: k (milk, desk).",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_C_K_START",
+   "subject": "ENG",
+   "name": "Uses c where k is needed at the start, or k where c is",
+   "description": "Writes c before e, i or y, or k before a, o or u: cite for kite, kup for cup.",
+   "repair_hint": "Before e, i or y the k sound is written k (kite, keep); before a, o, u or a consonant it is c (cup, cold).",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_E_DROPPED_EARLY",
+   "subject": "ENG",
+   "name": "Drops the e before a suffix that starts with a consonant",
+   "description": "Takes the final e off the root when the suffix does not start with a vowel: carless for careless, replacment for replacement.",
+   "repair_hint": "Drop the e only before a vowel suffix such as -ing; -less, -ness and -ment keep it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_JOIN_LETTER_DROPPED",
+   "subject": "ENG",
+   "name": "Drops a letter where the root and the suffix meet",
+   "description": "Writes one letter where the root ends and the suffix begins with the same letter: openess for openness.",
+   "repair_hint": "Write the whole root, then the whole suffix: open + ness keeps both n's.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_AFFIX_MEANING",
+   "subject": "ENG",
+   "name": "Matches a prefix or suffix to the wrong meaning",
+   "description": "Matches re- with not, or -less with being: pairs inactive with appear again, or painless with being sad.",
+   "repair_hint": "Learn one meaning for each: re- again, in- not, -less without, -ness being, and test the word in a sentence.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SUFFIX_SHORT",
+   "subject": "ENG",
+   "name": "Spells the suffix short or wrong",
+   "description": "Writes the suffix with a letter missing or changed: kindnes for kindness, careles for careless, enjoymant for enjoyment.",
+   "repair_hint": "Practise -ness, -less and -ment as whole chunks: each ending is always spelt the same.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TO_TOO",
+   "subject": "ENG",
+   "name": "Writes to where too is needed",
+   "description": "Uses to for too when the meaning is also or more than enough: It is to hot. Can I come to?",
+   "repair_hint": "Too means also or too much, and it has too many o's.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_RIGHT_WRITE",
+   "subject": "ENG",
+   "name": "Mixes up right and write",
+   "description": "Writes right for putting words on paper, or write for correct or a direction: right your name, turn write.",
+   "repair_hint": "Write starts with a silent w, like the w on a worksheet you write on.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CORRECT_OVER",
+   "subject": "ENG",
+   "name": "Changes a word that was already right",
+   "description": "While fixing the mistakes, also changes a correct word: changes went to the beach into went too the beach.",
+   "repair_hint": "Read each word and ask what it means before changing it; leave a word that already fits.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_COMPOUND_SPACE",
+   "subject": "ENG",
+   "name": "Writes a compound word as two words",
+   "description": "Leaves a space or puts a hyphen between the two parts: bed room, tea-pot, thunder storm.",
+   "repair_hint": "A compound word is one word: join the two parts with no gap.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_COMPOUND_PART_DROPPED",
+   "subject": "ENG",
+   "name": "Drops a letter from a part of a compound word",
+   "description": "Spells one of the joined words short: footbal for football, grandaughter for granddaughter.",
+   "repair_hint": "Spell the first word in full, then the second word in full, and check where they meet.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SPELL_AS_SAID",
+   "subject": "ENG",
+   "name": "Spells a tricky word the way it sounds",
+   "description": "Writes the letters heard in the word, not its real spelling: frend for friend, becos for because, Wensday for Wednesday.",
+   "repair_hint": "Use a memory trick or say it as it is spelt (Wed-nes-day; I am your friend to the end), then look, cover, write, check.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SILENT_LETTER_MISSED",
+   "subject": "ENG",
+   "name": "Leaves out a silent letter",
+   "description": "Leaves out a letter that is not heard: lisen for listen, nife for knife.",
+   "repair_hint": "Say the word as it is spelt, with the silent letter (lis-ten), and underline that letter when practising.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ROOT_WRONG_CHUNK",
+   "subject": "ENG",
+   "name": "Splits a long word in the wrong place",
+   "description": "Writes pain as the root of repaint, or splits disagreement as di + sag + reement: the cut does not follow the prefix, root and suffix.",
+   "repair_hint": "Cover the prefix first, then the suffix, and check that what is left is a word you know.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ROOT_AFFIX_LEFT",
+   "subject": "ENG",
+   "name": "Leaves a prefix or suffix on the root",
+   "description": "Writes helpful as the root of unhelpful, or believable for unbelievable: one added part is still on the root.",
+   "repair_hint": "Take off every added part, front and back, until only the smallest word is left.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ROOT_LETTER_LOST",
+   "subject": "ENG",
+   "name": "Does not put back the root's changed letter",
+   "description": "Writes happi as the root of unhappily, or believ for unbelievable: the y or e that changed is not restored.",
+   "repair_hint": "Ask whether what is left is a real word; if not, try putting back an e or changing i to y.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_AFFIX_MEANING_MISSED",
+   "subject": "ENG",
+   "name": "Ignores what the prefix or suffix means",
+   "description": "Ticks 'full of fear' for fearless, or 'can be replaced easily' for irreplaceable: the meaning of the added part is lost or reversed.",
+   "repair_hint": "Say what each part means (un- not, -less without), then read the sentence again with that meaning.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STRESS_FIRST_GUESS",
+   "subject": "ENG",
+   "name": "Always picks the first syllable as the strong one",
+   "description": "Ticks bal for bal-loon or com for com-pu-ter: the first part is chosen whatever the word.",
+   "repair_hint": "Say the word with the beat on each part in turn; the one that sounds right is the strong one.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STRESS_WEAK_PICKED",
+   "subject": "ENG",
+   "name": "Picks a weak syllable as the strong one",
+   "description": "Ticks fin for tif-fin or lar for cat-er-pil-lar: a quiet, later part is chosen as the strong beat.",
+   "repair_hint": "Clap the word and say it loudly on the beat you choose; listen for the part that sounds natural.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STRESS_STRONG_FOR_WEAK",
+   "subject": "ENG",
+   "name": "Gives the strong syllable when asked for the weak one",
+   "description": "Ticks way when asked for the weak part of a-way: the strong part is given instead of the quiet one.",
+   "repair_hint": "Find the strong part first, then choose a part that is not it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STRESS_NOUN_VERB",
+   "subject": "ENG",
+   "name": "Keeps one stress for a noun and a verb spelt the same",
+   "description": "Ticks re for re-cord in 'We will record a song': the noun's stress is used for the verb, or the other way round.",
+   "repair_hint": "Ask whether the word names a thing or an action; things often take the beat first, actions later.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_HOMOPHONE_SOUND_ONLY",
+   "subject": "ENG",
+   "name": "Picks a word that sounds right but means something else",
+   "description": "Writes here for hear, or peace for piece: the word sounds the same but has the other meaning.",
+   "repair_hint": "Read the sentence and ask what the word must mean; link it to a word you know (hear has ear).",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_NEAR_HOMOPHONE_SWAP",
+   "subject": "ENG",
+   "name": "Swaps two near-alike words",
+   "description": "Writes quite for quiet, then for than, or desert for dessert: the near-alike word with the other meaning is chosen.",
+   "repair_hint": "Say both words slowly to hear the difference, and keep a meaning clue for each (dessert has two s for sweet stuff).",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_LOOKALIKE_LETTERS",
+   "subject": "ENG",
+   "name": "Picks a word with nearly the same letters",
+   "description": "Writes expect for except, or quit for quiet: a word that looks almost the same is chosen.",
+   "repair_hint": "Read each letter of the word you chose, then read the sentence with it to check it makes sense.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SILENT_LETTER_DROPPED",
+   "subject": "ENG",
+   "name": "Leaves out the silent letter",
+   "description": "Writes nit for knit, rist for wrist or colum for column: the letter that is not said is left out.",
+   "repair_hint": "Say the word as it is spelt (k-nit, colum-n) to remember the silent letter, then say it normally.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SHORT_U_AS_U",
+   "subject": "ENG",
+   "name": "Spells the short u sound with u every time",
+   "description": "Writes munth for month, gluv for glove or tuch for touch: the o or ou spelling is replaced with u.",
+   "repair_hint": "Keep a list of o and ou words for the short u sound (month, money, touch) and learn them as a family.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_W_VOWEL_AS_SAID",
+   "subject": "ENG",
+   "name": "Spells the vowel after w as it sounds",
+   "description": "Writes wosh for wash, werm for worm or wurld for world: the vowel is spelt by its sound, not as wa, war or wor.",
+   "repair_hint": "Learn the w families: wa says o in wash, war says or in warm, wor says ur in worm.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_Y_CHANGED_AFTER_VOWEL",
+   "subject": "ENG",
+   "name": "Changes y to ies after a vowel",
+   "description": "Writes monkies for monkeys or donkies for donkeys: y is changed even though a vowel comes before it.",
+   "repair_hint": "Look at the letter before y: a vowel means keep the y and add -s; a consonant means change to -ies.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_F_KEPT",
+   "subject": "ENG",
+   "name": "Keeps the f in the plural",
+   "description": "Writes leafs, shelfs or calfs: the f or fe is not changed to -ves.",
+   "repair_hint": "Say the plural aloud: if you hear a v sound, change the f or fe to v and add -es.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_O_ES_MISSED",
+   "subject": "ENG",
+   "name": "Adds only -s to a word ending in o that needs -es",
+   "description": "Writes potatos, tomatos or heros: -s is added where the plural takes -es.",
+   "repair_hint": "Learn the -oes words as a group: potatoes, tomatoes, heroes, echoes.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PREFIX_MISSPELT",
+   "subject": "ENG",
+   "name": "Misspells the prefix",
+   "description": "Writes tranport for transport or priheat for preheat: a letter of trans- or pre- is lost, added or changed.",
+   "repair_hint": "Write the prefix first, check it letter by letter, then add the root without changing either.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SUFFIX_SPELT_AS_SAID",
+   "subject": "ENG",
+   "name": "Spells the suffix as it sounds",
+   "description": "Writes collecshun for collection or poisonus for poisonous: -ion or -ous is spelt by its sound.",
+   "repair_hint": "Remember that the shun sound at the end is usually spelt -tion, and the us sound is spelt -ous.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ION_ATION_MIXED",
+   "subject": "ENG",
+   "name": "Uses -ion where -ation is needed, or the other way",
+   "description": "Writes predictation for prediction or admirion for admiration: the wrong one of -ion and -ation is added.",
+   "repair_hint": "Say the new word aloud and listen for the extra 'ay' sound: if you hear it, use -ation.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_THERE_FOR_THEIR",
+   "subject": "ENG",
+   "name": "Uses there or they're for 'belonging to them'",
+   "description": "Writes 'the twins packed there tiffin boxes': there or they're where the word must show the thing belongs to them.",
+   "repair_hint": "Ask 'whose is it?'. If the answer is 'theirs', write their: it has 'heir' inside, and an heir owns things.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_THEIR_FOR_THERE",
+   "subject": "ENG",
+   "name": "Uses their or they're for a place or 'there is'",
+   "description": "Writes 'the auto-rickshaw is over their' or 'Their is a mango tree': their or they're for a place or for 'there is / there are'.",
+   "repair_hint": "There has 'here' inside it: here and there are both places. 'There is' and 'there are' use the same word.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_THEYRE_MISSED",
+   "subject": "ENG",
+   "name": "Uses their or there for 'they are'",
+   "description": "Writes 'their going to the market' or 'there ready': their or there where the sentence means 'they are'.",
+   "repair_hint": "Say the sentence with 'they are' in the gap. If it still makes sense, write they're, with the apostrophe for the missing a.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_YOUR_YOURE_SWAP",
+   "subject": "ENG",
+   "name": "Mixes up your and you're",
+   "description": "Writes 'your going to get wet' for you are, or 'put you're shoes by the door' for belonging to you.",
+   "repair_hint": "Read it with 'you are'. If that makes sense, write you're; if the thing belongs to you, write your.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_OUGH_BY_SOUND",
+   "subject": "ENG",
+   "name": "Writes the sound instead of the -ough string",
+   "description": "Writes enuff for enough, coff for cough, doe for dough or drout for drought: the sound is spelt, not the letter string.",
+   "repair_hint": "Keep a word list for each sound of -ough. Look, say the sound, cover, write, check.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_OUGH_AUGH_SWAP",
+   "subject": "ENG",
+   "name": "Writes -augh for -ough",
+   "description": "Writes baught for bought or thaught for thought: the -augh of caught and taught is used where the word needs -ough.",
+   "repair_hint": "Most 'or' words ending in t are -ought (bought, brought, fought, thought); learn caught, taught and daughter as the -augh group.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_EAR_BY_SOUND",
+   "subject": "ENG",
+   "name": "Writes the sound instead of the -ear string",
+   "description": "Writes yeer for year, bair for bear or erth for earth: the sound is spelt, not the ear letter string.",
+   "repair_hint": "Sort ear words by sound (hear, bear, learn, heart) and practise one group at a time.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SORT_BY_LETTERS",
+   "subject": "ENG",
+   "name": "Sorts by the letters, not by the sound",
+   "description": "Puts dough with rough, or heart with hear, in a sort by sound: the words look alike, so they are put in one group.",
+   "repair_hint": "Say each word aloud before sorting it. The letters are the same in every word; only the sound decides the group.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_RULE_ODD_WRONG",
+   "subject": "ENG",
+   "name": "Picks a word that follows the rule as the odd one out",
+   "description": "Ticks ladies, not monkeys, as the word that breaks the y to ies pattern: the choice goes by meaning or length, not by the spelling pattern.",
+   "repair_hint": "Write the root beside each word (lady, monkey) and look at the letters that changed. The odd one changed in a different way.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_RULE_OVERUSED",
+   "subject": "ENG",
+   "name": "Uses a rule on a word it does not fit",
+   "description": "Writes vallies for valleys or monkies for monkeys: the y to ies rule is used after a vowel, where only -s is added.",
+   "repair_hint": "Every rule has a 'when'. Check the letter before the y (or the e, or the last consonant) before using it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SPELT_AS_SAID",
+   "subject": "ENG",
+   "name": "Spells a tricky word as it sounds",
+   "description": "Writes becos for because, frend for friend, anser for answer or rythm for rhythm: the letters that are not heard are left out.",
+   "repair_hint": "Use a memory trick for the hidden letters (big elephants can always understand small elephants) and look, cover, write, check.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SYLLABLE_DROPPED",
+   "subject": "ENG",
+   "name": "Drops a part of the word that is not said clearly",
+   "description": "Writes libary for library, Wensday for Wednesday, vegtable for vegetable or intresting for interesting.",
+   "repair_hint": "Say the word in its parts, slowly and clearly (Wed-nes-day, li-brar-y), then write one part at a time.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_IE_EI_SWAP",
+   "subject": "ENG",
+   "name": "Swaps ie and ei",
+   "description": "Writes beleive for believe or freind for friend: the i and e are in the wrong order.",
+   "repair_hint": "Find the small word inside: 'a lie' in believe, 'end' in friend (a friend to the end).",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_DOUBLE_LETTER_WRONG",
+   "subject": "ENG",
+   "name": "Doubles the wrong letter, or misses a double",
+   "description": "Writes neccessary for necessary or tommorow for tomorrow: a letter is doubled that should not be, or one letter of a pair is left out.",
+   "repair_hint": "Learn the double letters with a trick: necessary has one collar and two sleeves (one c, two s).",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ROOT_LOOKALIKE",
+   "subject": "ENG",
+   "name": "Judges a word family by the look, not the meaning",
+   "description": "Puts carrot in the care family or helmet with help, or leaves caring out of the family because the e has gone.",
+   "repair_hint": "Ask what each word means. A family shares a root and a meaning, not only a few letters.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ROOT_CHANGED",
+   "subject": "ENG",
+   "name": "Changes the root's spelling when adding to it",
+   "description": "Writes musition for musician, electrisity for electricity or conection for connection: the root is spelt by its new sound.",
+   "repair_hint": "Find the root word first and write it unchanged (music, electric, connect), then add the ending.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ROOT_MEANING_WRONG",
+   "subject": "ENG",
+   "name": "Gives the wrong meaning for a root",
+   "description": "Says tele means sound in telephone, television and telescope, or that act means telling a story.",
+   "repair_hint": "Put the family side by side and ask what every word has in common; test the meaning on each word.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ABC_STOPS_EARLY",
+   "subject": "ENG",
+   "name": "Stops at the first letter when words share it",
+   "description": "Leaves words that start with the same letter in the order they were printed, e.g. writes cricket before chess.",
+   "repair_hint": "When two words start with the same letter, cover it and compare the next letter.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ABC_LETTER_SLIP",
+   "subject": "ENG",
+   "name": "Puts a letter in the wrong place in the alphabet",
+   "description": "Orders by first letter but slips in the alphabet, e.g. writes mango before kite because m is thought to come before k.",
+   "repair_hint": "Say the alphabet aloud with a printed strip and point to each first letter.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TOPIC_MIXUP",
+   "subject": "ENG",
+   "name": "Mixes up two words of the same topic",
+   "description": "Picks a topic word with a different meaning, e.g. writes prey for an owl that hunts, or condensation for water rising as vapour.",
+   "repair_hint": "Say what each topic word means in your own words, then check which meaning the sentence needs.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TOPIC_OTHER",
+   "subject": "ENG",
+   "name": "Uses a word from another topic",
+   "description": "Picks a word that belongs to a different topic and does not fit, e.g. writes weather for where a frog lives.",
+   "repair_hint": "Ask: what is this sentence about? Choose a word from that topic.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TOPIC_EVERYDAY",
+   "subject": "ENG",
+   "name": "Uses a vague everyday word instead of the topic word",
+   "description": "Writes a general word where the topic has its own word, e.g. writes stuff instead of ingredients.",
+   "repair_hint": "Keep a topic word list and swap the everyday word for the exact one.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONTEXT_GUESS",
+   "subject": "ENG",
+   "name": "Guesses a meaning that ignores the clue",
+   "description": "Picks a meaning that could fit the spot in the sentence but not its clue, e.g. says drenched means very hungry when water dripped from his hair.",
+   "repair_hint": "Underline the clue words first, then choose the meaning that agrees with them.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONTEXT_NEARBY",
+   "subject": "ENG",
+   "name": "Gives the meaning of a nearby word",
+   "description": "Gives a meaning taken from another word close by, e.g. says drenched means raining hard because rain is in the sentence.",
+   "repair_hint": "Put your finger on the new word and ask what that one word tells us.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONTEXT_LOOKALIKE",
+   "subject": "ENG",
+   "name": "Takes the meaning of a word that looks or sounds the same",
+   "description": "Uses the meaning of a look-alike word or another sense of it, e.g. says minute means sixty seconds when the frogs are tiny.",
+   "repair_hint": "Read the sentence with your meaning in place: does it still make sense?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SYN_OPPOSITE",
+   "subject": "ENG",
+   "name": "Picks the opposite instead of a synonym",
+   "description": "Chooses a word that means the opposite, e.g. ticks tiny for a word that means the same as huge.",
+   "repair_hint": "Put the word back in the sentence: does the sentence still mean the same thing?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SYN_RELATED",
+   "subject": "ENG",
+   "name": "Picks a word about the same thing, not the same meaning",
+   "description": "Chooses a word that goes with the topic but means something else, e.g. ticks round for a word that means the same as big.",
+   "repair_hint": "A synonym can swap places with the word and the meaning stays the same; test the swap.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SYN_WRONG_SENSE",
+   "subject": "ENG",
+   "name": "Uses a synonym for another meaning of the word",
+   "description": "Swaps good for a word that fits a different use of good, e.g. writes delicious medicine for good medicine.",
+   "repair_hint": "Ask what good means in this sentence before you choose: tasty, kind, well-behaved or helpful?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_DESC_MARKS_NOUN",
+   "subject": "ENG",
+   "name": "Marks the naming word, not the describing word",
+   "description": "Underlines the noun the adjective describes, e.g. underlines mango in a juicy mango.",
+   "repair_hint": "Find the thing first, then ask: what word tells me what it is like?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_DESC_MARKS_VERB",
+   "subject": "ENG",
+   "name": "Marks the doing word as a describing word",
+   "description": "Underlines the verb, e.g. underlines kicked in the tall boy kicked the muddy football.",
+   "repair_hint": "A describing word sits next to a thing, not an action: try putting it in front of a noun.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_DESC_MISSES_ONE",
+   "subject": "ENG",
+   "name": "Finds some describing words but misses others",
+   "description": "Underlines only the first describing word of a group, e.g. marks soft but not green in a soft green shawl.",
+   "repair_hint": "Read each noun phrase slowly and touch every word in front of the noun.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_DESC_DULL_WORD",
+   "subject": "ENG",
+   "name": "Adds a dull word that makes no picture",
+   "description": "Adds a describing word that tells the reader nothing new, e.g. writes a nice river or a good bird.",
+   "repair_hint": "Close your eyes and picture it: what colour, size, sound or feel can you see? Write that word.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SOUND_ACTION",
+   "subject": "ENG",
+   "name": "Marks an action word as a sound word",
+   "description": "Underlines a word for a movement that makes no sound of its own, e.g. underlines jumped in Splash! Arjun jumped into the puddle.",
+   "repair_hint": "Say the word aloud: does it sound like the noise? If not, it is not a sound word.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SOUND_NAMES_SOUND",
+   "subject": "ENG",
+   "name": "Marks a word that names a sound but does not copy it",
+   "description": "Underlines a word about sound or hearing, e.g. thunder, noise or heard, instead of the word that copies the sound, such as boom.",
+   "repair_hint": "A sound word copies the noise itself; ask: could I make this noise by saying the word?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SOUND_WRONG_SOURCE",
+   "subject": "ENG",
+   "name": "Chooses a sound word that does not match the thing",
+   "description": "Picks a sound word for a different thing, e.g. writes quack for a cow or crashed for a candle flame.",
+   "repair_hint": "Picture the thing making its noise, then choose the word that sounds like that noise.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_OPENER_TIME_PLACE",
+   "subject": "ENG",
+   "name": "Mixes up when openers and where openers",
+   "description": "Sorts a time opener as a place, or a place as a time, e.g. puts On Sunday with the where openers because it starts with On.",
+   "repair_hint": "Ask the question: does it answer when? or where? Not which little word it starts with.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_OPENER_MANNER",
+   "subject": "ENG",
+   "name": "Mixes up how openers with when or where",
+   "description": "Sorts a how opener as a time or place, e.g. puts Quietly with the when openers, or ticks On Monday for how.",
+   "repair_hint": "A how opener tells the way something is done; try saying it in what way? before it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_OPENER_NO_LINK",
+   "subject": "ENG",
+   "name": "Chooses an opener that does not link to the sentence before",
+   "description": "Picks an opener that breaks the order of events, e.g. Yesterday in the middle of one day's story, or Last year after packing bags for today.",
+   "repair_hint": "Read the sentence before, then ask: what happened next, and where or when?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_OPENER_NO_COMMA",
+   "subject": "ENG",
+   "name": "Leaves out the comma after the opener",
+   "description": "Writes the opener and runs straight on, e.g. After lunch we drew a rangoli with no comma after lunch.",
+   "repair_hint": "Pause after the opener when you read it aloud; put a comma where you pause.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SAYVERB_MISMATCH",
+   "subject": "ENG",
+   "name": "Chooses a speech verb that does not match how it is said",
+   "description": "Picks a speech verb that goes against the clues, e.g. shouted for a baby who is asleep, or whispered for Fire! Get out now!",
+   "repair_hint": "Look for the clues: the marks, the words spoken and how the speaker feels. Then choose.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SAYVERB_NOT_SPEECH",
+   "subject": "ENG",
+   "name": "Chooses a verb that is not a way of speaking",
+   "description": "Puts an action verb where the speech verb goes, e.g. writes ran in \"The baby is asleep,\" ran Mum.",
+   "repair_hint": "Ask: is this a way to use your voice? If not, it cannot follow the spoken words.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SAYVERB_FEELING",
+   "subject": "ENG",
+   "name": "Reads the wrong feeling from a speech verb",
+   "description": "Says the speech verb shows a feeling it does not, e.g. says snapped shows Ananya was frightened.",
+   "repair_hint": "Act out the verb: say the words that way and notice how you feel.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ALPHA_FIRST_ONLY",
+   "subject": "ENG",
+   "name": "Orders by the first letter only",
+   "description": "When words share their first letters, leaves them in the printed order: writes shop, shell, shut, ship for shell, ship, shop, shut.",
+   "repair_hint": "Cover the letters that match and compare the first letter that is different.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ALPHA_STOPS_EARLY",
+   "subject": "ENG",
+   "name": "Stops at the third letter when the fourth is needed",
+   "description": "Sorts by the third letter but leaves words that match for three letters in printed order: puts monsoon before money.",
+   "repair_hint": "Keep going letter by letter until two words differ, even at the fourth or fifth letter.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ALPHA_SHORT_LAST",
+   "subject": "ENG",
+   "name": "Puts a short word after the longer word it starts",
+   "description": "Writes peach before pea, or plane before plan, as if the longer word comes first.",
+   "repair_hint": "Nothing comes before something: when one word runs out of letters first, it goes first.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_GUIDE_WORDS_MISREAD",
+   "subject": "ENG",
+   "name": "Misreads the guide words of a dictionary page",
+   "description": "Picks chair or cherry for the page headed chalk and cheese because they begin with ch.",
+   "repair_hint": "Check the word comes after the first guide word AND before the second one.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TOPIC_GENERAL_WORD",
+   "subject": "ENG",
+   "name": "Uses an everyday word where the topic word is needed",
+   "description": "Writes things or stuff in a science sentence instead of clouds or vessels.",
+   "repair_hint": "Ask: what would the expert in this topic call it? Look back at the topic word list.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TOPIC_NEAR_MISS",
+   "subject": "ENG",
+   "name": "Picks a topic word with a close but wrong meaning",
+   "description": "Writes evaporation for condensation, axis for orbit, or magma for lava.",
+   "repair_hint": "Say what each topic word means in a few plain words, then choose the one that matches the sentence exactly.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONTEXT_OPPOSITE",
+   "subject": "ENG",
+   "name": "Gives the opposite meaning",
+   "description": "Writes simple for baffling or calm for turbulent, missing a clue such as but or not.",
+   "repair_hint": "Look for but, so and not: they tell you whether the new word agrees with the clue or turns it round.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONTEXT_FITS_SCENE",
+   "subject": "ENG",
+   "name": "Chooses a word that fits the scene, not the new word",
+   "description": "Picks colourful for an enormous rangoli or muddy for a turbulent river: true of the scene, but not the meaning.",
+   "repair_hint": "Put your word in place of the new word: the sentence must say the same thing as before.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONTEXT_WRONG_CLASS",
+   "subject": "ENG",
+   "name": "Gives a synonym of the wrong word class",
+   "description": "Writes dryness for arid or roughly for turbulent: the meaning is close, but the word does not fit the sentence.",
+   "repair_hint": "Swap your word into the sentence and read it aloud: it must fit where the new word was.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SYN_STILL_PLAIN",
+   "subject": "ENG",
+   "name": "Replaces an overused word with another plain one",
+   "description": "Changes a nice day to a good day, or a lot of to lots of: the new word is just as tired.",
+   "repair_hint": "Ask what exactly was nice about it, then choose a word that says that.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SYN_WRONG_FIT",
+   "subject": "ENG",
+   "name": "Chooses a strong word that changes the meaning",
+   "description": "Replaces a nice day with a sleepy day, or a lot of grapes with a few grapes.",
+   "repair_hint": "Check the new word still tells the truth about what happened in the text.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SYN_COPIES_PLAIN",
+   "subject": "ENG",
+   "name": "Copies plain words when asked for strong ones",
+   "description": "When asked for the writer's strong words, copies ordinary words such as front, got or day.",
+   "repair_hint": "A strong word gives a clear picture or sound; test it by asking what you see or hear.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SYN_CHANGES_MEANING",
+   "subject": "ENG",
+   "name": "Rewrites the sentence but loses its meaning",
+   "description": "Rewrites 'Zoya got her umbrella' as 'Zoya lost her umbrella' or leaves out part of the sentence.",
+   "repair_hint": "Read the old and new sentences one after the other: the same thing must happen in both.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SHADES_REVERSED",
+   "subject": "ENG",
+   "name": "Orders from strongest to weakest",
+   "description": "Writes furious, angry, annoyed when asked for weakest to strongest.",
+   "repair_hint": "Start with the gentlest word, the one you would use for the smallest feeling.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SHADES_MIDDLE_SWAPPED",
+   "subject": "ENG",
+   "name": "Gets the ends right but swaps the middle words",
+   "description": "Writes cool, cold, chilly, freezing: the first and last are right, the middle pair is swapped.",
+   "repair_hint": "Put each middle word into the same sentence and ask which is a little stronger.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SHADES_TOO_STRONG",
+   "subject": "ENG",
+   "name": "Chooses a word too strong for the sentence",
+   "description": "Writes furious when the sentence says only a little upset, or heavy for a shower of a few drops.",
+   "repair_hint": "Find the clue words (only, a little, absolutely) that say how strong the word must be.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SHADES_TOO_WEAK",
+   "subject": "ENG",
+   "name": "Chooses a word too weak for the sentence",
+   "description": "Writes cool for a lassi so cold it hurts, or uneasy for someone who screamed and ran away.",
+   "repair_hint": "Look at what happened next in the sentence: does your word match how big it was?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SIMILE_ANY_LIKE",
+   "subject": "ENG",
+   "name": "Calls any sentence with like a simile",
+   "description": "Picks 'Aman likes the bangle stall best' as a simile because it has the word like in it.",
+   "repair_hint": "A simile compares two different things: check that something is said to be like something else.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ALLIT_CONFUSED",
+   "subject": "ENG",
+   "name": "Mixes alliteration up with rhyme or a simile",
+   "description": "Picks 'flying high in the sky' (a rhyme) or 'as fresh as a mint leaf' (a simile) as alliteration.",
+   "repair_hint": "Say the first sound of each word aloud: alliteration is the same first sound, close together.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_FIGURE_PART_MARKED",
+   "subject": "ENG",
+   "name": "Underlines only part of a simile or alliteration",
+   "description": "Underlines just cheetah instead of as fast as a cheetah, or only sparrows in seven small sparrows sat.",
+   "repair_hint": "Underline every word of the comparison, from like or the first as to the thing compared.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_FIGURE_LITERAL",
+   "subject": "ENG",
+   "name": "Reads a simile as if it were really true",
+   "description": "Says the rain really was made of metal needles, or that Grandpa's fingers are made of wood.",
+   "repair_hint": "Ask: in what way are the two things alike? Name that one shared quality.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_FIGURE_NAMES_ONLY",
+   "subject": "ENG",
+   "name": "Names the figure but does not explain it",
+   "description": "Writes 'it is a simile' and stops, without saying what picture or sound it gives the reader.",
+   "repair_hint": "After naming it, finish the sentence 'It makes me picture…' or 'It sounds like…'.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SIMILE_MISFIT",
+   "subject": "ENG",
+   "name": "Writes a comparison that does not fit",
+   "description": "Writes as cold as toast, or a tired old dog as fast as a rocket: the two things are not alike in the way needed.",
+   "repair_hint": "Name the quality first (cold, slow, noisy), then think of something that is famous for it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SIMILE_NO_LIKE_AS",
+   "subject": "ENG",
+   "name": "Writes a comparison without like or as",
+   "description": "Writes 'the kite was a bird' or just adds an adjective, 'the red kite', instead of a simile.",
+   "repair_hint": "A simile needs like or as … as to join the two things: check one is there.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_ALLIT_BROKEN",
+   "subject": "ENG",
+   "name": "Alliteration that breaks its sound",
+   "description": "Writes 'busy buzzing fly' or 'silly parrot sang': one word in the run starts with a different sound.",
+   "repair_hint": "Say the phrase aloud and tap each first sound: every tap must be the same.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_VERB_PLAIN_KEPT",
+   "subject": "ENG",
+   "name": "Keeps the plain verb",
+   "description": "Chooses ate, said, took or walked again when asked for a stronger verb.",
+   "repair_hint": "Ask: how exactly did it happen? Choose the verb that shows how.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_VERB_WRONG_MOOD",
+   "subject": "ENG",
+   "name": "Chooses a strong verb that does not fit the scene",
+   "description": "Chooses stomped for a thief who must not wake anyone, or skipped for a tired runner.",
+   "repair_hint": "Look for the clue about mood or speed in the sentence; the verb must agree with it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_VERB_ADVERB_INSTEAD",
+   "subject": "ENG",
+   "name": "Adds an adverb instead of changing the verb",
+   "description": "Writes 'walked very quietly' instead of choosing one strong verb such as crept.",
+   "repair_hint": "Try to say it all in one verb: crept already means walked quietly.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_VERB_MEANING_ONLY",
+   "subject": "ENG",
+   "name": "Says what the verb means but not what it adds",
+   "description": "Writes 'hammered means hit' without saying what the reader hears or pictures.",
+   "repair_hint": "Finish the sentence 'This verb makes me picture…' or 'This verb makes me hear…'.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SHORT_SOUNDALIKE",
+   "subject": "ENG",
+   "name": "Mixes a short form with a word that sounds the same",
+   "description": "Writes were for we're, its for it's or their for they're, or reads whose as who is.",
+   "repair_hint": "Say the two full words in the sentence: if they're makes sense as they are, it needs the apostrophe.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SHORT_WRONG_WORDS",
+   "subject": "ENG",
+   "name": "Reads a short form as the wrong two words",
+   "description": "Says they've stands for they are, or ticks it's for is not: the letters before the apostrophe are not read.",
+   "repair_hint": "Cover the end of the short form, read the first word, then say which word the end letters come from.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SHORT_LETTER",
+   "subject": "ENG",
+   "name": "Names the wrong missing letter",
+   "description": "Says the apostrophe in shouldn't stands for u or d, when the letter left out is the o of not.",
+   "repair_hint": "Write the two full words above the short form and cross out the letters that went: the apostrophe sits on them.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_APOS_MISSING",
+   "subject": "ENG",
+   "name": "Leaves the apostrophe out of a short form",
+   "description": "Writes isnt, theyll or Im: the letters are shortened but no apostrophe shows where they went.",
+   "repair_hint": "Every time letters are left out, the apostrophe takes their seat; point to the gap before writing.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_APOS_PLACE",
+   "subject": "ENG",
+   "name": "Puts the apostrophe where the two words join",
+   "description": "Writes is'nt, could'nt or did'nt: the apostrophe goes between the two words instead of where the o of not was.",
+   "repair_hint": "Write the two words, rub out only the missing letter, and put the apostrophe in exactly that space.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_APOS_KEPT_LETTERS",
+   "subject": "ENG",
+   "name": "Adds an apostrophe but keeps every letter",
+   "description": "Writes we'are, I'am or was'not: an apostrophe is added but no letter is left out.",
+   "repair_hint": "An apostrophe replaces letters; if nothing is missing, it is two words and needs no apostrophe.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_END_STOP_ONLY",
+   "subject": "ENG",
+   "name": "Uses a full stop for every sentence",
+   "description": "Writes Where is my water bottle. or Can we play kabaddi after lunch. with a full stop after a question.",
+   "repair_hint": "Read the sentence aloud: if your voice asks, it needs a question mark; if it shouts with feeling, an exclamation mark.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_QWORD_QUESTION",
+   "subject": "ENG",
+   "name": "Thinks any sentence with a question word is a question",
+   "description": "Writes I wonder where Dadi kept the sweets? or calls What a beautiful rangoli you made! a question, because of where or what.",
+   "repair_hint": "Ask: does the sentence want an answer from someone? If not, the question word does not make it a question.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_END_RUN_ON",
+   "subject": "ENG",
+   "name": "Runs two sentences together",
+   "description": "Writes The monsoon has come at last can we go out? with one end mark for two sentences and no capital for the second.",
+   "repair_hint": "Read aloud and listen for where the voice stops and starts again; put the end mark there and a capital after it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TYPE_BY_MARK",
+   "subject": "ENG",
+   "name": "Names the sentence kind from its end mark only",
+   "description": "Calls Hold the string tightly! an exclamation because of the exclamation mark, or Is the shop open today? a statement.",
+   "repair_hint": "Look at the first words before the mark: a bossy verb first means a command, whatever mark ends it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TYPE_COMMAND_STATEMENT",
+   "subject": "ENG",
+   "name": "Calls a command a statement",
+   "description": "Calls Wash your hands before lunch. a statement because it ends with a full stop.",
+   "repair_hint": "Ask: is the sentence telling someone to do something? Find the bossy verb at or near the start.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SPEECH_NARRATOR_INSIDE",
+   "subject": "ENG",
+   "name": "Puts the narrator's words inside the speech marks",
+   "description": "Writes \"Come and see my kite, said Ria.\" or underlines The bus is here said Kabir: said and the name are inside.",
+   "repair_hint": "Act it out: only the words that come out of the character's mouth go inside the marks.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SPEECH_PART",
+   "subject": "ENG",
+   "name": "Marks only part of what is said",
+   "description": "Underlines I like mango but not lassi, or opens the speech marks and forgets to close them.",
+   "repair_hint": "Find where the speaking starts and where it stops; one mark opens, one mark closes, every spoken word between.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SPEECH_MARK_OUTSIDE",
+   "subject": "ENG",
+   "name": "Puts the end mark outside the closing speech marks",
+   "description": "Writes \"Dinner is ready\". or \"Where is my cap\" asked Rohan? with the full stop or question mark outside.",
+   "repair_hint": "The spoken words keep their own end mark, tucked inside the closing speech marks.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SPEECH_REPORTED",
+   "subject": "ENG",
+   "name": "Puts speech marks round talk that is only reported",
+   "description": "Underlines nobody should stand while the bus was moving, which the story only tells us she said.",
+   "repair_hint": "Ask: are these the exact words the person spoke? Words after said that are reported, not spoken, and get no marks.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_WRITE_WRONG_TYPE",
+   "subject": "ENG",
+   "name": "Writes a different kind of sentence from the one asked",
+   "description": "Asked for a command, writes You mix the curd and sugar., a statement; asked for an exclamation, writes a question.",
+   "repair_hint": "Before writing, say which kind is asked for and what its first words usually look like.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_WRITE_QUESTION_ORDER",
+   "subject": "ENG",
+   "name": "Writes a question without turning the words round",
+   "description": "Writes You like mangoes? or Where you live? keeping statement order and only adding a question mark.",
+   "repair_hint": "Move the helping verb to the front: You do like becomes Do you like; check the question still sounds right aloud.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_TENSE_TIME_CLUE",
+   "subject": "ENG",
+   "name": "Ignores the time word",
+   "description": "Writes 'Yesterday Aarav plays cricket': the verb does not follow yesterday, tomorrow or every day.",
+   "repair_hint": "Circle the time word first, then ask: is this before now, now, or after now?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TENSE_IRREGULAR_ED",
+   "subject": "ENG",
+   "name": "Adds -ed to an irregular verb",
+   "description": "Writes catched, rised or finded instead of caught, rose or found.",
+   "repair_hint": "Keep a list of the irregular verbs met this term and say the past aloud: catch, caught.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TENSE_WILL_FORM",
+   "subject": "ENG",
+   "name": "Puts a changed verb after will",
+   "description": "Writes 'will travelled' or 'will goes': the verb after will is not in its plain form.",
+   "repair_hint": "After will, use the verb as it is in the dictionary: will go, will travel.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TENSE_SHIFT",
+   "subject": "ENG",
+   "name": "Slips into another tense",
+   "description": "Writes 'Last Diwali we lit lamps and Dadi makes ladoos': the tense changes for no reason.",
+   "repair_hint": "Read the whole piece aloud and check every verb sits in the same time as the first one.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TENSE_SPEECH_FLATTENED",
+   "subject": "ENG",
+   "name": "Changes the tense inside speech marks",
+   "description": "Writes 'Grandpa said, \"Next Holi I showed you\"': the spoken words are forced into the past to match the story.",
+   "repair_hint": "Words inside speech marks keep the time of the speaker: what they say about tomorrow stays in the future.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_AGREE_IS_ARE",
+   "subject": "ENG",
+   "name": "Mixes up is and are",
+   "description": "Writes 'The mangoes is ripe' or 'My sister are in Class 4'.",
+   "repair_hint": "Ask: is the subject one thing or more than one? One takes is, more than one takes are.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_AGREE_WAS_WERE",
+   "subject": "ENG",
+   "name": "Uses was with we, you, they or a plural",
+   "description": "Writes 'We was at the festival' or 'The puppies was sleeping'.",
+   "repair_hint": "Say the pairs aloud: I was, he was, we were, they were, the puppies were.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_AGREE_HAS_HAVE",
+   "subject": "ENG",
+   "name": "Mixes up has and have",
+   "description": "Writes 'Arjun and Tara has a coach' or 'The box have a crack'.",
+   "repair_hint": "Two or more people, or I, you, we, they: have. One person or thing: has.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_AGREE_NEAREST_NOUN",
+   "subject": "ENG",
+   "name": "Agrees with the nearest noun, not the subject",
+   "description": "Writes 'The box of sweets are on the table': the verb follows sweets, not box.",
+   "repair_hint": "Cover the words starting with of or that; read the subject and verb together: the box is.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONNECT_WRONG_MEANING",
+   "subject": "ENG",
+   "name": "Chooses a connective with the wrong meaning",
+   "description": "Writes 'We cannot play because we finish our homework' where unless is needed: the link between the ideas is lost.",
+   "repair_hint": "Read the two parts and ask how they are linked: a reason, a condition, a time or a purpose.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONNECT_NOT_CONNECTIVE",
+   "subject": "ENG",
+   "name": "Marks a word that does not join",
+   "description": "Underlines indoors, quietly or read as the joining word.",
+   "repair_hint": "A connective joins two parts; cover it and check the sentence falls into two pieces.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONNECT_MISSED",
+   "subject": "ENG",
+   "name": "Finds only some of the connectives",
+   "description": "Underlines since but misses until in the same sentence, or spots and and but only.",
+   "repair_hint": "Look for every word that starts a new part of the sentence, not just the first.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONNECT_COMMA_ONLY",
+   "subject": "ENG",
+   "name": "Joins two sentences with only a comma",
+   "description": "Writes 'Kiran saved her money, she wanted a bat': no connective links the two parts.",
+   "repair_hint": "A comma cannot join two sentences on its own; add a connective such as so that or since.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_QUANT_MUCH_MANY",
+   "subject": "ENG",
+   "name": "Uses much with things you can count, or many with things you cannot",
+   "description": "Writes 'There are much birds' or 'How many milk is left?'.",
+   "repair_hint": "Ask: can I count them one by one? Birds: many. Milk: much.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_QUANT_SINGULAR_PLURAL",
+   "subject": "ENG",
+   "name": "Puts the wrong form of the noun after the quantifier",
+   "description": "Writes 'every children' or 'all visitor' or 'many child': each and every need one, many and all need more than one.",
+   "repair_hint": "Each and every go with one: every child. Many, several and all go with more than one: many children.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_QUANT_FEW_LITTLE",
+   "subject": "ENG",
+   "name": "Mixes up few and little",
+   "description": "Writes 'very few water' or 'a little children', or 'a few salt' in a recipe.",
+   "repair_hint": "Few is for things you count (few birds); little is for things you cannot count (little water).",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_QUANT_MEANING",
+   "subject": "ENG",
+   "name": "Chooses a quantifier that does not fit the meaning",
+   "description": "Writes 'Many people stopped' when the passage says the stall was quiet all morning.",
+   "repair_hint": "Read the sentence before the gap and decide: a lot, some, or hardly any?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ADVERB_ADJECTIVE",
+   "subject": "ENG",
+   "name": "Takes an adjective for an adverb",
+   "description": "Underlines hot or noisy as the word that tells how, or writes 'water them gentle'.",
+   "repair_hint": "An adverb tells more about the verb; ask: how did she stir? Slowly.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ADVERB_PHRASE_PART",
+   "subject": "ENG",
+   "name": "Marks only part of an adverbial phrase",
+   "description": "Underlines neem tree, or only lunch, instead of the whole phrase under the neem tree or after lunch.",
+   "repair_hint": "Mark from the small word that starts the phrase (after, under, with) to the end of the idea.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ADVERB_GROUP",
+   "subject": "ENG",
+   "name": "Puts an adverb in the wrong group",
+   "description": "Sorts yesterday under where, or outside under when.",
+   "repair_hint": "Ask the question for each group: how? when? where? and see which one the word answers.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ADVERB_LY_ONLY",
+   "subject": "ENG",
+   "name": "Thinks only words ending in -ly are adverbs",
+   "description": "Misses tomorrow, outside or soon, and may mark lovely or friendly because they end in -ly.",
+   "repair_hint": "Test the word with how, when or where, not by its ending.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ADVERB_VAGUE",
+   "subject": "ENG",
+   "name": "Adds an adverb that does not make the instruction exact",
+   "description": "Writes 'Water the plants nicely': the reader still does not know how, when or where.",
+   "repair_hint": "Choose a word or phrase a reader could act on: every evening, with a small can, near the window.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_END_COMMA_SPLICE",
+   "subject": "ENG",
+   "name": "Puts a comma where a full stop is needed",
+   "description": "Writes 'The bell rang, we ran to the hall.': two sentences held together by a comma.",
+   "repair_hint": "If both parts make sense on their own, end the first with a full stop.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_END_QUESTION_MARK",
+   "subject": "ENG",
+   "name": "Uses the wrong end mark for a question",
+   "description": "Writes 'Where is my water bottle.' or puts a question mark after 'Papa wondered whether the buses were running?'.",
+   "repair_hint": "Is someone asking, waiting for an answer? Then use ?. Telling about a question (wondered whether, asked why) ends with a full stop.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_END_NO_CAPITAL",
+   "subject": "ENG",
+   "name": "Starts a new sentence without a capital letter",
+   "description": "Writes 'Our cat sleeps on the sofa. she snores softly.'",
+   "repair_hint": "After every . ? or ! the next word starts with a capital letter.",
+   "detectable_by": "educator"
+  },
+  {
+   "code": "M_ENG_END_NO_EXCLAMATION",
+   "subject": "ENG",
+   "name": "Ends an exclamation with a full stop",
+   "description": "Writes 'What a mess it was.' where a strong feeling needs !.",
+   "repair_hint": "Sentences that begin What a or How and show a strong feeling end with !.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_COMMA_LIST_MISSING",
+   "subject": "ENG",
+   "name": "Leaves out the commas in a list",
+   "description": "Writes 'We bought mangoes bananas and grapes.' with no comma between the items.",
+   "repair_hint": "Put a comma after each item in the list except the last two, which are joined by and.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_COMMA_OPENER_MISSING",
+   "subject": "ENG",
+   "name": "Leaves out the comma after an opening phrase",
+   "description": "Writes 'After the long walk home we drank cold lassi.' with no comma after home.",
+   "repair_hint": "When a sentence starts with when, where or how something happened, put a comma before the main part.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_COMMA_NAME_MISSING",
+   "subject": "ENG",
+   "name": "Leaves out the comma before or after the name of the person spoken to",
+   "description": "Writes 'Please pass me the salt Ammi.' or 'Neha could you bring the paints?'.",
+   "repair_hint": "Put a comma between the name of the person you are talking to and the rest of the sentence.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_COMMA_EVERYWHERE",
+   "subject": "ENG",
+   "name": "Puts commas where they are not needed",
+   "description": "Writes 'She took, a cap a torch, and a towel.' or 'Nikhil, found frogs'.",
+   "repair_hint": "Read the sentence aloud; a comma goes only where it separates list items, an opening phrase or a name being spoken to.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_COMMA_MEANING",
+   "subject": "ENG",
+   "name": "Misses how a comma changes the meaning",
+   "description": "Picks 'Come and help me cook Sameer.' as the sentence where Sameer is spoken to.",
+   "repair_hint": "Read both versions aloud and picture what each one says is happening.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SPEECH_MARKS_MISSING",
+   "subject": "ENG",
+   "name": "Leaves out the opening or closing speech marks",
+   "description": "Writes 'My kite is stuck, said Om.' or '\"I found a shell, said Riya.'",
+   "repair_hint": "Put a speech mark before the first spoken word and after the last spoken word and its mark.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SPEECH_FULL_STOP_BEFORE_SAID",
+   "subject": "ENG",
+   "name": "Ends the spoken words with a full stop before said",
+   "description": "Writes '\"We are going to the beach.\" said Leela.'",
+   "repair_hint": "When said comes after the speech, end the spoken words with a comma, not a full stop.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SPEECH_NO_COMMA",
+   "subject": "ENG",
+   "name": "Leaves out the comma between the speech and said",
+   "description": "Writes '\"Not me\" said Rohan.' or 'Mum said \"Please wash your hands.\"'",
+   "repair_hint": "A comma separates the spoken words from said, asked or shouted.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SPEECH_NEW_LINE",
+   "subject": "ENG",
+   "name": "Keeps two speakers on the same line",
+   "description": "Writes Tara's question and Sam's reply on one line, one after the other.",
+   "repair_hint": "Each time a new person speaks, start a new line.",
+   "detectable_by": "educator"
+  },
+  {
+   "code": "M_ENG_POSS_NO_APOSTROPHE",
+   "subject": "ENG",
+   "name": "Leaves out the apostrophe of the owner",
+   "description": "Writes 'Riyas bag' or 'the girls hall' with no apostrophe.",
+   "repair_hint": "Ask: does something belong to this person? Then add an apostrophe.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_POSS_WRONG_PLACE",
+   "subject": "ENG",
+   "name": "Puts the apostrophe on the wrong side of the s",
+   "description": "Writes 'the boy's bags' for two boys, or 'the dogs' tail' for one dog.",
+   "repair_hint": "Write the owner word first (boy or boys), then add the apostrophe: one owner 's, many owners ending in s just '.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_POSS_PLURAL_S_S",
+   "subject": "ENG",
+   "name": "Adds 's to a plural that already ends in s",
+   "description": "Writes boys's or sisters's.",
+   "repair_hint": "If the owners already end in s, add only the apostrophe: boys'.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_POSS_PLAIN_PLURAL",
+   "subject": "ENG",
+   "name": "Puts an apostrophe in a plural that owns nothing",
+   "description": "Writes 'Fresh mango's for sale' or 'two banana's'.",
+   "repair_hint": "Ask: does the next word belong to it? If not, it is just a plural: mangoes.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_POSS_IRREGULAR",
+   "subject": "ENG",
+   "name": "Writes childrens' or childrens",
+   "description": "Writes 'the childrens' playground' or 'the childrens playground'.",
+   "repair_hint": "Children does not end in s, so add 's: children's, men's, women's.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_READ_NEAR_MISS",
+   "subject": "ENG",
+   "name": "Copies or picks a fact next to the answer",
+   "description": "Copies words that sit near the key word but answer a different question: writes \"green\" for the colour of Riya's kite, which is the parrot's colour.",
+   "repair_hint": "Find the key word, then read the whole sentence it is in and ask: does this answer my question?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_READ_OWN_IDEA",
+   "subject": "ENG",
+   "name": "Answers from what they know, not from the passage",
+   "description": "Picks an answer that sounds likely but the passage never says: ticks \"to the park\" when the story says the terrace.",
+   "repair_hint": "Put a finger on the words in the passage that say it; if you cannot find them, choose again.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_READ_WORD_MATCH",
+   "subject": "ENG",
+   "name": "Picks the option that repeats a word from the passage, not the answer",
+   "description": "Ticks an option because its words appear in the passage, though they do not answer the question: \"to the water tank\" for where Riya took her kite.",
+   "repair_hint": "Say the question again in your own words, then check that the option answers that question, not just matches a word.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CHAR_WRONG_DETAIL",
+   "subject": "ENG",
+   "name": "Copies a detail that does not show what was asked",
+   "description": "Copies words about the character or place that show something else: copies \"always the first to help\" when asked what Kabir looked like.",
+   "repair_hint": "Ask: does this tell me how they look, how they act, or what the place is like? Match it to the question.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CHAR_OTHER_ONE",
+   "subject": "ENG",
+   "name": "Describes a different character, thing or place",
+   "description": "Copies words that describe something else in the passage: writes \"wet\" for the ground, when wet describes the jamuns.",
+   "repair_hint": "Find the name of the person or place in the question, and copy only the words that belong to it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CHAR_NO_EXPLAIN",
+   "subject": "ENG",
+   "name": "Finds the words but does not say what they show",
+   "description": "Writes the clue only, with no meaning: \"She held Amma's hand tightly.\" and nothing about Nisha being scared.",
+   "repair_hint": "After the clue, add \"This shows that ...\" and say what the reader learns about the character or place.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_CHAR_OWN_IDEA",
+   "subject": "ENG",
+   "name": "Describes the character from their own idea, not the text",
+   "description": "Gives a trait with no support in the story: \"Mr Joshi is lazy\", when nothing in the passage shows it.",
+   "repair_hint": "Every word you use to describe a character needs a clue in the story; underline the clue first.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_ORDER_AS_PRINTED",
+   "subject": "ENG",
+   "name": "Keeps the events in the order they are printed",
+   "description": "Numbers the events 1, 2, 3 down the page as they are printed, not in the order they happen in the story.",
+   "repair_hint": "Find each event in the passage and number them by where they come in the story, not by where they are on the paper.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ORDER_SWAP",
+   "subject": "ENG",
+   "name": "Swaps two events that happen close together",
+   "description": "Gets most of the order right but swaps two neighbours: puts \"Om began to cry\" before the wind blew.",
+   "repair_hint": "For two events close together, ask: which one had to happen first for the other one to happen?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CAUSE_REVERSED",
+   "subject": "ENG",
+   "name": "Gives a later event as the cause",
+   "description": "Chooses something that happened afterwards as the reason: \"She gave him four ladoos\" for why Dev went to the door alone.",
+   "repair_hint": "A cause comes before what it causes; check that your reason happened earlier in the story.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CAUSE_UNLINKED",
+   "subject": "ENG",
+   "name": "Gives an earlier event that did not cause it",
+   "description": "Chooses something that happened before but is not the reason: \"because the bus was yellow\" for why the ride took an hour.",
+   "repair_hint": "Say it as \"... so ...\": \"The bus was yellow, so the ride took an hour\" sounds wrong; try each choice this way.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_BLURB_TITLE_ONLY",
+   "subject": "ENG",
+   "name": "Chooses from a word in the title, not from what the book is about",
+   "description": "Picks the reader who wants a science book about clouds because the title has the word clouds, though the blurb says it is a magical story.",
+   "repair_hint": "Read the whole blurb and say what kind of book it is before you think about the title.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_BLURB_OWN_TASTE",
+   "subject": "ENG",
+   "name": "Chooses the book they would like, not the one the reader needs",
+   "description": "Ticks the exciting adventure for a reader who is just starting chapter books and likes reading aloud.",
+   "repair_hint": "Underline what the reader in the question likes and needs, and check the blurb against those words.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_BLURB_GENRE_MIXED",
+   "subject": "ENG",
+   "name": "Mixes up a story book and a book of facts",
+   "description": "Chooses the story book for a project on animals, or says a story is a book of facts.",
+   "repair_hint": "Look for clue words: mystery, adventure and story mean a story; facts, photographs and how or why questions mean an information book.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_BLURB_NO_DETAIL",
+   "subject": "ENG",
+   "name": "Gives a reason with no detail from the blurb or review",
+   "description": "Writes \"because it looks good\" or \"because I like it\" with nothing the blurb or review says.",
+   "repair_hint": "Finish your reason with \"The blurb says ...\" or \"The review says ...\" and copy a few words.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_INDEX_WRONG_LINE",
+   "subject": "ENG",
+   "name": "Reads the page from the line above or below",
+   "description": "Writes 9 for camels because the eye slips to the next line, cobras ... 9.",
+   "repair_hint": "Put a ruler under the entry and slide your finger along the dots to its own page number.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_INDEX_WRONG_ENTRY",
+   "subject": "ENG",
+   "name": "Looks up an entry that shares a word but is not the topic",
+   "description": "Writes the pages for rain when the question is about floods, or picks Kinds of mangoes for a recipe.",
+   "repair_hint": "Say what you want to find out in one word, then think of other words for it before you look in the list.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_INDEX_ONE_PAGE_ONLY",
+   "subject": "ENG",
+   "name": "Gives only the first page when the index lists more",
+   "description": "Writes 5 for rangoli when the index says 5, 14.",
+   "repair_hint": "Read to the end of the line: every number after the entry is a page about it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_INDEX_WRONG_TOOL",
+   "subject": "ENG",
+   "name": "Chooses the contents page when the index is needed, or the other way round",
+   "description": "Says to use the contents page to find every page that mentions lanterns.",
+   "repair_hint": "The contents page lists the chapters in page order; the index lists small topics in a-b-c order with every page.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_MAIN_DETAIL",
+   "subject": "ENG",
+   "name": "Chooses a small detail as the main point",
+   "description": "Ticks \"Auto-rickshaws have three wheels\" as what the whole passage is about.",
+   "repair_hint": "Ask: is every sentence about this? A main point covers most of the passage, a detail only one sentence.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_MAIN_FIRST_LINE",
+   "subject": "ENG",
+   "name": "Takes the first sentence as the main point",
+   "description": "Ticks \"The air on Vetal Hill smelled of wet earth\" because it comes first.",
+   "repair_hint": "Read to the end before you decide; the main point can be in the middle or at the end.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_MAIN_TOO_WIDE",
+   "subject": "ENG",
+   "name": "Gives a main point bigger than the passage",
+   "description": "Chooses \"Every Way to Travel in the World\" as the title for a passage only about auto-rickshaws.",
+   "repair_hint": "Check the main point against the passage: does the passage really talk about all of that?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_MAIN_RETELL",
+   "subject": "ENG",
+   "name": "Retells every detail instead of one main point",
+   "description": "Writes a long list: \"Simran brings rajma and Joseph brings idli and Farah has a sandwich and ...\"",
+   "repair_hint": "Cover the passage and say in one sentence what it was about; leave out names and numbers.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_INFER_LITERAL",
+   "subject": "ENG",
+   "name": "Reads a clue only at face value",
+   "description": "Takes what a character does or says as the whole story and misses the hint, or copies a sentence back: says Kabir 'was cold' when his ears turned pink after a lie.",
+   "repair_hint": "Ask: why would someone do that? What might they be feeling inside?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_INFER_ONE_CLUE",
+   "subject": "ENG",
+   "name": "Uses one clue and ignores the rest",
+   "description": "Picks a feeling that fits a single clue, often from another part of the story: says Arjun felt proud when he was picked last, because he was proud later on.",
+   "repair_hint": "Find every clue near that moment and check the feeling fits all of them.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_INFER_OUTSIDE",
+   "subject": "ENG",
+   "name": "Answers from own ideas, not the text",
+   "description": "Gives a feeling or reason that no clue in the passage supports: says Riya felt excited after her kite flew away.",
+   "repair_hint": "Point to the words in the passage that made you think that; if there are none, look again.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_THEME_PLOT",
+   "subject": "ENG",
+   "name": "Retells what happened instead of the lesson",
+   "description": "Gives an event from the story as its lesson: writes 'Anu walked to school in the rain' when asked what the story teaches.",
+   "repair_hint": "Ask: what should we learn from this, for our own lives?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_THEME_DETAIL",
+   "subject": "ENG",
+   "name": "Picks a small detail as the big idea",
+   "description": "Names a thing or a small part of the story as its theme: says the story is about rain or about a cricket bat, not about kindness.",
+   "repair_hint": "Ask: is this idea true of the whole story, from beginning to end?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_THEME_SURFACE",
+   "subject": "ENG",
+   "name": "Matches stories by how they look, not by their lesson",
+   "description": "Says two stories share a theme because they have the same place or the same kind of animal: matches a story about an honest girl in a shop with any story set in a shop.",
+   "repair_hint": "Say each story's lesson in a few words first, then compare the lessons.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_COMPARE_ONE",
+   "subject": "ENG",
+   "name": "Reads only one telling",
+   "description": "Answers about one telling as if it were both: says 'the bird is a crow' is the same in both, when the second telling has a sparrow.",
+   "repair_hint": "Read the first telling, then the second, and find the detail in each before you answer.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_COMPARE_SAME_DIFF",
+   "subject": "ENG",
+   "name": "Mixes up what stays the same and what changes",
+   "description": "Calls a change a sameness, or a sameness a change: says the endings are the same when one monkey escapes and the other makes friends again.",
+   "repair_hint": "Put a finger on the detail in each telling and ask: are these two the same or not?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_COMPARE_MIXED",
+   "subject": "ENG",
+   "name": "Puts a detail in the wrong telling",
+   "description": "Writes a detail from the second telling in the box for the first: puts 'a puddle' for the dog of long ago, who sees itself in a stream.",
+   "repair_hint": "Look at the heading of each telling and check which one the detail comes from.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PREDICT_NO_CLUE",
+   "subject": "ENG",
+   "name": "Predicts an ending the story gives no clue for",
+   "description": "Chooses or writes an ending that ignores what has happened: says Priya's seed will fly away after she has watered it every day.",
+   "repair_hint": "Name one thing that has already happened, and make your ending follow from it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PREDICT_RETELL",
+   "subject": "ENG",
+   "name": "Retells the story instead of predicting",
+   "description": "Gives something that has already happened as the ending: writes 'Priya planted a seed' when asked what will happen next.",
+   "repair_hint": "Ask: what has not happened yet? Your ending comes after the last line.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PREDICT_NO_REASON",
+   "subject": "ENG",
+   "name": "Gives an ending with no reason",
+   "description": "Writes an ending but no 'because': writes 'Farah wins' and nothing about why, from the story or from stories like it.",
+   "repair_hint": "Add 'because' and a clue from the story, or a story you know that went the same way.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_STEP_SKIPPED",
+   "subject": "ENG",
+   "name": "Leaves out a step",
+   "description": "Misses a step or stops early, so the result is wrong: after 'write pan, write it backwards, put s in front, change a to i' writes spin, because the backwards step was missed.",
+   "repair_hint": "Tick each step as you do it, and do not start the next one until the last is ticked.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STEP_ORDER",
+   "subject": "ENG",
+   "name": "Does the steps in the wrong order",
+   "description": "Carries out the steps in the order they are printed when the time words say otherwise, or runs past the step asked about: puts the sev on the bhel before the chutney.",
+   "repair_hint": "Underline time words like before, after and just before, then number the steps.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STEP_WORD",
+   "subject": "ENG",
+   "name": "Misreads a direction word",
+   "description": "Follows a step but swaps a small word such as left and right, first and last, or front and end: looks under the bench on the left when the step says right.",
+   "repair_hint": "Circle the direction words in each step and say them aloud before you act.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_OPINION_AS_FACT",
+   "subject": "ENG",
+   "name": "Calls an opinion a fact",
+   "description": "Sorts a sentence that says what someone thinks into facts, often because it sounds sure: puts 'Our mangoes are the sweetest in the world' with the facts.",
+   "repair_hint": "Ask: could everyone check this and agree? Look for words like best, sweetest, lovely and should.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_FACT_AS_OPINION",
+   "subject": "ENG",
+   "name": "Calls a fact an opinion",
+   "description": "Sorts a sentence that can be checked into opinions, often because it is about something nice: puts 'Tickets cost twenty rupees' with the opinions.",
+   "repair_hint": "Ask: could you check this by looking, counting or asking? If yes, it is a fact.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_OPINION_WORD",
+   "subject": "ENG",
+   "name": "Misses the word that shows an opinion",
+   "description": "Picks a naming word as the clue to an opinion instead of the feeling word: chooses 'mangoes' rather than 'sweetest' in 'Our mangoes are the sweetest in the world'.",
+   "repair_hint": "Find the word that says what someone thinks or feels; that word makes it an opinion.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_FIND_WRONG_PART",
+   "subject": "ENG",
+   "name": "Takes the answer from the wrong part of the text",
+   "description": "Copies or ticks a nearby detail that does not answer the question: writes 'Every morning' when asked what time the bus comes.",
+   "repair_hint": "Underline the key word in the question, find the sentence with that idea, and read that sentence again before answering.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_FIND_OWN_IDEA",
+   "subject": "ENG",
+   "name": "Answers from a guess, not the text",
+   "description": "Ticks or writes something the passage never says, or says the opposite of: 'Neha let go of the string' when the story says the string snapped.",
+   "repair_hint": "Ask: where does it say that? Put a finger on the words in the passage before choosing.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_FIND_ONE_PLACE",
+   "subject": "ENG",
+   "name": "Uses only one of the two places",
+   "description": "Gives only part of the answer when it is spread over two places: names the paper and sticks for Neha's kite but leaves out the ribbon tail.",
+   "repair_hint": "When a question says 'two places', tick each part of the passage as you use it and check both are in the answer.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_CHAR_ACTION_ONLY",
+   "subject": "ENG",
+   "name": "Copies what happens, not what shows the character",
+   "description": "Copies an event that tells nothing about what the person is like: writes 'Raghu drives his auto-rickshaw' as words that show he is kind.",
+   "repair_hint": "Ask: what do these words tell me about the person? Choose words that show a feeling, a habit or a way of acting.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CHAR_OFF_TARGET",
+   "subject": "ENG",
+   "name": "Copies words about the wrong person or quality",
+   "description": "Copies words about a different character, a different part of the place, or a different quality from the one asked: writes 'under tall coconut trees' when asked for the sound of the rain.",
+   "repair_hint": "Read the question again and name the person and the quality it asks about before looking for words.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CHAR_NO_QUOTE",
+   "subject": "ENG",
+   "name": "Describes the character without the story's words",
+   "description": "Names a quality ('Farhan is shy') but quotes no words from the story to show it.",
+   "repair_hint": "After naming the quality, add 'because the story says …' and copy the words.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_STAGE_PROBLEM_RESOLUTION",
+   "subject": "ENG",
+   "name": "Swaps the problem and the resolution",
+   "description": "Matches the part where things go wrong to 'Resolution', or the part where it is put right to 'Problem': calls 'a gust of wind blew across the step' the ending.",
+   "repair_hint": "Ask two questions of each part: is something going wrong here, or is it being put right?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STAGE_OPENING_BUILDUP",
+   "subject": "ENG",
+   "name": "Mixes up the opening and the build-up",
+   "description": "Calls the part that only says who and where the build-up, or calls the first event the opening: matches 'Rohan's side batted first' to Opening.",
+   "repair_hint": "The opening only sets the scene: who, where and when. Anything that starts to happen belongs to the build-up.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STAGE_ENDING_RESOLUTION",
+   "subject": "ENG",
+   "name": "Mixes up the resolution and the ending",
+   "description": "Calls the moment the problem is solved the ending, or the last calm scene the resolution: matches 'Grandfather took his medicine on time' to Ending.",
+   "repair_hint": "The resolution is how the problem is solved; the ending is how things are left afterwards.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STAGE_TEXT_ORDER",
+   "subject": "ENG",
+   "name": "Follows the printed order, not the stages",
+   "description": "Numbers mixed-up paragraphs in the order they are printed (A, B, C, D, E), or calls the first printed paragraph the opening or introduction even when it is not.",
+   "repair_hint": "Look for the paragraph that says what the whole text is about or sets the scene; that is the start, wherever it is printed.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_KEY_DETAIL",
+   "subject": "ENG",
+   "name": "Picks a detail instead of the main point",
+   "description": "Chooses an example, a number or a name that supports the point: picks 'with ginger' as the key words of a passage about tulsi being useful.",
+   "repair_hint": "Ask: if I took these words away, would the paragraph still make its point? If yes, they are a detail.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_KEY_FIRST_WORDS",
+   "subject": "ENG",
+   "name": "Takes the first words, whatever they say",
+   "description": "Copies the opening words of the paragraph even when the main point comes later: picks 'In April and May' for a paragraph whose point is 'Water is precious'.",
+   "repair_hint": "Read the whole paragraph, then look for the sentence the others explain; it may be at the end.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_KEY_WHOLE_SENTENCE",
+   "subject": "ENG",
+   "name": "Copies everything instead of choosing",
+   "description": "Copies a whole long sentence or the whole paragraph, details and all, when only the key words are asked for.",
+   "repair_hint": "Cross out the words that give examples or extra detail, and copy only what is left.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SKIM_DETAIL",
+   "subject": "ENG",
+   "name": "Takes one detail as what the whole text is about",
+   "description": "Chooses something mentioned once as the gist: picks 'how to stop elephants' for a recount of a class trip to Shaniwar Wada.",
+   "repair_hint": "Look at the title, the first sentence of each paragraph and the last sentence; choose the idea they all share.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SKIM_TOO_WIDE",
+   "subject": "ENG",
+   "name": "Chooses a topic far wider than the text",
+   "description": "Picks a big, general topic that the text is only a small part of: 'food in India' for a text about Mumbai's dabbawalas.",
+   "repair_hint": "Ask: does the text tell me about all of that? Choose the answer that fits the text and no more.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SKIM_WORD_MATCH",
+   "subject": "ENG",
+   "name": "Picks the choice that repeats a word from the title",
+   "description": "Chooses an option because it shares a word with the title or first line, not because it fits the gist: 'a long walk down stone steps' for 'A walk to Nongriat'.",
+   "repair_hint": "Skim every paragraph's first sentence before choosing; a shared word is not enough.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_LINK_CONTENT",
+   "subject": "ENG",
+   "name": "Marks content words instead of linking words",
+   "description": "Underlines the nouns or doing words of a sentence, such as 'umbrella, rain, stool, tea', instead of the words that join one idea to the next.",
+   "repair_hint": "Cover the word: if the sentence still tells the same thing but the join to the last idea is lost, it is a linking word.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_LINK_WRONG_JOB",
+   "subject": "ENG",
+   "name": "Gives a linking word the wrong job",
+   "description": "Says a link adds a point when it shows a contrast or a cause: says 'However' gives another good thing about trees.",
+   "repair_hint": "Sort links into jobs: time (then, next), adding (also, in addition), cause (because, as a result), contrast (but, however).",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_LINK_MISSES_PHRASE",
+   "subject": "ENG",
+   "name": "Marks single words but misses linking phrases",
+   "description": "Marks 'First', 'Next' and 'Then' but misses a linking phrase of two or more words such as 'After that' or 'Over the following weeks'.",
+   "repair_hint": "Look at the start of every sentence: a group of words before the comma can link, too.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_INFER_UNSUPPORTED",
+   "subject": "ENG",
+   "name": "Makes up an idea the story does not support",
+   "description": "Gives a guess with no clue behind it, e.g. says Kavya \"is late for school\" when nothing in the story says so.",
+   "repair_hint": "Ask the child to point to the words that made them think it; if there are none, think again.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_INFER_CLUE",
+   "subject": "ENG",
+   "name": "Gives no clue, or a clue that does not prove the point",
+   "description": "Writes a sensible idea with no words from the text, or quotes a line that does not show it, e.g. \"It is cold because a stream rushed over stones.\"",
+   "repair_hint": "Model the pattern: idea, then 'because the story says ...', then the exact words in quotation marks.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_PREDICT_UNLINKED",
+   "subject": "ENG",
+   "name": "Predicts without using what happened earlier",
+   "description": "Gives a next event that ignores the clue the story planted, e.g. says \"Om's string will snap\" when the story told us Riya's string was rough.",
+   "repair_hint": "Before predicting, find one earlier sentence that points to what will happen.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PREDICT_WILD",
+   "subject": "ENG",
+   "name": "Picks an exciting ending the story gives no reason for",
+   "description": "Chooses a surprising event with no link to the story, e.g. \"Kabir will find treasure in the sand.\"",
+   "repair_hint": "Ask: which words in the story make this likely? If none, choose a more likely ending.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_THEME_ONE_TEXT",
+   "subject": "ENG",
+   "name": "Talks about only one of the two texts",
+   "description": "Gives an idea or feature that fits one text but not the other, e.g. \"Parathas are tasty.\"",
+   "repair_hint": "Check the idea against both texts: does it fit Text A and Text B?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONTEXT_TODAY",
+   "subject": "ENG",
+   "name": "Picks a detail that does not show the time or place",
+   "description": "Copies or names something that is the same today, e.g. copies \"electricity\" when the story says there was none, or \"the whole family sat together\".",
+   "repair_hint": "Ask: would this be different today, or somewhere else? Only those details show when and where.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_CONTEXT_NO_DIFFERENCE",
+   "subject": "ENG",
+   "name": "Names a detail but not how life is different",
+   "description": "Writes \"they had a lantern\" and stops, without saying that today we switch on a light.",
+   "repair_hint": "Use the pattern: 'Then ... but now ...'.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_CONTEXT_PLACE_TIME",
+   "subject": "ENG",
+   "name": "Mixes up where a story is set with when it is set",
+   "description": "Gives a place detail when asked about time, e.g. copies \"near Satara\" when asked what shows it was long ago.",
+   "repair_hint": "Sort clues into two piles first: clues about where and clues about when.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_VIEW_SPEECH_I",
+   "subject": "ENG",
+   "name": "Takes I inside speech marks as the narrator",
+   "description": "Says a story is told by a character because a character says \"I will bring the colours\" inside speech marks.",
+   "repair_hint": "Cover the words inside speech marks first; then look for I or he and she in what is left.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_VIEW_NAMED",
+   "subject": "ENG",
+   "name": "Thinks the main character is telling the story because the story is about them",
+   "description": "Says \"Rahul is telling the story\" when the narrator calls him Rahul and he.",
+   "repair_hint": "If the story calls the character by name and he or she, someone outside the story is telling it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_VIEW_HE_SHE",
+   "subject": "ENG",
+   "name": "Misses a narrator who says I because the narrator talks about others",
+   "description": "Says a story told by an auto-rickshaw is told by an outside narrator because it says \"he\" about the driver many times.",
+   "repair_hint": "Look for even one I, my or we outside speech marks: that is the narrator speaking.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_VIEW_WRONG_WORD",
+   "subject": "ENG",
+   "name": "Copies a word that does not show who is telling",
+   "description": "Copies a name or an action word, e.g. \"Pallavi\" or \"ran\", when asked for the word that shows the narrator.",
+   "repair_hint": "The words that show it are I, me, my, we, our, or he, she, they.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_RESPOND_NO_LINK",
+   "subject": "ENG",
+   "name": "Gives a feeling but no link to their own life",
+   "description": "Writes \"I felt sad for Sahil\" and stops, with no time when something like it happened to them.",
+   "repair_hint": "Ask: when have you felt like that, or been somewhere like that? Add 'This reminds me of ...'.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_RESPOND_RETELL",
+   "subject": "ENG",
+   "name": "Retells the story instead of responding to it",
+   "description": "Writes what happened, e.g. \"Siya lost her mother and went to the police booth\", with no feeling or opinion of their own.",
+   "repair_hint": "Start with 'I felt ...' or 'I think ...' and say what you think, not what happened.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_RESPOND_NO_REASON",
+   "subject": "ENG",
+   "name": "Gives a like or dislike with no reason",
+   "description": "Writes \"I liked it\" or \"I would not do that\" with no because.",
+   "repair_hint": "Every response needs a 'because' linked to the story or their life.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_OPINION_WORD_MISSED",
+   "subject": "ENG",
+   "name": "Misses the words that mark an opinion",
+   "description": "Underlines the topic word, e.g. \"lassi\", instead of the opinion words \"In our opinion\" or \"best\".",
+   "repair_hint": "Hunt for words like I think, best, delicious, should and in my view.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_WORDCLASS_NOUN_VERB",
+   "subject": "ENG",
+   "name": "Mixes up nouns and verbs",
+   "description": "Underlines a naming word when asked for the verb, or an action when asked for the noun: marks dog as the verb in 'The dog barks', or work as a noun in 'helps the farmers work'.",
+   "repair_hint": "Ask: can you do it? Then it is a verb here. Can you see or name it? Then it is a noun. Check the job in this sentence.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_WORDCLASS_PRONOUN",
+   "subject": "ENG",
+   "name": "Marks names as pronouns, or misses pronouns",
+   "description": "Underlines a name such as Dev or Grandmother when asked for pronouns, or leaves out it and them.",
+   "repair_hint": "A pronoun stands in place of a name: he, she, it, we, they, him, her, them. Try swapping the word for a name.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_WORDCLASS_ADJ",
+   "subject": "ENG",
+   "name": "Marks the noun instead of the describing word",
+   "description": "Underlines boy or bag when asked for the adjectives in 'The tall boy carried a heavy bag', or puts bright with the nouns.",
+   "repair_hint": "Find the noun first, then ask: what kind? The word that answers is the adjective.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PREP_PLACE_TIME",
+   "subject": "ENG",
+   "name": "Mixes up words for place and time",
+   "description": "Writes 'in Sunday' or 'on nine o'clock', or picks inside when asked for the word that tells when.",
+   "repair_hint": "On for days and dates, at for clock times, in for months; during, until and since tell when.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PREP_WRONG_MEANING",
+   "subject": "ENG",
+   "name": "Picks a place word with the wrong meaning",
+   "description": "Writes 'on the bed' when the shoes cannot be seen, or 'among two trees' for between.",
+   "repair_hint": "Picture where the thing is. Act it out with a pencil and a box: under, behind, through, across.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PREP_NOT_PREP",
+   "subject": "ENG",
+   "name": "Underlines the thing, not the word that tells where",
+   "description": "Asked for the word that tells where in 'Kabir hid behind the door', underlines door instead of behind.",
+   "repair_hint": "The where word comes before the place: ask 'where did he hide?' and point to the small word before the door.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TENSE_CLUE_MISSED",
+   "subject": "ENG",
+   "name": "Ignores the time word",
+   "description": "Writes 'Yesterday Sana visits her grandmother' or 'Every morning Rohan brushed his teeth'.",
+   "repair_hint": "Circle the time word first: yesterday and last week ask for the past; every day asks for the present.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TENSE_SORT_ENDING",
+   "subject": "ENG",
+   "name": "Sorts by the ending, not the time",
+   "description": "Puts need or feed with the past verbs because they end in -ed, or puts went and ran with the present because they have no -ed.",
+   "repair_hint": "Put the verb in a sentence with yesterday and one with every day. Which one sounds right?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_IRREG_ADDS_ED",
+   "subject": "ENG",
+   "name": "Adds -ed to an irregular verb",
+   "description": "Writes goed, eated, runned or catched for went, ate, ran and caught.",
+   "repair_hint": "Keep a list of the verbs that change instead of adding -ed. Say them aloud in pairs: go, went; run, ran.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_IRREG_PARTICIPLE",
+   "subject": "ENG",
+   "name": "Uses the have-form for the simple past",
+   "description": "Writes 'Pooja written a letter' or 'the team drunk lassi' for wrote and drank.",
+   "repair_hint": "Written, drunk and seen need has or have before them. With no helper word, use wrote, drank and saw.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_IRREG_WRONG_PARTNER",
+   "subject": "ENG",
+   "name": "Mixes up pasts that sound alike",
+   "description": "Pairs teach with thought or bring with brought wrongly, or spells caught as cought.",
+   "repair_hint": "Teach and catch take -aught; think, bring, fight and buy take -ought. Say each pair aloud.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_JOIN_WRONG_LINK",
+   "subject": "ENG",
+   "name": "Joining word does not fit the meaning",
+   "description": "Joins two ideas with a word that changes the sense: 'I wanted to play outside, so it was raining.'",
+   "repair_hint": "Read the sentence aloud with each joining word. Ask: does it say what really happened?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_JOIN_SO_BECAUSE",
+   "subject": "ENG",
+   "name": "Swaps so and because",
+   "description": "Puts the cause and the result the wrong way round: 'The shop was closed so it was a holiday', or 'It was raining because I wore my raincoat.'",
+   "repair_hint": "Because comes before the reason; so comes before what happened next. Find the reason first.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_JOIN_AND_CHAIN",
+   "subject": "ENG",
+   "name": "Joins everything with and",
+   "description": "Strings ideas together with and each time: 'Priya finished her homework and she went to play and her brother stayed at home.'",
+   "repair_hint": "Ask how the ideas are linked: in time (after, before, when), by a reason (because, so), or as a contrast (but).",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_JOIN_KEEPS_STOP",
+   "subject": "ENG",
+   "name": "Leaves a full stop between the joined ideas",
+   "description": "Writes two sentences with the joining word after the full stop: 'I wore my raincoat. Because it was raining.'",
+   "repair_hint": "One sentence has one full stop, at the very end. Take out the full stop in the middle.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_PLAN_FULL_SENTENCES",
+   "subject": "ENG",
+   "name": "Writes the story instead of a plan",
+   "description": "Writes long full sentences or the whole story in the plan boxes, e.g. 'One day Kabir was going to school on the bus and he forgot...' instead of 'Kabir leaves tiffin on bus'.",
+   "repair_hint": "Show a plan beside a story; cross out every word in a sentence that is not a key word until only notes are left.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_PLAN_WRONG_BOX",
+   "subject": "ENG",
+   "name": "Puts a point in the wrong part of the plan",
+   "description": "Writes the ending note in the beginning box, or a note about food under 'Where it lives', e.g. 'Riya finds her kite at last' in the Beginning box.",
+   "repair_hint": "Ask 'What happens first?' and 'How does it finish?' and point to the box for each before writing.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PLAN_POINT_MISSING",
+   "subject": "ENG",
+   "name": "Leaves out a main part",
+   "description": "Fills the beginning and the middle but leaves the end empty, or plans a story with no problem to solve.",
+   "repair_hint": "Check the plan with three fingers: beginning, middle, end. Each finger needs a note.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_DESC_LIST",
+   "subject": "ENG",
+   "name": "Lists things without describing them",
+   "description": "Names what is there with no describing words, e.g. 'There is a desk. There is a fan. There is a board.'",
+   "repair_hint": "For each thing named, ask 'What is it like?' and add one describing word or detail.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_DESC_ONE_SENSE",
+   "subject": "ENG",
+   "name": "Describes only what is seen",
+   "description": "Every sentence is about looks, with nothing heard, smelt or felt, e.g. 'The market is big. It is red and yellow.'",
+   "repair_hint": "Draw an eye, an ear and a hand; write one sentence for each before writing the description.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_DESC_GENERAL_WORDS",
+   "subject": "ENG",
+   "name": "Uses general words such as nice and good",
+   "description": "Writes 'The park was nice and the trees were good' instead of words that show what it was like.",
+   "repair_hint": "Ban nice and good for one piece; make a word bank of exact describing words together first.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_DESC_TELLS_EVENTS",
+   "subject": "ENG",
+   "name": "Tells what happened instead of describing",
+   "description": "Writes a story of events ('We went to the station and then the train came') when asked to describe the place.",
+   "repair_hint": "Freeze the moment like a photo: describe only what is there in that one moment, with no 'then'.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_TABLE_WRONG_BOX",
+   "subject": "ENG",
+   "name": "Writes a fact in the wrong box",
+   "description": "Puts a true fact from the text under the wrong label, e.g. writes 'seeds and insects' in the box for 'Where it lives'.",
+   "repair_hint": "Read the label aloud as a question ('Where does it live?') and find the sentence that answers it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TABLE_NOT_FROM_TEXT",
+   "subject": "ENG",
+   "name": "Writes what they know, not what the text says",
+   "description": "Fills a box from their own ideas instead of the passage, e.g. writes 'bananas' for what peacocks eat when the text says seeds.",
+   "repair_hint": "Before writing, put a finger on the words in the text that give the fact.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_TABLE_WHOLE_SENTENCE",
+   "subject": "ENG",
+   "name": "Copies a whole sentence into a box",
+   "description": "Copies the full sentence 'A male peacock has a long tail of green and blue feathers' where the box needs 'green and blue'.",
+   "repair_hint": "Underline only the words that answer the label, and write just those.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SEQ_OUT_OF_ORDER",
+   "subject": "ENG",
+   "name": "Writes events out of order",
+   "description": "Tells the end before the middle, e.g. 'We ate the cake. Then Mum baked it.'",
+   "repair_hint": "Number the events on fingers or sticky notes and say them aloud in order before writing.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SEQ_AND_THEN",
+   "subject": "ENG",
+   "name": "Links every event with 'and then'",
+   "description": "Writes one long chain: 'I woke up and then I brushed and then I ate and then I went.'",
+   "repair_hint": "Give a strip of time words (First, Next, After that, Finally) and use a different one for each sentence.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SEQ_STEP_MISSING",
+   "subject": "ENG",
+   "name": "Leaves out a step so the events jump",
+   "description": "Writes 'Dev bought a kite. He got it down from the tree.' with no sentence saying it got stuck.",
+   "repair_hint": "Read the sentences to a partner and ask 'Did you know how we got here?' after each one.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SCRIPT_SPEECH_MARKS",
+   "subject": "ENG",
+   "name": "Keeps speech marks and said",
+   "description": "Writes 'Sana: \"Can I have some lassi?\" she asked.' keeping the speech marks and the reporting words.",
+   "repair_hint": "Cover the speech marks and 'said' with a finger: what is left after the name and colon is the line.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SCRIPT_NO_DIRECTION",
+   "subject": "ENG",
+   "name": "Leaves out stage directions",
+   "description": "Writes only names and words, so the actor does not know to smile, run or look out of the window.",
+   "repair_hint": "Ask 'What does the actor do while saying this?' and write the answer in brackets.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SCRIPT_PAST_DIRECTION",
+   "subject": "ENG",
+   "name": "Writes stage directions in the past tense",
+   "description": "Writes '(Rohan ran to the window)' instead of '(Rohan runs to the window)'.",
+   "repair_hint": "Read the direction as if telling the actor now: 'runs', 'looks', 'smiles'.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SCRIPT_RETELLS",
+   "subject": "ENG",
+   "name": "Retells the story instead of setting it out",
+   "description": "Copies the story as sentences with a narrator, e.g. 'Mum came in and she was smiling and said yes.'",
+   "repair_hint": "Put one speaker's name on each new line and only write what that person says.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_IMPROVE_VAGUE",
+   "subject": "ENG",
+   "name": "Suggests a change without saying where or what",
+   "description": "Writes 'Add more detail' or 'Make it better' without naming the sentence or what is weak in it.",
+   "repair_hint": "Ask the child to point to the exact words, then say what a reader is missing there.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_IMPROVE_SAME_WEAKNESS",
+   "subject": "ENG",
+   "name": "Rewrites with the same weakness",
+   "description": "Rewrites 'The cake was nice' as 'The cake was very nice', still with a word that tells the reader nothing.",
+   "repair_hint": "Before rewriting, say aloud what is wrong; check the new version does not have it.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_IMPROVE_SPELLING_ONLY",
+   "subject": "ENG",
+   "name": "Only fixes spelling when sense or content is weak",
+   "description": "Corrects a small spelling slip but leaves the sentence that does not belong, or the missing step, untouched.",
+   "repair_hint": "First read for sense: does every sentence fit, and is anything missing? Fix that before spelling.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_REVIEW_RETELLS",
+   "subject": "ENG",
+   "name": "Retells the whole story with no opinion",
+   "description": "Writes everything that happens in the book, 'First... then... then...', but never says what they thought of it.",
+   "repair_hint": "Allow one sentence for what the book is about, then start the next with 'I think' or 'I liked'.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_REVIEW_NO_REASON",
+   "subject": "ENG",
+   "name": "Gives an opinion without a reason",
+   "description": "Writes 'I liked this book. It was good.' with no 'because' and no part of the book named.",
+   "repair_hint": "After every opinion, add 'because' and name one part of the book that made you feel that way.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_REVIEW_NO_SUMMARY",
+   "subject": "ENG",
+   "name": "Gives an opinion but does not say what the book is about",
+   "description": "Writes 'This is the best book ever because it is funny' and a reader still does not know what happens in it.",
+   "repair_hint": "Start with 'This book is about...' and name the main character and what they want.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_PROOF_MISSED",
+   "subject": "ENG",
+   "name": "Leaves a mistake unfixed",
+   "description": "Corrects some mistakes but copies others as they were, e.g. fixes 'plaied' but leaves 'frends'.",
+   "repair_hint": "Read the writing three times: once for spelling, once for full stops and capitals, once for sense.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PROOF_CHANGES_RIGHT_WORD",
+   "subject": "ENG",
+   "name": "Changes a word that was already right",
+   "description": "Changes a correct word into a wrong one while correcting, e.g. changes 'their' to 'there' when 'their' was right.",
+   "repair_hint": "Before changing a word, say why it is wrong; if there is no reason, leave it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PROOF_GRAMMAR_MISSED",
+   "subject": "ENG",
+   "name": "Fixes spelling but not grammar",
+   "description": "Corrects the spelling slips but leaves 'we was' or 'she go' unchanged.",
+   "repair_hint": "Read each sentence aloud; if it sounds wrong when spoken, check the verb.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_END_UNFIT",
+   "subject": "ENG",
+   "name": "Writes an ending that does not fit the story",
+   "description": "The new ending forgets what happened or makes a character act unlike themselves, such as a shy boy suddenly shouting at the class.",
+   "repair_hint": "Before writing, list two things already true in the story and keep both true in your ending.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_END_RETELL",
+   "subject": "ENG",
+   "name": "Retells the original ending",
+   "description": "Copies or retells the story's own ending, such as the crow dropping pebbles again, when asked for a different one.",
+   "repair_hint": "Underline the original ending, then decide one thing that will be different in yours.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_END_SUDDEN",
+   "subject": "ENG",
+   "name": "Stops the story suddenly",
+   "description": "Ends with 'and then it was all a dream' or 'The end' with no real solution to the problem.",
+   "repair_hint": "Say how the problem is solved and how the character feels at the very end.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_NOTE_COPY_SENTENCE",
+   "subject": "ENG",
+   "name": "Copies whole sentences as notes",
+   "description": "Writes 'Peacocks have long tails of shining blue and green feathers.' in a box that needs 'blue and green'.",
+   "repair_hint": "Ask what the box needs, then cross out every word that is not the answer.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_NOTE_WRONG_BOX",
+   "subject": "ENG",
+   "name": "Puts a fact in the wrong box",
+   "description": "Writes where the bird sleeps in the box for where it lives, or the problem in the ending box.",
+   "repair_hint": "Read each label as a question and check your note answers that question.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_NOTE_MINOR_DETAIL",
+   "subject": "ENG",
+   "name": "Records a small detail instead of the key fact",
+   "description": "Notes 'warm sea' for what carries the rain, instead of 'strong winds'.",
+   "repair_hint": "Ask which words the reader would need if they read only your notes.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SEQ_ORDER",
+   "subject": "ENG",
+   "name": "Puts events out of order",
+   "description": "Numbers the lamps being placed before the floor is swept, or the result before its cause.",
+   "repair_hint": "Find the linking word in each sentence and ask what must have happened just before it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SEQ_WRONG_LINK",
+   "subject": "ENG",
+   "name": "Uses a link that gives the wrong meaning",
+   "description": "Writes 'It rained, because the drains blocked' or 'He was tired, so he kept running' where the link does not fit.",
+   "repair_hint": "Read the two ideas aloud with the link and ask: is it time, cause or contrast?",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_SCRIPT_NARRATOR",
+   "subject": "ENG",
+   "name": "Uses story narration between the lines",
+   "description": "Adds sentences such as 'Then Aman went home sadly.' that no actor can say.",
+   "repair_hint": "Turn the narration into a line or a stage direction: '(walks home slowly)'.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_PLAN_WRONG_FRAME",
+   "subject": "ENG",
+   "name": "Chooses a plan that does not suit the writing",
+   "description": "Plans instructions for washing hands on a story mountain with a problem and a resolution.",
+   "repair_hint": "Ask what the writing is for: a story needs a mountain, a report needs headings, instructions need steps.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_PLAN_FULL_TEXT",
+   "subject": "ENG",
+   "name": "Writes the whole piece instead of a plan",
+   "description": "Fills the plan with long sentences, such as 'Once upon a time there was a girl called Tanvi who…'",
+   "repair_hint": "Write only key words for each part; you will turn them into sentences later.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_PROFILE_NO_EVIDENCE",
+   "subject": "ENG",
+   "name": "Names a trait with no detail from the story",
+   "description": "Writes 'Aditya is kind' but gives no action or words from the story that show it.",
+   "repair_hint": "After each trait, add 'I know this because…' and a detail from the story.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_PROFILE_LOOKS_ONLY",
+   "subject": "ENG",
+   "name": "Describes only how the character looks",
+   "description": "Writes about plaits, height and clothes but nothing about personality, likes or what they say.",
+   "repair_hint": "Check the profile has all four parts: looks, personality, likes and a quote.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_VIEW_NO_REASON",
+   "subject": "ENG",
+   "name": "Gives an opinion with no reason",
+   "description": "Writes 'I like it here. It is good.' with no because and no detail.",
+   "repair_hint": "After the opinion, add because and one thing you can see or that happened.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_VIEW_OUT_OF_ROLE",
+   "subject": "ENG",
+   "name": "Writes about the character instead of as the character",
+   "description": "Writes 'Bunty thinks the flat is small' instead of 'I think this flat is small'.",
+   "repair_hint": "Pretend you are the character: use I, me and my, and words they would use.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_VIEW_DESCRIBES_ONLY",
+   "subject": "ENG",
+   "name": "Describes the place but gives no opinion",
+   "description": "Writes 'The flat has two rooms and a balcony' without saying what the character thinks of it.",
+   "repair_hint": "Add one sentence that says how the character feels about it: love, hate, worry.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_ARGUE_WRONG_TONE",
+   "subject": "ENG",
+   "name": "Writes in a tone that does not suit the reader",
+   "description": "Writes to the principal as to a friend: 'Hey! We totally need a bigger playground.'",
+   "repair_hint": "Think who will read it: start with Dear, use polite words, and end with your name.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_ARGUE_VIEW_CHANGES",
+   "subject": "ENG",
+   "name": "Changes side partway through",
+   "description": "Starts 'We should have a longer lunch break' and ends 'but a short break is better too'.",
+   "repair_hint": "Write your view in one sentence first, and check every reason supports it.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_PROOF_MISSED_APOS",
+   "subject": "ENG",
+   "name": "Leaves an apostrophe mistake uncorrected",
+   "description": "Leaves 'Arjuns bag' or 'dont' as written, or writes 'it's' where 'its' is needed.",
+   "repair_hint": "For each word ending in s, ask: does something belong to it? For short forms, find the missing letter.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PROOF_MISSED_SPELL",
+   "subject": "ENG",
+   "name": "Leaves a spelling mistake uncorrected",
+   "description": "Fixes the grammar but leaves 'becuase', 'freind' or 'untill' as written.",
+   "repair_hint": "Read the passage again slowly, one word at a time, pointing at each word.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PROOF_MISSED_GRAMMAR",
+   "subject": "ENG",
+   "name": "Leaves a verb or grammar mistake uncorrected",
+   "description": "Leaves 'they was', 'we goes' or 'buyed' as written.",
+   "repair_hint": "Find who did the action and say the verb aloud with them: they were, we went.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PROOF_CHANGED_CORRECT",
+   "subject": "ENG",
+   "name": "Changes a word that was already right",
+   "description": "Changes the correct 'practised' to 'practiced' or 'club's' to 'clubs'.",
+   "repair_hint": "Only change a word if you can say what rule it breaks.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_IMPROVE_NEW_ERROR",
+   "subject": "ENG",
+   "name": "Fixes one thing but adds a new mistake",
+   "description": "Rewrites 'Yesterday I go' as 'Yesterday I goed', fixing the tense but adding a wrong verb.",
+   "repair_hint": "Proofread your new sentence for spelling, tense and punctuation before you finish.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_FICTION_SWAPPED",
+   "subject": "ENG",
+   "name": "Swaps the meanings of fiction and non-fiction",
+   "description": "Puts a book of true facts under fiction and a made-up story under non-fiction: 'All About Mangoes' sorted as fiction.",
+   "repair_hint": "Fiction is made up, like a fib; non-fiction is not made up. Say it before each choice.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_FACTS_IN_STORY",
+   "subject": "ENG",
+   "name": "Calls a story true because it has real places or things in it",
+   "description": "Calls a story non-fiction because it is set in Pune or has cricket in it, though a mango sings or a bat hits the moon.",
+   "repair_hint": "Ask: could this really happen? A real place in a story does not make the story true.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ANIMALS_FICTION",
+   "subject": "ENG",
+   "name": "Thinks a book about animals or with pictures must be a story",
+   "description": "Calls a book of tiger facts fiction because it is about an animal or has pictures: 'The tiger is the largest wild cat' sorted as fiction.",
+   "repair_hint": "Look for facts you could check, not for animals or pictures; many fact books are full of both.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_SHELF_BY_TITLE",
+   "subject": "ENG",
+   "name": "Shelves a book by one word in its title, not its subject",
+   "description": "Puts 'Stars of the Kitchen: Easy Indian Recipes' on the space shelf because of the word stars.",
+   "repair_hint": "Read the whole title and the cover line, then ask what the book teaches you about.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STORY_SHAPE",
+   "subject": "ENG",
+   "name": "Calls a true account a story because it tells events in order",
+   "description": "Calls a true diary or a recount of a school trip fiction because it tells what happened, day by day, like a story.",
+   "repair_hint": "Ask whether the events really happened to a real person; true events told in order are still non-fiction.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STORY_ON_SUBJECT_SHELF",
+   "subject": "ENG",
+   "name": "Puts a story on a subject shelf because of what it is about",
+   "description": "Shelves 'A Cricket Match on Mars' with the sport books, or a story about an elephant with the animal books.",
+   "repair_hint": "First decide made up or true; only true books go to a subject section.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_LABEL_WRONG_PART",
+   "subject": "ENG",
+   "name": "Builds a fiction label from the wrong part of the book",
+   "description": "Writes FIC PRI (the author's first name) or FIC NIG (the title) for a story by Priya Kulkarni, instead of FIC KUL.",
+   "repair_hint": "Find the author's surname, the last name, and take its first three letters.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_GENRE_ONE_CLUE",
+   "subject": "ENG",
+   "name": "Names the kind of story from one detail and ignores the rest",
+   "description": "Calls a story about the Moon's spots a fable, or a detective story an adventure, from one feature only.",
+   "repair_hint": "Check two or three features before naming the kind: characters, what happens, and how it ends.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_GENRE_ANIMAL_FABLE",
+   "subject": "ENG",
+   "name": "Calls any story with animals a fable",
+   "description": "Calls a myth about a peacock or an adventure with bats a fable, though there is no lesson at the end.",
+   "repair_hint": "A fable needs animals that act like people and a lesson; look for the lesson before you say fable.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_GENRE_RETELLS",
+   "subject": "ENG",
+   "name": "Retells the story instead of naming its features",
+   "description": "Asked how they know it is a fable, writes 'The peacock was proud and the crow helped him' with no feature named.",
+   "repair_hint": "Start with 'It is a … because it has …' and name a feature, then give the part of the story that shows it.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_GENRE_COMPARE_ONE_SIDE",
+   "subject": "ENG",
+   "name": "Describes only one of the two stories when asked to compare",
+   "description": "Asked how two stories are different, writes only about the fable and says nothing about the adventure.",
+   "repair_hint": "Use a two-column plan: one fact about each story for every feature, then join them with 'but' or 'while'.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_PURPOSE_MIXUP",
+   "subject": "ENG",
+   "name": "Mixes up what a non-fiction text is for",
+   "description": "Says a recipe tells what happened, or that a text about why it rains is a recount.",
+   "repair_hint": "Ask what the reader does after reading: follow steps (instructs), learn facts (reports), hear what happened (recounts), or understand why (explains).",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PURPOSE_TOPIC",
+   "subject": "ENG",
+   "name": "Gives what the text is about, not what it is for",
+   "description": "Says two texts about mangoes do the same job because both are about mangoes.",
+   "repair_hint": "Cover the topic word and ask what the writer wants the reader to do or know.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_FEATURE_JOB",
+   "subject": "ENG",
+   "name": "Matches a feature to the wrong job",
+   "description": "Says time words like 'yesterday' show instructions, or that chapters show the steps in order.",
+   "repair_hint": "Point to the feature in a real text and say aloud what it helps the reader do.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_ENGAGE_FACT",
+   "subject": "ENG",
+   "name": "Picks a plain fact as the part that keeps the reader interested",
+   "description": "Chooses 'Bees drink nectar from flowers' instead of the question 'Did you know that a honeybee has five eyes?'",
+   "repair_hint": "Look for the parts that speak to the reader: questions, fun facts, exclamations and pictures.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_HEADING_TITLE",
+   "subject": "ENG",
+   "name": "Mixes up the title and a heading",
+   "description": "Says 'Sports Day', a heading over one part, is the title of the whole newsletter.",
+   "repair_hint": "The title names the whole text and comes first; a heading names one part and sits above it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_STAGE_SPOKEN",
+   "subject": "ENG",
+   "name": "Mixes up stage directions and spoken words",
+   "description": "Thinks the words in brackets are said aloud, or picks a character's line as the stage direction.",
+   "repair_hint": "Act it out: say only the words after the name; do what the brackets tell you.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_LIST_ORDER",
+   "subject": "ENG",
+   "name": "Chooses numbers or bullet points without asking if order matters",
+   "description": "Numbers a packing list where order does not matter, or gives bullet points for steps that must be done in order.",
+   "repair_hint": "Ask: would it go wrong if I did these in a different order? Yes means numbers; no means bullet points.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_FEATURE_WRONG_TYPE",
+   "subject": "ENG",
+   "name": "Gives a text a feature that belongs to another kind of text",
+   "description": "Says a report is split into verses, or that a stage direction belongs in a report about the monsoon.",
+   "repair_hint": "Sort feature cards under poem, playscript, report and instructions before answering.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PARA_BY_WORD",
+   "subject": "ENG",
+   "name": "Groups sentences by a shared word, not a shared idea",
+   "description": "Puts 'We visit the waterfalls' with sentences about the rain because both mention water.",
+   "repair_hint": "Say in three words what each sentence is about, then group the ideas, not the words.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_HEADING_TOO_NARROW",
+   "subject": "ENG",
+   "name": "Chooses a heading that fits only one sentence",
+   "description": "Chooses 'Making a Rangoli' for a paragraph about cleaning, painting and making a rangoli before Diwali.",
+   "repair_hint": "Test the heading against every sentence: it must fit them all.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PARA_ODD_KEPT",
+   "subject": "ENG",
+   "name": "Misses the sentence that does not belong",
+   "description": "In a paragraph about how a banyan grows, picks a sentence about its roots as the odd one and leaves the sentence about village meetings.",
+   "repair_hint": "Name the paragraph's one idea first, then check each sentence against it.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PERSUADE_FACT_ONLY",
+   "subject": "ENG",
+   "name": "Treats a persuading device as plain information",
+   "description": "Says '9 out of 10 dentists' is there to tell how many tubes are in a box, or underlines the opening times as persuasive words.",
+   "repair_hint": "Ask of each part: does it tell me a plain fact, or try to make me want something?",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PERSUADE_PURPOSE",
+   "subject": "ENG",
+   "name": "Says an advert or review is only there to tell a story or give facts",
+   "description": "Says an advert begins with a question 'to tell a story', or that a review is trying to sell places.",
+   "repair_hint": "Ask who wrote it and what they want you to do: buy, visit, or decide.",
+   "detectable_by": "answer_lookup"
+  },
+  {
+   "code": "M_ENG_PERSUADE_NAMES_ONLY",
+   "subject": "ENG",
+   "name": "Copies a persuasive word without saying how it works",
+   "description": "Writes 'thrilling' as the answer but does not say it makes the ride sound exciting so you want to go.",
+   "repair_hint": "Use the frame: 'The writer uses … to make the reader feel or think …'.",
+   "detectable_by": "model"
+  },
+  {
+   "code": "M_ENG_PERSUADE_TRUSTS_ADVERT",
+   "subject": "ENG",
+   "name": "Believes an advert's claims as facts",
+   "description": "Says the advert is right that the camp is never crowded, though the review says it was very crowded.",
+   "repair_hint": "Ask who gains if you believe it, and check the claim against another text.",
+   "detectable_by": "model"
+  }
+ ]
+}
