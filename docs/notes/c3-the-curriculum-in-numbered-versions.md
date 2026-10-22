@@ -10,6 +10,10 @@
   - Version 1 is the curriculum as it stood, in force from this week's Monday.
   - `item_result` and `evidence_event` name `curriculum_version` by themselves on insert. Past rows name none.
 - **Applied twice locally:** one version 1 holding 46 skills.
+- **A fresh build had an empty version 1.** The whole suite on a fresh build found that the migrations run before any
+  skill exists. Version 1 now begins once a school has skills: in the migration where they exist (live), else at the
+  end of `engine load` (`curriculum_begins`). Rebuilt fresh: version 1 holds 46 skills, and the C1–C3 tests with
+  `test_rules` and `test_layout` pass (80).
 - **Tests:** `test_curriculum_versions.py` 6 passed. With C2's tests: 13 passed. `bin/check`: 30 passed. The tests were
   written after the migration was first applied locally, so their failing-first run is the CI run of a database
   without it. Not seen separately.
