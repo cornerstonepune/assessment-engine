@@ -78,13 +78,20 @@ def _refused(conn, sql, params=()):
     return False
 
 
+_MATHS = (
+    "select s.code from skill_set s join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code"
+    " where o.subject_code = 'NUM'"
+)
+
+
 def test_each_skill_holds_its_rungs_grade_order_and_description(conn):
     """Every rung the seed writes is one skill's: its grade, place, description and registry skills, in their order."""
     rungs = {r["code"]: r for r in settings.seed("rungs.json", "rungs")}
     skills = {
         r["rung_code"]: r
         for r in conn.execute(
-            "select rung_code, grade, ladder_order, descriptor, registry_codes from skill_set"
+            "select s.rung_code, s.grade, s.ladder_order, s.descriptor, s.registry_codes from skill_set s"
+            " join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code where o.subject_code = 'NUM'"  # the seed's rungs are the maths
         )
     }
     assert rungs.keys() == skills.keys()
@@ -197,7 +204,10 @@ def test_every_childs_map_and_paper_is_the_same_before_and_after(conn):
     wrote them, so every map is drawn and every paper chosen as before. A skill's levels keep their grades: a level
     moved keeps its grade, any other has its skill's, which was its rung's."""
     rungs = {r["code"]: r for r in settings.seed("rungs.json", "rungs")}
+    maths = {r["code"] for r in conn.execute(_MATHS)}
     for c in shelf._catalog(conn, None, every=True):
+        if c["code"] not in maths:  # the rungs seed is the maths; English's skills carry their own grade (E0)
+            continue
         r = rungs[c["rung"]]
         assert c["order"] == r["ladder_order"], c["code"]
         assert c["own"] in (None, r["skill_codes"][0]), c["code"]
@@ -209,6 +219,7 @@ def test_every_childs_map_and_paper_is_the_same_before_and_after(conn):
     for r in conn.execute(
         "select l.skill_code, l.difficulty, l.grade, s.rung_code from skill_level l"
         " join skill_set s on s.tenant_id = l.tenant_id and s.code = l.skill_code"
+        " join topic o on o.tenant_id = s.tenant_id and o.code = s.topic_code where o.subject_code = 'NUM'"
     ):
         want = moved.get((r["skill_code"], r["difficulty"]), rungs[r["rung_code"]]["band"])
         assert r["grade"] == want, (r["skill_code"], r["difficulty"])
