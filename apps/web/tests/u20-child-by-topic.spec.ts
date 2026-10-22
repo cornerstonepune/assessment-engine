@@ -107,7 +107,7 @@ test("every parent report waiting on a person is one list, and a child's page en
   // is not on it
   await page.goto("/growth/reports");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Parent reports");
-  const rows = page.getByRole("table", { name: "Parent reports waiting on a person" }).locator("tbody tr");
+  const rows = page.getByRole("table", { name: "Parent reports not up to date" }).locator("tbody tr");
   const ours = rows.filter({ hasText: SECTION });
   await expect(ours).toHaveText([/Ishaan.*to approve/, /Kabir.*to write/]);
   await ours.first().getByRole("link", { name: "Ishaan" }).click();

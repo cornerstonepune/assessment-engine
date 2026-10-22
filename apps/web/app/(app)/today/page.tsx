@@ -88,10 +88,14 @@ function Shrinking({ weeks, trust }: { weeks: Week[]; trust: Trust }) {
   return (
     <section aria-label={title} className="panel mb-6 p-4">
       <h2 className="font-heading text-[17px]">{title}</h2>
+      {/* in an educator's words, not the reader's (goals/ux8c-one-word.yaml) */}
       <p className="mt-1 text-[13.5px] leading-snug">
-        The reader is trusted on {trust.kinds ? `${trust.trusted} of ${trust.kinds}` : "none of the"} kinds of question it has read
-        {trust.nearest ? `; the nearest, ${kindWords(trust.nearest.fmt)}, needs ${trust.nearest.to_trust} more right ${trust.nearest.to_trust === 1 ? "check" : "checks"}` : ""}. A trusted kind&apos;s
-        right answers settle without a person; every wrong and every blank still waits for one.
+        The reader settles a right answer by itself only on a kind of question it has earned trust on. It is trusted on{" "}
+        {trust.kinds ? `${trust.trusted} of ${trust.kinds}` : "none of the"} kinds of question it has read so far
+        {trust.nearest
+          ? `; the closest, ${kindWords(trust.nearest.fmt)}, needs ${trust.nearest.to_trust} more ${trust.nearest.to_trust === 1 ? "answer" : "answers"} where a person agrees with what it read`
+          : ""}
+        . Every wrong answer and every blank still waits for a person.
       </p>
       {weeks.length ? (
         <div className="mt-3 min-w-0 overflow-x-auto">

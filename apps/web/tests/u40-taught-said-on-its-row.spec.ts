@@ -60,7 +60,7 @@ test("a skill not taught yet is said taught from its own row, for one class", as
   const row = table.locator('tr[data-row="G2/MUL.THREE"]');
   await expect(row).toContainText("not taught yet");
   await row.getByLabel("Class").selectOption(CLASS);
-  await row.getByRole("button", { name: "Mark taught" }).click();
+  await row.getByRole("button", { name: "Say it is taught" }).click();
   await expect(page.getByRole("main")).toContainText(`${name} is taught in ${CLASS} now`);
   const said = await sql<{ section: string; skill: string; taught: boolean }[]>`
     select section, skill_set_code as skill, taught from class_skill where section in (${CLASS}, ${OTHER})`;
@@ -72,7 +72,7 @@ test("a topic not taught yet is said taught from its own row, every skill in it"
   const table = await grade2(page);
   const row = table.locator('tr[data-row="G2/FACTORS"]');
   await expect(row).toContainText("not taught yet");
-  await row.getByRole("button", { name: `Mark taught in ${CLASS}` }).click();
+  await row.getByRole("button", { name: `Say it is taught in ${CLASS}` }).click();
   await expect(page.getByRole("main")).toContainText(`is taught in ${CLASS} now`);
   const said = await sql<{ skill: string }[]>`
     select skill_set_code as skill from class_skill where section = ${CLASS} and taught order by 1`;
