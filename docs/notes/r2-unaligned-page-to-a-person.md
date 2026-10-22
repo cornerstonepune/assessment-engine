@@ -24,7 +24,10 @@ page goes whole to a person.
 
 - `cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_each_answer.py -k "whole_to_a_person or by_hand"`
   before the fix: `1 failed, 1 passed` ("a printed page is never read by its words": it was). After: `2 passed`.
-- Goal criteria: see "engine done" under Handoff once run.
+- `bin/engine done r2-unaligned-page-to-a-person`, 2026-10-22, on a database built by `bin/testdb fresh`: both tests
+  PROVED; `tests/test_each_answer.py tests/test_lineup.py tests/test_boxes.py tests/test_stencil.py` → 49 passed; the
+  reader's files (`test_copies … test_second_reader`) → 119 passed; `bin/check` → 30 passed. NOT DONE only for: not on
+  main, and the manual check on live after deploy.
 
 ## Handoff
 
