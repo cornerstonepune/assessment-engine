@@ -9,6 +9,10 @@ the C slices because it needs no new table. Goal: `goals/s7-across-classes.yaml`
   2026-10-22, on a local copy built by `bin/testdb fresh`; passes on this branch: 4 passed.
 - `bin/engine load --check`: every code referenced resolves, unchanged on a second run; `threshold` 61 rows (59 + 2).
 - `bin/check`: 30 passed.
+- CI's first run caught a class's grade taken as `min()` of its code, which sorts grades as text
+  (`test_grades.py::test_no_file_outside_the_maths_library_names_a_grade`); the grade is now the class's own row, ordered
+  by `grade_ord`. After merging main (S1): `test_grades.py`, `test_school_words.py`, `test_states_and_subject.py` 16
+  passed; `s43-across-classes.spec.ts` and `s41-subject-class-and-today.spec.ts` 9 passed.
 - Neighbouring specs (u9, u25, u35, u37, u43, u47, u49, screens): 53 passed, 1 failed: u47 "one main action" on
   `/library` ("Remove from the bank | Keep it", bank proposals other runs left on this copy). It fails the same on main's
   code on this copy; S7 does not touch the library. CI's fresh copy decides.
