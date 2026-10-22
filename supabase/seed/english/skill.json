@@ -1114,7 +1114,7 @@
    "order": 48,
    "strand": "Reading",
    "name": "Follow written instructions",
-   "learning_objective": "Reads written steps, such as a recipe or a puzzle, carries them out in order on the paper and shows the result.",
+   "learning_objective": "Reads written steps, such as a recipe or a puzzle, follows them in order on the paper and shows the result.",
    "objectives": [
     "3Ri.09"
    ],
@@ -1757,8 +1757,8 @@
    "grade": "G4",
    "order": 23,
    "strand": "Reading",
-   "name": "Pick the key words that carry the main points",
-   "learning_objective": "Finds the key words and phrases in a paragraph that carry its main point, leaving out the details.",
+   "name": "Pick the key words that give the main points",
+   "learning_objective": "Finds the key words and phrases in a paragraph that give its main point, leaving out the details.",
    "objectives": [
     "4Ri.07"
    ],

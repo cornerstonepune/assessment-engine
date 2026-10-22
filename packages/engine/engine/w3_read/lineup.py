@@ -66,6 +66,11 @@ SEEK = 3.0  # mm the boxes alone are looked for where the question's print says 
 # not found. Measured on the 324 answers of 23 and 24 Sep, lined up: 0.21 at the least, a child's pencil all over the
 # boxes; 0.08 where an earlier line-up left a creased answer 6 mm off (24 Sep copy 01, question 10).
 BOXES = 0.15
+# Of the photograph, the printed page must cover at least this share and at most this many times it. On 2026-10-22
+# every page of a Grade 1 file was a phone's portrait picture laid on an A4 page, the paper a third of what is read
+# (0.34-0.42, `.github/measure/scan_vs_eye.py`); at a tenth the paper is a third of the photograph's width, and what
+# is found of its print (`ENOUGH`) still decides. A tight crop cuts the page: half of it gone is as far as it goes.
+PAPER = (0.1, 2.0)
 
 _sift = cv2.SIFT.create(4000)
 
@@ -126,18 +131,29 @@ def _by_sift(img, printed):
     a = np.array([k1[m.queryIdx].pt for m in pairs], np.float32).reshape(-1, 1, 2)
     b = np.array([k2[m.trainIdx].pt for m in pairs], np.float32).reshape(-1, 1, 2)
     Hm, _ = cv2.findHomography(a, b, cv2.RANSAC, FIT * SIFT_SIDE / 297)
-    if Hm is None or not stencil.plausible(Hm, tiny.shape, tiny_ref.shape):
-        return None
-    return _scale(1 / t_ref) @ Hm @ _scale(t_child)
+    return None if Hm is None else _scale(1 / t_ref) @ Hm @ _scale(t_child)
 
 
 def _by_orb(small, s_child, printed):
     """A first map by ORB features (`stencil.homography`), photograph pixels → the printed frame, or None."""
     ref_small, s_ref = printed[0], printed[1]
     Hm, _ = stencil.homography(small, ref_small)
-    if Hm is None or not stencil.plausible(Hm, small.shape, ref_small.shape):
-        return None
-    return _scale(1 / s_ref) @ Hm @ _scale(s_child)
+    return None if Hm is None else _scale(1 / s_ref) @ Hm @ _scale(s_child)
+
+
+def _holds_paper(M, shape):
+    """Whether a map, photograph pixels → the printed frame, puts a sensible page in the photograph: the printed
+    page's corners, taken back into it, a convex shape covering `PAPER` of it. Not where the photograph's own corners
+    land: a photograph is the paper edge to edge only when a scan app cropped it, and on 2026-10-22 a map that 113
+    features agreed on was thrown away because a phone's picture held the paper and the desk around it."""
+    try:
+        back = np.linalg.inv(M)
+    except np.linalg.LinAlgError:
+        return False
+    page = np.array([[0, 0], [W, 0], [W, H], [0, H]], np.float32).reshape(-1, 1, 2)
+    quad = cv2.perspectiveTransform(page, back)
+    share = cv2.contourArea(quad) / float(shape[0] * shape[1])
+    return bool(cv2.isContourConvex(quad)) and PAPER[0] <= share <= PAPER[1]
 
 
 def _found(small, s_child, M, printed):
@@ -199,7 +215,11 @@ def line_up(img, pdf, page_no):
     printed = _printed(str(pdf), page_no)
     small, s_child = _grey(img, SIDE)
     tiles = printed[4]
-    first = [M for M in (_by_orb(small, s_child, printed), _by_sift(img, printed)) if M is not None]
+    first = [
+        M
+        for M in (_by_orb(small, s_child, printed), _by_sift(img, printed))
+        if M is not None and _holds_paper(M, img.shape)
+    ]
     best = max(
         ((M, _found(small, s_child, M, printed)) for M in first),
         key=lambda m: len(m[1]),
@@ -210,7 +230,7 @@ def line_up(img, pdf, page_no):
         return None, None
     where, seen = found[:, :2] * PPM, (found[:, :2] + found[:, 2:]) * PPM
     better, _ = cv2.findHomography(seen, where, cv2.RANSAC, 1.5 * PPM)
-    if better is not None and stencil.plausible(better @ M, img.shape, (H, W)):
+    if better is not None and _holds_paper(better @ M, img.shape):
         M = better @ M
     fx, fy = _field(_agreeing(_found(small, s_child, M, printed)))
     back = np.linalg.inv(M)

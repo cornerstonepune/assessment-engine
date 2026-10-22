@@ -1,0 +1,844 @@
+{
+ "observed_skills": [
+  {
+   "code": "EN3.OBS.01",
+   "grade": "G3",
+   "objectives": [
+    "3Ww.06"
+   ],
+   "kind": "a habit over time",
+   "name": "Spelling log",
+   "milestone": "The child writes down words they misspelt, practises them, ticks them off when learnt, and checks a dictionary or screen when unsure.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.02",
+   "grade": "G3",
+   "objectives": [
+    "3Wv.07"
+   ],
+   "kind": "a habit over time",
+   "name": "Word list and thesaurus",
+   "milestone": "The child keeps a list of interesting words and uses it, or a dictionary or thesaurus, to choose stronger words in a later piece of writing.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.03",
+   "grade": "G3",
+   "objectives": [
+    "3Ri.02"
+   ],
+   "kind": "range of reading over a term",
+   "name": "Reading stories, poems and plays",
+   "milestone": "Over the term the child reads stories, poems and playscripts and can say what a picture or screen image adds to one of them.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.04",
+   "grade": "G3",
+   "objectives": [
+    "3Ri.04"
+   ],
+   "kind": "range of reading over a term",
+   "name": "Reading non-fiction",
+   "milestone": "The child reads instructions, a report and a recount during the term and can say what each one is for.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.05",
+   "grade": "G3",
+   "objectives": [
+    "3Ra.01"
+   ],
+   "kind": "enjoyment and choice",
+   "name": "Reading for enjoyment",
+   "milestone": "The child chooses books freely, stays with them, reads alone and with others, and wants to share what they have read.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.06",
+   "grade": "G3",
+   "objectives": [
+    "3Ra.02"
+   ],
+   "kind": "read aloud",
+   "name": "Silent reading",
+   "milestone": "The child reads quietly to themselves without saying the words aloud or pointing, keeps their place and can answer a question about the page.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.07",
+   "grade": "G3",
+   "objectives": [
+    "3Wc.01"
+   ],
+   "kind": "extended writing",
+   "name": "Stories and poems",
+   "milestone": "The child writes a complete story and a poem, each with ideas that hold together from the start to the end.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.08",
+   "grade": "G3",
+   "objectives": [
+    "3Wc.05"
+   ],
+   "kind": "extended writing",
+   "name": "Writing a text with its features",
+   "milestone": "The child writes a whole information page and a set of instructions, each with the features that kind of text needs.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.09",
+   "grade": "G3",
+   "objectives": [
+    "3Wc.06"
+   ],
+   "kind": "extended writing",
+   "name": "Writing for a named reader",
+   "milestone": "The child writes an advert or invitation for a named reader, choosing content and words that reader will understand and enjoy.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.10",
+   "grade": "G3",
+   "objectives": [
+    "3Wp.01"
+   ],
+   "kind": "handwriting",
+   "name": "Joined-up handwriting",
+   "milestone": "The child forms, sizes and joins letters steadily, so a page of their exercise book is easy to read.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.11",
+   "grade": "G3",
+   "objectives": [
+    "3Wp.03"
+   ],
+   "kind": "on screen",
+   "name": "Laying out a page",
+   "milestone": "The child lays out a page by hand, in print or on screen to suit its reader and purpose, and explains the choice.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.12",
+   "grade": "G3",
+   "objectives": [
+    "3SLm.01"
+   ],
+   "kind": "spoken",
+   "name": "Speaking with confidence",
+   "milestone": "The child talks about familiar things in a steady voice, without long stops, and seems at ease.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.13",
+   "grade": "G3",
+   "objectives": [
+    "3SLm.02"
+   ],
+   "kind": "spoken",
+   "name": "Choosing what to say",
+   "milestone": "When telling someone something, the child picks the facts that matter, with enough detail and nothing that does not belong.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.14",
+   "grade": "G3",
+   "objectives": [
+    "3SLm.03"
+   ],
+   "kind": "spoken",
+   "name": "Words that suit the moment",
+   "milestone": "The child uses friendly words with a friend and more careful words when talking to the class or a visitor.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.15",
+   "grade": "G3",
+   "objectives": [
+    "3SLm.04"
+   ],
+   "kind": "spoken",
+   "name": "Face and hands when speaking",
+   "milestone": "The child looks at the listeners and uses gestures and facial expressions that match what they are saying.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.16",
+   "grade": "G3",
+   "objectives": [
+    "3SLm.05"
+   ],
+   "kind": "spoken",
+   "name": "Talking to an audience",
+   "milestone": "The child changes how they speak, such as their tone and word choice, to keep a particular group of listeners interested.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.17",
+   "grade": "G3",
+   "objectives": [
+    "3SLs.01"
+   ],
+   "kind": "listening",
+   "name": "Following spoken instructions",
+   "milestone": "The child listens to a few instructions and then does each step in the right order.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.18",
+   "grade": "G3",
+   "objectives": [
+    "3SLs.02"
+   ],
+   "kind": "listening",
+   "name": "Asking about what was heard",
+   "milestone": "After a story or talk, the child asks a question that shows they understood its main points.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.19",
+   "grade": "G3",
+   "objectives": [
+    "3SLg.01"
+   ],
+   "kind": "spoken",
+   "name": "Taking a role in a group",
+   "milestone": "The child is given a job in a group, such as reader or timekeeper, and keeps to it.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.20",
+   "grade": "G3",
+   "objectives": [
+    "3SLg.02"
+   ],
+   "kind": "spoken",
+   "name": "Disagreeing politely",
+   "milestone": "The child answers someone else's view kindly and then gives their own view.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.21",
+   "grade": "G3",
+   "objectives": [
+    "3SLg.03"
+   ],
+   "kind": "spoken",
+   "name": "Adding to a discussion",
+   "milestone": "The child makes comments that stay on the topic and help the talk move forward.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.22",
+   "grade": "G3",
+   "objectives": [
+    "3SLg.04"
+   ],
+   "kind": "spoken",
+   "name": "Taking turns to talk",
+   "milestone": "The child waits for their turn, listens to others and mentions what someone said before adding their own idea.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.23",
+   "grade": "G3",
+   "objectives": [
+    "3SLp.01"
+   ],
+   "kind": "read aloud",
+   "name": "Reading aloud with expression",
+   "milestone": "The child reads a short passage aloud so that their voice rises, falls and slows to fit what the words mean.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.24",
+   "grade": "G3",
+   "objectives": [
+    "3SLp.02"
+   ],
+   "kind": "read aloud",
+   "name": "Voices for characters",
+   "milestone": "When reading a story with talking aloud, the child gives each character a different voice.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.25",
+   "grade": "G3",
+   "objectives": [
+    "3SLp.03"
+   ],
+   "kind": "read aloud",
+   "name": "Reading aloud accurately",
+   "milestone": "The child reads a familiar page aloud with few wrong words and pauses at full stops and commas.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.26",
+   "grade": "G3",
+   "objectives": [
+    "3SLp.04"
+   ],
+   "kind": "spoken",
+   "name": "Acting a character",
+   "milestone": "The child uses voice, gestures and movement to play a character in a drama so the audience can tell who it is.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.27",
+   "grade": "G3",
+   "objectives": [
+    "3SLp.05"
+   ],
+   "kind": "spoken",
+   "name": "Giving a short talk",
+   "milestone": "The child plans a talk on a familiar subject beforehand and gives it alone, in a sensible order.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.28",
+   "grade": "G3",
+   "objectives": [
+    "3SLr.01"
+   ],
+   "kind": "spoken",
+   "name": "Talking about talks",
+   "milestone": "After a talk or presentation, the child names one thing that went well and one thing to do better next time.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN3.OBS.29",
+   "grade": "G3",
+   "objectives": [
+    "3SLr.02"
+   ],
+   "kind": "spoken",
+   "name": "How meaning is shown",
+   "milestone": "The child can say how a speaker's words, face and hands together showed what they meant or felt.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.01",
+   "grade": "G4",
+   "objectives": [
+    "4Ww.09"
+   ],
+   "kind": "a habit over time",
+   "name": "Spelling log",
+   "milestone": "The child keeps a log of words they got wrong in their own writing, learns them, checks them in a dictionary or on screen, and ticks them off.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.02",
+   "grade": "G4",
+   "objectives": [
+    "4Wv.06"
+   ],
+   "kind": "a habit over time",
+   "name": "Word list and thesaurus",
+   "milestone": "Compared with a month ago, the child uses words from their own list, a dictionary or a thesaurus to make their writing richer.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.03",
+   "grade": "G4",
+   "objectives": [
+    "4Ri.02"
+   ],
+   "kind": "range of reading over a term",
+   "name": "Reading stories, poems and plays",
+   "milestone": "During the term the child reads a chapter of a longer story, a poem and a playscript, and says what a picture or screen image added.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.04",
+   "grade": "G4",
+   "objectives": [
+    "4Ri.04"
+   ],
+   "kind": "range of reading over a term",
+   "name": "Reading non-fiction",
+   "milestone": "The child reads a report, an advert, a recipe and a news article this term and can say what makes each one different.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.05",
+   "grade": "G4",
+   "objectives": [
+    "4Ra.01"
+   ],
+   "kind": "enjoyment and choice",
+   "name": "Reading for enjoyment",
+   "milestone": "The child picks books freely, finishes them, reads alone and with others, and likes to share them.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.06",
+   "grade": "G4",
+   "objectives": [
+    "4Ra.03"
+   ],
+   "kind": "enjoyment and choice",
+   "name": "Favourite books",
+   "milestone": "The child has favourite books and recommends one to a friend, giving a reason why the friend would like it.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.07",
+   "grade": "G4",
+   "objectives": [
+    "4Wc.01"
+   ],
+   "kind": "extended writing",
+   "name": "Stories and poems",
+   "milestone": "The child writes complete stories and different kinds of poems, with ideas that hold together from the start to the end.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.08",
+   "grade": "G4",
+   "objectives": [
+    "4Wc.08"
+   ],
+   "kind": "extended writing",
+   "name": "Writing a text with its features",
+   "milestone": "The child writes a whole information page and an advert, each with the features that kind of text needs.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.09",
+   "grade": "G4",
+   "objectives": [
+    "4Wc.09"
+   ],
+   "kind": "extended writing",
+   "name": "Writing for a named reader",
+   "milestone": "The child writes a letter or advert for a named reader, choosing content and words that make that reader understand and agree.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.10",
+   "grade": "G4",
+   "objectives": [
+    "4Wp.01"
+   ],
+   "kind": "handwriting",
+   "name": "Neat, quicker handwriting",
+   "milestone": "The child writes clearly with joined letters and can copy a passage in three minutes without the writing becoming untidy.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.11",
+   "grade": "G4",
+   "objectives": [
+    "4Wp.03"
+   ],
+   "kind": "on screen",
+   "name": "Laying out a page on screen",
+   "milestone": "The child lays out a page with headings and pictures on screen, by hand or in print to suit the reader, and says why.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.12",
+   "grade": "G4",
+   "objectives": [
+    "4SLm.01"
+   ],
+   "kind": "spoken",
+   "name": "Speaking at length",
+   "milestone": "The child talks about a familiar topic for a minute or more with few slips in grammar or word choice.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.13",
+   "grade": "G4",
+   "objectives": [
+    "4SLm.02"
+   ],
+   "kind": "spoken",
+   "name": "Putting ideas in order",
+   "milestone": "When explaining something, the child puts the information in an order that helps the listener follow.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.14",
+   "grade": "G4",
+   "objectives": [
+    "4SLm.03"
+   ],
+   "kind": "spoken",
+   "name": "Exact words",
+   "milestone": "The child chooses precise words, such as sprinted or fragile, instead of general ones when explaining.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.15",
+   "grade": "G4",
+   "objectives": [
+    "4SLm.04"
+   ],
+   "kind": "spoken",
+   "name": "Face and hands when speaking",
+   "milestone": "The child looks at the listeners and uses gestures and expressions that fit what they are saying, for different reasons.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.16",
+   "grade": "G4",
+   "objectives": [
+    "4SLm.05"
+   ],
+   "kind": "spoken",
+   "name": "Talking to an audience",
+   "milestone": "The child changes their language and tone to suit a younger class or a visitor and keeps that audience interested.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.17",
+   "grade": "G4",
+   "objectives": [
+    "4SLs.01"
+   ],
+   "kind": "listening",
+   "name": "Listening and asking questions",
+   "milestone": "After listening to a classmate, the child asks and answers questions that build on the ideas they heard.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.18",
+   "grade": "G4",
+   "objectives": [
+    "4SLg.01"
+   ],
+   "kind": "spoken",
+   "name": "Taking a role in a group",
+   "milestone": "The child takes a job in a group and keeps to it until the task is finished.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.19",
+   "grade": "G4",
+   "objectives": [
+    "4SLg.02"
+   ],
+   "kind": "spoken",
+   "name": "Disagreeing politely with a reason",
+   "milestone": "The child answers another view kindly, gives their own view and says why.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.20",
+   "grade": "G4",
+   "objectives": [
+    "4SLg.03"
+   ],
+   "kind": "spoken",
+   "name": "Adding comments and questions",
+   "milestone": "The child adds comments and questions that stay on the topic and bring something new to the talk.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.21",
+   "grade": "G4",
+   "objectives": [
+    "4SLg.04"
+   ],
+   "kind": "spoken",
+   "name": "Linking to what others said",
+   "milestone": "The child takes turns and connects what they say to the speaker before them.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.22",
+   "grade": "G4",
+   "objectives": [
+    "4SLp.01"
+   ],
+   "kind": "read aloud",
+   "name": "Pace and volume when reading aloud",
+   "milestone": "The child reads a lively passage aloud, speeding up, slowing down, and getting louder or softer to fit the content.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.23",
+   "grade": "G4",
+   "objectives": [
+    "4SLp.02"
+   ],
+   "kind": "read aloud",
+   "name": "Reading aloud smoothly",
+   "milestone": "The child reads a page aloud with few wrong words and a smooth flow, pausing at commas and full stops.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.24",
+   "grade": "G4",
+   "objectives": [
+    "4SLp.03"
+   ],
+   "kind": "spoken",
+   "name": "Changing character in drama",
+   "milestone": "The child plays a character with voice, gesture and movement, and can change them to play a different character.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.25",
+   "grade": "G4",
+   "objectives": [
+    "4SLp.04"
+   ],
+   "kind": "spoken",
+   "name": "Group presentation",
+   "milestone": "The child helps plan a group presentation on a familiar subject and speaks well in it, even in front of a wider audience.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.26",
+   "grade": "G4",
+   "objectives": [
+    "4SLr.01"
+   ],
+   "kind": "spoken",
+   "name": "Strengths and next steps",
+   "milestone": "After a talk, the child names one strength in their own or a friend's talk and one change for next time.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  },
+  {
+   "code": "EN4.OBS.27",
+   "grade": "G4",
+   "objectives": [
+    "4SLr.02"
+   ],
+   "kind": "spoken",
+   "name": "How words and body show meaning",
+   "milestone": "The child can explain how a speaker's face and hands changed what the words meant.",
+   "scale": [
+    "yes",
+    "sometimes",
+    "not yet"
+   ]
+  }
+ ]
+}
