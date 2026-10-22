@@ -92,15 +92,15 @@ test("papers given over 3 days ago and not back are listed", async ({ page }) =>
 
 test("a child who needs help in two subjects is named, and one subject alone is not enough", async ({ page }) => {
   const [maths] = await sql<{ rung: string; skill: string }[]>`
-    select ss.rung_code as rung, r.skill_codes[1] as skill from skill_set ss join rung r on r.code = ss.rung_code
-    where r.band = 'G3' and cardinality(r.skill_codes) > 0 order by r.ladder_order limit 1`;
+    select ss.rung_code as rung, ss.registry_codes[1] as skill from skill_set ss
+    where ss.grade = 'G3' and cardinality(ss.registry_codes) > 0 order by ss.ladder_order, ss.code limit 1`;
   await sql.begin(async (tx) => {
     await tx`insert into subject (tenant_id, code, name, label) values (${tenant}, 'S43SUB', 'Test subject', 'Test subject')`;
     await tx`insert into topic (tenant_id, code, subject_code, name, ord) values (${tenant}, 'S43TOPIC', 'S43SUB', 'Test topic', 99)`;
-    await tx`insert into rung (tenant_id, code, band, descriptor) values (${tenant}, 'S43R', 'G3', 'a test rung')`;
+    // a skill's grade and description are its own (goals/b4-the-rung-folded-in.yaml); its second code names it in evidence
     await tx`
-      insert into skill_set (tenant_id, code, rung_code, name, learning_objective, difficulty, topic_code)
-      values (${tenant}, 'S43.SET', 'S43R', 'A test skill', 'a test', '{}'::jsonb, 'S43TOPIC')`;
+      insert into skill_set (tenant_id, code, rung_code, name, learning_objective, difficulty, topic_code, grade, descriptor)
+      values (${tenant}, 'S43.SET', 'S43R', 'A test skill', 'a test', '{}'::jsonb, 'S43TOPIC', 'G3', 'a test skill')`;
   });
   // where each child stands is rebuilt from the evidence any time (ring B): a red state in Maths for both, and in the
   // test subject for Asha alone
@@ -122,7 +122,6 @@ test("a child who needs help in two subjects is named, and one subject alone is 
     await sql`delete from child_skill_state where rung_code = 'S43R'`;
     for (const id of [kids.Asha, kids.Bina]) await sql`select rebuild_child_skill_state(${id}::uuid)`;
     await sql`delete from skill_set where code = 'S43.SET'`;
-    await sql`delete from rung where code = 'S43R'`;
     await sql`delete from topic where code = 'S43TOPIC'`;
     await sql`delete from subject where code = 'S43SUB'`;
   }
