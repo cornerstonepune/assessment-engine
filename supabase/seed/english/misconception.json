@@ -1684,7 +1684,7 @@
    "code": "M_ENG_STEP_ORDER",
    "subject": "ENG",
    "name": "Does the steps in the wrong order",
-   "description": "Carries out the steps in the order they are printed when the time words say otherwise, or runs past the step asked about: puts the sev on the bhel before the chutney.",
+   "description": "Follows the steps in the order they are printed when the time words say otherwise, or runs past the step asked about: puts the sev on the bhel before the chutney.",
    "repair_hint": "Underline time words like before, after and just before, then number the steps.",
    "detectable_by": "answer_lookup"
   },
@@ -2020,7 +2020,7 @@
    "code": "M_ENG_WORDCLASS_ADJ",
    "subject": "ENG",
    "name": "Marks the noun instead of the describing word",
-   "description": "Underlines boy or bag when asked for the adjectives in 'The tall boy carried a heavy bag', or puts bright with the nouns.",
+   "description": "Underlines boy or bag when asked for the adjectives in 'The tall boy lifted a heavy bag', or puts bright with the nouns.",
    "repair_hint": "Find the noun first, then ask: what kind? The word that answers is the adjective.",
    "detectable_by": "answer_lookup"
   },
@@ -2372,7 +2372,7 @@
    "code": "M_ENG_NOTE_MINOR_DETAIL",
    "subject": "ENG",
    "name": "Records a small detail instead of the key fact",
-   "description": "Notes 'warm sea' for what carries the rain, instead of 'strong winds'.",
+   "description": "Notes 'warm sea' for what brings the rain, instead of 'strong winds'.",
    "repair_hint": "Ask which words the reader would need if they read only your notes.",
    "detectable_by": "answer_lookup"
   },

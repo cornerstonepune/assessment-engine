@@ -3460,7 +3460,7 @@
    "skill_code": "EN3.READ.INSTRUCT",
    "difficulty": "Medium",
    "grade": "G3",
-   "looks_like": "Numbered steps with direction words such as left, right and second; the child carries them out alone and says where they lead.",
+   "looks_like": "Numbered steps with direction words such as left, right and second; the child follows them alone and says where they lead.",
    "rule": {
     "passage_words": [
      60,
@@ -3486,7 +3486,7 @@
    "skill_code": "EN3.READ.INSTRUCT",
    "difficulty": "Advance",
    "grade": "G3",
-   "looks_like": "A word puzzle where each step changes the last result; the child carries it out, finds which step someone missed and fixes it.",
+   "looks_like": "A word puzzle where each step changes the last result; the child follows it, finds which step someone missed and fixes it.",
    "rule": {
     "passage_words": [
      120,

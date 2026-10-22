@@ -4364,7 +4364,7 @@
    "question_type": "ENG.DICTATION",
    "ask": "Listen and write the word.",
    "passage": null,
-   "text": "We borrowed two books from the school ___.",
+   "text": "We took two books home from the school ___.",
    "options": null,
    "answer": "library",
    "accept": [],
@@ -4808,7 +4808,7 @@
    "difficulty": "Advance",
    "n": 3,
    "question_type": "ENG.CHOOSE",
-   "ask": "These words look alike. Tick the one whose meaning has nothing to do with carrying.",
+   "ask": "These words look alike. Tick the one whose meaning has nothing to do with taking things somewhere.",
    "passage": null,
    "text": "transport, portable, porter, portrait",
    "options": [
@@ -8956,7 +8956,7 @@
    "question_type": "ENG.GAP",
    "ask": "Riya wrote agonising in the gap, but that is too strong. Choose the word that fits exactly.",
    "passage": null,
-   "text": "The scrape on my knee was ___, so I put a small plaster on it and carried on playing.",
+   "text": "The scrape on my knee was ___, so I put a small plaster on it and kept on playing.",
    "options": [
     "sore",
     "unbearable",
@@ -12421,7 +12421,7 @@
    "question_type": "ENG.CHOOSE",
    "ask": "Tick the word that fits.",
    "passage": null,
-   "text": "The library got ___ new books, so we each borrowed one.",
+   "text": "The library got ___ new books, so we each took one home.",
    "options": [
     "several",
     "much",
@@ -13069,14 +13069,14 @@
    "passage": null,
    "text": "Zara is talking to her friend Kiran.",
    "options": [
-    "Kiran, can you help me carry this?",
-    "Kiran can you, help me carry this?",
-    "Kiran can you help me, carry this?"
+    "Kiran, can you help me lift this?",
+    "Kiran can you, help me lift this?",
+    "Kiran can you help me, lift this?"
    ],
-   "answer": "Kiran, can you help me carry this?",
+   "answer": "Kiran, can you help me lift this?",
    "accept": [],
    "wrong": {
-    "Kiran can you, help me carry this?": "M_ENG_COMMA_EVERYWHERE"
+    "Kiran can you, help me lift this?": "M_ENG_COMMA_EVERYWHERE"
    }
   },
   {
@@ -14395,12 +14395,12 @@
    "passage": "P.EN3.READ.BLURB.E",
    "text": null,
    "options": null,
-   "answer": "Yes, because Bablu is brave and carries the children home when the roads flood on a rainy night.",
+   "answer": "Yes, because Bablu is brave and takes the children home when the roads flood on a rainy night.",
    "accept": [],
    "rubric": "R_ENG_ANSWER",
    "key_points": [
     "says yes",
-    "gives one detail from the blurb: Bablu is brave, carries the children home, a story for readers who love heroes"
+    "gives one detail from the blurb: Bablu is brave, takes the children home, a story for readers who love heroes"
    ],
    "must_contain": [
     "brave"
@@ -15371,14 +15371,14 @@
    "options": [
     "Be kind and share with others.",
     "Anu walked to school in the rain.",
-    "Always carry an umbrella."
+    "Always take an umbrella."
    ],
    "answer": "Be kind and share with others.",
    "accept": [],
    "check": null,
    "wrong": {
     "Anu walked to school in the rain.": "M_ENG_THEME_PLOT",
-    "Always carry an umbrella.": "M_ENG_THEME_DETAIL"
+    "Always take an umbrella.": "M_ENG_THEME_DETAIL"
    },
    "rubric": null,
    "key_points": null,
@@ -15536,11 +15536,11 @@
    "passage": "P.EN3.READ.THEME.H",
    "text": null,
    "options": [
-    "A class cannot lift a heavy bench alone, so everyone holds one end and carries it together.",
+    "A class cannot lift a heavy bench alone, so everyone holds one end and lifts it together.",
     "A monkey steals bananas from a fruit seller and runs up a tree.",
     "A parrot learns to say ten new words."
    ],
-   "answer": "A class cannot lift a heavy bench alone, so everyone holds one end and carries it together.",
+   "answer": "A class cannot lift a heavy bench alone, so everyone holds one end and lifts it together.",
    "accept": [],
    "check": null,
    "wrong": {
@@ -15873,8 +15873,8 @@
    "text": null,
    "options": null,
    "answer": {
-    "What the dog carries in Telling 1": "a bone",
-    "What the dog carries in Telling 2": "a vada pav",
+    "What the dog takes in Telling 1": "a bone",
+    "What the dog takes in Telling 2": "a vada pav",
     "Where he sees the other dog in Telling 1": "in the stream",
     "Where he sees the other dog in Telling 2": "in a puddle"
    },
@@ -16021,14 +16021,14 @@
    "options": [
     "The squirrel bites through the string and the kite falls down to Om.",
     "Om cuts the squirrel free from the kite string.",
-    "A big storm carries the neem tree away."
+    "A big storm blows the neem tree away."
    ],
    "answer": "The squirrel bites through the string and the kite falls down to Om.",
    "accept": [],
    "check": null,
    "wrong": {
     "Om cuts the squirrel free from the kite string.": "M_ENG_PREDICT_RETELL",
-    "A big storm carries the neem tree away.": "M_ENG_PREDICT_NO_CLUE"
+    "A big storm blows the neem tree away.": "M_ENG_PREDICT_NO_CLUE"
    },
    "rubric": null,
    "key_points": null,
@@ -16658,11 +16658,11 @@
    "passage": "P.EN3.READ.FACTOPINION.M",
    "text": null,
    "options": [
-    "Mrs Kulkarni carried a first-aid box and a big bag of bananas.",
+    "Mrs Kulkarni took a first-aid box and a big bag of bananas.",
     "The view from the top was amazing.",
     "It was the best trip we have ever had."
    ],
-   "answer": "Mrs Kulkarni carried a first-aid box and a big bag of bananas.",
+   "answer": "Mrs Kulkarni took a first-aid box and a big bag of bananas.",
    "accept": [],
    "check": null,
    "wrong": {
@@ -17659,7 +17659,7 @@
    "options": {
     "left": [
      "Many people run away when a bee flies near them",
-     "Bees carry pollen from one flower to another",
+     "Bees move pollen from one flower to another",
      "Bees also make honey",
      "Sadly, there are fewer bees than there used to be",
      "We can help by growing flowering plants"
@@ -17676,7 +17676,7 @@
      "Introduction: what the report is about"
     ],
     [
-     "Bees carry pollen from one flower to another",
+     "Bees move pollen from one flower to another",
      "Main point: a fact about bees"
     ],
     [
@@ -17897,7 +17897,7 @@
    "difficulty": "Medium",
    "n": 1,
    "question_type": "ENG.COPY",
-   "ask": "Copy the key words in paragraph 2 that carry its main point.",
+   "ask": "Copy the key words in paragraph 2 that give its main point.",
    "passage": "P.EN4.READ.KEYWORDS.M",
    "text": null,
    "options": null,
@@ -17916,7 +17916,7 @@
    "difficulty": "Medium",
    "n": 2,
    "question_type": "ENG.CHOOSE",
-   "ask": "Which words carry the main point of paragraph 1? Tick one.",
+   "ask": "Which words give the main point of paragraph 1? Tick one.",
    "passage": "P.EN4.READ.KEYWORDS.M",
    "text": null,
    "options": [
@@ -17954,7 +17954,7 @@
    "difficulty": "Hard",
    "n": 1,
    "question_type": "ENG.COPY",
-   "ask": "Copy the key words that carry the main point of paragraph 1.",
+   "ask": "Copy the key words that give the main point of paragraph 1.",
    "passage": "P.EN4.READ.KEYWORDS.H",
    "text": null,
    "options": null,
@@ -17973,7 +17973,7 @@
    "difficulty": "Hard",
    "n": 2,
    "question_type": "ENG.CHOOSE",
-   "ask": "Which words carry the main point of paragraph 2? Tick one.",
+   "ask": "Which words give the main point of paragraph 2? Tick one.",
    "passage": "P.EN4.READ.KEYWORDS.H",
    "text": null,
    "options": [
@@ -18017,7 +18017,7 @@
    "difficulty": "Advance",
    "n": 1,
    "question_type": "ENG.CHOOSE",
-   "ask": "Which key words carry the main point of paragraph 2? Tick one.",
+   "ask": "Which key words give the main point of paragraph 2? Tick one.",
    "passage": "P.EN4.READ.KEYWORDS.A",
    "text": null,
    "options": [
@@ -19751,7 +19751,7 @@
    "passage": "P.EN4.READ.CONTEXT.A",
    "text": null,
    "options": null,
-   "answer": "Sumati ground rice into flour on a stone wheel, but today families buy flour in a packet from a shop. She also carried water from the well in a brass pot, but now most homes have a tap.",
+   "answer": "Sumati ground rice into flour on a stone wheel, but today families buy flour in a packet from a shop. She also took water from the well in a brass pot, but now most homes have a tap.",
    "accept": [],
    "check": null,
    "wrong": {
@@ -20776,7 +20776,7 @@
    "question_type": "ENG.MARK_WORDS",
    "ask": "Underline the adjectives.",
    "passage": null,
-   "text": "The tall boy carried a heavy bag up the steep hill.",
+   "text": "The tall boy lifted a heavy bag up the steep hill.",
    "options": null,
    "answer": [
     "tall",
@@ -21526,7 +21526,7 @@
    "options": [
     "went",
     "laughs",
-    "carried",
+    "hurried",
     "sings",
     "ran",
     "hurries"
@@ -21534,7 +21534,7 @@
    "answer": {
     "past": [
      "went",
-     "carried",
+     "hurried",
      "ran"
     ],
     "present": [
@@ -22504,12 +22504,12 @@
    "question_type": "ENG.TABLE",
    "ask": "These are notes for a report about the yak. One note does not belong in the report. Leave it out and write the others under the right headings.",
    "passage": null,
-   "text": "Notes: milk, wool and carrying loads / my cousin visited Delhi / high, cold mountains of Ladakh / long thick hair and curved horns\nHeadings: Where it lives, What it looks like, How people use it",
+   "text": "Notes: milk, wool and moving loads / my cousin visited Delhi / high, cold mountains of Ladakh / long thick hair and curved horns\nHeadings: Where it lives, What it looks like, How people use it",
    "options": null,
    "answer": {
     "Where it lives": "high, cold mountains of Ladakh",
     "What it looks like": "long thick hair and curved horns",
-    "How people use it": "milk, wool and carrying loads"
+    "How people use it": "milk, wool and moving loads"
    },
    "accept": [],
    "check": null,
@@ -23364,7 +23364,7 @@
    "passage": null,
    "text": null,
    "options": null,
-   "answer": "At first, I was a tiny drop inside a dark grey cloud. Then the cloud became heavy, so I fell down onto a hill. Next, I rolled down the hill into a small stream. After that, the stream carried me into a wide river. For many days, I floated past villages and fields. At last, the river poured me into the salty sea.",
+   "answer": "At first, I was a tiny drop inside a dark grey cloud. Then the cloud became heavy, so I fell down onto a hill. Next, I rolled down the hill into a small stream. After that, the stream took me into a wide river. For many days, I floated past villages and fields. At last, the river poured me into the salty sea.",
    "accept": [],
    "check": null,
    "wrong": null,
@@ -24805,7 +24805,7 @@
    "passage": "P.EN4.WRITE.ENDING.M",
    "text": null,
    "options": null,
-   "answer": "The day before Makar Sankranti, Meera went to the market with Aaji. Hundreds of kites hung from the stalls like coloured birds. Meera had saved her pocket money for weeks, but most kites cost too much. At the last stall, she found a bright red kite with a long tail. Aaji added the last ten rupees, and Meera carried it home as carefully as an egg.",
+   "answer": "The day before Makar Sankranti, Meera went to the market with Aaji. Hundreds of kites hung from the stalls like coloured birds. Meera had saved her pocket money for weeks, but most kites cost too much. At the last stall, she found a bright red kite with a long tail. Aaji added the last ten rupees, and Meera took it home as carefully as an egg.",
    "accept": [],
    "check": null,
    "wrong": {},
@@ -25167,7 +25167,7 @@
    "text": null,
    "options": null,
    "answer": {
-    "What carries the rain": "strong winds",
+    "What brings the rain": "strong winds",
     "What the winds pick up over the sea": "water",
     "When they drop it as rain": "when they meet the land and hills"
    },
@@ -26308,7 +26308,7 @@
    "passage": "P.EN4.WRITE.PROFILE.A",
    "text": null,
    "options": null,
-   "answer": "Looks: Ramu is old and wears a khaki coat two sizes too big, with squeaky boots.\nPersonality: He is calm, because when Vikram laughs at him he only smiles. He is also wise and careful. He says, \"Lights go out. A flame does not forget,\" and he is right, because the lights fail in the storm.\nLikes: He likes doing things the old way, like carrying his lantern every night.\nQuote: \"Lights go out. A flame does not forget.\"",
+   "answer": "Looks: Ramu is old and wears a khaki coat two sizes too big, with squeaky boots.\nPersonality: He is calm, because when Vikram laughs at him he only smiles. He is also wise and careful. He says, \"Lights go out. A flame does not forget,\" and he is right, because the lights fail in the storm.\nLikes: He likes doing things the old way, like taking his lantern every night.\nQuote: \"Lights go out. A flame does not forget.\"",
    "accept": [],
    "check": null,
    "wrong": {},
@@ -26329,7 +26329,7 @@
    "passage": "P.EN4.WRITE.PROFILE.A",
    "text": null,
    "options": null,
-   "answer": "Looks: Vikram is a young guard.\nAt the start: He is careless and a little rude. He laughs at Ramu's lantern and spends most nights playing games on his phone.\nIn the storm: He is scared, because his hands shake in the dark hallway.\nAt the end: He is honest and humble. He looks at the floor and says, \"It was all Ramu Kaka.\" He has learned from Ramu, because he decides to carry a lantern too.",
+   "answer": "Looks: Vikram is a young guard.\nAt the start: He is careless and a little rude. He laughs at Ramu's lantern and spends most nights playing games on his phone.\nIn the storm: He is scared, because his hands shake in the dark hallway.\nAt the end: He is honest and humble. He looks at the floor and says, \"It was all Ramu Kaka.\" He has learned from Ramu, because he decides to take a lantern too.",
    "accept": [],
    "check": null,
    "wrong": {},
@@ -26350,7 +26350,7 @@
    "passage": "P.EN4.WRITE.PROFILE.A",
    "text": null,
    "options": null,
-   "answer": "Name: Lata, aged nine.\nLooks: She has short hair and always wears her grandfather's old watch, which is too big for her wrist.\nPersonality: Like Ramu, she is calm and notices things others miss. She does not laugh at old ways, because she has heard the story of the lantern many times.\nLikes: She likes torches, maps and solving puzzles.\nQuote: \"Grandpa says a flame does not forget, so I always carry a torch.\"\nIn the next story, she could use her torch to help find something lost in the museum.",
+   "answer": "Name: Lata, aged nine.\nLooks: She has short hair and always wears her grandfather's old watch, which is too big for her wrist.\nPersonality: Like Ramu, she is calm and notices things others miss. She does not laugh at old ways, because she has heard the story of the lantern many times.\nLikes: She likes torches, maps and solving puzzles.\nQuote: \"Grandpa says a flame does not forget, so I always take a torch.\"\nIn the next story, she could use her torch to help find something lost in the museum.",
    "accept": [],
    "check": null,
    "wrong": {},
@@ -26603,7 +26603,7 @@
    "passage": null,
    "text": null,
    "options": null,
-   "answer": "When I first joined the museum, I thought Ramu Kaka was a silly old man. Why carry a lantern in a building full of lights? I even laughed at him. Now I think he is the wisest person I know. Firstly, he was ready for the storm when I was not. Secondly, he stayed calm and rang the alarm while my hands were shaking. From tonight, I carry a lantern too, because I want to be like him.",
+   "answer": "When I first joined the museum, I thought Ramu Kaka was a silly old man. Why take a lantern in a building full of lights? I even laughed at him. Now I think he is the wisest person I know. Firstly, he was ready for the storm when I was not. Secondly, he stayed calm and rang the alarm while my hands were shaking. From tonight, I take a lantern too, because I want to be like him.",
    "accept": [],
    "check": null,
    "wrong": {},
@@ -26725,11 +26725,11 @@
    "difficulty": "Medium",
    "n": 3,
    "question_type": "ENG.SHORT_WRITE",
-   "ask": "Write a short note to the librarian saying whether children should be allowed to borrow two books a week instead of one. Give your view and two reasons.",
+   "ask": "Write a short note to the librarian saying whether children should be allowed to take home two books a week instead of one. Give your view and two reasons.",
    "passage": null,
    "text": null,
    "options": null,
-   "answer": "Dear Mrs Shah,\nI think we should be allowed to borrow two books a week. One reason is that many of us finish a book in two days and then have nothing to read. Another reason is that we could take one story book and one information book, so we would learn more.\nThank you,\nSneha, Class 4B",
+   "answer": "Dear Mrs Shah,\nI think we should be allowed to take home two books a week. One reason is that many of us finish a book in two days and then have nothing to read. Another reason is that we could take one story book and one information book, so we would learn more.\nThank you,\nSneha, Class 4B",
    "accept": [],
    "check": null,
    "wrong": {},
@@ -27265,7 +27265,7 @@
    "passage": null,
    "text": "We went to the big market on Saturday. The market was busy. There were lots of things to buy. There were lots of people. It was very loud. We bought some things and went home.",
    "options": null,
-   "answer": "The market was crowded with shoppers carrying cloth bags. Piles of red tomatoes and green chillies covered every stall, and the sellers shouted their prices. Mine is better because the reader can see and hear the market.",
+   "answer": "The market was crowded with shoppers holding cloth bags. Piles of red tomatoes and green chillies covered every stall, and the sellers shouted their prices. Mine is better because the reader can see and hear the market.",
    "accept": [],
    "check": null,
    "wrong": {},
@@ -29885,7 +29885,7 @@
    "question_type": "ENG.MATCH",
    "ask": "Draw a line from each paragraph to its heading.",
    "passage": null,
-   "text": "Paragraph A: Camels can walk for days without water and carry heavy loads across the desert. Paragraph B: A camel has long eyelashes and thick lips. Paragraph C: Camels eat dry grass and thorny plants.",
+   "text": "Paragraph A: Camels can walk for days without water and move heavy loads across the desert. Paragraph B: A camel has long eyelashes and thick lips. Paragraph C: Camels eat dry grass and thorny plants.",
    "options": {
     "left": [
      "Paragraph A",

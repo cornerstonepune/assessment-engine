@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Checks the English foundation for Grades 3 and 4 (docs/drafts/english/), drafted from Cambridge Primary English
+"""Checks the English foundation for Grades 3 and 4 (supabase/seed/english/), drafted from Cambridge Primary English
 0058, Stages 3 and 4 (Nimish, 2026-10-21: "make the entire set of learning objectives, the difficulty levels, and
 everything as per Grade 3 and Grade 4 of the Cambridge board … The teacher will only go and approve or edit").
 
@@ -25,11 +25,11 @@ from pathlib import Path
 R = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(R / "research"))
 import english_rules as er  # noqa: E402
-DRAFT = R / "docs/drafts/english"
+DRAFT = R / "supabase/seed/english"
 FRAMEWORK = "CAM-PRI-ENG-0058"
 STAGES = {3: "G3", 4: "G4"}
 TABLES = ("subject", "topic", "skill", "skill_level", "skill_level_sample", "passage", "misconception",
-          "skill_mistake", "question_type", "not_on_paper", "rubric")
+          "skill_mistake", "question_type", "not_on_paper", "rubric", "observed_skill")
 # a rule's keys: the ones code checks on every example of the level, and the ones that only describe it
 CHECKED = {"passage_words", "text_words", "answer_letters", "answer_words", "options", "items", "alpha_depth",
            "pattern", "errors", "answer_in_passage", "parts", "marks", "answer_from"}
@@ -46,13 +46,21 @@ SHINGLE, LONG_SHINGLE = 6, 8
 
 
 def load(root=DRAFT, chunk=None):
-    """Every table as a list of rows; a chunk's rows (a draft not yet merged) are added to the tracked ones."""
+    """Every table as a list of rows. A chunk (a draft not yet merged) replaces the tracked samples of the skills it
+    holds samples for and the passages it holds by code, and adds its other rows to the tracked ones."""
     t = {}
     for name in TABLES:
         path = root / f"{name}.json"
         t[name] = next(iter(json.loads(path.read_text()).values())) if path.exists() else []
         if chunk and (extra := Path(chunk) / f"{name}.json").exists():
-            t[name] = t[name] + next(iter(json.loads(extra.read_text()).values()))
+            rows = next(iter(json.loads(extra.read_text()).values()))
+            if name == "skill_level_sample":
+                mine = {r["skill_code"] for r in rows}
+                t[name] = [r for r in t[name] if r["skill_code"] not in mine]
+            elif name == "passage":
+                mine = {r["code"] for r in rows}
+                t[name] = [r for r in t[name] if r["code"] not in mine]
+            t[name] = t[name] + rows
     return t
 
 
@@ -232,6 +240,43 @@ def check_mistakes(t):
     return faults, used
 
 
+SCALE = ["yes", "sometimes", "not yet"]
+
+
+def check_observed(t, pdf_text):
+    """Every objective that is not on a paper is in exactly one observed skill: a milestone an educator marks yes,
+    sometimes or not yet, for the observation engine to come. None is on a paper, none copies Cambridge's words."""
+    faults, seen = [], {}
+    long = shingles(pdf_text, LONG_SHINGLE)
+    off = {n["objective"]: n for n in t["not_on_paper"]}
+    codes = [o["code"] for o in t["observed_skill"]]
+    faults += [f"{c}: defined twice" for c in sorted({c for c in codes if codes.count(c) > 1})]
+    for o in t["observed_skill"]:
+        c = o["code"]
+        if not re.fullmatch(r"EN[34]\.OBS\.\d{2}", c) or o.get("grade") != f"G{c[2]}":
+            faults.append(f"{c}: needs a code EN3.OBS.nn or EN4.OBS.nn and the grade it names")
+        if o.get("kind") not in REASONS or not o.get("name", "").strip():
+            faults.append(f"{c}: needs a name and a kind from {sorted(REASONS)}")
+        m = o.get("milestone", "")
+        if not m.strip() or "\n" in m or len(m.split()) > 30:
+            faults.append(f"{c}: the milestone is one sentence of 30 words or fewer")
+        if o.get("scale") != SCALE:
+            faults.append(f"{c}: the scale is {SCALE}")
+        for obj in o.get("objectives") or []:
+            seen[obj] = seen.get(obj, 0) + 1
+            if obj not in off:
+                faults.append(f"{c}: {obj} is not an objective listed as not on paper")
+            elif off[obj]["objective"][0] != c[2]:
+                faults.append(f"{c}: {obj} is of another grade")
+        if not o.get("objectives"):
+            faults.append(f"{c}: names no objective")
+        if hit := shingles(o.get("name", "") + " " + m, LONG_SHINGLE) & long:
+            faults.append(f"{c}: copies Cambridge's words: {sorted(hit)[:2]}")
+    faults += [f"{obj}: in {k} observed skills" for obj, k in seen.items() if k > 1]
+    faults += [f"{obj}: not on paper and in no observed skill" for obj in off if obj not in seen]
+    return faults
+
+
 def check_rubrics(t):
     faults, scale = [], rubric_scale()
     import crosswalk_drafts as cd
@@ -267,6 +312,8 @@ def main(argv=None):
     mk_faults, used = check_mistakes(t)
     sm_faults, ran = english_samples.check(t, levels, used, objs, pdf_text)
     faults += lv_faults + mk_faults + sm_faults + check_rubrics(t)
+    if not a.chunk or t["observed_skill"]:
+        faults += check_observed(t, pdf_text)
     if not a.chunk:
         faults += check_coverage(t, objs)
         faults += english_derive.stale(t, objs, write=a.write)

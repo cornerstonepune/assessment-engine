@@ -1,0 +1,84 @@
+# Indian English words a Pune classroom uses that the en_GB dictionary does not list, one per line: word — what it means.
+# research/english_spelling.py reads every passage and key against the dictionary and these words.
+aloo — potato
+autos — auto-rickshaws, short form used in Pune
+bajra — pearl millet
+barfi — a milk sweet
+besan — gram flour
+bhajiya — a fried snack in gram-flour batter (plural bhajiyas)
+bhajiyas — plural of bhajiya
+bhakri — a thick flatbread of millet or rice flour
+bhel — bhel puri, a puffed-rice snack
+carrom — a board game played with flat discs
+chai — tea with milk and spices
+chakli — a crunchy spiral snack (plural chaklis)
+chaklis — plural of chakli
+chapati — a flatbread (plural chapatis)
+chapatis — plural of chapati
+chikki — a peanut and jaggery sweet
+dabbawala — a lunch-box carrier in Mumbai (plural dabbawalas)
+dabbawalas — plural of dabbawala
+dal — lentils, or a lentil dish
+dhokla — a steamed gram-flour snack
+diwali — Diwali, written in lower case in a sentence to punctuate
+diya — a small clay oil lamp (plural diyas)
+diyas — plural of diya
+garam — hot, as in garam masala
+gujiya — a sweet dumpling made at Holi
+gulal — coloured powder thrown at Holi
+gulmohar — a tree with red flowers, common in Pune
+haldi — turmeric
+haveli — a large old mansion
+idli — a steamed rice cake
+jalebi — a spiral fried sweet (plural jalebis)
+jalebis — plural of jalebi
+jamun — a purple fruit (plural jamuns)
+jamuns — plural of jamun
+kabaddi — a team game played in Indian schools
+kadhai — a deep cooking pan
+kanda — onion, as in kanda bhaji
+kesar — saffron
+kheer — rice pudding
+khichdi — rice and lentils cooked together
+kho — kho-kho, a team chasing game
+khurma — a sweet milk dish (sheer khurma)
+kulfi — Indian ice cream
+kulhad — a clay cup
+lassi — a yoghurt drink
+manja — kite string coated with glue and glass
+mela — a fair
+methi — fenugreek
+misal — misal pav, a spicy Pune dish
+modak — a sweet dumpling made at Ganpati (plural modaks)
+modaks — plural of modak
+nani — grandmother (mother's mother)
+neem — a shade tree with bitter leaves
+pandal — a decorated tent for a festival
+paisa — a small coin, one hundredth of a rupee
+paratha — a layered flatbread (plural parathas)
+parathas — plural of paratha
+pav — a soft bread roll (plural pavs)
+pavs — plural of pav
+peepal — a sacred fig tree
+pithla — a gram-flour curry
+playscript — a play written down for actors (used by Cambridge Primary English)
+poha — flattened rice cooked with onion
+poli — a flatbread, as in puran poli
+puran — a sweet lentil filling, as in puran poli
+rajma — kidney beans
+rangoli — a pattern drawn on the floor with coloured powder
+ridley — olive ridley, a kind of sea turtle
+roti — a flatbread (plural rotis)
+rotis — plural of roti
+sev — thin crunchy gram-flour noodles
+thepla — a spiced flatbread (plural theplas)
+theplas — plural of thepla
+tonga — a horse-drawn cart
+tulsi — holy basil
+vada — a fried savoury snack, as in vada pav
+seize — to grab (the pinned en_GB list lacks it; also seized, seizes)
+seized — past of seize
+grumbly — grumbling, a describing word in a story
+tellings — versions of one story told in different ways
+pitter-patter — the sound of light rain or quick feet
+til — sesame, as in til laddoos at Makar Sankranti
