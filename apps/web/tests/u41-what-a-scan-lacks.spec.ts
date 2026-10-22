@@ -6,26 +6,23 @@
  * The run is written as the engine writes one (`inbox.read`: each copy's line on `flow_run.result`, by the child's id,
  * never a name), for a class of the test's own. Another class's educator does not see it.
  */
-import { scryptSync } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass } from "./rows";
+import { signIn } from "./sign-in";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const CLASS = "U41-G3";
 const OTHER = "U41-G3B";
 const FILE = "U41 scan.pdf";
 const EDUCATOR = { email: "u41-educator@cornerstone.test", name: "U41 Educator", role: "educator", classes: [OTHER] };
-const PASSWORD = "u41-a-long-test-password";
-const SALT = "00112233445566778899aabbccddeeff";
 const others = sql`(select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s where s ->> 'email' <> ${EDUCATOR.email})`;
 let run = "";
 
 test.beforeAll(async () => {
   const kids = await aClass(sql, CLASS, "G3", ["Ana", "Bo"]);
   await aClass(sql, OTHER, "G3", ["Cy", "Di"]);
-  const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
-  await sql`update config set value = ${others} || ${sql.json([{ ...EDUCATOR, password }])} where key = 'app.staff'`;
+  await sql`update config set value = ${others} || ${sql.json([EDUCATOR])} where key = 'app.staff'`;
   const copies = [
     { copy: 1, pages: [2], code: "CS41A001", child_id: kids.Ana, answers: 9, missing: [1], twice: [],
       lacks: ["page 1 of 2 is not in this file: scan it and send it to be read"], notes: [] },
@@ -65,10 +62,7 @@ test("a scan's missing and doubled pages are said under Read a scan, by roll num
 
 test("another class's educator does not see a scan of a class not theirs", async ({ browser }) => {
   const page = await (await browser.newContext({ storageState: { cookies: [], origins: [] } })).newPage();
-  await page.goto("/login");
-  await page.getByLabel("School email").fill(EDUCATOR.email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await signIn(page, EDUCATOR.email);
   await expect(page).toHaveURL(/\/today$/);
   await page.goto("/capture");
   await expect(page.getByRole("region", { name: "Read a scan" })).toBeVisible();

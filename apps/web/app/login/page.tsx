@@ -1,12 +1,15 @@
 import { redirect } from "next/navigation";
 import { currentStaff } from "@/lib/auth";
-import { signIn } from "@/lib/auth-actions";
+import { googleConfigured } from "@/lib/google";
+import { signInRule } from "@/lib/sign-in";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
 export default async function LoginPage({ searchParams }: Props) {
   if (await currentStaff()) redirect("/");
   const q = await searchParams;
+  // without the Google secrets or the school's rule, no one can be let in: say so rather than offer a button that fails
+  const ready = googleConfigured() && (await signInRule()) !== null;
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-[420px] flex-col justify-center px-5 py-10">
@@ -20,33 +23,29 @@ export default async function LoginPage({ searchParams }: Props) {
         <span className="label ml-1">assessment</span>
       </div>
       <h1 className="text-[26px] leading-tight">Sign in</h1>
-      <p className="mt-2 text-[13.5px] text-basalt/62">Staff only. Ask Nimish for a password.</p>
+      <p className="mt-2 text-[13.5px] text-basalt/62">Staff only, with your Cornerstone school Google account.</p>
       <div className="chalkline" />
 
-      {q.error === "denied" ? (
+      {q.error === "school" ? (
         <p className="mt-6 border border-terracotta/30 bg-terracotta/10 p-3 text-[13.5px]" role="alert">
-          That email and password do not match a staff member.
+          Use your Cornerstone school Google account.
         </p>
       ) : null}
-      {q.error === "wait" ? (
+      {q.error === "failed" ? (
         <p className="mt-6 border border-terracotta/30 bg-terracotta/10 p-3 text-[13.5px]" role="alert">
-          Too many wrong passwords for that email. Wait a few minutes, then try again.
+          Google did not finish signing you in. Try again.
         </p>
       ) : null}
 
-      <form action={signIn} className="mt-6 grid gap-4">
-        <label className="field">
-          <span className="label">School email</span>
-          <input className="input" type="email" name="email" autoComplete="username" required />
-        </label>
-        <label className="field">
-          <span className="label">Password</span>
-          <input className="input" type="password" name="password" autoComplete="current-password" required />
-        </label>
-        <button className="btn" type="submit">
-          Sign in
-        </button>
-      </form>
+      {ready ? (
+        <a className="btn mt-6 text-center" href="/login/google">
+          Sign in with Google
+        </a>
+      ) : (
+        <p className="mt-6 border border-terracotta/30 bg-terracotta/10 p-3 text-[13.5px]" role="alert">
+          Sign-in isn&apos;t set up yet. Ask Nimish.
+        </p>
+      )}
     </main>
   );
 }

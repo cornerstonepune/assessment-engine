@@ -1,8 +1,8 @@
 name: ui4a-staff-and-search
 goal: >
   Nimish puts an educator on the staff list with one command run on his own machine — their email, their name, their
-  role, and a password typed where only he sees it — and they sign in with that email and password, every decision
-  they take then carrying their name. The staff list is not in the public repository: it lives in the database, and
+  role (until 2026-10-22, a password typed where only he sees it; since, they sign in with their school Google account,
+  goals/a1-sign-in-with-google.yaml) — and they sign in, every decision they take then carrying their name. The staff list is not in the public repository: it lives in the database, and
   the seed's list is empty, so an educator's email never enters the repository. Children finds a child by name or roll
   number as it is typed, across every grade, and the name never goes into the page's address.
 # Written 2026-10-11, before the code: Step 4a of the navigation plan Nimish approved
@@ -13,7 +13,7 @@ goal: >
 # the database, and the seed's list, in the public repository, holds a staff email; Children has no search.
 says:
   - words: "Maybe we can simply add a user ID/password for them: simple user ID/password, nothing complex."
-    proved_by: "packages/engine/tests/test_staff.py::test_a_person_is_put_on_the_staff_list_with_a_password_the_sign_in_accepts"
+    proved_by: "packages/engine/tests/test_staff.py::test_a_person_is_put_on_the_staff_list_by_one_command"
   - words: "I think we'll have to figure out a simpler login mechanism as well so that the decisions start getting logged in by them."
     proved_by: "apps/web/tests/u18-staff-and-search.spec.ts::an educator put on the staff list signs in, and a decision carries their name"
   - words: "Right now, this is majorly used by Achal and Neha ma'am. They are the educators, the teachers, so we don't have any more layers in there."
@@ -23,7 +23,8 @@ says:
 manual:
   - "Nimish runs ~/cornerstone/assessment-engine/bin/update-live (it brings his checkout to main), then
     ~/cornerstone/assessment-engine/bin/engine staff add <email> --name <name> on his own machine, once for each
-    educator, and tells each their password himself. Their emails never pass through Claude or the repository."
+    educator (since goals/a1-sign-in-with-google.yaml, only for a role other than educator: a school email signing in
+    joins as an educator on its own). Their emails never pass through Claude or the repository."
   - "Vercel deploys the website on merge. No migration; the update-live above is only how the new command reaches
     Nimish's machine."
 scenarios: []

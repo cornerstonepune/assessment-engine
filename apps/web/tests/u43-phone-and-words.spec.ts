@@ -9,20 +9,18 @@
  * too few to say anything; Asha has a home assessment this week and the class a week's practice paper. Every page is read
  * once a person at 400 px, as the class's educator and as the coordinator, and each sentence is checked on what was read.
  */
-import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
 import { SIGNED_IN } from "../playwright.config";
 import { isoWeek } from "../lib/week";
+import { signIn } from "./sign-in";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "U43-CLASS";
 const THIS = isoWeek();
 const QR = { asha: "CS43A001", home: "CS43A0F1", spare: "CS43C001" };
 const EDUCATOR = { email: "u43-educator@cornerstone.test", name: "U43 Educator", role: "educator", classes: [SECTION] };
-const PASSWORD = "u43-a-long-test-password";
-const SALT = "00112233445566778899aabbccddeeff";
 const PHONE = { width: 400, height: 800 };
 
 /** What one page showed at 400 px. */
@@ -74,10 +72,9 @@ test.beforeAll(async ({ browser }) => {
   await sql`
     insert into sheet_instance (tenant_id, qr_code, sheet_template_id, section, week, kind, print_status)
     values (${tenant}, ${QR.spare}, ${ws.id}, ${SECTION}, ${THIS}, 'practice', 'new')`;
-  const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
-                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([{ ...EDUCATOR, password }])}
+                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([EDUCATOR])}
     where key = 'app.staff'`;
   const [read] = await sql<{ id: string }[]>`select id from sheet_instance where qr_code = ${QR.asha}`;
   const [item] = await sql<{ item_key: string }[]>`select item_key from item where id = ${ws.item_ids[0]}`;
@@ -131,10 +128,7 @@ test.afterAll(async () => {
 async function asEducator(browser: Browser): Promise<Page> {
   const context = await browser.newContext({ storageState: { cookies: [], origins: [] }, viewport: PHONE });
   const page = await context.newPage();
-  await page.goto("/login");
-  await page.getByLabel("School email").fill(EDUCATOR.email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await signIn(page, EDUCATOR.email);
   await expect(page).toHaveURL(/\/today$/);
   return page;
 }

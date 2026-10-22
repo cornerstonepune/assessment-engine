@@ -7,16 +7,14 @@
  * parent report, so the reports page lists her. The educator teaches the class. Each test reads a page as a person does
  * and checks that the same thing is said one way.
  */
-import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass } from "./rows";
+import { signIn } from "./sign-in";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "U46-MINE";
 const EDUCATOR = { email: "u46-educator@cornerstone.test", name: "U46 Educator", role: "educator", classes: [SECTION] };
-const PASSWORD = "u46-a-long-test-password";
-const SALT = "46112233445566778899aabbccddeeff";
 let kids: Record<string, string>;
 
 test.beforeAll(async () => {
@@ -35,10 +33,9 @@ test.beforeAll(async () => {
     }
     await sql`select rebuild_child_skill_state(${kids.Asha}::uuid)`;
   }
-  const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
-                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([{ ...EDUCATOR, password }])}
+                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([EDUCATOR])}
     where key = 'app.staff'`;
 });
 test.afterAll(async () => {
@@ -51,10 +48,7 @@ test.afterAll(async () => {
 
 async function asEducator(browser: Browser): Promise<Page> {
   const page = await (await browser.newContext({ storageState: { cookies: [], origins: [] } })).newPage();
-  await page.goto("/login");
-  await page.getByLabel("School email").fill(EDUCATOR.email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await signIn(page, EDUCATOR.email);
   await expect(page).toHaveURL(/\/today$/);
   return page;
 }

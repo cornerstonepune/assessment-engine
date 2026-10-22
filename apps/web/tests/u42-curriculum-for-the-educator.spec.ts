@@ -7,17 +7,15 @@
  * Two Grade 2 classes of the test's own, made once and kept (evidence is append-only): Asha in the educator's class and
  * Kavi in the other, each with checked answers on the same Grade 2 skill. The educator teaches the first only.
  */
-import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass } from "./rows";
+import { signIn } from "./sign-in";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const MINE = "U42-MINE";
 const OTHER = "U42-OTHER";
 const EDUCATOR = { email: "u42-educator@cornerstone.test", name: "U42 Educator", role: "educator", classes: [MINE] };
-const PASSWORD = "u42-a-long-test-password";
-const SALT = "00112233445566778899aabbccddeeff";
 // the class's grade, and a skill of it the test's children answered
 let grade = { code: "", name: "" };
 let skill = { code: "", rung: "" };
@@ -43,10 +41,9 @@ test.beforeAll(async () => {
     }
     await sql`select rebuild_child_skill_state(${id}::uuid)`;
   }
-  const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
-                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([{ ...EDUCATOR, password }])}
+                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([EDUCATOR])}
     where key = 'app.staff'`;
 });
 test.afterAll(async () => {
@@ -60,10 +57,7 @@ test.afterAll(async () => {
 async function asEducator(browser: Browser): Promise<Page> {
   const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
   const page = await context.newPage();
-  await page.goto("/login");
-  await page.getByLabel("School email").fill(EDUCATOR.email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await signIn(page, EDUCATOR.email);
   await expect(page).toHaveURL(/\/today$/);
   return page;
 }

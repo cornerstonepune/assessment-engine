@@ -6,17 +6,15 @@
  *
  * The class is the test's own (tests/rows.ts), made once and kept; the educator is taken off the list after.
  */
-import { scryptSync } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
 import { aClass } from "./rows";
+import { signIn } from "./sign-in";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "U25-TEST";
 const EDUCATOR = { email: "u25-educator@cornerstone.test", name: "U25 Educator", role: "educator" };
-const PASSWORD = "u25-a-long-test-password";
-const SALT = "00112233445566778899aabbccddeeff";
 
 test.beforeAll(async () => {
   await aClass(sql, SECTION, "G2", ["Ishaan", "Tara"]);
@@ -30,16 +28,12 @@ test.afterAll(async () => {
 });
 
 test("an educator signs in and the menu says the classes they teach", async ({ browser }) => {
-  const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
-  await sql`update config set value = value || ${sql.json([{ ...EDUCATOR, password, classes: [SECTION] }])} where key = 'app.staff'`;
+  await sql`update config set value = value || ${sql.json([{ ...EDUCATOR, classes: [SECTION] }])} where key = 'app.staff'`;
 
   const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
   const page = await context.newPage();
   try {
-    await page.goto("/login");
-    await page.getByLabel("School email").fill(EDUCATOR.email);
-    await page.getByLabel("Password").fill(PASSWORD);
-    await page.getByRole("button", { name: /sign in/i }).click();
+    await signIn(page, EDUCATOR.email);
     await expect(page).toHaveURL(/\/today$/);
     const who = page.getByRole("complementary").getByRole("group", { name: "Signed in" });
     await expect(who).toContainText(EDUCATOR.name);

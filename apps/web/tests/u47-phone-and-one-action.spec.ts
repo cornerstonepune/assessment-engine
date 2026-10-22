@@ -8,20 +8,18 @@
  * colour, so a home assessment is proposed for her, and a read paper with an answer waiting; the class has a practice
  * paper this week, planned. Every page is read as the class's educator and as the coordinator.
  */
-import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
 import { SIGNED_IN } from "../playwright.config";
 import { isoWeek } from "../lib/week";
+import { signIn } from "./sign-in";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "U47-CLASS";
 const THIS = isoWeek();
 const QR = { read: "CS47A001", practice: "CS47A0P1" };
 const EDUCATOR = { email: "u47-educator@cornerstone.test", name: "U47 Educator", role: "educator", classes: [SECTION] };
-const PASSWORD = "u47-a-long-test-password";
-const SALT = "47112233445566778899aabbccddeeff";
 const PHONE = { width: 390, height: 844 };
 let kids: Record<string, string>;
 let sheet: string;
@@ -59,10 +57,9 @@ test.beforeAll(async () => {
   await sql`
     insert into prescription (tenant_id, child_id, week, kind, rule_fired, skill_set_code, difficulty, sheet_instance_id)
     values (${tenant}, ${kids.Asha}, ${THIS}, 'practice', 'band_default', 'ADD.2D2D', 'Medium', ${practice})`;
-  const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
-                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([{ ...EDUCATOR, password }])}
+                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([EDUCATOR])}
     where key = 'app.staff'`;
 });
 test.afterAll(async () => {
@@ -78,10 +75,7 @@ test.afterAll(async () => {
 async function as(browser: Browser, who: "educator" | "coordinator", viewport?: { width: number; height: number }): Promise<Page> {
   if (who === "coordinator") return (await browser.newContext({ storageState: SIGNED_IN, viewport })).newPage();
   const page = await (await browser.newContext({ storageState: { cookies: [], origins: [] }, viewport })).newPage();
-  await page.goto("/login");
-  await page.getByLabel("School email").fill(EDUCATOR.email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await signIn(page, EDUCATOR.email);
   await expect(page).toHaveURL(/\/today$/);
   return page;
 }

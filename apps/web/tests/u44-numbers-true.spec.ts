@@ -8,11 +8,11 @@
  * reader could not settle; Bina has a home assessment this week. In U44-OTHER, Chetan has two answers waiting. The
  * educator teaches U44-MINE only. What each page says is checked against those rows, never against the page's own query.
  */
-import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
 import { isoWeek } from "../lib/week";
+import { signIn } from "./sign-in";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const MINE = "U44-MINE";
@@ -20,8 +20,6 @@ const OTHER = "U44-OTHER";
 const THIS = isoWeek();
 const QR = { signed: "CS44A001", waiting: "CS44A002", other: "CS44C001", home: "CS44B0F1" };
 const EDUCATOR = { email: "u44-educator@cornerstone.test", name: "U44 Educator", role: "educator", classes: [MINE] };
-const PASSWORD = "u44-a-long-test-password";
-const SALT = "44112233445566778899aabbccddeeff";
 
 test.beforeAll(async () => {
   const mine = await aClass(sql, MINE, "G2", ["Asha", "Bina"]);
@@ -55,10 +53,9 @@ test.beforeAll(async () => {
   await sql`
     insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, kind, print_status)
     values (${tenant}, ${QR.home}, ${ws[0].id}, ${mine.Bina}, ${THIS}, 'focus', 'new')`;
-  const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
-                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([{ ...EDUCATOR, password }])}
+                               where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([EDUCATOR])}
     where key = 'app.staff'`;
 });
 test.afterAll(async () => {
@@ -72,10 +69,7 @@ test.afterAll(async () => {
 
 async function asEducator(browser: Browser): Promise<Page> {
   const page = await (await browser.newContext({ storageState: { cookies: [], origins: [] } })).newPage();
-  await page.goto("/login");
-  await page.getByLabel("School email").fill(EDUCATOR.email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await signIn(page, EDUCATOR.email);
   await expect(page).toHaveURL(/\/today$/);
   return page;
 }

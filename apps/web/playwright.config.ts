@@ -24,10 +24,13 @@ process.env.DATABASE_URL = COPY;
 
 export const WEB_PORT = 3100;
 export const ENGINE_PORT = 8932;
+// Google, faked at the boundary (tests/fake-google.mts): the sign-in's own code runs against it end to end.
+export const FAKE_GOOGLE = "http://127.0.0.1:8933";
 // Made fresh for each run, in the runner, and inherited by its workers and servers: the servers
 // exist for one run on this machine, and no value here is ever a real secret.
 process.env.E2E_AUTH_SECRET ??= randomBytes(24).toString("hex");
 process.env.E2E_ENGINE_KEY ??= randomBytes(24).toString("hex");
+process.env.E2E_GOOGLE_SECRET ??= randomBytes(24).toString("hex");
 export const SIGNED_IN = path.join(__dirname, "test-results", ".signed-in.json");
 
 export default defineConfig({
@@ -45,6 +48,13 @@ export default defineConfig({
     { name: "map", testMatch: /workflows\.spec\.ts/, use: { storageState: SIGNED_IN } },
   ],
   webServer: [
+    {
+      command: "node tests/fake-google.mts",
+      url: `${FAKE_GOOGLE}/certs`,
+      reuseExistingServer: false,
+      timeout: 30_000,
+      env: { FAKE_GOOGLE_PORT: new URL(FAKE_GOOGLE).port },
+    },
     {
       command: `.venv/bin/uvicorn engine.api.app:app --port ${ENGINE_PORT}`,
       cwd: path.join(root, "packages/engine"),
@@ -65,6 +75,9 @@ export default defineConfig({
         ENGINE_KEY: process.env.E2E_ENGINE_KEY,
         AUTH_SECRET: process.env.E2E_AUTH_SECRET,
         AUTH_DEV_BYPASS: "0",
+        GOOGLE_CLIENT_ID: "e2e-client.apps.googleusercontent.com",
+        GOOGLE_CLIENT_SECRET: process.env.E2E_GOOGLE_SECRET,
+        GOOGLE_FAKE_ORIGIN: FAKE_GOOGLE,
       },
     },
   ],

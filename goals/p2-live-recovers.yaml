@@ -3,8 +3,8 @@ goal: >
   Live comes back from what goes wrong without anyone guessing. When the engine restarts, every run it was doing says
   it died, whatever the flow, instead of "running" forever. A bad deploy is undone by giving the deploy an earlier
   commit. Two rebuilds of one child at once both finish, the second after the first. And a password is not guessed by
-  trying: after `sign_in.max_failures` wrong passwords for one email inside `sign_in.window_minutes`, the sign-in page
-  refuses that email until the window passes.
+  trying: since 2026-10-22 there is none to guess, as everyone signs in with their school Google account
+  (goals/a1-sign-in-with-google.yaml); until then, wrong passwords past `sign_in.max_failures` made an email wait.
 
 # Written 2026-10-01, before the code. The code review of 2026-09-30: "a failed read can show 'running' forever",
 # "no rollback", "two rebuilds of the same child at once fail with a duplicate key", "no rate limits". On 2026-10-01
@@ -18,7 +18,7 @@ says:
   - words: "go ahead with phase 2"
     proved_by: packages/engine/tests/test_graph.py::test_two_rebuilds_of_one_child_at_once_both_finish
   - words: "go ahead with phase 2"
-    proved_by: apps/web/tests/gate.spec.ts::an email with too many wrong passwords waits, whatever password it tries
+    proved_by: "apps/web/tests/u49-sign-in-with-google.spec.ts::the sign-in page asks for no password, only the school Google account"
 manual: []
 scenarios: []
 criteria:
