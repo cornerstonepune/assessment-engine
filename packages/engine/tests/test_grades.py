@@ -145,7 +145,7 @@ def conn():
 
 # Every column that holds a grade.
 GRADE_COLUMNS = [
-    ("skill_set", "grade"),
+    ("skill", "grade"),
     ("child", "band"),
     ("sheet_template", "band"),
     ("blueprint", "band"),
@@ -175,16 +175,16 @@ def test_every_grade_a_row_holds_is_a_key_into_grade(conn):
         )
     t = loaders._tenant(conn)
     for bad in (
-        "update skill_set set grade = 'G11' where rung_code = 'R11'",
+        "update skill set grade = 'G11' where rung_code = 'R11'",
         f"insert into child (tenant_id, roll_no, section, band) values ('{t}', '1', 'B0B', 'Grade 3')",
     ):
         with pytest.raises(psycopg.errors.ForeignKeyViolation), conn.transaction():
             conn.execute(bad)
     for bad in ('{"Hard": "G11"}', '{"Hard": "G2+"}', '{"Expert": "G2"}'):
         with pytest.raises(psycopg.errors.ForeignKeyViolation), conn.transaction():
-            conn.execute("update skill_set set level_band = %s::jsonb where code = 'MUL.2D1D'", (bad,))
+            conn.execute("update skill set level_band = %s::jsonb where code = 'MUL.2D1D'", (bad,))
     with conn.transaction():
-        conn.execute("update skill_set set level_band = '{\"Hard\": \"G10\"}'::jsonb where code = 'MUL.2D1D'")
+        conn.execute("update skill set level_band = '{\"Hard\": \"G10\"}'::jsonb where code = 'MUL.2D1D'")
 
 
 @NEEDS_DB
@@ -195,7 +195,7 @@ def test_reasoning_is_grade_2(conn):
         held = conn.execute(f"select count(*) as n from {table} where {column} like '%%+'").fetchone()["n"]  # noqa: S608
         assert held == 0, f"{table}.{column} still holds a '+' grade"
     plus = conn.execute(
-        "select count(*) as n from skill_set s, jsonb_each_text(s.level_band) e where e.value like '%%+'"
+        "select count(*) as n from skill s, jsonb_each_text(s.level_band) e where e.value like '%%+'"
     ).fetchone()["n"]
     assert plus == 0, "a level's grade still holds a '+'"
     assert all(r["band"] == "G2" for r in settings.seed("rungs.json", "rungs") if r["code"] in ("X1", "X2"))
@@ -228,9 +228,9 @@ def test_grade_10_sorts_after_grade_9_and_is_never_read_as_grade_1(conn):
         "later"
     ]
 
-    conn.execute("update skill_set set level_band = '{}'::jsonb where code = 'ADD.2D2D'")
+    conn.execute("update skill set level_band = '{}'::jsonb where code = 'ADD.2D2D'")
     conn.execute(
-        "update skill_set set grade = 'G10' where tenant_id = %s and code = 'ADD.2D2D'",
+        "update skill set grade = 'G10' where tenant_id = %s and code = 'ADD.2D2D'",
         (t,),
     )
     assert shelf._read_levels(conn, "G10")["ADD.2D2D"], "a Grade 10 skill is a Grade 10 child's"

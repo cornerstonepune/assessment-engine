@@ -36,11 +36,11 @@ test.afterAll(async () => {
 
 test("once taught, every × and ÷ story is on the Question bank as the child meets it", async ({ page }) => {
   const [skill] = await sql<{ code: string; taught: boolean }[]>`
-    select s.code, s.taught from skill_set s
+    select s.code, s.taught from skill s
     where s.code = 'MD.WORD'`;
   expect(skill, "MD.WORD is a skill").toBeTruthy();
   expect(skill.taught, "stories with × and ÷ wait for an educator's word").toBe(false);
-  await sql`update skill_set set taught = true where code = ${skill.code}`;
+  await sql`update skill set taught = true where code = ${skill.code}`;
   try {
     for (const k of SHOWS) {
       let text = "";
@@ -55,6 +55,6 @@ test("once taught, every × and ÷ story is on the Question bank as the child me
       expect(text, `${k.level} ${k.fmt}: a code on the page`).not.toMatch(CODE);
     }
   } finally {
-    await sql`update skill_set set taught = false where code = ${skill.code}`;
+    await sql`update skill set taught = false where code = ${skill.code}`;
   }
 });

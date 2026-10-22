@@ -395,7 +395,7 @@ def test_an_answer_read_wrong_and_judged_right_by_a_person_counts_once_as_right(
         "insert into tenant (slug, name) values (%s, 't') returning id", (f"t-{uuid.uuid4()}",)
     ).fetchone()["id"]
     conn.execute(
-        "insert into skill_set (tenant_id, code, rung_code, name, learning_objective, difficulty, grade, descriptor)"
+        "insert into skill (tenant_id, code, rung_code, name, learning_objective, difficulty, grade, descriptor)"
         " values (%s, 'S1', 'R1', 's', 'o', '{}', 'G2', 'd')",
         (tenant,),
     )

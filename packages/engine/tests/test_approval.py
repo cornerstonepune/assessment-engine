@@ -18,24 +18,24 @@ def conn():
     with db.connect() as c:
         # approved whole by Nimish, as a person does: withdrawn, then ratified (the copy starts with every level
         # approved, as live does, and the latest level approval names who ratified)
-        c.execute("update skill_set set status = 'draft' where code = 'SUB.2D2D'")
-        c.execute("update skill_set set status = 'ratified', ratified_by = 'Nimish' where code = 'SUB.2D2D'")
+        c.execute("update skill set status = 'draft' where code = 'SUB.2D2D'")
+        c.execute("update skill set status = 'ratified', ratified_by = 'Nimish' where code = 'SUB.2D2D'")
         yield c
         c.rollback()
 
 
 def _status(conn):
-    return conn.execute("select status, ratified_by from skill_set where code = 'SUB.2D2D'").fetchone()
+    return conn.execute("select status, ratified_by from skill where code = 'SUB.2D2D'").fetchone()
 
 
 def test_the_engine_keeping_the_mistake_list_up_to_date_never_withdraws_an_approval(conn):
     # as the engine adds one (`spec._store`): the mistake's row first, since a skill may name only a real mistake (B3)
     conn.execute(
         "insert into misconception (tenant_id, code, op, name, detectable_by)"
-        " select tenant_id, 'M_TEST_ADDED', '-', 'A test', 'teacher' from skill_set where code = 'SUB.2D2D'"
+        " select tenant_id, 'M_TEST_ADDED', '-', 'A test', 'teacher' from skill where code = 'SUB.2D2D'"
     )
     conn.execute(
-        "update skill_set set misconception_codes = misconception_codes || '{M_TEST_ADDED}' where code = 'SUB.2D2D'"
+        "update skill set misconception_codes = misconception_codes || '{M_TEST_ADDED}' where code = 'SUB.2D2D'"
     )
     assert dict(_status(conn)) == {"status": "ratified", "ratified_by": "Nimish"}
 
@@ -45,6 +45,6 @@ def test_a_person_changing_a_levels_rule_still_asks_for_approval_again(conn):
     not its rule: since 2026-10-14 (goals/f1d-questions-approved-per-level.yaml, Nimish taking the coherence list's B3)
     an approval is of the questions, and rewording a skill withdraws nothing (tests/test_level_approval.py)."""
     conn.execute(
-        "update skill_set set difficulty = jsonb_set(difficulty, '{Hard,check,edited}', 'true') where code = 'SUB.2D2D'"
+        "update skill set difficulty = jsonb_set(difficulty, '{Hard,check,edited}', 'true') where code = 'SUB.2D2D'"
     )
     assert dict(_status(conn)) == {"status": "draft", "ratified_by": None}

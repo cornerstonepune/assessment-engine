@@ -21,7 +21,7 @@ alter table skill_set add column if not exists registry_codes text[] not null de
 
 do $$
 begin
-  if to_regclass('public.rung') is not null and (select relkind from pg_class where oid = 'public.rung'::regclass) = 'r' then
+  if (select relkind from pg_class where oid = to_regclass('public.rung')) = 'r' then
     -- Nothing is lost: a rung's milestone was never written by any code; if live holds one, stop and say so.
     if exists (select 1 from rung where milestone_id is not null) then
       raise exception 'B4: % rungs carry a milestone, which the skill has no column for',
@@ -115,7 +115,7 @@ create trigger skill_links_on_update after update on skill_set
 -- 5. The rung table goes; its name answers for one deploy.
 do $$
 begin
-  if to_regclass('public.rung') is not null and (select relkind from pg_class where oid = 'public.rung'::regclass) = 'r' then
+  if (select relkind from pg_class where oid = to_regclass('public.rung')) = 'r' then
     drop table rung;
   end if;
 end $$;

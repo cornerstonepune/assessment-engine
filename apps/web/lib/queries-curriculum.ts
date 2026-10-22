@@ -21,7 +21,7 @@ export async function curriculum(scope: Scope): Promise<{ subject: string; skill
     // the subject of the skill sets' topics (skill_set → topic → subject); one tree holds one today
     sql<{ name: string }[]>`
       select su.name from subject su
-      where exists (select 1 from skill_set ss join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
+      where exists (select 1 from skill ss join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
                     where t.tenant_id = su.tenant_id and t.subject_code = su.code)
       order by su.code limit 1`,
   ]);
@@ -75,7 +75,7 @@ export async function curriculumRows(scope: Scope): Promise<{ subject: string; r
     sql<{ code: string; grade: string; kids: string[] }[]>`
       select ss.code, a.grade, array_agg(distinct s.child_id::text) as kids
       from child_skill_state s join child c on c.id = s.child_id and c.active
-      join skill_set ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
+      join skill ss on ss.tenant_id = s.tenant_id and ss.rung_code = s.rung_code
       cross join lateral (
         select distinct coalesce(l.grade, ss.grade) as grade
         from evidence_placed e

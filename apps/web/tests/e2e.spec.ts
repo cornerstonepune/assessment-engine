@@ -96,8 +96,8 @@ async function openSkill(page: Page, grade: string, code: string) {
 const hardOf = async () =>
   (
     await sql<{ n: number; outcome: string; grade: string }[]>`
-      select count(*)::int as n, (select learning_objective from skill_set where code = 'SUB.2D2D') as outcome,
-             (select coalesce(s.level_band ->> 'Hard', s.grade) from skill_set s where s.code = 'SUB.2D2D') as grade
+      select count(*)::int as n, (select learning_objective from skill where code = 'SUB.2D2D') as outcome,
+             (select coalesce(s.level_band ->> 'Hard', s.grade) from skill s where s.code = 'SUB.2D2D') as grade
       from item where status = 'active' and skill_set_code = 'SUB.2D2D' and difficulty = 'Hard'`
   )[0];
 
@@ -125,20 +125,20 @@ test("a skill on the map opens its own page", async ({ page }) => {
 // ---------------------------------------------------------------- approving a skill
 
 test("approving a skill records who did it, by name", async ({ page }) => {
-  const [before] = await sql`select status, ratified_by from skill_set where code = 'ADD.3D3D'`;
+  const [before] = await sql`select status, ratified_by from skill where code = 'ADD.3D3D'`;
   try {
     // The test makes its own starting state. Status alone changes no content, so the versioning
     // trigger does not fire.
-    await sql`update skill_set set status = 'draft', ratified_by = null where code = 'ADD.3D3D'`;
+    await sql`update skill set status = 'draft', ratified_by = null where code = 'ADD.3D3D'`;
     await page.goto("/skill-sets/ADD.3D3D");
     await page.getByRole("button", { name: "Approve as written" }).click();
     await expect(page.getByRole("status")).toContainText("Approved as written");
     const [after] = await sql<{ status: string; ratified_by: string }[]>`
-      select status, ratified_by from skill_set where code = 'ADD.3D3D'`;
+      select status, ratified_by from skill where code = 'ADD.3D3D'`;
     expect(after.status).toBe("ratified");
     expect(after.ratified_by).toBe("End-to-end test");
   } finally {
-    await sql`update skill_set set status = ${before.status}, ratified_by = ${before.ratified_by}
+    await sql`update skill set status = ${before.status}, ratified_by = ${before.ratified_by}
               where code = 'ADD.3D3D'`;
   }
 });
@@ -147,10 +147,10 @@ test("approving a skill records who did it, by name", async ({ page }) => {
 
 test("the bank's grid holds exactly what the database holds, and a cell opens those questions", async ({ page }) => {
   const [{ total, n, name }] = await sql<{ total: number; n: number; name: string }[]>`
-    select (select count(*)::int from item where status = 'active' and source = 'generated' and exists (select 1 from skill_set s where s.code = item.skill_set_code and exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active and skill_taught_in(s.tenant_id, s.code, k.section)))) as total,
+    select (select count(*)::int from item where status = 'active' and source = 'generated' and exists (select 1 from skill s where s.code = item.skill_set_code and exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active and skill_taught_in(s.tenant_id, s.code, k.section)))) as total,
            (select count(*)::int from item where status = 'active' and source = 'generated'
               and skill_set_code = 'SUB.2D2D' and difficulty = 'Hard') as n,
-           (select name from skill_set where code = 'SUB.2D2D') as name`;
+           (select name from skill where code = 'SUB.2D2D') as name`;
   await page.goto("/library");
   await expect(page.getByText(`${total.toLocaleString("en-IN")} questions ready to print`)).toBeVisible();
   const cell = page.getByRole("link", { name: `${name}, Hard: ${n} questions` });
@@ -176,7 +176,7 @@ test("every question in the list shows its answer and opens its own page", async
 // from either says undefined or NaN.
 test("every kind of question in the bank is drawn with its own numbers", async ({ page }) => {
   const kinds = await sql<{ fmt: string }[]>`
-    select distinct fmt from item where status = 'active' and source = 'generated' and exists (select 1 from skill_set s where s.code = item.skill_set_code and exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active and skill_taught_in(s.tenant_id, s.code, k.section))) order by fmt`;
+    select distinct fmt from item where status = 'active' and source = 'generated' and exists (select 1 from skill s where s.code = item.skill_set_code and exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active and skill_taught_in(s.tenant_id, s.code, k.section))) order by fmt`;
   for (const { fmt } of kinds) {
     await page.goto(`/library?fmt=${fmt}`);
     const question = page.locator("#questions tbody tr").first().locator("td").first();

@@ -37,7 +37,7 @@ test.beforeAll(async () => {
     insert into ask (tenant_id, code, ord, for_role, question, drafted, source)
     select id, ${ASK}, 999, 'coordinator', 'Is this the coordinator''s to answer?', 'Yes.', 'u32' from tenant limit 1
     on conflict do nothing`;
-  [{ code: draft }] = await sql<{ code: string }[]>`select code from skill_set order by code limit 1`;
+  [{ code: draft }] = await sql<{ code: string }[]>`select code from skill order by code limit 1`;
   putBack = await aWaitingSkill(sql, draft);
   [{ code: sheet }] = await sql<{ code: string }[]>`
     select code from sheet_template
@@ -73,7 +73,7 @@ async function badge(page: Page, tab: string): Promise<number> {
 
 const waitingAsks = async (role: string | null) =>
   (await sql<{ n: number }[]>`select count(*)::int as n from ask where answer is null and (${role}::text is null or for_role = ${role})`)[0].n;
-const waitingSkills = async () => (await sql<{ n: number }[]>`select count(*)::int as n from skill_set where status <> 'ratified'`)[0].n;
+const waitingSkills = async () => (await sql<{ n: number }[]>`select count(*)::int as n from skill where status <> 'ratified'`)[0].n;
 
 test("an educator's Today lists every decision the coordinator's does, and the menu counts the same", async ({ browser }) => {
   const page = await signedIn(browser);

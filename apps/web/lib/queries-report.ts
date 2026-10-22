@@ -34,7 +34,7 @@ export async function skillMap(id: string): Promise<MapNode[]> {
     st as (
       select s.rung_code,
              (array_agg(s.state order by cs.ord))[1] as state
-      from child_skill_state s join skill_set r on r.tenant_id = s.tenant_id and r.rung_code = s.rung_code
+      from child_skill_state s join skill r on r.tenant_id = s.tenant_id and r.rung_code = s.rung_code
       join child_state cs on cs.tenant_id = s.tenant_id and cs.code = s.state -- weakest first, as its rows order it
       where s.child_id = ${id}::uuid and s.skill_code = any(r.registry_codes) and s.n_events > 0
       group by s.rung_code),
@@ -55,7 +55,7 @@ export async function skillMap(id: string): Promise<MapNode[]> {
            coalesce(k.name, ss.registry_codes[1]) as lane_name,
            st.state, coalesce(sig.right, 0) as right, coalesce(sig.wrong, 0) as wrong,
            coalesce(sig.wrong_working, 0) as wrong_working, coalesce(sig.blank, 0) as blank
-    from skill_set ss
+    from skill ss
     join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code
       and ${skillTaughtIn(sql`ss.tenant_id`, sql`ss.code`, sql`(select section from child where id = ${id}::uuid)`)}
     join grade g on g.tenant_id = ss.tenant_id and g.code = ss.grade

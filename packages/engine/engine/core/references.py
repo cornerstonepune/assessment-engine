@@ -12,7 +12,7 @@ def orphans() -> dict[str, list[str]]:
             "skill registry codes missing from the registry": [
                 r["s"]
                 for r in conn.execute(
-                    "select distinct s from skill_set, unnest(registry_codes) s"
+                    "select distinct s from skill, unnest(registry_codes) s"
                     " where not exists (select 1 from registry_skill k where k.code = s)"
                 ).fetchall()
             ],
@@ -20,13 +20,13 @@ def orphans() -> dict[str, list[str]]:
                 r["s"]
                 for r in conn.execute(
                     "select distinct s from level_rule, unnest(rung_codes) s"
-                    " where not exists (select 1 from skill_set g where g.rung_code = s)"
+                    " where not exists (select 1 from skill g where g.rung_code = s)"
                 ).fetchall()
             ],
             "skill_set misconception codes missing from the vocabulary": [
                 r["s"]
                 for r in conn.execute(
-                    "select distinct s from skill_set, unnest(misconception_codes) s"
+                    "select distinct s from skill, unnest(misconception_codes) s"
                     " where not exists (select 1 from misconception m where m.code = s)"
                 ).fetchall()
             ],

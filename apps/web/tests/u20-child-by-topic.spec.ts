@@ -67,7 +67,7 @@ test("a child's page opens on their profile topic by topic", async ({ page }) =>
   // the rest of the grade's addition and subtraction taught in the class (reasoning's among them, Grade 2's since
   // ADR 0085) is counted as not assessed yet, not drawn as a wall of grey
   const [{ notYet }] = await sql<{ notYet: number }[]>`
-    select count(*)::int - 3 as "notYet" from skill_set s
+    select count(*)::int - 3 as "notYet" from skill s
     where s.topic_code = 'ADDSUB' and s.grade = 'G2'
       and skill_taught_in(s.tenant_id, s.code, (select section from child where id = ${kids.Ishaan}))`;
   await expect(line("ADDSUB")).toContainText(`Addition & subtraction`);

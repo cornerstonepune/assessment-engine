@@ -40,7 +40,7 @@ def row(conn, code):
 def read(conn, code, difficulty):
     """One band's spec as the item-generation prompt's input, built only from rows: skill set, rung, school philosophy, misconceptions."""
     s = conn.execute(
-        f"select s.*, s.grade as band, s.registry_codes as skill_codes, {levels.LEVELS} as levels from skill_set s"
+        f"select s.*, s.grade as band, s.registry_codes as skill_codes, {levels.LEVELS} as levels from skill s"
         " where s.code = %s",
         (code,),
     ).fetchone()
@@ -72,7 +72,7 @@ def ratify(conn, actor, code=None):
     A level's approval is its own (goals/f1d-questions-approved-per-level.yaml): changing that level's rule withdraws
     it (trigger skill_set_version_on_change), and the skill is approved while every level it has is."""
     return conn.execute(
-        "update skill_set set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', %s::text, 'at', now()))"
+        "update skill set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', %s::text, 'at', now()))"
         " from jsonb_object_keys(difficulty) k), updated_at = now()"
         " where status = 'draft' and (%s::text is null or code = %s)"
         " returning code, version",
@@ -119,7 +119,7 @@ def outcome_problems(text):
 def outcomes(conn):
     """Every skill set's outcome and what is wrong with it, in ladder order."""
     rows = conn.execute(
-        "select s.code, s.learning_objective from skill_set s order by s.ladder_order, s.code"
+        "select s.code, s.learning_objective from skill s order by s.ladder_order, s.code"
     ).fetchall()
     return [(r["code"], r["learning_objective"], outcome_problems(r["learning_objective"])) for r in rows]
 
@@ -284,7 +284,7 @@ def apply_computed(conn, code, n=SAMPLE_PAIRS):
     added = sorted(computed - set(s["misconception_codes"]))
     if added:
         conn.execute(
-            "update skill_set set misconception_codes = %s where code = %s",
+            "update skill set misconception_codes = %s where code = %s",
             (sorted(set(s["misconception_codes"]) | computed), code),
         )
     return added
@@ -351,7 +351,7 @@ def _store(conn, s, covered, proposals, meta):
             (tenant, p["code"], op, p["name"], note, p["repair_hint"], p["visible_in"], source),
         )
         codes.add(p["code"])
-    conn.execute("update skill_set set misconception_codes = %s where code = %s", (sorted(codes), s["code"]))
+    conn.execute("update skill set misconception_codes = %s where code = %s", (sorted(codes), s["code"]))
 
 
 def evaluate_misconception_list(conn, codes):

@@ -49,7 +49,7 @@ def test_each_skill_is_placed_under_its_topic_in_the_topics_order():
     topics.load(conn, "t", _seed(tops, ["X", "Y"]))
     inserted = [p for s, p in conn.calls if s.startswith("insert into topic")]
     assert [(p[1], p[4]) for p in inserted] == [("A", 0), ("B", 1)]
-    placed = {p[3]: p[0] for s, p in conn.calls if s.startswith("update skill_set")}
+    placed = {p[3]: p[0] for s, p in conn.calls if s.startswith("update skill")}
     assert placed == {"X": "A", "Y": "B"}
 
 
@@ -112,7 +112,7 @@ def test_every_taxonomy_case_sits_in_a_taught_skill_and_nothing_else_is_taught()
             "select s.code, s.taught, exists (select 1 from item i where i.skill_set_code = s.code"
             "   and i.status = 'active' and i.case_codes && (select array_agg(code) from taxonomy_case"
             "   where taxonomy = 'ADD_SUB')) as holds_cases"
-            " from skill_set s where s.taught_by is null"
+            " from skill s where s.taught_by is null"
         ).fetchall()
     assert rows
     grade_1_beyond_the_taxonomy = {"DATA.TALLY", "MUL.GROUPS"}
@@ -131,16 +131,16 @@ def test_a_skill_a_person_switched_stays_as_they_left_it():
     with db.connect() as conn:
         tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
         conn.execute(
-            "update skill_set set taught = true, taught_by = 'An educator', taught_at = now() where code = 'DIV.2D1D'"
+            "update skill set taught = true, taught_by = 'An educator', taught_at = now() where code = 'DIV.2D1D'"
         )
         conn.execute(
-            "update skill_set set taught = true, taught_by = null, taught_at = null where code = 'DIV.FACTS'"
+            "update skill set taught = true, taught_by = null, taught_at = null where code = 'DIV.FACTS'"
         )
         topics.load(conn, tenant, settings.seed)
         got = {
             r["code"]: (r["taught"], r["taught_by"], r["taught_at"] is not None)
             for r in conn.execute(
-                "select code, taught, taught_by, taught_at from skill_set where code in ('DIV.2D1D', 'DIV.FACTS')"
+                "select code, taught, taught_by, taught_at from skill where code in ('DIV.2D1D', 'DIV.FACTS')"
             ).fetchall()
         }
         conn.rollback()
@@ -161,7 +161,7 @@ def test_a_topic_the_rows_drop_is_gone_after_a_load():
             " 'Estimation', 99) on conflict (tenant_id, code) do nothing",
             (tenant,),
         )
-        conn.execute("update skill_set set topic_code = 'ESTIMATE' where code = 'MD.ESTIMATE'")
+        conn.execute("update skill set topic_code = 'ESTIMATE' where code = 'MD.ESTIMATE'")
         conn.execute(
             "insert into class_skill (tenant_id, section, skill_set_code, taught, taught_by) values"
             " (%s, 'T1-OLD', 'MD.ESTIMATE', true, 'An educator') on conflict do nothing",
@@ -170,7 +170,7 @@ def test_a_topic_the_rows_drop_is_gone_after_a_load():
         topics.load(conn, tenant, settings.seed)
         left = conn.execute(
             "select (select count(*) from topic where code = 'ESTIMATE') as topic,"
-            " (select topic_code from skill_set where code = 'MD.ESTIMATE') as home,"
+            " (select topic_code from skill where code = 'MD.ESTIMATE') as home,"
             " skill_taught_in(%s, 'MD.ESTIMATE', 'T1-OLD') as said,"
             " (select array_agg(code order by ord) from topic) as codes",
             (tenant,),

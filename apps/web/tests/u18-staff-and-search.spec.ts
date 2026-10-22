@@ -54,7 +54,7 @@ test("an educator put on the staff list signs in, and a decision carries their n
     await row.getByRole("button", { name: `Taught in ${SECTION}, as ${EDUCATOR.name}` }).click();
     await expect(page.getByRole("main")).toContainText(`${topic.name} is taught in ${SECTION} now`);
     const [now] = await sql<{ taught: boolean; taught_by: string | null }[]>`
-      select bool_and(taught) as taught, min(taught_by) as taught_by from class_skill where section = ${SECTION} and skill_set_code in (select code from skill_set where topic_code = 'DIV')`;
+      select bool_and(taught) as taught, min(taught_by) as taught_by from class_skill where section = ${SECTION} and skill_set_code in (select code from skill where topic_code = 'DIV')`;
     expect(now).toEqual({ taught: true, taught_by: EDUCATOR.name });
   } finally {
     await context.close();

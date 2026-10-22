@@ -262,7 +262,7 @@ def test_a_child_who_lags_nowhere_is_stretched_on_their_strongest_skill(conn):
 def test_a_skill_the_school_does_not_teach_yet_is_never_on_a_paper_the_engine_chooses(conn, child):
     """Nimish, 2026-09-23: "I'm surprised we haven't even started teaching multiplication"."""
     # the school's word, said skill by skill (goals/t1-topics-are-operations.yaml)
-    conn.execute("update skill_set set taught = false where topic_code = 'ADDSUB'")
+    conn.execute("update skill set taught = false where topic_code = 'ADDSUB'")
     assert focus_paper.plan(conn, child, WEEK)["areas"] == []
     # an educator's own choice is made, taught or not (L7, ADR 0081)
     assert focus_paper.plan(conn, child, WEEK, [{"skill_set": "MUL.2D1D", "level": "Easy", "n": 3}])["n"] == 3
@@ -273,19 +273,19 @@ def test_a_skill_the_school_does_not_teach_yet_is_never_on_a_paper_the_engine_ch
 def test_each_level_belongs_to_one_grade_and_a_child_meets_only_their_own_grade_or_below(conn):
     """`skill_set.level_band`: a level named there belongs to that grade, any other to the skill's own."""
     s = conn.execute(
-        "select s.code, s.grade as band from skill_set s"
+        "select s.code, s.grade as band from skill s"
         " where s.grade = 'G2' and s.difficulty ? 'Easy' and s.difficulty ? 'Hard' limit 1"
     ).fetchone()
     if not s:
         pytest.skip("needs a Grade 2 skill with Easy and Hard on the copy")
     conn.execute(
-        'update skill_set set level_band = \'{"Easy": "G1", "Medium": "G1"}\' where code = %s', (s["code"],)
+        'update skill set level_band = \'{"Easy": "G1", "Medium": "G1"}\' where code = %s', (s["code"],)
     )
     g1, g2 = shelf._levels(conn, "G1")[s["code"]], shelf._levels(conn, "G2")[s["code"]]
     assert "Easy" in g1 and "Hard" not in g1 and "Advance" not in g1
     assert {"Easy", "Hard"} <= set(g2), "a Grade 2 child may still be given the levels Grade 1 teaches"
     # with no grade, every level the skill defines, in the school's order (the `difficulty` table's)
-    defined = conn.execute("select difficulty from skill_set where code = %s", (s["code"],)).fetchone()[
+    defined = conn.execute("select difficulty from skill where code = %s", (s["code"],)).fetchone()[
         "difficulty"
     ]
     order = [r["code"] for r in conn.execute("select code from difficulty order by ord")]
@@ -353,7 +353,7 @@ def test_no_question_at_a_grade_1_level_needs_an_exchange(conn):
     """ "Addition and subtraction 2 digit without borrowing": every question the bank holds at a Grade 1 level of a
     2-digit skill is measured again from its own numbers, and not one needs an exchange."""
     rows = conn.execute(
-        "select i.fmt, i.stem, i.spec, s.rung_code from item i join skill_set s on s.code = i.skill_set_code"
+        "select i.fmt, i.stem, i.spec, s.rung_code from item i join skill s on s.code = i.skill_set_code"
         " where i.status = 'active' and i.skill_set_code like any (array['ADD.2D%', 'SUB.2D%'])"
         " and coalesce(s.level_band ->> i.difficulty, s.grade) = 'G1'"
     ).fetchall()

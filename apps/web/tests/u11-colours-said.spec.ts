@@ -147,7 +147,7 @@ test("a skill has one check, though its rung tests two skills, and a skill no ch
   await expect(word).toContainText("Asha (none)");
 
   const [{ code, name }] = await sql<{ code: string; name: string }[]>`
-    select ss.code, ss.name from skill_set ss
+    select ss.code, ss.name from skill ss
     join topic t on t.tenant_id = ss.tenant_id and t.code = ss.topic_code and ss.taught
     where ss.grade = 'G2' and ss.rung_code not in ('R8', 'R22', 'R24')
     order by t.ord, ss.ladder_order nulls last limit 1`;
