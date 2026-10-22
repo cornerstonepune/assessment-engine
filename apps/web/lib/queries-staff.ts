@@ -28,7 +28,9 @@ export async function people(): Promise<Person[]> {
 /** Every class a child still in school is in, with its grade and how many children, and the names of those who teach it. */
 export async function classLines(): Promise<ClassLine[]> {
   const rows = await sql<{ section: string; band: string; children: number }[]>`
-    select section, min(band) as band, count(*)::int as children from child where active group by section order by min(band), section`;
+    select c.section, c.band, count(*)::int as children
+    from child c left join grade g on g.tenant_id = c.tenant_id and g.code = c.band
+    where c.active group by c.section, c.band, g.ord order by g.ord, c.section`;
   const staff = await people();
   return rows.map((r) => ({
     ...r,
