@@ -24,6 +24,17 @@ def tenant(conn):
     return conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
 
 
+def a_registry_skill(conn, tenant, code="NUM.OPS.01"):
+    """The school's registry skill `code` given to a school a test made for itself: a question names one (C1)."""
+    conn.execute(
+        "insert into registry_skill (tenant_id, code, domain, strand, name)"
+        " select %s, code, domain, strand, name from registry_skill where code = %s limit 1"
+        " on conflict do nothing",
+        (tenant, code),
+    )
+    return code
+
+
 def a_child(conn, section=None):
     """A Grade 2 child in a section of its own, on the roster as every child is: `child` and its `pii` row."""
     t = tenant(conn)

@@ -21,6 +21,7 @@ from engine.assess.render import render_sheet
 from engine.core import db
 from engine.w2_print import library
 from engine.w3_read import boxes, copies, copy_scores, placing, printed_paper, render_pdf, second_reader
+from tests import rows
 from tests.test_sorting import _scanned
 
 
@@ -415,9 +416,9 @@ def test_an_answer_read_wrong_and_judged_right_by_a_person_counts_once_as_right(
     ]
     for n, (status, why) in enumerate(read):
         item = conn.execute(
-            "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses)"
-            " values (%s, %s, 'T', 'R1', 'Procedural', 'bare_sum', '{}', '[]') returning id",
-            (tenant, f"K{n}"),
+            "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses, skill_codes)"
+            " values (%s, %s, 'T', 'R1', 'Procedural', 'bare_sum', '{}', '[]', %s) returning id",
+            (tenant, f"K{n}", [rows.a_registry_skill(conn, tenant)]),
         ).fetchone()["id"]
         conn.execute(
             "insert into item_result (tenant_id, capture_id, item_id, rid, status, raw_read)"
