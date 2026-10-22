@@ -85,7 +85,8 @@ test("a teacher can reach every section from the menu, and the menu says where t
 
 /** A skill's row in the Curriculum's table (U12), everything opened; `grade` is the grade that holds the level read. */
 async function openSkill(page: Page, grade: string, code: string) {
-  await page.goto("/");
+  // the counts on a skill's row are the curriculum page's "Question bank details" (goals/ux10-declutter.yaml)
+  await page.goto("/?details=1");
   await page.getByRole("button", { name: "Open everything" }).click();
   const row = page.getByRole("table", { name: "The curriculum, grade by grade" }).locator(`tr[data-row="${grade}/${code}"]`);
   await expect(row).toBeVisible();
