@@ -84,3 +84,18 @@ def test_a_printed_question_number_is_never_given_to_the_child(monkeypatch):
     cfg = {**stencil.ocr.DEFAULTS}
     out = stencil.read_page(b"", {"10": "9 x 6 ="}, cfg, None, form="QUIZ", page_no=2)
     assert out["10"]["child_answer"] != "10"
+
+
+def test_a_page_read_by_its_words_stores_no_box(monkeypatch):
+    """CK1 (Nimish, 2026-10-22: the picture shown for question 8 was question 11's). A region found by the words above an
+    answer is where the reader looked, not where the question prints: on live one field went to three questions and
+    another showed its neighbour. What is shown for an answer is that question's own part of the page or the whole page,
+    so a reading by words carries no box."""
+    field = {"child_answer": "12", "answer_state": "written", "box": [0.1, 0.4, 0.5, 0.5]}
+    monkeypatch.setattr(stencil.ocr, "read", lambda jpeg, cli: {"lines": [], "words": []})
+    monkeypatch.setattr(
+        stencil.ocr, "answers_for", lambda *a, **k: {"1": dict(field), "7": dict(field), "8": dict(field)}
+    )
+    out = stencil.read_page(b"", {"1": "q", "7": "q", "8": "q"}, {**stencil.ocr.DEFAULTS}, None)
+    assert set(out) == {"1", "7", "8"} and all(r["child_answer"] == "12" for r in out.values()), "still read"
+    assert not any("box" in r for r in out.values()), "no box for a reading found by its words"

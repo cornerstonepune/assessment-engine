@@ -16,11 +16,11 @@ import pymupdf
 import pytest
 
 from engine.adapters import digits, ocr
-from engine.assess import geometry, items
+from engine.assess import counting, geometry, items
 from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
 from engine.w3_read import boxes, lineup, render_pdf
-from tests.test_boxes import CODE, StandIn, _filled, _scanned
+from tests.test_boxes import CODE, StandIn, _filled, _scanned, _write
 
 PPM = lineup.PPM
 
@@ -270,3 +270,144 @@ def test_a_page_with_too_little_of_its_print_on_it_does_not_line_up(page, tmp_pa
         )
     img, _ = render_pdf.photo(_scanned(other, tmp_path / "other.pdf"), 1)
     assert lineup.line_up(img, page[0], 1) == (None, None)
+
+
+@pytest.fixture(scope="module")
+def equal_groups(tmp_path_factory):
+    """A Grade 1 paper of twelve "Equal groups (repeated addition)" questions, as sums and as rings of dots, over two
+    pages — the paper read on 2026-10-22 — and the answer each question asks for: {page: {question: answer}}."""
+    rng = random.Random(3)
+    check = {"format": "equal_groups", "shape": ["SUM", "PICTURE"], "groups": [2, 3], "size": [2, 6]}
+    qs = list(
+        {
+            q.item_id: q for q in (counting.equal_groups(rng, "R35", "Conceptual", check) for _ in range(60))
+        }.values()
+    )
+    qs = qs[:12]  # twelve different questions: a paper never prints one twice
+    out = tmp_path_factory.mktemp("g1")
+    key = render_sheet(Sheet(CODE, "G1", "Focus", 1, "W1", qs, title="Equal groups"), out, week_label="W1")
+    answers = {q.item_id: q.responses[0].answer for q in qs}
+    on = {}
+    for p in (1, 2):
+        runs = geometry.cells_of(key["geometry"], p)[0]
+        on[p] = {
+            str(n): answers[it["item_id"]]
+            for n, it in enumerate(key["items"], 1)
+            if (it["item_id"], "ans") in runs
+        }
+    assert sorted(len(v) for v in on.values()) == [4, 8], (
+        on
+    )  # eight questions on page 1, four on page 2, as on live
+    return out / f"{CODE}.pdf", key, on
+
+
+SHARE, TALL, WIDE = 0.575, 2399, 1080
+
+
+def _picture_on_a4():
+    """Where the phone's picture sits on its A4 page, in points: centred, covering SHARE of it."""
+    pw = (SHARE * 595 * 842 * WIDE / TALL) ** 0.5
+    ph = pw * TALL / WIDE
+    return pymupdf.Rect((595 - pw) / 2, (842 - ph) / 2, (595 + pw) / 2, (842 + ph) / 2)
+
+
+def _on_a4(x_mm, y_mm):
+    """A point of the printed page, in mm, where `_phone_on_a4` puts it: a fraction of the A4 page across and down."""
+    r, paper_h = _picture_on_a4(), round(H_PX * WIDE / W_PX)
+    px, py = x_mm * PPM * WIDE / W_PX, (TALL - paper_h) // 2 + y_mm * PPM * WIDE / W_PX
+    return (r.x0 + px / WIDE * r.width) / 595, (r.y0 + py / TALL * r.height) / 842
+
+
+W_PX, H_PX = lineup.W, lineup.H
+
+
+def _phone_on_a4(img, out, share=SHARE, tall=TALL, wide=WIDE):
+    """A page as the 2026-10-22 file holds it: the paper photographed by a phone in portrait — a picture 1080 x 2399,
+    the paper across its width and the desk above and below it — and that picture laid on an A4 page, covering 57.5% of
+    it, white around. Measured on every one of that file's 20 pages (`.github/measure/scan_vs_eye.py`)."""
+    h, w = img.shape[:2]
+    paper = cv2.resize(img, (wide, round(h * wide / w)), interpolation=cv2.INTER_AREA)
+    top = (tall - paper.shape[0]) // 2
+    photo = np.full((tall, wide, 3), 90, np.uint8)  # the desk
+    photo[top : top + paper.shape[0]] = paper
+    photo = cv2.GaussianBlur(photo, (3, 3), 0)
+    ok, jpg = cv2.imencode(".jpg", photo, [cv2.IMWRITE_JPEG_QUALITY, 70])
+    doc = pymupdf.open()
+    a4 = doc.new_page(width=595, height=842)
+    a4.insert_image(_picture_on_a4(), stream=jpg.tobytes())
+    doc.save(out)
+    return out
+
+
+def _g1_scan(equal_groups, p, tmp_path):
+    pdf, key, on = equal_groups
+    img = render_pdf.render(pdf, dpi=PPM * 25.4)[p - 1]
+    runs = geometry.cells_of(key["geometry"], p)[0]
+    for n, it in enumerate(key["items"], 1):
+        if str(n) in on[p]:
+            run = runs[(it["item_id"], "ans")]
+            for cell, ch in zip(run, on[p][str(n)].rjust(len(run))):
+                if ch.strip():
+                    _write(img, cell, ch, PPM)
+    return _phone_on_a4(img, tmp_path / f"g1-p{p}.pdf")
+
+
+@pytest.mark.parametrize("p", [1, 2])
+def test_a_phone_photograph_laid_on_an_a4_page_lines_up(equal_groups, tmp_path, p):
+    """2026-10-22: every page of a 20-page Grade 1 file "did not line up with the paper it printed from", and 49 of its
+    120 answers came back "the printed question was not found on the page". The map from the photograph to the printed
+    page was found (113 features agreed on one page) and thrown away: the check that it was sensible asked the WHOLE
+    photograph to land on about one page's area, and on a picture covering 57.5% of its A4 page, the paper a third of
+    it, the photograph's corners land on three pages' worth. What must be sensible is where the PAPER sits in it."""
+    img, _ = render_pdf.photo(_g1_scan(equal_groups, p, tmp_path), 1)
+    canon, _ = lineup.line_up(img, equal_groups[0], p)
+    assert canon is not None
+
+
+@pytest.mark.parametrize("p", [1, 2])
+def test_every_printed_question_of_the_equal_groups_paper_is_found_in_its_own_boxes(
+    equal_groups, tmp_path, reader, p
+):
+    """Each of the page's questions found where it printed (none `not_found`), each in boxes no other question was
+    given — on live one box went to three questions. Checked against where the test itself put each question's boxes
+    in the picture, not against the reader's own account: the middle of each question's run is inside the place the
+    reading says it came from and no other question's is, and as many of its boxes hold ink as digits were written.
+    The digits themselves are the reader's (`adapters/digits.py`): this stand-in, a shape matcher, takes a box's line
+    for a 1 at a phone picture's 5 pixels a millimetre."""
+    pdf, key, on = equal_groups
+    img, frame = render_pdf.photo(_g1_scan(equal_groups, p, tmp_path), 1)
+    wanted = {n: (key["items"][int(n) - 1]["item_id"], "ans") for n in on[p]}
+    got = boxes.read_page(img, p, pdf, key["geometry"], wanted, ocr.settings(), frame=frame)
+    assert got is not None, "the page did not line up"
+    assert sorted(got) == sorted(on[p])
+    assert [k for k, r in got.items() if r["answer_state"] == "not_found"] == []
+    assert len({tuple(r["box"]) for r in got.values()}) == len(got), "two questions given one box"
+    runs = geometry.cells_of(key["geometry"], p)[0]
+    middle = {}
+    for n in on[p]:
+        run = runs[(key["items"][int(n) - 1]["item_id"], "ans")]
+        x = (min(c["x"] for c in run) + max(c["x"] + c["w"] for c in run)) / 2
+        y = (min(c["y"] for c in run) + max(c["y"] + c["h"] for c in run)) / 2
+        middle[n] = _on_a4(x, y)
+    inside = lambda b, pt: b[0] <= pt[0] <= b[2] and b[1] <= pt[1] <= b[3]  # noqa: E731
+    for n, r in got.items():
+        holds = [m for m, pt in middle.items() if inside(r["box"], pt)]
+        assert holds == [n], f"question {n}'s reading came from where {holds} printed"
+    assert {k: r["inked"] for k, r in got.items()} == {k: len(v) for k, v in on[p].items()}, _states(got)
+
+
+def test_a_photograph_of_the_desk_alone_in_a_phone_picture_does_not_line_up(equal_groups, tmp_path):
+    """Lowering the bar for where the paper sits must not let a picture with no paper in it through."""
+    desk = np.full((2970, 2100, 3), 255, np.uint8)
+    for k in range(12):
+        cv2.putText(
+            desk,
+            f"{k} not this paper {k * 7}",
+            (150, 300 + 200 * k),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            3,
+            (30, 30, 30),
+            6,
+        )
+    img, _ = render_pdf.photo(_phone_on_a4(desk, tmp_path / "desk.pdf"), 1)
+    assert lineup.line_up(img, equal_groups[0], 1) == (None, None)

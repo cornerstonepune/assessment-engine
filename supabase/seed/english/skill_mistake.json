@@ -1559,6 +1559,66 @@
   {
    "misconception_code": "M_ENG_PERSUADE_TRUSTS_ADVERT",
    "skill_code": "EN4.TEXT.PERSUADE"
+  },
+  {
+   "misconception_code": "M_ENG_END_NO_CAPITAL",
+   "skill_code": "EN3.PUNCT.END"
+  },
+  {
+   "misconception_code": "M_ENG_END_NO_EXCLAMATION",
+   "skill_code": "EN3.PUNCT.END"
+  },
+  {
+   "misconception_code": "M_ENG_SPEECH_MARKS_MISSING",
+   "skill_code": "EN3.PUNCT.SPEECH"
+  },
+  {
+   "misconception_code": "M_ENG_ORDER_SWAP",
+   "skill_code": "EN3.READ.INSTRUCT"
+  },
+  {
+   "misconception_code": "M_ENG_DOUBLE_LETTER_WRONG",
+   "skill_code": "EN3.SPELL.VERBEND"
+  },
+  {
+   "misconception_code": "M_ENG_PREFIX_MISSPELT",
+   "skill_code": "EN3.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_ROOT_LOOKALIKE",
+   "skill_code": "EN4.SPELL.AFFIX"
+  },
+  {
+   "misconception_code": "M_ENG_ES_MISSED",
+   "skill_code": "EN4.SPELL.RULE"
+  },
+  {
+   "misconception_code": "M_ENG_ANIMALS_FICTION",
+   "skill_code": "EN4.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_COMPARE_MIXED",
+   "skill_code": "EN4.TEXT.GENRE"
+  },
+  {
+   "misconception_code": "M_ENG_FACTS_IN_STORY",
+   "skill_code": "EN4.TEXT.FICTION"
+  },
+  {
+   "misconception_code": "M_ENG_FEATURE_JOB",
+   "skill_code": "EN4.TEXT.FEATURES"
+  },
+  {
+   "misconception_code": "M_ENG_GENRE_COMPARE_ONE_SIDE",
+   "skill_code": "EN3.TEXT.GENRE"
+  },
+  {
+   "misconception_code": "M_ENG_PARA_ODD_KEPT",
+   "skill_code": "EN3.TEXT.PARAGRAPH"
+  },
+  {
+   "misconception_code": "M_ENG_STORY_ON_SUBJECT_SHELF",
+   "skill_code": "EN3.TEXT.FICTION"
   }
  ]
 }
