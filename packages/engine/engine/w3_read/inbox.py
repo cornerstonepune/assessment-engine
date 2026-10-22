@@ -239,6 +239,24 @@ def give(conn, run_id: str, page: int, child_id: str, by: str) -> Path:
     return path
 
 
+def again(conn, run_id: str) -> tuple[Path, str]:
+    """(the file a run read, its tenant) — to be read afresh, as a run of its own (`start`, then `read` with `again`):
+    every copy no person has worked on is read anew and its old reading superseded, never edited (rule 4); a person's
+    checks stay (`checked`). The same file is otherwise never read twice (`legacy.import_scan`, `file_sha256`). Not
+    while the file is being read, and only while the engine still keeps it."""
+    run = conn.execute(
+        f"select status, tenant_id, {_FILE} as file from flow_run where id = %s and flow = %s", (run_id, FLOW)
+    ).fetchone()
+    if not run:
+        raise Refused(404, "no such scan")
+    if run["status"] == "running":
+        raise Refused(409, "this scan is still being read: read it again once it is read")
+    path = INBOX / Path(run["file"]).name
+    if not path.exists():
+        raise Refused(410, f"{path.name} is no longer kept by the engine: send the scan again")
+    return path, str(run["tenant_id"])
+
+
 def page_jpg(conn, run_id: str, page_no: int) -> bytes:
     """One page of the file a run read, drawn small: enough for a person to see whose name is on it."""
     run = conn.execute(

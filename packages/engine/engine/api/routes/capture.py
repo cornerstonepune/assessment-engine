@@ -24,6 +24,7 @@ from engine.api.models import (
     MarkRequest,
     MarkResponse,
     NameMistakeRequest,
+    ReadAgainRequest,
     ReadFileRequest,
     ReadFileResponse,
     TrustedResponse,
@@ -211,6 +212,23 @@ def give_page(
     conn.commit()  # the run says "running" before its reading starts, as `inbox.start` does
     background.add_task(inbox.read, run_id, path, body.by)
     return {"run_id": run_id}
+
+
+@router.post("/read/run/{run_id}/again", response_model=ReadFileResponse)
+def read_run_again(
+    run_id: str, body: ReadAgainRequest, background: BackgroundTasks, conn=Depends(get_conn, scope="function")
+):
+    """A file sent to be read, read afresh (goals/ck2-photograph-is-its-page.yaml): a run of its own, every copy no
+    person has worked on read anew and its old reading superseded, a person's checks kept (`inbox.again`)."""
+    try:
+        path, tenant = inbox.again(conn, run_id)
+    except inbox.Refused as no:
+        raise HTTPException(status_code=no.status, detail=str(no)) from no
+    with pymupdf.open(path) as doc:
+        pages = len(doc)
+    new = inbox.start(tenant, path, body.by, pages=pages)
+    background.add_task(inbox.read, new, path, body.by, True)
+    return {"run_id": new, "pages": pages}
 
 
 @router.get("/read/run/{run_id}/page/{page_no}.jpg")
