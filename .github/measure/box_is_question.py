@@ -75,7 +75,7 @@ def page_verdicts(answers, cells):
 
 def main():
     sql = (
-        "select r.id, c.id as capture, si.kind, c.path, si.pdf_path, t.source, t.id as template_id,"
+        "select r.id, c.id as capture, si.kind, t.source as src, t.item_ids, c.path, si.pdf_path, t.source, t.id as template_id,"
         " coalesce(t.code, t.batch_id) as code, i.item_key, r.rid, r.raw_read::jsonb as raw"
         " from item_result r join capture c on c.id = r.capture_id join item i on i.id = r.item_id"
         " join sheet_instance si on si.id = c.sheet_instance_id join sheet_template t on t.id = si.sheet_template_id"
@@ -90,7 +90,7 @@ def main():
             pages.setdefault((r["capture"], raw.get("file_page") or raw.get("page") or 1), []).append(r)
         for (capture, file_page), rows in pages.items():
             first = rows[0]
-            kind = first["kind"] or "?"
+            kind = "Home assessment" if first["src"] == "focus" else f"class/other ({first['kind']}, {first['src']})"
             geometry = []
             mine = {"pdf_path": first["pdf_path"], "source": first["source"], "template_id": first["template_id"]}
             try:
@@ -107,16 +107,20 @@ def main():
             cells = {k: tuple(np.mean(v, axis=0)) for k, v in cells.items()}
             answers = [(str(r["id"]), r["item_key"], r["rid"], (r["raw"] or {}).get("box")) for r in rows]
             verdict = page_verdicts(answers, cells)
+            order = {c["item"]: n for n, c in enumerate({c["item"]: c for c in geometry}.values(), 1)}  # layout order
             for r in rows:
                 raw = r["raw"] or {}
                 kind_of, why = verdict.get(str(r["id"]), ("unchecked", "no layout kept"))
+                if kind_of == "other":
+                    near = why.rsplit(" ", 1)[-1]
+                    why = f"question {raw.get('slot')} shows the layout of question {order.get(near)} (page {raw.get('page')})"
                 total[(kind, kind_of)] += 1
                 extra = []
                 if page_of.get(r["item_key"]) not in (None, raw.get("page")):
                     extra.append("stored page differs from the layout's page for the question")
                 if raw.get("file_page") not in (None, raw.get("page")):
                     extra.append("copy's file page differs from the paper's page")
-                if kind_of in ("other", "shared", "none") or extra:
+                if kind_of != "own" or extra:
                     causes[(kind, kind_of, why, "; ".join(extra))] += 1
     print("-- by kind of paper: answers waiting for a person, by what the picture shows")
     for (kind, k), n in sorted(total.items()):
