@@ -3,8 +3,8 @@
     {
       "code": "M_NOCARRY",
       "op": "+",
-      "name": "Forgets to carry",
-      "description": "Writes each column sum mod 10 and never carries: 47 + 38 written as 75.",
+      "name": "Forgets to regroup",
+      "description": "Writes each column sum mod 10 and never regroups: 47 + 38 written as 75.",
       "repair_hint": "Place-value chart; exchange 10 ones for a ten with rods before recording",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
@@ -13,9 +13,9 @@
     {
       "code": "M_CARRY_SKIP",
       "op": "+",
-      "name": "Carry placed one column too far left",
-      "description": "The carry is added two columns left instead of one: 47 + 38 written as 175.",
-      "repair_hint": "Column chart with the carry written above the correct column; two worked examples",
+      "name": "Regrouping placed one column too far left",
+      "description": "The regrouping is added two columns left instead of one: 47 + 38 written as 175.",
+      "repair_hint": "Column chart with the regrouping written above the correct column; two worked examples",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/misconceptions.py (Neha S, Maths planning.docx, Aug 2026)",
       "external_ref": null
@@ -33,7 +33,7 @@
     {
       "code": "M_DROP_CARRYOUT",
       "op": "+",
-      "name": "Drops the final carry-out (76+54 -> 30)",
+      "name": "Drops the final regrouping (76+54 -> 30)",
       "description": "Drops the carry out of the last column: 76 + 54 written as 30.",
       "repair_hint": "Estimate first; 'can the answer be smaller than the bigger number?'",
       "detectable_by": "answer_lookup",
@@ -255,9 +255,9 @@
     {
       "code": "M_CARRY_ALWAYS_1",
       "op": "+",
-      "name": "Assumes a carry is always 1",
-      "description": "Carries 1 when the column total is 20 or more, so 9 + 8 + 7 in the ones column carries 1 instead of 2.",
-      "repair_hint": "Three-addend columns with rods: count how many complete tens the column made before writing the carry.",
+      "name": "Assumes a regrouping is always 1",
+      "description": "Regroups 1 when the column total is 20 or more, so 9 + 8 + 7 in the ones column regroups 1 instead of 2.",
+      "repair_hint": "Three-addend columns with rods: count how many complete tens the column made before writing the regrouping.",
       "detectable_by": "answer_lookup",
       "source": "SPEC.md section 3.4 (taxonomy section 11 error list); computable from the operands, but the predictor is not yet in assess/misconceptions.py",
       "external_ref": null
@@ -275,7 +275,7 @@
     {
       "code": "M_MISSING_DIGIT_LOCAL",
       "op": "any",
-      "name": "Finds a missing digit that works in its own column but not across the carry",
+      "name": "Finds a missing digit that works in its own column but not across the regrouping",
       "description": "Solves the column in isolation and ignores what the exchange sends into the next column, so 4□2 - 185 = 217 is answered from the ones column alone.",
       "repair_hint": "Substitute the chosen digit back and work the whole question through, column by column.",
       "detectable_by": "working",
@@ -357,9 +357,9 @@
     {
       "code": "M_MUL_NO_CARRY",
       "op": "×",
-      "name": "Multiplies each digit and drops the carry",
+      "name": "Multiplies each digit and drops the regrouping",
       "description": "Writes only the last digit of each digit's product: 34 × 6 written as 84.",
-      "repair_hint": "Column multiplication with the carry written above; say 'twenty-four is two tens and four ones'",
+      "repair_hint": "Column multiplication with the regrouping written above; say 'twenty-four is two tens and four ones'",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/misconceptions.py (MUL_PREDICTORS, 2026-09-20; written after `engine goal w1-build-the-bank` found 14 of 20 multiplication questions undiagnosable)",
       "external_ref": null
@@ -377,9 +377,9 @@
     {
       "code": "M_MUL_CARRY_FIRST",
       "op": "×",
-      "name": "Adds the carry before multiplying instead of after",
-      "description": "Adds the carried digit to the next digit and then multiplies: 34 × 6 written as 304.",
-      "repair_hint": "Say the order aloud: multiply, then add what was carried",
+      "name": "Adds the regrouping before multiplying instead of after",
+      "description": "Adds the regrouped digit to the next digit and then multiplies: 34 × 6 written as 304.",
+      "repair_hint": "Say the order aloud: multiply, then add what was regrouped",
       "detectable_by": "answer_lookup",
       "source": "packages/engine/engine/assess/misconceptions.py (MUL_PREDICTORS, 2026-09-20; written after `engine goal w1-build-the-bank` found 14 of 20 multiplication questions undiagnosable)",
       "external_ref": null
@@ -614,7 +614,7 @@
       "code": "M_EXPLAINS_MISTAKE_DIFFERENT",
       "op": "any",
       "name": "Explains the mistake as a different rule",
-      "description": "The child correctly locates the column but describes what went wrong using language that does not match the actual misconception planted (for example, saying 'forgot to carry' when the mistake was actually 'added the carry before multiplying').",
+      "description": "The child correctly locates the column but describes what went wrong using language that does not match the actual misconception planted (for example, saying 'forgot to regroup' when the mistake was actually 'added the regrouping before multiplying').",
       "repair_hint": "Ask the child to trace the working step-by-step aloud and name exactly which numbers were combined and in what order.",
       "detectable_by": "explanation",
       "source": "misconception_list · claude-haiku-4-5 · prompt 3bc886dc-8e92-4ff7-953d-21addc8fcbef",
@@ -933,9 +933,9 @@
     {
       "code": "M_MUL_CARRY_ONTO_ZERO_LOST",
       "op": "×",
-      "name": "Forgets a carry that lands on a zero",
-      "description": "Writes 0 for a zero digit times the multiplier and forgets the carry waiting for that column: 506 × 7 written as 3502.",
-      "repair_hint": "Say the zero column aloud: nought times seven is nought, plus the four carried makes four",
+      "name": "Forgets a regrouping that lands on a zero",
+      "description": "Writes 0 for a zero digit times the multiplier and forgets the regrouping waiting for that column: 506 × 7 written as 3502.",
+      "repair_hint": "Say the zero column aloud: nought times seven is nought, plus the four regrouped makes four",
       "detectable_by": "answer_lookup",
       "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/mul_mistakes.py (goals/md2a-straight-multiplication.yaml)",
       "external_ref": null
@@ -973,9 +973,9 @@
     {
       "code": "M_MUL_STALE_CARRY",
       "op": "×",
-      "name": "Adds the first row's carry again in the second row",
-      "description": "Leaves the first row's carry written above the tens and adds it again in the second row: 47 × 23 written as 1281.",
-      "repair_hint": "Cross out each carry once it is used, before starting the next row",
+      "name": "Adds the first row's regrouping again in the second row",
+      "description": "Leaves the first row's regrouping written above the tens and adds it again in the second row: 47 × 23 written as 1281.",
+      "repair_hint": "Cross out each regrouping once it is used, before starting the next row",
       "detectable_by": "answer_lookup",
       "source": "docs/design/multiplication-division-taxonomy.md (error table, engine draft v0.1, 2026-10-09, for Achal to correct); packages/engine/engine/assess/mul_mistakes.py (goals/md2a-straight-multiplication.yaml)",
       "external_ref": null

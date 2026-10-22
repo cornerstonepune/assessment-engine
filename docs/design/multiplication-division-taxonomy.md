@@ -12,7 +12,7 @@ Twelve decisions the engine took so the build need not wait. Each is a row or a 
 | A2 | Division prints in a line by default. | "85 ÷ 4 = □ r □"; short division (bus stop), long division (quotient on top) and chunking are presentations of the same numbers. | The school's July papers write "144 ÷ 12 =". If the school writes the older "4 ) 85 ( 21" layout, it is one more presentation. |
 | A3 | A remainder is written "r" and is its own answer. | The quotient and the remainder each get their own boxes and are marked separately. | One box holding "21 r 1" cannot be read digit by digit, and a wrong remainder with a right quotient is a different mistake from the reverse. |
 | A4 | Tables run from 0 to 12. | ×11 and ×12 appear only at Advance: a fact that needs the 11 or 12 tables, either way round (3 × 12, 12 × 7), is no Easy, Medium or Hard question, and the tables' Advance holds every table. 12 × 0 and 11 × 1 are the facts of 0 and 1. | The school's 24 Jul quiz asks 11 × 4 and 12 × 5; the Grade 4 paper asks 144 ÷ 12. |
-| A5 | The school's words. | "Regroup" for a multiplication carry, "exchange" when a remainder moves to the next digit, never "borrow". "Product, factor, dividend, divisor, quotient, remainder" from Grade 3; "times, groups of, shared equally, left over" before it. | CLAUDE.md: "exchange / regroup", never "borrow". |
+| A5 | The school's words. | "Regroup" when a column of a multiplication makes ten or more, "exchange" when a remainder moves to the next digit, never "borrow". "Product, factor, dividend, divisor, quotient, remainder" from Grade 3; "times, groups of, shared equally, left over" before it. | CLAUDE.md: "exchange / regroup", never "borrow". |
 | A6 | Grades come from the school's own objectives. | Registry LO-G1-0046 to 0055, LO-G2-0492 to 0498 and 0527 to 0530, LO-G3-0942 to 0944 and 0956 to 0959, LO-G4-1339 to 1356, and the July papers. 4-digit × 1-digit, 3-digit × 2-digit and division by a 2-digit number beyond ÷12 are in no G1 to G4 objective: they are here, placed in no grade. Where the lists disagree (one "Extended & Application" unit is repeated in G2, G3 and G4), a level goes to the earliest grade whose objective names it, except Grade 1, which is exactly what its educator taught to the end of September (2026-10-06): equal groups by adding again. A level the objectives put in Grade 1 sits in Grade 2 until the Grade 1 educator says it is taught. | A level's grade is a row (`skill_set.level_band`); Achal moves it. |
 | A7 | Taught stays the educator's word. | Every case is built and checked; nothing reaches a child's paper until the grade declares it taught. | The Grade 1 rule of 2026-10-06. |
 | A8 | Out of scope. | Remainders as fractions or decimals. Division by zero appears only as a true-or-false statement, never as a sum. | No G1 to G4 objective names them. |
@@ -91,13 +91,13 @@ One case per shape and per thing that changes the working; the next section cros
 | T01 | 2 × 1 digits, no regrouping | 23 × 3 | 69 |
 | T02 | 2 × 1 digits in a line | 32 × 3 (in a line) | 96 |
 | T03 | The 1-digit number first | 3 × 21 | 63 |
-| T04 | Regroup from the ones, carry 1, 2-digit answer | 13 × 4 | 52 |
-| T05 | Regroup from the ones, carry more than 1, 2-digit answer | 19 × 5 | 95 |
+| T04 | Regroup 1 from the ones, 2-digit answer | 13 × 4 | 52 |
+| T05 | Regroup more than 1 from the ones, 2-digit answer | 19 × 5 | 95 |
 | T06 | No regrouping, but the answer grows to 3 digits | 42 × 3 | 126 |
 | T07 | Regroup from the ones and the answer grows (the quiz's 56 × 3) | 56 × 3 | 168 |
-| T08 | The carry takes the tens to ten (knock-on): a zero only in the answer | 18 × 6 | 108 |
+| T08 | The regrouping takes the tens to ten (knock-on): a zero only in the answer | 18 × 6 | 108 |
 | T09 | Regroup and the ones write 0 | 48 × 5 | 240 |
-| T10 | The largest carry: 99 × 9 | 99 × 9 | 891 |
+| T10 | The largest regrouping: 99 × 9 | 99 × 9 | 891 |
 | T11 | 3 × 1 digits, no regrouping | 213 × 3 | 639 |
 | T12 | 3 × 1 digits with regrouping (every pattern in the next section) | 357 × 4 | 1428 |
 | T13 | 3 × 1 digits, the 1-digit number first, in a line | 6 × 125 (in a line) | 750 |
@@ -107,17 +107,17 @@ One case per shape and per thing that changes the working; the next section cros
 | T17 | 2 × 2 digits, no regrouping anywhere, a 3-digit answer | 21 × 13 | 273 |
 | T18 | 2 × 2 digits, one row regroups, a 3-digit answer | 16 × 12 | 192 |
 | T19 | 2 × 2 digits, both rows regroup, a 3-digit answer | 36 × 24 | 864 |
-| T20 | 2 × 2 digits, both rows regroup and adding the rows carries into a 4th digit | 47 × 23 | 1081 |
-| T21 | 2 × 2 digits, a 4-digit answer with no carry in adding the rows | 52 × 34 | 1768 |
+| T20 | 2 × 2 digits, both rows regroup and adding the rows regroups into a 4th digit | 47 × 23 | 1081 |
+| T21 | 2 × 2 digits, a 4-digit answer with no regrouping in adding the rows | 52 × 34 | 1768 |
 | T22 | 2 × 2 digits in a line | 34 × 26 (in a line) | 884 |
 | T23 | 3 × 2 digits | 234 × 12 | 2808 |
 | T24 | 3 × 2 digits with regrouping in every row | 476 × 38 | 18088 |
 | T25 | N × 1 digits (scales on) | 52341 × 7 | 366387 |
 | T26 | 3 × 3 digits with a zero in the middle of the multiplier | 213 × 102 | 21726 |
-| T27 | 2 × 2 digits, adding the rows carries, a 3-digit answer | 19 × 14 | 266 |
-| T28 | 2 × 2 digits, one row or none regroups and adding the rows carries into a 4th digit | 68 × 17 | 1156 |
+| T27 | 2 × 2 digits, adding the rows regroups, a 3-digit answer | 19 × 14 | 266 |
+| T28 | 2 × 2 digits, one row or none regroups and adding the rows regroups into a 4th digit | 68 × 17 | 1156 |
 
-## Multiplication carries and zeros
+## Multiplication regrouping and zeros
 
 The carry matrix for 3-digit × 1-digit (no zeros), then carry sizes, then every place a zero can sit.
 
@@ -131,18 +131,18 @@ The carry matrix for 3-digit × 1-digit (no zeros), then carry sizes, then every
 | TC06 | Regroup from the ones: yes · from the tens: no · answer grows to 4 digits: yes | 416 × 6 | 2496 |
 | TC07 | Regroup from the ones: yes · from the tens: yes · answer grows to 4 digits: no | 487 × 2 | 974 |
 | TC08 | Regroup from the ones: yes · from the tens: yes · answer grows to 4 digits: yes | 194 × 6 | 1164 |
-| TC09 | A carry bigger than 1 | 28 × 7 | 196 |
-| TC10 | 3 × 1 digits, a carry takes a column to ten (knock-on) | 125 × 4 | 500 |
+| TC09 | A regrouping bigger than 1 | 28 × 7 | 196 |
+| TC10 | 3 × 1 digits, a regrouping takes a column to ten (knock-on) | 125 × 4 | 500 |
 | TC11 | Every column regroups, the answer full of zeros | 667 × 3 | 2001 |
 | TZ01 | A zero at the end of the larger number | 230 × 4 | 920 |
-| TZ02 | A zero in the middle, no carry reaches it | 302 × 3 | 906 |
-| TZ03 | A zero in the middle that a carry lands on | 506 × 7 | 3542 |
+| TZ02 | A zero in the middle, no regrouping reaches it | 302 × 3 | 906 |
+| TZ03 | A zero in the middle that a regrouping lands on | 506 × 7 | 3542 |
 | TZ04 | Two zeros in the larger number | 1008 × 6 | 6048 |
 | TZ05 | A zero only in the answer | 25 × 4 | 100 |
 | TZ06 | The answer is a round number | 125 × 8 | 1000 |
 | TZ07 | A 2-digit multiplier ending in zero: one row | 23 × 40 | 920 |
 | TZ08 | Both numbers end in zero | 120 × 30 | 3600 |
-| TZ09 | A zero in the middle, no carry reaches it, the answer grows to 4 digits | 401 × 3 | 1203 |
+| TZ09 | A zero in the middle, no regrouping reaches it, the answer grows to 4 digits | 401 × 3 | 1203 |
 
 ## Division facts and place value
 
@@ -236,7 +236,7 @@ Every way the school's objectives name, and the standard ones, each worked throu
 | G08 | Grid (area) method, 2 × 1 digits | 23 × 4: cells 20 × 4 = 80 and 3 × 4 = 12 | 92 |
 | G09 | Grid (area) method, 2 × 2 digits | 34 × 26: cells 600, 180, 80, 24 | 884 |
 | G10 | Expanded columns: each product written in full | 34 × 6: 4 × 6 = 24, 30 × 6 = 180, 24 + 180 = □ | 204 |
-| G11 | Compact columns (the carry written small) | 34 × 6 in columns | 204 |
+| G11 | Compact columns (the regrouping written small) | 34 × 6 in columns | 204 |
 | G12 | Long multiplication: a row per digit, the second row moved a place (the zero kept) | 68 × 17: 476 + 680 = □ | 1156 |
 | G13 | Lattice (gelosia) method | 47 × 23 in a 2 × 2 lattice: cells 08, 14 / 12, 21, added along the diagonals | 1081 |
 | G14 | Swap the order to use a known table | 9 × 2 = 2 × 9 = □ | 18 |
@@ -446,14 +446,14 @@ Every wrong answer below is computed by a predictor from its example's own numbe
 | ID | Case | Example | Answer |
 | --- | --- | --- | --- |
 | C01 | Find the mistake: products side by side | 56 × 3 = 1518 | M_MUL_CONCAT |
-| C02 | Find the mistake: carries left out | 34 × 6 = 84 | M_MUL_NO_CARRY |
+| C02 | Find the mistake: regrouping left out | 34 × 6 = 84 | M_MUL_NO_CARRY |
 | C03 | Find the mistake: the second row not moved | 68 × 17 = 544 | M_MUL_PLACEHOLDER |
 | C04 | Find the mistake: the zero left out of the quotient | 612 ÷ 6 = 12 | M_DIV_QUOTIENT_ZERO_DROPPED |
 | C05 | Find the mistake: a remainder too big | 85 ÷ 4 = 20 r 5 | M_DIV_REMAINDER_TOO_BIG |
 | C06 | Find the mistake: partitioning, tens taken as ones | 23 × 4 = 2 × 4 + 3 × 4 = 20 | M_PARTITION_TENS_AS_ONES |
 | C07 | Say which step of a long division went wrong | 516 ÷ 4 = 12 r 3 | M_DIV_BRING_DOWN_MISSED: the 6 was never brought down |
 | C08 | Explain, by multiplying back, why an answer cannot be right | 804 ÷ 4 = 21 | 21 × 4 = 84, not 804 |
-| C09 | Find the mistake: the carry onto the zero left out | 506 × 7 = 3502 | M_MUL_CARRY_ONTO_ZERO_LOST: the tens are 0 × 7 + 4 = 4 |
+| C09 | Find the mistake: the regrouping onto the zero left out | 506 × 7 = 3502 | M_MUL_CARRY_ONTO_ZERO_LOST: the tens are 0 × 7 + 4 = 4 |
 
 ## Master tagging matrix
 

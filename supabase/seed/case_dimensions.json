@@ -78,7 +78,7 @@
         "SINGLE",
         "MULTIPLE"
       ],
-      "why": "Separates basic calculation from regrouping: carrying, and exchanging.",
+      "why": "Separates basic calculation from regrouping and exchanging.",
       "source": "taxonomy section 12; why from section 1"
     },
     {
@@ -106,7 +106,7 @@
         "CASCADING",
         "ACROSS_ZERO"
       ],
-      "why": "Different chains of carries and exchanges expose different misconceptions.",
+      "why": "Different chains of regrouping and exchanges expose different misconceptions.",
       "source": "taxonomy section 12; why from section 1",
       "note": "assess/tags.py also emits NONE when no column regroups; that case is carried by regrouping = NONE."
     },
@@ -120,7 +120,7 @@
         "MULTIPLE",
         "ANSWER_ZERO"
       ],
-      "why": "Zeros change what carrying and exchanging demand: where the zeros of the number worked on sit (inside 302, at the end of 230, both in 4050), or none there but one in the answer (25 × 4 = 100). Addition and subtraction say MULTIPLE where a number has two.",
+      "why": "Zeros change what regrouping and exchanging demand: where the zeros of the number worked on sit (inside 302, at the end of 230, both in 4050), or none there but one in the answer (25 × 4 = 100). Addition and subtraction say MULTIPLE where a number has two.",
       "source": "taxonomy section 12; why from section 1"
     },
     {
@@ -134,7 +134,7 @@
         5,
         6
       ],
-      "why": "How many zeros the number worked on has: 1008 has two, and each one a carry or an exchange can pass.",
+      "why": "How many zeros the number worked on has: 1008 has two, and each one a regrouping or an exchange can pass.",
       "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
     },
     {
@@ -161,7 +161,7 @@
         5,
         6
       ],
-      "why": "Three or more addends in the same column can produce a carry greater than 1.",
+      "why": "Three or more addends in the same column can produce a regrouping greater than 1.",
       "source": "taxonomy section 12; why from sections 2.8 and 5.1",
       "note": "assess/tags.py emits the integer count, so a four-addend item reads 4, not '4+'."
     },
@@ -299,7 +299,7 @@
         100,
         1000
       ],
-      "why": "An answer of exactly 10, 100 or 1000, where every column carries or every place exchanges.",
+      "why": "An answer of exactly 10, 100 or 1000, where every column regroups or every place exchanges.",
       "source": "addition & subtraction taxonomy, as `tags.py` measures it"
     },
     {
@@ -326,7 +326,7 @@
         "YES",
         "NO"
       ],
-      "why": "A carry lands on a column where a number shows 0 (208 + 96; 506 × 7).",
+      "why": "A regrouping lands on a column where a number shows 0 (208 + 96; 506 × 7).",
       "source": "addition & subtraction taxonomy, as `tags.py` measures it"
     },
     {
@@ -342,7 +342,7 @@
         7,
         8
       ],
-      "why": "The largest carry a column sends on: 3 when four 1-digit numbers are added, 8 in 99 × 9.",
+      "why": "The largest regrouping a column sends on: 3 when four 1-digit numbers are added, 8 in 99 × 9.",
       "source": "addition & subtraction taxonomy, as `tags.py` measures it"
     },
     {
@@ -352,7 +352,7 @@
         "ONE",
         "MORE_THAN_ONE"
       ],
-      "why": "A multiplication's carry of 1, or of more: a carry of 4 is the one a child adds as 1.",
+      "why": "A multiplication's regrouping of 1, or of more: a regrouping of 4 is the one a child adds as 1.",
       "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
     },
     {
@@ -497,7 +497,7 @@
         "YES",
         "NO"
       ],
-      "why": "A carry or exchange that makes the next column need one it would not otherwise have (342 − 148; 18 × 6).",
+      "why": "A regrouping or exchange that makes the next column need one it would not otherwise have (342 − 148; 18 × 6).",
       "source": "addition & subtraction taxonomy, as `tags.py` measures it"
     },
     {
@@ -612,7 +612,7 @@
         "SINGLE",
         "MULTIPLE"
       ],
-      "why": "Whether adding a long multiplication's rows carries, once or more.",
+      "why": "Whether adding a long multiplication's rows regroups, once or more.",
       "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
     },
     {
@@ -706,7 +706,7 @@
         "TENS+HUNDREDS+THOUSANDS+TEN_THOUSANDS",
         "ONES+TENS+HUNDREDS+THOUSANDS+TEN_THOUSANDS"
       ],
-      "why": "Which places carry or exchange, named from the ones up and joined: ONES+TENS, TENS+HUNDREDS.",
+      "why": "Which places regroup or exchange, named from the ones up and joined: ONES+TENS, TENS+HUNDREDS.",
       "source": "addition & subtraction taxonomy, as `tags.py` measures it; multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
     },
     {
@@ -759,7 +759,7 @@
         "SOME",
         "ALL"
       ],
-      "why": "Whether a long multiplication's rows carry: none, some or all of them.",
+      "why": "Whether a long multiplication's rows regroup: none, some or all of them.",
       "source": "multiplication & division taxonomy, master tagging matrix, as `md_tags.py` measures it"
     },
     {
