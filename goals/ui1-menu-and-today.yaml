@@ -20,7 +20,7 @@ says:
   - words: "better UI, better navigation, and better linking"
     proved_by: "apps/web/tests/u1-today.spec.ts::the menu is the teacher's week, and says where they are"
   - words: "They are the educators, the teachers, so we don't have any more layers in there."
-    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::an educator sees every line of theirs a coordinator sees, and no engineering map"
+    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::an educator sees every line a coordinator sees, and the engineering map"
   - words: "I think it's still very confusing."
     proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::weeks and classes on Today are said in words, not codes"
 manual:

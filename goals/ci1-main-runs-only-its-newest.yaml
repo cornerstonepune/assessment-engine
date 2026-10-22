@@ -1,0 +1,17 @@
+name: ci1-main-runs-only-its-newest
+goal: >
+  A merge to main never waits behind checks for older merges. Main's older CI run is cancelled when a newer merge lands,
+  as a pull request's older run already is; only main's newest commit reaches live, and it carries every older merge.
+  Measured first: on 2026-10-22 seven merges in a row queued seven full runs on main and held the website for over an hour
+  (and again an hour later), until the older runs were cancelled by hand.
+# Written 2026-10-22, before the change. Nimish, 2026-10-21: "we have become quite slow."
+says:
+  - words: "we have become quite slow."
+    proved_by: packages/engine/tests/test_deploy.py::test_a_newer_merge_cancels_mains_older_ci_run
+manual:
+  - "Merge two PRs within a minute: main's first CI run shows 'cancelled', the second runs, and the website goes live from it."
+scenarios: []
+criteria:
+  - name: the CI grouping is as the test says
+    run: cd packages/engine && uv run pytest -q tests/test_deploy.py
+    expect: "passed"

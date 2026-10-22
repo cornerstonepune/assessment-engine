@@ -1,5 +1,5 @@
 import { currentStaff } from "@/lib/auth";
-import { captureSection, isMine, notYoursResponse, scopeOf } from "@/lib/scope";
+import { captureSection, isMine, notYoursResponse, reachOf } from "@/lib/scope";
 import { engineImage } from "@/lib/engine";
 
 const UUID = /^[0-9a-f-]{36}$/;
@@ -23,7 +23,7 @@ export async function GET(
   }
   // a scan not yet sorted onto any paper has no class, and stays open to whoever is reading the pile
   const section = await captureSection(capture);
-  if (section !== null && !isMine(scopeOf(me), section)) return notYoursResponse();
+  if (section !== null && !isMine(reachOf(me), section)) return notYoursResponse();
   const box = new URL(request.url).searchParams.get("box") ?? "";
   const q: "" | `?box=${string}` = BOX.test(box) ? `?box=${box}` : "";
   return engineImage(`/capture/${capture}/page/${n}.jpg${q}`);

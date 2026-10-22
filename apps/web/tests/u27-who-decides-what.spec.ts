@@ -1,8 +1,9 @@
 /**
- * U27 — who decides what (goals/f1c-who-decides-what.yaml, ADR 0073 decision 3). Every decision is checked on the server
- * before it writes: the signer's role must be one `people.decides` names for it, and what it touches must be in one of
- * their classes. Educators draft skills and the coordinator approves them. A refused decision changes nothing and lands
- * on a page that says whose it is. The form is changed by hand here as anyone could: hiding a button is not the check.
+ * U27 — who decides what (goals/f1c-who-decides-what.yaml, ADR 0073 decision 3), for now one role
+ * (goals/ux9c-one-role.yaml). Nimish, 2026-10-22: "Just keep all the features available for both educators and
+ * coordinators for now." Every decision is still checked on the server before it writes, through the one place that
+ * says who may (`lib/access.ts`); today it says every member of staff may take every decision, on every class, and the
+ * decision is in their own name.
  *
  * The classes are the test's own (tests/rows.ts), made once and kept; the educator is taken off the list after.
  */
@@ -67,48 +68,35 @@ async function signedIn(browser: Browser): Promise<Page> {
   return page;
 }
 
-test("an educator's approval of a skill is refused and changes nothing", async ({ browser, page: coordinator }) => {
-  // an educator is offered no approval of a skill (goals/ux1-who-sees-what.yaml); the form the coordinator is offered,
-  // sent by hand from the educator's own page, is what is refused
-  await coordinator.goto(`/skill-sets/${draft}`);
-  const approve = coordinator.getByRole("button", { name: "Approve as written" });
-  const form = await coordinator.locator("form").filter({ has: approve }).evaluate((f) => f.outerHTML);
+test("an educator approves a skill, in their own name", async ({ browser }) => {
   const page = await signedIn(browser);
   try {
     await page.goto(`/skill-sets/${draft}`);
-    await expect(page.getByRole("button", { name: "Approve as written" }), "not offered").toHaveCount(0);
-    await page.evaluate((html) => {
-      document.body.insertAdjacentHTML("beforeend", html);
-      (document.body.lastElementChild as HTMLFormElement).submit();
-    }, form);
-    await expect(page).toHaveURL(/\/refused/);
-    await expect(page.getByRole("main")).toContainText("Approving a skill");
-    await expect(page.getByRole("main")).toContainText("a coordinator");
-    const [now] = await sql<{ status: string }[]>`select status from skill_set where code = ${draft}`;
-    expect(now.status, "the skill still waits for the coordinator").toBe("draft");
+    await page.getByRole("button", { name: "Approve as written" }).click();
+    await expect(page).toHaveURL(/approved=1/);
+    const [now] = await sql<{ status: string; ratified_by: string }[]>`select status, ratified_by from skill_set where code = ${draft}`;
+    expect(now).toEqual({ status: "ratified", ratified_by: EDUCATOR.name });
   } finally {
     await page.context().close();
-    await sql`update skill_set set status = 'draft', ratified_by = null where code = ${draft}`;
+    // waiting again for the coordinator's test after this one, as `aWaitingSkill` left it
+    await sql`update skill_set set status = 'draft', ratified_by = null, level_approved = '{}'::jsonb where code = ${draft}`;
   }
 });
 
-test("an educator cannot approve another class's pack by changing the form", async ({ browser }) => {
+test("an educator approves another class's pack, as the coordinator can", async ({ browser }) => {
   const page = await signedIn(browser);
   try {
-    await page.goto(`/papers/approve?section=${MINE}&week=${WEEK}&kind=practice`);
-    const approve = page.getByRole("button", { name: /^Approve \d+ papers?\b/ });
-    await expect(approve).toBeEnabled();
-    // the class in the form, changed by hand to a class that is not theirs
-    const form = page.locator("form").filter({ has: approve });
-    await form.locator('input[name="section"]').evaluate((el, s) => ((el as HTMLInputElement).value = s), OTHER);
-    await approve.click();
-    await expect(page).toHaveURL(/\/refused/);
-    await expect(page.getByRole("main")).toContainText("not one of your classes");
-    const printed = await sql`
-      select 1 from sheet_instance where child_id = any(${Object.values(other)}::uuid[]) and approved_by is not null`;
-    expect(printed, "nothing of the other class was approved").toHaveLength(0);
+    await page.goto(`/papers/approve?section=${OTHER}&week=${WEEK}&kind=practice`);
+    await expect(page.getByRole("main")).not.toContainText("not one of your classes");
+    await page.getByRole("button", { name: /^Approve \d+ papers?\b/ }).click();
+    await expect(page).not.toHaveURL(/\/refused/);
+    await expect
+      .poll(async () => (await sql`select 1 from sheet_instance where child_id = any(${Object.values(other)}::uuid[]) and approved_by = ${EDUCATOR.email}`).length)
+      .toBe(Object.values(other).length);
   } finally {
     await page.context().close();
+    await sql`update sheet_instance set print_status = 'new', printed_at = null, approved_by = null, approved_at = null
+              where child_id = any(${Object.values(other)}::uuid[]) and week = ${WEEK}`;
   }
 });
 

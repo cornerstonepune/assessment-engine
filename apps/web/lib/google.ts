@@ -4,7 +4,7 @@ import { createRemoteJWKSet, jwtVerify, type JWTPayload, type JWTVerifyGetKey } 
 // Sign in with Google (goals/a1-sign-in-with-google.yaml): the authorization code flow with PKCE and state, by arctic,
 // and the ID token checked here by jose against Google's published keys: signature, issuer, audience and expiry. Who
 // may come in is then the school's rule alone (`schoolEmail`); the `hd` sent to Google only chooses the account picker.
-// Nothing here touches the database or Next, so tests/u49-sign-in-with-google.spec.ts runs it as it is.
+// Nothing here touches the database or Next, so tests/u50-sign-in-with-google.spec.ts runs it as it is.
 
 const GOOGLE = {
   issuers: ["https://accounts.google.com", "accounts.google.com"],

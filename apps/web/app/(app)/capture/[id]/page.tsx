@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Bar, Body, Notice, PageHeader, Panel, Tile } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
-import { isMine, paperSection, scopeOf } from "@/lib/scope";
+import { isMine, paperSection, reachOf } from "@/lib/scope";
 import { misconceptionNames, setSkills } from "@/lib/queries";
 import { paperAnswers, paperHeader, sameChildPapers, type CaptureAnswer } from "@/lib/queries-read";
 import { confirmPaper } from "../actions";
@@ -47,7 +47,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
   const me = await requireStaff();
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
-  if (!isMine(scopeOf(me), await deadline(paperSection({ id })))) return <NotYours what="This paper's class" />;
+  if (!isMine(reachOf(me), await deadline(paperSection({ id })))) return <NotYours what="This paper's class" />;
   const q = await searchParams;
   const [paper, answers, names, skills, siblings, unnamed, keys] = await deadline(Promise.all([
     paperHeader(id, me.email),

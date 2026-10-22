@@ -127,17 +127,17 @@ test("the question bank opens on the educator's grade, every grade one tap away"
   await page.context().close();
 });
 
-test("the bank's stock columns are the coordinator's", async ({ browser, page }) => {
+test("the bank's stock columns are every member of staff's, beside the educator's own grade's count", async ({ browser, page }) => {
   const { order } = { order: (await sql<{ code: string }[]>`select code from difficulty order by ord`).map((d) => d.code) };
   const educator = await asEducator(browser);
   await educator.goto("/library");
-  await expect(educator.getByRole("table", { name: "Questions by skill set and level" })).toHaveCount(0);
+  // one role for now (goals/ux9c-one-role.yaml): the stock is theirs too, after their own grade's one count
+  await expect(educator.getByRole("table", { name: "Questions by skill set and level" })).toHaveCount(1);
   const mine = educator.getByRole("table", { name: `${grade.name}: questions by skill` });
   await expect(mine.locator("thead th")).toHaveText(["Skill", "Kinds of question", "Questions"]);
   // one count per skill, the class's grade's; they add up to the list's
   const counts = await mine.locator("tbody tr td:last-child").allInnerTexts();
   expect(counts.reduce((a, c) => a + number(c), 0)).toBe(await gradeQuestions());
-  await expect(educator.getByText(/removed/)).toHaveCount(0);
   await educator.context().close();
   // the coordinator keeps the stock: every grade, each level, the removed
   await page.goto("/library");

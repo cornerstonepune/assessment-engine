@@ -1,11 +1,8 @@
 /**
- * U32 — who sees what (goals/ux1-who-sees-what.yaml, BUILD-ORDER "topics are operations, and every page is the
- * educator's own"). Nimish, 2026-10-15, on live's pages: "It should be teacher-specific and all of those things."
- *
- * An educator is shown only what is theirs: no decision the school gives to someone else, no other class's child by
- * name — not on the page and not read for them, since every name read is logged — and the menu counting what Today
- * lists. The coordinator is shown everything, as before. That a decision is refused on the server whatever a page
- * shows is u27's; this is what the pages offer.
+ * U32 — who sees what (goals/ux1-who-sees-what.yaml), for now one role (goals/ux9c-one-role.yaml). Nimish, 2026-10-22:
+ * "Achal sir is the educator coordinator right now. Just keep all the features available for both educators and
+ * coordinators for now." An educator is shown what the coordinator is: every decision, every class, every question the
+ * engine drafted, and Today and the menu count the same lines. Until 2026-10-22 this file held the reverse (UX1).
  *
  * Two Grade 2 classes of the test's own (tests/rows.ts), one the educator's; the educator and the question drafted for
  * the coordinator are taken away after.
@@ -21,15 +18,13 @@ const MINE = "U32-MINE";
 const OTHER = "U32-OTHER";
 const ASK = "U32-FOR-THE-COORDINATOR";
 const EDUCATOR = { email: "u32-educator@cornerstone.test", name: "U32 Educator", role: "educator", classes: [MINE] };
-let mine: Record<string, string>;
-let other: Record<string, string>;
 let draft: string;
 let putBack: () => Promise<void>;
 let sheet: string;
 
 test.beforeAll(async () => {
-  mine = await aClass(sql, MINE, "G2", ["Ira", "Jai"]);
-  other = await aClass(sql, OTHER, "G2", ["Kavi", "Lata"]);
+  await aClass(sql, MINE, "G2", ["Ira", "Jai"]);
+  await aClass(sql, OTHER, "G2", ["Kavi", "Lata"]);
   await sql`
     update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s
                                where s ->> 'email' <> ${EDUCATOR.email}) || ${sql.json([EDUCATOR])}
@@ -74,54 +69,38 @@ const waitingAsks = async (role: string | null) =>
   (await sql<{ n: number }[]>`select count(*)::int as n from ask where answer is null and (${role}::text is null or for_role = ${role})`)[0].n;
 const waitingSkills = async () => (await sql<{ n: number }[]>`select count(*)::int as n from skill_set where status <> 'ratified'`)[0].n;
 
-test("an educator's Today lists only what they may decide, and the menu counts the same", async ({ browser }) => {
+test("an educator's Today lists every decision the coordinator's does, and the menu counts the same", async ({ browser }) => {
   const page = await signedIn(browser);
   try {
     const main = page.getByRole("main");
-    await expect(main).toContainText("Today");
-    await expect(main, "approving a skill is the coordinator's").not.toContainText("Skills to approve");
-    // Curriculum waits on the educator for their own questions only: none of the coordinator's, no skill to approve
-    const theirs = await waitingAsks("educator");
-    expect(await badge(page, "Curriculum"), "Curriculum's count is the educator's own questions").toBe(theirs);
-    expect(await waitingAsks(null), "a question waits that is not theirs").toBeGreaterThan(theirs);
+    await expect(main).toContainText("Skills to approve");
+    expect(await badge(page, "Curriculum"), "every skill waiting and every question").toBe((await waitingSkills()) + (await waitingAsks(null)));
   } finally {
     await page.context().close();
   }
 });
 
-test("an educator is offered no approval of a skill", async ({ browser }) => {
+test("an educator is offered the approval of a skill", async ({ browser }) => {
   const page = await signedIn(browser);
   try {
     await page.goto(`/skill-sets/${draft}`);
-    const main = page.getByRole("main");
-    await expect(main).toContainText("Waiting for the coordinator’s approval");
-    await expect(page.getByRole("button", { name: "Approve as written" })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "Change the words" }), "drafting stays the educator's").toBeVisible();
-
+    await expect(page.getByRole("button", { name: "Approve as written" })).toBeVisible();
     await page.goto("/skill-sets/approve");
-    await expect(page.getByRole("main")).toContainText("The coordinator approves the skills");
-    await expect(page.getByRole("main").getByRole("button", { name: /approve/i })).toHaveCount(0);
+    await expect(page.getByRole("main")).not.toContainText("The coordinator approves the skills");
   } finally {
     await page.context().close();
   }
 });
 
-test("a worksheet's print list names only the educator's own children, and no other name is read", async ({ browser }) => {
+test("a worksheet's print list opens on the educator's own children, every class's one tap away", async ({ browser }) => {
   const page = await signedIn(browser);
   try {
-    const [{ t }] = await sql<{ t: Date }[]>`select now() as t`;
     await page.goto(`/worksheets/${sheet}`);
     const print = page.locator("section").filter({ has: page.getByRole("heading", { name: "Print for children" }) });
     await expect(print).toContainText("Ira");
-    await expect(print).toContainText("Jai");
     await expect(print).not.toContainText("Kavi");
-    await expect(print).not.toContainText("Lata");
-    await expect(print.locator("legend"), "one class: theirs").toHaveText([MINE]);
-    const read = await sql<{ child_id: string }[]>`
-      select distinct child_id from access_log where actor = ${EDUCATOR.email} and occurred_at >= ${t}`;
-    const ids = read.map((r) => r.child_id);
-    expect(ids.filter((id) => Object.values(other).includes(id)), "no name of another class's child was read").toEqual([]);
-    expect(ids.filter((id) => !Object.values(mine).includes(id)), "no child's name but their own class's").toEqual([]);
+    await page.getByRole("complementary").getByRole("button", { name: "See every class" }).click();
+    for (const name of ["Ira", "Jai", "Kavi", "Lata"]) await expect(print).toContainText(name);
   } finally {
     await page.context().close();
   }

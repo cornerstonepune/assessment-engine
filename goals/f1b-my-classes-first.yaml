@@ -1,23 +1,26 @@
 name: f1b-my-classes-first
 goal: >
-  Each person sees their own classes. An educator linked to classes sees only those classes' children, papers, answers
-  and reports, and the counts on Today and the menu are theirs alone. That holds on every list: Today, Children, Home
-  assessments, Make papers, Assessments, Marking and the reports. A page for another class or another class's child or
-  paper, reached by typing its address, says it is not one of their classes and shows nothing of it. The coordinator
-  sees every class. An educator linked to no class yet sees every class and is told why.
+  Each person's pages open on their own classes and grade first: Today, Children, Home assessments, Assessments,
+  Marking, the reports, Curriculum, the bank and the worksheets. Since 2026-10-22 (goals/ux9c-one-role.yaml) that is a
+  default and never a wall: "See every class" in the menu shows every class, in one tap, and another class's page,
+  child or paper opens for any member of staff. A person linked to no class sees every class.
 # Written 2026-10-14, before the code: slice F1b of BUILD-ORDER "One flow for the educator" (ADR 0073). Nimish, the same
 # day: "Then the teachers only see, when Achal logs in, things that are relevant to his grades." Measured first: no
 # page or query reads who is signed in to choose what to show; `lib/needs-you.ts` says "Every line is shown to
 # everyone". F1a put each person's classes on the staff list.
+# Superseded in part on 2026-10-22: Nimish, "Just keep all the features available for both educators and coordinators
+# for now" (goals/ux9c-one-role.yaml). What his 2026-10-14 sentence still holds is where a page opens: his grades first.
 says:
   - words: "Then the teachers only see, when Achal logs in, things that are relevant to his grades."
-    proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::an educator sees their own classes and no other"
-  - words: "Then the teachers only see, when Achal logs in, things that are relevant to his grades."
+    proved_by: "apps/web/tests/u42-curriculum-for-the-educator.spec.ts::Curriculum opens on the educator's grade, every other grade closed"
+  - words: "Just keep all the features available for both educators and coordinators for now."
+    proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::an educator's pages open on their own class, every class one tap away and every class's page theirs to open"
+  - words: "Just keep all the features available for both educators and coordinators for now."
     proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::the coordinator sees every class"
-  - words: "Then the teachers only see, when Achal logs in, things that are relevant to his grades."
-    proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::an educator linked to no class sees every class and is told why"
+  - words: "Just keep all the features available for both educators and coordinators for now."
+    proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::an educator linked to no class sees every class"
 manual:
-  - "After merge, Nimish links each educator to their classes (`~/cornerstone/assessment-engine/bin/engine staff classes <email> <class> …`); until then they see every class, with the line saying why."
+  - "Nimish links each educator to their classes (`~/cornerstone/assessment-engine/bin/engine staff classes <email> <class> …`): their grade is where their pages open."
 scenarios: []
 criteria:
   - name: the code sits where the map says; every promise has its command; lint

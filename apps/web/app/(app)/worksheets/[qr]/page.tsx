@@ -12,7 +12,7 @@ import { deadline } from "@/lib/deadline";
 import { LIBRARY_CODE, LibraryWorksheetPage, sheetWords } from "./library-sheet";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
-import { isMine, paperSection, scopeOf } from "@/lib/scope";
+import { isMine, paperSection, reachOf } from "@/lib/scope";
 import { weekWords } from "@/lib/week";
 
 type Props = { params: Promise<{ qr: string }> };
@@ -32,7 +32,7 @@ export default async function PaperPage({ params }: Props) {
     if (found) redirect(`/capture/${found.id}`);
     notFound();
   }
-  if (!isMine(scopeOf(me), await deadline(paperSection({ qr })))) return <NotYours what="This paper's class" />;
+  if (!isMine(reachOf(me), await deadline(paperSection({ qr })))) return <NotYours what="This paper's class" />;
   const [p, questions, book, { words }] = await deadline(
     Promise.all([printedPaper(qr), paperItems(qr), mistakeBook(), questionKinds()]),
   );

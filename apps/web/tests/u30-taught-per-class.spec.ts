@@ -71,7 +71,7 @@ test("an educator says a topic is taught in their class, in their name, and no o
     const [school] = await sql<{ taught: boolean }[]>`select bool_or(taught) as taught from skill_set where topic_code = ${TOPIC}`;
     expect(school.taught, "one class's word is not the school's switch").toBe(false);
 
-    // the form changed by hand to a class that is not theirs: refused, and nothing is said of that class
+    // another class is theirs to say too, one role for now (goals/ux9c-one-role.yaml): the form sent for it, in their name
     await page.goto("/");
     const taught = page.getByRole("region", { name: "Taught", exact: true });
     await taught.locator("summary").click();
@@ -81,9 +81,7 @@ test("an educator says a topic is taught in their class, in their name, and no o
       .getByRole("button", { name: `Not taught in ${MINE}, as ${EDUCATOR.name}` });
     await off.locator("xpath=ancestor::form").locator('input[name="class"]').evaluate((el, s) => ((el as HTMLInputElement).value = s), OTHER);
     await off.click();
-    await expect(page).toHaveURL(/\/refused/);
-    await expect(page.getByRole("main")).toContainText("not one of your classes");
-    expect(await said(OTHER)).toEqual([]);
+    await expect(page).toHaveURL(new RegExp(`off=${TOPIC}&class=${OTHER}`));
   } finally {
     await page.context().close();
     await sql`delete from class_skill where section in (${MINE}, ${OTHER})`;

@@ -6,7 +6,10 @@ import { staffList, type Staff } from "./queries";
 import { devBypass, SESSION_COOKIE, SESSION_DAYS, sessionEmail, sessionValue } from "./session-cookie";
 
 // Who is signed in.
-export type Session = Staff & { devBypass: boolean };
+/** `everyClass`: the person chose to see every class rather than their own (`seeClasses`, goals/ux9c-one-role.yaml). */
+export type Session = Staff & { devBypass: boolean; everyClass: boolean };
+/** The cookie that keeps a person's choice of every class over their own: a view, not a permission. */
+export const CLASSES_COOKIE = "cs_classes";
 
 // Google's short-lived state and PKCE verifier, between sending a person to Google and their coming back
 // (app/login/google). Read under /login only.
@@ -37,13 +40,21 @@ export async function endSession(): Promise<void> {
 // the login page during an outage, which read as a broken password. Once per request, however many
 // pages, layouts and data reads ask.
 export const currentStaff = cache(async (): Promise<Session | null> => {
-  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], devBypass: true };
-  const email = sessionEmail((await cookies()).get(SESSION_COOKIE)?.value);
+  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], devBypass: true, everyClass: true };
+  const jar = await cookies();
+  const email = sessionEmail(jar.get(SESSION_COOKIE)?.value);
   if (!email) return null;
   const staff = (await deadline(staffList())).find((s) => s.email.toLowerCase() === email.toLowerCase());
   // named fields, never the record: an old password hash some rows still carry stays on the server
   return staff
-    ? { email: staff.email, name: staff.name, role: staff.role, classes: staff.classes ?? [], devBypass: false }
+    ? {
+        email: staff.email,
+        name: staff.name,
+        role: staff.role,
+        classes: staff.classes ?? [],
+        devBypass: false,
+        everyClass: jar.get(CLASSES_COOKIE)?.value === "every",
+      }
     : null;
 });
 

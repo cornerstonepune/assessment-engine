@@ -1,6 +1,6 @@
 // A member of staff signed in for a test: the session cookie, signed exactly as lib/session-cookie.ts signs one with
 // the run's own secret. How a session starts (Google, goals/a1-sign-in-with-google.yaml) is tested once, in
-// u49-sign-in-with-google.spec.ts; every other spec starts from a session, as a person does once signed in.
+// u50-sign-in-with-google.spec.ts; every other spec starts from a session, as a person does once signed in.
 import { createHmac } from "node:crypto";
 import type { Page } from "@playwright/test";
 
