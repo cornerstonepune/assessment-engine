@@ -1,0 +1,464 @@
+{
+ "skill_prerequisites": [
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "before_code": "EN3.PHON.SOUNDS"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "before_code": "EN3.PHON.SOUNDS"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "before_code": "EN3.SPELL.VERBEND"
+  },
+  {
+   "skill_code": "EN3.SPELL.HOMOPHONE",
+   "before_code": "EN3.PHON.SIGHT"
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "before_code": "EN3.TEXT.FICTION"
+  },
+  {
+   "skill_code": "EN3.PUNCT.APOSTROPHE",
+   "before_code": "EN3.PHON.SHORTFORM"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "before_code": "EN3.PUNCT.END"
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "before_code": "EN3.READ.FIND"
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "before_code": "EN3.READ.FIND"
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "before_code": "EN3.TEXT.GENRE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "before_code": "EN3.READ.ORDER"
+  },
+  {
+   "skill_code": "EN3.WRITE.DESCRIBE",
+   "before_code": "EN3.READ.CHARACTER"
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "before_code": "EN3.VOCAB.ABC"
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "before_code": "EN3.TEXT.FICTION"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "before_code": "EN3.TEXT.NONFICTION"
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "before_code": "EN3.TEXT.FEATURES"
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "before_code": "EN3.READ.FIND"
+  },
+  {
+   "skill_code": "EN3.WRITE.TABLE",
+   "before_code": "EN3.READ.FIND"
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "before_code": "EN3.GRAM.SENTTYPE"
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "before_code": "EN3.GRAM.NOUNVERB"
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "before_code": "EN3.SPELL.CONSONANT"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "before_code": "EN3.VOCAB.CONTEXT"
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "before_code": "EN3.GRAM.NOUNVERB"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "before_code": "EN3.VOCAB.DESCRIBE"
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "before_code": "EN3.READ.CHARACTER"
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "before_code": "EN3.READ.MAIN"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "before_code": "EN3.READ.THEME"
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "before_code": "EN3.READ.ORDER"
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "before_code": "EN3.READ.INFER"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "before_code": "EN3.GRAM.NOUNVERB"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "before_code": "EN3.GRAM.TENSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "before_code": "EN3.SPELL.VERBEND"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "before_code": "EN3.GRAM.SENTTYPE"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "before_code": "EN3.GRAM.SENTTYPE"
+  },
+  {
+   "skill_code": "EN3.WRITE.SEQUENCE",
+   "before_code": "EN3.WRITE.PLAN"
+  },
+  {
+   "skill_code": "EN3.WRITE.SEQUENCE",
+   "before_code": "EN3.VOCAB.OPENER"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAYSCRIPT",
+   "before_code": "EN3.WRITE.SEQUENCE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAYSCRIPT",
+   "before_code": "EN3.TEXT.FEATURES"
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "before_code": "EN3.PUNCT.END"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "before_code": "EN3.PUNCT.SPEECH"
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "before_code": "EN3.WRITE.DESCRIBE"
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "before_code": "EN3.READ.FIND"
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "before_code": "EN3.TEXT.NONFICTION"
+  },
+  {
+   "skill_code": "EN3.WRITE.REVIEW",
+   "before_code": "EN3.READ.BLURB"
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "before_code": "EN3.GRAM.SENTTYPE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "before_code": "EN3.PUNCT.END"
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "before_code": "EN3.SPELL.VERBEND"
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "before_code": "EN3.SPELL.HOMOPHONE"
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "before_code": "EN3.PHON.CHUNK"
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "before_code": "EN3.PHON.CHUNK"
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "before_code": "EN3.PHON.SIGHT"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "before_code": "EN3.SPELL.CONSONANT"
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "before_code": "EN3.SPELL.VERBEND"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "before_code": "EN3.SPELL.AFFIX"
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "before_code": "EN3.SPELL.HOMOPHONE"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "before_code": "EN4.SPELL.SILENT"
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "before_code": "EN4.SPELL.PLURAL"
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "before_code": "EN3.SPELL.TRICKY"
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "before_code": "EN3.TEXT.FICTION"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "before_code": "EN3.TEXT.GENRE"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "before_code": "EN4.TEXT.FICTION"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "before_code": "EN3.READ.FIND"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "before_code": "EN3.READ.INDEX"
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "before_code": "EN3.READ.CHARACTER"
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "before_code": "EN4.READ.FIND"
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "before_code": "EN3.READ.ORDER"
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "before_code": "EN3.PUNCT.END"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "before_code": "EN4.PUNCT.END"
+  },
+  {
+   "skill_code": "EN4.WRITE.DESCRIBE",
+   "before_code": "EN3.WRITE.DESCRIBE"
+  },
+  {
+   "skill_code": "EN4.WRITE.ENDING",
+   "before_code": "EN4.READ.STAGES"
+  },
+  {
+   "skill_code": "EN4.WRITE.ENDING",
+   "before_code": "EN3.READ.PREDICT"
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "before_code": "EN3.VOCAB.ABC"
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "before_code": "EN3.VOCAB.TOPIC"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "before_code": "EN3.SPELL.AFFIX"
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "before_code": "EN3.READ.MAIN"
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "before_code": "EN4.READ.KEYWORDS"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "before_code": "EN3.TEXT.PARAGRAPH"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "before_code": "EN3.TEXT.FEATURES"
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "before_code": "EN4.TEXT.PARAGRAPH"
+  },
+  {
+   "skill_code": "EN4.WRITE.NOTES",
+   "before_code": "EN3.WRITE.TABLE"
+  },
+  {
+   "skill_code": "EN4.WRITE.NOTES",
+   "before_code": "EN4.READ.KEYWORDS"
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "before_code": "EN3.VOCAB.CONTEXT"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "before_code": "EN3.VOCAB.SYNONYM"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "before_code": "EN4.VOCAB.SYNONYM"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "before_code": "EN3.VOCAB.SOUNDWORD"
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "before_code": "EN4.VOCAB.FIGURE"
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "before_code": "EN3.READ.INFER"
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "before_code": "EN3.READ.PREDICT"
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "before_code": "EN4.READ.INFER"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "before_code": "EN3.READ.THEME"
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "before_code": "EN4.READ.INFER"
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "before_code": "EN3.GRAM.TENSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "before_code": "EN3.GRAM.IRREGULAR"
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "before_code": "EN4.GRAM.TENSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "before_code": "EN3.GRAM.JOIN"
+  },
+  {
+   "skill_code": "EN4.WRITE.SEQUENCE",
+   "before_code": "EN3.WRITE.SEQUENCE"
+  },
+  {
+   "skill_code": "EN4.WRITE.SEQUENCE",
+   "before_code": "EN4.GRAM.CONNECT"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAYSCRIPT",
+   "before_code": "EN3.WRITE.PLAYSCRIPT"
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "before_code": "EN4.READ.CHARACTER"
+  },
+  {
+   "skill_code": "EN4.READ.RESPOND",
+   "before_code": "EN4.READ.CHARACTER"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "before_code": "EN3.PUNCT.SPEECH"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "before_code": "EN4.PUNCT.COMMA"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "before_code": "EN3.VOCAB.SAYVERB"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAN",
+   "before_code": "EN3.WRITE.PLAN"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROFILE",
+   "before_code": "EN4.READ.CHARACTER"
+  },
+  {
+   "skill_code": "EN4.WRITE.VIEWPOINT",
+   "before_code": "EN4.READ.VIEWPOINT"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "before_code": "EN3.TEXT.NONFICTION"
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "before_code": "EN3.READ.FACTOPINION"
+  },
+  {
+   "skill_code": "EN4.WRITE.ARGUE",
+   "before_code": "EN4.TEXT.PERSUADE"
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "before_code": "EN4.GRAM.AGREE"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "before_code": "EN3.GRAM.NOUNVERB"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "before_code": "EN3.PUNCT.APOSTROPHE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROOFREAD",
+   "before_code": "EN3.WRITE.PROOFREAD"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROOFREAD",
+   "before_code": "EN4.PUNCT.POSSESS"
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "before_code": "EN3.WRITE.IMPROVE"
+  }
+ ]
+}

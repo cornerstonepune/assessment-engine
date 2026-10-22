@@ -1,0 +1,4169 @@
+{
+ "skill_level_question_types": [
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Advance",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Advance",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Easy",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.GRAM.IRREGULAR",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Hard",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.GRAM.JOIN",
+   "difficulty": "Medium",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Advance",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Easy",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Hard",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Medium",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.GRAM.NOUNVERB",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Advance",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Easy",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Hard",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.GRAM.PREP",
+   "difficulty": "Medium",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.SENTTYPE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Medium",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.GRAM.TENSE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "difficulty": "Easy",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "difficulty": "Medium",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.GRAM.WRITETYPE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Advance",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.CHUNK",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Advance",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Easy",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Hard",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SHORTFORM",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SIGHT",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PHON.SOUNDS",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.PUNCT.APOSTROPHE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.PUNCT.APOSTROPHE",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.PUNCT.APOSTROPHE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.PUNCT.APOSTROPHE",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.PUNCT.APOSTROPHE",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "difficulty": "Advance",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "difficulty": "Easy",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "difficulty": "Hard",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.PUNCT.END",
+   "difficulty": "Medium",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Advance",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Advance",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Easy",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Easy",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Hard",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Hard",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Medium",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.PUNCT.SPEECH",
+   "difficulty": "Medium",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.BLURB",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Advance",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Easy",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Hard",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Medium",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN3.READ.CHARACTER",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Advance",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Easy",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Hard",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.COMPARE",
+   "difficulty": "Medium",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.FACTOPINION",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Easy",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Hard",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.FIND",
+   "difficulty": "Medium",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INDEX",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INFER",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Advance",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Easy",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Hard",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.INSTRUCT",
+   "difficulty": "Medium",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.MAIN",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Advance",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Easy",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Hard",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.ORDER",
+   "difficulty": "Medium",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.PREDICT",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.READ.THEME",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Advance",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Advance",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.SPELL.AFFIX",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Advance",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Easy",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Hard",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Medium",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.SPELL.CONSONANT",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.SPELL.HOMOPHONE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.SPELL.HOMOPHONE",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.SPELL.HOMOPHONE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.SPELL.HOMOPHONE",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.SPELL.HOMOPHONE",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Advance",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Advance",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Easy",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Hard",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Medium",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN3.SPELL.TRICKY",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "difficulty": "Advance",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "difficulty": "Medium",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN3.SPELL.VERBEND",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Easy",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Hard",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.TEXT.FEATURES",
+   "difficulty": "Medium",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.FICTION",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Advance",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Easy",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.GENRE",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Advance",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Easy",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Hard",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.NONFICTION",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.TEXT.PARAGRAPH",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Advance",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Easy",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Hard",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.ABC",
+   "difficulty": "Medium",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN3.VOCAB.CONTEXT",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.CONTEXT",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.VOCAB.CONTEXT",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.CONTEXT",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.CONTEXT",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.VOCAB.CONTEXT",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Advance",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Easy",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Easy",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Hard",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Hard",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Medium",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.VOCAB.DESCRIBE",
+   "difficulty": "Medium",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Hard",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.OPENER",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SAYVERB",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "difficulty": "Advance",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "difficulty": "Hard",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SOUNDWORD",
+   "difficulty": "Medium",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "difficulty": "Advance",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "difficulty": "Hard",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN3.VOCAB.SYNONYM",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.TOPIC",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.TOPIC",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.TOPIC",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.TOPIC",
+   "difficulty": "Hard",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.VOCAB.TOPIC",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN3.VOCAB.TOPIC",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN3.WRITE.DESCRIBE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.DESCRIBE",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.DESCRIBE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.DESCRIBE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Easy",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Hard",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Medium",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.IMPROVE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Advance",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Easy",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Hard",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAN",
+   "difficulty": "Medium",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAYSCRIPT",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAYSCRIPT",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAYSCRIPT",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PLAYSCRIPT",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "difficulty": "Easy",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.WRITE.PROOFREAD",
+   "difficulty": "Medium",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN3.WRITE.REVIEW",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.REVIEW",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.REVIEW",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.REVIEW",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.SEQUENCE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.SEQUENCE",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.SEQUENCE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.SEQUENCE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN3.WRITE.TABLE",
+   "difficulty": "Advance",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN3.WRITE.TABLE",
+   "difficulty": "Easy",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN3.WRITE.TABLE",
+   "difficulty": "Hard",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN3.WRITE.TABLE",
+   "difficulty": "Medium",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Advance",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Easy",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Hard",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Hard",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Medium",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.GRAM.ADVERB",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.GRAM.AGREE",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Advance",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Easy",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Hard",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Hard",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.CONNECT",
+   "difficulty": "Medium",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.QUANT",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.GRAM.TENSE",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Advance",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.READNEW",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.SIGHT",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Advance",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PHON.STRESS",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Advance",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Easy",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Hard",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.COMMA",
+   "difficulty": "Medium",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Advance",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Easy",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Easy",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Hard",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Medium",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.PUNCT.END",
+   "difficulty": "Medium",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.POSSESS",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Advance",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Easy",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Easy",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Hard",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Medium",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.PUNCT.SPEECH",
+   "difficulty": "Medium",
+   "question_type": "ENG.PUNCTUATE"
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Advance",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Easy",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Hard",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Medium",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.CHARACTER",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Advance",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Easy",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Hard",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Medium",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.CONTEXT",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Advance",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Easy",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Hard",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Medium",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.READ.FACTOPINION",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Advance",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Easy",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Hard",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Medium",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.FIND",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.INFER",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Advance",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Easy",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Hard",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.KEYWORDS",
+   "difficulty": "Medium",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Advance",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Easy",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Hard",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.LINKS",
+   "difficulty": "Medium",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.PREDICT",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.RESPOND",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.RESPOND",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.RESPOND",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.RESPOND",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Advance",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Easy",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Hard",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.SKIM",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Advance",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Advance",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Easy",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Easy",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Hard",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Hard",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.READ.STAGES",
+   "difficulty": "Medium",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Advance",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Easy",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Hard",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.READ.THEME",
+   "difficulty": "Medium",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Advance",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Easy",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Hard",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.READ.VIEWPOINT",
+   "difficulty": "Medium",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Advance",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Advance",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.SPELL.AFFIX",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Advance",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Easy",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Hard",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Medium",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.OUGH",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.PLURAL",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Advance",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.ROOT",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Advance",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Easy",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.SPELL.RULE",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Advance",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Easy",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Hard",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Medium",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.SILENT",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "difficulty": "Medium",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.SPELL.THEIR",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "difficulty": "Advance",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "difficulty": "Easy",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "difficulty": "Hard",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "difficulty": "Medium",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.SPELL.TRICKY",
+   "difficulty": "Medium",
+   "question_type": "ENG.DICTATION"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Easy",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Hard",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Hard",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.TEXT.FEATURES",
+   "difficulty": "Medium",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.FICTION",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Advance",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Easy",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Hard",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.TEXT.GENRE",
+   "difficulty": "Medium",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Advance",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Advance",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Easy",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Easy",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Hard",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Hard",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.TEXT.PARAGRAPH",
+   "difficulty": "Medium",
+   "question_type": "ENG.SORT"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Advance",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Easy",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Hard",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Medium",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.TEXT.PERSUADE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Advance",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Easy",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Hard",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.ABC",
+   "difficulty": "Medium",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "difficulty": "Advance",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "difficulty": "Hard",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.CONTEXT",
+   "difficulty": "Medium",
+   "question_type": "ENG.WRITE_WORD"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Advance",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Easy",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Hard",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Hard",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Medium",
+   "question_type": "ENG.MARK_WORDS"
+  },
+  {
+   "skill_code": "EN4.VOCAB.FIGURE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Advance",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Easy",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Hard",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SHADES",
+   "difficulty": "Medium",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Advance",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Easy",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Hard",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Hard",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.SYNONYM",
+   "difficulty": "Medium",
+   "question_type": "ENG.COPY"
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "difficulty": "Advance",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "difficulty": "Hard",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.TOPIC",
+   "difficulty": "Medium",
+   "question_type": "ENG.MATCH"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Advance",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Easy",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Medium",
+   "question_type": "ENG.CHOOSE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.VERBCHOICE",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "difficulty": "Advance",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "difficulty": "Easy",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "difficulty": "Hard",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "difficulty": "Hard",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "difficulty": "Medium",
+   "question_type": "ENG.GAP"
+  },
+  {
+   "skill_code": "EN4.VOCAB.WRITEFIGURE",
+   "difficulty": "Medium",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.ARGUE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.ARGUE",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.ARGUE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.ARGUE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.DESCRIBE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.DESCRIBE",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.DESCRIBE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.DESCRIBE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.ENDING",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.ENDING",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.ENDING",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.ENDING",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Advance",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Easy",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Hard",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Medium",
+   "question_type": "ENG.REWRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.IMPROVE",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_ANSWER"
+  },
+  {
+   "skill_code": "EN4.WRITE.NOTES",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.NOTES",
+   "difficulty": "Easy",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.WRITE.NOTES",
+   "difficulty": "Hard",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.WRITE.NOTES",
+   "difficulty": "Medium",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAN",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAN",
+   "difficulty": "Easy",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAN",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAN",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAYSCRIPT",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAYSCRIPT",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAYSCRIPT",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PLAYSCRIPT",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROFILE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROFILE",
+   "difficulty": "Easy",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROFILE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROFILE",
+   "difficulty": "Medium",
+   "question_type": "ENG.TABLE"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROOFREAD",
+   "difficulty": "Advance",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROOFREAD",
+   "difficulty": "Easy",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROOFREAD",
+   "difficulty": "Hard",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.WRITE.PROOFREAD",
+   "difficulty": "Medium",
+   "question_type": "ENG.CORRECT"
+  },
+  {
+   "skill_code": "EN4.WRITE.SEQUENCE",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.SEQUENCE",
+   "difficulty": "Easy",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.WRITE.SEQUENCE",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.SEQUENCE",
+   "difficulty": "Medium",
+   "question_type": "ENG.ORDER"
+  },
+  {
+   "skill_code": "EN4.WRITE.VIEWPOINT",
+   "difficulty": "Advance",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.VIEWPOINT",
+   "difficulty": "Easy",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.VIEWPOINT",
+   "difficulty": "Hard",
+   "question_type": "ENG.SHORT_WRITE"
+  },
+  {
+   "skill_code": "EN4.WRITE.VIEWPOINT",
+   "difficulty": "Medium",
+   "question_type": "ENG.SHORT_WRITE"
+  }
+ ]
+}

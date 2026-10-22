@@ -1,0 +1,11 @@
+{
+ "subjects": [
+  {
+   "code": "ENG",
+   "name": "English",
+   "label": "English",
+   "verifier": "english",
+   "mark_mode": "question_type"
+  }
+ ]
+}

@@ -186,7 +186,7 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None, again
     order ("?" leaves one unread), or — `names` None — by the child a person named for it before (`_named_before`).
     `again`: a copy read before is read afresh (a better reader), unless a person has already worked on it.
     → one dict per copy, read or not: its pages, code, child, answers read, questions a person marks — or why it was
-    not read."""
+    not read — and the file's pages in it on which no code could be read (`no_code`), said by number, never guessed."""
     papers = sorting.sort_file(conn, scan, pages_of, read_text)
     own, bare = _sorted_out(papers)
     named = names is not None
@@ -195,11 +195,13 @@ def read(conn, scan, section, names, actor, pages_of=None, read_text=None, again
     for k, copy in enumerate(papers, 1):  # every copy in the file has its line: read, or why not
         if not copy["qr"] or not (any(copy is p for p in own) or id(copy) in who):
             out.append({"copy": k, "pages": copy["pages"], "code": copy["qr"] or "?", "child_id": None, "answers": 0,
-                        "by_code": False, "skipped": True, "why": _not_read(copy)})  # fmt: skip
+                        "by_code": False, "skipped": True, "why": _not_read(copy),
+                        "no_code": copy["unread"]})  # fmt: skip
             continue
         code, name, cid = _owner(conn, scan, k, copy, who, named)
         row = {"copy": k, "pages": copy["pages"], "code": code, "child_id": cid, "answers": 0,
-               "by_code": bool(copy["sheet"] and copy["sheet"]["child_id"])}  # fmt: skip
+               "by_code": bool(copy["sheet"] and copy["sheet"]["child_id"]),
+               "no_code": copy["unread"]}  # fmt: skip
         if cid is None:
             out.append(
                 {**row, "skipped": True, "why": "printed with no child's code; say whose it is to read it"}

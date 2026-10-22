@@ -1,0 +1,56 @@
+name: english-foundation
+goal: >
+  English for Grades 3 and 4 is drafted as rows from Cambridge Primary English 0058, Stages 3 and 4, read from the
+  recorded copy of the framework and refused if its fingerprint differs. Every Stage 3 and 4 objective is either on a
+  printed paper, through one or more skills, or listed as observed by an educator with the reason and how to observe
+  it; none is dropped. Each skill is in the school's words, in a topic and in a teaching order that follows the
+  school's units, with what comes before it; each has Easy, Medium, Hard and Advance, each level a rule of what
+  changes and three worked examples with answers that code checks and, where a rule gives the answer, works out
+  again; its named mistakes; the question types a paper can carry and who marks each; and a rubric for judged
+  writing. No example uses Cambridge's own text or examples. Content only: no migration, engine code, endpoint or
+  screen, since BUILD-ORDER keeps the build on maths.
+
+# Written 2026-10-21, before the build. Nimish, 2026-10-21: "make the entire set of learning objectives, the
+# difficulty levels, and everything as per Grade 3 and Grade 4 of the Cambridge board … Fundamental work can be done
+# by you. The teacher will only go and approve or edit." Grade 3 = Cambridge Stage 3 and Grade 4 = Stage 4 (Nimish).
+says:
+  - words: "make the entire set of learning objectives … as per Grade 3 and Grade 4 of the Cambridge board"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_every_stage_3_and_4_objective_is_on_a_paper_or_observed_by_an_educator
+  - words: "the entire set of learning objectives"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_an_objective_dropped_or_invented_is_caught
+  - words: "the difficulty levels"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_every_assessable_skill_has_four_levels_each_with_a_rule_and_three_examples_with_answers
+  - words: "and everything"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_every_mistake_is_named_with_its_wrong_answer_and_shows_in_a_skill
+  - words: "and everything"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_every_question_type_says_how_it_reaches_the_child_and_who_marks_it
+  - words: "and everything"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_judged_writing_has_a_rubric_whose_four_levels_an_educator_and_a_model_read_alike
+  - words: "Fundamental work can be done by you"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_every_example_meets_its_level_and_code_works_its_answer_out_again
+  - words: "Fundamental work can be done by you"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_a_wrong_key_a_missing_example_and_a_broken_rule_are_caught
+  - words: "Fundamental work can be done by you"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_no_example_uses_cambridges_text_or_its_own_examples
+  - words: "The teacher will only go and approve or edit"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_every_skill_says_what_a_child_does_in_its_grade_and_teaching_order_and_none_repeats
+  - words: "The teacher will only go and approve or edit"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_a_before_that_points_nowhere_or_later_and_a_twin_skill_are_caught
+  - words: "as per Grade 3 and Grade 4 of the Cambridge board"
+    proved_by: packages/engine/tests/test_english_foundation.py::test_the_check_runs_from_any_directory_and_reports_its_counts
+manual:
+  - "The school's English educator reads the review document and approves or edits each skill, its levels, examples and mistakes, and the not-on-paper list. Until then every row is a draft and counts for nothing."
+  - "Whether an example is a good question for a child of 8 or 9 is the educator's judgement; code checks that its answer is right, that it meets its level's rule, and that it is not Cambridge's text, not that it is well chosen."
+  - "Stressed syllables, fact or opinion, theme and the like have answers code cannot work out; those keys are as drafted, for the educator to check."
+  - "Loading these rows into the database waits for BUILD-ORDER to reach English: no migration, engine code, endpoint or screen is part of this goal."
+scenarios: []
+criteria:
+  - name: every objective placed, every level and example checked, the derived rows current
+    run: cd packages/engine && .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_english_foundation.py
+    expect: "passed"
+  - name: the checker itself, from the command line
+    run: python3 research/english_check.py
+    expect: "0 faults"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -5,6 +5,7 @@
 // (rule 6), and marking a corrected reading, which is computation and therefore the engine's
 // (ARCHITECTURE.md §1). The key stays on the server — a browser never sees it, and never fetches
 // the engine directly.
+import { createHmac } from "node:crypto";
 import type { EngineRoutes } from "./engine-routes";
 
 // Read at call time, not at module load: the repo-root .env is loaded by `lib/db`, and which of
@@ -135,3 +136,16 @@ export async function markWhatTrustSettles(): Promise<boolean> {
     throw e;
   }
 }
+
+/** Where a browser sends a scan, and the token it sends with it, for `email` (goals/n8-upload-on-marking.yaml, ADR
+ *  0092) — or null when this site has no engine. A scan is sent by the educator's browser straight to the engine: a
+ *  Vercel function takes at most 4.5 MB, and a class's scan is tens. The key stays here; the browser is given only this
+ *  token, signed with it, naming who sends and good for half an hour, which the engine takes for nothing but
+ *  `POST /read/upload` (`deps.require_upload_token`). */
+export function uploadTicket(email: string, now = Date.now()): { url: string; token: string } | null {
+  const k = process.env.ENGINE_KEY;
+  if (!k || !process.env.ENGINE_URL) return null;
+  const body = `${Buffer.from(email).toString("base64url")}.${now + UPLOAD_LIFE_MS}`;
+  return { url: `${base()}/read/upload`, token: `${body}.${createHmac("sha256", k).update(`upload.${body}`).digest("hex")}` };
+}
+const UPLOAD_LIFE_MS = 30 * 60_000;
