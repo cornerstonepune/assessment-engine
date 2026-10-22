@@ -64,7 +64,7 @@ export type ItemFilter = { set?: string; difficulty?: string; fmt?: string; stat
 
 // A question of a skill taught in any class of the scope.
 const ofTaughtSkill = (scope: Scope = EVERY_CLASS) => sql`
-  exists (select 1 from skill_set ts where ts.tenant_id = i.tenant_id and ts.code = i.skill_set_code
+  exists (select 1 from skill ts where ts.tenant_id = i.tenant_id and ts.code = i.skill_set_code
           and ${skillTaughtFor(scope, sql`ts.tenant_id`, sql`ts.code`)})`;
 
 // What a person typed, looked for as it is: LIKE's own % and _ (and its escape, \) are escaped, never wildcards.
@@ -74,7 +74,7 @@ const containing = (words: string) => `%${words.replace(/[\\%_]/g, (c) => `\\${c
 // and a printed paper can never read a question two different ways.
 export const itemColumns = () => sql`
   i.id, i.item_key, i.fmt, i.stem, i.spec, i.responses, i.status, i.times_used, i.skill_set_code, i.difficulty,
-  (select s.name from skill_set s where s.tenant_id = i.tenant_id and s.code = i.skill_set_code) as skill_set_name`;
+  (select s.name from skill s where s.tenant_id = i.tenant_id and s.code = i.skill_set_code) as skill_set_name`;
 
 // What the bank may print: generated questions of a taught skill, the live ones unless the removed ones are asked for.
 const inBank = (f: ItemFilter) => sql`
@@ -121,17 +121,16 @@ export async function bankGrid(scope: Scope = EVERY_CLASS): Promise<BankRow[]> {
       select skill_set_code, difficulty, fmt, count(*)::int as n from item
       where source = 'generated' and status = 'active' group by 1, 2, 3
     )
-    select s.code, s.name, r.band,
+    select s.code, s.name, s.grade as band,
            coalesce((select jsonb_object_agg(l.difficulty, l.grade) from skill_level l
                      where l.tenant_id = s.tenant_id and l.skill_code = s.code), '{}'::jsonb) as level_grade,
            coalesce((select array_agg(distinct b.fmt order by b.fmt) from b where b.skill_set_code = s.code), '{}') as fmts,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select b.difficulty, sum(b.n)::int as n from b where b.skill_set_code = s.code
                            group by b.difficulty) d), '{}'::json) as counts
-    from skill_set s
-    join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+    from skill s
     where ${skillTaughtFor(scope, sql`s.tenant_id`, sql`s.code`)}
-    order by r.ladder_order nulls last, s.code`;
+    order by s.ladder_order nulls last, s.code`;
 }
 
 /** The bank: the questions the engine can draw — made by it, active, of a skill at one of that skill's levels — the one
@@ -185,7 +184,7 @@ export async function printedPaper(qr: string): Promise<PrintedPaper | undefined
            coalesce((si.key ->> 'pages')::int, (st.key ->> 'pages')::int, 1) as pages,
            coalesce(si.week, st.week) as week, st.difficulty, st.source, si.key ->> 'how' as how, si.key -> 'areas' as areas,
            coalesce(s.name, (select string_agg(distinct s2.name, ' · ') from item i2
-              join skill_set s2 on s2.tenant_id = i2.tenant_id and s2.code = i2.skill_set_code
+              join skill s2 on s2.tenant_id = i2.tenant_id and s2.code = i2.skill_set_code
               where i2.id = any(st.item_ids))) as skill_set_name,
            coalesce(array_length(st.item_ids, 1), 0) as n_items, c.roll_no, coalesce(si.section, c.section) as section,
            coalesce(p.kind, si.kind) as kind, p.rule_fired, p.override_reason, st.code as worksheet,
@@ -199,7 +198,7 @@ export async function printedPaper(qr: string): Promise<PrintedPaper | undefined
             order by n.created_at desc limit 1) as replaced_by
     from sheet_instance si
     join sheet_template st on st.id = si.sheet_template_id
-    left join skill_set s on s.tenant_id = st.tenant_id and s.code = st.skill_set_code
+    left join skill s on s.tenant_id = st.tenant_id and s.code = st.skill_set_code
     left join child c on c.id = coalesce(si.child_id, st.child_id)
     left join prescription p on p.sheet_instance_id = si.id
     where si.qr_code = ${qr} and st.source in ('generated', 'library', 'focus')`;
@@ -256,7 +255,7 @@ export type QuestionPage = ItemRow & {
 // and which question took its place.
 export async function questionPage(key: string): Promise<QuestionPage | undefined> {
   const rows = await sql<QuestionPage[]>`
-    select ${itemColumns()}, r.band, l.looks_like as level_words,
+    select ${itemColumns()}, r.grade as band, l.looks_like as level_words,
            i.generator, i.skill_set_version, i.created_at,
            (select count(distinct x.child_id)::int from item_exposure x where x.item_id = i.id) as children,
            (select o.item_key from item o where o.id = i.corrected_from) as corrected_from_key,
@@ -266,7 +265,7 @@ export async function questionPage(key: string): Promise<QuestionPage | undefine
            coalesce((select array_agg(t.code order by t.code) from sheet_template t
                      where t.source = 'library' and t.retired_at is null and i.id = any(t.item_ids)), '{}') as worksheets
     from item i
-    join rung r on r.tenant_id = i.tenant_id and r.code = i.rung_code
+    join skill r on r.tenant_id = i.tenant_id and r.rung_code = i.rung_code
     left join skill_level l on l.tenant_id = i.tenant_id and l.skill_code = i.skill_set_code and l.difficulty = i.difficulty
     left join lateral (select actor, note from item_feedback
                        where item_id = i.id and verdict = 'retire' order by created_at desc limit 1) f on true

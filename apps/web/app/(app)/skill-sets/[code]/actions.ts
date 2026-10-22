@@ -22,7 +22,7 @@ export async function saveWords(formData: FormData): Promise<void> {
   const name = String(formData.get("name") ?? "").trim().slice(0, 80);
   const outcome = String(formData.get("learning_objective") ?? "").trim().slice(0, 400);
   const [row] = await sql<{ difficulty: Record<Difficulty, Band>; levels: Difficulty[] }[]>`
-    select s.difficulty, ${levelsColumn()} from skill_set s where s.code = ${code}`;
+    select s.difficulty, ${levelsColumn()} from skill s where s.code = ${code}`;
   if (!row) redirect("/");
   // only the levels the skill defines: 1-digit − 1-digit has no Hard, and saving must not make one
   const levels = levelsOf(row);
@@ -34,7 +34,7 @@ export async function saveWords(formData: FormData): Promise<void> {
     levels.map((d) => [d, { ...row.difficulty[d], words: words[d] }]),
   ) as Record<Difficulty, Band>;
   await sql`
-    update skill_set set name = ${name}, learning_objective = ${outcome},
+    update skill set name = ${name}, learning_objective = ${outcome},
       difficulty = ${sql.json(difficulty as never)}, updated_at = now()
     where code = ${code}`;
   revalidatePath("/");
@@ -63,7 +63,7 @@ export async function approveSkills(formData: FormData): Promise<void> {
   const onlyTable = !shown.length && typeof formData.get("charges_table") === "string";
   if ((!shown.length && !onlyTable) || versions.length !== shown.length || versions.some((v) => !Number.isInteger(v))) redirect("/");
   const approved = await sql<{ code: string }[]>`
-    update skill_set s
+    update skill s
     set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', ${me.name}::text, 'at', now()))
                           from jsonb_object_keys(s.difficulty) k),
         updated_at = now()
@@ -100,7 +100,7 @@ export async function saveGrades(formData: FormData): Promise<void> {
   const code = String(formData.get("code") ?? "");
   if (!CODE.test(code)) redirect("/");
   const [row] = await sql<{ difficulty: Record<Difficulty, Band>; levels: Difficulty[]; band: string }[]>`
-    select s.difficulty, ${levelsColumn()}, r.band from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+    select s.difficulty, ${levelsColumn()}, s.grade as band from skill s
     where s.code = ${code}`;
   if (!row) redirect("/");
   // a grade the school has (`grade`), other than the skill's own
@@ -112,7 +112,7 @@ export async function saveGrades(formData: FormData): Promise<void> {
   );
   // in the mover's name (goals/c1-whole-curriculum.yaml): Achal reviews the progression by moving levels here
   await sql`
-    update skill_set set level_band = ${sql.json(moved as never)}, level_band_by = ${me.name}, level_band_at = now()
+    update skill set level_band = ${sql.json(moved as never)}, level_band_by = ${me.name}, level_band_at = now()
     where code = ${code}`;
   revalidatePath("/");
   revalidatePath(`/skill-sets/${code}`);
@@ -129,7 +129,7 @@ export async function approveLevel(formData: FormData): Promise<void> {
   const level = String(formData.get("level") ?? "");
   if (!CODE.test(code) || !Number.isInteger(version) || !(await schoolLevels()).order.includes(level)) redirect("/");
   await sql`
-    update skill_set set level_approved = level_approved || jsonb_build_object(${level}::text,
+    update skill set level_approved = level_approved || jsonb_build_object(${level}::text,
                            jsonb_build_object('by', ${me.name}::text, 'at', now())),
                          updated_at = now()
     where code = ${code} and version = ${version} and difficulty ? ${level}`;

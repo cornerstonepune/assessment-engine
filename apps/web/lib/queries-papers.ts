@@ -24,7 +24,7 @@ export const STAGE_WORDS: Record<Stage, string> = {
  *  a home assessment, each area at its own level, by its kind; a worksheet's code only where nothing else names it
  *  (goals/ux8b-papers-named.yaml). `t` is the query's alias for the paper's `sheet_template`. */
 export const paperName = (t: string) => sql`
-  coalesce((select s.name || ' · ' || ${sql(t)}.difficulty from skill_set s
+  coalesce((select s.name || ' · ' || ${sql(t)}.difficulty from skill s
              where s.tenant_id = ${sql(t)}.tenant_id and s.code = ${sql(t)}.skill_set_code),
            ${sql(t)}.key ->> 'title',
            case when ${sql(t)}.source = 'focus' then 'Home assessment' end,
@@ -101,7 +101,7 @@ const papersCte = () => sql`
                 else coalesce(t.skill_set_code, t.id::text) end as set_key,
            coalesce(ss.name, t.key ->> 'title', drawn.title, t.code, t.batch_id, si.qr_code) as set_name,
            -- the topics its questions are on: its skill set's, or each of its questions' own
-           array(select distinct s.topic_code from skill_set s
+           array(select distinct s.topic_code from skill s
                  where s.tenant_id = t.tenant_id and s.topic_code is not null
                    and (s.code = t.skill_set_code
                         or s.code in (select i.skill_set_code from item i where i.id = any(t.item_ids)))) as topics
@@ -111,7 +111,7 @@ const papersCte = () => sql`
     left join (select k.tenant_id, k.section, class_band(k.tenant_id, k.section) as band
                from (select distinct tenant_id, section from child where active) k) cls
       on cls.tenant_id = si.tenant_id and cls.section = coalesce(si.section, ch.section)
-    left join skill_set ss on ss.tenant_id = t.tenant_id and ss.code = t.skill_set_code
+    left join skill ss on ss.tenant_id = t.tenant_id and ss.code = t.skill_set_code
     -- a paper drawn for one child (a home assessment, a paper an educator chose) names no skill set of its own: its
     -- title is its questions' skill sets and levels, in the order they stand on the page
     left join lateral (
@@ -119,7 +119,7 @@ const papersCte = () => sql`
       from (select s.name, i.difficulty, min(o.n) as first
             from unnest(t.item_ids) with ordinality o(id, n)
             join item i on i.id = o.id
-            join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code
+            join skill s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code
             group by s.name, i.difficulty) x
     ) drawn on ss.name is null
     cross join lateral (

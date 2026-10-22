@@ -13,6 +13,7 @@ BASE = {
     "covers": ["engine/", "apps/web/"],
     "ceilings": {"engine/big.py": 500, "apps/web/tests/e2e.spec.ts": 466},
     "complexity": {"limit": {"C901": 10, "PLR0915": 50}, "frozen": {"engine/a.py::f": {"C901": 20}}},
+    "ux": {"/a": ["shell", "table"]},
     "coverage": 79.0,
     "types": {
         "mode": "basic",
@@ -35,6 +36,7 @@ def test_tightening_or_standing_still_passes():
         ceilings={"engine/big.py": 450},
         complexity={"limit": {"C901": 10, "PLR0915": 50}, "frozen": {}},
         coverage=80.5,
+        ux={},
         types={**TYPES, "mode": "strict", "unannotated": [], "frozen": {"engine/assess/a.py": 12}},
     )
     assert ratchet.loosened(BASE, tighter) == []
@@ -58,6 +60,9 @@ def test_a_baseline_may_only_tighten():
         ),
         "complexity gone": _with(complexity=None),
         "lower floor": _with(coverage=78.5),
+        "a page joined the UX list": _with(ux={**BASE["ux"], "/b": ["shell"]}),
+        "a UX rule came back": _with(ux={"/a": ["shell", "table", "purpose"]}),
+        "the UX list gone": _with(ux=None),
         "type check gone": _with(types=None),
         "lower type check": _with(types={**TYPES, "mode": "off"}),
         "unchecked root": _with(types={**TYPES, "include": []}),

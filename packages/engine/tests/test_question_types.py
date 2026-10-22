@@ -19,6 +19,7 @@ from engine.checks import past
 from engine.core import db
 from engine.w1_bank import question_types
 from engine.w2_print import focus_paper, handout, library
+from tests.rows import data_steps
 
 NUMBERS = re.compile(r"^(ADD|SUB|MUL|DIV)\.(\dD\dD(\.REG\w*)?|MULTI\d*)$")
 CARD_KINDS = {"MUL3.SUM", "MUL3.STORY", "SEQ.ON", "SEQ.BACK", "MULT.NTH", "MULT.FIRST5"}
@@ -226,7 +227,7 @@ def test_the_paper_maker_draws_only_confirmed_levels_and_approved_types(conn, tm
     code = "FTM"
     s, lv, sheet = _level_holding(conn, code)
     _waits(conn, code)
-    rung = conn.execute("select rung_code from skill_set where code = %s", (s,)).fetchone()["rung_code"]
+    rung = conn.execute("select rung_code from skill where code = %s", (s,)).fetchone()["rung_code"]
     area = focus.Area(s, rung, lv, 0, 0, None, "practising")
     drawn = focus_paper._draw(conn, [], area, 500, random.Random(1), 7)
     assert drawn and code not in _types(conn, [r["id"] for r in drawn])
@@ -239,7 +240,7 @@ def test_the_paper_maker_draws_only_confirmed_levels_and_approved_types(conn, tm
 
     # a level not confirmed: none of its questions is drawn, whatever their types
     conn.execute(
-        "update skill_set set level_approved = level_approved - %s::text where code = %s",
+        "update skill set level_approved = level_approved - %s::text where code = %s",
         (lv, s),
     )
     assert not conn.execute(
@@ -255,7 +256,7 @@ def test_a_paper_that_cannot_be_made_names_the_type_that_waits(conn, tmp_path):
     (s, lv), types = next((k, ts) for k, ts in sorted(_bank(conn).items()) if "FTM" in ts)
     for t in types:
         _waits(conn, t)
-    rung = conn.execute("select rung_code from skill_set where code = %s", (s,)).fetchone()["rung_code"]
+    rung = conn.execute("select rung_code from skill where code = %s", (s,)).fetchone()["rung_code"]
     area = focus.Area(s, rung, lv, 0, 0, None, "asked")
     with pytest.raises(ValueError) as said:
         focus_paper.drawn(conn, [], [(area, 5)], random.Random(1))
@@ -264,7 +265,7 @@ def test_a_paper_that_cannot_be_made_names_the_type_that_waits(conn, tmp_path):
     assert "waits for the coordinator" in str(said.value)
     assert set(question_types.waiting(conn, s, lv)) == types
 
-    conn.execute("update skill_set set level_approved = level_approved - %s::text where code = %s", (lv, s))
+    conn.execute("update skill set level_approved = level_approved - %s::text where code = %s", (lv, s))
     with pytest.raises(ValueError, match="not confirmed"):
         focus_paper.drawn(conn, [], [(area, 5)], random.Random(1))
 
@@ -365,7 +366,7 @@ def test_past_results_are_the_same_before_and_after(conn):
     graph.rebuild(conn, str(child))
     before = past.fingerprint(conn)
     assert before["evidence"]["n"] >= 3 and before["states"]["n"] >= 1
-    conn.execute(MIGRATION.read_text())
+    conn.execute(data_steps(MIGRATION))
     graph.rebuild(conn, str(child))
     assert past.fingerprint(conn) == before
     conn.execute(

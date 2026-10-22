@@ -20,7 +20,7 @@ from engine.assess.pick import Sheet
 from engine.assess.render import render_sheet
 from engine.core import db
 from engine.w2_print import library
-from engine.w3_read import boxes, copies, copy_scores, printed_paper, render_pdf, second_reader
+from engine.w3_read import boxes, copies, copy_scores, placing, printed_paper, render_pdf, second_reader
 from tests.test_sorting import _scanned
 
 
@@ -116,7 +116,7 @@ def test_a_copy_whose_file_starts_at_its_second_page_is_read_against_the_questio
 ):
     """2026-09-29: one child's copy photographed across two files. The second file's pages — the paper's later
     ones — were read as its first, against the first page's questions and answer key, and signed off that way. The
-    page each photograph is comes from what it prints (`boxes.placed`), not from where it sits in the file."""
+    page each photograph is comes from what it prints (`placing.placed`), not from where it sits in the file."""
     tenant, code, ids, pdf = worksheet
     with pymupdf.open(pdf) as doc:
         n = len(doc)
@@ -170,8 +170,8 @@ def test_a_copy_holding_its_later_pages_is_read_in_its_own_layout_whatever_anoth
         later.save(tmp_path / "later.pdf")
     photos = list(render_pdf.photos(_scanned([tmp_path / "later.pdf"], tmp_path / "second-file.pdf")))
 
-    assert boxes.as_printed(photos, drawn) == today
-    assert boxes.placed(photos, today, 1.25) == list(range(2, n + 1))
+    assert placing.as_printed(photos, drawn) == today
+    assert placing.placed(photos, today, 1.25) == list(range(2, n + 1))
 
 
 def test_a_reading_that_put_answers_on_questions_its_pages_do_not_hold_is_replaced_checks_and_all(
@@ -395,7 +395,9 @@ def test_an_answer_read_wrong_and_judged_right_by_a_person_counts_once_as_right(
         "insert into tenant (slug, name) values (%s, 't') returning id", (f"t-{uuid.uuid4()}",)
     ).fetchone()["id"]
     conn.execute(
-        "insert into rung (tenant_id, code, band, descriptor) values (%s, 'R1', 'G2', 'd')", (tenant,)
+        "insert into skill (tenant_id, code, rung_code, name, learning_objective, difficulty, grade, descriptor)"
+        " values (%s, 'S1', 'R1', 's', 'o', '{}', 'G2', 'd')",
+        (tenant,),
     )
     capture = conn.execute(
         "insert into capture (tenant_id, path) values (%s, 'p') returning id", (tenant,)
@@ -450,3 +452,36 @@ def test_a_printed_copy_is_read_against_the_childs_own_floor_on_the_box_reader_n
         copies.read(conn, _scanned([pdf], tmp_path / f"{name}.pdf"), SECTION, [name], "test",
                     pages_of=lambda c: len(pymupdf.open(pdf)))  # fmt: skip
         assert floors and set(floors) == {want}, (box_floor, floors)
+
+
+def test_a_copy_photographed_second_page_first_has_each_answer_on_the_photograph_that_is_its_page(
+    conn, worksheet, tmp_path, monkeypatch
+):
+    """2026-10-22: four of ten copies of a two-page paper were photographed second page first. Taken as page 1, page 2
+    in file order, a question of the second page showed the first page's photograph on the check screen. Each answer
+    is on the photograph that IS its paper page (goals/ck2-photograph-is-its-page.yaml)."""
+    tenant, code, ids, pdf = worksheet
+    with pymupdf.open(pdf) as doc:
+        n = len(doc)
+        assert n >= 2, "the worksheet needs a second page for this to mean anything"
+        order = [1, 0, *range(2, n)]  # the paper's second page first
+        swapped = pymupdf.open()
+        for i in order:
+            swapped.insert_pdf(doc, from_page=i, to_page=i)
+        swapped.save(tmp_path / "swapped.pdf")
+    child = _child(conn, tenant, "45", "Esha")
+    stand_in_reader(conn, ids, monkeypatch)
+    scan = _scanned([tmp_path / "swapped.pdf"], tmp_path / "swapped-file.pdf")
+
+    got = copies.read(conn, scan, SECTION, ["Esha"], "test", pages_of=lambda c: n)
+    assert [(c["code"], c["child_id"]) for c in got] == [(code, child)]
+    words, _ = printed_paper.printed(pdf)
+    rows = conn.execute(
+        "select r.item_id, r.raw_read::jsonb as raw from item_result r where r.capture_id = %s",
+        (got[0]["capture_id"],),
+    ).fetchall()
+    assert rows
+    in_file = {paper_page: at for at, paper_page in enumerate([o + 1 for o in order], 1)}
+    for r in rows:
+        page = next(pg for q, (pg, _) in words.items() if ids[q - 1] == r["item_id"])
+        assert (r["raw"]["page"], r["raw"]["file_page"]) == (page, in_file[page]), "the wrong photograph"

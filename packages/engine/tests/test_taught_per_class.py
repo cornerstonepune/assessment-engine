@@ -76,7 +76,7 @@ def test_a_topic_taught_in_one_class_is_its_own_and_an_educator_may_still_choose
 
     assert {c["code"] for c in shelf.catalog(conn, "F1F-YES")} >= {"MUL.MODELS"}
     assert "MUL.MODELS" not in {c["code"] for c in shelf.catalog(conn, "F1F-NO")}
-    taught = conn.execute("select taught from skill_set where code = 'MUL.MODELS'").fetchone()["taught"]
+    taught = conn.execute("select taught from skill where code = 'MUL.MODELS'").fetchone()["taught"]
     assert taught is False, "one class's word is not the school's switch"
 
 
@@ -179,9 +179,9 @@ def test_regrouping_the_topics_changes_no_classs_paper(conn):
             "insert into topic (tenant_id, code, subject_code, name, ord) values (%s, %s, 'NUM', %s, %s)",
             (tenant, code, code, 90 + i),
         )
-        conn.execute("update skill_set set topic_code = %s where code = %s", (code, skill))
+        conn.execute("update skill set topic_code = %s where code = %s", (code, skill))
     conn.execute(
-        "update skill_set set taught = true, taught_by = 'The coordinator', taught_at = now() where code = 'MUL.2D1D'"
+        "update skill set taught = true, taught_by = 'The coordinator', taught_at = now() where code = 'MUL.2D1D'"
     )
     conn.execute("delete from class_skill where section in ('T1-A', 'T1-B', 'T1-NEW')")
     _child(conn, "T1-A-1", "T1-A")
@@ -204,7 +204,7 @@ def test_regrouping_the_topics_changes_no_classs_paper(conn):
     now = {(k, c): _rule(conn, k, c) for k in skills for c in sections}
     assert now == was, {k: (was[k], now[k]) for k in was if was[k] != now[k]}
     homes = conn.execute(
-        "select array_agg(distinct topic_code) as t from skill_set where code = any(%s)", (skills,)
+        "select array_agg(distinct topic_code) as t from skill where code = any(%s)", (skills,)
     ).fetchone()["t"]
     gone = conn.execute("select count(*) as n from topic where code like 'T1.%%'").fetchone()["n"]
     assert (homes, gone) == (["MUL"], 0), (

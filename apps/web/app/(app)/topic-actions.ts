@@ -29,5 +29,5 @@ export async function switchTopic(formData: FormData): Promise<void> {
   revalidatePath("/", "layout");
   // one skill said: back to that class's skills of the topic, where it was said
   const said = new URLSearchParams({ [on ? "on" : "off"]: skill ?? code, class: section, ...(skill ? { skills: code, in: section } : {}) });
-  redirect(n ? `/?${said}#${skill ? "skills" : on ? "taught" : "not-taught"}` : "/");
+  redirect(n ? `/?taught=1&${said}#${skill ? "skills" : on ? "taught" : "not-taught"}` : "/");
 }

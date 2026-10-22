@@ -8,6 +8,7 @@ import json
 import os
 import pathlib
 
+import psycopg
 import pytest
 
 from engine.assess import placing, tags, taxonomy
@@ -94,7 +95,7 @@ def conn():
     if not os.getenv("DATABASE_URL"):
         pytest.skip("needs DATABASE_URL (see .env.example)")
     with db.connect() as c:
-        if not c.execute("select 1 from skill_set where code = 'ADD.2D2D'").fetchone():
+        if not c.execute("select 1 from skill where code = 'ADD.2D2D'").fetchone():
             pytest.skip(
                 "the taxonomy-shaped skills are not loaded here: `engine load`, then `engine bank rehome`"
             )
@@ -105,7 +106,7 @@ def conn():
 def _active(conn, where="true"):
     return conn.execute(
         "select i.skill_set_code, i.difficulty, i.fmt, i.tags, s.difficulty as levels from item i"
-        " join skill_set s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code"
+        " join skill s on s.tenant_id = i.tenant_id and s.code = i.skill_set_code"
         " where i.status = 'active' and " + where
     ).fetchall()
 
@@ -113,7 +114,7 @@ def _active(conn, where="true"):
 def test_easy_is_straight_calculation_of_one_operation(conn):
     rows = _active(
         conn,
-        "i.skill_set_code in (select code from skill_set where difficulty -> 'Easy' -> 'check' ? 'within')",
+        "i.skill_set_code in (select code from skill where difficulty -> 'Easy' -> 'check' ? 'within')",
     )
     for r in rows:
         if r["difficulty"] == "Advance":
@@ -133,7 +134,7 @@ def test_only_advance_mixes_kinds_of_question(conn):
     kinds = {}
     for r in _active(
         conn,
-        "i.skill_set_code in (select code from skill_set where difficulty -> 'Easy' -> 'check' ? 'within')",
+        "i.skill_set_code in (select code from skill where difficulty -> 'Easy' -> 'check' ? 'within')",
     ):
         kinds.setdefault((r["skill_set_code"], r["difficulty"]), set()).add(r["fmt"])
     assert all(k <= CALCULATION for (_, level), k in kinds.items() if level != "Advance")
@@ -150,14 +151,11 @@ def test_every_taxonomy_case_has_a_place(conn):
 
 def test_every_question_moves_to_the_level_its_numbers_put_it_in_and_the_old_ladder_is_gone(conn):
     old = sorted(rehome.replaced())
-    assert not conn.execute("select 1 from skill_set where code = any(%s)", (old,)).fetchone()
+    assert not conn.execute("select 1 from skill where code = any(%s)", (old,)).fetchone()
     assert not conn.execute("select 1 from item where skill_set_code = any(%s)", (old,)).fetchone()
-    assert not conn.execute(
-        "select 1 from rung r where not exists (select 1 from skill_set s where s.rung_code = r.code)"
-    ).fetchone(), "every rung left is a skill's"
     assert cases.outside_their_level(conn) == []
     again = rehome.rehome(conn)
-    assert (sum(again["moved"].values()), again["removed_sets"], again["removed_rungs"]) == (0, [], [])
+    assert (sum(again["moved"].values()), again["removed_sets"]) == (0, [])
 
 
 def test_worksheets_are_built_one_skill_and_one_level_each(conn):
@@ -169,17 +167,17 @@ def test_worksheets_are_built_one_skill_and_one_level_each(conn):
     assert bad == []
     built = conn.execute(
         "select count(distinct (t.skill_set_code, t.difficulty)) as n from sheet_template t"
-        " join skill_set s on s.code = t.skill_set_code where t.source = 'library' and t.retired_at is null"
+        " join skill s on s.code = t.skill_set_code where t.source = 'library' and t.retired_at is null"
         " and s.difficulty -> 'Easy' -> 'check' ? 'within'"
     ).fetchone()["n"]
     levels = conn.execute(
-        "select count(*) as n from skill_set s, jsonb_object_keys(s.difficulty) k"
+        "select count(*) as n from skill s, jsonb_object_keys(s.difficulty) k"
         " where s.difficulty -> 'Easy' -> 'check' ? 'within'"
     ).fetchone()["n"]
     assert built == levels
     assert not conn.execute(
         "select 1 from sheet_template t where t.source = 'library' and t.retired_at is null"
-        " and not exists (select 1 from skill_set s where s.code = t.skill_set_code)"
+        " and not exists (select 1 from skill s where s.code = t.skill_set_code)"
     ).fetchone(), "no worksheet in the library is of a skill that is gone"
 
 
@@ -271,16 +269,14 @@ def test_an_old_story_whose_shape_is_unnamed_goes_to_its_skill_retired_and_only_
     assert [r["item_key"] for r, _ in homeless] == ["sum"]
 
 
-def test_a_rung_no_skill_and_no_question_holds_is_removed(conn):
+def test_no_rung_is_left_without_a_skill(conn):
     """Found 2026-10-12 on a copy of live: rung R9 of the old ladder stayed because one stale paper question pointed at
-    it; once nothing holds a rung, it goes, whatever ladder it was on (`engine audit`: every rung has a spec)."""
-    conn.execute(
-        "insert into rung (tenant_id, code, band, ladder_order, descriptor, skill_codes, milestone_id)"
-        " select tenant_id, 'TEST.ORPHAN', band, null, descriptor, skill_codes, milestone_id from rung"
-        " where code = (select rung_code from skill_set where code = 'SUB.3D2D')"
-    )
-    held = conn.execute("select rung_code from skill_set where code = 'SUB.3D2D'").fetchone()["rung_code"]
-    out = rehome.rehome(conn)
-    assert "TEST.ORPHAN" in out["removed_rungs"]
-    left = {r["code"] for r in conn.execute("select code from rung")}
-    assert "TEST.ORPHAN" not in left and held in left
+    it, and rehome had to remove it. Since B4 a rung is a skill's second code (goals/b4-the-rung-folded-in.yaml): there
+    is no rung apart from its skill to be left behind, and a question naming a rung no skill holds is refused."""
+    item = conn.execute("select id from item limit 1").fetchone()["id"]
+    with pytest.raises(psycopg.errors.ForeignKeyViolation), conn.transaction():
+        conn.execute("update item set rung_code = 'TEST.ORPHAN' where id = %s", (item,))
+    held = conn.execute("select rung_code from skill where code = 'SUB.3D2D'").fetchone()["rung_code"]
+    with pytest.raises(psycopg.errors.ForeignKeyViolation), conn.transaction():
+        conn.execute("delete from skill where code = 'SUB.3D2D'")
+    assert conn.execute("select 1 from item where rung_code = %s", (held,)).fetchone()

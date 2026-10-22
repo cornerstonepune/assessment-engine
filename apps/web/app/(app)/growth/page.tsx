@@ -9,9 +9,7 @@ import { deadline } from "@/lib/deadline";
 import { ColourKeyLine } from "@/components/colour-key";
 import { colourRules } from "@/lib/colours";
 import { childStates } from "@/lib/states";
-import { ChildFinder } from "./finder";
 import { reportRank, reportWaits, reportWords } from "@/lib/queries-reports";
-import { topics } from "@/lib/queries-people";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -20,19 +18,28 @@ const helpRank = (h: ChildRow["help"]) => (!h ? 2 : h.rag === "red" ? 0 : 1);
 const byRoll = () => 0;
 
 // Each column, in order: its heading, how it sorts and which way, as a screen reader says it ("other" where the order is
-// what needs doing first, rather than smallest or largest), and whether a phone folds it away (`wide`): there the child
-// and what they need help on are what matters, and a click opens the child for the rest.
+// what needs doing first, rather than smallest or largest), whether a phone folds it away (`wide`): there the child
+// and what they need help on are what matters, and a click opens the child for the rest; and when a child has anything
+// to put in it (`has`): a column of noughts and dashes is not shown (goals/ux10-declutter.yaml).
 type Dir = "ascending" | "descending" | "other";
-type Column = { key: string; label: string; num?: boolean; wide?: boolean; dir: Dir; by: (a: ChildRow, b: ChildRow) => number };
+type Column = {
+  key: string;
+  label: string;
+  num?: boolean;
+  wide?: boolean;
+  dir: Dir;
+  by: (a: ChildRow, b: ChildRow) => number;
+  has: (c: ChildRow) => boolean;
+};
 const COLUMNS: Column[] = [
-  { key: "roll", label: "Roll", dir: "ascending", by: byRoll },
-  { key: "name", label: "Child", dir: "ascending", by: (a, b) => a.first_name.localeCompare(b.first_name) },
-  { key: "help", label: "Needs help on", dir: "other", by: (a, b) => helpRank(a.help) - helpRank(b.help) },
-  { key: "needs", label: "Needs help", num: true, wide: true, dir: "descending", by: (a, b) => b.needs_help - a.needs_help },
-  { key: "amber", label: "Practising", num: true, wide: true, dir: "descending", by: (a, b) => b.amber - a.amber },
-  { key: "green", label: "Secure", num: true, wide: true, dir: "descending", by: (a, b) => b.green - a.green },
-  { key: "waiting", label: "Waiting on you", num: true, wide: true, dir: "descending", by: (a, b) => b.waiting - a.waiting },
-  { key: "report", label: "Parent report", wide: true, dir: "other", by: (a, b) => reportRank(a.report) - reportRank(b.report) },
+  { key: "roll", label: "Roll", dir: "ascending", by: byRoll, has: () => true },
+  { key: "name", label: "Child", dir: "ascending", by: (a, b) => a.first_name.localeCompare(b.first_name), has: () => true },
+  { key: "help", label: "Needs help on", dir: "other", by: (a, b) => helpRank(a.help) - helpRank(b.help), has: (c) => !!c.help },
+  { key: "needs", label: "Needs help", num: true, wide: true, dir: "descending", by: (a, b) => b.needs_help - a.needs_help, has: (c) => c.needs_help > 0 },
+  { key: "amber", label: "Practising", num: true, wide: true, dir: "descending", by: (a, b) => b.amber - a.amber, has: (c) => c.amber > 0 },
+  { key: "green", label: "Secure", num: true, wide: true, dir: "descending", by: (a, b) => b.green - a.green, has: (c) => c.green > 0 },
+  { key: "waiting", label: "Waiting on you", num: true, wide: true, dir: "descending", by: (a, b) => b.waiting - a.waiting, has: (c) => c.waiting > 0 },
+  { key: "report", label: "Parent report", wide: true, dir: "other", by: (a, b) => reportRank(a.report) - reportRank(b.report), has: (c) => reportWaits(c.report) },
 ];
 const FOLD = "max-sm:hidden";
 
@@ -44,8 +51,9 @@ function Report({ r }: { r: ChildRow["report"] }) {
   return <Pill tone={tone}>{short}</Pill>;
 }
 
+// a number only where someone must act on it: a nought is left blank
 function Count({ n }: { n: number }) {
-  return <span className={n ? undefined : "text-basalt/40"}>{n}</span>;
+  return n ? <span>{n}</span> : null;
 }
 
 /** One class: its line says what waits in it; open, its children, those who need help first. */
@@ -57,6 +65,7 @@ function ClassGroup({ section, kids, open, sort, href }: {
   href: (sort: string) => string;
 }) {
   const shown = [...kids].sort(sort.by);
+  const columns = COLUMNS.filter((c) => kids.some(c.has));
   const needHelp = kids.filter((c) => c.needs_help > 0).length;
   const waiting = kids.reduce((n, c) => n + c.waiting, 0);
   const reports = kids.filter((c) => reportWaits(c.report)).length;
@@ -81,14 +90,11 @@ function ClassGroup({ section, kids, open, sort, href }: {
         <span className="font-semibold text-basalt">{section}</span>
         <span className="text-basalt/70">· {[many(kids.length, "child", "children"), ...waits].join(" · ")}</span>
       </summary>
-      <p className="mb-2 text-[12.5px]">
-        <Link href={`/growth/class/${encodeURIComponent(section)}`}>{section} against every skill →</Link>
-      </p>
-      <div className="overflow-x-auto pb-3">
+      <div className="overflow-x-auto pb-1">
         <table className="grid" aria-label={`${section}: its children`} data-children>
           <thead>
             <tr>
-              {COLUMNS.map((c) => (
+              {columns.map((c) => (
                 <th
                   key={c.key}
                   className={`${c.num ? "num" : ""} ${c.wide ? FOLD : ""}`}
@@ -112,77 +118,114 @@ function ClassGroup({ section, kids, open, sort, href }: {
                 data-roll={r.roll_no}
                 className="relative cursor-pointer hover:bg-basalt/3"
               >
-                <td className="fact">{r.roll_no}</td>
-                <td>
-                  {/* the one link of the row, stretched over all of it: a click anywhere opens the child */}
-                  <Link
-                    href={`/growth/${r.id}`}
-                    className="font-medium after:absolute after:inset-0 after:content-['']"
-                  >
-                    {r.first_name}
-                  </Link>
-                </td>
-                <td>
-                  {r.help ? (
-                    <span className="inline-flex items-start gap-2">
-                      <span
-                        aria-hidden="true"
-                        className={`mt-[5px] h-[9px] w-[9px] shrink-0 rounded-full ${r.help.rag === "red" ? "bg-terracotta" : "bg-bamboo"}`}
-                      />
-                      <span>
-                        {r.help.name}
-                        {r.help.mistake ? <span className="block text-[12px] text-basalt/65">{r.help.mistake}</span> : null}
-                      </span>
-                    </span>
-                  ) : (
-                    <span className="text-basalt/45">—</span>
-                  )}
-                </td>
-                <td className={`num ${FOLD}`}>
-                  <Count n={r.needs_help} />
-                </td>
-                <td className={`num ${FOLD}`}>
-                  <Count n={r.amber} />
-                </td>
-                <td className={`num ${FOLD}`}>
-                  <Count n={r.green} />
-                </td>
-                <td className={`num ${FOLD}`}>
-                  <Count n={r.waiting} />
-                </td>
-                <td className={FOLD}>
-                  <Report r={r.report} />
-                </td>
+                {columns.map((c) => {
+                  if (c.key === "roll") return <td key={c.key} className="fact">{r.roll_no}</td>;
+                  if (c.key === "name") {
+                    return (
+                      <td key={c.key}>
+                        {/* the one link of the row, stretched over all of it: a click anywhere opens the child */}
+                        <Link href={`/growth/${r.id}`} className="font-medium after:absolute after:inset-0 after:content-['']">
+                          {r.first_name}
+                        </Link>
+                      </td>
+                    );
+                  }
+                  if (c.key === "help") {
+                    return (
+                      <td key={c.key}>
+                        {r.help ? (
+                          <span className="inline-flex items-start gap-2">
+                            <span
+                              aria-hidden="true"
+                              className={`mt-[5px] h-[9px] w-[9px] shrink-0 rounded-full ${r.help.rag === "red" ? "bg-terracotta" : "bg-bamboo"}`}
+                            />
+                            <span>
+                              {r.help.name}
+                              {r.help.mistake ? <span className="block text-[12px] text-basalt/65">{r.help.mistake}</span> : null}
+                            </span>
+                          </span>
+                        ) : null}
+                      </td>
+                    );
+                  }
+                  if (c.key === "report") {
+                    return (
+                      <td key={c.key} className={FOLD}>
+                        <Report r={r.report} />
+                      </td>
+                    );
+                  }
+                  const n = { needs: r.needs_help, amber: r.amber, green: r.green, waiting: r.waiting }[c.key] ?? 0;
+                  return (
+                    <td key={c.key} className={`num ${FOLD}`}>
+                      <Count n={n} />
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <p className="pb-3 text-[12px] text-basalt/55">
+        <Link href={`/growth/class/${encodeURIComponent(section)}`} className="text-basalt/55">
+          {section} against every skill →
+        </Link>
+      </p>
     </details>
   );
 }
 
-// Children (goals/ux3-children-grouped.yaml): one group per class, under its grade. An educator's own classes open; the
-// coordinator's every class closed, each saying in one line what waits in it. Their standing is every taught topic's, or
-// one topic's, chosen at the top (goals/ui4b2-class-by-topic.yaml). A class still opens against every skill
-// (goals/u2-children.yaml).
+// The children who need the educator, as a short list that leads the page: help first (red before waiting answers), then
+// whoever has answers waiting. A child with nothing for the educator to do is not on it (goals/ux10-declutter.yaml).
+const LEAD = 8;
+function NeedYou({ rows }: { rows: ChildRow[] }) {
+  const need = rows
+    .filter((c) => c.needs_help > 0 || c.waiting > 0)
+    .sort((a, b) => Number(b.needs_help > 0) - Number(a.needs_help > 0) || b.waiting - a.waiting || a.first_name.localeCompare(b.first_name));
+  return (
+    <section aria-label="Children who need you" className="panel">
+      <div className="panel-head">
+        <h2 className="text-[16px]">Children who need you</h2>
+      </div>
+      {need.length ? (
+        <ul className="panel-body grid gap-2 text-[13.5px]">
+          {need.slice(0, LEAD).map((c) => (
+            <li key={c.id} className="flex flex-wrap items-baseline gap-x-2">
+              <Link href={`/growth/${c.id}`} className="font-medium">
+                {c.first_name}
+              </Link>
+              <span className="text-basalt/60">{c.section}</span>
+              <span className="text-basalt/80">
+                {[c.needs_help > 0 && c.help ? `needs help on ${c.help.name}` : "", c.waiting ? `${many(c.waiting, "answer")} waiting` : ""]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
+            </li>
+          ))}
+          {need.length > LEAD ? <li className="text-basalt/60">and {need.length - LEAD} more, in their classes below</li> : null}
+        </ul>
+      ) : (
+        <p className="note panel-body">Nobody needs you right now.</p>
+      )}
+    </section>
+  );
+}
+
+// Children (goals/ux3-children-grouped.yaml, ux10-declutter.yaml): the children who need the educator first, then one
+// group per class, under its grade. An educator's own classes open; the coordinator's every class closed, each saying in
+// one line what waits in it. A class's table shows only the columns with something in them; a class still opens against
+// every skill (goals/u2-children.yaml). Finding a child is the bar at the top's (goals/s1-subject-class-and-today.yaml).
 export default async function ChildrenPage({ searchParams }: Props) {
   const me = await requireStaff();
   const scope = scopeOf(me);
   const q = await searchParams;
   const sort = COLUMNS.find((c) => c.key === q.sort) ?? COLUMNS.find((c) => c.key === "help")!;
-  const taught = (await deadline(topics(scope))).filter((t) => t.shown);
-  // only a topic that is taught narrows the table; any other word is every topic
-  const topic = taught.find((t) => t.code === q.topic) ?? null;
-  const [rows, rules, school, states] = await deadline(
-    Promise.all([childTable(me.email, topic?.code ?? null, scope), colourRules(), schoolGrades(), childStates()]),
-  );
+  const [rows, rules, school, states] = await deadline(Promise.all([childTable(me.email, null, scope), colourRules(), schoolGrades(), childStates()]));
   // a class sorted stays open: the coordinator's classes open one by one, and a sort is a new page
   const opened = q.open ?? null;
-  const href = (to: { sort?: string; topic?: string | null; open?: string }) => {
+  const href = (to: { sort?: string; open?: string }) => {
     const p = new URLSearchParams();
-    const t = to.topic === undefined ? topic?.code : to.topic;
-    if (t) p.set("topic", t);
     const s = to.sort ?? sort.key;
     if (s !== "help") p.set("sort", s);
     if (to.open && !own) p.set("open", to.open);
@@ -198,63 +241,54 @@ export default async function ChildrenPage({ searchParams }: Props) {
       <PageHeader
         stage="Children"
         title="Children"
-        sub={
-          own
-            ? "Your classes, the children who need help first: what each needs help on, what waits on you, and their parent report. Click a child to open them."
-            : "Every class, grade by grade. Each line says what waits in that class; open it to see its children, the ones who need help first."
-        }
+        sub={own ? "Your classes. The children who need you come first." : "Every class, grade by grade. The children who need you come first."}
       />
       <Body>
-        <nav aria-label="Topic" className="mb-3 flex flex-wrap gap-2">
-          <Link href={href({ topic: null })} className={`chip ${!topic ? "on" : ""}`} aria-current={!topic ? "page" : undefined}>
-            All topics
-          </Link>
-          {taught.map((t) => (
-            <Link
-              key={t.code}
-              href={href({ topic: t.code })}
-              className={`chip ${topic?.code === t.code ? "on" : ""}`}
-              aria-current={topic?.code === t.code ? "page" : undefined}
-            >
-              {t.name}
-            </Link>
-          ))}
-        </nav>
-        {grades.length === 0 ? <p className="note">No child is on the roll yet.</p> : <ChildFinder within="children" />}
-        <div id="children" className="grid grid-cols-[minmax(0,1fr)] gap-[18px]">
-          {grades.map((band) => {
-            const children = rows.filter((r) => r.band === band);
-            const classes = [...new Set(children.map((r) => r.section))];
-            return (
-              <section key={band} aria-label={school.name(band)} className="panel">
-                <div className="panel-head">
-                  <h2 className="text-[16px]">{school.name(band)}</h2>
-                  <div className="fact text-[11px] text-basalt/55">
-                    {many(classes.length, "class", "classes")} · {many(children.length, "child", "children")}
+        {grades.length === 0 ? (
+          <p className="note">No child is on the roll yet.</p>
+        ) : (
+          <div id="children" className="grid grid-cols-[minmax(0,1fr)] gap-[18px]">
+            <NeedYou rows={rows} />
+            {grades.map((band) => {
+              const children = rows.filter((r) => r.band === band);
+              const classes = [...new Set(children.map((r) => r.section))];
+              return (
+                <section key={band} aria-label={school.name(band)} className="panel">
+                  <div className="panel-head">
+                    <h2 className="text-[16px]">{school.name(band)}</h2>
+                    <div className="fact text-[11px] text-basalt/55">
+                      {many(classes.length, "class", "classes")} · {many(children.length, "child", "children")}
+                    </div>
                   </div>
-                </div>
-                {classes.map((s) => (
-                  <ClassGroup
-                    key={s}
-                    section={s}
-                    kids={children.filter((r) => r.section === s)}
-                    open={own || s === opened}
-                    sort={sort}
-                    href={(key) => href({ sort: key, open: s })}
-                  />
-                ))}
-              </section>
-            );
-          })}
-          <p className="note">
-            From checked papers only{topic ? `, in ${topic.name} alone` : ", across every topic switched on"}. &ldquo;Needs help on&rdquo; is
-            a skill the child is at &ldquo;{states.colours.red.count_words}&rdquo; on where they have one, else one they are at
-            &ldquo;{states.colours.amber.count_words}&rdquo; on, with the mistake they repeat there; its dot is that colour.
-            &ldquo;Waiting on you&rdquo; is their answers the reader could not settle. A parent report shows here only when it waits to be
-            approved or is out of date.
-          </p>
-          <ColourKeyLine rules={rules} states={states} />
-        </div>
+                  {classes.map((s) => (
+                    <ClassGroup
+                      key={s}
+                      section={s}
+                      kids={children.filter((r) => r.section === s)}
+                      open={own || s === opened}
+                      sort={sort}
+                      href={(key) => href({ sort: key, open: s })}
+                    />
+                  ))}
+                </section>
+              );
+            })}
+            {/* the reading of the table and the key to its colours: put away until asked for */}
+            <details className="text-[12px] text-basalt/65">
+              <summary className="cursor-pointer text-basalt/55 underline underline-offset-2">Details</summary>
+              <div className="mt-3 grid gap-3">
+                <p className="note">
+                  From checked papers only, across every topic switched on. &ldquo;Needs help on&rdquo; is a skill the child is at
+                  &ldquo;{states.colours.red.count_words}&rdquo; on where they have one, else one they are at &ldquo;
+                  {states.colours.amber.count_words}&rdquo; on, with the mistake they repeat there; its dot is that colour.
+                  &ldquo;Waiting on you&rdquo; is their answers the reader could not settle. A parent report shows here only when it waits
+                  to be approved or is out of date. A column with nothing in it for a class is left out.
+                </p>
+                <ColourKeyLine rules={rules} states={states} />
+              </div>
+            </details>
+          </div>
+        )}
       </Body>
     </>
   );

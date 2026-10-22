@@ -145,8 +145,8 @@ test("the skill map places the grade's skill sets and one step either side, colo
   // skill set on the ladder; and any the child has answers on
   const sets = await sql<{ code: string }[]>`
     with taught as (
-      select ss.code, left(r.band, 2) as band, r.skill_codes[1] as lane, r.ladder_order, r.code as rung
-      from skill_set ss join topic t on t.code = ss.topic_code and ss.taught join rung r on r.code = ss.rung_code
+      select ss.code, left(ss.grade, 2) as band, ss.registry_codes[1] as lane, ss.ladder_order, ss.rung_code as rung
+      from skill ss join topic t on t.code = ss.topic_code and ss.taught
       where ss.status is distinct from 'retired'),
     ends as (
       select code, band, row_number() over (partition by lane, band order by ladder_order desc) as from_top,
@@ -163,10 +163,9 @@ test("the skill map places the grade's skill sets and one step either side, colo
   expect(shown.sort()).toEqual(sets.map((s) => s.code).sort());
 
   const states = await sql<{ code: string; state: string }[]>`
-    select ss.code, s.state from child_skill_state s join skill_set ss on ss.rung_code = s.rung_code
-    join rung r on r.code = s.rung_code
-    -- a skill set is coloured by the skills its own rung practises; another skill a question also tests is not it
-    where s.child_id = ${id}::uuid and s.n_events > 0 and s.skill_code = any(r.skill_codes)`;
+    select ss.code, s.state from child_skill_state s join skill ss on ss.rung_code = s.rung_code
+    -- a skill set is coloured by the skills it practises itself; another skill a question also tests is not it
+    where s.child_id = ${id}::uuid and s.n_events > 0 and s.skill_code = any(ss.registry_codes)`;
   expect(states.length).toBe(3);
   for (const s of states)
     await expect(map.locator(`g[data-node="${s.code}"]`)).toHaveAttribute(
@@ -273,7 +272,7 @@ test("what goes well is named first, with its score, and the habit of showing wo
 }) => {
   const [add] = await sql<
     { name: string }[]
-  >`select name from skill_set where code = 'ADD.2D1D'`;
+  >`select name from skill where code = 'ADD.2D1D'`;
   await page.goto(`/growth/${id}/report`);
   const well = page.getByTestId("going-well");
   await expect(well).toContainText(add.name);

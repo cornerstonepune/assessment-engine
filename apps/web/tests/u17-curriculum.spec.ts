@@ -41,9 +41,9 @@ test("a skill's page is in five parts, its worksheets one level at a time, and n
 test("a skill is approved on its own, from skills grouped by grade", async ({ page }) => {
   const codes = ["ADD.2D2D", "SUB.2D2D"];
   const before = await sql<{ code: string; name: string; status: string; ratified_by: string | null; version: number }[]>`
-    select code, name, status, ratified_by, version from skill_set where code = any(${codes}) order by code`;
+    select code, name, status, ratified_by, version from skill where code = any(${codes}) order by code`;
   try {
-    await sql`update skill_set set status = 'draft', ratified_by = null where code = any(${codes})`;
+    await sql`update skill set status = 'draft', ratified_by = null where code = any(${codes})`;
     await page.goto("/skill-sets/approve");
     // the grades are a choice at the top, each skill a row of the table (goals/ui6a-approve-filtered.yaml)
     await expect(page.getByRole("navigation", { name: "Grade" }).getByRole("link", { name: /^Grade 2/ })).toBeVisible();
@@ -52,21 +52,21 @@ test("a skill is approved on its own, from skills grouped by grade", async ({ pa
     await expect(page).toHaveURL(/\/skill-sets\/approve\?approved=1$/);
     await expect(page.getByRole("status").filter({ hasText: "Approved, in your name." })).toBeVisible();
     const after = await sql<{ code: string; status: string; ratified_by: string | null }[]>`
-      select code, status, ratified_by from skill_set where code = any(${codes}) order by code`;
+      select code, status, ratified_by from skill where code = any(${codes}) order by code`;
     expect(after).toEqual([
       { code: "ADD.2D2D", status: "ratified", ratified_by: TEST_STAFF.name },
       { code: "SUB.2D2D", status: "draft", ratified_by: null },
     ]);
 
     // a skill changed by someone else after the page was opened is not approved, and the page says so
-    await sql`update skill_set set version = version + 1 where code = 'SUB.2D2D'`;
+    await sql`update skill set version = version + 1 where code = 'SUB.2D2D'`;
     await page.locator('tr[data-row="SUB.2D2D"]').getByRole("button", { name: `Approve, as ${TEST_STAFF.name}` }).click();
     await expect(page.getByRole("status").filter({ hasText: "Nothing was approved" })).toBeVisible();
-    const [still] = await sql<{ status: string }[]>`select status from skill_set where code = 'SUB.2D2D'`;
+    const [still] = await sql<{ status: string }[]>`select status from skill where code = 'SUB.2D2D'`;
     expect(still.status).toBe("draft");
   } finally {
     for (const s of before) {
-      await sql`update skill_set set status = ${s.status}, ratified_by = ${s.ratified_by}, version = ${s.version} where code = ${s.code}`;
+      await sql`update skill set status = ${s.status}, ratified_by = ${s.ratified_by}, version = ${s.version} where code = ${s.code}`;
     }
   }
 });
@@ -77,7 +77,7 @@ test("a topic is switched on only after the person has read what it does", async
   const [topic] = await sql<{ name: string; taught: boolean }[]>`select name, taught_in(tenant_id, code, null) as taught from topic where code = 'DIV'`;
   expect(topic.taught, "division waits for an educator's word").toBe(false);
   try {
-    await page.goto("/");
+    await page.goto("/?taught=1");
     const row = page.getByRole("region", { name: "Not taught yet", exact: true }).getByRole("listitem").filter({ hasText: topic.name });
     const confirm = row.getByRole("button", { name: `Taught in ${CLASS}, as ${TEST_STAFF.name}`, includeHidden: true });
     await expect(confirm).toHaveCount(1);
@@ -86,7 +86,7 @@ test("a topic is switched on only after the person has read what it does", async
     await expect(row).toContainText("No other class changes");
     await confirm.click();
     await expect(page.getByRole("main")).toContainText(`${topic.name} is taught in ${CLASS} now`);
-    const [now] = await sql<{ taught: boolean }[]>`select bool_and(taught) as taught from class_skill where section = ${CLASS} and skill_set_code in (select code from skill_set where topic_code = 'DIV')`;
+    const [now] = await sql<{ taught: boolean }[]>`select bool_and(taught) as taught from class_skill where section = ${CLASS} and skill_set_code in (select code from skill where topic_code = 'DIV')`;
     expect(now.taught).toBe(true);
   } finally {
     await sql`delete from class_skill where section = ${CLASS}`;
@@ -109,7 +109,7 @@ test("each question the engine drafted is one line until it is opened", async ({
 test("the question bank finds a question by its words, within the choices made", async ({ page }) => {
   // the bank's questions: generated, live, of a taught skill — the same rule the page's own query keeps
   const bank = sql`i.source = 'generated' and i.status = 'active' and exists (
-    select 1 from skill_set s join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code and s.taught
+    select 1 from skill s join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code and s.taught
     where s.tenant_id = i.tenant_id and s.code = i.skill_set_code)`;
   const [{ stem }] = await sql<{ stem: string }[]>`
     select i.stem from item i where ${bank} and i.stem ~ '[A-Za-z]{6,}' order by i.item_key limit 1`;

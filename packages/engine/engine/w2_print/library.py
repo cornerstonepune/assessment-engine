@@ -139,11 +139,10 @@ def _levels(conn, only=None):
         " array(select q.fmt from skill_level_question_type x join question_type q on q.tenant_id = x.tenant_id"
         "   and q.code = x.question_type where x.tenant_id = l.tenant_id and x.skill_code = l.skill_code"
         "   and x.difficulty = l.difficulty and x.place is not null group by q.fmt order by min(x.place)) as kinds"
-        " from skill_set s"
-        " join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
+        " from skill s"
         " join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code"
         " where (%s::text is null or s.code = %s) and (%s::text is null or l.difficulty = %s)"
-        " order by r.ladder_order nulls last, s.code, l.difficulty",
+        " order by s.ladder_order nulls last, s.code, l.difficulty",
         (code, code, difficulty, difficulty),
     ).fetchall()
 
@@ -338,7 +337,7 @@ def pdf(conn, code, layout=None):
     t = conn.execute(
         "select t.id, t.band, t.difficulty, t.variant, t.item_ids, coalesce(s.name, t.skill_set_code) as name"
         " from sheet_template t"
-        " left join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code"
+        " left join skill s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code"
         " where t.source = 'library' and t.code = %s",
         (code,),
     ).fetchone()
@@ -355,5 +354,5 @@ def pdf(conn, code, layout=None):
 
 def printed(conn, code):
     """{layout name: the worksheet drawn in it}, today's first: every way a copy of it may have been printed. A
-    copy scanned back is read in the one its page matches (`boxes.as_printed`)."""
+    copy scanned back is read in the one its page matches (`placing.as_printed`)."""
     return {layout["name"]: pdf(conn, code, layout) for layout in reversed(layouts(conn))}

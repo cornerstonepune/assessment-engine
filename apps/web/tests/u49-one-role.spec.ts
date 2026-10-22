@@ -6,8 +6,8 @@
  * An educator of one class of the test's own, and the coordinator (the suite's own sign-in), open the same pages: every
  * page the menu, Today and the class pages lead to, another class's and its child's among them. On each, every action
  * the coordinator is offered — each button, link, field and column, whether a section is open or folded — the educator
- * is offered too, and no page refuses them. Their own class and grade are where pages open; "See every class" in the
- * menu, one tap, shows every class as the coordinator sees them, and that is what is compared.
+ * is offered too, and no page refuses them. Their own class and grade are where pages open; "Every class" in the
+ * bar at the top, one choice, shows every class as the coordinator sees them, and that is what is compared.
  */
 import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
@@ -30,7 +30,7 @@ test.beforeAll(async () => {
   const other = await aClass(sql, OTHER, "G3", ["Kavi", "Lata"]);
   const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`update config set value = ${others} || ${sql.json([{ ...EDUCATOR, password }])} where key = 'app.staff'`;
-  const [{ code: draft }] = await sql<{ code: string }[]>`select code from skill_set order by status = 'ratified', code limit 1`;
+  const [{ code: draft }] = await sql<{ code: string }[]>`select code from skill order by status = 'ratified', code limit 1`;
   pages = [
     // a page that opens on the person's own grade is compared at "Every grade", its one tap
     "/today", "/", "/papers", "/growth", "/asks", "/library?grade=all", "/worksheets?grade=all", "/worksheets/taxonomy", "/skill-sets/approve",
@@ -50,9 +50,12 @@ async function asEducator(browser: Browser): Promise<Page> {
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
   await expect(page).toHaveURL(/\/today$/);
-  // their own class first; every class one tap away in the menu, as the coordinator sees them
-  await page.getByRole("complementary").getByRole("button", { name: "See every class" }).click();
-  await expect(page.getByRole("complementary").getByRole("button", { name: "See your classes first" })).toBeVisible();
+  // their own class first; every class one choice away in the bar at the top, as the coordinator sees them
+  await Promise.all([
+    page.waitForResponse((r) => r.request().method() === "POST"),
+    page.getByRole("search", { name: "Subject, class and search" }).getByLabel("Class").selectOption("every"),
+  ]);
+  await page.waitForLoadState("networkidle");
   return page;
 }
 
@@ -100,7 +103,7 @@ test("an educator reaches every page and every action the coordinator does", asy
 
 test("an educator takes a decision once the coordinator's alone: approving a skill", async ({ browser }) => {
   // a skill waiting for approval (`aWaitingSkill`), put back as it was after
-  const [waiting] = await sql<{ code: string }[]>`select code from skill_set order by code limit 1`;
+  const [waiting] = await sql<{ code: string }[]>`select code from skill order by code limit 1`;
   const putBack = await aWaitingSkill(sql, waiting.code);
   const educator = await asEducator(browser);
   try {

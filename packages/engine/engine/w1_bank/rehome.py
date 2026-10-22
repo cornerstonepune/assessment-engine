@@ -5,8 +5,8 @@ taxonomy's own cases on those numbers. The seed says which old skill sets each n
 
 Nothing is regenerated. Where a question belongs follows from what it is — its measured tags — and the map
 (`assess/placing.py`), exactly as its taxonomy cases do (ADR 0030): every question of an old skill set, in use or
-retired, moves to its skill and level; an old paper's sums move to their skill's rung. Then the old skill sets,
-their rule history and the old rungs nothing names any more are deleted, and their library worksheets retired:
+retired, moves to its skill and level; an old paper's sums move to their skill's rung. Then the old skill sets
+and their rule history are deleted (a rung is a skill's second code since B4), and their library worksheets retired:
 a worksheet keeps its questions and says which skill set it was made for, since a copy may be in a child's
 hands. A child's recorded answers are never touched (rule 4) — the graph reads them through their questions
 (`evidence_placed`). A question with no place stops the run and names itself: the map is wrong, and nothing is
@@ -34,7 +34,7 @@ def shaped(conn):
     """The skills that have a shape, with their levels' checks and rung."""
     return placing.shaped(
         conn.execute(
-            f"select s.code, s.rung_code, s.version, {levels.LEVELS} as difficulty from skill_set s order by s.code"
+            f"select s.code, s.rung_code, s.version, {levels.LEVELS} as difficulty from skill s order by s.code"
         ).fetchall()
     )
 
@@ -64,7 +64,7 @@ def sort_out(rows, skills, case_matches):
 
 def rehome(conn):
     """Move every question of the replaced skill sets, then remove the old ladder. The caller commits.
-    Returns {'moved': Counter{(skill, level)}, 'old_papers': n, 'removed_sets': [...], 'removed_rungs': [...]}."""
+    Returns {'moved': Counter{(skill, level)}, 'old_papers': n, 'removed_sets': [...]}."""
     old = sorted(replaced())
     skills, case_matches = shaped(conn), cases.matches(conn)
     rows = conn.execute(
@@ -105,26 +105,13 @@ def rehome(conn):
     )
     conn.execute("delete from skill_set_version where code = any(%s)", (old,))
     removed_sets = [
-        r["code"] for r in conn.execute("delete from skill_set where code = any(%s) returning code", (old,))
-    ]
-    # the replaced sets' rungs, and any other rung nothing holds any more — no skill, no question, no answer placed on
-    # it: R9 of the old ladder outlived it because one stale paper question pointed at it (goals/l2-live-audit-clean.yaml)
-    removed_rungs = [
-        r["code"]
-        for r in conn.execute(
-            "delete from rung r where"
-            " not exists (select 1 from item i where i.tenant_id = r.tenant_id and i.rung_code = r.code)"
-            " and not exists (select 1 from skill_set s where s.tenant_id = r.tenant_id and s.rung_code = r.code)"
-            " and not exists (select 1 from evidence_placed e where e.tenant_id = r.tenant_id and e.placed_rung = r.code)"
-            " returning code"
-        )
+        r["code"] for r in conn.execute("delete from skill where code = any(%s) returning code", (old,))
     ]
     return {
         "moved": moved,
         "retired": Counter(s["code"] for _, s in unlevelled),
         "old_papers": old_papers,
         "removed_sets": removed_sets,
-        "removed_rungs": removed_rungs,
     }
 
 

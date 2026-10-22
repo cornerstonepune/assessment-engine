@@ -18,7 +18,7 @@ export async function chargesTable(): Promise<ChargesTable> {
   const names = pairs.length
     ? await sql<{ code: string; mistake: string; skill: string; skill_name: string }[]>`
         select p.code, p.skill, mistake_name(p.code, p.skill) as mistake,
-               (select k.name from skill k where k.code = p.skill limit 1) as skill_name
+               (select k.name from registry_skill k where k.code = p.skill limit 1) as skill_name
         from jsonb_to_recordset(${sql.json(pairs as never)}::jsonb) as p(kind text, code text, skill text)`
     : [];
   const named = new Map(names.map((n) => [`${n.code}|${n.skill}`, n]));

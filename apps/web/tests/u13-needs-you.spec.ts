@@ -63,9 +63,9 @@ test("an educator switches a topic on, in their name, and its skills are on Curr
   await aClass(sql, CLASS, "G3", ["Mehr", "Neel"]);
   const [topic] = await sql<{ name: string; taught: boolean }[]>`select name, taught_in(tenant_id, code, null) as taught from topic where code = 'DIV'`;
   expect(topic.taught, "division waits for an educator's word").toBe(false);
-  const said = () => sql`select bool_and(taught) as taught, min(taught_by) as taught_by from class_skill where section = ${CLASS} and skill_set_code in (select code from skill_set where topic_code = 'DIV')`;
+  const said = () => sql`select bool_and(taught) as taught, min(taught_by) as taught_by from class_skill where section = ${CLASS} and skill_set_code in (select code from skill where topic_code = 'DIV')`;
   try {
-    await page.goto("/");
+    await page.goto("/?taught=1");
     const off = page.getByRole("region", { name: "Not taught yet", exact: true });
     const row = off.getByRole("listitem").filter({ hasText: topic.name });
     await expect(row).toContainText("2-digit ÷ 1-digit");
@@ -79,7 +79,7 @@ test("an educator switches a topic on, in their name, and its skills are on Curr
     await page.goto("/library?set=DIV.2D1D");
     await expect(page.getByRole("main")).toContainText("2-digit ÷ 1-digit");
     // and said not taught again, in a person's name, it is not
-    await page.goto("/");
+    await page.goto("/?taught=1");
     const on = page.getByRole("region", { name: "Taught", exact: true });
     await on.locator("summary").click(); // saying a class was not taught is folded away from a stray click
     await on
@@ -96,9 +96,9 @@ test("an educator switches a topic on, in their name, and its skills are on Curr
 
 test("a skill is approved before its topic is switched on", async ({ page }) => {
   const [before] = await sql<{ status: string; ratified_by: string | null }[]>`
-    select status, ratified_by from skill_set where code = 'DIV.2D1D'`;
+    select status, ratified_by from skill where code = 'DIV.2D1D'`;
   try {
-    await sql`update skill_set set status = 'draft', ratified_by = null where code = 'DIV.2D1D'`;
+    await sql`update skill set status = 'draft', ratified_by = null where code = 'DIV.2D1D'`;
     await page.goto("/skill-sets/approve");
     await expect(page.locator('tr[data-row="DIV.2D1D"]')).toContainText("Not taught yet");
     const waiting = await page.locator('input[name="code"]').count();
@@ -110,10 +110,10 @@ test("a skill is approved before its topic is switched on", async ({ page }) => 
     await page.getByRole("button", { name: /Approve as written/ }).click();
     await expect(page.getByRole("main")).toContainText(/Approved/);
     const [after] = await sql<{ status: string; ratified_by: string | null }[]>`
-      select status, ratified_by from skill_set where code = 'DIV.2D1D'`;
+      select status, ratified_by from skill where code = 'DIV.2D1D'`;
     expect(after).toEqual({ status: "ratified", ratified_by: TEST_STAFF.name });
   } finally {
-    await sql`update skill_set set status = ${before.status}, ratified_by = ${before.ratified_by} where code = 'DIV.2D1D'`;
+    await sql`update skill set status = ${before.status}, ratified_by = ${before.ratified_by} where code = 'DIV.2D1D'`;
   }
 });
 

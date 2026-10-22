@@ -43,7 +43,7 @@ def where_they_go(conn):
     return (
         skills,
         cases,
-        {r["code"]: r["skill_codes"] for r in conn.execute("select code, skill_codes from rung")},
+        {r["c"]: r["s"] for r in conn.execute("select rung_code c, registry_codes s from skill")},
         conn.execute("select value from config where key = 'skills.by_operation'").fetchone()["value"],
     )
 
@@ -621,12 +621,12 @@ def child_map(conn, child_id):
     per skill set — computed by the same database functions the web app calls."""
     states = conn.execute(
         "select s.rung_code, s.skill_code, s.state, s.n_events, s.n_correct, s.repeating_misconception,"
-        " r.descriptor, r.ladder_order from child_skill_state s join rung r on r.code = s.rung_code"
-        " where s.child_id = %s order by r.ladder_order nulls last",
+        " k.descriptor, k.ladder_order from child_skill_state s join skill k on k.rung_code = s.rung_code"
+        " where s.child_id = %s order by k.ladder_order nulls last",
         (child_id,),
     ).fetchall()
     nxt = conn.execute(
-        "select s.code, s.rung_code, n.difficulty, n.rule, n.targets from skill_set s,"
+        "select s.code, s.rung_code, n.difficulty, n.rule, n.targets from skill s,"
         " lateral next_difficulty(%s, s.code) n order by s.code",
         (child_id,),
     ).fetchall()

@@ -295,11 +295,11 @@ def test_level_with_quotas_draws_each_case_its_own_shortfall_and_spills_only_wha
 def test_top_up_a_second_time_adds_nothing_when_a_case_has_run_out(conn):
     from engine.w1_bank import refill
 
-    before = conn.execute("select difficulty from skill_set where code = 'SUB.3D3D'").fetchone()["difficulty"]
+    before = conn.execute("select difficulty from skill where code = 'SUB.3D3D'").fetchone()["difficulty"]
     # 507 − 8 has hundreds of numbers left; 7 − 7 has nine, all already in the bank
     level = {"words": before["Easy"]["words"], "check": {"cases": ["S20", "S03"]}}
     conn.execute(
-        "update skill_set set difficulty = %s where code = 'SUB.3D3D'",
+        "update skill set difficulty = %s where code = 'SUB.3D3D'",
         (json.dumps(dict(before, Easy=level)),),
     )
     total = conn.execute(
@@ -314,10 +314,10 @@ def test_top_up_a_second_time_adds_nothing_when_a_case_has_run_out(conn):
 def test_fill_cases_fills_a_level_evenly_and_says_which_case_made_each_question(conn):
     from engine.w1_bank import refill
 
-    before = conn.execute("select difficulty from skill_set where code = 'ADD.2D2D'").fetchone()["difficulty"]
+    before = conn.execute("select difficulty from skill where code = 'ADD.2D2D'").fetchone()["difficulty"]
     level = dict(before["Easy"], check={"cases": ["A10", "A11", "A12", "A13"]})
     conn.execute(
-        "update skill_set set difficulty = %s where code = 'ADD.2D2D'",
+        "update skill set difficulty = %s where code = 'ADD.2D2D'",
         (json.dumps(dict(before, Easy=level)),),
     )
     counts, per_case, items = refill.fill_cases(conn, "ADD.2D2D", "Easy", 20)

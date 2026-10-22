@@ -7,6 +7,7 @@
  * off the paper either way.
  */
 import { sql } from "./db";
+import { ownBox } from "./own-box";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { paperName } from "./queries-papers";
 
@@ -167,7 +168,7 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
            coalesce(i.spec ->> 'question', i.stem) as question, result_part(i.responses, r.rid) as part,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
-           (select ss.name from skill_set ss where ss.tenant_id = i.tenant_id and ss.code = i.skill_set_code) as set_name,
+           (select ss.name from skill ss where ss.tenant_id = i.tenant_id and ss.code = i.skill_set_code) as set_name,
            operation_sign(i.spec ->> 'op') as op, i.mistake_skills,
            coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            r.raw_read::jsonb ->> 'child_answer' as read,
@@ -176,8 +177,7 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
            nullif(r.raw_read::jsonb ->> 'guess_by', '') as guess_by,
            r.raw_read::jsonb ->> 'second_read' as second_read,
            (r.raw_read::jsonb ->> 'confidence')::numeric as confidence,
-           case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
-                then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
+           ${ownBox()} as box,
            r.status, r.state, r.working_shown, r.misconception_codes,
            k.human_read, k.by as corrected_by,
            nullif(r.raw_read::jsonb ->> 'guess', '') as guess
@@ -318,7 +318,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
            coalesce(i.spec ->> 'question', i.stem) as question, result_part(i.responses, r.rid) as part,
            coalesce(i.spec ->> 'kind', 'bare') as kind, i.rung_code, i.skill_codes[1] as skill_code,
-           (select ss.name from skill_set ss where ss.tenant_id = i.tenant_id and ss.code = i.skill_set_code) as set_name,
+           (select ss.name from skill ss where ss.tenant_id = i.tenant_id and ss.code = i.skill_set_code) as set_name,
            operation_sign(i.spec ->> 'op') as op, i.mistake_skills,
            coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            r.raw_read::jsonb ->> 'child_answer' as read,
@@ -327,8 +327,7 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
            nullif(r.raw_read::jsonb ->> 'guess_by', '') as guess_by,
            r.raw_read::jsonb ->> 'second_read' as second_read,
            (r.raw_read::jsonb ->> 'confidence')::numeric as confidence,
-           case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
-                then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
+           ${ownBox()} as box,
            r.status, r.state, r.working_shown, r.misconception_codes,
            k.human_read, k.by as corrected_by,
            si.id as paper_id, p.first_name, ${paperName("t")} as paper_title, t.key ->> 'date' as sat,

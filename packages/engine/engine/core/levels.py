@@ -12,20 +12,18 @@ from engine.core import db
 # a skill's levels as one object, from its rows: the column a moved reader selects in place of `skill_set.difficulty`
 LEVELS = "public.skill_levels(s.tenant_id, s.code)"
 # every skill with its levels from their rows, for `swap`
-SKILLS = f"select s.*, {LEVELS} as levels from skill_set s"
+SKILLS = f"select s.*, {LEVELS} as levels from skill s"
 
 
 def of(conn: db.Conn, code: str) -> dict[str, Any]:
     """One skill's levels, {level: {"words": …, …rule}}; a skill that is no row has none."""
-    row = conn.execute(f"select {LEVELS} as levels from skill_set s where s.code = %s", (code,)).fetchone()
+    row = conn.execute(f"select {LEVELS} as levels from skill s where s.code = %s", (code,)).fetchone()
     return row["levels"] if row else {}
 
 
 def every(conn: db.Conn) -> dict[str, dict[str, Any]]:
     """Every skill's levels, by its code."""
-    return {
-        r["code"]: r["levels"] for r in conn.execute(f"select s.code, {LEVELS} as levels from skill_set s")
-    }
+    return {r["code"]: r["levels"] for r in conn.execute(f"select s.code, {LEVELS} as levels from skill s")}
 
 
 def skill(conn: db.Conn, code: str) -> dict[str, Any]:

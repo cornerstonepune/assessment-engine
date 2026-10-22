@@ -129,7 +129,7 @@ test("each grade opens on its classes, and a class is its children against every
   const steps = await sql<{ col: string; topic: string }[]>`
     select distinct s.skill_code || '|' || s.rung_code as col, t.code as topic
     from child_skill_state s join child c on c.id = s.child_id
-    join skill_set ss on ss.rung_code = s.rung_code join topic t on t.code = ss.topic_code and ss.taught
+    join skill ss on ss.rung_code = s.rung_code join topic t on t.code = ss.topic_code and ss.taught
     where c.section = ${SECTION} and s.n_events > 0`;
   const grid = page.getByRole("table", { name: `${SECTION}: each child on each step` });
   // every cell is the colour of the graph's own state for that child and skill, and its score; grey where there is none
@@ -171,10 +171,10 @@ test("each grade opens on its classes, and a class is its children against every
 test("a child's page opens on one plain sentence that counts what their answers show", async ({ page }) => {
   // not yet: the taught skills of the grade no checked answer of hers has reached
   const [{ notYet }] = await sql<{ notYet: number }[]>`
-    select count(*)::int as "notYet" from skill_set ss
-    join topic t on t.code = ss.topic_code and ss.taught join rung r on r.code = ss.rung_code
-    where r.band = 'G2' and not exists (select 1 from child_skill_state s
-      where s.child_id = ${ids.Asha}::uuid and s.rung_code = r.code and s.n_events > 0)`;
+    select count(*)::int as "notYet" from skill ss
+    join topic t on t.code = ss.topic_code and ss.taught
+    where ss.grade = 'G2' and not exists (select 1 from child_skill_state s
+      where s.child_id = ${ids.Asha}::uuid and s.rung_code = ss.rung_code and s.n_events > 0)`;
   await page.goto(`/growth/${ids.Asha}`);
   await expect(page.getByTestId("summary")).toHaveText(
     `Asha needs help on 1 skill, is practising 1 and is secure on 1; 1 skill has too few answers to say; ${notYet} skill${notYet === 1 ? "" : "s"} of the grade not assessed yet.`,
@@ -215,7 +215,7 @@ test("a child's page shows what their answers show and every mistake that repeat
   await page.goto(`/growth/${ids.Asha}`);
   const shown = page.getByRole("region", { name: "What their answers show" });
   await expect(shown.getByRole("heading", { name: "Addition & subtraction" })).toBeVisible();
-  const [{ name: skill }] = await sql<{ name: string }[]>`select name from skill_set where code = 'SUB.2D2D'`;
+  const [{ name: skill }] = await sql<{ name: string }[]>`select name from skill where code = 'SUB.2D2D'`;
   await expect(shown.locator('li[data-skill="SUB.2D2D"]')).toContainText(skill);
 
   const [{ name }] = await sql<{ name: string }[]>`select name from misconception where code = 'M_SMALL_FROM_LARGE' limit 1`;
@@ -298,7 +298,7 @@ test("the class and a child's page fit a phone, with the class's own answers on 
 test("a class reads the shared tree, topic by topic, each skill by its name, in the Curriculum's order", async ({ page }) => {
   const topics = await sql<{ name: string }[]>`
     select t.name from topic t where exists (
-      select 1 from skill_set s join level_rule l on s.rung_code = any(l.rung_codes)
+      select 1 from skill s join level_rule l on s.rung_code = any(l.rung_codes)
       where s.topic_code = t.code and l.band = 'G2') order by t.ord`;
   await page.goto(`/growth/class/${SECTION}`);
   const byTopic = page.getByRole("table", { name: `${SECTION}: each child on each topic` });
@@ -311,6 +311,6 @@ test("a class reads the shared tree, topic by topic, each skill by its name, in 
   expect(shown.length).toBeGreaterThan(0);
   // a topic opened, its skills by their names
   await byTopic.getByRole("link", { name: "Addition & subtraction", exact: true }).click();
-  const [{ name }] = await sql<{ name: string }[]>`select name from skill_set where code = 'ADD.2D2D'`;
+  const [{ name }] = await sql<{ name: string }[]>`select name from skill where code = 'ADD.2D2D'`;
   await expect(page.getByRole("table", { name: `${SECTION}: each child on each step` }).locator("thead")).toContainText(name);
 });

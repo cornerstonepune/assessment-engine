@@ -252,7 +252,7 @@ def render(conn, built: dict, outdir: Path, week: str, actor: str, kind: str = "
     outdir.mkdir(parents=True)
     sheets = built["sheets"] + built["spares"]
     named = roster.names(conn, [s["child_id"] for s in sheets if s["child_id"]], actor)
-    titles = {r["code"]: r["name"] for r in conn.execute("select code, name from skill_set").fetchall()}
+    titles = {r["code"]: r["name"] for r in conn.execute("select code, name from skill").fetchall()}
 
     pdfs = []
     with sync_playwright() as pw:

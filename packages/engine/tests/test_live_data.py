@@ -51,7 +51,7 @@ def test_a_signed_off_answer_on_a_rung_no_skill_holds_fails_and_names_the_rung(c
 def test_an_answer_on_a_skill_whose_topic_is_not_taught_is_kept_and_noted_not_failed(conn):
     """Multiplication (M1) and explaining a method (X1) are hidden on purpose; their answers are kept."""
     row = conn.execute(
-        "select ss.tenant_id, ss.rung_code, ss.code from skill_set ss where not ss.taught limit 1"
+        "select ss.tenant_id, ss.rung_code, ss.code from skill ss where not ss.taught limit 1"
     ).fetchone()
     if not row:
         pytest.skip("needs the seed loaded on the copy")
@@ -82,7 +82,9 @@ def _paper(conn, responses):
     )
     tenant = tenant.fetchone()["id"]
     conn.execute(
-        "insert into rung (tenant_id, code, band, descriptor) values (%s, 'R1', 'G2', 'd')", (tenant,)
+        "insert into skill (tenant_id, code, rung_code, name, learning_objective, difficulty, grade, descriptor)"
+        " values (%s, 'S1', 'R1', 's', 'o', '{}', 'G2', 'd')",
+        (tenant,),
     )
     item = conn.execute(
         "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses)"

@@ -18,18 +18,18 @@ const LEVELS = ["Easy", "Medium", "Hard", "Advance"];
 const counts = () => sql<{ code: string; difficulty: string; n: number }[]>`
   select skill_set_code as code, difficulty, count(*)::int as n from sheet_template w
   where source = 'library' and retired_at is null
-    and exists (select 1 from skill_set s where s.code = w.skill_set_code and exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active and skill_taught_in(s.tenant_id, s.code, k.section)))
+    and exists (select 1 from skill s where s.code = w.skill_set_code and exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active and skill_taught_in(s.tenant_id, s.code, k.section)))
   group by 1, 2`;
 
 test("every skill shows its worksheets at each level, at least ten, and the filter shows only that level", async ({ page }) => {
   const rows = await counts();
   const skills = [...new Set(rows.map((r) => r.code))];
-  const [{ n: all }] = await sql<{ n: number }[]>`select count(*)::int as n from skill_set s where exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active and skill_taught_in(s.tenant_id, s.code, k.section))`;
+  const [{ n: all }] = await sql<{ n: number }[]>`select count(*)::int as n from skill s where exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active and skill_taught_in(s.tenant_id, s.code, k.section))`;
   expect(skills).toHaveLength(all); // 21 since step 8h: every skill has worksheets
   for (const code of skills) {
     await page.goto(`/skill-sets/${code}#worksheets`);
     const filters = page.getByLabel("Show worksheets for");
-    const [{ levels }] = await sql<{ levels: string[] }[]>`select array(select jsonb_object_keys(difficulty)) as levels from skill_set where code = ${code}`;
+    const [{ levels }] = await sql<{ levels: string[] }[]>`select array(select jsonb_object_keys(difficulty)) as levels from skill where code = ${code}`;
     for (const d of LEVELS.filter((l) => levels.includes(l))) {
       const n = rows.find((r) => r.code === code && r.difficulty === d)?.n ?? 0;
       expect(n, `${code} ${d}`).toBeGreaterThanOrEqual(10);
@@ -51,13 +51,13 @@ test("the library on the Worksheets page holds exactly what the database holds",
     select count(*) filter (where exists (select 1 from child k where k.tenant_id = s.tenant_id and k.active
                                           and skill_taught_in(s.tenant_id, s.code, k.section)))::int as total,
            count(*)::int as library
-    from sheet_template w join skill_set s on s.tenant_id = w.tenant_id and s.code = w.skill_set_code
+    from sheet_template w join skill s on s.tenant_id = w.tenant_id and s.code = w.skill_set_code
     where w.source = 'library' and w.retired_at is null`;
   await page.goto("/worksheets");
   const said = (x: number) => x.toLocaleString("en-IN");
   await expect(page.getByText(`${said(total)} worksheets of the skills taught, of the library's ${said(library)} · every question in the bank is on one`)).toBeVisible();
   const [{ name, n }] = await sql<{ name: string; n: number }[]>`
-    select s.name, count(*)::int as n from sheet_template t join skill_set s on s.code = t.skill_set_code
+    select s.name, count(*)::int as n from sheet_template t join skill s on s.code = t.skill_set_code
     where t.source = 'library' and t.retired_at is null and t.skill_set_code = 'SUB.1D1D' and t.difficulty = 'Medium'
     group by s.name`;
   await page.getByRole("link", { name: `${name}, Medium: ${n} worksheets` }).click();

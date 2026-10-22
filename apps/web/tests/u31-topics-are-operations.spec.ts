@@ -42,10 +42,10 @@ test("curriculum lists the six topics, and a class's skills each with its own sw
   const topics = (await sql<{ name: string }[]>`select name from topic order by ord`).map((t) => t.name);
   expect(topics, "six topics, by operation").toEqual(SIX);
   const said = (skill: string) =>
-    sql<{ t: boolean }[]>`select skill_taught_in(tenant_id, ${skill}, ${CLASS}) as t from skill_set where code = ${skill}`;
+    sql<{ t: boolean }[]>`select skill_taught_in(tenant_id, ${skill}, ${CLASS}) as t from skill where code = ${skill}`;
   expect((await said("MUL.2D1D"))[0].t, "column multiplication waits for an educator's word").toBe(false);
   try {
-    await page.goto("/");
+    await page.goto("/?taught=1");
     // equal groups, Grade 1's, is taught by the school: so Multiplication is taught in the class, with one skill of it;
     // its skills open on their own, one class and one topic at a time
     const taught = page.getByRole("region", { name: "Taught", exact: true });
@@ -66,7 +66,7 @@ test("curriculum lists the six topics, and a class's skills each with its own sw
     expect(who.taught_by, "in the name of who said it").toBe(TEST_STAFF.name);
 
     // the topic's own switch says it of every skill in it
-    await page.goto("/");
+    await page.goto("/?taught=1");
     await page.getByRole("region", { name: "Taught", exact: true }).locator("summary").first().click();
     await page
       .getByRole("region", { name: "Taught", exact: true })
@@ -77,7 +77,7 @@ test("curriculum lists the six topics, and a class's skills each with its own sw
       .click();
     await expect(page.getByRole("main")).toContainText(`Multiplication is not taught in ${CLASS} now`);
     const left = await sql<{ n: number }[]>`
-      select count(*)::int as n from skill_set s
+      select count(*)::int as n from skill s
       where s.topic_code = 'MUL' and skill_taught_in(s.tenant_id, s.code, ${CLASS})`;
     expect(left[0].n, "not one multiplication skill is taught in the class now").toBe(0);
   } finally {
@@ -86,7 +86,8 @@ test("curriculum lists the six topics, and a class's skills each with its own sw
 });
 
 test("no chip names a kind of question, or a topic with nothing taught at the class's grade", async ({ page }) => {
-  for (const at of ["/growth", "/papers"]) {
+  // Children has none any more (goals/ux10-declutter.yaml); Assessments keeps its chips
+  for (const at of ["/papers"]) {
     await page.goto(at);
     const chips = page.getByRole("navigation", { name: "Topic" });
     await expect(chips.getByRole("link", { name: "All topics" })).toBeVisible();
@@ -97,11 +98,10 @@ test("no chip names a kind of question, or a topic with nothing taught at the cl
     // each chip has a skill taught somewhere that a class on the roll can be given: its grade or below
     const shown = await sql<{ name: string }[]>`
       select distinct t.name from topic t
-      join skill_set s on s.tenant_id = t.tenant_id and s.topic_code = t.code
-      join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+      join skill s on s.tenant_id = t.tenant_id and s.topic_code = t.code
       join (select distinct section, band from child where active) k on skill_taught_in(s.tenant_id, s.code, k.section)
       where exists (select 1 from jsonb_object_keys(s.difficulty) lvl
-                    where left(coalesce(s.level_band ->> lvl, r.band), 2) <= left(k.band, 2))`;
+                    where left(coalesce(s.level_band ->> lvl, s.grade), 2) <= left(k.band, 2))`;
     expect([...names].sort(), at).toEqual(shown.map((t) => t.name).sort());
   }
 });

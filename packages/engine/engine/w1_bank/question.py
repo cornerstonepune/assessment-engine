@@ -25,7 +25,7 @@ from engine.w2_print import library
 def _row(conn, item_key):
     """The question by its key now, or by one it had before it was keyed again (`inventory.current_key`)."""
     return conn.execute(
-        "select i.*, r.band from item i join rung r on r.tenant_id = i.tenant_id and r.code = i.rung_code"
+        "select i.*, s.grade as band from item i join skill s on s.tenant_id = i.tenant_id and s.rung_code = i.rung_code"
         " where i.item_key = %s and i.source = 'generated'",
         (inventory.current_key(conn, item_key),),
     ).fetchone()

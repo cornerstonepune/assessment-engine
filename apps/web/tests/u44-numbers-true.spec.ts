@@ -88,7 +88,9 @@ test("Today's queue counts the educator's own classes, as the line above it does
   // the educator's one waiting answer is Asha's; Chetan's two are another class's
   expect(toCheck).toBe(1);
   const table = page.getByRole("table", { name: "Answers read, week by week" });
-  const waiting = await table.locator("tbody tr td:nth-child(5)").allTextContents();
+  // the column by its heading: a column that is all zeros is not drawn (docs/ux-rules.md rule 4), so its place moves
+  const heads = await table.locator("thead th").allTextContents();
+  const waiting = await table.locator(`tbody tr td:nth-child(${heads.indexOf("Still waiting") + 1})`).allTextContents();
   expect(waiting.reduce((n, s) => n + num(s), 0), "Still waiting, summed over the weeks shown").toBe(toCheck);
   await page.context().close();
 });
@@ -120,7 +122,7 @@ test("a paper's line says who it is for in words: never null, a home assessment 
 
 test("Curriculum counts a child under the grade of the level they answered", async ({ browser }) => {
   const page = await asEducator(browser);
-  await page.goto("/");
+  await page.goto("/?details=1");
   const curriculum = page.getByRole("table", { name: "The curriculum, grade by grade" });
   // Asha answered at Medium, Grade 2's level; 2-digit + 2-digit's Easy is Grade 1's, which no child of the class answered
   const children = (grade: string) => curriculum.locator(`tr[data-row="${grade}"] td`).nth(-2);

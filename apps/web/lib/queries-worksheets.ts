@@ -23,7 +23,7 @@ export type WorksheetFilter = { set?: string; level?: string; scope?: Scope; gra
 // the same worksheets (goals/ux2-one-count-one-thing.yaml) — never one of a skill since replaced, which no list shows.
 const live = (f: WorksheetFilter) => sql`
   t.source = 'library' and t.retired_at is null
-  and exists (select 1 from skill_set ls where ls.tenant_id = t.tenant_id and ls.code = t.skill_set_code
+  and exists (select 1 from skill ls where ls.tenant_id = t.tenant_id and ls.code = t.skill_set_code
               and ${skillTaughtFor(f.scope ?? EVERY_CLASS, sql`ls.tenant_id`, sql`ls.code`)})
   ${f.grades?.length ? sql`and exists (select 1 from skill_level wl where wl.tenant_id = t.tenant_id and wl.skill_code = t.skill_set_code
                                       and wl.difficulty = t.difficulty and wl.grade = any(${f.grades}))` : sql``}
@@ -37,11 +37,10 @@ export async function worksheets(f: WorksheetFilter, limit: number, offset: numb
            (select json_object_agg(k.fmt, k.n) from (
               select i.fmt, count(*)::int as n from item i where i.id = any(t.item_ids) group by i.fmt) k) as kinds
     from sheet_template t
-    join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
-    join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+    join skill s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
     join difficulty d on d.tenant_id = t.tenant_id and d.code = t.difficulty
     where ${live(f)}
-    order by r.ladder_order nulls last, s.code, d.ord, t.variant
+    order by s.ladder_order nulls last, s.code, d.ord, t.variant
     limit ${limit} offset ${offset}`;
 }
 
@@ -53,7 +52,7 @@ export async function worksheetCount(f: WorksheetFilter): Promise<number> {
 /** The library: every live worksheet of a skill, taught or not — the number the workflow map names too. */
 export async function libraryTotal(): Promise<number> {
   const [{ n }] = await sql<{ n: number }[]>`
-    select count(*)::int as n from sheet_template t join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
+    select count(*)::int as n from sheet_template t join skill s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
     where t.source = 'library' and t.retired_at is null`;
   return n;
 }
@@ -78,7 +77,7 @@ export async function libraryWorksheet(code: string): Promise<LibraryWorksheet |
            coalesce(s.learning_objective, '') as outcome, t.band, t.difficulty,
            l.looks_like as level_words, t.created_at, t.retired_at
     -- a worksheet printed from a skill set since replaced (ADR 0034) still opens, under the name it was made for
-    from sheet_template t left join skill_set s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
+    from sheet_template t left join skill s on s.tenant_id = t.tenant_id and s.code = t.skill_set_code
     left join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code and l.difficulty = t.difficulty
     where t.source = 'library' and t.code = ${code}`;
   return rows[0];

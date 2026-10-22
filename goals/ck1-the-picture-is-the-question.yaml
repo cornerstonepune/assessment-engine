@@ -1,0 +1,35 @@
+name: ck1-the-picture-is-the-question
+goal: >
+  What the check screen shows for an answer is that question's own part of the page, or the whole page said plainly. On
+  2026-10-22, on the live check screen, "Mahishmati · question 8" (right answer 10) showed the printed question "11 How
+  many dots are there in all?". Measured on live that morning (docs/notes/ck1-the-picture-is-the-question.md, "Measured on
+  live"): of 65 answers waiting, 29 had no box, 5 had a box another question of the page also had, 6 a box nearer another
+  question's printed place than their own, and 12 were verified as their own. The boxes came from a reading by the words
+  printed above an answer, which finds a region, not the question: when a question's words are not found (a ring of
+  dots has none) the field left over went to several. A box now reaches a person only where the reading was cut from
+  that question's own printed boxes and no other question of the page has the same one; the words reader stores none.
+# Written 2026-10-22, before the code, from Nimish's report the same day and the measure in the note.
+says:
+  - words: "You can at least make sure that the number of the question that you want me to validate and the zoom view are matching."
+    proved_by: "apps/web/tests/u50-the-picture-is-the-question.spec.ts::the question's own number and printed words head the picture"
+  - words: "You can at least make sure that the number of the question that you want me to validate and the zoom view are matching."
+    proved_by: "apps/web/tests/u50-the-picture-is-the-question.spec.ts::a box another question shares is not shown: the whole page and the plain line instead"
+  - words: "You can at least make sure that the number of the question that you want me to validate and the zoom view are matching."
+    proved_by: "apps/web/tests/u50-the-picture-is-the-question.spec.ts::a region found by words, here another question's, is never shown as this question's"
+  - words: "For some questions, the whole page image is shown in the zoom view, which I can't even read properly."
+    proved_by: "apps/web/tests/u50-the-picture-is-the-question.spec.ts::an answer with no box shows the whole page, and a click opens it to full size to scroll about in"
+  - words: "You can at least make sure that the number of the question that you want me to validate and the zoom view are matching."
+    proved_by: "apps/web/tests/u50-the-picture-is-the-question.spec.ts::no two answers of a page are shown the same part of it"
+manual:
+  - "After deploy, on /capture/check: open a waiting answer of the 22 Oct Grade 1 file; its heading names the question, and where no box is its own the page opens whole with the plain line and enlarges on a click."
+scenarios: []
+criteria:
+  - name: a reading by words carries no box; the reader's files did not move
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_stencil.py tests/test_second_reader.py tests/test_legacy.py tests/test_lineup.py tests/test_boxes.py
+    expect: "passed"
+  - name: the screen shows only a question's own part of the page
+    run: cd apps/web && npx playwright test --project=steps u50-the-picture-is-the-question
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

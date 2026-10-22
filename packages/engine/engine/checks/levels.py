@@ -49,8 +49,8 @@ def draw(conn: db.Conn, s: dict[str, Any], check: dict[str, Any], seed: int = SE
 def _blob(conn: db.Conn) -> list[dict[str, Any]]:
     return conn.execute(
         "select s.code, s.rung_code, s.formats, e.key as level, e.value as entry,"
-        " coalesce(s.level_band ->> e.key, r.band) as grade, s.level_approved ? e.key as approved"
-        " from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code"
+        " coalesce(s.level_band ->> e.key, s.grade) as grade, s.level_approved ? e.key as approved"
+        " from skill s"
         " cross join jsonb_each(s.difficulty) e order by s.code, e.key"
     ).fetchall()
 

@@ -21,18 +21,8 @@ PREDICTOR_CODES = {c for table in (M.ADD_PREDICTORS, M.SUB_PREDICTORS, M.MULTI_P
 def _skill_sets(conn):
     return conn.execute(
         f"select s.code, s.rung_code, s.status, s.formats, {levels.LEVELS} as difficulty,"
-        " s.misconception_codes as curated from skill_set s order by s.code"
+        " s.misconception_codes as curated from skill s order by s.code"
     ).fetchall()
-
-
-def every_rung_has_a_spec(conn):
-    return [
-        r["code"]
-        for r in conn.execute(
-            "select code from rung r where not exists"
-            " (select 1 from skill_set s where s.rung_code = r.code) order by code"
-        ).fetchall()
-    ]
 
 
 def every_spec_is_ratified(conn):
@@ -251,7 +241,6 @@ AWAITS_A_PERSON = {
 
 # Ordered cheapest first, so a run that fails early has still said something useful.
 INVARIANTS = [
-    ("every rung has a spec", every_rung_has_a_spec),
     ("every spec is ratified", every_spec_is_ratified),
     ("what a mistake charges is approved", what_a_mistake_charges_is_approved),
     ("every code a spec references resolves", referential_codes_all_resolve),

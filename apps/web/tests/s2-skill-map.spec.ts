@@ -24,10 +24,10 @@ const LEVELS = ["Easy", "Medium", "Hard", "Advance"];
 const CODE = /\b([A-Z]{2,}\.[A-Z0-9_.]+|R\d{1,2}|X[12]|M_[A-Z0-9_]+)\b/;
 
 const skills = () => sql<Skill[]>`
-  select s.code, s.learning_objective as outcome, s.name, r.band, s.difficulty as words
-  from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+  select s.code, s.learning_objective as outcome, s.name, s.grade as band, s.difficulty as words
+  from skill s
   where s.taught
-  order by r.ladder_order nulls last, s.code`;
+  order by s.ladder_order nulls last, s.code`;
 
 async function noSidewaysScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -100,7 +100,7 @@ test("every skill page shows each level in a sentence with a real question, its 
 });
 
 test("changing a skill's words saves them and sends the skill back for approval", async ({ page }) => {
-  const [before] = await sql`select name, learning_objective, difficulty, status, ratified_by from skill_set where code = 'ADD.2D2D'`;
+  const [before] = await sql`select name, learning_objective, difficulty, status, ratified_by from skill where code = 'ADD.2D2D'`;
   const easy = "A 2-digit number plus a 1-digit number, one regroup in the ones, total under 100 (edited by a test).";
   const putBack = await aWaitingSkill(sql, "ADD.2D2D");
   try {
@@ -112,7 +112,7 @@ test("changing a skill's words saves them and sends the skill back for approval"
     await page.getByRole("button", { name: "Save the words" }).click();
     await expect(page.getByRole("status")).toContainText("Saved");
     const [after] = await sql<{ status: string; difficulty: Record<string, { words: string; check: unknown }> }[]>`
-      select status, difficulty from skill_set where code = 'ADD.2D2D'`;
+      select status, difficulty from skill where code = 'ADD.2D2D'`;
     expect(after.difficulty.Easy.words).toBe(easy);
     expect(after.difficulty.Easy.check).toEqual(before.difficulty.Easy.check);
     expect(after.status).toBe("draft");
@@ -120,25 +120,25 @@ test("changing a skill's words saves them and sends the skill back for approval"
     await page.getByRole("button", { name: "Approve as written" }).click();
     await expect(page.getByRole("status")).toContainText("Approved as written");
     const [approved] = await sql<{ status: string; ratified_by: string }[]>`
-      select status, ratified_by from skill_set where code = 'ADD.2D2D'`;
+      select status, ratified_by from skill where code = 'ADD.2D2D'`;
     expect(approved).toEqual({ status: "ratified", ratified_by: "End-to-end test" });
   } finally {
     // Two statements: putting the words back is itself a content change, which withdraws approval.
-    await sql`update skill_set set name = ${before.name}, learning_objective = ${before.learning_objective},
+    await sql`update skill set name = ${before.name}, learning_objective = ${before.learning_objective},
               difficulty = ${sql.json(before.difficulty)} where code = 'ADD.2D2D'`;
-    await sql`update skill_set set status = ${before.status}, ratified_by = ${before.ratified_by} where code = 'ADD.2D2D'`;
+    await sql`update skill set status = ${before.status}, ratified_by = ${before.ratified_by} where code = 'ADD.2D2D'`;
     await putBack();
   }
 });
 
 test("every waiting skill is approved from one page, in the approver's name", async ({ page }) => {
   const before = await sql<{ code: string; status: string; ratified_by: string | null }[]>`
-    select code, status, ratified_by from skill_set order by code`;
+    select code, status, ratified_by from skill order by code`;
   const [table] = await sql<{ value: unknown }[]>`select value from config where key = 'skills.charges_by_kind.approved'`;
   try {
     await sql`update config set value = '{}'::jsonb where key = 'skills.charges_by_kind.approved'`;
-    await sql`update skill_set set status = 'ratified', ratified_by = 'someone earlier'`;
-    await sql`update skill_set set status = 'draft', ratified_by = null where code in ('ADD.1D1D', 'SUB.1D1D')`;
+    await sql`update skill set status = 'ratified', ratified_by = 'someone earlier'`;
+    await sql`update skill set status = 'draft', ratified_by = null where code in ('ADD.1D1D', 'SUB.1D1D')`;
     await page.goto("/");
     await page.getByRole("link", { name: "Read and approve →" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Approve the skills");
@@ -154,14 +154,14 @@ test("every waiting skill is approved from one page, in the approver's name", as
       from config a, config t where a.key = 'skills.charges_by_kind.approved' and t.key = 'skills.charges_by_kind'`;
     expect(approved).toEqual({ by: "End-to-end test", same: true });
     const rows = await sql<{ code: string; ratified_by: string }[]>`
-      select code, ratified_by from skill_set where code in ('ADD.1D1D', 'SUB.1D1D') and status = 'ratified' order by code`;
+      select code, ratified_by from skill where code in ('ADD.1D1D', 'SUB.1D1D') and status = 'ratified' order by code`;
     expect(rows).toEqual([
       { code: "ADD.1D1D", ratified_by: "End-to-end test" },
       { code: "SUB.1D1D", ratified_by: "End-to-end test" },
     ]);
   } finally {
     for (const b of before) {
-      await sql`update skill_set set status = ${b.status}, ratified_by = ${b.ratified_by} where code = ${b.code}`;
+      await sql`update skill set status = ${b.status}, ratified_by = ${b.ratified_by} where code = ${b.code}`;
     }
     await sql`update config set value = ${sql.json((table?.value ?? {}) as never)} where key = 'skills.charges_by_kind.approved'`;
   }

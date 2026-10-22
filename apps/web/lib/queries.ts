@@ -3,6 +3,7 @@ import { sql, TENANT_SLUG } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
 import { skillTaughtFor, skillTaughtIn } from "./taught";
 import { paperName } from "./queries-papers";
+import { ownBox } from "./own-box";
 
 /** A level's name, a row of `difficulty` (lib/levels.ts). */
 export type Difficulty = string;
@@ -40,7 +41,7 @@ export const grades = cache(async (): Promise<Grades> => {
 export async function gradeSpan(): Promise<string> {
   const rows = await sql<{ name: string }[]>`
     select g.name from grade g join tenant t on t.id = g.tenant_id and t.slug = ${TENANT_SLUG}
-    where exists (select 1 from rung r where r.tenant_id = g.tenant_id and r.band = g.code)
+    where exists (select 1 from skill s where s.tenant_id = g.tenant_id and s.grade = g.code)
     order by g.ord`;
   return [...new Set([rows[0]?.name, rows.at(-1)?.name])].filter(Boolean).join(" to ");
 }
@@ -99,10 +100,10 @@ export async function skillSets({
            coalesce((select jsonb_object_agg(l.difficulty, jsonb_build_object('by', l.confirmed_by, 'at', l.confirmed_at))
                      from skill_level l where l.tenant_id = s.tenant_id and l.skill_code = s.code and l.confirmed_at is not null),
                     '{}'::jsonb) as approved,
-           s.updated_at, s.version, r.band,
+           s.updated_at, s.version, s.grade as band,
            coalesce((select jsonb_object_agg(l.difficulty, l.grade) from skill_level l
                      where l.tenant_id = s.tenant_id and l.skill_code = s.code), '{}'::jsonb) as level_grade,
-           s.level_band_by as moved_by, s.level_band_at as moved_at, r.descriptor, r.skill_codes, s.topic_code,
+           s.level_band_by as moved_by, s.level_band_at as moved_at, s.descriptor, s.registry_codes as skill_codes, s.topic_code,
            t.name as topic_name, t.ord as topic_ord, ${taught} as taught,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select difficulty, count(*)::int as n from item
@@ -112,11 +113,10 @@ export async function skillSets({
                      from (select difficulty, count(*)::int as n from sheet_template t
                            where t.skill_set_code = s.code and t.source = 'library' and t.retired_at is null
                            group by difficulty) w), '{}'::json) as worksheets
-    from skill_set s
-    join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
+    from skill s
     left join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
     where ${untaught} or ${taught}
-    order by r.ladder_order nulls last, s.code`;
+    order by s.ladder_order nulls last, s.code`;
 }
 
 export async function skillSet(code: string, scope: Scope = EVERY_CLASS): Promise<SkillSet | undefined> {
@@ -126,16 +126,15 @@ export async function skillSet(code: string, scope: Scope = EVERY_CLASS): Promis
 
 export type Skill = { code: string; name: string; description: string; rungs: string[] };
 
-/** The registry's skills a skill set practises — each reached through its rung, the way to its topic and so to its
- *  subject — with the rungs that carry it. */
+/** The registry's skills a skill set practises — each reached through the skill set, the way to its topic and so to
+ *  its subject — with the rungs (the skill sets' second codes) that carry it. */
 export async function setSkills(): Promise<Skill[]> {
   return sql<Skill[]>`
     select k.code, k.name, k.description,
-           coalesce(array_agg(r.code order by r.ladder_order) filter (where r.code is not null), '{}') as rungs
-    from skill k
-    left join rung r on r.tenant_id = k.tenant_id and k.code = any(r.skill_codes)
-    where exists (select 1 from skill_set ss join rung sr on sr.tenant_id = ss.tenant_id and sr.code = ss.rung_code
-                  where ss.tenant_id = k.tenant_id and k.code = any(sr.skill_codes))
+           coalesce(array_agg(r.rung_code order by r.ladder_order) filter (where r.rung_code is not null), '{}') as rungs
+    from registry_skill k
+    left join skill r on r.tenant_id = k.tenant_id and k.code = any(r.registry_codes)
+    where exists (select 1 from skill ss where ss.tenant_id = k.tenant_id and k.code = any(ss.registry_codes))
     group by k.code, k.name, k.description
     order by k.code`;
 }
@@ -230,7 +229,7 @@ export type NextStep = { code: string; name: string; rung_code: string; difficul
 export async function childNext(id: string): Promise<NextStep[]> {
   return sql<NextStep[]>`
     select s.code, s.name, s.rung_code, n.difficulty, n.rule, coalesce(n.targets, '{}') as targets
-    from skill_set s, lateral next_difficulty(${id}::uuid, s.code) n
+    from skill s, lateral next_difficulty(${id}::uuid, s.code) n
     where ${skillTaughtIn(sql`s.tenant_id`, sql`s.code`, sql`(select section from child where id = ${id}::uuid)`)}
     order by s.code`;
 }
@@ -267,8 +266,7 @@ export async function pendingResults(id: string): Promise<PendingResult[]> {
            r.capture_id, si.id as paper_id,
            coalesce((r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as page,
            coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1) as file_page,
-           case when jsonb_typeof(r.raw_read::jsonb -> 'box') = 'array'
-                then array(select jsonb_array_elements_text(r.raw_read::jsonb -> 'box'))::numeric[] end as box,
+           ${ownBox()} as box,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
            coalesce((r.raw_read::jsonb ->> 'attempted')::boolean, false) as attempted,
            coalesce(r.raw_read::jsonb ->> 'working_summary', '') as working,

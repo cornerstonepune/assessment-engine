@@ -25,7 +25,7 @@ test.beforeAll(async () => {
   const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from evidence_event where child_id = ${kids.Asha}`;
   if (!n) {
     const [skill] = await sql<{ code: string; rung: string }[]>`
-      select r.skill_codes[1] as code, r.code as rung from rung r join skill_set ss on ss.rung_code = r.code
+      select ss.registry_codes[1] as code, ss.rung_code as rung from skill ss
       where ss.code = 'ADD.2D2D'`;
     for (const right of [true, true, true, false]) {
       await sql`
@@ -102,10 +102,13 @@ test("one word for one thing: a state by its own words, a skill as a skill, a co
   const main = page.locator("main");
   await expect(main).toContainText("Needs help on");
   await expect(main).not.toContainText(/red skill|amber one/);
-  // a child's name is a link, and looks like every other link on the site
-  const name = main.getByRole("link", { name: "Asha", exact: true });
+  // a child's name is a link, and looks like every other link on the site: the same in the list of children who need the
+  // educator and in the class's table. "Against every skill" is the quiet link under the table (goals/ux10-declutter.yaml).
+  const names = main.getByRole("link", { name: "Asha", exact: true });
+  const colour = (l: typeof names) => l.evaluate((el) => getComputedStyle(el).color);
+  expect(await colour(names.first())).toBe(await colour(names.last()));
   const against = main.getByRole("link", { name: new RegExp(`${SECTION} against every skill`) });
-  expect(await name.evaluate((el) => getComputedStyle(el).color)).toBe(await against.evaluate((el) => getComputedStyle(el).color));
+  expect(await colour(against), "the all-skills link is quieter than a name").not.toBe(await colour(names.last()));
   await page.goto(`/growth/${kids.Asha}/report`);
   await expect(page.locator("main")).toContainText("on this map assessed");
   await expect(page.locator("main")).not.toContainText(/skill sets?\b/);

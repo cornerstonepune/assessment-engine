@@ -37,7 +37,7 @@ test.beforeAll(async () => {
     insert into ask (tenant_id, code, ord, for_role, question, drafted, source)
     select id, ${ASK}, 999, 'coordinator', 'Is this the coordinator''s to answer?', 'Yes.', 'u32' from tenant limit 1
     on conflict do nothing`;
-  [{ code: draft }] = await sql<{ code: string }[]>`select code from skill_set order by code limit 1`;
+  [{ code: draft }] = await sql<{ code: string }[]>`select code from skill order by code limit 1`;
   putBack = await aWaitingSkill(sql, draft);
   [{ code: sheet }] = await sql<{ code: string }[]>`
     select code from sheet_template
@@ -73,14 +73,16 @@ async function badge(page: Page, tab: string): Promise<number> {
 
 const waitingAsks = async (role: string | null) =>
   (await sql<{ n: number }[]>`select count(*)::int as n from ask where answer is null and (${role}::text is null or for_role = ${role})`)[0].n;
-const waitingSkills = async () => (await sql<{ n: number }[]>`select count(*)::int as n from skill_set where status <> 'ratified'`)[0].n;
+const waitingSkills = async () => (await sql<{ n: number }[]>`select count(*)::int as n from skill where status <> 'ratified'`)[0].n;
 
 test("an educator's Today lists every decision the coordinator's does, and the menu counts the same", async ({ browser }) => {
   const page = await signedIn(browser);
   try {
     const main = page.getByRole("main");
     await expect(main).toContainText("Skills to approve");
-    expect(await badge(page, "Curriculum"), "every skill waiting and every question").toBe((await waitingSkills()) + (await waitingAsks(null)));
+    // the menu carries a count on Today alone (goals/ux10-declutter.yaml): it holds every skill waiting and every question
+  expect(await badge(page, "Today"), "every skill waiting and every question").toBeGreaterThanOrEqual((await waitingSkills()) + (await waitingAsks(null)));
+  expect(await badge(page, "Curriculum"), "no count on Curriculum").toBe(0);
   } finally {
     await page.context().close();
   }
@@ -105,7 +107,11 @@ test("a worksheet's print list opens on the educator's own children, every class
     const print = page.locator("section").filter({ has: page.getByRole("heading", { name: "Print for children" }) });
     await expect(print).toContainText("Ira");
     await expect(print).not.toContainText("Kavi");
-    await page.getByRole("complementary").getByRole("button", { name: "See every class" }).click();
+    await Promise.all([
+      page.waitForResponse((r) => r.request().method() === "POST"),
+      page.getByRole("search", { name: "Subject, class and search" }).getByLabel("Class").selectOption("every"),
+    ]);
+    await page.waitForLoadState("networkidle");
     for (const name of ["Ira", "Jai", "Kavi", "Lata"]) await expect(print).toContainText(name);
   } finally {
     await page.context().close();
@@ -115,7 +121,9 @@ test("a worksheet's print list opens on the educator's own children, every class
 test("the coordinator is shown every decision and every class", async ({ page }) => {
   await page.goto("/today");
   await expect(page.getByRole("main")).toContainText("Skills to approve");
-  expect(await badge(page, "Curriculum"), "every skill waiting and every question").toBe((await waitingSkills()) + (await waitingAsks(null)));
+  // the menu carries a count on Today alone (goals/ux10-declutter.yaml): it holds every skill waiting and every question
+  expect(await badge(page, "Today"), "every skill waiting and every question").toBeGreaterThanOrEqual((await waitingSkills()) + (await waitingAsks(null)));
+  expect(await badge(page, "Curriculum"), "no count on Curriculum").toBe(0);
 
   await page.goto(`/skill-sets/${draft}`);
   await expect(page.getByRole("button", { name: "Approve as written" })).toBeVisible();

@@ -26,7 +26,7 @@ def conn():
 def _question(conn, tenant, difficulty="Hard"):
     """One sum in the bank at `difficulty`, of a skill set the seed holds."""
     q = items.bare_sum(random.Random(uuid.uuid4().int), "R5", "Procedural", "+", 2, 2, [0, 1])
-    rung = conn.execute("select code from rung order by code limit 1").fetchone()["code"]
+    rung = conn.execute("select rung_code from skill order by rung_code limit 1").fetchone()["rung_code"]
     key = f"T-LEARN-{uuid.uuid4().hex[:8]}"
     conn.execute(
         "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, stem, spec, responses,"

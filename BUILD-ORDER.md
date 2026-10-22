@@ -5,6 +5,49 @@ workflow and which gate it is on, and does not touch a later workflow until ever
 current one passes in `STATE.md`. Nimish set this on 2026-09-19 after three sessions drifted
 across the map and left every part incomplete. Nothing here is a suggestion.
 
+## Inserted now: the locked scope of 22 Oct — Nimish, 2026-10-22
+
+Nimish locked this scope on 2026-10-22 ("scope is locked"), from the flow map
+(claude.ai/artifact/3KjG5SbE5bLBQgcLCYDPu8, "Scope to lock") after two councils and a read of every earlier design.
+It extends the B order below; it does not replace it. His decisions the same day: assessments at every stage from
+Junior KG, all internal; a full dashboard for educators, on a phone too, no WhatsApp; every member of staff edits the
+curriculum, an edit taking effect from the next week; validation by rules per subject and kind of question (a new one
+shows a person every answer); Hindi is marked by educators, the engine only stores the sheets; KG is assessed by
+observation on a phone; the system proposes each child's paper and the educator may change it; a page of the school's
+own paper that cannot be lined up goes whole to a person; one school, never sold.
+
+**Order:** R1 → R1b → R2 → B4 → C1 → C2 → C3 → C4 → C5 → C6 → S1–S9 → the co-author loop → English (Grades 3–4).
+Exceptions Nimish approved: S1, S2 and S7, which need no new table, may be built beside the C slices; the English
+content (skills, kinds of question, samples for the English educator to approve) is prepared now, content only, as
+`goals/english-foundation.yaml` was. C slices change the schema one at a time, never in parallel.
+
+| Slice | Green means |
+|---|---|
+| R1 | a phone's photo laid on an A4 page lines up; every question of the 21 Oct Grade 1 paper found in its own boxes |
+| R1b | that file read again on live: all 120 answers found, each agreeing with a person's reading or sent to a person |
+| R2 | a page of the school's own paper that cannot be lined up goes whole to a person, never read by its words |
+| C1 | every question names its skills in the registry (one or several); a mixed question says which step tests which skill |
+| C2 | one evidence record for every kind (written, observed, voice, project, performance): who saw it, where, which registry skill, its scale (right/wrong/blank or yes/sometimes/not yet) and its source; past rows untouched (rule 4) |
+| C3 | the curriculum published as numbered versions; every new result names its version; an edit takes effect from the next week |
+| C4 | validation rules per subject and kind: New (every answer to a person), Learning, Trusted, Falls back; every number a row, grown from `kind_trust` (ADR 0060); each subject's page shows each kind's stage |
+| C5 | one approval list for everything new: draft beside approved, a second approval before anything reaches a parent; the existing approvals unchanged |
+| C6 | a consent and data register: what is kept about a child, why, how long, who sees it, in a parent's words |
+| S1 | subject and class at the top; Today with the next actions and the weekly five-line note; works on a phone |
+| S2 | the assessment card from Made to Results (proposed paper, kinds a dropdown, Given on, retake flagged at once, absent child carried, papers never returned listed, reading progress) |
+| S3 | checking: blind spot checks, the assistant settles what is written and the educator what it means, 48 hours to the coordinator, minutes measured |
+| S4 | results and the child's profile, a tab per subject; a one-page summary per child for parent meetings, approved before print |
+| S5–S9 | the question bank page; the curriculum page with versions; the coordinator's page across classes; a substitute's dated access; KG observation on a phone |
+
+**E0, approved by Nimish on 2026-10-22** ("Ayush is a part of Cornerstone. He has the account... This entire thing
+should fold within our system itself... a part of a curriculum system that will finally connect to the assessment
+engine... he'll log into the system and all his responses will be logged in properly"): the English Grades 3–4 content
+(PR #254, #272) is loaded as drafts into the existing tables and reviewed on the Curriculum page by the English educator,
+approvals saved with his name and date. It runs beside the C slices because it adds no table; a part that needs a table
+waits on its C slice.
+
+Out of scope: WhatsApp, engine marking of Hindi, the observation engine (the next build, which C2 prepares), a
+workflow engine, mastery models, selling to other schools. Each slice gets its goal file before its code (rule 12).
+
 ## Inserted now: the backend for every subject — Nimish, 2026-10-20
 
 Nimish, on the audit of the backend (claude.ai/code/artifact/71c2aaf5-06c1-49b7-bcd5-2e6761154e9e, the "Backend" tab):

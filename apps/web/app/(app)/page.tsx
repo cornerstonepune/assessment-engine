@@ -15,6 +15,8 @@ type Props = { searchParams: Promise<Record<string, string | undefined>> };
 // grade → subject → topic → skill, each row with its questions, worksheets, questions at each level, children assessed
 // and whether the person's classes have been taught it (goals/f1f-taught-per-class.yaml). A skill opens its page, where
 // its levels, questions and worksheets are read, edited and approved; a skill waiting for approval says so on its row.
+// An educator reads grade → topic → skill with what each level asks; the bank's counts, its worksheets by level and the
+// other ways into the bank are behind "Question bank details", a link (goals/ux10-declutter.yaml).
 export default async function CurriculumPage({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
@@ -24,6 +26,7 @@ export default async function CurriculumPage({ searchParams }: Props) {
     Promise.all([curriculumRows(scope), skillsWaiting(), topics(scope), mayDecide(me, "skills"), mayDecide(me, "topics"), gradesOf(ownClasses(me))]),
   );
   // said of a topic (every skill in it) or of one skill of it (goals/t1-topics-are-operations.yaml)
+  const details = q.details === "1";
   const said = q.on ?? q.off;
   const whole = all.find((t) => t.code === said);
   const switched = whole?.name ?? all.flatMap((t) => t.classes.flatMap((c) => c.skills)).find((k) => k.code === said)?.name;
@@ -34,7 +37,7 @@ export default async function CurriculumPage({ searchParams }: Props) {
       <PageHeader
         stage="Curriculum"
         title="Curriculum"
-        sub="Every grade's skills, by subject and topic, each written as what a child can do, with its questions, worksheets and levels, how many children have been assessed on it, and whether your classes have been taught it. Open a grade, then a topic; a skill opens its page."
+        sub="Each grade's topics and skills, and what a child can do at each level."
       />
       <Body>
         {q.approved === "0" ? (
@@ -57,16 +60,21 @@ export default async function CurriculumPage({ searchParams }: Props) {
             <Link href="/skill-sets/approve">{mayApprove ? "Read and approve →" : "Read them →"}</Link>
           </Notice>
         ) : null}
-        <p className="mb-4 flex flex-wrap gap-2">
-          <Link href="/worksheets/taxonomy" className="chip">
-            Read the same worksheets by the taxonomy
-          </Link>
-          <Link href="/library" className="chip">
-            Every question in the bank
-          </Link>
+        <p className="mb-3 flex flex-wrap items-center gap-2 text-[12.5px]">
+          <Link href={details ? "/" : "/?details=1"}>{details ? "Hide question bank details" : "Question bank details"}</Link>
+          {details ? (
+            <>
+              <Link href="/library" className="chip">
+                Every question in the bank
+              </Link>
+              <Link href="/worksheets/taxonomy" className="chip">
+                Every case, with its worksheets
+              </Link>
+            </>
+          ) : null}
         </p>
-        <Topics topics={all} me={me.name} open={q.skills && q.in ? { topic: q.skills, section: q.in } : null} />
-        <CurriculumTable rows={rows} levels={order} say={maySay} start={mine} />
+        <Topics topics={all} me={me.name} open={q.skills && q.in ? { topic: q.skills, section: q.in } : null} fold={q.taught === "1"} />
+        <CurriculumTable rows={rows} levels={order} say={maySay} start={mine} details={details} />
       </Body>
     </>
   );

@@ -75,12 +75,12 @@ test("a class and a topic make the class's default assessment, every child's pap
   // each at Medium where it has one, else its first level (taught skill by skill: goals/t1-topics-are-operations.yaml)
   const [topic] = await sql<{ code: string; name: string }[]>`
     select t.code, t.name from topic t where exists (
-      select 1 from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-      where s.topic_code = t.code and r.band = 'G2' and s.taught) order by t.ord limit 1`;
+      select 1 from skill s
+      where s.topic_code = t.code and s.grade = 'G2' and s.taught) order by t.ord limit 1`;
   expect(topic, "a taught topic with Grade 2 skills").toBeTruthy();
   const sets = await sql<{ code: string; difficulty: Record<string, string> }[]>`
-    select s.code, s.difficulty from skill_set s join rung r on r.tenant_id = s.tenant_id and r.code = s.rung_code
-    where s.topic_code = ${topic.code} and r.band = 'G2' and s.taught order by r.ladder_order nulls last, s.code limit 3`;
+    select s.code, s.difficulty from skill s
+    where s.topic_code = ${topic.code} and s.grade = 'G2' and s.taught order by s.ladder_order nulls last, s.code limit 3`;
   const levels = ["Easy", "Medium", "Hard", "Advance"];
   const want = sets.map((s) => `${s.code}~${s.difficulty.Medium ? "Medium" : levels.find((d) => s.difficulty[d])}`);
 

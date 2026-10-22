@@ -31,7 +31,7 @@ def registry(conn):
     """Every skill the school has a name for, as the matcher sees it."""
     return conn.execute(
         "select s.code, s.name, s.domain, s.strand, d.name as domain_name"
-        " from skill s left join domain d on d.code = s.domain order by s.code"
+        " from registry_skill s left join domain d on d.code = s.domain order by s.code"
     ).fetchall()
 
 
