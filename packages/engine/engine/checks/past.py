@@ -13,9 +13,11 @@ import typer
 from engine.core import db
 
 # What each part reads; the checksum takes the rows in order. A child's state leaves out when it was last computed, which every rebuild of
-# the graph moves; what it says about the child is the rest.
+# the graph moves; what it says about the child is the rest. The evidence is every column a record held before C2 gave it
+# a kind, a mark, who saw it, where and its source: a past row's are what must not move.
 PARTS: dict[str, LiteralString] = {
-    "evidence": "select e::text as r from evidence_event e",
+    "evidence": "select row(id, tenant_id, child_id, skill_code, rung_code, correct, misconception_codes, channel,"
+    " item_result_id, observed_at, stored_at, confirmed_by, created_at, updated_at)::text as r from evidence_event",
     "states": "select concat_ws('|', child_id, skill_code, rung_code, state, n_events, n_correct,"
     " repeating_misconception, last_seen) as r from child_skill_state",
     "scored": "select concat_ws('|', id, capture_id, item_id, rid, raw_read, status, misconception_codes,"
