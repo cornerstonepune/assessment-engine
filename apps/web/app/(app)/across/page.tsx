@@ -3,8 +3,9 @@ import { Count } from "@/components/count";
 import { DataTable } from "@/components/data-table";
 import { EmptyState } from "@/components/empty-state";
 import { PageShell } from "@/components/page-shell";
-import { Panel, Pill } from "@/components/shell";
-import { STAGE_TONE } from "../papers/copies-table";
+import { Panel } from "@/components/shell";
+import { StatusChip } from "@/components/status-chip";
+import { STAGE_STATE } from "../papers/copies-table";
 import { requireStaff } from "@/lib/auth";
 import { deadline } from "@/lib/deadline";
 import { classWords } from "@/lib/needs-you";
@@ -61,9 +62,7 @@ export default async function AcrossPage() {
                   cell: (s) => (
                     <span className="flex flex-wrap gap-1">
                       {stageOrder.filter((st) => s.by[st]).map((st) => (
-                        <Pill key={st} tone={STAGE_TONE[st]}>
-                          {s.by[st]} {STAGE_WORDS[st]}
-                        </Pill>
+                        <StatusChip key={st} state={STAGE_STATE[st]} words={`${s.by[st]} ${STAGE_WORDS[st]}`} />
                       ))}
                     </span>
                   ),

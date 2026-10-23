@@ -24,11 +24,12 @@ export async function across(actor: string): Promise<Across> {
     sql<{ section: string; band: string; subject: string; title: string; week: string | null; by: Partial<Record<Stage, number>> }[]>`
       with ${papersCte()},
       placed as (
-        select p.*, coalesce(su.label, su.name) as subject
+        select p.tenant_id, p.section, p.class_band, p.kind, p.week, p.set_key, p.set_name, p.id, p.stage, p.created_at,
+               coalesce(su.label, su.name) as subject
         from papers p cross join lateral unnest(p.topics) tc(code)
         join topic t on t.tenant_id = p.tenant_id and t.code = tc.code
         join subject su on su.tenant_id = t.tenant_id and su.code = t.subject_code
-        where p.section is not null and not p.spare and p.stage <> 'replaced'
+        where p.section is not null and not p.spare and not p.extra and p.stage <> 'replaced'
       ),
       one as (
         select distinct tenant_id, section, class_band, subject, kind, week, set_key, set_name, id, stage, created_at from placed

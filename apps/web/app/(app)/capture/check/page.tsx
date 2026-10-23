@@ -123,7 +123,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
       }
     >
       <p className="mb-4">
-        <Link href="/capture" className="chip">
+        <Link href="/capture" className="text-[13px]">
           ← Marking
         </Link>
       </p>
