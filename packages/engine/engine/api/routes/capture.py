@@ -30,7 +30,18 @@ from engine.api.models import (
     ReadFileResponse,
     TrustedResponse,
 )
-from engine.w3_read import again, copy_scores, inbox, keys, legacy, marking, naming, profiles, whose_paper
+from engine.w3_read import (
+    again,
+    copy_scores,
+    inbox,
+    keys,
+    legacy,
+    marking,
+    naming,
+    profiles,
+    same_page,
+    whose_paper,
+)
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -196,6 +207,13 @@ def capture_page(
     if want is not None and len(want) != 4:
         raise HTTPException(status_code=400, detail="box must be left,top,right,bottom")
     return Response(content=legacy.page_crop(path, page_no, want), media_type="image/jpeg")
+
+
+@router.get("/capture/{capture_id}/pages")
+def capture_pages(capture_id: str, conn=Depends(get_conn, scope="function")) -> list[dict]:
+    """Each page of the paper a capture has answers on: found or not, and in words why not
+    (`same_page.pages_of`, goals/img_page_one_and_two_same_photo.yaml) — so the screen never draws a page twice."""
+    return same_page.pages_of(conn, capture_id)
 
 
 @router.post("/read/file", response_model=ReadFileResponse)

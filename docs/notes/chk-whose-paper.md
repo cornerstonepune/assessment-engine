@@ -32,6 +32,18 @@ Read from the code and shown on the seeded copy; **the live database could not b
 - Shown before: the Score column on the Assessments table (hidden below 768 px) and on the assessment card; the paper's own page. **Not shown**: the Children page (it lists learning gaps only) and nothing said "scores recorded" after sign-off. That is the cause of "no score anywhere he looked".
 - Fixed: a "Last paper" column on the Children page (the newest signed-off paper's "N of M right"); a line "Scores recorded for <first name>: N of M right" with a link to the child on the sign-off page; and, when no paper of the assessment is left to sign off, a link to its Results.
 
+## Merge of main (#315 page 2 is never page 1 again, #316 each answer once), 2026-10-23
+
+Conflicts: `engine-routes.ts` (generated; regenerated with `bin/engine contract`, both `/pages` and `/proof` are in) and `api/routes/capture.py` (one import line, both modules kept). Everything else merged by git.
+One function, not two: #315's `same_page.fingerprint` already says "this is the same photograph", so `whose_paper` uses it and its own `page_hash` is gone. The two guards stay two questions: #315 asks whether a page of a copy repeats an earlier page of the same copy; this one asks whether a page repeats a page of another child's copy.
+
+| Claim | Command | Last output |
+|---|---|---|
+| Engine, files touched and neighbours | `cd packages/engine && pytest -q tests/test_whose_paper.py tests/test_same_page.py tests/test_layout.py tests/test_no_guessed_pages.py tests/test_photograph_page.py tests/test_spine_page.py tests/test_promises.py` | 66 passed |
+| The map, promises, lint | `bin/check` | 30 passed |
+| Types | `cd apps/web && npx tsc --noEmit` | no errors |
+| Browser: this goal with #315/#316's | `npx playwright test tests/s44 u52 u61 u50 u51 u9 u45 u37 u35 u8` | 41 passed |
+
 ## Handoff
 
 - Migration `20261205090000_a_person_chooses_on_a_doubtful_page.sql`: one additive table, `page_choice` (append-only, RLS by `apply_conventions`). Needs `rehearse update-live` before it goes live (BUILD-ORDER rule for migrations).

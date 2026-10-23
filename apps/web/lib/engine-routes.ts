@@ -8,6 +8,7 @@ export type EngineRoutes = {
   "GET /capture/{capture_id}/keys": null;
   "GET /capture/{capture_id}/mistakes": null;
   "GET /capture/{capture_id}/page/{page_no}.jpg": null;
+  "GET /capture/{capture_id}/pages": null;
   "GET /capture/{capture_id}/proof": null;
   "GET /capture/{capture_id}/readings": null;
   "GET /card/{section}/{week}": null;

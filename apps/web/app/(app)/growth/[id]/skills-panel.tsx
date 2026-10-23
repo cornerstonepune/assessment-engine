@@ -50,7 +50,8 @@ export function SkillsPanel({ skills, answers, names, states }: { skills: ChildS
                     s={s}
                     // a rung that tests two skills is a line for each, the same name twice unless each says its skill
                     of={assessed.filter((x) => x.code === s.code).length > 1 ? s.skill_name : null}
-                    answers={answers.filter((a) => a.rung_code === s.rung_code)}
+                    // the skill's own answers: a rung that tests two skills shares its answers, and each line lists its skill's
+                    answers={answers.filter((a) => a.rung_code === s.rung_code && (!s.skill_code || a.skill_code === s.skill_code))}
                     names={names}
                     states={states}
                   />
