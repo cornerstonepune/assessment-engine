@@ -43,7 +43,7 @@ export function FilterBar({
     const s = q.toString();
     return s ? `${action}?${s}` : action;
   };
-  const control = "min-h-[40px] border border-basalt/30 bg-chalk px-3 text-[15px] text-basalt";
+  const control = "min-h-[40px] border border-basalt/30 bg-chalk px-3 !text-[15px] text-basalt";
   return (
     <section data-filterbar aria-label="Filters" className="mb-3">
       <form ref={form} action={action} method="get" role="search" className="flex flex-wrap items-center gap-2">
@@ -68,7 +68,7 @@ export function FilterBar({
               <circle cx="7" cy="7" r="4.6" />
               <path d="M10.6 10.6L14 14" />
             </svg>
-            <input type="search" name={search.name} defaultValue={search.value ?? ""} placeholder={search.placeholder} autoComplete="off" className={`input ${control} !pl-9 !w-[240px] transition-[width] focus:!w-[340px]`} />
+            <input type="search" name={search.name} defaultValue={search.value ?? ""} placeholder={search.placeholder} autoComplete="off" className={`input ${control} !pl-9 !w-[240px] focus:!w-[340px]`} />
           </label>
         ) : null}
         <noscript>

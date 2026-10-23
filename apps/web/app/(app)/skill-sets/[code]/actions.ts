@@ -137,3 +137,19 @@ export async function approveLevel(formData: FormData): Promise<void> {
   revalidatePath(`/skill-sets/${code}`);
   redirect(`/skill-sets/${code}?level_approved=${level}#levels`);
 }
+
+/** A named person approves one way of asking (`question_type_approval`): once, for every skill and level that uses it —
+ *  the paper-maker draws only approved ones. Approving it again changes nothing, and the first approval keeps its name
+ *  and date (goals/e0-english-in-the-system.yaml). */
+export async function approveWay(formData: FormData): Promise<void> {
+  const me = await deciding("skills");
+  const way = String(formData.get("way") ?? "");
+  const back = String(formData.get("back") ?? "");
+  if (!CODE.test(way) || !CODE.test(back)) redirect("/");
+  await sql`
+    insert into question_type_approval (tenant_id, question_type, approved_by)
+    select tenant_id, code, ${me.name}::text from question_type where code = ${way}
+    on conflict (tenant_id, question_type) do nothing`;
+  revalidatePath(`/skill-sets/${back}`);
+  redirect(`/skill-sets/${back}?way_approved=${way}#ways`);
+}

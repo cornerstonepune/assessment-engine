@@ -19,7 +19,7 @@ export const opens = (p: PaperListRow) =>
   p.stage === "made" || p.stage === "printed" || p.stage === "replaced" ? `/worksheets/${encodeURIComponent(p.qr)}` : `/capture/${p.id}`;
 
 const COLUMNS: Column<PaperListRow>[] = [
-  { key: "roll", label: "Roll", width: "5rem", num: true, value: (p) => p.roll_no },
+  { key: "roll", label: "Roll", width: "8%", num: true, value: (p) => p.roll_no },
   {
     key: "child",
     label: "Child",
@@ -30,13 +30,13 @@ const COLUMNS: Column<PaperListRow>[] = [
       </Link>
     ),
   },
-  { key: "level", label: "Level", width: "7rem", value: (p) => p.level },
-  { key: "stage", label: "Stage", width: "13rem", status: true, keep: true, value: (p) => STAGE_WORDS[p.stage], cell: (p) => <StatusChip state={STAGE_STATE[p.stage]} /> },
-  { key: "waiting", label: "Waiting", width: "6rem", num: true, value: (p) => p.waiting },
+  { key: "level", label: "Level", width: "12%", value: (p) => p.level },
+  { key: "stage", label: "Stage", width: "26%", status: true, keep: true, value: (p) => STAGE_WORDS[p.stage], cell: (p) => <StatusChip state={STAGE_STATE[p.stage]} /> },
+  { key: "waiting", label: "Waiting", width: "12%", num: true, value: (p) => p.waiting },
   {
     key: "score",
     label: "Score",
-    width: "7rem",
+    width: "14%",
     num: true,
     value: (p) => ((p.stage === "checked" || p.stage === "signed off") && p.scored ? `${p.right} of ${p.scored}` : null),
   },

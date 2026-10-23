@@ -39,8 +39,8 @@ test.afterAll(async () => {
 
 test("curriculum lists the six topics, and a class's skills each with its own switch", async ({ page }) => {
   await aClass(sql, CLASS, "G3", ["Ruhi", "Sam"]);
-  const topics = (await sql<{ name: string }[]>`select name from topic order by ord`).map((t) => t.name);
-  expect(topics, "six topics, by operation").toEqual(SIX);
+  const topics = (await sql<{ name: string }[]>`select name from topic where subject_code = 'NUM' order by ord`).map((t) => t.name);
+  expect(topics, "the maths has six topics, by operation").toEqual(SIX);
   const said = (skill: string) =>
     sql<{ t: boolean }[]>`select skill_taught_in(tenant_id, ${skill}, ${CLASS}) as t from skill where code = ${skill}`;
   expect((await said("MUL.2D1D"))[0].t, "column multiplication waits for an educator's word").toBe(false);
@@ -86,16 +86,16 @@ test("curriculum lists the six topics, and a class's skills each with its own sw
 });
 
 test("no chip names a kind of question, or a topic with nothing taught at the class's grade", async ({ page }) => {
-  // Children has none any more (goals/ux10-declutter.yaml); Assessments keeps its chips
+  // Children has none any more (goals/ux10-declutter.yaml); Assessments has the topics as one dropdown of its filter row
   for (const at of ["/papers"]) {
     await page.goto(at);
-    const chips = page.getByRole("navigation", { name: "Topic" });
-    await expect(chips.getByRole("link", { name: "All topics" })).toBeVisible();
-    const names = (await chips.getByRole("link").allInnerTexts()).map((n) => n.trim()).filter((n) => n !== "All topics");
+    const topic = page.locator('[data-filterbar] select[name="topic"]');
+    await expect(topic.locator("option").first()).toHaveText("Every topic");
+    const names = (await topic.locator("option").allInnerTexts()).map((n) => n.trim()).filter((n) => n !== "Every topic");
     expect(names.length, at).toBeGreaterThan(0);
-    expect(names.filter((n) => !SIX.includes(n)), `${at}: a chip that is not one of the six topics`).toEqual([]);
+    expect(names.filter((n) => !SIX.includes(n)), `${at}: a topic that is not one of the six`).toEqual([]);
     expect(names.filter((n) => KINDS.includes(n)), `${at}: a kind of question as a topic`).toEqual([]);
-    // each chip has a skill taught somewhere that a class on the roll can be given: its grade or below
+    // each topic has a skill taught somewhere that a class on the roll can be given: its grade or below
     const shown = await sql<{ name: string }[]>`
       select distinct t.name from topic t
       join skill s on s.tenant_id = t.tenant_id and s.topic_code = t.code

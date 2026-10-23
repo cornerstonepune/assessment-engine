@@ -107,9 +107,9 @@ def test_the_top_bar_controls_are_full_size_and_the_search_is_compact():
     assert f"min-h-[{least}px]" in bar and f"text-[{text}px]" in bar, (
         "the selectors must be sized from the rules"
     )
-    assert f"w-[{search}px]" in bar and "flex-1" not in bar.split("function Search")[1], (
-        "the search is a field, not a strip"
-    )
+    # a bare flex-1 stretches the field across the bar; one behind a breakpoint (the phone) is not the desktop's strip
+    bare_flex = re.search(r"(?<![\w:-])flex-1", bar.split("function Search")[1])
+    assert f"w-[{search}px]" in bar and not bare_flex, "the search is a field, not a strip"
     assert "max-w-[88px]" not in bar and "max-w-[118px]" not in bar, "the selectors may not be squeezed"
 
 

@@ -150,7 +150,7 @@ table.grid th.pin {
   background: linear-gradient(var(--ink-03), var(--ink-03)), var(--chalk);
 }
 /* One alignment rule for the whole site (docs/ux-rules.md, rule 2): text on the left, numbers on the right, a state in
-   the middle, each heading with its column. `table.fixed-cols` keeps a column the same width on every page of its kind. */
+   the middle, each heading with its column. `table.steady` keeps a column the same width on every page of its kind. */
 table.grid .a-left {
   text-align: left;
 }
@@ -166,24 +166,24 @@ table.grid td.num,
 table.grid td.a-right {
   font-variant-numeric: tabular-nums lining-nums;
 }
-table.grid.fixed-cols {
+table.grid.steady {
   table-layout: fixed;
 }
-table.grid.fixed-cols td,
-table.grid.fixed-cols th {
+table.grid.steady td,
+table.grid.steady th {
   overflow-wrap: anywhere;
 }
 /* the head stays at the top while a long table is read (rows are paged to ten, so this is for a short window) */
-table.grid.fixed-cols thead th {
+table.grid.steady thead th {
   position: sticky;
   top: 0;
   z-index: 2;
   background: linear-gradient(var(--ink-03), var(--ink-03)), var(--chalk);
 }
-table.grid.fixed-cols tbody tr:not(.under):hover td {
+table.grid.steady tbody tr:not(.under):hover td {
   background: var(--ink-03);
 }
-table.grid.fixed-cols tr.under td {
+table.grid.steady tr.under td {
   background: var(--ink-03);
   padding-left: 32px;
 }
@@ -376,4 +376,11 @@ table.grid.fixed-cols tr.under td {
     min-height: 44px;
     align-items: center;
   }
+}
+
+/* a table never makes its page wider than the screen: it scrolls inside its own box instead */
+.data-table {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
 }

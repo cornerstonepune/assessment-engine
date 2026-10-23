@@ -31,3 +31,36 @@ export async function skillMistakes(code: string): Promise<{ code: string; n: nu
     where ${inSkill(code)}
     group by m.code order by n desc, m.code`;
 }
+
+/** The ways a skill's levels are asked, from the tables that say so (`skill_level_question_type`), not from questions in
+ *  the bank: a subject whose questions are not drawn from a bank (English, E0) has none there. Each with its words,
+ *  whether a person checks every answer, and who approved it and when (one approval covers every skill that uses it). */
+export type WaysRow = {
+  code: string;
+  words: string;
+  levels: string[];
+  open: boolean;
+  by: string | null;
+  at: string | null;
+};
+
+export async function skillWays(code: string): Promise<WaysRow[]> {
+  return sql<WaysRow[]>`
+    select q.code, q.words, array_agg(l.difficulty order by d.ord) as levels,
+           'open_response' = any(q.marked) as open, a.approved_by as by, a.approved_at as at
+    from skill_level_question_type l
+    join question_type q on q.tenant_id = l.tenant_id and q.code = l.question_type
+    join difficulty d on d.tenant_id = l.tenant_id and d.code = l.difficulty
+    left join question_type_approval a on a.tenant_id = q.tenant_id and a.question_type = q.code
+    where l.skill_code = ${code}
+    group by q.code, q.words, q.marked, a.approved_by, a.approved_at
+    order by min(d.ord), q.code`;
+}
+
+/** The mistakes a skill watches for, in words, from `skill_mistake`: what a child writes and why. */
+export async function skillWatches(code: string): Promise<{ code: string; name: string; description: string }[]> {
+  return sql<{ code: string; name: string; description: string }[]>`
+    select distinct on (m.code) m.code, m.name, m.description
+    from skill_mistake k join misconception m on m.tenant_id = k.tenant_id and m.code = k.misconception_code and m.op = k.op
+    where k.skill_code = ${code} order by m.code`;
+}

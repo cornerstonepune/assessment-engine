@@ -30,7 +30,7 @@ const ORDER: Stage[] = ["scanned", "made", "printed", "checked", "signed off", "
 
 export function standing(a: Pick<AssessmentRow, "by" | "waiting">): { stage: Stage; state: State; note?: string } {
   const stage = ORDER.find((s) => a.by[s]) ?? "signed off";
-  return { stage, state: STAGE_STATE[stage], note: stage === "scanned" && a.waiting ? `${a.waiting} answers` : undefined };
+  return { stage, state: STAGE_STATE[stage], note: stage === "scanned" && a.waiting ? `${a.waiting} answer${a.waiting === 1 ? "" : "s"}` : undefined };
 }
 
 /** The copies of the assessment that are in: read, checked or signed off. */
@@ -65,11 +65,12 @@ export async function AssessmentsTable({
     given: (a.qrs ?? []).map((q) => given.get(q)).filter(Boolean).sort().at(-1) ?? null,
   }));
   const columns: Column<View>[] = [
-    { key: "class", label: "Class", width: "9rem", keep: true, value: (a) => (a.section ? (a.band ? classWords(g, a.band, a.section) : a.section) : null) },
-    { key: "subject", label: "Subject", width: "7rem", value: (a) => a.subjectName },
+    { key: "class", label: "Class", width: "11%", keep: true, value: (a) => (a.section ? (a.band ? classWords(g, a.band, a.section) : a.section) : null) },
+    { key: "subject", label: "Subject", width: "8%", value: (a) => a.subjectName },
     {
       key: "assessment",
       label: "Assessment",
+      width: "24%",
       keep: true,
       value: (a) => assessmentTitle(a),
       cell: (a) => {
@@ -89,20 +90,38 @@ export async function AssessmentsTable({
         );
       },
     },
-    { key: "kind", label: "Kind", width: "9rem", value: (a) => KIND_WORDS[a.kind] ?? a.kind },
-    { key: "stage", label: "Stage", width: "7rem", keep: true, value: (a) => STAGE_NAME[standing(a).stage] },
-    { key: "given", label: "Given on", width: "8rem", value: (a) => (a.given ? dateWords(a.given) : null) },
-    { key: "in", label: "Papers in", width: "7rem", num: true, keep: true, value: (a) => `${papersIn(a)} of ${a.copies}` },
+    { key: "kind", label: "Kind", width: "11%", value: (a) => KIND_WORDS[a.kind] ?? a.kind },
+    { key: "stage", label: "Stage", width: "9%", keep: true, value: (a) => STAGE_NAME[standing(a).stage] },
+    { key: "given", label: "Given on", width: "10%", value: (a) => (a.given ? dateWords(a.given) : null) },
+    {
+      key: "in",
+      label: "Papers in",
+      width: "8%",
+      num: true,
+      keep: true,
+      value: (a) => `${papersIn(a)} of ${a.copies}`,
+      // a class's spare copies, not yet written on, go with its pack: said under the count, apart from it
+      cell: (a) => (
+        <>
+          {papersIn(a)} of {a.copies}
+          {a.spares ? <span className="block text-[11.5px] text-basalt/55">and {a.spares} spare</span> : null}
+        </>
+      ),
+    },
     {
       key: "status",
       label: "Status",
-      width: "13rem",
+      width: "19%",
       status: true,
       keep: true,
       value: (a) => standing(a).state,
       cell: (a) => {
         const s = standing(a);
-        return <StatusChip state={s.state} note={s.note} />;
+        return (
+          <span data-testid="stage-on-row">
+            <StatusChip state={s.state} note={s.note} />
+          </span>
+        );
       },
     },
   ];

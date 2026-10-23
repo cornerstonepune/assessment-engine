@@ -18,7 +18,7 @@ export const STATES = {
   withChildren: { tone: "wait", words: "with the children" },
   toCheck: { tone: "act", words: "to check" },
   toSignOff: { tone: "wait", words: "to sign off" },
-  replaced: { tone: "quiet", words: "replaced" },
+  replaced: { tone: "quiet", words: "replaced by a newer one" },
   approved: { tone: "ok", words: "approved" },
   taught: { tone: "ok", words: "taught" },
   notTaught: { tone: "quiet", words: "not taught yet" },

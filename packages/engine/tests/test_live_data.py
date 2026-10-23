@@ -9,6 +9,7 @@ import pytest
 
 from engine.checks import live_data
 from engine.core import db
+from tests import rows
 
 
 def test_a_migration_is_unapplied_until_its_version_is_recorded():
@@ -87,9 +88,9 @@ def _paper(conn, responses):
         (tenant,),
     )
     item = conn.execute(
-        "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses)"
-        " values (%s, 'K', 'T', 'R1', 'Procedural', 'bare_sum', '{}', %s) returning id",
-        (tenant, json.dumps([{"rid": r} for r in responses])),
+        "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses, skill_codes)"
+        " values (%s, 'K', 'T', 'R1', 'Procedural', 'bare_sum', '{}', %s, %s) returning id",
+        (tenant, json.dumps([{"rid": r} for r in responses]), [rows.a_registry_skill(conn, tenant)]),
     ).fetchone()["id"]
     template = conn.execute(
         "insert into sheet_template (tenant_id, band, level, week, item_ids) values (%s, 'G2', 'L0', 'w', %s)"
