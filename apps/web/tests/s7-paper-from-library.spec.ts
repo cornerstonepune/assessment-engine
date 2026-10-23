@@ -93,8 +93,16 @@ test("a spare is listed with the week it was printed for", async ({ page }) => {
   const spares = await sql<{ qr_code: string }[]>`
     select qr_code from sheet_instance where section = ${SECTION} and week = ${WEEK} and child_id is null`;
   expect(spares.length).toBeGreaterThan(0);
+  // spares are rows of the pack's table (goals/uxn4-papers-to-approve.yaml), after the children: read every page of it
   await page.goto(LIST);
-  for (const s of spares) await expect(page.getByRole("link", { name: new RegExp(s.qr_code) })).toBeVisible();
+  const seen: string[] = [];
+  for (;;) {
+    seen.push(await page.getByRole("table", { name: "Each child's paper this week" }).innerText());
+    const later = page.getByRole("link", { name: /^Later/ });
+    if (!(await later.count())) break;
+    await later.click();
+  }
+  for (const s of spares) expect(seen.join("\n")).toContain(`printed code ${s.qr_code}`);
 });
 
 test("a paper opens from its code: the page as printed, how it was drawn, and its whole key", async ({ page }) => {
@@ -145,11 +153,21 @@ test("the week's plan shows every child with a level and a reason", async ({ pag
     select count(*)::int as n from prescription p join child c on c.id = p.child_id
     where c.section = ${SECTION} and p.week = ${WEEK} and p.kind = 'practice'`;
   await page.goto(LIST);
-  const rows = page.getByRole("table", { name: "Each child's paper this week" }).locator("tbody tr");
-  await expect(rows).toHaveCount(n);
-  for (const row of await rows.all()) {
-    await expect(row).toContainText(/Easy|Medium|Hard|Advance/);
-    await expect(row).toContainText(/level|showed|hand/); // every row explains itself
+  // every page of the pack's table: the children, then the spares (goals/uxn4-papers-to-approve.yaml)
+  const lines: string[] = [];
+  for (;;) {
+    const table = page.getByRole("table", { name: "Each child's paper this week" });
+    await expect(table.locator("tbody tr").first()).toBeVisible();
+    lines.push(...(await table.locator("tbody tr").allInnerTexts()));
+    const later = page.getByRole("link", { name: /^Later/ });
+    if (!(await later.count())) break;
+    await later.click();
+  }
+  const children = lines.filter((l) => !l.includes("Spare copy"));
+  expect(children).toHaveLength(n);
+  for (const row of children) {
+    expect(row).toMatch(/Easy|Medium|Hard|Advance/);
+    expect(row).toMatch(/level|showed|hand/); // every row explains itself
   }
 });
 
@@ -158,7 +176,7 @@ test("every child's paper has its own code, and no two children share questions"
   // The page streams in behind its loading screen: wait for the table before reading its cells.
   const week = page.getByRole("table", { name: "Each child's paper this week" });
   await expect(week.locator("tbody tr").first()).toBeVisible();
-  const codes = await week.locator("tbody tr td:nth-child(4)").allInnerTexts();
+  const codes = await week.locator("tbody tr td:nth-child(5)").allInnerTexts();
   // a cell reads "CS1A2B3C · R22-H03": the paper's own code, then the library worksheet it is
   const real = codes.map((c) => c.match(/\bCS[0-9A-F]{6}\b/)?.[0]).filter((c): c is string => !!c);
   expect(real.length).toBeGreaterThan(0);
@@ -237,10 +255,18 @@ test("approving the pack marks the papers printed", async ({ page }) => {
 
 test("spare copies are listed and carry no child's name", async ({ page }) => {
   await page.goto(LIST);
-  const panel = page.locator("section").filter({ hasText: "Spare copies" });
-  await expect(panel).toContainText(/CS[0-9A-F]{6}/);
+  const spareLines: string[] = [];
+  for (;;) {
+    const table = page.getByRole("table", { name: "Each child's paper this week" });
+    await expect(table.locator("tbody tr").first()).toBeVisible();
+    spareLines.push(...(await table.locator("tbody tr").filter({ hasText: "Spare copy" }).allInnerTexts()));
+    const later = page.getByRole("link", { name: /^Later/ });
+    if (!(await later.count())) break;
+    await later.click();
+  }
+  const shown = spareLines.join("\n").match(/\bCS[0-9A-F]{6}\b/g) ?? [];
+  expect(shown.length).toBeGreaterThan(0);
   // every copy listed as a spare is one made for no child
-  const shown = (await panel.innerText()).match(/\bCS[0-9A-F]{6}\b/g) ?? [];
   const [{ named }] = await sql<{ named: number }[]>`
     select count(*)::int as named from sheet_instance where qr_code = any(${shown}) and child_id is not null`;
   expect(named).toBe(0);

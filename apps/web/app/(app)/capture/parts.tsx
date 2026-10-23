@@ -1,11 +1,14 @@
 // The pieces every Marking view shares (goals/u3-marking.yaml): where a group of papers' answers stand, a table of
 // papers, and how the reader is doing. The counts are the engine's (answer_standing); nothing here decides one.
 import Link from "@/components/link";
-import { Panel, Pill } from "@/components/shell";
+import { DataTable } from "@/components/data-table";
+import { Panel } from "@/components/shell";
+import { StatusChip, type State } from "@/components/status-chip";
+import type { Column } from "@/lib/ux-rules";
 import { many } from "@/lib/needs-you";
 import { questionKinds } from "@/lib/question-types";
 import type { PaperRow, ReaderReport } from "@/lib/queries-read";
-import { ReaderTable } from "./reader-table";
+import { ReaderTable, type ReaderView } from "./reader-table";
 import { dateWords } from "@/lib/week";
 
 export const fmtDate = dateWords;
@@ -36,47 +39,44 @@ export function standing(rows: PaperRow[]): Standing {
   };
 }
 
-/** The same numbers as table cells, labelled for a test to read. Every answer read is settled by the engine, checked
- *  by a person or still waiting, so the three after "Answers read" add up to it. */
-export function StandingCells({ s }: { s: Standing }) {
-  return (
-    <>
-      <td className="num" data-testid="papers">{s.papers}</td>
-      <td className="num" data-testid="answers">{s.answers}</td>
-      <td className="num" data-testid="engine">{s.engine}</td>
-      <td className="num" data-testid="person">{s.person}</td>
-      <td className="num" data-testid="waiting">{s.waiting ? <Pill tone="bamboo">{s.waiting}</Pill> : "—"}</td>
-      <td className="num whitespace-nowrap text-[12.5px]">
-        {s.papers === 0 ? "—" : s.signed === s.papers ? <Pill tone="neem">all {s.papers} signed off</Pill> : `${s.signed} of ${s.papers} signed off`}
-      </td>
-    </>
-  );
+/** The standing of a group of papers as table columns, labelled for a test to read (`data-testid`). Every answer read is
+ *  settled by the engine, checked by a person or still waiting, so the three after "Answers read" add up to it. A column
+ *  of zeros is not drawn (docs/ux-rules.md, rule 4). */
+export function standingColumns<T>(of: (row: T) => Standing): Column<T>[] {
+  const n = (key: string, label: string, pick: (s: Standing) => number, width = "6rem"): Column<T> => ({
+    key,
+    label,
+    num: true,
+    width,
+    value: (r) => pick(of(r)),
+    cell: (r) => <span data-testid={key}>{pick(of(r))}</span>,
+  });
+  return [
+    n("papers", "Papers in", (s) => s.papers, "5.5rem"),
+    n("answers", "Answers read", (s) => s.answers),
+    n("engine", "Settled by the engine", (s) => s.engine, "7rem"),
+    n("person", "Checked by a person", (s) => s.person, "7rem"),
+    n("waiting", "Still waiting", (s) => s.waiting),
+    {
+      key: "signed",
+      label: "Signed off",
+      width: "8rem",
+      value: (r) => of(r).papers,
+      cell: (r) => (of(r).papers === 0 ? null : <span className="whitespace-nowrap">{of(r).signed === of(r).papers ? `all ${of(r).papers} signed off` : `${of(r).signed} of ${of(r).papers} signed off`}</span>),
+    },
+    {
+      key: "state",
+      label: "Status",
+      status: true,
+      width: "10rem",
+      value: (r) => groupState(of(r)),
+      cell: (r) => <StatusChip state={groupState(of(r))} />,
+    },
+  ];
 }
 
-export const STANDING_HEADS = (
-  <>
-    <th className="num">Papers in</th>
-    <th className="num">Answers read</th>
-    <th className="num">Settled by the engine</th>
-    <th className="num">Checked by a person</th>
-    <th className="num">Still waiting</th>
-    <th className="num">Signed off</th>
-  </>
-);
-
-/** The row under a table that adds its rows up: every paper and answer in it, so the columns visibly sum. `span` is
- *  how many columns come before the numbers (the name, and a count of children when the table has one). */
-export function TotalRow({ rows, span, kids }: { rows: PaperRow[]; span: number; kids?: number }) {
-  return (
-    <tfoot>
-      <tr aria-label="Total" className="font-semibold">
-        <td colSpan={kids === undefined ? span : span - 1}>Total</td>
-        {kids === undefined ? null : <td className="num">{kids}</td>}
-        <StandingCells s={standing(rows)} />
-      </tr>
-    </tfoot>
-  );
-}
+/** Where a group of papers stands: answers waiting for a person first, then papers to sign off, then all signed off. */
+export const groupState = (s: Standing): State => (s.waiting ? "toCheck" : s.toSign ? "toSignOff" : "done");
 
 /** What a child's papers need next (goals/ux5b-make-and-marking.yaml): the answers waiting for a person, then a paper
  *  to sign off — on the one paper that holds them, or across their papers when several do; a paper that came back with
@@ -91,61 +91,45 @@ export function nextStep(rows: PaperRow[]): { words: string; href: string } | nu
   return null;
 }
 
-export function PaperTable({ rows, withChild = false }: { rows: PaperRow[]; withChild?: boolean }) {
-  return (
-    <div className="min-w-0 overflow-x-auto">
-      <table className="grid">
-        <thead>
-          <tr>
-            {withChild ? <th>Child</th> : null}
-            <th>Paper</th>
-            <th className="num">Sat</th>
-            <th className="num">Answers</th>
-            <th className="num">By the engine</th>
-            <th className="num">By a person</th>
-            <th className="num">Waiting</th>
-            <th className="num">Score</th>
-            <th className="num">State</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((p) => (
-            <tr key={p.id}>
-              {withChild ? (
-                <td>
-                  <Link href={`/capture?child=${p.child_id}`}>{p.first_name}</Link>
-                  <div className="text-[12px] text-basalt/55">{p.section}</div>
-                </td>
-              ) : null}
-              <td className="max-w-[280px] text-[13px]">
-                <Link href={`/capture/${p.id}`}>{p.title ?? p.paper}</Link>
-              </td>
-              <td className="num fact whitespace-nowrap">{fmtDate(p.date)}</td>
-              <td className="num">{p.n_results}</td>
-              <td className="num">{p.n_engine}</td>
-              <td className="num">{p.n_person}</td>
-              <td className="num">{p.n_waiting || "—"}</td>
-              <td className="num whitespace-nowrap">
-                {/* A score once nothing on the sheet waits for a person: right, of every answer that counts. */}
-                {p.n_results > 0 && p.n_flagged === 0 ? `${p.n_right} / ${p.n_scored} right` : "—"}
-              </td>
-              <td className="num whitespace-nowrap">
-                {p.n_results === 0 ? (
-                  <Pill tone="terracotta">nothing read</Pill>
-                ) : p.n_candidate === 0 ? (
-                  <Pill tone="neem">signed off</Pill>
-                ) : p.n_flagged > 0 ? (
-                  <Pill tone="bamboo">{p.n_flagged} need your eyes</Pill>
-                ) : (
-                  <Pill tone="monsoon">read, not signed off</Pill>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+/** Where one paper stands. */
+const paperState = (p: PaperRow): { state: State; words?: string } =>
+  p.n_results === 0
+    ? { state: "unreadable", words: "nothing read" }
+    : p.n_candidate === 0
+      ? { state: "done", words: "signed off" }
+      : p.n_flagged > 0
+        ? { state: "toCheck", words: `${p.n_flagged} need your eyes` }
+        : { state: "toSignOff" };
+
+/** Papers as one table (goals/uxn8-marking.yaml): what each is, how its answers stand, and where it stands. */
+export function PapersTable({ rows, withChild = false, label, page = 1, pageHref }: { rows: PaperRow[]; withChild?: boolean; label: string; page?: number; pageHref?: (n: number) => string }) {
+  const columns: Column<PaperRow>[] = [
+    ...(withChild
+      ? [{ key: "child", label: "Child", width: "9rem", value: (p: PaperRow) => p.first_name, cell: (p: PaperRow) => (
+          <>
+            <Link href={`/capture?child=${p.child_id}`}>{p.first_name}</Link>
+            <div className="text-[12px] text-basalt/55">{p.section}</div>
+          </>
+        ) }]
+      : []),
+    { key: "paper", label: "Paper", value: (p) => p.title ?? p.paper, cell: (p) => <Link href={`/capture/${p.id}`}>{p.title ?? p.paper}</Link> },
+    { key: "sat", label: "Sat", num: true, width: "8rem", value: (p) => fmtDate(p.date), cell: (p) => <span className="fact whitespace-nowrap">{fmtDate(p.date)}</span> },
+    { key: "answers", label: "Answers", num: true, width: "5.5rem", value: (p) => p.n_results },
+    { key: "engine", label: "By the engine", num: true, width: "6rem", value: (p) => p.n_engine },
+    { key: "person", label: "By a person", num: true, width: "6rem", value: (p) => p.n_person },
+    { key: "waiting", label: "Waiting", num: true, width: "5.5rem", value: (p) => p.n_waiting },
+    {
+      key: "score",
+      label: "Score",
+      num: true,
+      width: "7.5rem",
+      // A score once nothing on the sheet waits for a person: right, of every answer that counts.
+      value: (p) => (p.n_results > 0 && p.n_flagged === 0 ? `${p.n_right} / ${p.n_scored} right` : null),
+      cell: (p) => (p.n_results > 0 && p.n_flagged === 0 ? <span className="whitespace-nowrap">{`${p.n_right} / ${p.n_scored} right`}</span> : null),
+    },
+    { key: "state", label: "Status", status: true, width: "11rem", value: (p) => paperState(p).state, cell: (p) => <StatusChip {...paperState(p)} /> },
+  ];
+  return <DataTable label={label} columns={columns} rows={rows} rowKey={(p) => p.id} more={{ page, href: pageHref ?? (() => "") }} />;
 }
 
 // Every check teaches the reader about that child (ADR 0032); this says what the checks so far add up to, so the effort
@@ -154,7 +138,7 @@ export function PaperTable({ rows, withChild = false }: { rows: PaperRow[]; with
 // so it is never narrowed to a person's classes, and it says so beside their own counts (goals/ux8a-numbers-true.yaml).
 const pct = (a: number, b: number) => (b ? `${Math.round((100 * a) / b)}%` : "—");
 
-export async function ReaderPanel({ r }: { r: ReaderReport }) {
+export async function ReaderPanel({ r, view, page, keep }: { r: ReaderReport; view: ReaderView; page: number; keep: Record<string, string | undefined> }) {
   const { words } = await questionKinds();
   const read = r.days.filter((d) => d.stood_behind > 0); // newest first
   const [latest, first] = [read[0], read[read.length - 1]];
@@ -169,7 +153,7 @@ export async function ReaderPanel({ r }: { r: ReaderReport }) {
         Every check you make teaches it how that child writes; a kind of question is settled by the reader alone only once it has matched you{" "}
         {Math.round(r.bar * 100)}% of the time over the last {r.window} checks. By kind of question says how many more right checks each still needs.
       </p>
-      {r.days.length || r.kinds.length || r.bands.length ? <ReaderTable r={r} words={words} /> : null}
+      {r.days.length || r.kinds.length || r.bands.length ? <ReaderTable r={r} words={words} view={view} page={page} keep={keep} /> : null}
     </Panel>
   );
 }

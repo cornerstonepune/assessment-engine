@@ -17,7 +17,7 @@ const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "UI1-TEST";
 const WEEK = isoWeek();
 const EDUCATOR = { email: "ui1-educator@cornerstone.test", name: "UI1 educator", role: "educator" };
-const TABS = ["Today", "Curriculum", "Assessments", "Children"];
+const TABS = ["Today", "Taught this week", "Papers to approve", "Assessments", "Upload papers", "Check answers", "Class results", "Curriculum", "Question bank"];
 
 async function engine(path: string, body: object) {
   const r = await fetch(`http://127.0.0.1:${ENGINE_PORT}${path}`, {
@@ -114,15 +114,16 @@ test("the menu is Today, Curriculum, Assessments, Children, and only Today carri
   expect(names.map((n) => n.replace(/\s*\d[\d,]*$/, "").trim())).toEqual(TABS);
 
   let total = 0;
-  for (const tab of ["Curriculum", "Assessments", "Children"]) {
-    const waiting = (await lines(page, tab)).filter((l) => l.waits).reduce((s, l) => s + l.n, 0);
+  // the lines Today groups under a name, and the tab of that name in the menu (Children is Class results)
+  for (const [tab, group] of [["Curriculum", "Curriculum"], ["Assessments", "Assessments"], ["Class results", "Children"]]) {
+    const waiting = (await lines(page, group)).filter((l) => l.waits).reduce((s, l) => s + l.n, 0);
     // a red count only on Today (goals/ux10-declutter.yaml): the tab's lines are counted on Today, not on the tab
     expect(await badge(page, tab), `${tab} carries no count`).toBe(0);
     total += waiting;
   }
   expect(await badge(page, "Today"), "Today's count is every tab's").toBe(total);
 
-  for (const [tab, heading] of [["Curriculum", "Curriculum"], ["Assessments", "Assessments"], ["Children", "Children"], ["Today", "Today"]]) {
+  for (const [tab, heading] of [["Curriculum", "Curriculum"], ["Assessments", "Assessments"], ["Class results", "Class results"], ["Today", "Today"]]) {
     await menu.getByRole("link", { name: new RegExp(`^${tab}\\b`) }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
     await expect(menu.getByRole("link", { name: new RegExp(`^${tab}\\b`) })).toHaveAttribute("aria-current", "page");
@@ -138,7 +139,7 @@ test("Today lists everything that waits, under the tab where it is done, and eac
   const toCheck = assessments.find((l) => l.title === "Answers to check")?.n ?? 0;
   if (toCheck) {
     await page.getByRole("region", { name: "Answers to check" }).getByRole("link").first().click();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check answers");
     await expect(page.getByText(`${toCheck} ${toCheck === 1 ? "answer" : "answers"} left to check`)).toBeVisible();
     await page.goto("/today");
   }

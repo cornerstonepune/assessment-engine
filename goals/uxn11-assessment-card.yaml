@@ -1,0 +1,24 @@
+name: uxn11-assessment-card
+goal: >
+  The assessment's card (one assessment from Made to Results) keeps its next step and its upload box, and its table of each
+  child's paper gains the page's one filter row (where it is) and shows where each paper is as the one status chip, with the
+  same words and colours as every list. Who may do what is unchanged. No migration.
+# Written 2026-10-23 (night), before the code.
+says:
+  - words: "use icons or red, amber, green in places that make it easier for people to navigate? Use filters wherever possible."
+    proved_by: "apps/web/tests/s42-the-assessment-card.spec.ts::each child's paper has its status chip, and a place in the filter row narrows the table"
+manual: []
+scenarios: []
+criteria:
+  - name: the rules and the ratchet hold
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_ux_rules.py tests/test_ratchet.py tests/test_layout.py -q -p no:cacheprovider -o addopts=
+    expect: "passed"
+  - name: the card pages, rendered
+    run: cd apps/web && npx playwright test tests/s42-the-assessment-card.spec.ts tests/u16-assessments.spec.ts tests/u9-papers.spec.ts tests/u51-ux-rules.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

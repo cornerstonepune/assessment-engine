@@ -159,7 +159,7 @@ test("one Assessments in the menu for marking and making, and a row opens the pa
   await expect(page.getByRole("region", { name: "Read a scan" })).toBeVisible();
   await expect(page.getByRole("link", { name: /answers? to check/ })).toHaveAttribute("href", "/capture/check");
   // the pages it merged are still Assessments
-  for (const path of ["/capture", "/make"]) {
+  for (const path of ["/make"]) {
     await page.goto(path);
     await expect(menu.getByRole("link", { name: "Assessments" })).toHaveAttribute("aria-current", "page");
   }

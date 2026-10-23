@@ -169,19 +169,39 @@ test("the one filter row is there, with its active filters, and a child chosen s
 test("class papers to approve names each child, says why a child has no paper, and counts what it approves", async ({ page }) => {
   await page.goto(`/papers/approve?section=${SECTION}&week=${THIS}&kind=assessment`);
   const table = page.getByRole("table", { name: "Each child's paper this week" });
-  await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Level", "Paper", ""]);
+  await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Level", "Why", "Paper", "Status", ""]);
+  // what needs the educator first: the two children with no paper, then the papers to approve, then what is approved
   expect(await table.locator("tbody tr").evaluateAll((trs) => trs.map((t) => t.querySelectorAll("td")[1].textContent?.trim()))).toEqual([
+    "Dev",
+    "Esha",
+    "Chetan",
+    "Spare copy",
     "Asha",
     "Bina",
-    "Chetan",
   ]);
-  // the level, and why it was chosen, in one cell
-  await expect(table.locator("tbody tr").nth(2).locator("td").nth(2)).toContainText("Medium");
-  // every child of the class without a paper, by name, and why
-  const none = page.getByRole("region", { name: "No paper this week" });
-  await expect(none.getByRole("listitem")).toHaveCount(2);
-  await expect(none.getByRole("listitem").filter({ hasText: "Dev" })).toContainText(WHY);
-  await expect(none.getByRole("listitem").filter({ hasText: "Esha" })).toContainText("joined the class after this week was planned");
+  const row = (who: string) => table.locator("tbody tr").filter({ hasText: who });
+  // the level, and why it was chosen
+  await expect(row("Chetan")).toContainText("Medium");
+  // every child of the class without a paper, by name, and why, with a status that says so
+  await expect(row("Dev")).toContainText(WHY);
+  await expect(row("Dev").locator("[data-status=noPaper]")).toBeVisible();
+  await expect(row("Esha")).toContainText("joined the class after this week was planned");
+  await expect(row("Chetan").locator("[data-status=toApprove]")).toBeVisible();
+  await expect(row("Asha").locator("[data-status=done]")).toBeVisible();
   // the button says what one tap approves: Chetan's paper and the spare
   await expect(page.getByRole("button", { name: "Approve 1 paper and 1 spare" })).toBeEnabled();
+});
+
+test("papers to approve is one table with one main action and a filter row (goals/uxn4-papers-to-approve.yaml)", async ({ page }) => {
+  await page.goto(`/papers/approve?section=${SECTION}&week=${THIS}&kind=assessment`);
+  // the one main action is the pack's approval, at the top; the page ends on the next step
+  await expect(page.locator("[data-ux=action]").getByRole("button", { name: "Approve 1 paper and 1 spare" })).toBeVisible();
+  await expect(page.locator("[data-ux=next]")).toHaveAttribute("href", "/papers");
+  // no hand-drawn tag for a class and week; the filter row holds them, and a status narrows the table
+  await expect(page.getByRole("navigation", { name: "Classes and weeks" })).toHaveCount(0);
+  await expect(page.locator("[data-filterbar]")).toBeVisible();
+  await page.goto(`/papers/approve?section=${SECTION}&week=${THIS}&kind=assessment&status=noPaper`);
+  const rows = page.getByRole("table", { name: "Each child's paper this week" }).locator("tbody tr");
+  await expect(rows).toHaveCount(2);
+  await expect(page.locator("[data-active-filters]")).toContainText("Status: No paper");
 });

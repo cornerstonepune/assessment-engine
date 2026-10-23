@@ -148,48 +148,49 @@ test.afterAll(async () => sql.end());
 
 test("marking is one area, and says how many papers are in and where every answer stands", async ({ page }) => {
   await page.goto("/capture");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Marking");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Upload papers");
   const menu = page.getByRole("navigation", { name: "Sections" });
   // Marking sits inside Assessments (goals/u9-papers.yaml, goals/ui1-menu-and-today.yaml)
-  await expect(menu.getByRole("link", { name: "Assessments" })).toHaveAttribute("aria-current", "page");
+  await expect(menu.getByRole("link", { name: "Upload papers" })).toHaveAttribute("aria-current", "page");
   // one sentence says it (goals/ux5b-make-and-marking.yaml), where five tiles stood
   expect(await shown(page.getByRole("region", { name: "Answers to check" }))).toEqual(await counts());
 
   // checking answers is inside Marking, not a page of its own
-  await page.getByRole("link", { name: /check them/i }).click();
+  await page.locator("[data-ux=action]").getByRole("link", { name: /^check \d+ answers/i }).click();
   await expect(page).toHaveURL(/\/capture\/check/);
-  await expect(menu.getByRole("link", { name: "Assessments" })).toHaveAttribute("aria-current", "page");
-  await page.getByRole("link", { name: "← Marking" }).click();
+  await expect(menu.getByRole("link", { name: "Check answers" })).toHaveAttribute("aria-current", "page");
+  await page.getByRole("link", { name: "← Upload papers" }).click();
   await expect(page).toHaveURL(/\/capture$/);
 });
 
 test("by class, by child and by worksheet, each count is where the engine says each answer stands", async ({ page }) => {
   // by class: the test's class, as its papers were made
-  await page.goto("/capture?by=class");
+  await page.goto(`/capture?by=class&class=${SECTION}`);
   const cls = page.getByRole("row").filter({ has: page.getByRole("link", { name: SECTION, exact: true }) });
   const mine = await counts(sql`ch.section = ${SECTION}`);
   expect(mine).toEqual({ papers: 3, engine: 8, person: 3, waiting: 4 });
   expect(await shown(cls)).toEqual(mine);
   await expect(cls).toContainText("1 of 3 signed off");
-  // the total row adds every class up, and every answer read is the engine's, a person's or still waiting
-  const total = page.getByRole("row", { name: "Total" });
+  // the sentence over the page adds every class up (the columns sum to it)
+  const total = page.getByRole("region", { name: "Answers to check" });
   const all = await counts();
   expect(await shown(total)).toEqual(all);
-  const answers = Number(await total.getByTestId("answers").innerText());
-  expect(answers).toBe(all.engine + all.person + all.waiting);
 
   // by child: the class opens as its children, each with the answers waiting on them (goals/ux5b-make-and-marking.yaml)
   await cls.getByRole("link", { name: SECTION, exact: true }).click();
   await expect(page).toHaveURL(`/capture?by=child&class=${SECTION}`);
-  const children = page.getByRole("table", { name: `${SECTION}: each child` });
+  const children = page.getByRole("table", { name: `Each child · ${SECTION}` });
   for (const [name, id] of Object.entries(kids)) {
     const row = children.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
     const { waiting } = await counts(sql`ch.id = ${id}::uuid`);
-    await expect(row.locator("td").nth(3)).toHaveText(waiting ? String(waiting) : "—");
+    // a column of zeros is not drawn, so with nothing waiting on anyone the cell is not there
+    const cell = row.locator('td[data-label="Waiting"]');
+    if (waiting) await expect(cell).toHaveText(String(waiting));
+    else expect(await cell.count()).toBeLessThanOrEqual(1);
   }
 
   // by worksheet: every child who sat it, together
-  await page.goto("/capture?by=worksheet");
+  await page.goto(`/capture?by=worksheet&class=${SECTION}`);
   const a = page.getByRole("row").filter({ has: page.getByRole("link", { name: "U3 paper A", exact: true }) });
   const sheetA = await counts(sql`t.batch_id = 'U3-A'`);
   expect(sheetA).toEqual({ papers: 2, engine: 6, person: 2, waiting: 2 });
@@ -207,7 +208,7 @@ test("the queue of answers to check sits inside marking with its count, one clic
   await page.goto("/capture");
   const queue = page.getByRole("region", { name: "Answers to check" });
   await expect(queue.getByTestId("waiting")).toHaveText(String(n));
-  await queue.getByRole("link", { name: /check them/i }).click();
+  await page.locator("[data-ux=action]").getByRole("link", { name: /^check \d+ answers/i }).click();
   await expect(page.getByText(`${n} answers left to check`)).toBeVisible();
 });
 

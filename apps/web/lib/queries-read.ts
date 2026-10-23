@@ -347,3 +347,22 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
     where r.id = ${id}::uuid`;
   return rows[0];
 }
+
+/** One line of the queue for the list of what is left (goals/uxn7-check-answers.yaml): the answer's place on the paper
+ *  and whose paper it is, by class and roll number — never a name (rule 6) — in the queue's own order. */
+export type QueueLine = { id: string; spot: boolean; section: string; roll_no: string; paper: string; slot: string };
+
+export async function checkList(queue: QueueEntry[]): Promise<QueueLine[]> {
+  if (!queue.length) return [];
+  const rows = await sql<Omit<QueueLine, "spot">[]>`
+    select r.id, ch.section, ch.roll_no, ${paperName("t")} as paper, result_slot(i.item_key, r.raw_read::jsonb) as slot
+    from item_result r
+    join capture c on c.id = r.capture_id
+    join item i on i.id = r.item_id
+    join sheet_instance si on si.id = c.sheet_instance_id
+    join sheet_template t on t.id = si.sheet_template_id
+    join child ch on ch.id = si.child_id
+    where r.id = any(${queue.map((e) => e.id)}::uuid[])`;
+  const by = new Map(rows.map((r) => [r.id, r]));
+  return queue.flatMap((e) => (by.has(e.id) ? [{ ...by.get(e.id)!, spot: e.spot }] : []));
+}

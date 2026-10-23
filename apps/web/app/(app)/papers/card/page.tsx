@@ -1,5 +1,7 @@
 import Link from "@/components/link";
 import { DataTable } from "@/components/data-table";
+import { FilterBar } from "@/components/filter-bar";
+import { StatusChip } from "@/components/status-chip";
 import { PageShell } from "@/components/page-shell";
 import { Notice, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
@@ -11,6 +13,7 @@ import { KIND_WORDS, STAGE_WORDS } from "@/lib/queries-papers";
 import type { Column } from "@/lib/ux-rules";
 import { dateWords, weekWords } from "@/lib/week";
 import { UploadScans } from "../../capture/upload-scans";
+import { STAGE_STATE } from "../copies-table";
 import { away, givenOn } from "./actions";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -52,7 +55,7 @@ export default async function CardPage({ searchParams }: Props) {
           </div>
           <Stages at={s.at} done={s.done} />
           <Next card={card} s={s} />
-          <Copies card={card} page={Number(q.page) || 1} />
+          <Copies card={card} page={Number(q.page) || 1} where={q.where} />
         </div>
       )}
     </PageShell>
@@ -197,9 +200,12 @@ function Back({ k }: { k: CardKey }) {
 const away_ = (c: CardCopy) => ["made", "printed"].includes(c.stage) && c.printed;
 
 /** Each child's paper, those still out first (rule 3 of docs/ux-rules.md: ten to a page, the rest a page away). */
-function Copies({ card, page }: { card: Card; page: number }) {
+function Copies({ card, page, where }: { card: Card; page: number; where?: string }) {
   const out = (c: CardCopy) => ["made", "printed"].includes(c.stage);
-  const rows = [...card.copies.filter(out), ...card.copies.filter((c) => !out(c))];
+  const stages = [...new Set(card.copies.map((c) => c.stage))];
+  const at = stages.find((x) => x === where);
+  const all = [...card.copies.filter(out), ...card.copies.filter((c) => !out(c))];
+  const rows = at ? all.filter((c) => c.stage === at) : all;
   const columns: Column<CardCopy>[] = [
     { key: "roll", label: "Roll", value: (c) => c.roll_no },
     {
@@ -221,7 +227,13 @@ function Copies({ card, page }: { card: Card; page: number }) {
         </>
       ),
     },
-    { key: "where", label: "Where it is", value: (c) => (c.away && out(c) ? "away · held for later" : STAGE_WORDS[c.stage]) },
+    {
+      key: "where",
+      label: "Where it is",
+      status: true,
+      value: (c) => (c.away && out(c) ? "away · held for later" : STAGE_WORDS[c.stage]),
+      cell: (c) => <StatusChip state={STAGE_STATE[c.stage]} words={c.away && out(c) ? "away · held for later" : STAGE_WORDS[c.stage]} />,
+    },
     { key: "score", label: "Score", num: true, value: (c) => (c.scored ? `${c.right} of ${c.scored}` : null) },
     {
       key: "away",
@@ -241,9 +253,14 @@ function Copies({ card, page }: { card: Card; page: number }) {
     },
   ];
   const { class: cls, week, kind, set } = card.key;
-  const to = (p: number) => `/papers/card?${new URLSearchParams({ class: cls, week, kind, ...(set ? { set } : {}), page: String(p) })}`;
+  const to = (p: number) => `/papers/card?${new URLSearchParams({ class: cls, week, kind, ...(set ? { set } : {}), ...(at ? { where: at } : {}), page: String(p) })}`;
   return (
     <Panel title="Each child's paper" label="Each child's paper">
+      <FilterBar
+        action="/papers/card"
+        keep={{ class: cls, week, kind, set }}
+        filters={[{ name: "where", label: "Where it is", value: at, all: "Anywhere", options: stages.map((x) => [x, STAGE_WORDS[x]] as const) }]}
+      />
       <DataTable label="Each child's paper" columns={columns} rows={rows} rowKey={(c) => c.qr} more={{ page, href: to }} />
     </Panel>
   );

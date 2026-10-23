@@ -65,7 +65,7 @@ const said = (section: string) =>
 test("an educator says a topic is taught in their class, in their name, and no other class changes", async ({ browser }) => {
   const page = await signedIn(browser);
   try {
-    await page.goto("/?taught=1");
+    await page.goto("/taught");
     const row = page.getByRole("region", { name: "Not taught yet", exact: true }).getByRole("listitem").filter({ hasText: topicName });
     await expect(row).toContainText(`Not taught yet in ${MINE}`);
     await expect(row, "an educator is offered only their own classes").not.toContainText(OTHER);
@@ -78,7 +78,7 @@ test("an educator says a topic is taught in their class, in their name, and no o
     expect(school.taught, "one class's word is not the school's switch").toBe(false);
 
     // another class is theirs to say too, one role for now (goals/ux9c-one-role.yaml): the form sent for it, in their name
-    await page.goto("/?taught=1");
+    await page.goto("/taught");
     const taught = page.getByRole("region", { name: "Taught", exact: true });
     await taught.locator("summary").click();
     const off = taught

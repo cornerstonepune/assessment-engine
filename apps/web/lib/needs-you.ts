@@ -69,7 +69,7 @@ export function linesOf(w: Waiting, g: Grades, may: (kind: Kind) => boolean = ()
     Curriculum: [
       { title: "Skills to approve", kind: "skills", n: w.skills, words: "skills whose words or levels the engine wrote or changed, each waiting for one approval", href: "/skill-sets/approve", action: "Review and approve", waits: true },
       { title: "Questions the engine drafted for you", kind: "asks", n: asks, words: "the engine's drafts of the taxonomy and its decisions, to agree with or correct", href: "/asks", action: "Answer them", waits: true },
-      { title: "Topics not taught yet", kind: "topics", n: w.topics, words: "say a class has been taught a topic once it has; until then its skills are on none of that class's papers", href: "/?taught=1#not-taught", action: "Say what is taught", waits: false },
+      { title: "Topics not taught yet", kind: "topics", n: w.topics, words: "say a class has been taught a topic once it has; until then its skills are on none of that class's papers", href: "/taught#not-taught", action: "Say what is taught", waits: false },
     ],
     Children: [
       {

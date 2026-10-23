@@ -64,8 +64,9 @@ test("a page whose code cannot be read is listed by its number, read as no child
   await page.goto("/capture");
   const panel = page.getByRole("region", { name: "Read a scan" });
   await panel.getByLabel("Choose scans").setInputFiles([scan]);
-  const run = panel.getByRole("list", { name: "Scans read last" }).getByRole("listitem").filter({ hasText: FILE }).first();
-  await expect(run).toContainText(`${pages} pages, `, { timeout: 60_000 });
+  const table = panel.getByRole("table", { name: "Scans read last" });
+  const run = table.getByRole("row").filter({ hasText: FILE }).first();
+  await expect(run).toContainText(`${pages} pages`, { timeout: 60_000 });
   await expect(run).not.toContainText("reading now", { timeout: 120_000 });
   const [f] = await sql<{ id: string }[]>`select id from flow_run where flow = 'read-scan' and trigger like ${`%${FILE}`}`;
 
@@ -83,7 +84,7 @@ test("a page whose code cannot be read is listed by its number, read as no child
   await page.reload();
 
   // listed by its number, its picture beside it, not read: one button for the child a page short, the rest folded
-  const waiting = run.getByRole("list", { name: `Pages of ${FILE} waiting for their child` }).getByRole("listitem");
+  const waiting = table.getByRole("list", { name: `Pages of ${FILE} waiting for their child` }).getByRole("listitem");
   await expect(waiting).toHaveCount(1);
   await expect(waiting).toContainText("Page 1: no code could be read on it, so it is not read until you say whose it is.");
   const picture = await page.request.get(`/api/scan-run/${f.id}/1`);
@@ -91,7 +92,7 @@ test("a page whose code cannot be read is listed by its number, read as no child
   expect(picture.headers()["content-type"]).toBe("image/jpeg");
   const whose = waiting.getByRole("form", { name: "Whose is page 1?" });
   await expect(whose.getByRole("button", { name: `${CLASS} · roll 2` })).toBeHidden();
-  await expect(run, "a roll number, never a name").not.toContainText(/Ana|Bo\b/);
+  await expect(table, "a roll number, never a name").not.toContainText(/Ana|Bo\b/);
 
   await whose.getByRole("button", { name: `${CLASS} · roll 1 (a page short)` }).click();
   await expect(page).toHaveURL(/read=given/);
@@ -99,8 +100,8 @@ test("a page whose code cannot be read is listed by its number, read as no child
     select result -> 'given' as given from flow_run where id = ${f.id}`;
   expect(given.map((g) => [g.page, g.child_id, g.by])).toEqual([[1, kids.Ana, "e2e@cornerstone.test"]]);
   // the file is read again, the page as Ana's; it no longer waits, and says whose it was given as
-  await expect(run).toContainText(`Page 1 given to ${CLASS} · roll 1`);
-  await expect(run.getByRole("list", { name: `Pages of ${FILE} waiting for their child` })).toHaveCount(0);
+  await expect(table).toContainText(`Page 1 given to ${CLASS} · roll 1`);
+  await expect(table.getByRole("list", { name: `Pages of ${FILE} waiting for their child` })).toHaveCount(0);
 });
 
 test("the engine refuses a page given to a child whose paper is not in the file, in words", async ({ request }) => {

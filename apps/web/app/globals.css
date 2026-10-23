@@ -169,9 +169,13 @@ table.grid td.a-right {
 table.grid.steady {
   table-layout: fixed;
 }
-table.grid.steady td,
-table.grid.steady th {
+table.grid.steady td {
   overflow-wrap: anywhere;
+}
+/* a heading is never split inside a word: a column too narrow for its heading is widened, not broken ("ROL L") */
+table.grid.steady th {
+  overflow-wrap: normal;
+  hyphens: manual;
 }
 /* the head stays at the top while a long table is read (rows are paged to ten, so this is for a short window) */
 table.grid.steady thead th {
@@ -351,6 +355,10 @@ table.grid.steady tr.under td {
   table.grid.list tbody,
   table.grid.list tr,
   table.grid.list td {
+    display: block;
+  }
+  /* the head is for a screen reader: its cells stack, so a wide column never carries a heading's link off the screen */
+  table.grid.list thead th {
     display: block;
   }
   table.grid.list tr {

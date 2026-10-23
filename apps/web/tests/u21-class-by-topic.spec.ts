@@ -44,8 +44,6 @@ test.afterAll(async () => {
 // a child's "Needs help on" on the Children list, their class opened (goals/ux3-children-grouped.yaml); a table holds
 // only the columns that have something in them (goals/ux10-declutter.yaml), so the cell is found under its heading
 const standing = async (page: Page, who: string) => {
-  const group = page.locator(`details[data-class="${SECTION}"]`);
-  if ((await group.getAttribute("open")) === null) await group.locator("summary").click();
   const table = page.getByRole("table", { name: `${SECTION}: its children` });
   const row = table.locator(`tr[data-child="${kids[who]}"]`);
   await expect(row).toBeVisible();
@@ -57,7 +55,7 @@ const standing = async (page: Page, who: string) => {
 // goals/ux10-declutter.yaml, Nimish 2026-10-22: the topic chips on Children are dropped. What the page said by topic it
 // now says across every topic switched on, and a class's own page still reads topic by topic (the next test).
 test("the Children list has no topic chips: it reads every topic switched on, whatever the address says", async ({ page }) => {
-  for (const at of ["/growth", "/growth?topic=DATA"]) {
+  for (const at of [`/growth?class=${SECTION}`, `/growth?class=${SECTION}&topic=DATA`]) {
     await page.goto(at);
     await expect(page.getByRole("navigation", { name: "Topic" }), at).toHaveCount(0);
     // Asha needs help on addition and subtraction: it shows, though the address asked for Data handling alone

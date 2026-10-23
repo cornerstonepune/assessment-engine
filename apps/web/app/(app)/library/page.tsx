@@ -65,7 +65,7 @@ export default async function LibraryPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Curriculum · Question bank"
+        stage="Question bank"
         title="Question bank"
         sub={`${n(totals.active)} questions ready to print for the skills taught, of the bank's ${n(totals.bank)}; every one is on a numbered worksheet.`}
       />

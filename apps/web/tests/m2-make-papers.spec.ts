@@ -76,10 +76,10 @@ test.afterAll(async () => {
 test("each class's home papers are proposed from each child's own map, one skill each, and approved in one click", async ({
   page,
 }) => {
-  await page.goto("/make");
+  await page.goto(`/make?class=${SECTION}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Home assessments");
   const row = page.getByRole("table", { name: "Home assessments this week" }).locator("tbody tr").filter({ hasText: SECTION });
-  await expect(row.locator("td[data-n=proposed]")).toHaveText("2");
+  await expect(row.locator("[data-n=proposed]")).toHaveText("2");
   await row.getByRole("link", { name: "Open" }).click();
   await expect(page).toHaveURL(`/make/${SECTION}`);
 
@@ -101,11 +101,8 @@ test("each class's home papers are proposed from each child's own map, one skill
     where c.section = ${SECTION} and si.week = ${isoWeek()}`;
   expect(made).toHaveLength(2);
   expect(new Set(made.map((m) => `${m.kind} ${m.approved_by}`))).toEqual(new Set([`focus ${TEST_STAFF.email}`]));
-  // approved, a child folds away under one line (goals/ux5b-make-and-marking.yaml)
-  await expect(asha).toHaveCount(0);
-  const fold = page.locator("details[data-approved]");
-  await fold.locator("> summary").click();
-  await expect(fold.getByRole("row").filter({ hasText: "Asha" })).toContainText(`Approved by ${TEST_STAFF.name}`);
+  // approved, a child stays in the table with a green status and who approved it, after the children still waiting
+  await expect(asha.locator("[data-status=done]")).toContainText(`approved · by ${TEST_STAFF.name}`);
   await expect(page.getByRole("button", { name: /Approve all/ })).toHaveCount(0);
 });
 

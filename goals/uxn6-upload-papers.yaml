@@ -1,0 +1,30 @@
+name: uxn6-upload-papers
+goal: >
+  Upload papers (Monday's first step) is a page on the shared blocks: its title and one line, the upload box first, the
+  files read last as one table (file, when, pages, copies, answers settled by the engine, checked by a person, waiting,
+  and a status chip), the one main action (check the answers waiting) and the week's next step under it. What the engine
+  reads, what a page with no code asks of a person and what a file lacks are said as before. The marking tables under it
+  are the next slice. No migration.
+# Written 2026-10-23 (night), before the code.
+says:
+  - words: "for teachers, in most of the places, can we use tables instead of a lot of places where the tags ... are never aligned"
+    proved_by: "apps/web/tests/u44-upload-on-marking.spec.ts::a scan put in on Marking is read, and its run says what was found and what waits"
+  - words: "use icons or red, amber, green in places that make it easier for people to navigate"
+    proved_by: "apps/web/tests/u48-no-guessed-pages.spec.ts::a page whose code cannot be read is listed by its number, read as no child's, and given to one in one tap"
+  - words: "make it easy to navigate, and ensure the entire design consistency"
+    proved_by: "apps/web/tests/u41-what-a-scan-lacks.spec.ts::a scan's missing and doubled pages are said under Read a scan, by roll number"
+manual: []
+scenarios: []
+criteria:
+  - name: the rules and the ratchet hold
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_ux_rules.py tests/test_ratchet.py tests/test_layout.py -q -p no:cacheprovider -o addopts=
+    expect: "passed"
+  - name: the scan pages, rendered
+    run: cd apps/web && npx playwright test tests/u41-what-a-scan-lacks.spec.ts tests/u44-upload-on-marking.spec.ts tests/u48-no-guessed-pages.spec.ts tests/u51-read-an-uploaded-file-again.spec.ts tests/u3-marking.spec.ts tests/u38-make-and-marking.spec.ts tests/u51-ux-rules.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

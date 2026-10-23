@@ -122,7 +122,6 @@ const lines = (cell: Locator) =>
     return new Set([...r.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top))).size;
   });
 const names = (rows: Locator) => rows.evaluateAll((trs) => trs.map((t) => t.querySelectorAll("td")[1].textContent?.trim()));
-const klass = (page: Page) => page.locator(`details[data-class="${SECTION}"]`);
 
 test("Home assessments and Marking open on the educator's own class", async ({ browser }) => {
   const page = await asEducator(browser);
@@ -132,18 +131,22 @@ test("Home assessments and Marking open on the educator's own class", async ({ b
   // one class: nothing to go back to
   await expect(page.getByRole("link", { name: "← Every class" })).toHaveCount(0);
   await page.goto("/capture");
-  await expect(klass(page)).toHaveAttribute("open", "");
-  await expect(page.locator("details[data-class]")).toHaveCount(1);
+  // their one class is the table, and the Class filter says so
+  await expect(page.getByRole("table", { name: `Each child · ${SECTION}` })).toBeVisible();
+  await expect(page.locator("[data-filterbar] select[name=class]")).toHaveValue(SECTION);
   await page.context().close();
 });
 
 test("each child waiting for a home assessment is one line with one next step, the why in two lines at most", async ({ browser }) => {
   const page = await asEducator(browser);
+  // the educator's desktop (docs/ux-rules.md, "Desktop first")
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`/make/${SECTION}`);
   const table = page.getByRole("table", { name: "Each child's home assessment" });
   await expect(table).toBeVisible();
-  await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Works on", "Why", "Next step"]);
-  expect(await names(table.locator("tbody tr"))).toEqual(["Asha", "Bina", "Chetan"]);
+  await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Works on", "Why", "Status", "Next step"]);
+  // what needs the educator first: Chetan, with nothing to go on, then the two to approve, then the approved
+  expect(await names(table.locator("tbody tr"))).toEqual(["Chetan", "Asha", "Bina", "Dev"]);
   const cells = (who: string) => table.locator("tbody tr").filter({ hasText: who }).locator("td");
   // what it works on opens the paper as it will print; the count every paper shares is not said on every line, and its
   // questions fold under it (goals/preview-before-print.yaml)
@@ -155,12 +158,12 @@ test("each child waiting for a home assessment is one line with one next step, t
   await expect(cells("Asha").nth(3)).toContainText("the same mistake more than once: Subtracts the smaller digit");
   expect(await lines(cells("Asha").nth(3))).toBeLessThanOrEqual(2);
   // one next step a child: approve what is proposed, or choose one where the engine has nothing to go on
-  await expect(cells("Asha").nth(4).getByRole("button")).toHaveText(["Approve"]);
-  await expect(cells("Asha").nth(4).getByRole("link", { name: "or choose another" })).toHaveAttribute("href", `/make/custom?child=${kids.Asha}`);
+  await expect(cells("Asha").nth(5).getByRole("button")).toHaveText(["Approve"]);
+  await expect(cells("Asha").nth(5).getByRole("link", { name: "or choose another" })).toHaveAttribute("href", `/make/custom?child=${kids.Asha}`);
   await expect(cells("Chetan").nth(2)).toHaveText("Not enough checked work yet");
-  await expect(cells("Chetan").nth(4).getByRole("button")).toHaveCount(0);
-  await expect(cells("Chetan").nth(4).getByRole("link")).toHaveText(["Choose one"]);
-  await expect(cells("Chetan").nth(4).getByRole("link")).toHaveAttribute("href", `/make/custom?child=${kids.Chetan}`);
+  await expect(cells("Chetan").nth(5).getByRole("button")).toHaveCount(0);
+  await expect(cells("Chetan").nth(5).getByRole("link")).toHaveText(["Choose one"]);
+  await expect(cells("Chetan").nth(5).getByRole("link")).toHaveAttribute("href", `/make/custom?child=${kids.Chetan}`);
   // nothing runs past its panel's edge
   const over = await page.getByRole("main").getByRole("region").evaluateAll((els) =>
     els.filter((e) => e.scrollWidth > e.clientWidth + 1).map((e) => e.getAttribute("aria-label")),
@@ -169,18 +172,16 @@ test("each child waiting for a home assessment is one line with one next step, t
   await page.context().close();
 });
 
-test("the children already approved fold under one line", async ({ browser }) => {
+test("the children already approved are rows of the table, after the ones waiting, each with who approved it", async ({ browser }) => {
   const page = await asEducator(browser);
   await page.goto(`/make/${SECTION}`);
-  const fold = page.locator("details[data-approved]");
-  await expect(fold).not.toHaveAttribute("open", "");
-  await expect(fold.locator("> summary")).toHaveText(/^1 approved this week/);
-  await fold.locator("> summary").click();
-  const dev = fold.getByRole("row").filter({ hasText: "Dev" });
-  await expect(dev).toContainText(`Approved by ${EDUCATOR.name}`);
+  const table = page.getByRole("table", { name: "Each child's home assessment" });
+  const dev = table.getByRole("row").filter({ hasText: "Dev" });
+  await expect(dev.locator("[data-status=done]")).toContainText(`approved · by ${EDUCATOR.name}`);
   await expect(dev.getByRole("link", { name: QR.home })).toHaveAttribute("href", `/worksheets/${QR.home}`);
-  // what waits is still one tap
-  await expect(page.getByRole("button", { name: "Approve all 2" })).toBeVisible();
+  await expect(table.getByRole("row").filter({ hasText: "Chetan" }).locator("[data-status=chooseOne]")).toBeVisible();
+  // what waits is still one tap, the page's one main action
+  await expect(page.locator("[data-ux=action]").getByRole("button", { name: "Approve all 2" })).toBeVisible();
   await page.context().close();
 });
 
@@ -192,36 +193,31 @@ test("Marking says in one sentence what waits, and each child is one line with t
   await expect(top).toContainText(
     "3 papers in: 5 answers settled by the engine, 0 checked by a person, 2 waiting for you to check; 2 papers to sign off.",
   );
-  await expect(top.getByRole("link", { name: /check them/i })).toHaveAttribute("href", "/capture/check");
-  const table = klass(page).getByRole("table", { name: `${SECTION}: each child` });
+  await expect(page.locator("[data-ux=action]").getByRole("link", { name: /^check 2 answers/i })).toHaveAttribute("href", "/capture/check");
+  const table = page.getByRole("table", { name: `Each child · ${SECTION}` });
   await expect(table).toBeVisible();
-  await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Paper", "Waiting", "Next step"]);
-  expect(await names(table.locator("tbody tr"))).toEqual(["Asha", "Bina", "Dev"]);
+  await expect(table.locator("thead th")).toHaveText(["Class", "Roll", "Child", "Paper", "Waiting", "Status", "Next step"]);
+  expect(await table.locator("tbody tr").evaluateAll((trs) => trs.map((t) => t.querySelectorAll("td")[2].textContent?.trim()))).toEqual(["Asha", "Bina", "Dev"]);
   const cells = (who: string) => table.locator("tbody tr").filter({ hasText: who }).locator("td");
-  await expect(cells("Asha").nth(2).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.asha.id}`);
-  await expect(cells("Asha").nth(2)).toHaveText(sheet.asha.title);
-  await expect(cells("Asha").nth(3)).toHaveText("2");
-  await expect(cells("Asha").nth(4).getByRole("link")).toHaveText("Check 2 answers →");
-  await expect(cells("Asha").nth(4).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.asha.id}`);
-  await expect(cells("Bina").nth(3)).toHaveText("—");
-  await expect(cells("Bina").nth(4).getByRole("link")).toHaveText("Sign off →");
-  await expect(cells("Bina").nth(4).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.bina.id}`);
-  await expect(cells("Dev").nth(4)).toHaveText("Signed off");
-  await expect(cells("Dev").nth(4).getByRole("link")).toHaveCount(0);
+  await expect(cells("Asha").nth(3).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.asha.id}`);
+  await expect(cells("Asha").nth(3)).toHaveText(sheet.asha.title);
+  await expect(cells("Asha").nth(4)).toHaveText("2");
+  await expect(cells("Asha").nth(6).getByRole("link")).toHaveText("Check 2 answers →");
+  await expect(cells("Asha").nth(6).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.asha.id}`);
+  await expect(cells("Bina").nth(4)).toHaveText("0");
+  await expect(cells("Bina").nth(6).getByRole("link")).toHaveText("Sign off →");
+  await expect(cells("Bina").nth(6).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.bina.id}`);
+  await expect(cells("Dev").nth(5)).toContainText("signed off");
+  await expect(cells("Dev").nth(6).getByRole("link")).toHaveCount(0);
   await page.context().close();
 });
 
-test("the coordinator sees each class as one closed line saying what waits in it", async ({ page }) => {
-  await page.goto("/capture");
-  await expect(klass(page)).toBeAttached();
-  await expect(klass(page)).not.toHaveAttribute("open", "");
-  const line = klass(page).locator("> summary");
-  await expect(line).toContainText(SECTION);
-  await expect(line).toContainText(/3 children\b.*2 answers to check\b.*2 papers to sign off\b/);
-  await line.click();
-  await expect(klass(page).getByRole("table", { name: `${SECTION}: each child` })).toBeVisible();
-  // a class chosen opens where it is
+test("the coordinator sees every class in one table, and one class when it is chosen", async ({ page }) => {
+  // every class is one table, a class column in it; a class chosen opens where it is, in the filter row
   await page.goto(`/capture?class=${SECTION}`);
-  await expect(klass(page)).toHaveAttribute("open", "");
-  await expect(page.locator("details[data-class][open]")).toHaveCount(1);
+  await expect(page.locator("[data-active-filters]")).toContainText(`Class: ${SECTION}`);
+  await expect(page.getByRole("table", { name: `Each child · ${SECTION}` })).toBeVisible();
+  await expect(page.getByRole("table", { name: /^Each child/ })).toHaveCount(1);
+  await page.goto("/capture");
+  await expect(page.getByRole("table", { name: "Each child" }).locator("thead th").first()).toHaveText("Class");
 });

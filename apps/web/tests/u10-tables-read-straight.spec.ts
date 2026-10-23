@@ -85,51 +85,61 @@ test("every heading sits over its own column, on every page with a table", async
     select c.section from child_skill_state s join child c on c.id = s.child_id where c.active and s.n_events > 0 limit 1`;
   for (const path of ["/", "/papers", "/capture", "/growth", "/make", "/library", "/worksheets", `/growth/class/${grid.section}`]) {
     await page.goto(path);
-    // Children opens on every class closed for the coordinator (goals/ux3-children-grouped.yaml): one is opened to read
-    if (path === "/growth") await page.locator("details[data-class] summary").first().click();
     expect(await offColumn(page), path).toEqual([]);
   }
   // the reader's table, in each of its views
-  await page.goto("/capture");
-  const panel = page.getByRole("region", { name: "How the reader is doing" });
-  for (const view of ["By kind of question", "By how sure it was"]) {
-    await panel.getByRole("button", { name: view }).click();
+  for (const view of ["kind", "sure"]) {
+    await page.goto(`/capture?reader=${view}`);
     expect(await offColumn(page), view).toEqual([]);
   }
 });
 
-test("how the reader is doing is one table, by day first, by kind or by how sure at a click", async ({ page }) => {
+test("how the reader is doing is one table, by day first, by kind or by how sure at a choice in the filter row", async ({ page }) => {
   await page.goto("/capture");
+  // behind a fold, for the people who build the reader (docs/ux-rules.md, rule 8)
+  await page.getByText("How the reader is doing, for the people who build it").click();
   const panel = page.getByRole("region", { name: "How the reader is doing" });
-  const show = panel.getByRole("group", { name: "Show the reader" });
   const table = panel.getByRole("table", { name: "How the reader is doing" });
   await expect(panel.getByRole("table")).toHaveCount(1);
-  await expect(show.getByRole("button", { name: "By day" })).toHaveAttribute("aria-pressed", "true");
-  await expect(table.locator("thead th")).toHaveText(["Papers read on", "Answers checked", "Reader right", "Against the day before", "Gave up"]);
+  await expect(panel.locator("select[name=reader]")).toHaveValue("");
+  await expect(table.locator("thead th").first()).toHaveText("Papers read on");
+  await expect(table.locator("thead th").nth(1)).toHaveText("Answers checked");
+  await expect(table.locator("thead th").nth(2)).toHaveText("Reader right");
 
-  await show.getByRole("button", { name: "By kind of question" }).click();
-  await expect(show.getByRole("button", { name: "By kind of question" })).toHaveAttribute("aria-pressed", "true");
-  await expect(table.locator("thead th").first()).toHaveText("Kind of question");
+  await page.goto("/capture?reader=kind");
+  const kinds = page.getByRole("region", { name: "How the reader is doing" }).getByRole("table", { name: "How the reader is doing" });
+  await expect(page.getByRole("region", { name: "How the reader is doing" }).locator("select[name=reader]")).toHaveValue("kind");
+  await expect(kinds.locator("thead th").first()).toHaveText("Kind of question");
   // every kind in words: never a code like word_2step
-  for (const kind of await table.locator("tbody td:first-child").allInnerTexts()) expect(kind).not.toMatch(/_/);
+  for (const kind of await kinds.locator("tbody td:first-child").allInnerTexts()) expect(kind).not.toMatch(/_/);
 
-  await show.getByRole("button", { name: "By how sure it was" }).click();
-  await expect(table.locator("thead th").first()).toHaveText("Reader was this sure");
-  await expect(panel.getByRole("table")).toHaveCount(1);
+  await page.goto("/capture?reader=sure");
+  const sure = page.getByRole("region", { name: "How the reader is doing" }).getByRole("table", { name: "How the reader is doing" });
+  await expect(sure.locator("thead th").first()).toHaveText("Reader was this sure");
+  await expect(page.getByRole("region", { name: "How the reader is doing" }).getByRole("table")).toHaveCount(1);
 });
 
 test("each day says how far the reader moved against the day before, and the words say first against latest", async ({ page }) => {
   const [{ n }] = await sql<{ n: number }[]>`select count(distinct read_on)::int as n from answer_checked`;
-  await page.goto("/capture");
+  await page.goto("/capture?reader=day");
   const panel = page.getByRole("region", { name: "How the reader is doing" });
   const rows = panel.getByRole("table", { name: "How the reader is doing" }).locator("tbody tr");
-  await expect(rows).toHaveCount(n);
+  // the newest ten days a page
+  await expect(rows).toHaveCount(Math.min(n, 10));
   // newest first: each day's move is its share right less the day before's, as the table itself shows them
-  const cells = await rows.evaluateAll((trs) => trs.map((tr) => [...tr.querySelectorAll("td")].map((td) => td.textContent!.trim())));
+  // by the column's own label, since a column with nothing in it is not drawn
+  const cells = await rows.evaluateAll((trs) =>
+    trs.map((tr) => {
+      const by = (l: string) => tr.querySelector(`td[data-label="${l}"]`)?.textContent?.trim() ?? "";
+      return [by("Papers read on"), "", by("Reader right"), by("Against the day before")];
+    }),
+  );
   const right = cells.map((c) => (c[2] === "—" ? null : Number(c[2].replace("%", ""))));
   for (const [i, c] of cells.entries()) {
     const before = right[i + 1];
-    const expected = right[i] === null || before === undefined || before === null ? "—"
+    // the last row of a page has the day before it on the next page
+    if (before === undefined && n > cells.length) continue;
+    const expected = right[i] === null || before === undefined || before === null ? ""
       : right[i] === before ? "no change" : `${right[i]! > before ? "▲" : "▼"} ${Math.abs(right[i]! - before)} points`;
     expect(c[3], `${c[0]}`).toBe(expected);
   }

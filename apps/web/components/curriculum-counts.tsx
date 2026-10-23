@@ -4,9 +4,11 @@ import { useState } from "react";
 import Link from "@/components/link";
 import { Pill } from "@/components/shell";
 import type { CurriculumRow } from "@/lib/queries-curriculum";
-import { switchTopic } from "./topic-actions";
+import { switchTopic } from "@/app/(app)/topic-actions";
 
-// The curriculum as one table (goals/u12-curriculum-table.yaml). Nimish, 2026-09-30: "When I click on grade 1, there
+// The curriculum's counts, behind "Question bank details" (docs/ux-rules.md, rule 8): the tree grade by grade with the bank's
+// questions, worksheets and children assessed at every depth. The page's own view is the table of skills (curriculum-skills.tsx).
+// (goals/u12-curriculum-table.yaml) Nimish, 2026-09-30: "When I click on grade 1, there
 // is a proper table where, within grade 1, within mathematics, there are addition and subtraction, and then within
 // that, there is sub. It just flows like that." A row opens the rows under it; a grade with one subject opens both, so a
 // click on a grade shows its topics and a click on a topic its skills. An educator reads grade → topic → skill, each
@@ -53,7 +55,7 @@ function NotTaught({ row, say }: { row: CurriculumRow; say: boolean }) {
 
 /** `levels`: the school's levels in order, the columns (lib/levels.ts). `start`: the grades it opens on, the person's own
  *  (goals/ux6-curriculum-for-the-educator.yaml), every other grade closed. */
-export function CurriculumTable({
+export function CurriculumCounts({
   rows,
   levels,
   say = false,

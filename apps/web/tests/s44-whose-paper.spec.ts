@@ -58,7 +58,7 @@ test.beforeAll(async () => {
 
 const open = async (page: import("@playwright/test").Page, qr: string, n: number) => {
   await page.goto(`/capture/check?id=${made[qr].results[n]}`);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check answers");
 };
 
 test("the Yes button is in the answer box, under the sentence it answers; nothing sits above the card but the progress line", async ({ page }) => {
@@ -142,9 +142,12 @@ test("signing a paper off says the score recorded, and the last paper of an asse
   await page.goto("/papers/card?class=S44-ALONE&week=S44-ALONE&kind=earlier");
   await expect(page.getByText("2 of 3").first()).toBeVisible();
   // and on the Children page, which used to show learning gaps and nothing of the paper just signed off
-  await page.goto("/growth");
-  await expect(page.locator('tr[data-section="S44-TEST"][data-name="chitra"]')).toContainText("3 of 3 right");
-  await expect(page.locator('tr[data-section="S44-ALONE"][data-name="devi"]')).toContainText("2 of 3 right");
+  // (a class chosen in the filter row lists all its children, each row with the score of its last paper)
+  await page.goto("/growth?class=S44-TEST");
+  const row = (who: string) => page.getByRole("row").filter({ has: page.getByRole("link", { name: who, exact: true }) });
+  await expect(row("Chitra")).toContainText("3 of 3 right");
   // a child with no paper signed off has no score, not "0 of 0"
-  await expect(page.locator('tr[data-section="S44-TEST"][data-name="bina"]')).not.toContainText("right");
+  await expect(row("Bina")).not.toContainText("right");
+  await page.goto("/growth?class=S44-ALONE");
+  await expect(row("Devi")).toContainText("2 of 3 right");
 });
