@@ -48,3 +48,7 @@ the link to the next step; the same words in the menu, the title and the next-st
 
 `tests/test_ux_rules.py` and `u51-ux-rules.spec.ts` fail on a tag list where a table belongs, a table of six rows or
 more with no filter row, a status with no icon, a top-bar control under 40 px.
+
+## CI repair, 2026-10-23
+- The design system added `subject` to the shared papers query; main's Across-every-class query did `select p.*, … as subject`, so Postgres said "column reference subject is ambiguous" and the page crashed. Fixed in `apps/web/lib/queries-across.ts` by naming the columns.
+- Proof: `cd apps/web && npx playwright test tests/s43-across-classes.spec.ts` → 4 passed (was 1 failed, 3 did not run); the full browser job had 345 passed, 1 failed. `npx tsc --noEmit` clean; `bin/check` → 30 passed, 1 skipped.
