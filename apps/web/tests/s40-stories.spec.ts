@@ -7,6 +7,7 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { aTaughtClass } from "./rows";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 
@@ -29,6 +30,10 @@ const SHOWS: { level: string; fmt: string; kind: string; shows: RegExp[] }[] = [
   { level: "Advance", fmt: "word_1step", kind: "one-step word problem", shows: [/Use the price list\./, /\(₹\)\s+\d+/] },
 ];
 const CODE = /\bM_[A-Z_]+\b|\b[A-Z]{2,}\.[A-Z0-9_.]+\b/;
+
+test.beforeAll(async () => {
+  await aTaughtClass(sql);
+});
 
 test.afterAll(async () => {
   await sql.end();
