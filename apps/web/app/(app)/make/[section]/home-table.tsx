@@ -22,12 +22,12 @@ export function HomeTable({ rows, week, section, draws, differentFor, page, page
 }) {
   const custom = (id: string) => `/make/custom?child=${id}`;
   const cols: Column<HomeRow>[] = [
-    { key: "roll", label: "Roll", num: true, width: "3.5rem", value: (r) => r.child.roll_no },
-    { key: "who", label: "Child", width: "6.5rem", value: (r) => r.child.first_name, cell: (r) => <Link href={`/growth/${r.child.id}`}>{r.child.first_name}</Link> },
+    { key: "roll", label: "Roll", num: true, width: "3rem", value: (r) => r.child.roll_no },
+    { key: "who", label: "Child", width: "6rem", value: (r) => r.child.first_name, cell: (r) => <Link href={`/growth/${r.child.id}`}>{r.child.first_name}</Link> },
     {
       key: "works",
       label: "Works on",
-      width: "14rem",
+      width: "11rem",
       value: (r) => r.child.proposal.areas[0]?.name ?? (r.state === "done" ? "approved" : "Not enough checked work yet"),
       cell: (r) => {
         const a = r.child.proposal.areas[0];
@@ -55,19 +55,19 @@ export function HomeTable({ rows, week, section, draws, differentFor, page, page
         );
       },
     },
-    { key: "why", label: "Why", value: (r) => (r.state === "done" ? "" : r.child.proposal.areas[0]?.why), cell: (r) => <span className="block text-[12.5px] text-basalt/75 xl:min-w-[24rem]">{r.state === "done" ? null : r.child.proposal.areas[0]?.why}</span> },
+    { key: "why", label: "Why", value: (r) => (r.state === "done" ? "" : r.child.proposal.areas[0]?.why), cell: (r) => <span className="text-[12.5px] text-basalt/75">{r.state === "done" ? null : r.child.proposal.areas[0]?.why}</span> },
     {
       key: "state",
       label: "Status",
       status: true,
-      width: "9rem",
+      width: "8.5rem",
       value: (r) => r.state,
       cell: (r) => <StatusChip state={r.state} words={r.state === "done" ? "approved" : undefined} note={r.state === "done" && r.approvedBy ? `by ${r.approvedBy}` : undefined} />,
     },
     {
       key: "next",
       label: "Next step",
-      width: "10rem",
+      width: "9rem",
       keep: true,
       value: (r) => r.state,
       cell: (r) => {
