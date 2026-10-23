@@ -145,4 +145,6 @@ test("signing a paper off says the score recorded, and the last paper of an asse
   await page.goto("/growth");
   await expect(page.locator('tr[data-section="S44-TEST"][data-name="chitra"]')).toContainText("3 of 3 right");
   await expect(page.locator('tr[data-section="S44-ALONE"][data-name="devi"]')).toContainText("2 of 3 right");
+  // a child with no paper signed off has no score, not "0 of 0"
+  await expect(page.locator('tr[data-section="S44-TEST"][data-name="bina"]')).not.toContainText("right");
 });

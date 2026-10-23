@@ -22,6 +22,8 @@ Screenshots at 1440 px (before on main, after, the same-photograph notice, score
 
 Not run here: the whole engine suite and the whole browser suite (CI does). Eight `tests/api` tests that print a PDF through Chromium fail in this container because the pre-installed Chromium is a different build; they do not touch these files.
 
+CI found two mistakes of mine, both fixed: `rules.json` lacked the six rules of the new `page_choice` table (shard 10), and the Children page's "Last paper" query gave every child "0 of 0 right" because an aggregate over no rows still returns a row (browser: u35, u50-declutter, u8). The spec now checks that an unsigned child has no score.
+
 ## Were the scores recorded, and where do they show
 
 Read from the code and shown on the seeded copy; **the live database could not be reached, so I cannot say what Nimish's Grade 1 file holds.**

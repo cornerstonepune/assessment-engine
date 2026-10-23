@@ -66,8 +66,9 @@ export async function childTable(actor: string, topic: string | null = null, sco
               join sheet_instance si on si.id = k.sheet_instance_id
              where si.child_id = c.id and k.superseded_by is null and si.print_status <> 'void'
                and r.status in ('unreadable', 'needs_teacher')) as waiting,
-           (select count(*) filter (where r.status = 'correct') || ' of ' ||
-                   count(*) filter (where r.status in ('correct', 'wrong', 'blank')) || ' right'
+           (select case when count(*) filter (where r.status in ('correct', 'wrong', 'blank')) > 0
+                        then count(*) filter (where r.status = 'correct') || ' of ' ||
+                             count(*) filter (where r.status in ('correct', 'wrong', 'blank')) || ' right' end
               from item_result r join capture k on k.id = r.capture_id
              where k.sheet_instance_id = (
                      select si.id from sheet_instance si join capture k2 on k2.sheet_instance_id = si.id and k2.superseded_by is null
