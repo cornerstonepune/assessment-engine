@@ -122,6 +122,16 @@ def test_a_stage_agrees_with_kind_trust_under_the_same_numbers(conn):
     assert dict(stage) == dict(trust)
 
 
+def test_a_subject_taken_away_takes_its_rules_with_it(conn):
+    """A subject's rules are made when the subject is (above), so they go when it does: a subject can still be removed
+    (tests/s43-across-classes.spec.ts adds one and takes it away)."""
+    conn.execute(
+        "insert into subject (tenant_id, code, name) values (%s, 'C4GONE', 'a subject')", (tenant(conn),)
+    )
+    conn.execute("delete from subject where code = 'C4GONE'")
+    assert db.one(conn, "select count(*) as n from validation_rule where subject_code = 'C4GONE'")["n"] == 0
+
+
 def test_a_rule_out_of_range_is_refused(conn):
     for window, bar in ((0, 0.9), (3, 0), (3, 1.5)):
         with pytest.raises(psycopg.errors.CheckViolation), conn.transaction():
