@@ -89,6 +89,9 @@ async function tablesRead(page: Page, path: string) {
     if (rows === 0) continue;
     const first = body.first().locator("td");
     expect(await first.count(), `${name} table ${t}: a cell under each heading`).toBe(await heads.count());
+    // a heading is never split inside a word: one wider than its column would overflow it
+    const cramped = await heads.evaluateAll((hs) => hs.filter((h) => h.scrollWidth > h.clientWidth + 1).map((h) => h.textContent));
+    expect(cramped, `${name}: headings that do not fit their column`).toEqual([]);
     for (let c = 0; c < (await heads.count()); c++) {
       const h = await heads.nth(c).boundingBox();
       const d = await first.nth(c).boundingBox();
@@ -105,7 +108,7 @@ async function tablesRead(page: Page, path: string) {
 
 /** A status is an icon and a word. */
 async function statusesSaid(page: Page, path: string) {
-  const chips = page.locator("[data-status]");
+  const chips = page.locator("[data-status]:visible");
   const n = Math.min(await chips.count(), 40);
   for (let i = 0; i < n; i++) {
     const chip = chips.nth(i);
@@ -119,7 +122,7 @@ async function wholePage(page: Page, path: string, title: RegExp, { filter = tru
   await tablesRead(page, path);
   if (filter) await expect(page.locator("[data-filterbar]").first(), `${path}: a filter row`).toBeVisible();
   if (chips) {
-    expect(await page.locator("[data-status]").count(), `${path}: a status somewhere`).toBeGreaterThan(0);
+    expect(await page.locator("[data-status]:visible").count(), `${path}: a status somewhere`).toBeGreaterThan(0);
     await statusesSaid(page, path);
   }
 }
@@ -191,6 +194,10 @@ test("Curriculum, Maths then English, and Staff and School", async ({ page }) =>
   await wholePage(page, "/", /Curriculum/, { chips: true });
   const maths = await page.locator(".data-table tbody tr").count();
   expect(maths).toBeGreaterThan(0);
+  // the filter row says the subject too: its rows are that subject's alone
+  await page.locator("[data-filterbar] select[name=subject]").selectOption("English");
+  await expect(page).toHaveURL(/subject=English/);
+  for (const cell of await page.locator(".data-table tbody tr:not(.under) td:nth-child(2)").allInnerTexts()) expect(cell.trim()).toBe("English");
   await page.getByLabel("Subject", { exact: true }).selectOption({ label: "English" });
   await expect(page.getByRole("heading", { level: 1 }).first()).toHaveText(/Curriculum/);
   await expect(page.getByText("This page could not load")).toHaveCount(0);

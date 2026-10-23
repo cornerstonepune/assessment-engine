@@ -58,10 +58,12 @@ export default async function CurriculumPage({ searchParams }: Props) {
   const grades = [
     ...new Map(lines.map((l) => [l.gradeCode, l.grade])).entries(),
   ] as [string, string][];
+  const subjects = [...new Set(lines.map((l) => l.subject))];
   const topicOptions = [
     ...new Map(
       lines
         .filter((l) => !q.grade || l.gradeCode === q.grade)
+        .filter((l) => !q.subject || l.subject === q.subject)
         .map((l) => [l.topicCode, l.topic]),
     ).entries(),
   ] as [string, string][];
@@ -137,6 +139,13 @@ export default async function CurriculumPage({ searchParams }: Props) {
                 value: q.grade,
                 all: "Every grade",
                 options: grades,
+              },
+              {
+                name: "subject",
+                label: "Subject",
+                value: q.subject,
+                all: "Every subject",
+                options: subjects.map((s) => [s, s] as const),
               },
               {
                 name: "topic",

@@ -51,7 +51,14 @@ export function Topics({ topics, me, open, fold = false }: { topics: Topic[]; me
                     <span>
                       <b>{t.name}</b>
                       <span className="block text-[13px] text-basalt/70">{t.skills.join(" · ")}</span>
-                      <span className="block text-[12px] text-basalt/55">Not taught yet in {waiting.map((c) => c.section).join(", ")}</span>
+                      {waiting.length > 8 ? (
+                        <details className="text-[12px] text-basalt/55">
+                          <summary className="cursor-pointer">Not taught yet in {waiting.length} classes</summary>
+                          Not taught yet in {waiting.map((c) => c.section).join(", ")}
+                        </details>
+                      ) : (
+                        <span className="block text-[12px] text-basalt/55">Not taught yet in {waiting.map((c) => c.section).join(", ")}</span>
+                      )}
                     </span>
                     <details className="text-right">
                       <summary className="btn secondary cursor-pointer list-none">Say it is taught</summary>

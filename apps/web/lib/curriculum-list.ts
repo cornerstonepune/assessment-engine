@@ -69,6 +69,7 @@ export function skillLines(
 
 export type Chosen = {
   grade?: string;
+  subject?: string;
   topic?: string;
   status?: string;
   q?: string;
@@ -80,6 +81,7 @@ export function chosen(lines: SkillLine[], f: Chosen): SkillLine[] {
   const keep = lines.filter(
     (l) =>
       (!f.grade || l.gradeCode === f.grade) &&
+      (!f.subject || l.subject === f.subject) &&
       (!f.topic || l.topicCode === f.topic) &&
       (!f.status || statusOf(l) === f.status) &&
       (!q || `${l.skill} ${l.name} ${l.topic}`.toLowerCase().includes(q)),
