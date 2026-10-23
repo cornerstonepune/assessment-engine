@@ -142,35 +142,53 @@ test("in the menu only Today carries a count", async ({ browser }) => {
   await page.context().close();
 });
 
-test("Curriculum shows grades, topics and skills with what each level asks; the bank's counts wait behind Question bank details", async ({ browser }) => {
+test("Curriculum shows each skill in a row with its levels and status; the bank's counts wait behind Question bank details", async ({
+  browser,
+}) => {
   const page = await asEducator(browser);
   await page.goto("/");
-  const table = page.getByRole("table", { name: "The curriculum, grade by grade" });
-  await expect(table.getByRole("columnheader")).toHaveCount(1);
-  await page.getByRole("button", { name: "Open everything" }).click();
-  // a skill's row says what each level asks, in the school's words (the skill's own sentences)
-  const skill = table.locator("tbody tr[data-depth='3']").first();
-  await expect(skill.getByRole("list")).toBeVisible();
-  await expect(skill.getByRole("listitem").first()).toContainText(/^(Easy|Medium|Hard|Advance) · \S+/);
+  const table = page.getByRole("table", { name: "The curriculum" });
+  // grade, subject, topic, skill, the school's levels and one status: aligned columns, never a tree to open
+  await expect(table.getByRole("columnheader")).toHaveCount(6);
+  await expect(
+    page.getByRole("button", { name: "Open everything" }),
+  ).toHaveCount(0);
+  await expect(
+    table.locator("tbody tr").first().locator("td").nth(4),
+  ).toContainText(/^(Easy|Medium|Hard|Advance)/);
   // none of the bank's counts, nor its other doors, nor the word the team uses for its map
   const main = page.getByRole("main");
-  // the bank's own labels are whole words of their own (a column, a count); a skill's sentence may say "questions" (English's)
-  for (const word of ["Questions", "Worksheets", "Children assessed"]) {
-    await expect(main.getByText(word, { exact: true }), word).toHaveCount(0);
-    await expect(main.getByRole("columnheader", { name: word }), `${word} column`).toHaveCount(0);
-  }
-  for (const word of ["taxonomy", "Every question in the bank"]) {
+  for (const word of [
+    "Questions",
+    "Worksheets",
+    "Children assessed",
+    "taxonomy",
+    "Every question in the bank",
+  ]) {
     await expect(main.getByText(word, { exact: false }), word).toHaveCount(0);
   }
   // one link puts them there
   await page.getByRole("link", { name: "Question bank details" }).click();
   await expect(page).toHaveURL(/details=1/);
-  await expect(table.getByRole("columnheader", { name: "Questions" })).toBeVisible();
-  await expect(table.getByRole("columnheader", { name: "Worksheets" })).toBeVisible();
-  await expect(main.getByRole("link", { name: "Every question in the bank" })).toBeVisible();
-  await expect(main.getByRole("link", { name: "Every case, with its worksheets" })).toBeVisible();
+  const counts = page.getByRole("table", {
+    name: "The curriculum, grade by grade",
+  });
+  await expect(
+    counts.getByRole("columnheader", { name: "Questions" }),
+  ).toBeVisible();
+  await expect(
+    counts.getByRole("columnheader", { name: "Worksheets" }),
+  ).toBeVisible();
+  await expect(
+    main.getByRole("link", { name: "Every question in the bank" }),
+  ).toBeVisible();
+  await expect(
+    main.getByRole("link", { name: "Every case, with its worksheets" }),
+  ).toBeVisible();
   // a topic not taught yet is a word on its row, and the two big sections are gone
-  await expect(page.getByRole("region", { name: "Not taught yet" })).toBeHidden();
+  await expect(
+    page.getByRole("region", { name: "Not taught yet" }),
+  ).toBeHidden();
   await page.context().close();
 });
 
