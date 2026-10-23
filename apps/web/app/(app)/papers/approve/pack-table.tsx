@@ -34,7 +34,7 @@ export async function PackTable({ rows, back, page, pageHref }: { rows: PackRow[
   const { order } = await levels();
   const columns: Column<PackRow>[] = [
     { key: "roll", label: "Roll", num: true, width: "4.5rem", value: (r) => r.roll },
-    { key: "who", label: "Child", width: "9rem", value: (r) => r.who, cell: (r) => <span className="font-medium">{r.who}</span> },
+    { key: "who", label: "Child", width: "9rem", value: (r) => r.who, cell: (r) => (r.roll ? <Link href={`/growth/${r.key}`} className="font-medium">{r.who}</Link> : <span className="font-medium">{r.who}</span>) },
     { key: "level", label: "Level", width: "7rem", value: (r) => r.level },
     { key: "why", label: "Why", value: (r) => r.why, cell: (r) => <span className="text-[13px] text-basalt/75">{r.why}</span> },
     {

@@ -14,7 +14,6 @@ import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
 import { isoWeek } from "../lib/week";
 
-test.describe.configure({ mode: "serial" });
 test.use({ viewport: { width: 1440, height: 900 } });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "WV1-CLASS";
@@ -82,22 +81,23 @@ async function tablesRead(page: Page, path: string) {
   expect(n, `${path}: a table`).toBeGreaterThan(0);
   for (let t = 0; t < n; t++) {
     const table = tables.nth(t);
+    const name = `${path} “${await table.getAttribute("aria-label")}”`;
     const heads = table.locator("thead th");
     const body = table.locator("tbody tr:not(.under)");
     const rows = await body.count();
     if (rows === 0) continue;
     const first = body.first().locator("td");
-    expect(await first.count(), `${path} table ${t}: a cell under each heading`).toBe(await heads.count());
+    expect(await first.count(), `${name} table ${t}: a cell under each heading`).toBe(await heads.count());
     for (let c = 0; c < (await heads.count()); c++) {
       const h = await heads.nth(c).boundingBox();
       const d = await first.nth(c).boundingBox();
       if (!h || !d) continue; // a column hidden on this width has neither
-      expect(Math.abs(h.x - d.x), `${path} table ${t} column ${c}: heading and cell start together`).toBeLessThan(2);
-      expect(Math.abs(h.width - d.width), `${path} table ${t} column ${c}: heading and cell are as wide`).toBeLessThan(2);
+      expect(Math.abs(h.x - d.x), `${name} table ${t} column ${c}: heading and cell start together`).toBeLessThan(2);
+      expect(Math.abs(h.width - d.width), `${name} table ${t} column ${c}: heading and cell are as wide`).toBeLessThan(2);
     }
     for (let r = 0; r < rows; r++) {
       const row = body.nth(r);
-      expect(await row.locator("a[href]").count(), `${path} table ${t} row ${r}: opens something`).toBeGreaterThan(0);
+      expect(await row.locator("a[href]").count(), `${name} table ${t} row ${r}: opens something`).toBeGreaterThan(0);
     }
   }
 }
@@ -135,9 +135,8 @@ test("Assessments: the upload box on top, one count per assessment, filters", as
   const box = await page.getByText(/upload|choose a file|drop/i).first().boundingBox();
   const table = await page.locator(".data-table").first().boundingBox();
   expect(box && table && box.y < table.y, "the upload box is above the table").toBe(true);
-  // one count per assessment: the week's assessment is one row, not one per child
-  await expect(page.locator(`tr[data-assessment]`).filter({ hasText: SECTION })).toHaveCount(1);
-  await page.getByLabel("Class").selectOption(SECTION);
+  // the filter row chooses the class; one count per assessment: the week's is one row, not one per child
+  await page.getByLabel("Class", { exact: true }).selectOption(SECTION);
   await expect(page).toHaveURL(new RegExp(`class=${SECTION}`));
   await expect(page.locator("tr[data-assessment]")).toHaveCount(1);
   await page.getByRole("link", { name: /clear/i }).first().click();
@@ -175,8 +174,8 @@ test("Class results, its class and a child", async ({ page }) => {
 });
 
 test("the Assessment card, opened from its row", async ({ page }) => {
-  await page.goto("/papers");
-  await page.locator("tr[data-assessment]").filter({ hasText: SECTION }).getByRole("link").first().click();
+  await page.goto(`/papers?class=${SECTION}`);
+  await page.locator("tr[data-assessment]").getByRole("link").first().click();
   const card = page.getByRole("link", { name: /Open its card/ });
   await expect(card).toBeVisible();
   await card.click();
@@ -191,11 +190,11 @@ test("Curriculum, Maths then English, and Staff and School", async ({ page }) =>
   await wholePage(page, "/", /Curriculum/, { chips: true });
   const maths = await page.locator(".data-table tbody tr").count();
   expect(maths).toBeGreaterThan(0);
-  await page.getByLabel("Subject").selectOption({ label: "English" });
+  await page.getByLabel("Subject", { exact: true }).selectOption({ label: "English" });
   await expect(page.getByRole("heading", { level: 1 }).first()).toHaveText(/Curriculum/);
   await expect(page.getByText("This page could not load")).toHaveCount(0);
   await tablesRead(page, "/ (English)");
-  await page.getByLabel("Subject").selectOption({ label: "Maths" });
+  await page.getByLabel("Subject", { exact: true }).selectOption({ label: "Maths" });
   await wholePage(page, "/staff", /Staff/, { filter: false });
   await wholePage(page, "/school", /School/, { filter: false });
 });

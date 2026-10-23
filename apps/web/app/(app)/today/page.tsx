@@ -131,7 +131,7 @@ function Row({ line }: { line: Line }) {
 // Whether checking pays (goals/ny2-the-queue-shrinks.yaml): each week's answers, how many a person had to check, and how
 // near the reader is to settling a kind of question alone. Every wrong and blank still waits for a person (ADR 0029).
 const WEEK_COLUMNS: Column<Week>[] = [
-  { key: "week", label: "Week", value: (k) => weekWords(k.week) },
+  { key: "week", label: "Week", value: (k) => weekWords(k.week), cell: (k) => <Link href={`/papers?week=${k.week}`}>{weekWords(k.week)}</Link> },
   { key: "read", label: "Answers read", num: true, value: (k) => k.read },
   { key: "alone", label: "Settled by the engine alone", num: true, value: (k) => k.alone },
   { key: "person", label: "Checked by a person", num: true, value: (k) => k.person },
