@@ -8,6 +8,8 @@ export type EngineRoutes = {
   "GET /capture/{capture_id}/keys": null;
   "GET /capture/{capture_id}/mistakes": null;
   "GET /capture/{capture_id}/page/{page_no}.jpg": null;
+  "GET /capture/{capture_id}/pages": null;
+  "GET /capture/{capture_id}/proof": null;
   "GET /capture/{capture_id}/readings": null;
   "GET /card/{section}/{week}": null;
   "GET /child/{child_id}/focus": null;
@@ -47,6 +49,7 @@ export type EngineRoutes = {
   "POST /ingest": { path: string; paper_code: string; child_id: string; actor: string; pages?: number[] | null; masks?: Record<string, number> | null; narrative?: boolean };
   "POST /mark": { child_id: string };
   "POST /paper/key": { result_id: string; answer: string; by: string };
+  "POST /paper/page-choice": { capture_id: string; file_page: number; choice: string; by: string };
   "POST /papers/absent": { qr: string; away: boolean; by: string };
   "POST /papers/given": { qrs: string[]; on: string; by: string };
   "POST /papers/make": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]>; draw?: number; by: string; once: string; seen: string };

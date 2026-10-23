@@ -19,7 +19,7 @@ import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
 import { SIGNED_IN } from "../playwright.config";
-import { PURPOSE_MAX, TABLE_ROW_LIMIT, groupRows, isEmptyCell, pageOf, visibleColumns } from "../lib/ux-rules";
+import { FILTER_FROM_ROWS, PURPOSE_MAX, SEARCH_PX, TABLE_ROW_LIMIT, TOP_BAR_MIN_PX, TOP_BAR_TEXT_PX, groupRows, isEmptyCell, pageOf, visibleColumns } from "../lib/ux-rules";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "U51-CLASS";
@@ -86,13 +86,18 @@ async function open(page: Page, url: string) {
 /** What a rendered page breaks, by rule name (the names of workflows.json `ux.frozen`). */
 async function breaks(page: Page): Promise<string[]> {
   return page.evaluate(
-    ({ limit, max }) => {
+    ({ limit, max, filterFrom }) => {
       const out = new Set<string>();
+      // a table of six rows or more has the one filter row above it (rule 9); a state is never colour alone (rule 10)
+      if ([...document.querySelectorAll("main table")].some((t) => t.querySelectorAll("tbody tr:not(.under)").length >= filterFrom) && !document.querySelector("main [data-filterbar]")) out.add("no-filter");
+      if ([...document.querySelectorAll("main [data-status]")].some((c) => !c.querySelector("svg") || !(c.textContent ?? "").trim())) out.add("no-icon");
       const empty = (s: string) => /^\s*([-–—]|0+([.,]0+)?)?\s*$/.test(s);
       for (const t of document.querySelectorAll("main table")) {
         const rows = [...t.querySelectorAll("tbody tr")];
         if (rows.length > limit) out.add("long-table");
-        const width = Math.max(0, ...rows.map((r) => r.children.length));
+        // a paged table keeps its columns the same on every page: a column with nothing on this page has its words on another
+        const paged = !!t.closest("div")?.parentElement?.querySelector("nav[aria-label$=' pages']");
+        const width = paged ? 0 : Math.max(0, ...rows.map((r) => r.children.length));
         for (let c = 0; c < width; c++) {
           const cells = rows.map((r) => r.children[c]).filter(Boolean);
           const head = t.querySelectorAll("thead th")[c];
@@ -110,7 +115,7 @@ async function breaks(page: Page): Promise<string[]> {
       if (purpose && (purpose.textContent ?? "").length > max) out.add("line");
       return [...out];
     },
-    { limit: TABLE_ROW_LIMIT, max: PURPOSE_MAX },
+    { limit: TABLE_ROW_LIMIT, max: PURPOSE_MAX, filterFrom: FILTER_FROM_ROWS },
   );
 }
 
@@ -162,10 +167,10 @@ test("Check answers is built on the blocks: one main action, its next step, one 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
   expect(await breaks(page)).toEqual([]);
   expect(FROZEN["/capture/check"]).toBeUndefined();
-  const action = page.locator("[data-ux=action]");
-  // one decision (Right, Wrong, Blank) or one answer to confirm or type: never a menu of ways to settle it
-  await expect(action.locator("button[type=submit], button[name=status]").first()).toBeVisible();
-  await expect(action.locator(".btn:not(.secondary)")).toHaveCount(1);
+  // the progress line is all that sits above the card; the decision (Right/Wrong/Blank, or "Yes, the child wrote…")
+  // is in the answer box, beside the sentence it answers (Nimish, 23 Oct 2026)
+  await expect(page.locator("[data-ux=action] button")).toHaveCount(0);
+  await expect(page.locator("form button[type=submit]").first()).toBeVisible();
   await expect(page.locator("[data-ux=next]")).toHaveAttribute("href", /\/(capture\/check\?from=|growth)/);
   const waiting = await page.locator('[data-count="answers to check"]').textContent();
   expect(Number(waiting?.replace(/\D/g, ""))).toBeGreaterThan(0);
@@ -179,5 +184,67 @@ test("on a phone the main action of Check answers is a thumb's size", async ({ b
     expect((await b.boundingBox())!.height, await b.textContent() ?? "").toBeGreaterThanOrEqual(44);
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.context().close();
+});
+
+
+const DESKTOP = { width: 1440, height: 900 };
+
+test("the top bar: Class and Subject are full-size controls, the student search is a compact field", async ({ browser }) => {
+  const page = await (await browser.newContext({ storageState: SIGNED_IN, viewport: DESKTOP })).newPage();
+  for (const url of ["/today", "/papers", "/growth", "/"]) {
+    await open(page, url);
+    const bar = page.getByRole("search", { name: "Subject, class and search" });
+    for (const name of ["Subject", "Class"]) {
+      const box = (await bar.getByLabel(name, { exact: true }).boundingBox())!;
+      expect(box.height, `${url}: ${name} height`).toBeGreaterThanOrEqual(TOP_BAR_MIN_PX);
+      expect(box.width, `${url}: ${name} is not squeezed`).toBeGreaterThanOrEqual(80);
+      const size = await bar.getByLabel(name, { exact: true }).evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+      expect(size, `${url}: ${name} text`).toBeGreaterThanOrEqual(TOP_BAR_TEXT_PX);
+    }
+    const search = bar.getByRole("searchbox");
+    const box = (await search.boundingBox())!;
+    expect(box.height).toBeGreaterThanOrEqual(TOP_BAR_MIN_PX);
+    expect(Math.round(box.width), `${url}: the search is a field, about ${SEARCH_PX} px`).toBeLessThanOrEqual(SEARCH_PX + 20);
+    expect(Math.round(box.width)).toBeGreaterThanOrEqual(SEARCH_PX - 20);
+    await search.focus();
+    await expect.poll(async () => Math.round((await search.boundingBox())!.width)).toBeGreaterThan(SEARCH_PX + 40);
+  }
+  await page.context().close();
+});
+
+test("Assessments is a table of aligned columns with the one filter row, and a status is an icon, a word and a colour", async ({ browser }) => {
+  const page = await (await browser.newContext({ storageState: SIGNED_IN, viewport: DESKTOP })).newPage();
+  await open(page, "/papers");
+  expect(FROZEN["/papers"]).toBeUndefined();
+  expect(await breaks(page)).toEqual([]);
+  const table = page.getByRole("table", { name: "Assessments" });
+  const heads = (await table.locator("thead th").allTextContents()).map((h) => h.trim());
+  for (const h of ["Class", "Assessment", "Kind", "Stage", "Papers in", "Status"]) expect(heads, "columns").toContain(h);
+  // text left, numbers right, a state in the middle: heading and cells together
+  const align = async (name: string) => {
+    const i = heads.indexOf(name);
+    return table.locator(`tbody tr[data-assessment] td:nth-child(${i + 1})`).first().evaluate((el) => getComputedStyle(el).textAlign);
+  };
+  expect(await align("Assessment")).toBe("left");
+  expect(await align("Papers in")).toBe("right");
+  expect(await align("Status")).toBe("center");
+  // every status carries an icon and a word, and is one of the three colours
+  const chips = table.locator("[data-status]");
+  expect(await chips.count()).toBeGreaterThan(0);
+  for (const c of await chips.all()) {
+    await expect(c.locator("svg")).toHaveCount(1);
+    expect((await c.textContent())!.trim().length).toBeGreaterThan(2);
+    expect(["ok", "wait", "act", "quiet"]).toContain(await c.getAttribute("data-tone"));
+  }
+  // the filter row is in the same place, and a filter shows itself and clears in one click
+  const filters = page.locator("[data-filterbar]");
+  await expect(filters).toBeVisible();
+  await filters.locator('select[name="kind"]').selectOption("assessment");
+  await expect(page).toHaveURL(/kind=assessment/);
+  await expect(page.locator("[data-active-filters]")).toContainText("Kind: Class assessment");
+  await page.locator("[data-active-filters]").getByRole("link", { name: "Clear" }).click();
+  await expect(page).not.toHaveURL(/kind=/);
+  await expect(page.locator("[data-active-filters]")).toHaveCount(0);
   await page.context().close();
 });

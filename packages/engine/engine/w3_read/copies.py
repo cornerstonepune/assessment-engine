@@ -13,6 +13,7 @@ What each copy is read against — the paper as it was printed — is `printed_p
 
 import shutil
 from pathlib import Path
+from typing import NamedTuple
 
 import pymupdf
 
@@ -234,16 +235,30 @@ def _run_placed(photos, pdf, margin, n) -> list[int] | None:
     return None if any(not e for e in each) else [e[0] for e in each if e]
 
 
-def _placing(scan, copy, cut, pdf, margin) -> tuple[list[int], list[int], list[dict]] | None:
-    """(the file's pages to read, the paper's page each is, each page photographed more than once) — or None where a
-    run of its pages cannot be told apart. A copy taken in one run, no longer than its paper, is placed as one
-    (`placing.placed`): it may start part-way, as a copy split across two files does. A copy whose runs lie apart in the
-    file is placed run by run, and one with more photographs than its paper has pages photograph by photograph; a page
-    photographed more than once is read from the last of them, the one a person took again (goals/l11)."""
+class Where(NamedTuple):
+    """`read`: the file's pages to read. `placed`: the paper's page each is. `twice`: each page photographed more than
+    once. `refused`: {the file's page: the paper's page it is again} for each photograph that is a page already."""
+
+    read: list[int]
+    placed: list[int]
+    twice: list[dict]
+    refused: dict[int, int]
+
+
+def _placing(scan, copy, cut, pdf, margin) -> Where | None:
+    """Where a copy's pages are — or None where a run of its pages cannot be told apart. A copy taken in one run, no
+    longer than its paper, is placed as one (`placing.place`): it may start part-way, as a copy split across two files
+    does, and a photograph that is a page of it already is refused, never laid on the page the paper has left. A copy
+    whose runs lie apart in the file is placed run by run, and one with more photographs than its paper has pages
+    photograph by photograph; a page photographed more than once is read from the last of them, the one a person took
+    again (goals/l11)."""
     n = len(pymupdf.open(pdf))
     if len(copy["runs"]) == 1 and len(copy["pages"]) <= n:
-        placed = placing.placed(list(render_pdf.photos(cut)), pdf, margin)
-        return None if placed is None else (list(copy["pages"]), placed, [])
+        got = placing.place(list(render_pdf.photos(cut)), pdf, margin)
+        if got.run is None:
+            return None
+        again = {copy["pages"][i]: p for i, p in got.refused.items()}
+        return Where([f for f in copy["pages"] if f not in again], got.run, [], again)
     at: dict[int, list[int]] = {}
     for run in copy["runs"]:
         placed = _run_placed([render_pdf.photo(scan, f)[0] for f in run], pdf, margin, n)
@@ -252,16 +267,17 @@ def _placing(scan, copy, cut, pdf, margin) -> tuple[list[int], list[int], list[d
         for f, p in zip(run, placed):
             at.setdefault(p, []).append(f)
     pages = sorted(at)
-    return (
+    return Where(
         [at[p][-1] for p in pages],
         pages,
         [{"page": p, "file_pages": at[p]} for p in pages if len(at[p]) > 1],
+        {},
     )
 
 
-def _lacks(pdf, placed, twice) -> tuple[list[int], list[str]]:
+def _lacks(pdf, placed, twice, refused) -> tuple[list[int], list[str]]:
     """(the paper's pages not in the copy's file, what the file lacks said for the person who scanned it): each page
-    not in it, and each in it more than once."""
+    not in it, each in it more than once, and each photograph that is a page already."""
     n = len(pymupdf.open(pdf))
     gone = [p for p in range(1, n + 1) if p not in placed]
     said = []
@@ -269,6 +285,7 @@ def _lacks(pdf, placed, twice) -> tuple[list[int], list[str]]:
         them = "them" if len(gone) > 1 else "it"
         said.append(f"{'pages' if len(gone) > 1 else 'page'} {_and(gone)} of {n}"
                     f" {'are' if len(gone) > 1 else 'is'} not in this file: scan {them} and send {them} to be read")  # fmt: skip
+    said += [f"page {f} of the file is page {p} again, not another page" for f, p in refused.items()]
     for t in twice:
         said.append(f"page {t['page']} is in the file {'twice' if len(t['file_pages']) == 2 else 'more than once'}"
                     f" (pages {_and(t['file_pages'])}): page {t['file_pages'][-1]} is read")  # fmt: skip
@@ -293,25 +310,26 @@ def _read_copy(conn, scan, copy, row, name, actor, again):
     where = _placing(scan, copy, cut, pdf, _margin(conn))
     if where is None:
         return {**row, "skipped": True, "why": f"which pages of {code} these are could not be told apart"}
-    read, placed, twice = where
+    read, placed, twice, refused = where
     if read != copy["runs"][0]:  # named by every page it holds, never as a file an earlier sorting cut
         cut = _cut(scan, read, f"copy{row['copy']:02d}-p{'-'.join(map(str, read))}-{code}.pdf")
-    template["paper_pages"] = placed
+    missing, lacks = _lacks(pdf, placed, twice, refused)
+    # a page whose photograph was refused is read by nobody, and goes whole to a person (`reading._not_found`)
+    template["paper_pages"] = placed + (missing if refused else [])
     file_page = {p: f for f, p in enumerate(placed, 1)}
-    s = _imported(conn, cut, code, cid, actor, again, template, by_key, file_page)
+    s = _imported(conn, cut, code, cid, actor, again, template, by_key)
     _replaces(conn, s["capture_id"], scan)
     _placed_on(conn, s["capture_id"], cut, by_key, file_page)
     answers = s.get("already_results") if s.get("already") else len(s["results"])
-    missing, lacks = _lacks(pdf, placed, twice)
     return {**row, "answers": answers, "already": bool(s.get("already")), "unread": unread,
             "capture_id": s["capture_id"], "missing": missing, "twice": twice, "lacks": lacks,
             "notes": [n for n in s["notes"] if n]}  # fmt: skip
 
 
-def _imported(conn, cut, code, cid, actor, again, template, by_key, file_page):
+def _imported(conn, cut, code, cid, actor, again, template, by_key):
     """The copy read and marked (`legacy.import_scan`); a reading of it that put its answers on questions its pages do
     not hold is replaced, and only by one that was made, never by nothing."""
-    held = [it["id"] for it in by_key.values() if it["spec"]["page"] in file_page]
+    held = [it["id"] for it in by_key.values() if it["spec"]["page"] in template["paper_pages"]]
     with conn.transaction():
         wrong, checks = _misplaced(conn, cut, held)
         s = legacy.import_scan(conn, str(cut), code, cid, actor, again=again, rows=(template, by_key))

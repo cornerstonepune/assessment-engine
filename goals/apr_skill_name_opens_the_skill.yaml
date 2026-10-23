@@ -1,0 +1,28 @@
+name: apr_skill_name_opens_the_skill
+goal: >
+  On Approve the skills, a skill's name opens the skill in detail. The detail page shows each level with its questions
+  (a count that links to the library for that skill and level; for English, which has no questions yet, a sentence saying
+  so) and offers a draft the same two actions as the list, "Approve, as <name>" and "Change the words first", so an approver
+  decides without going back. Any skill named on the Curriculum page is a link to its page too.
+# Written 2026-10-23, before the code. Web only: no migration, no new table, no prompt. Slice of the E0 / Curriculum
+# review beside the C slices (W1 screens). Shared blocks only; the detail page reuses level-approval.tsx.
+says:
+  - words: "shouldn't this page have a link that opens the skill in detail - coz the questions associated with each level of difficulty and all needs to be down too."
+    proved_by: "apps/web/tests/u53-skill-name-opens-the-skill.spec.ts::a Maths skill's name on the approve list opens it, with each level's questions and the two actions"
+  - words: "shouldn't this page have a link that opens the skill in detail - coz the questions associated with each level of difficulty and all needs to be down too."
+    proved_by: "apps/web/tests/u53-skill-name-opens-the-skill.spec.ts::an English skill's name opens it, and each level says in words that its questions come after approval"
+  - words: "I can't click on any of these skills and deep dive in."
+    proved_by: "apps/web/tests/u53-skill-name-opens-the-skill.spec.ts::on Curriculum, a skill in a table row opens its skill page"
+manual:
+  - "On live, after the merge: open Approve the skills, click an English skill's name and a Maths skill's name; each opens with its levels."
+scenarios: []
+criteria:
+  - name: the approve, skill and curriculum pages still hold
+    run: cd apps/web && npx playwright test tests/u53-skill-name-opens-the-skill.spec.ts tests/u23-approve-filtered.spec.ts tests/e0-english.spec.ts tests/u17-curriculum.spec.ts tests/u12-curriculum-table.spec.ts tests/u32-who-sees-what.spec.ts tests/u27-who-decides-what.spec.ts tests/u13-needs-you.spec.ts tests/u49-one-role.spec.ts tests/s2-skill-map.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the website type-checks
+    run: cd apps/web && npx tsc --noEmit && echo passed
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

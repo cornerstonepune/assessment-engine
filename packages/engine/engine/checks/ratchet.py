@@ -45,6 +45,7 @@ def baselines(map_text: str, pyproject_text: str) -> dict:
         "ceilings": m["ceilings"]["frozen"],
         "complexity": m.get("complexity"),
         "ux": m.get("ux", {}).get("frozen"),
+        "ux_rules": m.get("ux", {}).get("rules"),
         "coverage": float(report.get("fail_under", 0)),
         "types": types,
     }
@@ -86,20 +87,40 @@ def _complexity(base: dict | None, head: dict | None) -> list[str]:
     return out
 
 
-def _ux(base: dict | None, head: dict | None) -> list[str]:
-    """The pages still breaking a rule of docs/ux-rules.md: a page leaves, a rule leaves, nothing joins."""
+ORIGINAL_UX_RULES = ["shell", "purpose", "table"]
+
+
+def _ux(
+    base: dict | None,
+    head: dict | None,
+    base_rules: list[str] | None = None,
+    head_rules: list[str] | None = None,
+) -> list[str]:
+    """The pages still breaking a rule of docs/ux-rules.md: a page leaves, a rule leaves, nothing joins.
+
+    A rule written down for the first time is its debt being recorded, not a loosening: the pages that break it are
+    listed, once. After that it ratchets like the others. A rule is never taken off the list of rules measured."""
     if base is None:
         return []  # the list is being written down on this commit
     if head is None:
         return ["the pages that break the UX rules are no longer listed in the map"]
-    out = []
+    had = set(base_rules or ORIGINAL_UX_RULES)
+    out = [
+        f"the UX rule {r} is no longer measured" for r in sorted(had - set(head_rules or ORIGINAL_UX_RULES))
+    ]
     for route, rules in head.items():
         if route not in base:
+            if not set(rules) & had:
+                continue  # it breaks a rule written down on this commit, and none that was already held
             out.append(
                 f"{route} joined the pages allowed to break the UX rules: build it on the shared blocks"
             )
         else:
-            out += [f"{route} may now break {r}, which it kept" for r in rules if r not in base[route]]
+            out += [
+                f"{route} may now break {r}, which it kept"
+                for r in rules
+                if r not in base[route] and r in had
+            ]
     return out
 
 
@@ -131,7 +152,7 @@ def loosened(base: dict, head: dict) -> list[str]:
     """Every way `head` asks less of the code than `base` did; none is the only passing answer."""
     out = _ceilings(base, head) + _complexity(base["complexity"], head["complexity"])
     out += _types(base.get("types"), head.get("types"))
-    out += _ux(base.get("ux"), head.get("ux"))
+    out += _ux(base.get("ux"), head.get("ux"), base.get("ux_rules"), head.get("ux_rules"))
     if head["coverage"] < base["coverage"]:
         out.append(f"the coverage floor fell from {base['coverage']:g}% to {head['coverage']:g}%")
     return out

@@ -256,3 +256,24 @@ export async function nameMistake(formData: FormData): Promise<void> {
   revalidatePath(`/capture/${paper}`);
   redirect(why ? `/capture/${paper}?error=${encodeURIComponent(why.slice(0, 200))}#a-${id}` : `/capture/${paper}#a-${id}`);
 }
+
+/** A person says a page the engine doubts is, or is not, the child's (`POST /paper/page-choice`, w3_read/whose_paper.py):
+ *  a new row each time, the latest standing. Until it is "theirs", the card does not allow Yes. */
+export async function choosePage(formData: FormData): Promise<void> {
+  const me = await deciding("answers");
+  const id = String(formData.get("result_id") ?? "");
+  const capture = String(formData.get("capture_id") ?? "");
+  const page = Number(formData.get("file_page"));
+  const choice = String(formData.get("choice") ?? "");
+  const next = back(formData) ?? "/capture/check";
+  if (!UUID.test(id) || !UUID.test(capture) || !Number.isInteger(page) || !["theirs", "not_theirs"].includes(choice)) redirect(next);
+  mustBeMine(me, "answers", [await resultSection(id)]);
+  try {
+    await enginePost("/paper/page-choice", { capture_id: capture, file_page: page, choice, by: me.email });
+  } catch (e) {
+    if (!(e instanceof EngineDown)) throw e;
+    redirect("/capture/check?error=engine");
+  }
+  revalidatePath("/capture/check");
+  redirect(next);
+}

@@ -100,7 +100,7 @@ export function PageHeader({ stage, title, sub }: { stage: string; title: string
 }
 
 export function Body({ children }: { children: ReactNode }) {
-  return <div className="flex-1 px-5 pt-[22px] pb-8 md:px-9">{children}</div>;
+  return <div className="min-w-0 flex-1 px-5 pt-[22px] pb-8 md:px-9">{children}</div>;
 }
 
 // `label` names the panel as a region for a screen reader (and a test); `id` makes it a link target. The panel is

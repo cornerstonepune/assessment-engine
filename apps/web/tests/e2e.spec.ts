@@ -131,7 +131,7 @@ test("approving a skill records who did it, by name", async ({ page }) => {
     // trigger does not fire.
     await sql`update skill set status = 'draft', ratified_by = null where code = 'ADD.3D3D'`;
     await page.goto("/skill-sets/ADD.3D3D");
-    await page.getByRole("button", { name: "Approve as written" }).click();
+    await page.getByRole("button", { name: /^Approve, as / }).click();
     await expect(page.getByRole("status")).toContainText("Approved as written");
     const [after] = await sql<{ status: string; ratified_by: string }[]>`
       select status, ratified_by from skill where code = 'ADD.3D3D'`;

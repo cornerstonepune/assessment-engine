@@ -38,6 +38,7 @@ const COLUMNS: Column[] = [
   { key: "needs", label: "Needs help", num: true, wide: true, dir: "descending", by: (a, b) => b.needs_help - a.needs_help, has: (c) => c.needs_help > 0 },
   { key: "amber", label: "Practising", num: true, wide: true, dir: "descending", by: (a, b) => b.amber - a.amber, has: (c) => c.amber > 0 },
   { key: "green", label: "Secure", num: true, wide: true, dir: "descending", by: (a, b) => b.green - a.green, has: (c) => c.green > 0 },
+  { key: "score", label: "Last paper", wide: true, dir: "other", by: () => 0, has: (c) => !!c.last_score },
   { key: "waiting", label: "Waiting on you", num: true, wide: true, dir: "descending", by: (a, b) => b.waiting - a.waiting, has: (c) => c.waiting > 0 },
   { key: "report", label: "Parent report", wide: true, dir: "other", by: (a, b) => reportRank(a.report) - reportRank(b.report), has: (c) => reportWaits(c.report) },
 ];
@@ -152,6 +153,13 @@ function ClassGroup({ section, kids, open, sort, href }: {
                     return (
                       <td key={c.key} className={FOLD}>
                         <Report r={r.report} />
+                      </td>
+                    );
+                  }
+                  if (c.key === "score") {
+                    return (
+                      <td key={c.key} className={FOLD}>
+                        {r.last_score}
                       </td>
                     );
                   }

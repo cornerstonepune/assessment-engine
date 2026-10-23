@@ -90,3 +90,25 @@ def test_the_working_tree_holds_every_baseline_of_its_last_commit():
     head = ratchet.baselines(ratchet._at("HEAD", ratchet.MAP), ratchet._at("HEAD", ratchet.PYPROJECT))
     assert head["ceiling"] == 400 and head["ceilings"]
     assert ratchet.against("HEAD") == []
+
+
+def test_a_ux_rule_written_down_for_the_first_time_records_its_debt_once():
+    """A new rule (taglist, filter, status) lists the pages that break it on the commit that adds it; after that it
+    ratchets like the others, and a rule that was measured is never dropped."""
+    rules = ["shell", "purpose", "table"]
+    base = {**BASE, "ux_rules": rules}
+    new = {
+        **base,
+        "ux_rules": [*rules, "taglist"],
+        "ux": {"/a": ["shell", "table", "taglist"], "/b": ["taglist"]},
+    }
+    assert ratchet.loosened(base, new) == []
+    # the first time, with a base that never named its rules
+    assert ratchet.loosened(BASE, new) == []
+    # once recorded, the rule holds: a page cannot gain it, a page cannot join for an old rule, it cannot be dropped
+    again = {**new, "ux": {"/a": ["shell", "table"]}}
+    assert ratchet.loosened(
+        new, {**again, "ux": {"/a": ["shell", "table", "taglist"], "/c": ["taglist"], "/b": ["taglist"]}}
+    )
+    assert ratchet.loosened(new, {**new, "ux": {**new["ux"], "/c": ["shell", "taglist"]}})
+    assert ratchet.loosened(new, {**new, "ux_rules": rules})

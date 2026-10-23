@@ -24,12 +24,24 @@ from engine.api.models import (
     MarkRequest,
     MarkResponse,
     NameMistakeRequest,
+    PageChoiceRequest,
     ReadAgainRequest,
     ReadFileRequest,
     ReadFileResponse,
     TrustedResponse,
 )
-from engine.w3_read import again, copy_scores, inbox, keys, legacy, marking, naming, profiles
+from engine.w3_read import (
+    again,
+    copy_scores,
+    inbox,
+    keys,
+    legacy,
+    marking,
+    naming,
+    profiles,
+    same_page,
+    whose_paper,
+)
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -151,6 +163,26 @@ def capture_keys(capture_id: str, conn=Depends(get_conn, scope="function")) -> d
     return {r["id"]: r for r in keys.shown(conn, capture_id)}
 
 
+@router.get("/capture/{capture_id}/proof")
+def capture_proof(capture_id: str, page: int = 1, conn=Depends(get_conn, scope="function")) -> dict:
+    """Whose paper this page is (`whose_paper.proof`): the scan, the copy, the page, the printed code, and a notice where
+    the page may not be this child's. `may_confirm` is what the screen reads to allow Yes."""
+    p = whose_paper.proof(conn, capture_id, page)
+    if p is None:
+        raise HTTPException(status_code=404, detail="no such capture")
+    return {**p, "may_confirm": whose_paper.may_confirm(p)}
+
+
+@router.post("/paper/page-choice")
+def page_choice(body: PageChoiceRequest, conn=Depends(get_conn, scope="function")) -> dict:
+    """A person says a page with a notice is, or is not, the child's (`whose_paper.choose`): a new row each time."""
+    try:
+        p = whose_paper.choose(conn, body.capture_id, body.file_page, body.choice, body.by)
+    except ValueError as why:
+        raise HTTPException(status_code=409, detail=str(why)) from why
+    return {**p, "may_confirm": whose_paper.may_confirm(p)}
+
+
 @router.get("/capture/{capture_id}/page/{page_no}.jpg")
 def capture_page(
     capture_id: str, page_no: int, box: str = "", conn=Depends(get_conn, scope="function")
@@ -175,6 +207,13 @@ def capture_page(
     if want is not None and len(want) != 4:
         raise HTTPException(status_code=400, detail="box must be left,top,right,bottom")
     return Response(content=legacy.page_crop(path, page_no, want), media_type="image/jpeg")
+
+
+@router.get("/capture/{capture_id}/pages")
+def capture_pages(capture_id: str, conn=Depends(get_conn, scope="function")) -> list[dict]:
+    """Each page of the paper a capture has answers on: found or not, and in words why not
+    (`same_page.pages_of`, goals/img_page_one_and_two_same_photo.yaml) — so the screen never draws a page twice."""
+    return same_page.pages_of(conn, capture_id)
 
 
 @router.post("/read/file", response_model=ReadFileResponse)
