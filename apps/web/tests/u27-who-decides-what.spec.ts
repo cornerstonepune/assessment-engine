@@ -78,7 +78,7 @@ test("an educator approves a skill, in their own name", async ({ browser }) => {
   const page = await signedIn(browser);
   try {
     await page.goto(`/skill-sets/${draft}`);
-    await page.getByRole("button", { name: "Approve as written" }).click();
+    await page.getByRole("button", { name: /^Approve, as / }).click();
     await expect(page).toHaveURL(/approved=1/);
     const [now] = await sql<{ status: string; ratified_by: string }[]>`select status, ratified_by from skill where code = ${draft}`;
     expect(now).toEqual({ status: "ratified", ratified_by: EDUCATOR.name });
@@ -109,7 +109,7 @@ test("an educator approves another class's pack, as the coordinator can", async 
 test("the coordinator takes any decision", async ({ page }) => {
   try {
     await page.goto(`/skill-sets/${draft}`);
-    await page.getByRole("button", { name: "Approve as written" }).click();
+    await page.getByRole("button", { name: /^Approve, as / }).click();
     await expect(page).toHaveURL(/approved=1/);
     const [now] = await sql<{ status: string }[]>`select status from skill where code = ${draft}`;
     expect(now.status).toBe("ratified");

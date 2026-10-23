@@ -126,12 +126,12 @@ export default async function SkillPage({ params, searchParams }: Props) {
                 value={`/skill-sets/${s.code}`}
               />
               <button className="btn" type="submit">
-                Approve as written
+                Approve, as {me.name}
               </button>
             </form>
           )}
           <Link href={`/skill-sets/${s.code}/edit`} className="chip">
-            Change the words
+            {s.status !== "ratified" ? "Change the words first" : "Change the words"}
           </Link>
         </div>
 
@@ -167,7 +167,12 @@ export default async function SkillPage({ params, searchParams }: Props) {
                       {s.difficulty[d]?.words}
                     </p>
                     {bankless ? (
-                      <LevelWays ways={ways} level={d} />
+                      <>
+                        <LevelWays ways={ways} level={d} />
+                        <p className="note">
+                          No questions yet: English questions are made after this skill is approved and linked.
+                        </p>
+                      </>
                     ) : it ? (
                       <div className="grid gap-1 bg-chalk p-2 text-[13.5px]">
                         <span className="label">For example</span>
