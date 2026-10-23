@@ -43,7 +43,6 @@ export default async function CurriculumPage({ searchParams }: Props) {
     );
   const details = q.details === "1";
   const lines = skillLines(rows, order);
-  const shown = chosen(lines, q);
   const page = Math.max(1, Number(q.page) || 1);
   const href = (n: number) => {
     const p = new URLSearchParams(
@@ -67,6 +66,9 @@ export default async function CurriculumPage({ searchParams }: Props) {
         .map((l) => [l.topicCode, l.topic]),
     ).entries(),
   ] as [string, string][];
+  // a topic left in the address by another grade or subject is not one of this list's: it filters nothing
+  const topic = topicOptions.some(([code]) => code === q.topic) ? q.topic : undefined;
+  const shown = chosen(lines, { ...q, topic });
 
   return (
     <PageShell
@@ -150,7 +152,7 @@ export default async function CurriculumPage({ searchParams }: Props) {
               {
                 name: "topic",
                 label: "Topic",
-                value: q.topic,
+                value: topic,
                 all: "Every topic",
                 options: topicOptions,
               },

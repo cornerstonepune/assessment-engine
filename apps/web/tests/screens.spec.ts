@@ -77,7 +77,7 @@ test("every section is reachable from the menu", async ({ page }) => {
 test("a menu item stays readable while the pointer is on it", async ({ page }) => {
   await page.goto("/");
   const sidebar = await page.locator("aside").evaluate((el) => getComputedStyle(el).backgroundColor);
-  for (const item of await page.getByRole("navigation").getByRole("link").all()) {
+  for (const item of await page.locator("aside").getByRole("navigation").getByRole("link").all()) {
     await item.hover();
     const colour = await item.evaluate((el) => getComputedStyle(el).color);
     expect(colour, (await item.textContent()) ?? "").not.toBe(sidebar);

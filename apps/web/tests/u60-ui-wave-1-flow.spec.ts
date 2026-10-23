@@ -18,7 +18,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "WV1-CLASS";
 const THIS = isoWeek();
-const QR = { asha: "CSW1A001", bina: "CSW1B002", chetan: "CSW1C003", spare: "CSW1D004" };
+const QR = { asha: "CSF10A01", bina: "CSF10B02", chetan: "CSF10C03", spare: "CSF10D04" };
 let kids: Record<string, string> = {};
 
 test.beforeAll(async () => {
@@ -31,6 +31,7 @@ test.beforeAll(async () => {
                             and band = 'G2' and difficulty = 'Hard' order by skill_set_code limit 1)
       and difficulty in ('Medium', 'Hard')
     order by difficulty = 'Hard' desc, code limit 4`;
+  if (ws.length < 4) throw new Error(`the flow needs four library worksheets of one Grade 2 skill set; the database has ${ws.length}`);
   const paper = (qr: string, w: string, child: string | null, status: string) => sql`
     insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, week, section, kind, print_status, approved_by, approved_at)
     select ${tenant}, ${qr}, ${w}, ${child}, ${THIS}, ${SECTION}, 'assessment', ${status},
@@ -197,12 +198,16 @@ test("Curriculum, Maths then English, and Staff and School", async ({ page }) =>
   // the filter row says the subject too: its rows are that subject's alone
   await page.locator("[data-filterbar] select[name=subject]").selectOption("English");
   await expect(page).toHaveURL(/subject=English/);
-  for (const cell of await page.locator(".data-table tbody tr:not(.under) td:nth-child(2)").allInnerTexts()) expect(cell.trim()).toBe("English");
-  await page.getByLabel("Subject", { exact: true }).selectOption({ label: "English" });
+  const column = (await page.locator(".data-table thead th").allInnerTexts()).findIndex((h) => h.trim() === "Subject");
+  expect(column, "the table has a Subject column").toBeGreaterThanOrEqual(0);
+  const cells = await page.locator(`.data-table tbody tr:not(.under) td:nth-child(${column + 1})`).allInnerTexts();
+  expect(cells.length).toBeGreaterThan(0);
+  for (const cell of cells) expect(cell.trim()).toBe("English");
+  await page.locator("#bar-subject").selectOption({ label: "English" });
   await expect(page.getByRole("heading", { level: 1 }).first()).toHaveText(/Curriculum/);
   await expect(page.getByText("This page could not load")).toHaveCount(0);
   await tablesRead(page, "/ (English)");
-  await page.getByLabel("Subject", { exact: true }).selectOption({ label: "Maths" });
+  await page.locator("#bar-subject").selectOption({ label: "Maths" });
   await wholePage(page, "/staff", /Staff/, { filter: false });
   await wholePage(page, "/school", /School/, { filter: false });
 });
@@ -213,11 +218,12 @@ test("the flow is one chain: each page's next step opens the following page", as
     await page.goto(path);
     await expect(page.getByText("This page could not load"), path).toHaveCount(0);
     const next = page.locator("[data-ux=next]");
-    if (await next.count()) {
-      const href = await next.first().getAttribute("href");
-      const res = await page.goto(href!);
-      expect(res?.status(), `${path} → ${href}`).toBeLessThan(400);
-      await expect(page.getByText("This page could not load"), href!).toHaveCount(0);
-    }
+    await expect(next, `${path}: one next step, never a dead end`).toHaveCount(1);
+    const href = (await next.getAttribute("href"))!;
+    expect(new URL(href, page.url()).pathname, `${path}: its next step is another page`).not.toBe(path);
+    const res = await page.goto(href);
+    expect(res?.status(), `${path} → ${href}`).toBeLessThan(400);
+    await expect(page.getByText("This page could not load"), href).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 1 }).first(), `${path} → ${href}: a page with a title`).toBeVisible();
   }
 });

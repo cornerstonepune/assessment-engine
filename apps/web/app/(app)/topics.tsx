@@ -54,7 +54,7 @@ export function Topics({ topics, me, open, fold = false }: { topics: Topic[]; me
                       {waiting.length > 8 ? (
                         <details className="text-[12px] text-basalt/55">
                           <summary className="cursor-pointer">Not taught yet in {waiting.length} classes</summary>
-                          Not taught yet in {waiting.map((c) => c.section).join(", ")}
+                          <p>{waiting.map((c) => c.section).join(", ")}</p>
                         </details>
                       ) : (
                         <span className="block text-[12px] text-basalt/55">Not taught yet in {waiting.map((c) => c.section).join(", ")}</span>
