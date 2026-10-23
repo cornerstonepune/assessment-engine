@@ -15,7 +15,7 @@ import pytest
 
 from engine.assess import draw, graph
 from engine.checks import links, past
-from engine.core import db, loaders, settings
+from engine.core import db, settings, topics
 from engine.w1_bank import cases, kinds, spec
 from tests.rows import data_steps
 
@@ -269,7 +269,7 @@ def test_a_new_sample_mistake_or_link_is_an_insert(conn):
     conn.execute(
         "delete from skill_prerequisite where skill_code = 'MUL.FACTS' and before_code = 'MUL.GROUPS'"
     )
-    loaders._prerequisites(conn, tenant)
+    topics.prerequisites(conn, tenant, settings.seed)
     assert not conn.execute(
         "select 1 from skill_prerequisite where skill_code = 'MUL.FACTS' and before_code = 'MUL.GROUPS'"
     ).fetchone()

@@ -9,6 +9,7 @@ Whether a skill has been taught is said skill by skill: the school's word (`skil
 school's word only until a person says it: a load never switches back what a person switched (goals/ny1-needs-you.yaml,
 goals/t1-topics-are-operations.yaml)."""
 
+import json
 from collections.abc import Callable
 from typing import Any
 
@@ -46,4 +47,15 @@ def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
     conn.execute(
         "delete from topic where tenant_id = %s and not (code = any(%s))",
         (tenant, [t["code"] for t in topics]),
+    )
+
+
+def prerequisites(conn: db.Conn, t: db.Id, seed: Callable[[str, str], Any]) -> None:
+    """What comes before each skill, drafted from the seed once: only while the school has none. After that the rows are
+    a person's, and a prerequisite they removed is never put back (B3-3, ADR 0092)."""
+    conn.execute(
+        "insert into skill_prerequisite (tenant_id, skill_code, before_code)"
+        " select %s, x.skill, x.after from jsonb_to_recordset(%s::jsonb) x(skill text, after text)"
+        " where not exists (select 1 from skill_prerequisite p where p.tenant_id = %s)",
+        (t, json.dumps(seed("skill_prerequisites.json", "skill_prerequisites")), t),
     )
