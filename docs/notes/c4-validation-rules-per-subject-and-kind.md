@@ -27,6 +27,9 @@ C2 to C6 were merged each into the branch below it, so none reached main; #305 m
   test s43, from main, adds and removes one). Fixed at its cause by `20261210090000_a_subject_takes_its_validation_rules_with_it.sql`;
   `tests/test_validation_stages.py::test_a_subject_taken_away_takes_its_rules_with_it` failed first, passes now
   (8 passed); browser suite on abd0b7c: 347 passed.
+- `bin/engine done c4-validation-rules-per-subject-and-kind` on the assembled branch (2026-10-23): 7 of 7 sentences PROVED; the slice's own criteria
+  and `bin/check` PASSED; the whole-suite criterion timed out on the session's box (1800 s), and is proved instead
+  by CI on 72548b8: all 12 engine shards and the browser suite green. NOT DONE only because it is not on main/live.
 
 ## Handoff
 

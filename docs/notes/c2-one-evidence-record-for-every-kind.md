@@ -29,6 +29,9 @@ C2 to C6 were merged each into the branch below it, so none reached main; #305 m
   evidence 1748 `f8e77132…`, states 276 `a70d7cfe…`, scored 12665 `13bf1849…`, questions 51634 `e11078c5…`, levels 178
   `3f13044d…`.
 - `bin/testdb fresh` builds; this slice's migration applied a second time on it: OK.
+- `bin/engine done c2-one-evidence-record-for-every-kind` on the assembled branch (2026-10-23): 7 of 7 sentences PROVED; the slice's own criteria
+  and `bin/check` PASSED; the whole-suite criterion timed out on the session's box (1800 s), and is proved instead
+  by CI on 72548b8: all 12 engine shards and the browser suite green. NOT DONE only because it is not on main/live.
 
 ## Handoff
 
