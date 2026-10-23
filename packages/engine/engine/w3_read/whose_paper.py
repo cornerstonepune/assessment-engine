@@ -9,13 +9,12 @@ Either puts a notice on the answer, and a person chooses (`choose`) before it ca
 deleted: a choice is a new `page_choice` row, and the latest stands.
 """
 
-import hashlib
 import re
 from pathlib import Path
 
 import pymupdf
 
-from engine.w3_read import render_pdf, sorting
+from engine.w3_read import render_pdf, same_page, sorting
 
 COPY = re.compile(r"^copy(\d+)-")
 OURS = re.compile(r"^CS[0-9A-F]{6}$")  # a code this school prints on a child's own paper
@@ -31,23 +30,16 @@ def copy_of(path: str) -> tuple[str, int | None]:
     return str(p.parent), int(m.group(1)) if m else None
 
 
-def page_hash(path, page_no: int) -> str | None:
-    """The page's picture as a fingerprint: the bytes of the photograph inside the page, else the page drawn small. The
-    same photograph put in two copies gives the same fingerprint; two photographs of one paper never do."""
+def _print(path, page_no: int) -> str | None:
+    """The page's picture as `same_page.fingerprint` gives it, or None where the file or page is not there. The same
+    photograph put in two copies gives the same fingerprint; two photographs of one paper never do."""
     full = Path(path).expanduser()
-    if not full.exists() or full.suffix.lower() != ".pdf":
+    if not full.exists():
         return None
     with pymupdf.open(full) as doc:
         if not 1 <= page_no <= len(doc):
             return None
-        page = doc[page_no - 1]
-        images = page.get_images()
-        raw = (
-            doc.extract_image(images[0][0])["image"]
-            if len(images) == 1
-            else page.get_pixmap(dpi=36).tobytes()
-        )
-    return hashlib.sha256(raw).hexdigest()
+    return same_page.fingerprint(render_pdf.photo(full, page_no)[0])
 
 
 def printed_code(path, page_no: int) -> str | None:
@@ -97,10 +89,10 @@ def proof(conn, capture_id, file_page: int) -> dict | None:
     folder, k = copy_of(cap["path"])
     sibs = _siblings(conn, folder, capture_id)
     nums = [n for s in sibs if (n := copy_of(s["path"])[1])] + ([k] if k else [])
-    mine = page_hash(cap["path"], file_page)
+    mine = _print(cap["path"], file_page)
     same_as = sorted({
         n for s in sibs if mine and s["child_id"] != cap["child_id"] and (n := copy_of(s["path"])[1])
-        and any(page_hash(s["path"], q) == mine for q in range(1, (s["pages"] or 0) + 1))
+        and any(_print(s["path"], q) == mine for q in range(1, (s["pages"] or 0) + 1))
     })  # fmt: skip
     code = printed_code(cap["path"], file_page)
     problem = verdict(code, cap["qr_code"], same_as)
