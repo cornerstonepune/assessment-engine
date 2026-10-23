@@ -2,7 +2,7 @@ import { Fragment, type ReactNode } from "react";
 import Link from "@/components/link";
 import { Chunking, DivisionLayout, LongDivision } from "@/components/methods";
 import { Drawn, Grid, Lattice, Stem } from "@/components/pictures";
-import type { ItemResponse, ItemRow, Mistake } from "@/lib/queries-bank";
+import type { ItemResponse, ItemRow, Mistake, Printed } from "@/lib/queries-bank";
 
 // The kinds of question on the school's own papers, read before our printed sheets; the bank's are rows
 // (`question_type`, `lib/question-types.ts`).
@@ -51,6 +51,7 @@ export function Question({ it }: { it: ItemRow }) {
   // a drawing with the sentence the paper prints above it ("Add them in the easiest order."), when it has one: the
   // sentence is the question, and the bank's search finds a question by it
   const said = (drawing: ReactNode) => (it.stem ? <Stem text={it.stem}>{drawing}</Stem> : drawing);
+  if (s.printed) return <PrintedQuestion ask={it.stem} p={s.printed} />;
   switch (it.fmt) {
     case "column_grid":
       return said(
@@ -210,6 +211,44 @@ export function Question({ it }: { it: ItemRow }) {
 }
 
 const box = (n: number | null) => (n === null ? "□" : String(n));
+
+// An English question as its paper prints it (goals/smp_skill_shows_its_samples.yaml): the passage first, then what the
+// child is told to do, the sentence, and the words in the box, or the two columns to join.
+function PrintedQuestion({ ask, p }: { ask: string; p: Printed }) {
+  const o = p.options;
+  return (
+    <span className="grid gap-[6px]">
+      {p.passage ? (
+        <span className="grid gap-1 border-l-2 border-basalt/25 pl-3" aria-label="The passage">
+          <span className="font-semibold">{p.passage.title}</span>
+          {p.passage.text.split("\n\n").map((para, i) => (
+            <span key={i}>{para}</span>
+          ))}
+        </span>
+      ) : null}
+      <span>{ask}</span>
+      {p.text ? <span className="fact">{p.text}</span> : null}
+      {Array.isArray(o) ? (
+        <span className="flex flex-wrap gap-2" aria-label="The words in the box">
+          {o.map((w) => (
+            <span key={w} className="fact border border-basalt/35 px-2">
+              {w}
+            </span>
+          ))}
+        </span>
+      ) : o ? (
+        <span className="fact grid w-fit grid-cols-[auto_auto] gap-x-10" aria-label="Join each word to its pair">
+          {o.left.map((l, i) => (
+            <Fragment key={l}>
+              <span>{l}</span>
+              <span>{o.right[i]}</span>
+            </Fragment>
+          ))}
+        </span>
+      ) : null}
+    </span>
+  );
+}
 
 // A division that leaves a remainder asks for it in a box of its own, after "r" (ADR 0056).
 const leaves = (it: ItemRow) => it.responses.some((r) => r.rid === "rem");

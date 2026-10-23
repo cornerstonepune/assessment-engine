@@ -380,19 +380,21 @@ def load_all() -> dict[str, int]:
         english.skills(conn, t)
         topics.load(conn, t, english.with_english(settings.seed))
         english.level_kinds(conn, t)
+        english.samples(conn, t)
         question_formats.load(conn, t, settings.seed)
         asks.load(conn, t, settings.seed)
         _prerequisites(conn, t)
         english.prerequisites(conn, t)
         conn.commit()
-        return db.counts(conn, FILLED_TABLES)
+        return db.counts(conn, FILLED_TABLES + english.SAMPLE_TABLES)
 
 
 def load_settings() -> dict[str, int]:
-    """Only the rows the engine reads as settings — prompts, thresholds, config — each upserted from its seed as
-    `load_all` does. Every deploy runs it (`engine load --settings`, deploy-engine.yml), so a setting merged with
-    the code that reads it is live with that code; the rest waits for `bin/update-live`."""
+    """Prompts, thresholds, config and the English samples (rows that approve nothing), upserted as `load_all` does:
+    every deploy runs it (`engine load --settings`), so they are live with the code that reads them."""
     with db.connect() as conn:
-        settings.load(conn, _tenant(conn))
+        t = _tenant(conn)
+        settings.load(conn, t)
+        english.samples(conn, t)
         conn.commit()
-        return db.counts(conn, ("prompt", "threshold", "config"))
+        return db.counts(conn, ("prompt", "threshold", "config", *english.SAMPLE_TABLES))
