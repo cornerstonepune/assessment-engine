@@ -92,7 +92,7 @@ test("an educator is offered the approval of a skill", async ({ browser }) => {
   const page = await signedIn(browser);
   try {
     await page.goto(`/skill-sets/${draft}`);
-    await expect(page.getByRole("button", { name: "Approve as written" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Approve, as / })).toBeVisible();
     await page.goto("/skill-sets/approve");
     await expect(page.getByRole("main")).not.toContainText("The coordinator approves the skills");
   } finally {
@@ -126,7 +126,7 @@ test("the coordinator is shown every decision and every class", async ({ page })
   expect(await badge(page, "Curriculum"), "no count on Curriculum").toBe(0);
 
   await page.goto(`/skill-sets/${draft}`);
-  await expect(page.getByRole("button", { name: "Approve as written" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Approve, as / })).toBeVisible();
 
   await page.goto(`/worksheets/${sheet}`);
   const print = page.locator("section").filter({ has: page.getByRole("heading", { name: "Print for children" }) });

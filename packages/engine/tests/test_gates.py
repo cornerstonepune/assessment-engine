@@ -76,6 +76,19 @@ def test_ci_runs_every_browser_test_on_a_fresh_database_with_none_skipped():
     )
 
 
+def test_a_browser_test_that_fails_is_run_once_more_in_ci_and_flaky_ones_are_listed():
+    """Twice in one day main's browser job failed once for a reason that was not the product's, and a person re-ran the
+    whole job while the release waited (Nimish, 2026-10-23; docs/adr/0094). A retry is once, in CI only; a test that
+    then passes is listed, not hidden; one that fails twice, or skips, still fails the job."""
+    config = (db.REPO_ROOT / "apps" / "web" / "playwright.config.ts").read_text()
+    assert "retries: retriesFor(process.env.CI)" in config
+    assert "(ci ? 1 : 0)" in (db.REPO_ROOT / "apps" / "web" / "tests" / "retries.ts").read_text()
+    runs = _runs("browser")
+    assert "bin/ci-flaky-summary apps/web/results.json" in runs, "the flaky tests are not listed in the job"
+    (check,) = [r for r in runs if "results.json" in r and "process.exit(1)" in r]
+    assert "s.skipped || s.unexpected" in check and "flaky" not in check, check
+
+
 def test_no_browser_test_can_skip_itself():
     """A test that skips itself when the database lacks its rows proves nothing on a database that lacks them; it
     builds them instead (apps/web/tests/rows.ts)."""

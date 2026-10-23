@@ -107,7 +107,7 @@ test("a skill is approved before its topic is switched on", async ({ page }) => 
     // approved from its own page, as written, in the approver's name
     await page.goto("/skill-sets/DIV.2D1D");
     await expect(page.getByRole("main")).toContainText("Not taught yet");
-    await page.getByRole("button", { name: /Approve as written/ }).click();
+    await page.getByRole("button", { name: /^Approve, as / }).click();
     await expect(page.getByRole("main")).toContainText(/Approved/);
     const [after] = await sql<{ status: string; ratified_by: string | null }[]>`
       select status, ratified_by from skill where code = 'DIV.2D1D'`;

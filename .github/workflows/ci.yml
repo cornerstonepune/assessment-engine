@@ -205,11 +205,16 @@ jobs:
           PLAYWRIGHT_JSON_OUTPUT_NAME: results.json
           TEST_WEB_DATABASE_URL: postgresql://app_web:ci-web@127.0.0.1:5432/postgres
           TEST_ENGINE_DATABASE_URL: postgresql://app_engine:ci-engine@127.0.0.1:5432/postgres
+      # A test that failed once and passed on its retry is flaky: the run passes and the test is listed here (docs/adr/0094).
+      # One that failed twice is "unexpected", and fails the step before this one.
+      - name: the flaky tests, listed
+        if: always()
+        run: bin/ci-flaky-summary apps/web/results.json
       - name: no test skipped or left unrun
         working-directory: apps/web
         run: >-
           node -e "const s = require('./results.json').stats; console.log(s);
-          if (s.skipped || s.unexpected || s.flaky) process.exit(1)"
+          if (s.skipped || s.unexpected) process.exit(1)"
       # every statement over a second (bin/ci-postgres), so a page the database was too slow for names the statement
       - name: the database's slow statements
         if: failure()

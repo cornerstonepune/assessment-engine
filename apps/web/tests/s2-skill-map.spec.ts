@@ -172,7 +172,7 @@ test("changing a skill's words saves them and sends the skill back for approval"
     expect(after.difficulty.Easy.check).toEqual(before.difficulty.Easy.check);
     expect(after.status).toBe("draft");
 
-    await page.getByRole("button", { name: "Approve as written" }).click();
+    await page.getByRole("button", { name: /^Approve, as / }).click();
     await expect(page.getByRole("status")).toContainText("Approved as written");
     const [approved] = await sql<{ status: string; ratified_by: string }[]>`
       select status, ratified_by from skill where code = 'ADD.2D2D'`;

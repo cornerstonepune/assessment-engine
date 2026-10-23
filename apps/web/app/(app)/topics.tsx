@@ -25,7 +25,7 @@ export function Topics({ topics, me, open, fold = false }: { topics: Topic[]; me
             {skills.skills.map((k) => (
               <li key={k.code} className="flex flex-wrap items-center justify-between gap-3" data-skill={k.code}>
                 <span>
-                  {k.name} <span className="text-basalt/55">· {k.taught ? "taught" : "not taught yet"}</span>
+                  <Link href={`/skill-sets/${k.code}`}>{k.name}</Link> <span className="text-basalt/55">· {k.taught ? "taught" : "not taught yet"}</span>
                 </span>
                 <Switch
                   code={opened.code}
@@ -50,7 +50,14 @@ export function Topics({ topics, me, open, fold = false }: { topics: Topic[]; me
                   <li key={t.code} className="flex flex-wrap items-center justify-between gap-3">
                     <span>
                       <b>{t.name}</b>
-                      <span className="block text-[13px] text-basalt/70">{t.skills.join(" · ")}</span>
+                      <span className="block text-[13px] text-basalt/70">
+                        {t.skills.map((k, i) => (
+                          <span key={k.code}>
+                            {i ? " · " : ""}
+                            <Link href={`/skill-sets/${k.code}`}>{k.name}</Link>
+                          </span>
+                        ))}
+                      </span>
                       {waiting.length > 8 ? (
                         <details className="text-[12px] text-basalt/55">
                           <summary className="cursor-pointer">Not taught yet in {waiting.length} classes</summary>
