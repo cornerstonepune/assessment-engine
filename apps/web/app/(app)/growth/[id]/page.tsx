@@ -212,7 +212,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
 
               {machine.length > 0 ? (
                 <Panel title="Marked, waiting to be signed off" label="Answers to sign off" aside={`${machine.length} answers`}>
-                  <AnswerTable rows={machine} names={names} />
+                  <AnswerTable rows={machine} names={names} signedOff={false} />
                   <form action={confirmChild} className="mt-4">
                     <input type="hidden" name="child_id" value={id} />
                     {/* the page's one main action is the home assessment's approval; this is outlined (goals/ux8d-phone-and-one-action.yaml) */}

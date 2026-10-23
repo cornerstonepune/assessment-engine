@@ -1,0 +1,39 @@
+name: dup_answers_listed_twice
+goal: >
+  Assessments lists each child once under an assessment: a second copy of the same child's paper that was never
+  handed back, beside one that is read, is said in words under the copies, never listed as another child, and
+  never counted among the assessment's copies. A copy whose answers are all blank, or none right, says so beside its
+  score. A child's page lists each answer once, however many skills its question tests, and every count on it is the
+  answers' recomputed from the rows; and its two readings are told apart by header and by words: "What the reader
+  saw" (a blank reads "reader saw nothing") and "What the child wrote (you confirmed)".
+# Written 2026-10-23, before the code. Nimish read a 20-page Grade 1 file (10 copies, 12 answers each) again and checked
+# all 120 answers. Assessments listed every child twice (13 children, 26 copies); a child's page listed every answer
+# twice, and one answer read "— | 10 | right". Cause 1: a class paper made again prints a second sheet for every child
+# (`focus_paper.print_paper` inserts a sheet and a code each time; only a home assessment is replaced by the newest),
+# and the list counted every sheet as a copy. Cause 2: a signed-off answer is a row for each skill its question tests
+# (`evidence_placed`), and the child's page listed rows, and gave each skill's line the whole rung's rows. Cause 3: the
+# "Child wrote" column was the reader's own reading, which a person's check (`read_correction`) never changes, beside a
+# mark that is the person's. Read side only: no row is changed or removed (rule 4); the reader, the prompts and the
+# marking are untouched.
+says:
+  - words: "why are there duplicate entries"
+    proved_by: "apps/web/tests/u52-one-copy-one-answer.spec.ts::an assessment shows each child once; a copy never handed back beside a read one is said in words, not listed as a second child"
+  - words: "why are there duplicate entries"
+    proved_by: "apps/web/tests/u52-one-copy-one-answer.spec.ts::a child's page lists each answer once, and every count on it is the answers', recomputed from the rows"
+  - words: "if there are blank answers, why is the system considering this as right?"
+    proved_by: "apps/web/tests/u52-one-copy-one-answer.spec.ts::the two readings are told apart by header and by words: what the reader saw, what the child wrote you confirmed"
+  - words: "if there are blank answers, why is the system considering this as right?"
+    proved_by: "apps/web/tests/u52-one-copy-one-answer.spec.ts::a copy whose answers are all blank, or none right, says so beside its score"
+manual:
+  - "On live, after the merge: open the 21 Oct Grade 1 assessment — each child once, any extra copy named under the table; a child's page lists each answer once. Whether live holds two sheets per child is read from the page, not from this branch."
+scenarios: []
+criteria:
+  - name: the new screens, and the pages that show papers and a child, still hold on a production build against the local copy
+    run: cd apps/web && npx playwright test tests/u52-one-copy-one-answer.spec.ts tests/u37-papers-grouped.spec.ts tests/u22-assessments-readable.spec.ts tests/u33-one-count.spec.ts tests/u36-class-and-child.spec.ts tests/s42-the-assessment-card.spec.ts tests/s43-across-classes.spec.ts tests/u6-report-card.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the website type-checks
+    run: cd apps/web && npx tsc --noEmit && echo passed
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
