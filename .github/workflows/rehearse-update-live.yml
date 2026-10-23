@@ -79,7 +79,7 @@ jobs:
       # scored answer, as counts and checksums, compared after the migrations and after update-live. No row is printed.
       - name: past results, before
         env: { DATABASE_URL: "${{ env.COPY }}" }
-        run: bin/engine past | tee /tmp/past.before
+        run: bin/engine past | tee /tmp/past.before && bin/engine past --curriculum | tee /tmp/curriculum.before
       # The migrations `bin/update-live` pushes, run on live's rows as they will be on live. Until 2026-10-20 they ran on
       # the empty copy before its rows arrived, and the rows were restored with their triggers off, so a new key (ADR
       # 0084) was never checked against a live row. Each recorded as `supabase db push` records it, so the copy's own
@@ -98,7 +98,10 @@ jobs:
           done
       - name: past results, the same after the migrations
         env: { DATABASE_URL: "${{ env.COPY }}" }
-        run: bin/engine past | tee /tmp/past.migrated && diff /tmp/past.before /tmp/past.migrated
+        run: |
+          bin/engine past | tee /tmp/past.migrated && diff /tmp/past.before /tmp/past.migrated
+          # the questions and the levels too (C1 on); update-live below then writes the bank, as it is meant to
+          bin/engine past --curriculum | tee /tmp/curriculum.migrated && diff /tmp/curriculum.before /tmp/curriculum.migrated
       - name: before, on the copy
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: bin/engine live data --url "$COPY" || true

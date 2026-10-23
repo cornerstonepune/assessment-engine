@@ -242,8 +242,8 @@ def _six_sums(conn):
     made = [items.bare_sum(rng, "R5", "Procedural", "+", 2, 2, [0, 1]) for _ in range(40)]
     for q in [q for q in made if len(q.responses[0].answer) == 2][:6]:
         ids.append(conn.execute(
-            "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, stem, spec, responses)"
-            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s) returning id",
+            "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, stem, spec, responses,"
+            " skill_codes) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,'{NUM.OPS.01}') returning id",
             (tenant, f"T-{q.item_id}", q.template, rung, q.signal, "bare_sum", q.stem or "", json.dumps(q.spec),
              json.dumps([dataclasses.asdict(r) for r in q.responses])),
         ).fetchone()["id"])  # fmt: skip
