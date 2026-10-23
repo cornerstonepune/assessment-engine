@@ -102,23 +102,22 @@ async function asEducator(browser: Browser): Promise<Page> {
   return page;
 }
 
-const week = (page: Page, w: string) => page.locator(`details[data-week="${w}"]`);
+// one table, a row for each assessment, its week said under its name (goals/uxn1-design-system.yaml)
+const row = (page: Page, w: string) => page.locator("tr[data-assessment]").filter({ hasText: weekWords(w) });
 
-test("Assessments opens on its weeks, the newest open and the rest closed, each saying what waits in it", async ({ browser }) => {
+test("Assessments opens on one table, newest first, each row saying where it stands", async ({ browser }) => {
   const page = await asEducator(browser);
   await page.goto("/papers");
-  // the educator's own class only: two weeks, the newest first
-  await expect(page.locator("details[data-week]")).toHaveCount(2);
-  expect(await page.locator("details[data-week]").evaluateAll((els) => els.map((e) => e.getAttribute("data-week")))).toEqual([THIS, OLD]);
-  await expect(week(page, THIS)).toHaveAttribute("open", "");
-  await expect(week(page, OLD)).not.toHaveAttribute("open", "");
-  // each week one line: its name, how many assessments, and only what waits
-  const line = week(page, THIS).locator("> summary");
-  await expect(line).toContainText(weekWords(THIS));
-  await expect(line).toContainText(/1 assessment\b.*1 to approve\b.*1 to check\b/);
-  await expect(week(page, OLD).locator("> summary")).toContainText(/1 assessment\b.*nothing waiting/);
-  // one line an assessment: what it is, its class and where its copies stand; no copies until it is opened
-  const a = week(page, THIS).locator("[data-assessment]");
+  // the educator's own class only: two assessments, the newest week first
+  const rows = page.locator("tr[data-assessment]");
+  await expect(rows).toHaveCount(2);
+  await expect(rows.nth(0)).toContainText(weekWords(THIS));
+  await expect(rows.nth(1)).toContainText(weekWords(OLD));
+  // what waits is in the status of each row, in words
+  await expect(row(page, THIS)).toContainText("to check");
+  await expect(row(page, OLD)).toContainText(/done|to sign off|with the children|to approve/);
+  // one line an assessment: what it is and its class; no copies until it is opened
+  const a = row(page, THIS);
   await expect(a).toHaveCount(1);
   await expect(a).toContainText(skill);
   await expect(a).toContainText(`Grade 2 · ${SECTION}`);
@@ -129,11 +128,11 @@ test("Assessments opens on its weeks, the newest open and the rest closed, each 
 test("an assessment opens in place to its copies in roll order, its spares on one line", async ({ browser }) => {
   const page = await asEducator(browser);
   await page.goto("/papers");
-  await week(page, THIS).locator("[data-assessment]").getByRole("link", { name: skill }).click();
+  await row(page, THIS).getByRole("link", { name: skill }).click();
   await expect(page).toHaveURL(/[?&]open=/);
-  const copies = week(page, THIS).getByRole("table", { name: `${skill}: each copy` });
+  const copies = page.getByRole("table", { name: `${skill}: each copy` });
   await expect(copies).toBeVisible();
-  await expect(copies.locator("thead th")).toHaveText(["Roll", "Child", "Level", "Stage", "Waiting", "Score"]);
+  await expect(copies.locator("thead th")).toHaveText(["Roll", "Child", "Level", "Stage", "Waiting"]);
   const rows = copies.locator("tbody tr");
   await expect(rows).toHaveCount(3);
   expect(await rows.evaluateAll((trs) => trs.map((t) => t.querySelectorAll("td")[1].textContent?.trim()))).toEqual(["Asha", "Bina", "Chetan"]);
@@ -146,27 +145,24 @@ test("an assessment opens in place to its copies in roll order, its spares on on
   await expect(cells(0).getByRole("link", { name: "Asha" })).toHaveAttribute("href", `/worksheets/${QR.asha}`);
   await expect(cells(1).getByRole("link", { name: "Bina" })).toHaveAttribute("href", /^\/capture\/[0-9a-f-]{36}$/);
   // the spares: one line under the copies
-  const spares = week(page, THIS).locator("[data-spares]");
+  const spares = page.locator("[data-spares]");
   await expect(spares).toHaveText(/^1 spare copy, with the pack:\s*CS3705A1$/);
   await page.context().close();
 });
 
-test("the topic and stage rows stay, the other filters fold, and a filter opens every week it leaves", async ({ browser }) => {
+test("the one filter row is there, with its active filters, and a child chosen shows their copy under each assessment", async ({ browser }) => {
   const page = await asEducator(browser);
   await page.goto("/papers");
-  await expect(page.locator("details[data-week]").first()).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Topic" })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Papers by stage" })).toBeVisible();
+  const bar = page.locator("[data-filterbar]");
+  await expect(bar).toBeVisible();
+  for (const l of ["Class", "Topic", "Subject", "Kind", "Week", "Status"]) await expect(bar.locator(`select[name="${({ Class: "class", Topic: "topic", Subject: "subject", Kind: "kind", Week: "week", Status: "stage" } as Record<string, string>)[l]}"]`)).toBeVisible();
   await expect(page.getByRole("navigation", { name: "View" })).toHaveCount(0);
-  const more = page.locator("details[data-filters]");
-  await expect(more).not.toHaveAttribute("open", "");
-  // a child chosen: their papers, every week open, each assessment showing their copy
+  await expect(page.locator("[data-active-filters]")).toHaveCount(0);
+  // a child chosen: their papers, each assessment showing their copy
   await page.goto(`/papers?child=${kids.Asha}`);
-  await expect(more).toHaveAttribute("open", "");
-  await expect(week(page, THIS)).toHaveAttribute("open", "");
-  await expect(week(page, OLD)).toHaveAttribute("open", "");
-  await expect(week(page, OLD).getByRole("link", { name: "Asha" })).toHaveAttribute("href", `/worksheets/${QR.old}`);
-  await expect(week(page, THIS).getByRole("link", { name: "Bina" })).toHaveCount(0);
+  await expect(row(page, OLD).getByRole("link").first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Asha" }).first()).toHaveAttribute("href", /\/worksheets\//);
+  await expect(page.getByRole("link", { name: "Bina" })).toHaveCount(0);
   await page.context().close();
 });
 

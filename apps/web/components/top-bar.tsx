@@ -26,7 +26,7 @@ export function TopBar({ choices, subject, chosen, own }: { choices: Choices; su
         <label className="sr-only" htmlFor="bar-subject">
           Subject
         </label>
-        <select key={subject} id="bar-subject" name="subject" defaultValue={subject} onChange={submit} className="select min-h-11 w-auto max-w-[88px] md:max-w-none">
+        <select key={subject} id="bar-subject" name="subject" defaultValue={subject} onChange={submit} className="select min-h-[40px] !w-auto !text-[15px] font-medium max-md:min-h-11 max-md:max-w-[90px]">
           {choices.subjects.map((s) => (
             <option key={s.code} value={s.code}>
               {s.label}
@@ -36,7 +36,7 @@ export function TopBar({ choices, subject, chosen, own }: { choices: Choices; su
         <label className="sr-only" htmlFor="bar-class">
           Class
         </label>
-        <select key={chosen} id="bar-class" name="class" defaultValue={chosen} onChange={submit} className="select min-h-11 w-auto max-w-[118px] md:max-w-none">
+        <select key={chosen} id="bar-class" name="class" defaultValue={chosen} onChange={submit} className="select min-h-[40px] !w-auto !text-[15px] font-medium max-md:min-h-11 max-md:max-w-[120px]">
           {own.length ? <option value="mine">Your classes ({own.join(", ")})</option> : null}
           <option value="every">Every class</option>
           {choices.classes.map((c) => (
@@ -64,19 +64,25 @@ function Search() {
   const open = openOn === path;
   const setOpen = (yes: boolean) => setOpenOn(yes ? path : null);
   return (
-    <form action={search} onSubmit={() => setOpen(true)} className="min-w-0 flex-1">
+    <form action={search} onSubmit={() => setOpen(true)} className="ml-auto min-w-0 max-md:flex-1 max-md:basis-0 md:shrink-0">
       <label className="sr-only" htmlFor="bar-search">
         Search
       </label>
+      <div className="relative">
+      <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-basalt/55">
+        <circle cx="7" cy="7" r="4.6" />
+        <path d="M10.6 10.6L14 14" />
+      </svg>
       <input
         id="bar-search"
         name="q"
         type="search"
-        className="input min-h-11"
-        placeholder="A child, an assessment or a paper code"
+        className="input min-h-[40px] !w-full md:!w-[240px] !pl-9 !text-[15px] md:focus:!w-[340px] max-md:min-h-11"
+        placeholder="Find a child or paper"
         autoComplete="off"
         defaultValue={found?.q}
       />
+      </div>
       {open && found && !busy ? (
         <div className="absolute inset-x-2 top-full mt-1 border border-basalt/20 bg-chalk p-2 shadow-sm md:right-9 md:left-auto md:w-[480px]">
           {found.hits.length ? (
