@@ -180,7 +180,9 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
                     <tbody>
                       {shown.map((x) => (
                         <tr key={x.code} data-row={x.code}>
-                          <th scope="row" className="min-w-[160px] text-left font-medium">{x.name}</th>
+                          <th scope="row" className="min-w-[160px] text-left font-medium">
+                            <Link href={`/skill-sets/${x.code}`}>{x.name}</Link>
+                          </th>
                           <td className="whitespace-nowrap">{school.name(x.band)}</td>
                           <td className="min-w-[140px]">
                             {x.topic_name ?? "—"}
