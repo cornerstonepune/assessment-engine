@@ -6,7 +6,7 @@
   `mark`, `seen_by`, `place` or `source` on a record. The seventh runs the migration itself. Every question's skills and
   every mistake's skill are registry keys (0 of 125,786 mistake skills and 0 question skills are not), so a written
   answer's `skill_code` already names a registry skill.
-- **Built:** migration 20261205090000.
+- **Built:** migration 20261205100000 (renumbered from 20261205090000 on 23 Oct: main took that number for chk-whose-paper).
   - `evidence_kind`, `evidence_scale` and `evidence_mark` are rows, the same for every school and seeded from
     `vocabulary.json`.
   - `evidence_event` gains `kind` (default written), `mark`, `seen_by`, `place` and `source`. A new record must name a

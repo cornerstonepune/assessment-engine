@@ -17,7 +17,7 @@ from tests import rows
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
-MIGRATION = db.REPO_ROOT / "supabase/migrations/20261205090000_one_evidence_record_for_every_kind.sql"
+MIGRATION = db.REPO_ROOT / "supabase/migrations/20261205100000_one_evidence_record_for_every_kind.sql"
 SEED = json.loads((db.REPO_ROOT / "supabase/seed/vocabulary.json").read_text())
 
 
