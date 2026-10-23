@@ -165,7 +165,7 @@ test("every page keeps the rules, or is named as still breaking them, and only t
 test("Check answers is built on the blocks: one main action, its next step, one count", async ({ browser }) => {
   const page = await (await browser.newContext({ storageState: SIGNED_IN })).newPage();
   await open(page, `/capture/check?id=${answer}`);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check answers");
   expect(await breaks(page)).toEqual([]);
   expect(FROZEN["/capture/check"]).toBeUndefined();
   const action = page.locator("[data-ux=action]");

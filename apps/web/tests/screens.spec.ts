@@ -11,9 +11,9 @@ const ROUTES: [string, string][] = [
   ["/worksheets", "Worksheets"],
   ["/papers", "Assessments"],
   ["/papers/make", "Make papers"],
-  ["/papers/approve", "Class papers to approve"],
-  ["/capture", "Marking"],
-  ["/growth", "Children"],
+  ["/papers/approve", "Papers to approve"],
+  ["/capture", "Upload papers"],
+  ["/growth", "Class results"],
   ["/home", "Home Assignments"],
 ];
 
@@ -67,7 +67,7 @@ for (const { name, width, height } of SIZES) {
 
 test("every section is reachable from the menu", async ({ page }) => {
   await page.goto("/");
-  for (const label of ["Today", "Curriculum", "Assessments", "Children"]) {
+  for (const label of ["Today", "Taught this week", "Papers to approve", "Assessments", "Upload papers", "Check answers", "Class results", "Curriculum", "Question bank"]) {
     await expect(page.getByRole("navigation").getByRole("link", { name: label, exact: true })).toBeVisible();
   }
 });
@@ -85,9 +85,9 @@ test("a menu item stays readable while the pointer is on it", async ({ page }) =
 });
 
 test("the menu marks where you are", async ({ page }) => {
-  // the question bank is part of the Curriculum: its page marks Curriculum
+  // the question bank is in the menu on its own, after the curriculum
   await page.goto("/library");
-  await expect(page.getByRole("link", { name: "Curriculum" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Question bank" })).toHaveAttribute("aria-current", "page");
 });
 
 // A child's page reads in the school's own words: no rung, skill-set or mistake code reaches a teacher, and every skill

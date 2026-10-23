@@ -278,8 +278,8 @@ async function ChildPaper({ r, back }: { r: WeekRow; back: string }) {
 function Header() {
   return (
     <PageHeader
-      stage="Assessments · approve and print"
-      title="Class papers to approve"
+      stage="Papers to approve"
+      title="Papers to approve"
       sub="A class's week: each child's paper, the level it is set at and why. Change any child, then approve the pack to print it."
     />
   );

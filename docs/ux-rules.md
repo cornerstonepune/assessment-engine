@@ -36,13 +36,19 @@ exception is KG observation (S9), which is done on a phone.
 
 ## The educator's week, and its pages
 
-| Day | Step | Page |
+| Day | Step | Page (menu item = page title) |
 |---|---|---|
-| Wednesday | declare what was taught | Today; Taught this week |
+| Wednesday | see what waits | Today |
+| Wednesday | say what was taught | Taught this week |
 | Thursday, Friday | approve | Papers to approve |
-| Friday | give | Print and give |
-| Monday | act | Upload papers; Check answers (`/capture/check`); Class results; A child |
-| Setup | | Curriculum; Question bank; School |
+| Friday | print, give, follow | Assessments |
+| Monday | papers come back | Upload papers |
+| Monday | settle what the reader was not sure of | Check answers |
+| Monday | read the class | Class results (and a child) |
+| Setup, apart | | Curriculum; Question bank |
+
+The menu is this table, in this order, with "This week" and "Setup" above the two runs. The current page is marked, only
+Today carries a count (red), and no word of it names a subject. Held by `apps/web/tests/u53-the-menu.spec.ts`.
 
 ## The blocks (`apps/web/components/`)
 

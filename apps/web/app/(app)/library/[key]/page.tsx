@@ -31,7 +31,7 @@ export default async function QuestionScreen({ params, searchParams }: Props) {
   return (
     <>
       <PageHeader
-        stage="Curriculum · Question bank"
+        stage="Question bank"
         title={kind.charAt(0).toUpperCase() + kind.slice(1)}
         sub={`${it.skill_set_name} · ${it.difficulty}`}
       />

@@ -88,15 +88,15 @@ export default async function CheckAnswers({ searchParams }: Props) {
 
   return (
     <PageShell
-      stage="Assessments · check answers"
-      title="Check the answers"
+      stage="Check answers"
+      title="Check answers"
       purpose="Every answer the engine was not sure of, one at a time, with the child's own writing. Say what the child wrote; the engine marks it."
       action={main}
       next={from + 1 < queue.length ? { href: `/capture/check?from=${from + 1}`, label: "Later — show the next one" } : { href: "/growth", label: "See the class results" }}
     >
       <p className="mb-4">
         <Link href="/capture" className="text-[13px]">
-          ← Marking
+          ← Upload papers
         </Link>
       </p>
       {q.error === "engine" ? (

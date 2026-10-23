@@ -116,7 +116,7 @@ test("each grade opens on its classes, and a class is its children against every
   page,
 }) => {
   await page.goto("/growth");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Children");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Class results");
   const grade = page.getByRole("region", { name: "Grade 2" });
   // each class a line, opened to its link (goals/ux3-children-grouped.yaml)
   await grade.locator(`details[data-class="${SECTION}"] summary`).click();

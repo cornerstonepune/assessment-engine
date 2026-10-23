@@ -148,18 +148,18 @@ test.afterAll(async () => sql.end());
 
 test("marking is one area, and says how many papers are in and where every answer stands", async ({ page }) => {
   await page.goto("/capture");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Marking");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Upload papers");
   const menu = page.getByRole("navigation", { name: "Sections" });
   // Marking sits inside Assessments (goals/u9-papers.yaml, goals/ui1-menu-and-today.yaml)
-  await expect(menu.getByRole("link", { name: "Assessments" })).toHaveAttribute("aria-current", "page");
+  await expect(menu.getByRole("link", { name: "Upload papers" })).toHaveAttribute("aria-current", "page");
   // one sentence says it (goals/ux5b-make-and-marking.yaml), where five tiles stood
   expect(await shown(page.getByRole("region", { name: "Answers to check" }))).toEqual(await counts());
 
   // checking answers is inside Marking, not a page of its own
   await page.getByRole("link", { name: /check them/i }).click();
   await expect(page).toHaveURL(/\/capture\/check/);
-  await expect(menu.getByRole("link", { name: "Assessments" })).toHaveAttribute("aria-current", "page");
-  await page.getByRole("link", { name: "← Marking" }).click();
+  await expect(menu.getByRole("link", { name: "Check answers" })).toHaveAttribute("aria-current", "page");
+  await page.getByRole("link", { name: "← Upload papers" }).click();
   await expect(page).toHaveURL(/\/capture$/);
 });
 

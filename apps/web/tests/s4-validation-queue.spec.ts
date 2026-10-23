@@ -76,7 +76,7 @@ async function putBack(r: Row) {
 test("the queue counts what the engine counts, and shows each answer with the child's own writing", async ({ page }) => {
   const n = await waiting();
   await page.goto("/capture/check");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check answers");
   await expect(page.getByText(`${n} answers left to check`)).toBeVisible();
   const writing = page.getByRole("img", { name: /^What .+ wrote for question/ });
   await expect.poll(() => writing.evaluate((i: HTMLImageElement) => i.naturalWidth), { timeout: 15_000 }).toBeGreaterThan(0);
@@ -381,8 +381,8 @@ test("the queue is on the menu, and fits a phone", async ({ page }) => {
   await page.goto("/today");
   await page.getByRole("region", { name: "Assessments", exact: true }).waitFor();
   await page.goto("/capture/check");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
-  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Assessments" })).toHaveAttribute(
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check answers");
+  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Check answers" })).toHaveAttribute(
     "aria-current",
     "page",
   );
