@@ -44,6 +44,19 @@ One function, not two: #315's `same_page.fingerprint` already says "this is the 
 | Types | `cd apps/web && npx tsc --noEmit` | no errors |
 | Browser: this goal with #315/#316's | `npx playwright test tests/s44 u52 u61 u50 u51 u9 u45 u37 u35 u8` | 41 passed |
 
+## Merge of main (#290 design system v1), 2026-10-23
+
+Conflicts: `apps/web/lib/queries-papers.ts` (#290's `givenOn` and this branch's `assessmentOf`: both kept, side by side), `lib/engine-routes.ts` (generated; `bin/engine contract` writes the same file: `/pages` and `/proof` both in) and `api/routes/capture.py` (one import line, `same_page` and `whose_paper` both kept, sorted by ruff).
+Look: the check page's children list was already a `DataTable`; the proof panel adds no table or chip of its own (a `Notice` and two buttons); the Children page's "Last paper" column sits in that page's existing table, which is still on `ux.frozen`, so the page keeps one style.
+This container has no database, so the engine and browser tests that need one were not run here; CI runs them.
+
+| Claim | Command | Last output |
+|---|---|---|
+| The map, every promise, ux rules, lint | `bin/check` | 31 passed |
+| Types | `cd apps/web && npx tsc --noEmit` | no errors |
+| Generated routes match the engine | `bin/engine contract` | wrote 63 routes, no diff |
+| `engine done chk_whose_paper` here | `bin/engine done chk_whose_paper` | NOT DONE: the 3 database-backed tests could not start (`DATABASE_URL`/`TEST_DATABASE_URL` not set); `bin/check` PASSED |
+
 ## Handoff
 
 - Migration `20261205090000_a_person_chooses_on_a_doubtful_page.sql`: one additive table, `page_choice` (append-only, RLS by `apply_conventions`). Needs `rehearse update-live` before it goes live (BUILD-ORDER rule for migrations).
