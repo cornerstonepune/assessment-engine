@@ -76,6 +76,7 @@ export function ChildrenTable({ rows, label, withClass, page, pageHref, sort }: 
     { key: "needs", sortable: true, label: "Needs help", num: true, width: "6rem", value: (r) => r.needs_help, cell: (r) => r.needs_help || null },
     { key: "amber", sortable: true, label: "Practising", num: true, width: "6.5rem", value: (r) => r.amber, cell: (r) => r.amber || null },
     { key: "green", sortable: true, label: "Secure", num: true, width: "5.5rem", value: (r) => r.green, cell: (r) => r.green || null },
+    { key: "score", label: "Last paper", width: "6.5rem", value: (r) => r.last_score },
     { key: "waiting", sortable: true, label: "Waiting on you", num: true, width: "6rem", value: (r) => r.waiting, cell: (r) => r.waiting || null },
     {
       key: "report",

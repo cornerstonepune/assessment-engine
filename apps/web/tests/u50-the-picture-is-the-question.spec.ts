@@ -67,7 +67,8 @@ test.beforeAll(async ({ browser }) => {
 
 const open = async (page: Page, n: number) => {
   await page.goto(`/capture/check?id=${id[n]}`);
-  await expect(page.getByRole("heading", { name: new RegExp(`question ${n}$`) })).toBeVisible();
+  // the card's heading is the child's strip now (child · paper · answer k of m), the question stays over the picture
+  await expect(page.locator("figure")).toContainText(`Question ${n} ·`);
 };
 const shown = (page: Page) => page.locator("figure img");
 const natural = async (page: Page) => shown(page).evaluate((el: HTMLImageElement) => [el.naturalWidth, el.naturalHeight]);

@@ -92,6 +92,13 @@ class KeyRequest(BaseModel):
     by: str = Field(min_length=1, max_length=200)
 
 
+class PageChoiceRequest(BaseModel):
+    capture_id: str
+    file_page: int = Field(ge=1)
+    choice: str  # 'theirs' or 'not_theirs'
+    by: str = Field(min_length=1, max_length=200)
+
+
 class KeyResponse(BaseModel):
     was: str
     now: str

@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import { FilterBar } from "@/components/filter-bar";
 import { PageShell } from "@/components/page-shell";
 import { Bar, Notice, Panel } from "@/components/shell";
+import { DataTable } from "@/components/data-table";
 import { StatusChip } from "@/components/status-chip";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
@@ -13,6 +14,7 @@ import { EngineDown, engineGet } from "@/lib/engine";
 import { Confirm, Judge, Nothing, TypeIt } from "./answer";
 import { QueueTable, type QueueRow } from "./queue-table";
 import { ZoomPage } from "./zoom-page";
+import { PageProof, type Proof } from "./proof";
 import type { Key } from "../[id]/card";
 import { dateWords } from "@/lib/week";
 
@@ -56,6 +58,17 @@ async function keyOf(paper: string, id: string): Promise<Key | undefined> {
   }
 }
 
+// Whose paper the page is (`GET /capture/{id}/proof`): the engine down, no proof is shown and none is claimed.
+async function proofOf(capture: string, page: number): Promise<Proof | undefined> {
+  try {
+    const res = await engineGet(`/capture/${capture}/proof?page=${page}`);
+    return res.ok ? ((await res.json()) as Proof) : undefined;
+  } catch (e) {
+    if (e instanceof EngineDown) return undefined;
+    throw e;
+  }
+}
+
 // Every answer the engine is unsure of, one at a time: the child's own writing, the question, the
 // reader's best guess. A person settles it in a click and the next one appears (Nimish: "I'm not even
 // able to see what all validations you need from our side"). The engine marks what the person says.
@@ -69,6 +82,22 @@ export default async function CheckAnswers({ searchParams }: Props) {
   const entry = queue[from];
   const a = entry ? await deadline(checkItem(entry.id, me.email)) : undefined;
   const key = a ? await keyOf(a.paper_id, a.id) : undefined;
+  const proof = a ? await proofOf(a.capture_id, a.file_page) : undefined;
+  // Checking runs per child: this child's answers, then the next child's (the queue is in paper order).
+  const mine = entry ? queue.filter((e) => e.paper_id === entry.paper_id) : [];
+  const place = entry ? mine.findIndex((e) => e.id === entry.id) : 0;
+  const nextChild = entry ? queue.findIndex((e, i) => i > from && e.paper_id !== entry.paper_id) : -1;
+  const nextAt = place + 1 < mine.length ? queue.indexOf(mine[place + 1]) : nextChild;
+  const children = entry
+    ? [...new Map(queue.filter((e) => e.scan === entry.scan).map((e) => [e.paper_id, e])).values()].map((e) => ({
+        paper_id: e.paper_id,
+        roll: e.roll_no,
+        code: e.code,
+        left: queue.filter((x) => x.paper_id === e.paper_id).length,
+        here: e.paper_id === entry.paper_id,
+        at: queue.findIndex((x) => x.paper_id === e.paper_id),
+      }))
+    : [];
   const waiting = queue.filter((e) => !e.spot).length;
   const spots = queue.length - waiting;
   const next = `/capture/check?from=${from}`;
@@ -84,26 +113,25 @@ export default async function CheckAnswers({ searchParams }: Props) {
   const pageHref = (n: number) => `/capture/check?${new URLSearchParams({ ...(entry ? { id: entry.id } : {}), ...(section ? { class: section } : {}), ...(why ? { why } : {}), page: String(n) })}`;
 
   const says = entry?.spot ? (a?.read ?? "") : (a?.guess ?? "");
-  // The one main action: the decision this answer waits for (Right/Wrong/Blank, "Yes, the child wrote…", or typing it).
-  const main = !a || !entry ? (
-    <Link href="/capture" className="btn">
-      Mark more papers
-    </Link>
-  ) : toJudge(a) ? (
-    <Judge a={a} next={next} />
-  ) : entry.spot || a.guess ? (
-    <Confirm a={a} next={next} says={says} />
-  ) : (
-    <TypeIt a={a} next={next} label="What the child wrote" primary />
-  );
-
   return (
     <PageShell
       stage="Check answers"
       title="Check answers"
       purpose="Every answer the engine was not sure of, one at a time, with the child's own writing. Say what the child wrote; the engine marks it."
-      action={main}
-      next={from + 1 < queue.length ? { href: `/capture/check?from=${from + 1}`, label: "Later — show the next one" } : { href: "/growth", label: "See the class results" }}
+      action={
+      <div className="grid gap-2">
+        <p className="text-[14px]">
+          <Count of="answers to check" n={waiting} /> {waiting === 1 ? "answer" : "answers"} left to check · {spots} spot-
+          {spots === 1 ? "check" : "checks"} · answer {queue.length ? from + 1 : 0} of {queue.length}
+        </p>
+        <Bar tone="neem" share={queue.length ? from / queue.length : 1} width={320} />
+      </div>
+      }
+      next={
+        nextAt >= 0
+          ? { href: `/capture/check?from=${nextAt}`, label: place + 1 < mine.length ? "Later — show the next answer of this paper" : "This paper is done — next child" }
+          : { href: "/growth", label: "See the class results" }
+      }
     >
       <p className="mb-4">
         <Link href="/capture" className="text-[13px]">
@@ -113,19 +141,12 @@ export default async function CheckAnswers({ searchParams }: Props) {
       {q.error === "engine" ? (
         <Notice tone="terracotta">The engine could not be reached, so that answer was not saved. Try it again.</Notice>
       ) : null}
-      <div className="mb-[18px] grid gap-2">
-        <p className="text-[14px]">
-          <Count of="answers to check" n={waiting} /> {waiting === 1 ? "answer" : "answers"} left to check · {spots} spot-
-          {spots === 1 ? "check" : "checks"} · answer {queue.length ? from + 1 : 0} of {queue.length}
-        </p>
-        <Bar tone="neem" share={queue.length ? from / queue.length : 1} width={320} />
-      </div>
 
       {!a || !entry ? (
         <EmptyState>Nothing is waiting. Every answer the engine read is settled — by the engine or by a person.</EmptyState>
       ) : (
         <Panel
-          title={`${a.first_name} · question ${a.slot}`}
+          title={`${a.first_name} · paper ${entry.code} · answer ${place + 1} of ${mine.length} · ${mine.length - place - 1} left`}
           aside={
             <>
               <StatusChip state={entry.spot ? "spot" : toJudge(a) ? "judge" : "waiting"} />{" "}
@@ -133,7 +154,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
             </>
           }
         >
-          <div className="grid gap-[18px] lg:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="grid gap-[18px] lg:grid-cols-[minmax(0,1fr)_200px_380px]">
             <figure className="min-w-0">
               <p className="mb-2 text-[15px] leading-snug">
                 <strong>Question {a.slot}</strong> · {a.question}
@@ -158,6 +179,8 @@ export default async function CheckAnswers({ searchParams }: Props) {
                 <Link href={`/capture/${a.paper_id}#a-${a.id}`}>Open the whole paper →</Link>
               </figcaption>
             </figure>
+
+            {proof ? <PageProof a={a} p={proof} next={next} /> : <div />}
 
             <div className="grid content-start gap-3 text-[14px]">
               <div>
@@ -191,14 +214,19 @@ export default async function CheckAnswers({ searchParams }: Props) {
                 </p>
               ) : null}
 
-              {/* the one main action is at the top of the page; the ways round it stay here */}
+              {/* the decision sits in the box with the sentence it answers */}
               {toJudge(a) ? (
                 // A judgement says whether the child is right, not what the child wrote: when the reading itself is
                 // wrong, it is corrected here and the engine marks it again.
-                <TypeIt a={a} next={next} label="Not what the child wrote? Type it" />
+                <>
+                  <Judge a={a} next={next} />
+                  <TypeIt a={a} next={next} label="Not what the child wrote? Type it" />
+                </>
               ) : (
                 <>
+                  {entry.spot || a.guess ? <Confirm a={a} next={next} says={says} locked={proof ? !proof.may_confirm : false} /> : null}
                   {entry.spot || a.guess ? <TypeIt a={a} next={next} label="No — the child wrote" /> : null}
+                  {!entry.spot && !a.guess ? <TypeIt a={a} next={next} label="What the child wrote" primary /> : null}
                   <Nothing a={a} next={next} />
                 </>
               )}
@@ -228,6 +256,23 @@ export default async function CheckAnswers({ searchParams }: Props) {
           />
           <QueueTable rows={shown} page={page} pageHref={pageHref} />
           {shown.length === 0 ? <p className="note mt-2">Nothing matches these filters.</p> : null}
+        </section>
+      ) : null}
+
+      {children.length > 1 ? (
+        <section className="mt-6" aria-label="Children in this file">
+          <h2 className="mb-2 text-[15px]">Children in this file</h2>
+          <DataTable
+            label="Children in this file"
+            rows={children}
+            rowKey={(c) => c.paper_id}
+            more={{ page: Math.max(1, Number(q.kids) || 1), href: (n: number) => `/capture/check?from=${from}&kids=${n}` }}
+            columns={[
+              { key: "roll", label: "Roll", value: (c) => c.roll, cell: (c) => (c.here ? <strong>{c.roll} · this paper</strong> : <Link href={`/capture/check?from=${c.at}`}>{c.roll}</Link>) },
+              { key: "code", label: "Paper", value: (c) => c.code },
+              { key: "left", label: "Answers left", value: (c) => c.left, num: true },
+            ]}
+          />
         </section>
       ) : null}
     </PageShell>
