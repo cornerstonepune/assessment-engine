@@ -93,6 +93,9 @@ def compare(conn: db.Conn, draws: int = 4) -> dict[str, Any]:
     ]
     return {
         "levels": len(blob),
+        "drawable": sum(
+            "check" in b["entry"] for b in blob
+        ),  # a level with no check is drawn from nothing (English, E0)
         "rows": len(rows),
         "drawn": drawn,
         "grades": {

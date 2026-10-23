@@ -103,13 +103,13 @@ EXPECTED = {
     "prompt": _seeded("prompts"),
     "threshold": _seeded("thresholds"),
     "config": _seeded("config"),
-    "skill": 46,  # fifteen + and − calculation skills (ADR 0034), eleven others, tally, equal groups, five × (M2a),
+    "skill": 155,  # 46 of maths and the 109 of English Grades 3 and 4 (E0): the maths  # fifteen + and − calculation skills (ADR 0034), eleven others, tally, equal groups, five × (M2a),
     # multiplication's models (M2d1), four ÷ (M3a), division's models (M3c), mental multiplication and division (M4a),
     # estimating products and quotients (M4b1), equations with × and ÷ (M4b2), multiples and factors (M4c),
     # stories with × and ÷ (M4d1), and Achal's three Grade 2 skills made of kinds that are rows (SF1)
     # one row per skill and level (goals/b1-levels-are-rows.yaml), kept equal to the blob by its trigger (ADR 0087)
-    "skill_level": 178,
-    "subject": 1,
+    "skill_level": 614,  # 178 of maths, 436 of English (E0)
+    "subject": 2,  # maths and English
 }
 
 

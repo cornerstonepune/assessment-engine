@@ -158,7 +158,8 @@ def _unit(conn, code="SUB.2D2D", d="Hard"):
 def test_building_makes_every_level_ready_and_building_again_changes_nothing(conn):
     conn.execute("delete from sheet_template where source = 'library'")  # from nothing; rolled back after
     first = library.build(conn)
-    levels = conn.execute("select count(*) as n from skill, jsonb_object_keys(difficulty)").fetchone()["n"]
+    # the levels a worksheet is made from: those whose rule carries a `check` (English's, E0, have no bank)
+    levels = conn.execute("select count(*) as n from skill_level where rule ? 'check'").fetchone()["n"]
     assert first["made"] >= levels * 10
     units, problems = library.check(conn)
     assert problems == {}
@@ -242,8 +243,8 @@ def _six_sums(conn):
     made = [items.bare_sum(rng, "R5", "Procedural", "+", 2, 2, [0, 1]) for _ in range(40)]
     for q in [q for q in made if len(q.responses[0].answer) == 2][:6]:
         ids.append(conn.execute(
-            "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, stem, spec, responses)"
-            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s) returning id",
+            "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, stem, spec, responses,"
+            " skill_codes) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,'{NUM.OPS.01}') returning id",
             (tenant, f"T-{q.item_id}", q.template, rung, q.signal, "bare_sum", q.stem or "", json.dumps(q.spec),
              json.dumps([dataclasses.asdict(r) for r in q.responses])),
         ).fetchone()["id"])  # fmt: skip

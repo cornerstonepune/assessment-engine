@@ -207,7 +207,11 @@ def test_coverage_lists_every_skill_set_by_difficulty_with_real_counts(conn, mon
     # every level of every skill in use; a retired skill set builds nothing and is not counted (s13)
     defined = {
         r["code"]: set(r["levels"])
-        for r in conn.execute("select code, array(select jsonb_object_keys(difficulty)) as levels from skill")
+        for r in conn.execute(
+            "select code, array(select e.key from jsonb_each(difficulty) e where e.value ? 'check') as levels"
+            " from skill"  # the levels a bank draws from: English's (E0) have no check
+        )
+        if r["levels"]
     }
     assert len(table) == sum(len(v) for v in defined.values())
     row = next(r for r in table if r["code"] == SET and r["difficulty"] == DIFF)

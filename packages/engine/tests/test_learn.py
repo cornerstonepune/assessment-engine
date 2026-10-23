@@ -30,7 +30,8 @@ def _question(conn, tenant, difficulty="Hard"):
     key = f"T-LEARN-{uuid.uuid4().hex[:8]}"
     conn.execute(
         "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, stem, spec, responses,"
-        " skill_set_code, difficulty) values (%s,%s,%s,%s,%s,'bare_sum','',%s,%s,'ADD.2D2D',%s)",
+        " skill_set_code, difficulty, skill_codes) values (%s,%s,%s,%s,%s,'bare_sum','',%s,%s,'ADD.2D2D',%s,"
+        " '{NUM.OPS.01}')",
         (tenant, key, q.template, rung, q.signal, json.dumps(q.spec),
          json.dumps([dataclasses.asdict(r) for r in q.responses]), difficulty),
     )  # fmt: skip

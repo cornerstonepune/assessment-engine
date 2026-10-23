@@ -24,6 +24,17 @@ def tenant(conn):
     return conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
 
 
+def a_registry_skill(conn, tenant, code="NUM.OPS.01"):
+    """The school's registry skill `code` given to a school a test made for itself: a question names one (C1)."""
+    conn.execute(
+        "insert into registry_skill (tenant_id, code, domain, strand, name)"
+        " select %s, code, domain, strand, name from registry_skill where code = %s limit 1"
+        " on conflict do nothing",
+        (tenant, code),
+    )
+    return code
+
+
 def a_child(conn, section=None):
     """A Grade 2 child in a section of its own, on the roster as every child is: `child` and its `pii` row."""
     t = tenant(conn)
@@ -103,7 +114,9 @@ def a_read_paper(conn, answers, path="scan.pdf", paper="TEST-P1", fmt="column"):
 def data_steps(migration):
     """A migration's data steps (its `do $$ … end $$;` blocks and its top-level update, insert and delete statements),
     to run again on today's schema and functions. A later migration can make an earlier one's DDL impossible to repeat
-    (B4 dropped the `rung` table B1 and B3 put triggers on; B4b made `skill_set` a view); what those tests prove —
-    running the migration's rows again changes nothing — is these steps, in their order."""
+    (B4 dropped the `rung` table B1 and B3 put triggers on; B4b made `skill_set` a view, which C1 dropped, so a step
+    naming it names today's `skill`); what those tests prove — running the migration's rows again changes nothing — is
+    these steps, in their order."""
     step = r"^do \$\$.*?^end \$\$;|^(?:update|insert into|delete from)\b.*?;[ \t]*$"
-    return "\n".join(m.group(0) for m in re.finditer(step, migration.read_text(), re.S | re.M))
+    steps = "\n".join(m.group(0) for m in re.finditer(step, migration.read_text(), re.S | re.M))
+    return re.sub(r"\bskill_set\b", "skill", steps)
