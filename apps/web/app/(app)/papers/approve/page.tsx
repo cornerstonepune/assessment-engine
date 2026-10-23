@@ -1,8 +1,8 @@
+import { EmptyState } from "@/components/empty-state";
 import { FilterBar } from "@/components/filter-bar";
+import Link from "@/components/link";
 import { PageShell } from "@/components/page-shell";
-import { Body, NotYet, PageHeader } from "@/components/shell";
 import type { State } from "@/components/status-chip";
-import { tableCounts } from "@/lib/queries";
 import { spareSheets, unplanned, weekPlan, weeks, type WeekRow } from "@/lib/queries-approve";
 import { approvePack } from "./actions";
 import { byNeed, PackTable, reasonOf, type PackRow } from "./pack-table";
@@ -35,30 +35,22 @@ export default async function ApprovePage({ searchParams }: Props) {
       : null;
 
   if (all.length === 0) {
-    const c = await deadline(tableCounts());
     return (
-      <>
-        <PageHeader stage="Papers to approve" title="Papers to approve" sub="A class's week: each child's paper, the level it is set at and why. Change any child, then approve the pack to print it." />
-        <Body>
-          {notListed ? <Notice tone="terracotta">{notListed}</Notice> : null}
-          <NotYet
-            what={[
-              "One row per child: the level they are set, and the reason it was chosen.",
-              "The pack in handout order: a named paper for each child, spares, one teacher key.",
-              "Change one child's level, or approve the whole pack with one tap.",
-            ]}
-            when="Nothing has been planned for a week yet. A coordinator runs the week from the engine, then it appears here."
-            facts={[
-              ["children on roll", c.child],
-              ["papers made", c.sheet_instance],
-              ["weeks planned", 0],
-            ]}
-          />
-        </Body>
-      </>
+      <PageShell
+        stage="Papers to approve"
+        title="Papers to approve"
+        purpose="A class's week: each child's paper, the level it is set at and why. Change any child, then approve the pack to print it."
+        action={<Link href="/taught" className="btn">Say what was taught</Link>}
+        next={{ href: "/papers", label: "Assessments: print and give" }}
+      >
+        {notListed ? <Notice tone="terracotta">{notListed}</Notice> : null}
+        <EmptyState>
+          No week has been planned yet. Once a class has been taught something, its week of papers appears here, one row per child,
+          for you to approve.
+        </EmptyState>
+      </PageShell>
     );
   }
-
   const current = all.find((w) => w.section === q.section && w.week === q.week && w.kind === q.kind) ?? all[0];
   const [rows, spares, missing] = await deadline(Promise.all([
     weekPlan(current.section, current.week, current.kind, me.email),
