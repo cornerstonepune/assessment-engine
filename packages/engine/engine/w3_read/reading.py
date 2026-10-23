@@ -8,32 +8,28 @@ reader's guess for whatever is left doubted.
 """
 
 from engine.adapters import digits, ocr
-from engine.w3_read import boxes, crops, lists, marking, profiles, render_pdf, second_reader, stencil
+from engine.w3_read import (
+    boxes,
+    crops,
+    lists,
+    marking,
+    profiles,
+    render_pdf,
+    same_page,
+    second_reader,
+    stencil,
+)
 
 
 def _by_region(scan, page_no, questions, jpeg, fraction, cfg, cli):
-    """A page read by its printed words (`stencil`), each answer found in the region below its question, which ends at
-    the next question it is given. That reads one number a question; a printed copy that did not line up asks for more
-    — a second answer, a tick, a reason — and those are a person's, never a number from a region holding several. Every
-    question is still given, by its first slot, so that each bounds the one above it."""
+    """A page of a paper entered by hand, which records no boxes, read by its printed words (`stencil`): each answer
+    found in the region below its question, which ends at the next question it is given."""
     path, paper, by_key = scan["path"], scan["paper"], scan["by_key"]
     from engine.w3_read import legacy
 
-    def first(
-        k,
-    ):  # the slot a question's first answer is read under; on a paper with no boxes recorded, every slot
-        it = by_key[k]
-        return not paper.get("geometry") or marking.response_of(it).get("rid") == it["responses"][0].get(
-            "rid"
-        )
-
-    def one(k):
-        it = by_key[k]
-        return not paper.get("geometry") or (len(it["responses"]) == 1 and _digits(marking.response_of(it)))
-
-    readings = stencil.read_page(
+    return stencil.read_page(
         jpeg,
-        {k: q for k, q in questions.items() if first(k)},
+        questions,
         cfg,
         cli,
         form=paper.get("printed_as", scan["paper_code"]),
@@ -42,11 +38,34 @@ def _by_region(scan, page_no, questions, jpeg, fraction, cfg, cli):
         use_boxes=paper.get("fields") in ("boxes", "cells"),
         reread=legacy.second_look(path, page_no, fraction, cfg, cli),
     )
-    for k in (k for k in questions if not one(k)):
-        digits = _digits(marking.response_of(by_key[k]))
-        state, why = ("not_found", boxes.UNALIGNED) if digits else ("for_a_person", boxes.FOR_A_PERSON)
-        readings[k] = {"child_answer": "", "answer_state": state, "why": why, "guess": "", "confidence": 0.0}
-    return readings
+
+
+def _to_a_person(questions, by_key):
+    """A page of a paper this system printed whose boxes were not found, whole to a person (goals/r2): read by its words
+    instead, a page of pictures hands one field to several questions (22 Oct, one box to Q1, Q7 and Q8). Nothing on it
+    is read or guessed; a number not found is the reader's failure, a tick or a reason a person's as ever."""
+    out = {}
+    for k in questions:
+        number = _digits(marking.response_of(by_key[k]))
+        state, why = ("not_found", boxes.UNALIGNED) if number else ("for_a_person", boxes.FOR_A_PERSON)
+        out[k] = {"child_answer": "", "answer_state": state, "why": why, "guess": "", "confidence": 0.0}
+    return out
+
+
+def _not_found(page_no, by_key):
+    """A page of the paper the copy's file has no photograph of — the photograph in its place was a page already
+    (`placing.place`, goals/img_page_one_and_two_same_photo.yaml) — whole to a person, who is told in words. Every answer
+    on it waits, a tick and a number alike: there is nothing to read, and no page is shown for it."""
+    questions = {
+        k: it["spec"]["question"] for k, it in by_key.items() if it["spec"].get("page", 1) == page_no
+    }
+    why = same_page.words(page_no)
+    readings = {
+        k: {"child_answer": "", "answer_state": "not_found", "why": why, "guess": "", "confidence": 0.0,
+            "page": page_no, "page_found": False}
+        for k in questions
+    }  # fmt: skip
+    return {"page_no": page_no, "jpeg": b"", "readings": readings or None, "note": f"p{page_no}: {why}"}
 
 
 def _digits(response):
@@ -119,7 +138,8 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
                 else "did not line up with the paper it printed from"
             )
         if readings is None:
-            readings = _by_region(scan, page_no, questions, jpeg, fraction, cfg, cli)
+            readings = (_to_a_person(questions, by_key) if paper.get("geometry")
+                        else _by_region(scan, page_no, questions, jpeg, fraction, cfg, cli))  # fmt: skip
         readings = profiles.apply(readings, notes, lambda k: (by_key.get(k) or {}).get("fmt", ""))
         note = how
         if (
@@ -141,4 +161,5 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
                 + (f"; {note}" if note else ""),
             }
         )
-    return out
+    # the pages of the paper the copy's file has no photograph of come after the photographs (`copies._read_copy`)
+    return out + [_not_found(p, by_key) for p in page_numbers[len(images) :]]

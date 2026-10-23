@@ -1,0 +1,34 @@
+name: s7-across-classes
+goal: >
+  One page across every class, opened from the menu by every member of staff: for each class and subject, where its
+  newest assessment's papers stand, in the Assessments list's own words; the classes with answers waiting for a person
+  longer than a set time (48 hours, a row); the children's papers given more than a set number of days ago (3, a row)
+  and not back, a child said to be away left out as carried; and the children who need help in two or more subjects.
+  Every number is counted by code from the rows the other pages read.
+# Written 2026-10-22, before the code. Slice S7 of the scope Nimish locked that day (BUILD-ORDER.md, "the locked scope
+# of 22 Oct"), built beside the C slices because it needs no new table: two threshold rows (`across.*`) are seeded like
+# every other. Today only Maths has children's results, so "two or more subjects" lists no one until a second subject's
+# results arrive; the page says so rather than show an empty list. A paper's day given is the educator's "Given on"
+# where they said it (goals/s2-the-assessment-card.yaml), else the day it was printed.
+says:
+  - words: "the coordinator's page across classes: each class and subject's stage"
+    proved_by: "apps/web/tests/s43-across-classes.spec.ts::each class and subject shows where its newest assessment stands"
+  - words: "overdue checks"
+    proved_by: "apps/web/tests/s43-across-classes.spec.ts::answers waiting for a person over 48 hours are overdue"
+  - words: "papers missing over 3 days"
+    proved_by: "apps/web/tests/s43-across-classes.spec.ts::papers given over 3 days ago and not back are listed"
+  - words: "children struggling in two or more subjects"
+    proved_by: "apps/web/tests/s43-across-classes.spec.ts::a child who needs help in two subjects is named, and one subject alone is not enough"
+manual:
+  - "Once deployed: open Across every class from the menu and check one class's line against its card on Assessments."
+scenarios: []
+criteria:
+  - name: the seed loads with its two new rows, and loading again changes nothing
+    run: bin/engine load --check
+    expect: "every code referenced resolves"
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -94,7 +94,11 @@ def test_a_story_in_the_bank_outside_its_range_is_retired(conn):
         "stem": stem,
         "misconceptions": [],
     }
-    it = verify.to_item(cand, SETS["MUL.3D1D"]["rung_code"])
+    # it names its skill set's registry skills, as `bank.fill` gives every question it makes (C1)
+    skills = conn.execute("select registry_codes from skill where code = 'MUL.3D1D'").fetchone()[
+        "registry_codes"
+    ]
+    it = verify.to_item(cand, SETS["MUL.3D1D"]["rung_code"], skills=list(skills))
     assert bank._insert(conn, tenant(conn), it, "MUL.3D1D", "Easy")
     named = {r["item_key"]: r["why"] for r in cases.outside_their_level(conn)}
     assert it.item_id in named

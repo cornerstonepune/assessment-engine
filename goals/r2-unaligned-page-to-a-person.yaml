@@ -1,0 +1,28 @@
+name: r2-unaligned-page-to-a-person
+goal: >
+  A page of a paper this system printed that still cannot be lined up goes whole to a person, and is never read by its
+  printed words. Until now such a page fell to the reader by words (`ocr.answers_for`), which finds a question by the
+  words printed above it: a ring of dots has none, so on 2026-10-22 the Grade 1 file "Equal groups (repeated addition)"
+  had 49 of 120 answers "not found", and where several questions' words were missing the field left over went to all
+  of them (copy 3, one box to Q1, Q7 and Q8). A page of the school's own paper is read in its boxes or by a person.
+  A paper entered by hand, which records no boxes, is still read by its words, as before.
+# Written 2026-10-22, before the code. Nimish approved R2 on 2026-10-22 (BUILD-ORDER.md, the locked scope of 22 Oct);
+# the measure is docs/notes/r1-every-question-found.md, "Measured on live, before the code".
+says:
+  - words: "a page of the school's own paper that cannot be lined up goes whole to a person, never read by its words"
+    proved_by: "packages/engine/tests/test_each_answer.py::test_a_printed_page_that_did_not_line_up_goes_whole_to_a_person"
+  - words: "a page of the school's own paper that cannot be lined up goes whole to a person, never read by its words"
+    proved_by: "packages/engine/tests/test_each_answer.py::test_a_paper_entered_by_hand_is_still_read_by_its_words"
+manual:
+  - "After deploy: the next printed page on live that does not line up shows on Marking with every answer waiting for a person and no reading offered."
+scenarios: []
+criteria:
+  - name: an unaligned printed page goes to a person; a hand-entered paper is still read by its words
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_each_answer.py tests/test_lineup.py tests/test_boxes.py tests/test_stencil.py
+    expect: "passed"
+  - name: nothing else moved — the reader's files
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_copies.py tests/test_sorting.py tests/test_legacy.py tests/test_inbox.py tests/test_crops.py tests/test_ink_line.py tests/test_second_reader.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -48,3 +48,17 @@ the link to the next step; the same words in the menu, the title and the next-st
 
 `tests/test_ux_rules.py` and `u51-ux-rules.spec.ts` fail on a tag list where a table belongs, a table of six rows or
 more with no filter row, a status with no icon, a top-bar control under 40 px.
+
+## Merge of main (23 Oct 2026): #313, #315, #316 into the design system
+
+Conflicts were `assessments-table.tsx`, `copies-table.tsx`, `queries-papers.ts`; `workflows.json` merged on its own.
+- Assessments: kept #290's `DataTable` and `StatusChip`. From #316 kept the query that counts a child once (`extras`, and
+  `qrs`/`copies` that leave extras out) and said the extra copy in words under "Papers in" ("and N extra"), beside "and N spare".
+- Copies: kept #290's `DataTable`. From #316 kept the extra-copy sentence under the table, and put the "every answer blank" /
+  "none right: is this the right page?" warning under the Score cell (same `data-warn` hook, now from the shared table).
+- Checked here: `bin/check` (31 passed), `npx tsc --noEmit` clean after `next typegen`. Not run here: the Playwright specs
+  (u51, u52, u9, u37), which need the local database copy; they run in CI.
+
+## CI repair, 2026-10-23
+- The design system added `subject` to the shared papers query; main's Across-every-class query did `select p.*, … as subject`, so Postgres said "column reference subject is ambiguous" and the page crashed. Fixed in `apps/web/lib/queries-across.ts` by naming the columns.
+- Proof: `cd apps/web && npx playwright test tests/s43-across-classes.spec.ts` → 4 passed (was 1 failed, 3 did not run); the full browser job had 345 passed, 1 failed. `npx tsc --noEmit` clean; `bin/check` → 30 passed, 1 skipped.

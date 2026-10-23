@@ -99,7 +99,7 @@ export async function assessmentCard(key: CardKey, actor: string): Promise<Card>
     reading?.pages && reading.of && reading.secs != null ? Math.max(1, Math.round(((reading.of - reading.pages) * reading.secs) / reading.pages / 60)) : null;
   return {
     key,
-    copies: full.filter((c) => !c.spare),
+    copies: full.filter((c) => !c.spare && !c.extra),
     spares: full.filter((c) => c.spare),
     given: given[0] ?? null,
     reading: reading ? { pages: reading.pages ?? 0, of: reading.of ?? 0, minutes } : null,

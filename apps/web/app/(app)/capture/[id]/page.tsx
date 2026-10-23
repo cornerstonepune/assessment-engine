@@ -40,6 +40,23 @@ async function keysOn(captureId: string): Promise<Record<string, Key>> {
   }
 }
 
+// Which pages of the paper the engine found a photograph of, and in words why not (`GET /capture/{id}/pages`,
+// goals/img_page_one_and_two_same_photo.yaml). A page that is another page again is never drawn as its own. The
+// engine down, every page is drawn as it was.
+type PageFound = { page: number; found: boolean; said: string | null };
+async function pagesOn(captureIds: string[]): Promise<Record<number, PageFound>> {
+  const found: Record<number, PageFound> = {};
+  for (const captureId of captureIds) {
+    try {
+      const res = await engineGet(`/capture/${captureId}/pages`);
+      if (res.ok) for (const p of (await res.json()) as PageFound[]) found[p.page] ??= p;
+    } catch (e) {
+      if (!(e instanceof EngineDown)) throw e;
+    }
+  }
+  return found;
+}
+
 // The three signals stay three (rule 5), and an answer nobody has settled is not one of them.
 const settled = (a: CaptureAnswer) => ["correct", "wrong", "blank"].includes(a.status);
 
@@ -58,6 +75,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
     unnamedOn(id),
     keysOn(id),
   ]));
+  const found = await deadline(pagesOn([...new Set(answers.map((a) => a.capture_id))]));
   if (!paper) notFound();
   const at = siblings.findIndex((s) => s.id === id);
   const [prev, next] = [siblings[at - 1], siblings[at + 1]];
@@ -230,7 +248,13 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
             <Panel title="The whole page">
               {pages.map((n) => {
                 const first = answers.find((a) => a.page === n);
-                return first ? (
+                const lost = found[n] && !found[n].found ? found[n] : null;
+                return lost ? (
+                  <figure key={n} className="mb-3 last:mb-0" data-page-not-found={n}>
+                    <p className="border border-dashed border-basalt/40 p-4 text-sm">{lost.said}</p>
+                    <figcaption className="note mt-1">Its answers wait for you. Scan page {n} again and send it to be read.</figcaption>
+                  </figure>
+                ) : first ? (
                   <figure key={n} className="mb-3 last:mb-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={`/api/scan/${first.capture_id}/${first.file_page}`} alt={`Page ${n} of the paper`} className="w-full border border-basalt/14" />

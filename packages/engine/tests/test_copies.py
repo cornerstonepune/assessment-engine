@@ -6,6 +6,7 @@ a school scanner hands them over (`test_sorting._scanned`), and the reader is st
 so the test is about which child each copy lands on and how it is marked, not about handwriting.
 """
 
+import dataclasses
 import json
 import os
 import random
@@ -22,6 +23,7 @@ from engine.core import db
 from engine.w1_bank import bank
 from engine.w2_print import library
 from engine.w3_read import boxes, copies, copy_scores, placing, printed_paper, render_pdf, second_reader
+from tests import rows
 from tests.test_sorting import _scanned
 
 
@@ -50,6 +52,11 @@ def worksheet(conn, tmp_path, monkeypatch):
             made.append(words.word_2step(rng, "R14", "Application", 4))
         except (RuntimeError, ValueError):  # these numbers do not make this story: the next draw
             continue
+    # each names its skill set's registry skills, as `bank.fill` gives every question it makes (C1)
+    skills = conn.execute("select registry_codes from skill where code = 'WORD.1_2STEP'").fetchone()[
+        "registry_codes"
+    ]
+    made = [dataclasses.replace(it, skills=list(skills)) for it in made]
     for it in made:
         bank._insert(conn, tenant["id"], it, "WORD.1_2STEP", "Hard")
     ids = [
@@ -425,9 +432,9 @@ def test_an_answer_read_wrong_and_judged_right_by_a_person_counts_once_as_right(
     ]
     for n, (status, why) in enumerate(read):
         item = conn.execute(
-            "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses)"
-            " values (%s, %s, 'T', 'R1', 'Procedural', 'bare_sum', '{}', '[]') returning id",
-            (tenant, f"K{n}"),
+            "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses, skill_codes)"
+            " values (%s, %s, 'T', 'R1', 'Procedural', 'bare_sum', '{}', '[]', %s) returning id",
+            (tenant, f"K{n}", [rows.a_registry_skill(conn, tenant)]),
         ).fetchone()["id"]
         conn.execute(
             "insert into item_result (tenant_id, capture_id, item_id, rid, status, raw_read)"

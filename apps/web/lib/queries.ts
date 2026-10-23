@@ -81,6 +81,9 @@ export type SkillSet = {
   topic_code: string | null;
   topic_name: string | null;
   topic_ord: number | null;
+  /** The subject of its topic (skill → topic → subject). */
+  subject_code: string | null;
+  subject_name: string | null;
   /** Whether its topic is taught in the class asked about, or in any class of the scope (goals/f1f-taught-per-class.yaml). */
   taught: boolean;
 };
@@ -104,7 +107,7 @@ export async function skillSets({
            coalesce((select jsonb_object_agg(l.difficulty, l.grade) from skill_level l
                      where l.tenant_id = s.tenant_id and l.skill_code = s.code), '{}'::jsonb) as level_grade,
            s.level_band_by as moved_by, s.level_band_at as moved_at, s.descriptor, s.registry_codes as skill_codes, s.topic_code,
-           t.name as topic_name, t.ord as topic_ord, ${taught} as taught,
+           t.name as topic_name, t.ord as topic_ord, su.code as subject_code, su.name as subject_name, ${taught} as taught,
            coalesce((select json_object_agg(d.difficulty, d.n)
                      from (select difficulty, count(*)::int as n from item
                            where item.skill_set_code = s.code and item.status = 'active' and item.source = 'generated'
@@ -115,6 +118,7 @@ export async function skillSets({
                            group by difficulty) w), '{}'::json) as worksheets
     from skill s
     left join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
+    left join subject su on su.tenant_id = t.tenant_id and su.code = t.subject_code
     where ${untaught} or ${taught}
     order by s.ladder_order nulls last, s.code`;
 }
@@ -297,22 +301,33 @@ export type Evidence = {
   misconception_codes: string[];
   // the question's operation, as `operation_sign` folds it: what its mistakes are named for, before `skill_code`
   op: string | null;
+  /** The answer's own id: one answer is a row for each skill its question tests, and this is what makes it one. */
+  id: string;
+  /** What a person typed as the child's answer when they checked it (read_correction); '' is "nothing"; null, nobody typed. */
+  typed: string | null;
+  /** Right, wrong or blank, when a person judged the answer without typing one. */
+  judged: string | null;
 };
 
 // Every confirmed answer, with the question and what the child wrote, so a rung's state can be
 // opened up to the work it rests on.
 export async function childEvidence(id: string): Promise<Evidence[]> {
   return sql<Evidence[]>`
-    select coalesce(i.rung_code, e.rung_code) as rung_code, e.skill_code, t.key ->> 'date' as date, ${paperName("t")} as paper, i.item_key,
+    select r.id, coalesce(i.rung_code, e.rung_code) as rung_code, e.skill_code, t.key ->> 'date' as date, ${paperName("t")} as paper, i.item_key,
            result_slot(i.item_key, r.raw_read::jsonb) as slot,
            coalesce(i.spec ->> 'question', i.stem) as question,
            coalesce(i.spec ->> 'answer', result_response(i.responses, r.rid) ->> 'answer') as answer,
            coalesce(r.raw_read::jsonb ->> 'child_answer', '') as read,
            coalesce(r.raw_read::jsonb ->> 'working_summary', '') as working,
-           r.status, e.misconception_codes, operation_sign(i.spec ->> 'op') as op
+           r.status, e.misconception_codes, operation_sign(i.spec ->> 'op') as op,
+           case when k.judged is null then k.human_read end as typed, k.judged
     from evidence_placed e
     join item_result r on r.id = e.item_result_id
     join item i on i.id = r.item_id
+    -- the person's latest word on this answer: what they typed the child wrote, or the mark they gave it
+    left join lateral (
+      select rc.human_read, rc.judged from read_correction rc where rc.item_result_id = r.id order by rc.created_at desc limit 1
+    ) k on true
     join capture c on c.id = r.capture_id
     join sheet_instance si on si.id = c.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id

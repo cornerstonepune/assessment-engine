@@ -114,7 +114,7 @@ def test_a_copy_photographed_second_page_first_is_read_from_the_photographs_that
 
     scan = _file(equal_groups, tmp_path, (2, 1))
     copy = {"runs": [[1, 2]], "pages": [1, 2]}
-    assert copies._placing(scan, copy, scan, equal_groups[0], 1.25) == ([1, 2], [2, 1], [])
+    assert copies._placing(scan, copy, scan, equal_groups[0], 1.25) == copies.Where([1, 2], [2, 1], [], {})
 
 
 # --- reading an uploaded file again ----------------------------------------------------------------------------------
@@ -160,3 +160,62 @@ def test_a_file_still_being_read_or_no_longer_kept_is_not_read_again_and_says_wh
     monkeypatch.setattr(inbox, "again", refuse)
     r = c.post(f"/read/run/{RUN}/again", json={"by": "achal@school"})
     assert (r.status_code, "still being read" in r.json()["detail"]) == (409, True)
+
+
+# --- a page photographed twice is not also the second page ------------------------------------------------------------
+# 2026-10-23: on the check screen the paper's page 1 and page 2 were the same photograph. `placing._best` lays the
+# photographs on DISTINCT pages whatever they fit, so the second of two photographs of page 1 was given page 2 (it
+# fitted page 2 at 0.00 and page 1 at 0.81), its second page's four questions were looked for on it, and the screen drew
+# it as page 2 (goals/img_page_one_and_two_same_photo.yaml).
+
+
+@pytest.mark.parametrize(("order", "run", "refused"), [((1, 1), [1], {1: 1}), ((2, 2), [2], {1: 2})])
+def test_a_page_photographed_twice_is_one_page_and_the_repeat_is_refused(
+    equal_groups, tmp_path, order, run, refused
+):
+    photos = list(render_pdf.photos(_file(equal_groups, tmp_path, order)))
+    assert placing.place(photos, equal_groups[0], 1.25) == placing.Placement(run, refused)
+
+
+@pytest.mark.parametrize("order", [(1, 2), (2, 1)])
+def test_two_different_pages_refuse_nothing(equal_groups, tmp_path, order):
+    photos = list(render_pdf.photos(_file(equal_groups, tmp_path, order)))
+    assert placing.place(photos, equal_groups[0], 1.25) == placing.Placement(list(order), {})
+
+
+def test_the_repeat_is_the_later_photograph_whatever_the_pair_fits_alike(tmp_path, monkeypatch):
+    from tests.test_boxes import _fitting, _pages
+
+    _fitting(monkeypatch, {("a", 1): 0.1, ("a", 2): 0.8, ("b", 1): 0.1, ("b", 2): 0.7})
+    got = placing.place(["a", "b"], _pages(tmp_path, 2), 1.25)
+    assert got == placing.Placement([2], {1: 2}), (
+        "the first photograph of a page is the page; the later is the repeat"
+    )
+
+
+def test_a_photograph_that_fits_every_page_alike_is_not_a_repeat(tmp_path, monkeypatch):
+    """Pages of one paper share a layout: no clear identity is no evidence of a repeat (the file's order stands)."""
+    from tests.test_boxes import _fitting, _pages
+
+    _fitting(monkeypatch, {("a", 1): 0.5, ("a", 2): 0.5, ("b", 1): 0.5, ("b", 2): 0.5})
+    assert placing.place(["a", "b"], _pages(tmp_path, 2), 1.25) == placing.Placement([1, 2], {})
+    _fitting(monkeypatch, {("a", 1): 0.5, ("a", 2): 0.55, ("b", 1): 0.55, ("b", 2): 0.5})
+    assert placing.place(["a", "b"], _pages(tmp_path, 2), 1.25) == placing.Placement([1, 2], {})
+
+
+def test_a_photograph_that_fits_no_page_is_not_a_repeat(tmp_path, monkeypatch):
+    """The desk beside a page is the page the other leaves, as before (`placed`)."""
+    from tests.test_boxes import _fitting, _pages
+
+    _fitting(monkeypatch, {("a", 1): 0.0, ("a", 2): 0.0, ("b", 1): 0.0, ("b", 2): 0.7})
+    assert placing.place(["a", "b"], _pages(tmp_path, 2), 1.25) == placing.Placement([1, 2], {})
+
+
+def test_a_repeat_among_three_pages_leaves_the_others_where_they_fit(tmp_path, monkeypatch):
+    from tests.test_boxes import _fitting, _pages
+
+    fit = {("a", 1): 0.8, ("a", 2): 0.0, ("a", 3): 0.0,
+           ("b", 1): 0.8, ("b", 2): 0.0, ("b", 3): 0.0,
+           ("c", 1): 0.0, ("c", 2): 0.0, ("c", 3): 0.7}  # fmt: skip
+    _fitting(monkeypatch, fit)
+    assert placing.place(["a", "b", "c"], _pages(tmp_path, 3), 1.25) == placing.Placement([1, 3], {1: 1})
