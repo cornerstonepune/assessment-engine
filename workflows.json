@@ -197,7 +197,6 @@
       "/make/[section]": ["filter", "shell", "status", "table", "taglist"],
       "/make/[section]/week": ["shell", "taglist"],
       "/make/custom": ["purpose", "shell", "taglist"],
-      "/papers/approve": ["filter", "shell", "status", "table", "taglist"],
       "/papers/card": ["filter"],
       "/papers/make": ["filter", "purpose", "shell", "status", "table"],
       "/refused": ["shell"],

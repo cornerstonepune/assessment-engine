@@ -31,3 +31,18 @@ filter row, is its own slice. Schema follow-up: none.
   `u51`'s empty-column rule skips a paged table (its columns stay the same on every page).
 - Phone: the row of nine tabs scrolls sideways (must not break); the top bar's search no longer pushes the page wider
   (a width transition measured mid-resize was the cause; removed).
+
+## Papers to approve (`/papers/approve`) — goals/uxn4-papers-to-approve.yaml
+
+**Verified**
+- Failing first: `u37` (the table's new head, its order and the status chips) and `u24` (no class-and-week tags) were changed
+  to the new page and failed on the old one.
+- One table (`PackTable`): roll, child, level, why, paper, status chip, change level. A child with no paper and a spare copy are
+  rows of it (red "no paper", amber "to approve", green "approved"), what needs the educator first. Filter row: class, week,
+  kind, status. The pack's approval is the one main action, at the top; next step "Assessments".
+- Off `ux.frozen`: `/papers/approve`. New state `noPaper` in `StatusChip`.
+- Specs changed only for the new shape: `u37`, `u24`, `s7` (spares and the plan read across the table's pages).
+- Phone: the change-level form opens full width (`u43` found it off-screen otherwise).
+
+**Handoff**: the active-filter chips show the class, week and kind that the page picked by default; they can be removed but
+the page then picks the first again.

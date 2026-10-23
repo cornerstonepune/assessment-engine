@@ -91,15 +91,13 @@ test("the questions answered are folded under one line until opened", async ({ p
   }
 });
 
-test("Approve papers names the latest two weeks and folds the weeks before them", async ({ page }) => {
+test("Papers to approve chooses a class's week in the filter row, however many weeks there are", async ({ page }) => {
   await page.goto("/papers/approve");
-  const weeks = page.getByRole("navigation", { name: "Classes and weeks" });
-  const ours = weeks.getByRole("link", { name: new RegExp(`^${SECTION} · `) });
-  // eight weeks of one class: at most the latest two are named before the rest are opened
-  expect(await ours.evaluateAll((links) => links.filter((l) => (l as HTMLElement).offsetParent !== null).length)).toBeLessThanOrEqual(2);
-  await weeks.getByText(/^Earlier weeks \(\d+\)$/).click();
-  await expect(ours).toHaveCount(8);
-  for (const link of await ours.all()) await expect(link).toBeVisible();
+  // no row of a class-and-week tag for every week ever planned: one Week dropdown holds them (goals/uxn4-papers-to-approve.yaml)
+  await expect(page.getByRole("navigation", { name: "Classes and weeks" })).toHaveCount(0);
+  const week = page.getByRole("search").getByLabel("Week");
+  expect(await week.locator("option").count()).toBeGreaterThanOrEqual(8);
+  await expect(page.getByRole("table", { name: "Each child's paper this week" })).toBeVisible();
 });
 
 test("the parent reports waiting are narrowed by class", async ({ page }) => {
