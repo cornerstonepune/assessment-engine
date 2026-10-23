@@ -142,3 +142,14 @@ test("what has nothing waiting says so, and each count is the page's own", async
     for (const n of await group.getByTestId("count").allInnerTexts()) expect(Number(n.replace(/\D/g, ""))).toBeGreaterThan(0);
   }
 });
+
+test("Today has the one filter row: a place and what waits narrow its lines (goals/uxn10-today.yaml)", async ({ page }) => {
+  await page.goto("/today");
+  await expect(page.locator("[data-filterbar]")).toBeVisible();
+  await page.goto("/today?where=Curriculum");
+  await expect(page.locator("[data-active-filters]")).toContainText("Where: Curriculum");
+  await expect(page.getByRole("region", { name: "Curriculum", exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Assessments", exact: true })).toHaveCount(0);
+  await page.goto("/today?status=waits");
+  for (const n of await page.getByTestId("count").allInnerTexts()) expect(Number(n.replace(/\D/g, ""))).toBeGreaterThan(0);
+});

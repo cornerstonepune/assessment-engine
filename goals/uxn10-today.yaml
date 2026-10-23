@@ -1,0 +1,26 @@
+name: uxn10-today
+goal: >
+  Today keeps its one main action, its five-line note of what the system knows and its lines of what waits, and gains the
+  one filter row of every page: a place (Assessments, Curriculum, Children) and "only what waits" narrow the lines. The
+  counts and what each line opens are unchanged, and the menu's count is of everything. No migration.
+# Written 2026-10-23 (night), before the code.
+says:
+  - words: "Use filters wherever possible."
+    proved_by: "apps/web/tests/u1-today.spec.ts::Today has the one filter row: a place and what waits narrow its lines (goals/uxn10-today.yaml)"
+  - words: "make it easy to navigate, and ensure the entire design consistency"
+    proved_by: "apps/web/tests/u51-ux-rules.spec.ts::every page keeps the rules, or is named as still breaking them, and only those"
+manual: []
+scenarios: []
+criteria:
+  - name: the rules and the ratchet hold
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_ux_rules.py tests/test_ratchet.py tests/test_layout.py -q -p no:cacheprovider -o addopts=
+    expect: "passed"
+  - name: Today's pages, rendered
+    run: cd apps/web && npx playwright test tests/u1-today.spec.ts tests/u13-needs-you.spec.ts tests/u15-menu-and-today.spec.ts tests/u24-no-long-lists.spec.ts tests/u33-one-count.spec.ts tests/u44-numbers-true.spec.ts tests/u51-ux-rules.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

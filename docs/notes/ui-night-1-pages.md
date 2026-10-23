@@ -115,3 +115,12 @@ hand-built tables and chips: next slice.
   column; the lead table is `Children who need you`).
 
 **Handoff**: `/growth/class/[section]`, a child's page and parent reports are on `ux.frozen` for UI part 2.
+
+## Today (`/today`) — goals/uxn10-today.yaml
+
+**Verified**
+- Today was already on `PageShell`, one main action and `DataTable` for the weeks table; it lacked the one filter row. Now a place
+  (Assessments, Curriculum, Children) and "only what waits" narrow its lines; the first action and the menu's counts stay
+  of everything. Off `ux.frozen`: `/today`. Spec added in `u1`.
+- Left as is on purpose: the lines are one list of counts, words and buttons, read by many specs as regions; turning them into a
+  table would be its own slice.

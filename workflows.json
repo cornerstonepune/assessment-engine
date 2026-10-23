@@ -199,7 +199,6 @@
       "/skill-sets/[code]": ["filter", "purpose", "shell", "status", "table", "taglist"],
       "/skill-sets/[code]/edit": ["shell", "taglist"],
       "/skill-sets/approve": ["filter", "purpose", "shell", "status", "table", "taglist"],
-      "/today": ["filter"],
       "/workflows": ["purpose", "shell", "status"],
       "/worksheets": ["filter", "shell", "table", "taglist"],
       "/worksheets/[qr]": ["filter", "shell", "status", "table", "taglist"],
