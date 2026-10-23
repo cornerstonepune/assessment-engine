@@ -56,6 +56,12 @@ def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
                 s["why"],
             ),
         )
+    _records(conn, tenant, seed)
+
+
+def _records(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
+    """The words of what is recorded about the school's work (C2, C4, C5): the kinds of evidence and the scale each is
+    marked on, the approval list's kinds and states, and the stages a kind of question passes through."""
     for sc in seed("vocabulary.json", "evidence_scales"):
         conn.execute(
             "insert into evidence_scale (tenant_id, code, words) values (%s,%s,%s)"
@@ -69,6 +75,19 @@ def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
                 " correct=excluded.correct, updated_at=now()",
                 (tenant, sc["code"], m["code"], i, m["words"], m["correct"]),
             )
+    for i, a in enumerate(seed("vocabulary.json", "approval_kinds")):
+        conn.execute(
+            "insert into approval_kind (tenant_id, code, ord, words, reaches_parent) values (%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set ord=excluded.ord, words=excluded.words,"
+            " reaches_parent=excluded.reaches_parent, updated_at=now()",
+            (tenant, a["code"], i, a["words"], a["reaches_parent"]),
+        )
+    for i, a in enumerate(seed("vocabulary.json", "approval_states")):
+        conn.execute(
+            "insert into approval_state (tenant_id, code, ord, words) values (%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set ord=excluded.ord, words=excluded.words, updated_at=now()",
+            (tenant, a["code"], i, a["words"]),
+        )
     for i, v in enumerate(seed("vocabulary.json", "validation_stages")):
         conn.execute(
             "insert into validation_stage (tenant_id, code, ord, words, every_answer_to_person) values (%s,%s,%s,%s,%s)"
