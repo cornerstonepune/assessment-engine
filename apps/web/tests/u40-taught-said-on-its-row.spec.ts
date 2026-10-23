@@ -44,7 +44,7 @@ async function educator(browser: Browser): Promise<Page> {
 }
 
 const grade2 = async (page: Page) => {
-  await page.goto("/");
+  await page.goto("/?details=1");
   const table = page.getByRole("table", { name: "The curriculum, grade by grade" });
   // an educator's Curriculum opens on their grade already (goals/ux6-curriculum-for-the-educator.yaml); the coordinator's opens it
   const grade = table.getByRole("button", { name: "Grade 2", exact: true });

@@ -81,13 +81,10 @@ async function shot(page: Page, name: string, fullPage = true) {
 test("an educator reads an English skill's levels, kinds and mistakes and approves a level and a kind in their own name", async ({ browser }) => {
   const page = await asEducator(browser);
   // the Curriculum: English is a subject of its grade, its skill is a row with what each level asks
-  await page.goto("/");
-  await page.getByRole("button", { name: "Open everything" }).click();
-  const english = page.locator('tr[data-row="G3/ENG"]');
-  await expect(english).toContainText("English");
-  const row = page.locator(`tr[data-row="G3/${skill.code}"]`);
+  await page.goto(`/?grade=G3&q=${encodeURIComponent(skill.name)}`);
+  const row = page.getByRole("table", { name: "The curriculum" }).getByRole("row").filter({ hasText: skill.objective });
+  await expect(row).toContainText("English");
   await expect(row).toContainText(skill.objective);
-  await expect(row).toContainText(skill.easy);
   await row.scrollIntoViewIfNeeded();
   await shot(page, "1-curriculum", false);
 

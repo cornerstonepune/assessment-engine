@@ -119,7 +119,7 @@ export const papersCte = () => sql`
            -- the subject of its questions' topics (one of them, by code, where a paper spans two)
            (select min(tp.subject_code) from skill s join topic tp on tp.tenant_id = s.tenant_id and tp.code = s.topic_code
              where s.tenant_id = t.tenant_id
-               and (s.code = t.skill_set_code or s.code in (select i.skill_set_code from item i where i.id = any(t.item_ids)))) as subject,
+               and (s.code = t.skill_set_code or s.code in (select i.skill_set_code from item i where i.id = any(t.item_ids)))) as subject_code,
            -- the topics its questions are on: its skill set's, or each of its questions' own
            array(select distinct s.topic_code from skill s
                  where s.tenant_id = t.tenant_id and s.topic_code is not null
@@ -176,7 +176,7 @@ const narrowed = (f: PaperFilter, scope: Scope) => sql`
   and (${f.week ?? null}::text is null or week = ${f.week ?? null})
   and (${f.topic ?? null}::text is null or ${f.topic ?? null} = any(topics))
   and (${f.set ?? null}::text is null or set_key = ${f.set ?? null})
-  and (${f.subject ?? null}::text is null or subject = ${f.subject ?? null})
+  and (${f.subject ?? null}::text is null or subject_code = ${f.subject ?? null})
   and (${f.q ?? null}::text is null or position(lower(${f.q ?? ""}) in lower(set_name)) > 0)`;
 
 /** The papers a filter leaves (at most 300) — newest first, or an assessment's copies in roll order, its spares last
@@ -274,7 +274,7 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
     -- the lowest grade of its copies, by the grades' order (grade_ord), never as text
     select kind, section, coalesce((array_agg(class_band order by grade_ord(tenant_id, class_band)) filter (where class_band is not null))[1],
                                    (array_agg(band order by grade_ord(tenant_id, band)))[1]) as band, week, set_key as set, min(set_name) as title,
-           min(subject) as subject, array_agg(qr) filter (where not spare and not extra) as qrs,
+           min(subject_code) as subject, array_agg(qr) filter (where not spare and not extra) as qrs,
            count(*) filter (where not spare and not extra)::int as copies, count(*) filter (where spare)::int as spares,
            count(*) filter (where extra)::int as extras,
            jsonb_build_object('made', count(*) filter (where stage = 'made' and not spare and not extra),

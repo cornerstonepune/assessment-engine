@@ -18,7 +18,13 @@ test.beforeAll(async () => {
 });
 test.afterAll(async () => sql.end());
 
-type Skill = { code: string; outcome: string; name: string; band: string; words: Record<string, { words: string }> };
+type Skill = {
+  code: string;
+  outcome: string;
+  name: string;
+  band: string;
+  words: Record<string, { words: string }>;
+};
 const LEVELS = ["Easy", "Medium", "Hard", "Advance"];
 // A code a teacher should never have to read: a skill set, a rung, a mistake.
 const CODE = /\b([A-Z]{2,}\.[A-Z0-9_.]+|R\d{1,2}|X[12]|M_[A-Z0-9_]+)\b/;
@@ -30,44 +36,68 @@ const skills = () => sql<Skill[]>`
   order by s.ladder_order nulls last, s.code`;
 
 async function noSidewaysScroll(page: Page) {
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth,
+  );
   expect(overflow, "page must not scroll sideways").toBeLessThanOrEqual(1);
 }
 
-test("the map lists every skill by grade, each led by what the child can do, and no list that goes nowhere", async ({ page }) => {
+/** Every skill link of the Curriculum table, page by page (ten rows to a page, so a long list is read in turns). */
+async function skillLinks(page: Page, query = "") {
+  const hrefs: string[] = [];
+  const table = page.getByRole("table", { name: "The curriculum" });
+  for (let n = 1; n < 40; n++) {
+    await page.goto(`/?${query}&page=${n}`);
+    await table.locator("tbody tr").first().waitFor();
+    for (const a of await table.locator("tbody tr a").all())
+      hrefs.push((await a.getAttribute("href"))!);
+    if (!(await page.getByRole("link", { name: /Later/ }).count())) break;
+  }
+  return hrefs;
+}
+
+test("the map lists every skill, a row each, led by what the child can do, and no list that goes nowhere", async ({
+  page,
+}) => {
   const all = await skills();
   await page.goto("/");
-  const table = page.getByRole("table", { name: "The curriculum, grade by grade" });
-  for (const grade of ["Grade 1", "Grade 2", "Grade 3", "Grade 4"]) {
-    await expect(table.getByRole("button", { name: grade, exact: true })).toBeVisible();
-  }
-  await page.getByRole("button", { name: "Open everything" }).click();
-  for (const s of all) {
-    // the Curriculum's table (U12): each skill is led by what the child can do, and that sentence opens its page,
-    // under every grade that holds one of its levels
-    const links = table.getByRole("link", { name: s.outcome, exact: true });
-    await expect(links.first()).toBeVisible();
-    for (const link of await links.all()) await expect(link).toHaveAttribute("href", `/skill-sets/${s.code}`);
-  }
+  const table = page.getByRole("table", { name: "The curriculum" });
+  await expect(table).toBeVisible();
+  const hrefs = await skillLinks(page);
+  // each skill is led by what the child can do, and that sentence opens its page, under every grade that holds a level of it
+  for (const s of all) expect(hrefs, s.code).toContain(`/skill-sets/${s.code}`);
+  for (const h of hrefs) expect(h).toMatch(/^\/skill-sets\//);
   await expect(page.getByText("Registry skills")).toHaveCount(0);
-  const tables = await page.getByRole("main").getByRole("table").allInnerTexts();
+  const tables = await page
+    .getByRole("main")
+    .getByRole("table")
+    .allInnerTexts();
   expect(tables.join("\n")).not.toMatch(CODE);
 });
 
 test("every kind of link on the Curriculum opens", async ({ page }) => {
-  await page.goto("/");
-  // The page arrives as its loading screen and the table streams in after; read the table, opened, not the screen.
+  // the counts (a skill's worksheets, a level's questions in the bank) are behind "Question bank details"
+  await page.goto("/?details=1");
   await page.getByRole("button", { name: "Open everything" }).click();
   await expect(page.locator('tbody tr[data-depth="3"]').first()).toBeVisible();
-  const hrefs = await page.getByRole("main").locator("a[href]").evaluateAll((as) => [
-    ...new Set(as.map((a) => (a as HTMLAnchorElement).getAttribute("href")!.split("#")[0])),
-  ]);
+  const hrefs = await page
+    .getByRole("main")
+    .locator("a[href]")
+    .evaluateAll((as) => [
+      ...new Set(
+        as.map(
+          (a) => (a as HTMLAnchorElement).getAttribute("href")!.split("#")[0],
+        ),
+      ),
+    ]);
   expect(hrefs.length).toBeGreaterThan(17);
   // every kind of link, once: a skill's page, its worksheets, a level's questions in the bank
   const seen = new Set<string>();
   const sample = hrefs.filter((h) => {
     // one of each kind: a worksheet of each level, and a link that differs only in its query once
-    const kind = h.startsWith("/worksheets/") ? h.replace(/\d+$/, "") : h.replace(/=[^&]*/g, "=");
+    const kind = h.startsWith("/worksheets/")
+      ? h.replace(/\d+$/, "")
+      : h.replace(/=[^&]*/g, "=");
     if (seen.has(kind)) return false;
     seen.add(kind);
     return true;
@@ -78,7 +108,9 @@ test("every kind of link on the Curriculum opens", async ({ page }) => {
   }
 });
 
-test("every skill page shows each level in a sentence with a real question, its kinds, mistakes and worksheets", async ({ page }) => {
+test("every skill page shows each level in a sentence with a real question, its kinds, mistakes and worksheets", async ({
+  page,
+}) => {
   for (const s of await skills()) {
     await page.goto(`/skill-sets/${s.code}`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(s.outcome);
@@ -89,19 +121,37 @@ test("every skill page shows each level in a sentence with a real question, its 
       await expect(card).toContainText(s.words[d].words);
       await expect(card.getByText("For example")).toBeVisible();
     }
-    await expect(page.getByRole("table", { name: "Kinds of question" }).locator("tbody tr").first()).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Mistakes it watches for" })).toBeVisible();
+    await expect(
+      page
+        .getByRole("table", { name: "Kinds of question" })
+        .locator("tbody tr")
+        .first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Mistakes it watches for" }),
+    ).toBeVisible();
     await expect(page.locator("#worksheets")).toBeVisible();
     // The lead of the page — its heading and the four levels — never shows a code.
     const lead = [await page.getByRole("heading", { level: 1 }).innerText()];
-    for (const d of levels) lead.push(await page.getByRole("region", { name: d, exact: true }).locator("h3, p").first().innerText());
+    for (const d of levels)
+      lead.push(
+        await page
+          .getByRole("region", { name: d, exact: true })
+          .locator("h3, p")
+          .first()
+          .innerText(),
+      );
     expect(lead.join(" "), s.code).not.toMatch(CODE);
   }
 });
 
-test("changing a skill's words saves them and sends the skill back for approval", async ({ page }) => {
-  const [before] = await sql`select name, learning_objective, difficulty, status, ratified_by from skill where code = 'ADD.2D2D'`;
-  const easy = "A 2-digit number plus a 1-digit number, one regroup in the ones, total under 100 (edited by a test).";
+test("changing a skill's words saves them and sends the skill back for approval", async ({
+  page,
+}) => {
+  const [before] =
+    await sql`select name, learning_objective, difficulty, status, ratified_by from skill where code = 'ADD.2D2D'`;
+  const easy =
+    "A 2-digit number plus a 1-digit number, one regroup in the ones, total under 100 (edited by a test).";
   const putBack = await aWaitingSkill(sql, "ADD.2D2D");
   try {
     // the page live first: a box filled before the page's script takes over is put back to its printed words, and the
@@ -111,7 +161,12 @@ test("changing a skill's words saves them and sends the skill back for approval"
     await expect(page.getByLabel("Easy")).toHaveValue(easy);
     await page.getByRole("button", { name: "Save the words" }).click();
     await expect(page.getByRole("status")).toContainText("Saved");
-    const [after] = await sql<{ status: string; difficulty: Record<string, { words: string; check: unknown }> }[]>`
+    const [after] = await sql<
+      {
+        status: string;
+        difficulty: Record<string, { words: string; check: unknown }>;
+      }[]
+    >`
       select status, difficulty from skill where code = 'ADD.2D2D'`;
     expect(after.difficulty.Easy.words).toBe(easy);
     expect(after.difficulty.Easy.check).toEqual(before.difficulty.Easy.check);
@@ -121,7 +176,10 @@ test("changing a skill's words saves them and sends the skill back for approval"
     await expect(page.getByRole("status")).toContainText("Approved as written");
     const [approved] = await sql<{ status: string; ratified_by: string }[]>`
       select status, ratified_by from skill where code = 'ADD.2D2D'`;
-    expect(approved).toEqual({ status: "ratified", ratified_by: "End-to-end test" });
+    expect(approved).toEqual({
+      status: "ratified",
+      ratified_by: "End-to-end test",
+    });
   } finally {
     // Two statements: putting the words back is itself a content change, which withdraws approval.
     await sql`update skill set name = ${before.name}, learning_objective = ${before.learning_objective},
@@ -131,24 +189,52 @@ test("changing a skill's words saves them and sends the skill back for approval"
   }
 });
 
-test("every waiting skill is approved from one page, in the approver's name", async ({ page }) => {
-  const before = await sql<{ code: string; status: string; ratified_by: string | null }[]>`
+test("every waiting skill is approved from one page, in the approver's name", async ({
+  page,
+}) => {
+  const before = await sql<
+    { code: string; status: string; ratified_by: string | null }[]
+  >`
     select code, status, ratified_by from skill order by code`;
-  const [table] = await sql<{ value: unknown }[]>`select value from config where key = 'skills.charges_by_kind.approved'`;
+  const [table] = await sql<
+    { value: unknown }[]
+  >`select value from config where key = 'skills.charges_by_kind.approved'`;
   try {
     await sql`update config set value = '{}'::jsonb where key = 'skills.charges_by_kind.approved'`;
     await sql`update skill set status = 'ratified', ratified_by = 'someone earlier'`;
     await sql`update skill set status = 'draft', ratified_by = null where code in ('ADD.1D1D', 'SUB.1D1D')`;
     await page.goto("/");
     await page.getByRole("link", { name: "Read and approve →" }).click();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Approve the skills");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Approve the skills",
+    );
     // the table of what a mistake charges waits beside them (step 8b), approved by a press of its own: a press meant
     // for some skills never approves it (goals/ui6a-approve-filtered.yaml)
-    await expect(page.getByRole("heading", { name: "What a wrong answer counts against" })).toBeVisible();
-    await page.getByRole("button", { name: "Approve this table as written, as End-to-end test" }).click();
-    await expect(page.getByRole("status").filter({ hasText: "What a wrong answer counts against is approved" })).toBeVisible();
-    await page.getByRole("button", { name: "Approve all 2 skills as written, as End-to-end test" }).click();
-    await expect(page.getByRole("status").filter({ hasText: "Approved, in your name. Every skill is approved." })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "What a wrong answer counts against" }),
+    ).toBeVisible();
+    await page
+      .getByRole("button", {
+        name: "Approve this table as written, as End-to-end test",
+      })
+      .click();
+    await expect(
+      page
+        .getByRole("status")
+        .filter({ hasText: "What a wrong answer counts against is approved" }),
+    ).toBeVisible();
+    await page
+      .getByRole("button", {
+        name: "Approve all 2 skills as written, as End-to-end test",
+      })
+      .click();
+    await expect(
+      page
+        .getByRole("status")
+        .filter({
+          hasText: "Approved, in your name. Every skill is approved.",
+        }),
+    ).toBeVisible();
     const [approved] = await sql<{ by: string; same: boolean }[]>`
       select a.value ->> 'by' as by, (a.value -> 'table') = t.value as same
       from config a, config t where a.key = 'skills.charges_by_kind.approved' and t.key = 'skills.charges_by_kind'`;
@@ -169,7 +255,12 @@ test("every waiting skill is approved from one page, in the approver's name", as
 
 test("the map and a skill page fit a phone", async ({ page }) => {
   await page.setViewportSize({ width: 400, height: 860 });
-  for (const path of ["/", "/skill-sets/SUB.2D2D", "/skill-sets/approve", "/skill-sets/SUB.2D2D/edit"]) {
+  for (const path of [
+    "/",
+    "/skill-sets/SUB.2D2D",
+    "/skill-sets/approve",
+    "/skill-sets/SUB.2D2D/edit",
+  ]) {
     await page.goto(path, { waitUntil: "networkidle" });
     await noSidewaysScroll(page);
   }

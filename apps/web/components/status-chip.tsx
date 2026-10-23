@@ -26,6 +26,9 @@ export const STATES = {
   chooseOne: { tone: "act", words: "choose one" },
   noPaper: { tone: "act", words: "no paper" },
   replaced: { tone: "quiet", words: "replaced by a newer one" },
+  approved: { tone: "ok", words: "approved" },
+  taught: { tone: "ok", words: "taught" },
+  notTaught: { tone: "quiet", words: "not taught yet" },
 } as const;
 export type State = keyof typeof STATES;
 export type Tone = (typeof STATES)[State]["tone"];
