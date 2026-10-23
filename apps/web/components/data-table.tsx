@@ -76,7 +76,7 @@ function Grid<T>({ label, cols, rows, rowKey, extras }: { label: string; cols: C
   const cls = (c: Column<T>) => `a-${alignOf(c)}`;
   return (
     <div className="data-table">
-      <table className="grid list fixed-cols" aria-label={label}>
+      <table className="grid list steady" aria-label={label}>
         <colgroup>
           {cols.map((c) => (
             <col key={c.key} style={c.width ? { width: c.width } : undefined} />
@@ -98,7 +98,7 @@ function Grid<T>({ label, cols, rows, rowKey, extras }: { label: string; cols: C
               <tr key={rowKey(r)} {...(extras?.attrs?.(r) ?? {})}>
                 {cols.map((c) => (
                   <td key={c.key} data-label={c.label} className={`${cls(c)}${c.num ? " num" : ""}`}>
-                    {c.cell ? c.cell(r) : (c.value(r) ?? "")}
+                    {c.cell ? c.cell(r) : <Value v={c.value(r)} />}
                   </td>
                 ))}
               </tr>,
@@ -113,4 +113,9 @@ function Grid<T>({ label, cols, rows, rowKey, extras }: { label: string; cols: C
       </table>
     </div>
   );
+}
+
+// A cell with nothing in it says so, quietly, so a row never has a hole in it; a column of nothing is not drawn at all.
+function Value({ v }: { v: string | number | null | undefined }) {
+  return v == null || v === "" ? <span className="text-basalt/45">—</span> : <>{v}</>;
 }

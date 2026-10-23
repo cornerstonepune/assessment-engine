@@ -1,0 +1,42 @@
+name: c1-questions-name-their-skills
+goal: >
+  Every question names its skills in the registry, one or several, each a real key to `registry_skill`; a mixed
+  question says which step tests which skill, and the database refuses a question with no skill, or with two skills
+  and a row that names no step. Every question starts with the one skill its results already count, so no past result,
+  child's state or scored answer changes. Writing a question type no longer clears a level's kinds the curriculum names
+  but the bank does not yet hold (E0's named fragility, PR #284), and B4b's `skill_set` view is gone.
+# Written 2026-10-22, before the code, from BUILD-ORDER's locked scope of 22 Oct (slice C1, "Green means": "every
+# question names its skills in the registry (one or several); a mixed question says which step tests which skill").
+# Measured on a fresh build of main: 23,909 questions, every one's counted skill a real registry key; 11,913 of them
+# sit in skills whose registry list holds more than one skill. Each is recorded as testing the one skill its results
+# count today; which of the others it also tests, and at which step, is not known from the rows (decision needed in the
+# PR). The graph and the papers keep reading as they do: moving the evidence onto these rows is C2 (one evidence record
+# naming its registry skill).
+says:
+  - words: "every question names its skills in the registry (one or several)"
+    proved_by: "packages/engine/tests/test_question_registry_skills.py::test_every_question_names_a_registry_skill"
+  - words: "every question names its skills in the registry (one or several)"
+    proved_by: "packages/engine/tests/test_question_registry_skills.py::test_a_new_question_names_its_skill_by_itself"
+  - words: "every question names its skills in the registry (one or several)"
+    proved_by: "packages/engine/tests/test_question_registry_skills.py::test_a_question_with_no_skill_is_refused"
+  - words: "a mixed question says which step tests which skill"
+    proved_by: "packages/engine/tests/test_question_registry_skills.py::test_a_mixed_question_says_which_step_tests_which_skill"
+  - words: "nothing will change for any of the past assessments, scoring etc. right?"
+    proved_by: "packages/engine/tests/test_question_registry_skills.py::test_past_results_are_the_same_before_and_after"
+  - words: "do not leave for anything later; whenever you find an issue — don't apply a band aid; solve the root cause."
+    proved_by: "packages/engine/tests/test_question_registry_skills.py::test_writing_a_question_type_keeps_a_levels_declared_kinds"
+  - words: "we need proper tables"
+    proved_by: "packages/engine/tests/test_question_registry_skills.py::test_the_view_b4b_kept_for_one_deploy_is_gone"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive; `engine past` prints the same evidence, states, scored answers, questions and levels (count and checksum) before and after, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: questions name their registry skills, and past results are untouched
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_question_registry_skills.py tests/test_question_types.py tests/test_skill_is_called_skill.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

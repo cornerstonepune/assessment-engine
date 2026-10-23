@@ -22,11 +22,11 @@ export function TopBar({ choices, subject, chosen, own }: { choices: Choices; su
       aria-label="Subject, class and search"
       className="relative z-20 flex items-center gap-2 border-b border-basalt/12 bg-chalk px-2 py-1 md:gap-3 md:px-9 md:py-2 print:hidden"
     >
-      <form ref={form} action={choose} className="flex min-w-0 shrink items-center gap-2">
+      <form ref={form} action={choose} className="flex shrink-0 items-center gap-2">
         <label className="sr-only" htmlFor="bar-subject">
           Subject
         </label>
-        <select key={subject} id="bar-subject" name="subject" defaultValue={subject} onChange={submit} className="select min-h-[40px] max-md:min-h-[44px] !w-auto min-w-[96px] max-w-[36vw] !text-[15px] font-medium md:max-w-none">
+        <select key={subject} id="bar-subject" name="subject" defaultValue={subject} onChange={submit} className="select min-h-[40px] !w-auto !text-[15px] font-medium max-md:min-h-11 max-md:max-w-[90px]">
           {choices.subjects.map((s) => (
             <option key={s.code} value={s.code}>
               {s.label}
@@ -36,7 +36,7 @@ export function TopBar({ choices, subject, chosen, own }: { choices: Choices; su
         <label className="sr-only" htmlFor="bar-class">
           Class
         </label>
-        <select key={chosen} id="bar-class" name="class" defaultValue={chosen} onChange={submit} className="select min-h-[40px] max-md:min-h-[44px] !w-auto min-w-0 max-w-[36vw] !text-[15px] font-medium md:max-w-none">
+        <select key={chosen} id="bar-class" name="class" defaultValue={chosen} onChange={submit} className="select min-h-[40px] !w-auto !text-[15px] font-medium max-md:min-h-11 max-md:max-w-[120px]">
           {own.length ? <option value="mine">Your classes ({own.join(", ")})</option> : null}
           <option value="every">Every class</option>
           {choices.classes.map((c) => (
@@ -64,7 +64,7 @@ function Search() {
   const open = openOn === path;
   const setOpen = (yes: boolean) => setOpenOn(yes ? path : null);
   return (
-    <form action={search} onSubmit={() => setOpen(true)} className="ml-auto shrink-0">
+    <form action={search} onSubmit={() => setOpen(true)} className="ml-auto min-w-0 max-md:flex-1 max-md:basis-0 md:shrink-0">
       <label className="sr-only" htmlFor="bar-search">
         Search
       </label>
@@ -77,7 +77,7 @@ function Search() {
         id="bar-search"
         name="q"
         type="search"
-        className="input min-h-[40px] max-md:min-h-[44px] !w-[96px] !pl-9 !text-[15px] transition-[width] focus:!w-[150px] md:!w-[240px] md:focus:!w-[340px]"
+        className="input min-h-[40px] !w-full md:!w-[240px] !pl-9 !text-[15px] md:focus:!w-[340px] max-md:min-h-11"
         placeholder="Find a child or paper"
         autoComplete="off"
         defaultValue={found?.q}

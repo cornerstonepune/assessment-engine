@@ -84,7 +84,7 @@ const LIMIT = 300;
 
 /** The papers themselves, each with its stage and counts, before any filter. Void papers are left out. A function, not
  *  a constant: `sql` is touched only when data is asked for (lib/db.ts), never when the page is imported to build. */
-const papersCte = () => sql`
+export const papersCte = () => sql`
   papers as (
     select si.id, si.tenant_id, si.qr_code as qr, coalesce(si.kind, 'earlier') as kind, si.child_id, ch.roll_no, t.difficulty as level,
            -- a child's copy is at the child's grade, a spare at its class's (class_band, the one rule), and only a paper
@@ -115,7 +115,7 @@ const papersCte = () => sql`
            -- the subject of its questions' topics (one of them, by code, where a paper spans two)
            (select min(tp.subject_code) from skill s join topic tp on tp.tenant_id = s.tenant_id and tp.code = s.topic_code
              where s.tenant_id = t.tenant_id
-               and (s.code = t.skill_set_code or s.code in (select i.skill_set_code from item i where i.id = any(t.item_ids)))) as subject,
+               and (s.code = t.skill_set_code or s.code in (select i.skill_set_code from item i where i.id = any(t.item_ids)))) as subject_code,
            -- the topics its questions are on: its skill set's, or each of its questions' own
            array(select distinct s.topic_code from skill s
                  where s.tenant_id = t.tenant_id and s.topic_code is not null
@@ -160,7 +160,7 @@ const narrowed = (f: PaperFilter, scope: Scope) => sql`
   and (${f.week ?? null}::text is null or week = ${f.week ?? null})
   and (${f.topic ?? null}::text is null or ${f.topic ?? null} = any(topics))
   and (${f.set ?? null}::text is null or set_key = ${f.set ?? null})
-  and (${f.subject ?? null}::text is null or subject = ${f.subject ?? null})
+  and (${f.subject ?? null}::text is null or subject_code = ${f.subject ?? null})
   and (${f.q ?? null}::text is null or position(lower(${f.q ?? ""}) in lower(set_name)) > 0)`;
 
 /** The papers a filter leaves (at most 300) — newest first, or an assessment's copies in roll order, its spares last
@@ -256,7 +256,7 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
     -- the lowest grade of its copies, by the grades' order (grade_ord), never as text
     select kind, section, coalesce((array_agg(class_band order by grade_ord(tenant_id, class_band)) filter (where class_band is not null))[1],
                                    (array_agg(band order by grade_ord(tenant_id, band)))[1]) as band, week, set_key as set, min(set_name) as title,
-           min(subject) as subject, array_agg(qr) filter (where not spare) as qrs,
+           min(subject_code) as subject, array_agg(qr) filter (where not spare) as qrs,
            count(*) filter (where not spare)::int as copies, count(*) filter (where spare)::int as spares,
            jsonb_build_object('made', count(*) filter (where stage = 'made' and not spare),
                               'printed', count(*) filter (where stage = 'printed' and not spare),

@@ -66,55 +66,53 @@ test.afterAll(async () => {
   await sql.end();
 });
 
-// each week's assessments are a table of their own (goals/ux5-papers-grouped.yaml); a line for each
+// the assessments are one table, a line for each (goals/uxn1-design-system.yaml)
 const assessments = (page: Page) => page.getByRole("region", { name: "Papers" });
 const ours = (page: Page) => assessments(page).locator("tr[data-assessment]").filter({ hasText: SECTION });
+const column = async (page: Page, name: string) => (await page.getByRole("table", { name: "Assessments" }).locator("thead th").allTextContents()).indexOf(name);
 
 test("Assessments opens on one row for each assessment, its copies counted by stage", async ({ page }) => {
   await page.goto(`/papers?class=${SECTION}`);
-  // the week is the group the assessments sit in, said once on its line
-  await expect(page.getByRole("table", { name: `${weekWords(WEEK)}: its assessments` }).locator("thead th")).toHaveText([
-    "Assessment",
-    "Kind",
-    "Class",
-    "Copies",
-    "Where they stand",
-    "Waiting",
-    "Score",
-  ]);
+  await expect(ours(page).first()).toBeVisible();
+  const heads = (await page.getByRole("table", { name: "Assessments" }).locator("thead th").allTextContents()).map((h) => h.trim());
+  // a column nothing fills (Given on) is not drawn; the rest are, in this order
+  expect(heads).toEqual(["Class", "Subject", "Assessment", "Kind", "Stage", "Papers in", "Status"]);
   // three copies of one class assessment are one row, the tally practice another
   await expect(ours(page)).toHaveCount(2);
   const add = ours(page).filter({ hasText: await setName("ADD.2D2D") });
   await expect(add.locator("td")).toHaveText([
-    await setName("ADD.2D2D"),
-    "Class assessment",
     `Grade 2 · ${SECTION}`,
-    "3",
-    /1 to approve[^]*1 with the children[^]*1 to check/,
-    "1",
-    "—",
+    /\w+/,
+    (await setName("ADD.2D2D")) + weekWords(WEEK),
+    "Class assessment",
+    "Papers in",
+    "1 of 3",
+    "to check · 1 answer",
   ]);
-  // a stage keeps the copies at that stage
-  await page.getByRole("navigation", { name: "Papers by stage" }).getByRole("link", { name: /^To approve/ }).click();
+  // the week is said under the name, in words
+  await expect(add.locator("td").nth(2)).toContainText(weekWords(WEEK));
+  // a status filter keeps the copies at that stage
+  await page.locator("[data-filterbar]").locator('select[name="stage"]').selectOption("made");
   await expect(page).toHaveURL(/stage=made/);
   await expect(ours(page)).toHaveCount(2);
-  await expect(ours(page).filter({ hasText: await setName("ADD.2D2D") }).locator("td").nth(3)).toHaveText("1");
+  await expect(ours(page).filter({ hasText: await setName("ADD.2D2D") }).locator("td").nth(5)).toHaveText("0 of 1");
+  expect(await column(page, "Papers in")).toBe(5);
   // in the school's words: no skill code, no ISO week
   expect(await assessments(page).innerText()).not.toMatch(/\b(\d{4}-W\d{2}|[A-Z]{3,}\.[A-Z0-9]+)\b/);
 });
 
 test("a topic keeps the assessments on its skills, and an assessment opens its copies", async ({ page }) => {
   await page.goto(`/papers?class=${SECTION}`);
-  const topics = page.getByRole("navigation", { name: "Topic" });
-  await expect(topics.getByRole("link", { name: "All topics" })).toHaveAttribute("aria-current", "page");
-  await topics.getByRole("link", { name: "Data handling", exact: true }).click();
+  const topic = page.locator("[data-filterbar]").locator('select[name="topic"]');
+  await expect(topic).toHaveValue("");
+  await topic.selectOption({ label: "Data handling" });
   await expect(page).toHaveURL(/topic=DATA\b/);
   await expect(ours(page)).toHaveCount(1);
   await expect(ours(page)).toContainText(await setName("DATA.TALLY"));
   // a topic stays chosen when the class changes, and the class when the topic does
-  await page.getByRole("navigation", { name: "Topic" }).getByRole("link", { name: "Addition & subtraction", exact: true }).click();
-  // the new topic's own row, waited for: the class was in the address before the click, so waiting on it alone let a
-  // slow run click Data handling's row, whose one copy then failed the count (CI, 2026-10-12)
+  await page.locator("[data-filterbar]").locator('select[name="topic"]').selectOption({ label: "Addition & subtraction" });
+  // the new topic's own row, waited for: the class was in the address before the choice, so waiting on it alone let a
+  // slow run read Data handling's row, whose one copy then failed the count (CI, 2026-10-12)
   await expect(page).toHaveURL(/topic=ADDSUB\b/);
   await expect(page).toHaveURL(new RegExp(`class=${SECTION}`));
   await expect(ours(page)).toHaveCount(1);

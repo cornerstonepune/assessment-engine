@@ -163,6 +163,11 @@ RUNG = SETS["SUB.2D2D"]["rung_code"]  # where a stored story sits does not chang
 
 
 def _stored(conn, it, retired=False, code="SUB.2D2D"):
+    # a question names its skill set's registry skills, as `bank.fill` gives every one it makes (C1)
+    skills = conn.execute("select registry_codes from skill where code = %s", (code,)).fetchone()[
+        "registry_codes"
+    ]
+    it = dataclasses.replace(it, skills=list(skills))
     assert bank._insert(conn, tenant(conn), it, code, "Advance")
     row = conn.execute("select id from item where item_key = %s", (it.item_id,)).fetchone()
     if retired:
