@@ -44,14 +44,17 @@ async function keysOn(captureId: string): Promise<Record<string, Key>> {
 // goals/img_page_one_and_two_same_photo.yaml). A page that is another page again is never drawn as its own. The
 // engine down, every page is drawn as it was.
 type PageFound = { page: number; found: boolean; said: string | null };
-async function pagesOn(captureId: string): Promise<Record<number, PageFound>> {
-  try {
-    const res = await engineGet(`/capture/${captureId}/pages`);
-    return res.ok ? Object.fromEntries(((await res.json()) as PageFound[]).map((p) => [p.page, p])) : {};
-  } catch (e) {
-    if (e instanceof EngineDown) return {};
-    throw e;
+async function pagesOn(captureIds: string[]): Promise<Record<number, PageFound>> {
+  const found: Record<number, PageFound> = {};
+  for (const captureId of captureIds) {
+    try {
+      const res = await engineGet(`/capture/${captureId}/pages`);
+      if (res.ok) for (const p of (await res.json()) as PageFound[]) found[p.page] ??= p;
+    } catch (e) {
+      if (!(e instanceof EngineDown)) throw e;
+    }
   }
+  return found;
 }
 
 // The three signals stay three (rule 5), and an answer nobody has settled is not one of them.
@@ -63,7 +66,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   if (!isMine(reachOf(me), await deadline(paperSection({ id })))) return <NotYours what="This paper's class" />;
   const q = await searchParams;
-  const [paper, answers, names, skills, siblings, unnamed, keys, found] = await deadline(Promise.all([
+  const [paper, answers, names, skills, siblings, unnamed, keys] = await deadline(Promise.all([
     paperHeader(id, me.email),
     paperAnswers(id),
     misconceptionNames(),
@@ -71,8 +74,8 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
     sameChildPapers(id),
     unnamedOn(id),
     keysOn(id),
-    pagesOn(id),
   ]));
+  const found = await deadline(pagesOn([...new Set(answers.map((a) => a.capture_id))]));
   if (!paper) notFound();
   const at = siblings.findIndex((s) => s.id === id);
   const [prev, next] = [siblings[at - 1], siblings[at + 1]];
