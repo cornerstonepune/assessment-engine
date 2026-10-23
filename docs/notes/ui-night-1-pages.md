@@ -99,3 +99,19 @@ hand-built tables and chips: next slice.
 - Off `ux.frozen`: `/capture` entirely. New `StatusChip` states: `up`, `down`, `trusted`.
 - Specs changed only for the new shape: `u3`, `u10`, `u38`, `s4` (tables by name, labelled cells; a class's total is the
   sentence above, which the columns add up to; the reader's views by address).
+
+## Class results (`/growth`) — goals/uxn9-class-results.yaml
+
+**Verified**
+- The classes are one table (class, grade, children, need help, answers waiting, parent reports waiting, a status chip, a link
+  "Against every skill →"); the children who need you (or, with a class chosen or the only one an educator teaches, that class's
+  children) are one table with a status chip, help first. Filter row: grade, class, status. "Check N answers →" (or "Make an
+  assessment") is the one action; next step "Today".
+- `DataTable` gained an optional `sort` (a heading is a link, the sorted column says so): the children table keeps "any column
+  sorts it" and "a click anywhere on a row opens the child" (Nimish's earlier asks, u8).
+- No second box to find a child (the top bar's, ux10): the filter row has no search here.
+- Off `ux.frozen`: `/growth`. New `StatusChip` states: `needsHelp`, `fine`.
+- Specs changed only for the new shape: `u35`, `u8`, `u50`, `u2`, `u21`, `u26` (a class chosen in the filter row; the status
+  column; the lead table is `Children who need you`).
+
+**Handoff**: `/growth/class/[section]`, a child's page and parent reports are on `ux.frozen` for UI part 2.

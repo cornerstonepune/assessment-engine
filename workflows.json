@@ -183,7 +183,6 @@
       "/": ["filter", "shell", "status", "table", "taglist"],
       "/asks": ["purpose", "shell", "taglist"],
       "/capture/[id]": ["shell", "status", "taglist"],
-      "/growth": ["filter", "shell", "status", "table"],
       "/growth/[id]": ["filter", "shell", "status", "table", "taglist"],
       "/growth/[id]/parent": ["shell", "taglist"],
       "/growth/[id]/report": ["shell", "taglist"],

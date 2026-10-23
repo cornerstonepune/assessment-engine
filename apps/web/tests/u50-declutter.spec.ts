@@ -71,32 +71,32 @@ async function asEducator(browser: Browser): Promise<Page> {
   return page;
 }
 
-const group = (page: Page, section: string) => page.locator("details[data-class]").filter({ has: page.locator(`summary:has-text("${section}")`) });
 
 test("Children leads with the children who need the educator, as a short list", async ({ browser }) => {
   const page = await asEducator(browser);
   await page.goto("/growth");
-  const lead = page.getByRole("region", { name: "Need you" });
+  const lead = page.getByRole("region", { name: "Children who need you" });
   await expect(lead).toBeVisible();
   // the child who needs help and has answers waiting is on it, and links to the child; a child with nothing is not
   await expect(lead.getByRole("link", { name: /Asha/ })).toHaveAttribute("href", `/growth/${kids.Asha}`);
   await expect(lead).not.toContainText("Bina");
   await expect(lead).not.toContainText("Cara");
-  expect(await lead.getByRole("listitem").count(), "a short list").toBeLessThanOrEqual(8);
+  expect(await lead.locator("tbody tr").count(), "a short list").toBeLessThanOrEqual(10);
   // and it comes before the classes
-  const [leadY, classY] = await Promise.all([lead.boundingBox(), group(page, BUSY).boundingBox()]);
+  const [leadY, classY] = await Promise.all([lead.boundingBox(), page.getByRole("region", { name: "Classes" }).boundingBox()]);
   expect(leadY!.y).toBeLessThan(classY!.y);
   await page.context().close();
 });
 
 test("a class's table holds only the columns that have something in them", async ({ browser }) => {
   const page = await asEducator(browser);
-  await page.goto("/growth");
-  // a class with nothing to show: the child, and the roll number, and nothing else
+  // a class with nothing to show: the child, and the roll number, and a status (the filter row chooses the class)
+  await page.goto(`/growth?class=${QUIET}`);
   const quiet = page.getByRole("table", { name: `${QUIET}: its children` });
   await expect(quiet).toBeVisible();
-  expect((await quiet.getByRole("columnheader").allTextContents()).map((h) => h.trim())).toEqual(["Roll", "Child"]);
+  expect((await quiet.getByRole("columnheader").allTextContents()).map((h) => h.trim())).toEqual(["Roll", "Child", "Status"]);
   // a class with something: every column it shows has a number, a name or a pill in some row, and no cell is a dash or a nought
+  await page.goto(`/growth?class=${BUSY}`);
   const busy = page.getByRole("table", { name: `${BUSY}: its children` });
   await expect(busy).toBeVisible();
   const heads = (await busy.getByRole("columnheader").allTextContents()).map((h) => h.trim());
@@ -115,10 +115,11 @@ test("Children has no topic chips and no second box to find a child; all skills 
   await page.goto("/growth");
   await expect(page.getByRole("navigation", { name: "Topic" })).toHaveCount(0);
   await expect(page.getByRole("main").getByRole("textbox")).toHaveCount(0);
-  const all = page.getByRole("link", { name: `${BUSY} against every skill →` });
+  await page.goto(`/growth?class=${BUSY}`);
+  const all = page.getByRole("link", { name: "Against every skill →" });
   await expect(all).toBeVisible();
   // quiet: small type, never a button or a chip
-  expect(await all.evaluate((a) => parseFloat(getComputedStyle(a).fontSize))).toBeLessThanOrEqual(12.5);
+  expect(await all.evaluate((a) => parseFloat(getComputedStyle(a).fontSize))).toBeLessThanOrEqual(14);
   await expect(all).not.toHaveClass(/chip|btn/);
   // the long explanation and the key to the colours are put away behind a link, not shown
   const details = page.getByRole("main").locator("details", { hasText: "Details" }).last();

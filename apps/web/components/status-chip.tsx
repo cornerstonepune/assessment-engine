@@ -18,6 +18,8 @@ export const STATES = {
   withChildren: { tone: "wait", words: "with the children" },
   toCheck: { tone: "act", words: "to check" },
   toSignOff: { tone: "wait", words: "to sign off" },
+  needsHelp: { tone: "act", words: "needs help" },
+  fine: { tone: "ok", words: "doing well" },
   up: { tone: "ok", words: "better" },
   down: { tone: "act", words: "worse" },
   trusted: { tone: "ok", words: "trusted" },

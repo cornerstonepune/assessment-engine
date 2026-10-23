@@ -9,6 +9,11 @@ export type More<T> =
 
 // What a row can carry beyond its cells: data attributes (for a test or a link target), and a row of its own under it,
 // full width (an assessment opened to its copies).
+// A table that sorts: the column it is sorted by, which way a screen reader says that is ("other" where the order is what
+// needs doing first), and the address of the table sorted by another column. The caller does the sorting; every sortable
+// heading is a link to it.
+export type Sort = { key: string; dir: "ascending" | "descending" | "other"; href: (key: string) => string };
+
 export type RowExtras<T> = { attrs?: (row: T) => Record<string, string>; expand?: (row: T) => React.ReactNode };
 
 // The one table of the site (rule 2): fixed column widths, text on the left, numbers on the right, a state in the middle,
@@ -23,6 +28,7 @@ export function DataTable<T>({
   more,
   limit = TABLE_ROW_LIMIT,
   extras,
+  sort,
 }: {
   label: string;
   columns: readonly Column<T>[];
@@ -31,6 +37,7 @@ export function DataTable<T>({
   more: More<T>;
   limit?: number;
   extras?: RowExtras<T>;
+  sort?: Sort;
 }) {
   const cols = visibleColumns(columns, rows);
   if ("by" in more) {
@@ -40,7 +47,7 @@ export function DataTable<T>({
         {groupRows(rows, by).map((g) => (
           <section key={g.name} aria-label={g.name}>
             <h3 className="mb-1 text-[14px]">{g.name}</h3>
-            <Grid label={`${label} · ${g.name}`} cols={cols} rows={g.rows.slice(0, limit)} rowKey={rowKey} extras={extras} />
+            <Grid label={`${label} · ${g.name}`} cols={cols} rows={g.rows.slice(0, limit)} rowKey={rowKey} extras={extras} sort={sort} />
             {g.rows.length > limit ? (
               <p className="note mt-1">
                 {g.rows.length - limit} more in {g.name}
@@ -60,7 +67,7 @@ export function DataTable<T>({
   const p = pageOf(rows, more.page, limit);
   return (
     <div>
-      <Grid label={label} cols={cols} rows={p.rows} rowKey={rowKey} extras={extras} />
+      <Grid label={label} cols={cols} rows={p.rows} rowKey={rowKey} extras={extras} sort={sort} />
       {p.pages > 1 ? (
         <nav className="mt-2 flex items-center gap-3 text-[13px]" aria-label={`${label} pages`}>
           {p.page > 1 ? <Link href={more.href(p.page - 1)} className="chip">← Earlier</Link> : null}
@@ -72,7 +79,7 @@ export function DataTable<T>({
   );
 }
 
-function Grid<T>({ label, cols, rows, rowKey, extras }: { label: string; cols: Column<T>[]; rows: readonly T[]; rowKey: (r: T) => string; extras?: RowExtras<T> }) {
+function Grid<T>({ label, cols, rows, rowKey, extras, sort }: { label: string; cols: Column<T>[]; rows: readonly T[]; rowKey: (r: T) => string; extras?: RowExtras<T>; sort?: Sort }) {
   const cls = (c: Column<T>) => `a-${alignOf(c)}`;
   return (
     <div className="data-table">
@@ -85,8 +92,15 @@ function Grid<T>({ label, cols, rows, rowKey, extras }: { label: string; cols: C
         <thead>
           <tr>
             {cols.map((c) => (
-              <th key={c.key} scope="col" className={`${cls(c)}${c.num ? " num" : ""}`}>
-                {c.label}
+              <th key={c.key} scope="col" className={`${cls(c)}${c.num ? " num" : ""}`} aria-sort={sort && c.sortable && c.key === sort.key ? sort.dir : undefined}>
+                {sort && c.sortable ? (
+                  <Link href={sort.href(c.key)} className={`no-underline ${c.key === sort.key ? "text-basalt" : "text-inherit"}`}>
+                    {c.label}
+                    {c.key === sort.key ? " ▾" : ""}
+                  </Link>
+                ) : (
+                  c.label
+                )}
               </th>
             ))}
           </tr>

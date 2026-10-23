@@ -89,44 +89,52 @@ async function asEducator(browser: Browser): Promise<Page> {
   return page;
 }
 
-/** A class's group on the page: a disclosure whose summary starts with the class. */
-const group = (page: Page, section: string) => page.locator("details[data-class]").filter({ has: page.locator(`summary:has-text("${section}")`) });
-const rows = (g: Locator) => g.locator("tbody tr");
+const table = (page: Page, section: string) => page.getByRole("table", { name: `${section}: its children` });
+const rows = (t: Locator) => t.locator("tbody tr");
 
-test("an educator sees each of their classes open, and no other", async ({ browser }) => {
+test("an educator sees their own class as a table of its children, and no other", async ({ browser }) => {
   const page = await asEducator(browser);
   await page.goto("/growth");
-  const mine = group(page, MINE);
-  await expect(mine).toHaveCount(1);
-  await expect(mine).toHaveAttribute("open", "");
+  const mine = table(page, MINE);
   await expect(rows(mine)).toHaveCount(3);
-  await expect(page.locator("details[data-class]")).toHaveCount(1);
+  // one class is theirs: the classes table has the one row, and the filter row offers no other
+  await expect(page.getByRole("table", { name: "Classes" }).locator("tbody tr")).toHaveCount(1);
+  await expect(page.locator("[data-filterbar] select[name=class] option", { hasText: OTHER })).toHaveCount(0);
   await expect(page.getByRole("main")).not.toContainText(OTHER);
   await expect(page.getByRole("main")).not.toContainText("Kavi");
   await page.context().close();
 });
 
-test("the coordinator sees every class closed under its grade, says what waits in each, and opens it in place", async ({ page }) => {
-  await page.goto("/growth");
-  const mine = group(page, MINE);
-  await expect(mine).toHaveCount(1);
-  await expect(group(page, OTHER)).toHaveCount(1);
-  await expect(mine).not.toHaveAttribute("open", "");
-  await expect(rows(mine).first()).toBeHidden();
+test("the coordinator sees every class in one table, says what waits in each, and opens it with a click", async ({ page }) => {
+  await page.goto(`/growth?class=${MINE}`);
+  const classes = page.getByRole("table", { name: "Classes" });
+  const row = classes.locator("tbody tr").filter({ hasText: MINE });
+  await expect(row).toHaveCount(1);
   // its one line: three children, one needing help, Asha's two answers waiting, her report out of date
-  await expect(mine.locator("summary")).toContainText(/3 children\b.*1 needs? help\b.*2 answers waiting\b.*1 parent report waiting/);
-  await expect(mine.locator("xpath=ancestor::section[1]")).toContainText("Grade 2");
-  await mine.locator("summary").click();
-  await expect(mine).toHaveAttribute("open", "");
-  await expect(rows(mine)).toHaveCount(3);
+  const cell = (label: string) => row.locator(`td[data-label="${label}"]`);
+  await expect(cell("Grade")).toHaveText("Grade 2");
+  await expect(cell("Children")).toHaveText("3");
+  await expect(cell("Need help")).toHaveText("1");
+  await expect(cell("Answers waiting")).toHaveText("2");
+  await expect(cell("Parent reports waiting")).toHaveText("1");
+  await expect(row.locator("[data-status=needsHelp]")).toBeVisible();
+  // a class's name opens its children, in place
+  await page.goto("/growth");
+  await expect(page.getByRole("link", { name: OTHER })).toHaveCount(0);
+  await page.goto(`/growth?class=${OTHER}`);
+  await expect(page.getByRole("table", { name: "Classes" }).locator("tbody tr")).toHaveCount(1);
+  await page.goto("/growth");
+  await page.locator("[data-filterbar] select[name=class]").selectOption(MINE);
+  await expect(page).toHaveURL(new RegExp(`class=${MINE}`));
+  await expect(rows(table(page, MINE))).toHaveCount(3);
 });
 
 test("a class's table has the columns that matter, children who need help first", async ({ browser }) => {
   const page = await asEducator(browser);
   await page.goto("/growth");
-  const mine = group(page, MINE);
+  const mine = table(page, MINE);
   // the sorted column carries its marker
-  await expect(mine.locator("thead th")).toHaveText(COLUMNS.map((c) => new RegExp(`^${c}( ▾)?$`)));
+  await expect(mine.locator("thead th")).toHaveText([...COLUMNS, "Status"].map((c) => new RegExp(`^${c}( ▾)?$`)));
   // Asha first: she needs help; then the roll
   await expect(rows(mine).first()).toHaveAttribute("data-child", kids.Asha);
   const asha = rows(mine).first().locator("td");
@@ -158,7 +166,7 @@ test("the colour key is one line, and at 400 px nothing scrolls sideways", async
 
   const wide = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(wide, "the page is no wider than the phone").toBeLessThanOrEqual(400);
-  const mine = group(page, MINE);
+  const mine = table(page, MINE);
   const row = rows(mine).first();
   for (const cell of [row.locator("td").nth(1), row.locator("td").nth(2)]) {
     const box = (await cell.boundingBox())!;
