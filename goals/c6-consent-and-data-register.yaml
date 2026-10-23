@@ -1,0 +1,32 @@
+name: c6-consent-and-data-register
+goal: >
+  The school keeps a register of what it holds about a child, in a parent's words: for each kind of thing kept, what
+  it is, why, how long and who sees it, each naming the tables that hold it, and no table holding a child's data left
+  out. A parent's consent for a child is recorded (given or withdrawn, by whom in relation to the child, how, and who
+  at the school recorded it) against the register's words as they stood; it is never edited and holds no name.
+# Written 2026-10-22, from BUILD-ORDER's locked scope of 22 Oct (slice C6, "Green means"). The words are a draft for a
+# lawyer to check against India's Digital Personal Data Protection Act, 2023 (said in the PR); how long anything is kept
+# after a child leaves is the school's decision and the words say so until it is made.
+says:
+  - words: "a consent and data register: what is kept about a child"
+    proved_by: "packages/engine/tests/test_data_register.py::test_every_table_that_holds_a_childs_data_is_in_the_register"
+  - words: "why, how long, who sees it, in a parent's words"
+    proved_by: "packages/engine/tests/test_data_register.py::test_each_entry_says_what_why_how_long_and_who_sees_it_in_a_parents_words"
+  - words: "a consent and data register"
+    proved_by: "packages/engine/tests/test_data_register.py::test_a_parents_consent_is_recorded_against_the_register_as_it_stood"
+  - words: "a consent and data register"
+    proved_by: "packages/engine/tests/test_data_register.py::test_a_consent_needs_its_answer_who_gave_it_how_and_who_recorded_it"
+manual:
+  - "A lawyer reads supabase/seed/data_register.json against the DPDP Act, 2023 before any parent sees it."
+  - "The school decides how long each kind of thing is kept after a child leaves."
+scenarios: []
+criteria:
+  - name: the register is complete, consent recorded against it
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_data_register.py tests/test_rules.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
