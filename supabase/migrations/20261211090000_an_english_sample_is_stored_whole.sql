@@ -63,9 +63,11 @@ create table if not exists english_sample (
   created_at     timestamptz not null default now(),
   updated_at     timestamptz not null default now(),
   unique (tenant_id, skill_code, difficulty, question_type, ord),
+  -- a level or kind a person removes takes its samples with it; the seed's are loaded again only where they exist
   foreign key (tenant_id, skill_code, difficulty) references skill_level (tenant_id, skill_code, difficulty)
-    on update cascade,
-  foreign key (tenant_id, question_type) references question_type (tenant_id, code) on update cascade,
+    on update cascade on delete cascade,
+  foreign key (tenant_id, question_type) references question_type (tenant_id, code)
+    on update cascade on delete cascade,
   foreign key (tenant_id, passage_code) references passage (tenant_id, code) on update cascade,
   foreign key (tenant_id, rubric_code) references rubric (tenant_id, code) on update cascade
 );

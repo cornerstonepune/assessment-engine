@@ -58,6 +58,14 @@ branch's migration applied (twice: it is written to run twice), 2026-10-23:
 - The wider list (u12, u17, u19, u23, u28, u5, u51 with the above): `28 passed, 2 failed, 6 did not run` in one session;
   the two (u17 worksheets of a Maths skill, u23 a grade's filtered rows) then passed on their own, `9 passed`. Neither
   opens an English skill. They depend on what the specs before them leave in the database; CI's fresh database decides.
+- CI on the first push (cbe7d1ee) found two faults, fixed at their cause: (1) removing a level from a skill deletes its
+  `skill_level` row, and the samples' key to that row refused it (`tests/test_skill_level.py`, ForeignKeyViolation); a
+  removed level or kind now takes its samples with it (`on delete cascade`). (2) `engine/checks/rules.json` lacked the new
+  tables' rules; written again by `bin/engine live rules --write --url <the local copy>` (19 lines, the new tables' only).
+  Then `pytest tests/test_rules.py tests/test_skill_level.py tests/test_english_samples.py` → all passed, `bin/check` →
+  `31 passed`.
+- `bin/engine done smp_skill_shows_its_samples` → every sentence `PROVED`, every criterion `PASSED` (the browser list `19
+  passed`, u17 and u23 among them); `NOT DONE` only for what is not live: not on main, and live did not answer from here.
 - Sandbox only: this Playwright wanted a Chromium build the sandbox lacks; its path was linked to the installed one.
 
 ## Handoff
