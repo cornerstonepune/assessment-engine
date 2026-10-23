@@ -6,6 +6,8 @@ import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
 import { isMine, paperSection, reachOf } from "@/lib/scope";
 import { misconceptionNames, setSkills } from "@/lib/queries";
+import { assessmentOf } from "@/lib/queries-papers";
+import { cardHref } from "../../papers/assessments-table";
 import { paperAnswers, paperHeader, sameChildPapers, type CaptureAnswer } from "@/lib/queries-read";
 import { confirmPaper } from "../actions";
 import { AnswerCard, type Key, type Unnamed } from "./card";
@@ -77,6 +79,9 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
   ]));
   const found = await deadline(pagesOn([...new Set(answers.map((a) => a.capture_id))]));
   if (!paper) notFound();
+  // Signed off: the score now recorded for this child, and — when this was the last paper — the assessment's Results.
+  const done = paper.n_candidate === 0 && paper.n_confirmed > 0 && paper.n_scored > 0;
+  const assessment = q.confirmed && done ? await deadline(assessmentOf(id)) : undefined;
   const at = siblings.findIndex((s) => s.id === id);
   const [prev, next] = [siblings[at - 1], siblings[at + 1]];
 
@@ -127,6 +132,17 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
         </p>
 
         {q.confirmed ? <Notice tone="neem">Signed off {q.confirmed} answers in your name. {paper.first_name}&rsquo;s ladder is rebuilt from them.</Notice> : null}
+        {q.confirmed && done ? (
+          <Notice tone="neem">
+            Scores recorded for {paper.first_name}: {paper.n_right} of {paper.n_scored} right.{" "}
+            <Link href={`/growth/${paper.child_id}`}>{paper.first_name}&rsquo;s page →</Link>
+            {assessment && assessment.left === 0 ? (
+              <>
+                {" "}Every paper of this assessment is signed off. <Link href={cardHref(assessment)}>See its Results →</Link>
+              </>
+            ) : null}
+          </Notice>
+        ) : null}
         {q.corrected ? <Notice tone="neem">Saved: the child wrote {q.corrected}. The engine has marked it again, and your reading is now part of what the reader is measured against.</Notice> : null}
         {q.later ? <Notice tone="terracotta">The engine was not answering, so the answers the reader&rsquo;s trust now settles leave the queue at the next check.</Notice> : null}
         {q.error === "engine" ? <Notice tone="terracotta">The engine is not answering, so nothing was changed. The page images and corrections both need it running.</Notice> : null}

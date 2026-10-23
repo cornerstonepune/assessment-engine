@@ -1,0 +1,30 @@
+name: chk_whose_paper
+goal: >
+  On Check the answers, the educator sees whose paper each answer is on and can decide where they decide: beside the
+  crop, the page itself with the crop outlined, the code printed on it, and which copy and page it is; the child's
+  answers are checked one child at a time; a page that code finds may not be the child's (the same photograph on two
+  children's copies, or another child's code) carries a plain notice and cannot be said Yes to until a person chooses;
+  the Yes button sits in the same box as the sentence it answers; and after a paper is signed off the educator is told
+  the score recorded, on the paper, on the Children page and on the assessment's Results.
+
+# Written 2026-10-23, before the work (BUILD-ORDER, W3 validation and sign-off). Nimish's words are what he said that day.
+# The guard (the same photograph on two children's copies) and the score after sign-off are held by the criteria below.
+says:
+  - words: "I think we should have a very clear mechanism for marking this per child."
+    proved_by: "apps/web/tests/s44-whose-paper.spec.ts::checking runs per child: a next-child step only when this child is done, and a list of the file's children with answers left"
+  - words: "When the questions also come, the educator is able to see that now this paper is for this child. Otherwise it's very hard for me to even understand whether you are capturing the right image and showing it there."
+    proved_by: "apps/web/tests/s44-whose-paper.spec.ts::beside the crop, the page's own proof: the page with the crop outlined, the printed code, the copy and the page"
+  - words: "That mark, this as right, what we're putting on top: why are we putting it on top? It should be in that same box where we are asking whether it is what the child wrote. It should just be right there."
+    proved_by: "apps/web/tests/s44-whose-paper.spec.ts::the Yes button is in the answer box, under the sentence it answers; nothing sits above the card but the progress line"
+manual: []
+scenarios: []
+criteria:
+  - name: the engine's proof of whose paper a page is, and its guard
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider -o addopts= tests/test_whose_paper.py
+    expect: "passed"
+  - name: the screens, on the copy, at 1440 px, and the score after sign-off
+    run: cd apps/web && npx playwright test tests/s44-whose-paper.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -38,12 +38,12 @@ export function Judge({ a, next }: Props) {
 }
 
 /** The reader's reading is what the child wrote. */
-export function Confirm({ a, next, says }: Props & { says: string }) {
+export function Confirm({ a, next, says, locked }: Props & { says: string; locked?: boolean }) {
   return (
     <form action={correctRead}>
       <Ids a={a} next={next} />
       <input type="hidden" name="human_read" value={says} />
-      <button className="btn" type="submit">
+      <button className="btn" type="submit" disabled={locked} title={locked ? "A person chooses first: see the notice beside the photograph" : undefined}>
         Yes, the child wrote {says || "nothing"}
       </button>
     </form>

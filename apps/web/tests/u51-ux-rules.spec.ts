@@ -167,10 +167,10 @@ test("Check answers is built on the blocks: one main action, its next step, one 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
   expect(await breaks(page)).toEqual([]);
   expect(FROZEN["/capture/check"]).toBeUndefined();
-  const action = page.locator("[data-ux=action]");
-  // one decision (Right, Wrong, Blank) or one answer to confirm or type: never a menu of ways to settle it
-  await expect(action.locator("button[type=submit], button[name=status]").first()).toBeVisible();
-  await expect(action.locator(".btn:not(.secondary)")).toHaveCount(1);
+  // the progress line is all that sits above the card; the decision (Right/Wrong/Blank, or "Yes, the child wrote…")
+  // is in the answer box, beside the sentence it answers (Nimish, 23 Oct 2026)
+  await expect(page.locator("[data-ux=action] button")).toHaveCount(0);
+  await expect(page.locator("form button[type=submit]").first()).toBeVisible();
   await expect(page.locator("[data-ux=next]")).toHaveAttribute("href", /\/(capture\/check\?from=|growth)/);
   const waiting = await page.locator('[data-count="answers to check"]').textContent();
   expect(Number(waiting?.replace(/\D/g, ""))).toBeGreaterThan(0);

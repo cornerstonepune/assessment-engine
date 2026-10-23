@@ -26,6 +26,9 @@ export type ChildRow = {
   amber: number;
   /** Their answers waiting for a person, on papers not replaced or voided: the papers pages' rule (`queries-papers`). */
   waiting: number;
+  /** The score on their newest signed-off paper, "3 of 3 right" (right of every answer marked right, wrong or blank), or none
+   *  while no paper of theirs is signed off: the number a person looks for after signing off (goals/chk_whose_paper.yaml). */
+  last_score: string | null;
   /** Their newest parent report and whether there are answers to write one from (`queries-reports`). */
   report: ReportState;
 };
@@ -63,6 +66,17 @@ export async function childTable(actor: string, topic: string | null = null, sco
               join sheet_instance si on si.id = k.sheet_instance_id
              where si.child_id = c.id and k.superseded_by is null and si.print_status <> 'void'
                and r.status in ('unreadable', 'needs_teacher')) as waiting,
+           (select case when count(*) filter (where r.status in ('correct', 'wrong', 'blank')) > 0
+                        then count(*) filter (where r.status = 'correct') || ' of ' ||
+                             count(*) filter (where r.status in ('correct', 'wrong', 'blank')) || ' right' end
+              from item_result r join capture k on k.id = r.capture_id
+             where k.sheet_instance_id = (
+                     select si.id from sheet_instance si join capture k2 on k2.sheet_instance_id = si.id and k2.superseded_by is null
+                      where si.child_id = c.id and si.print_status <> 'void'
+                        and exists (select 1 from item_result x where x.capture_id = k2.id and x.state = 'confirmed')
+                        and not exists (select 1 from item_result x where x.capture_id = k2.id and x.state = 'candidate')
+                      order by k2.created_at desc limit 1)
+               and k.superseded_by is null) as last_score,
            ${reportState(sql`c.id`)} as report
     from child c, lateral pii.read_child(c.id, ${actor}) p
     where c.active and ${inScope(scope, sql`c.section`)}

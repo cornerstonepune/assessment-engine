@@ -294,6 +294,20 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
 }
 
 
+/** The assessment a paper is one of, and how many of its children's papers are not yet signed off: when none are, the
+ *  card's Results are complete (goals/chk_whose_paper.yaml). A spare, or a paper replaced by a newer one, is not waited for. */
+export async function assessmentOf(id: string) {
+  const [row] = await sql<{ kind: string; section: string | null; week: string | null; set: string | null; left: number }[]>`
+    with ${papersCte()}
+    select p.kind, p.section, p.week, p.set_key as set,
+           (select count(*)::int from papers q
+             where q.kind = p.kind and q.section is not distinct from p.section and q.week is not distinct from p.week
+               and q.set_key is not distinct from p.set_key and q.child_id is not null
+               and q.stage not in ('signed off', 'replaced')) as left
+    from papers p where p.id = ${id}::uuid`;
+  return row;
+}
+
 /** The day each assessment was given, as the educator said it on the card (`flow_run`, flow "given"): the newest day over
  *  its copies, by the assessment's `qrs`. An assessment never given has none. */
 export async function givenOn(rows: readonly { qrs: string[] }[]): Promise<Map<string, string>> {
