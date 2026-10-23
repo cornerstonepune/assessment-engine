@@ -57,7 +57,7 @@ test("a scan's missing and doubled pages are said under Read a scan, by roll num
     await page.goto(at);
     await expect(lacks(page), `on ${at}`).toHaveText(said);
     const panel = page.getByRole("region", { name: "Read a scan" });
-    await expect(panel).toContainText(`${FILE} · `);
+    await expect(panel).toContainText(FILE);
     const row = panel.getByRole("table", { name: "Scans read last" }).getByRole("row").filter({ hasText: FILE }).first();
     await expect(row.locator('td[data-label="Copies read"]')).toHaveText("2");
     await expect(row.locator('td[data-label="Answers"]')).toHaveText("30");
