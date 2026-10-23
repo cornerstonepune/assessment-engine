@@ -33,7 +33,18 @@ photographs, so that copy's screen may instead be a reading made before CK2 depl
 
 ## Verified
 
-Filled in at the commit boundary below.
+2026-10-23, on a database built by `bin/testdb fresh` (Postgres 16 here, CI runs 17):
+- Fail first: `placing.placed` on a file of pages (1, 1) returned `[1, 2]`; the eight new placing tests failed before `place` existed.
+- `bin/engine done img_page_one_and_two_same_photo`: all four of Nimish's "showing the same 2 pages" tests PROVED; the
+  reader's files (photograph_page, same_page, boxes, copies, each_answer, lineup) passed; `u61` 3 passed; `bin/check` 30 passed.
+  NOT DONE only for: not on main, and live's database unreachable from here.
+- Wider: test_copies, test_boxes, test_lineup, test_inbox, test_sorting, test_legacy, test_second_reader, test_contract,
+  test_types: 156 passed. `npx tsc --noEmit`: only two pre-existing `LayoutProps` errors (a type Next generates at build).
+- 1440 px screenshots of the seeded paper: before (old panel) shows "Page 1" and "Page 2, as it was photographed" as one
+  picture; after shows "Page 2 not found. The photograph in its place is page 1 again."
+- Not covered: the small per-answer pictures under Page 2 are drawn by `capture/[id]/card.tsx` (CHK's file, left alone) and
+  still show page 1 for a reading made before; a re-read removes them. A false refusal (a poor page-2 photograph that
+  fits page 1 `read.page_margin` times better) goes whole to a person, never read wrongly.
 
 ## Handoff
 
