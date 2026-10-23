@@ -20,6 +20,16 @@
 - **Tests:** `test_evidence_every_kind.py` 7 passed. With `test_live_data.py` and `test_rules.py`: 17 passed. `bin/check`:
   30 passed. `test_live_data`'s self-made school now holds the registry skill its evidence names (`rows.a_registry_skill`).
 
+## Assembled onto main (#305, 2026-10-23)
+
+C2 to C6 were merged each into the branch below it, so none reached main; #305 merges main with all five, in order
+(every commit of every slice branch contained: `git rev-list origin/claude/<branch> ^HEAD | wc -l` → 0 for each).
+- Rehearsal on a copy of live (Actions → rehearse update-live, run 39886818396, head abd0b7c): migrations 1203 to 1210
+  applied on live's rows; `engine past` before, after the migrations and after update-live, identical:
+  evidence 1748 `f8e77132…`, states 276 `a70d7cfe…`, scored 12665 `13bf1849…`, questions 51634 `e11078c5…`, levels 178
+  `3f13044d…`.
+- `bin/testdb fresh` builds; this slice's migration applied a second time on it: OK.
+
 ## Handoff
 
 - **Live:** nothing. Waits on C1.
