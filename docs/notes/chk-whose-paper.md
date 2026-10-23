@@ -18,7 +18,7 @@ Run on a local copy built by `bin/testdb fresh` (Postgres 16, this repository's 
 | `engine done` | `bin/engine done chk_whose_paper` | every sentence PROVED, every criterion PASSED; NOT DONE only for "not on main yet" and "live database did not answer" |
 | 33 + 48 neighbouring browser tests (u1, u13, u14, u16, u38, u43, u45, u49, u50, u51, s1, s4, s42, u9, workflows) | `npx playwright test <those files>` | all passed after `u50`'s heading check was moved to the question over the picture |
 
-Screenshots at 1440 px, in `docs/notes/chk-whose-paper/`: `before-card.png` (main), `after-card.png`, `same-photograph.png`, `scores-recorded.png`.
+Screenshots at 1440 px (before on main, after, the same-photograph notice, scores recorded) were taken in the session and are not in git: the repository ignores `*.png`. `npx playwright test tests/s44-whose-paper.spec.ts` writes the three "after" ones to `apps/web/test-results/whose-paper/`.
 
 Not run here: the whole engine suite and the whole browser suite (CI does). Eight `tests/api` tests that print a PDF through Chromium fail in this container because the pre-installed Chromium is a different build; they do not touch these files.
 
