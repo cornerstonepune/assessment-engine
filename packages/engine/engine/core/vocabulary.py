@@ -69,6 +69,13 @@ def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
                 " correct=excluded.correct, updated_at=now()",
                 (tenant, sc["code"], m["code"], i, m["words"], m["correct"]),
             )
+    for i, v in enumerate(seed("vocabulary.json", "validation_stages")):
+        conn.execute(
+            "insert into validation_stage (tenant_id, code, ord, words, every_answer_to_person) values (%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set ord=excluded.ord, words=excluded.words,"
+            " every_answer_to_person=excluded.every_answer_to_person, updated_at=now()",
+            (tenant, v["code"], i, v["words"], v["every_answer_to_person"]),
+        )
     for i, k in enumerate(seed("vocabulary.json", "evidence_kinds")):
         conn.execute(
             "insert into evidence_kind (tenant_id, code, ord, words, scale) values (%s,%s,%s,%s,%s)"
