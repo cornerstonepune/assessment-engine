@@ -119,10 +119,11 @@ test("a link is named as the page it opens, and that page's way back names where
 
 test("a class's home assessments say why a child has none: every child is counted in one column", async ({ page }) => {
   // every class's list is the coordinator's: an educator of one class opens straight on it
-  await page.goto("/make");
+  await page.goto(`/make?class=${SECTION}`);
   const row = page.getByRole("table", { name: "Home assessments this week" }).locator("tbody tr").filter({ hasText: SECTION });
-  const n = async (k: string) => Number(await row.locator(`[data-n="${k}"]`).textContent());
-  const children = Number(await row.locator("td").nth(2).textContent());
+  // a column of zeros is not drawn (docs/ux-rules.md, rule 4): a cell that is not there is none
+  const n = async (k: string) => ((await row.locator(`[data-n="${k}"]`).count()) ? Number(await row.locator(`[data-n="${k}"]`).textContent()) : 0);
+  const children = Number(await row.locator('td[data-label="Children"]').textContent());
   expect(children).toBe(2);
   expect((await n("proposed")) + (await n("approved")) + (await n("too-few"))).toBe(children);
 });

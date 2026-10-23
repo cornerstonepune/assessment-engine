@@ -46,3 +46,19 @@ filter row, is its own slice. Schema follow-up: none.
 
 **Handoff**: the active-filter chips show the class, week and kind that the page picked by default; they can be removed but
 the page then picks the first again.
+
+## Home assessments, "print and give" (`/make`, `/make/[section]`) — goals/uxn5-print-and-give.yaml
+
+**Verified**
+- `/make`: one table of the classes (class, grade, children, proposed, approved, not enough checked work, status chip), the
+  class papers waiting as a second table, one filter row (class, grade, status), "Approve class papers" the one action,
+  next step "Upload papers".
+- `/make/[section]`: one table of the class's children (roll, child, works on, why, status, next step); children with
+  nothing to go on first (red "choose one"), then to approve (amber), then approved (green, with who approved). Filter row:
+  status and a find-a-child search; "Approve all N" the one action. Approved children are rows, no longer a fold.
+- Off `ux.frozen`: `/make`, `/make/[section]`. New state `chooseOne`.
+- Specs changed only for the new shape: `u38` (heads, order, approved rows; the "two lines" check now at 1440 px, desktop
+  first), `m2`, `s11`, `u45` (the class chosen in the filter row; the table is paged at ten and a column of zeros is not drawn).
+- Left alone on purpose: `/home` (a page for a later workflow, BUILD-ORDER), `/make/custom`, `/make/[section]/week`.
+
+**Handoff**: `/make/custom` and the week page are still off the blocks (`ux.frozen`).

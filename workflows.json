@@ -193,8 +193,6 @@
       "/home": ["shell"],
       "/library": ["filter", "shell", "table", "taglist"],
       "/library/[key]": ["filter", "shell", "table"],
-      "/make": ["filter", "shell", "table"],
-      "/make/[section]": ["filter", "shell", "status", "table", "taglist"],
       "/make/[section]/week": ["shell", "taglist"],
       "/make/custom": ["purpose", "shell", "taglist"],
       "/papers/card": ["filter"],

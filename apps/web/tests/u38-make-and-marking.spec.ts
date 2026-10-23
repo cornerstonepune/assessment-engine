@@ -139,11 +139,14 @@ test("Home assessments and Marking open on the educator's own class", async ({ b
 
 test("each child waiting for a home assessment is one line with one next step, the why in two lines at most", async ({ browser }) => {
   const page = await asEducator(browser);
+  // the educator's desktop (docs/ux-rules.md, "Desktop first")
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`/make/${SECTION}`);
   const table = page.getByRole("table", { name: "Each child's home assessment" });
   await expect(table).toBeVisible();
-  await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Works on", "Why", "Next step"]);
-  expect(await names(table.locator("tbody tr"))).toEqual(["Asha", "Bina", "Chetan"]);
+  await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Works on", "Why", "Status", "Next step"]);
+  // what needs the educator first: Chetan, with nothing to go on, then the two to approve, then the approved
+  expect(await names(table.locator("tbody tr"))).toEqual(["Chetan", "Asha", "Bina", "Dev"]);
   const cells = (who: string) => table.locator("tbody tr").filter({ hasText: who }).locator("td");
   // what it works on opens the paper as it will print; the count every paper shares is not said on every line, and its
   // questions fold under it (goals/preview-before-print.yaml)
@@ -155,12 +158,12 @@ test("each child waiting for a home assessment is one line with one next step, t
   await expect(cells("Asha").nth(3)).toContainText("the same mistake more than once: Subtracts the smaller digit");
   expect(await lines(cells("Asha").nth(3))).toBeLessThanOrEqual(2);
   // one next step a child: approve what is proposed, or choose one where the engine has nothing to go on
-  await expect(cells("Asha").nth(4).getByRole("button")).toHaveText(["Approve"]);
-  await expect(cells("Asha").nth(4).getByRole("link", { name: "or choose another" })).toHaveAttribute("href", `/make/custom?child=${kids.Asha}`);
+  await expect(cells("Asha").nth(5).getByRole("button")).toHaveText(["Approve"]);
+  await expect(cells("Asha").nth(5).getByRole("link", { name: "or choose another" })).toHaveAttribute("href", `/make/custom?child=${kids.Asha}`);
   await expect(cells("Chetan").nth(2)).toHaveText("Not enough checked work yet");
-  await expect(cells("Chetan").nth(4).getByRole("button")).toHaveCount(0);
-  await expect(cells("Chetan").nth(4).getByRole("link")).toHaveText(["Choose one"]);
-  await expect(cells("Chetan").nth(4).getByRole("link")).toHaveAttribute("href", `/make/custom?child=${kids.Chetan}`);
+  await expect(cells("Chetan").nth(5).getByRole("button")).toHaveCount(0);
+  await expect(cells("Chetan").nth(5).getByRole("link")).toHaveText(["Choose one"]);
+  await expect(cells("Chetan").nth(5).getByRole("link")).toHaveAttribute("href", `/make/custom?child=${kids.Chetan}`);
   // nothing runs past its panel's edge
   const over = await page.getByRole("main").getByRole("region").evaluateAll((els) =>
     els.filter((e) => e.scrollWidth > e.clientWidth + 1).map((e) => e.getAttribute("aria-label")),
@@ -169,18 +172,16 @@ test("each child waiting for a home assessment is one line with one next step, t
   await page.context().close();
 });
 
-test("the children already approved fold under one line", async ({ browser }) => {
+test("the children already approved are rows of the table, after the ones waiting, each with who approved it", async ({ browser }) => {
   const page = await asEducator(browser);
   await page.goto(`/make/${SECTION}`);
-  const fold = page.locator("details[data-approved]");
-  await expect(fold).not.toHaveAttribute("open", "");
-  await expect(fold.locator("> summary")).toHaveText(/^1 approved this week/);
-  await fold.locator("> summary").click();
-  const dev = fold.getByRole("row").filter({ hasText: "Dev" });
-  await expect(dev).toContainText(`Approved by ${EDUCATOR.name}`);
+  const table = page.getByRole("table", { name: "Each child's home assessment" });
+  const dev = table.getByRole("row").filter({ hasText: "Dev" });
+  await expect(dev.locator("[data-status=done]")).toContainText(`approved · by ${EDUCATOR.name}`);
   await expect(dev.getByRole("link", { name: QR.home })).toHaveAttribute("href", `/worksheets/${QR.home}`);
-  // what waits is still one tap
-  await expect(page.getByRole("button", { name: "Approve all 2" })).toBeVisible();
+  await expect(table.getByRole("row").filter({ hasText: "Chetan" }).locator("[data-status=chooseOne]")).toBeVisible();
+  // what waits is still one tap, the page's one main action
+  await expect(page.locator("[data-ux=action]").getByRole("button", { name: "Approve all 2" })).toBeVisible();
   await page.context().close();
 });
 

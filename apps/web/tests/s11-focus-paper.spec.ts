@@ -114,7 +114,7 @@ test("a home assessment is made again the same week and the newest is the week's
     select qr_code, print_status from sheet_instance where child_id = ${child} and kind = 'focus' order by created_at`;
   expect(kept.map((r) => [r.qr_code, r.print_status])).toEqual([first, second, third].map((q) => [q, "printed"]));
   // Make papers and Today count the child once: one home assessment, the newest
-  await page.goto("/make");
+  await page.goto(`/make?class=${SECTION}`);
   const row = page.getByRole("table", { name: "Home assessments this week" }).getByRole("row").filter({ hasText: SECTION });
   await expect(row.locator('[data-n="approved"]')).toHaveText("1");
   // the Papers list: the two earlier copies replaced, the newest with the child

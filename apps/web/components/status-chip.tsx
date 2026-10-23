@@ -18,6 +18,7 @@ export const STATES = {
   withChildren: { tone: "wait", words: "with the children" },
   toCheck: { tone: "act", words: "to check" },
   toSignOff: { tone: "wait", words: "to sign off" },
+  chooseOne: { tone: "act", words: "choose one" },
   noPaper: { tone: "act", words: "no paper" },
   replaced: { tone: "quiet", words: "replaced by a newer one" },
 } as const;
