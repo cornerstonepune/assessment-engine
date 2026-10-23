@@ -15,7 +15,7 @@ says:
   - words: "The table alignment, like the column names and the table alignment, is distorted across all the places"
     proved_by: apps/web/tests/u10-tables-read-straight.spec.ts::every heading sits over its own column, on every page with a table
   - words: "It simply shows just one table, which can have a toggle around confidence levels, the date, etc."
-    proved_by: apps/web/tests/u10-tables-read-straight.spec.ts::how the reader is doing is one table, by day first, by kind or by how sure at a click
+    proved_by: apps/web/tests/u10-tables-read-straight.spec.ts::how the reader is doing is one table, by day first, by kind or by how sure at a choice in the filter row
   - words: "There's just one table which very clearly shows how the engine is improving or not"
     proved_by: apps/web/tests/u10-tables-read-straight.spec.ts::each day says how far the reader moved against the day before, and the words say first against latest
 manual:

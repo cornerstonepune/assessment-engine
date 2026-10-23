@@ -270,10 +270,11 @@ test("Capture & Mark lists students by class; a student lists their papers; a pa
     from sheet_instance si join child ch on ch.id = si.child_id
     where exists (select 1 ${LIVE} and c.sheet_instance_id = si.id)
     group by si.child_id order by si.child_id::text limit 1`;
-  // each class is one line, closed for the coordinator, opened by name (goals/ux5b-make-and-marking.yaml)
+  // a class opened by name is a table of its children, paged (goals/uxn8-marking.yaml)
   await page.goto(`/capture?class=${encodeURIComponent(c.section)}`);
-  await expect(page.locator(`details[data-class="${c.section}"]`)).toHaveAttribute("open", "");
-  await page.locator(`details[data-class="${c.section}"] a[href="/capture?child=${c.child}"]`).click();
+  const link = page.locator(`a[href="/capture?child=${c.child}"]`);
+  while (!(await link.count())) await page.getByRole("link", { name: /^Later/ }).click();
+  await link.click();
   await expect(page).toHaveURL(new RegExp(`child=${c.child}$`));
   const papers = page.getByRole("table").first().locator("tbody tr");
   await expect(papers).toHaveCount(c.sheets);

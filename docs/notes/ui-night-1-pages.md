@@ -86,3 +86,16 @@ hand-built tables and chips: next slice.
   table under the answer in hand (place in the queue, class, roll, paper, question, status chip), with a filter row (class,
   status) that keeps the answer in hand; "Check this" opens that answer. By class and roll number, never a name.
 - Spec added: `u51` "Check answers lists what is left to check as one table with its filter row".
+
+## Marking (`/capture`, second half) — goals/uxn8-marking.yaml
+
+**Verified**
+- By child, by class and by worksheet are `DataTable`s with a status chip (to check / to sign off / signed off / nothing
+  read); one filter row chooses what to show (by child, class, worksheet), the class and where a paper stands. By child
+  is a table for each class (its first ten, and a link to the rest); with a class chosen, its children are paged. An
+  educator who teaches one class opens on it. The papers of one child or worksheet are a table of the same chips.
+- "How the reader is doing" is behind a fold ("for the people who build it"), one table; "by day / by kind / by how sure" is
+  the filter row's "Show"; a day table is paged by ten days. The words and numbers are unchanged.
+- Off `ux.frozen`: `/capture` entirely. New `StatusChip` states: `up`, `down`, `trusted`.
+- Specs changed only for the new shape: `u3`, `u10`, `u38`, `s4` (tables by name, labelled cells; a class's total is the
+  sentence above, which the columns add up to; the reader's views by address).

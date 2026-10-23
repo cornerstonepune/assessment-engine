@@ -122,7 +122,6 @@ const lines = (cell: Locator) =>
     return new Set([...r.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top))).size;
   });
 const names = (rows: Locator) => rows.evaluateAll((trs) => trs.map((t) => t.querySelectorAll("td")[1].textContent?.trim()));
-const klass = (page: Page) => page.locator(`details[data-class="${SECTION}"]`);
 
 test("Home assessments and Marking open on the educator's own class", async ({ browser }) => {
   const page = await asEducator(browser);
@@ -132,8 +131,9 @@ test("Home assessments and Marking open on the educator's own class", async ({ b
   // one class: nothing to go back to
   await expect(page.getByRole("link", { name: "← Every class" })).toHaveCount(0);
   await page.goto("/capture");
-  await expect(klass(page)).toHaveAttribute("open", "");
-  await expect(page.locator("details[data-class]")).toHaveCount(1);
+  // their one class is the table, and the Class filter says so
+  await expect(page.getByRole("table", { name: `Each child · ${SECTION}` })).toBeVisible();
+  await expect(page.getByRole("search").getByLabel("Class")).toHaveValue(SECTION);
   await page.context().close();
 });
 
@@ -194,35 +194,31 @@ test("Marking says in one sentence what waits, and each child is one line with t
     "3 papers in: 5 answers settled by the engine, 0 checked by a person, 2 waiting for you to check; 2 papers to sign off.",
   );
   await expect(page.locator("[data-ux=action]").getByRole("link", { name: /^check 2 answers/i })).toHaveAttribute("href", "/capture/check");
-  const table = klass(page).getByRole("table", { name: `${SECTION}: each child` });
+  const table = page.getByRole("table", { name: `Each child · ${SECTION}` });
   await expect(table).toBeVisible();
-  await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Paper", "Waiting", "Next step"]);
+  await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Paper", "Waiting", "Status", "Next step"]);
   expect(await names(table.locator("tbody tr"))).toEqual(["Asha", "Bina", "Dev"]);
   const cells = (who: string) => table.locator("tbody tr").filter({ hasText: who }).locator("td");
   await expect(cells("Asha").nth(2).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.asha.id}`);
   await expect(cells("Asha").nth(2)).toHaveText(sheet.asha.title);
   await expect(cells("Asha").nth(3)).toHaveText("2");
-  await expect(cells("Asha").nth(4).getByRole("link")).toHaveText("Check 2 answers →");
-  await expect(cells("Asha").nth(4).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.asha.id}`);
+  await expect(cells("Asha").nth(5).getByRole("link")).toHaveText("Check 2 answers →");
+  await expect(cells("Asha").nth(5).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.asha.id}`);
   await expect(cells("Bina").nth(3)).toHaveText("—");
-  await expect(cells("Bina").nth(4).getByRole("link")).toHaveText("Sign off →");
-  await expect(cells("Bina").nth(4).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.bina.id}`);
-  await expect(cells("Dev").nth(4)).toHaveText("Signed off");
-  await expect(cells("Dev").nth(4).getByRole("link")).toHaveCount(0);
+  await expect(cells("Bina").nth(5).getByRole("link")).toHaveText("Sign off →");
+  await expect(cells("Bina").nth(5).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.bina.id}`);
+  await expect(cells("Dev").nth(4)).toContainText("signed off");
+  await expect(cells("Dev").nth(5).getByRole("link")).toHaveCount(0);
   await page.context().close();
 });
 
-test("the coordinator sees each class as one closed line saying what waits in it", async ({ page }) => {
+test("the coordinator sees each class as its own table, and one class paged when it is chosen", async ({ page }) => {
   await page.goto("/capture");
-  await expect(klass(page)).toBeAttached();
-  await expect(klass(page)).not.toHaveAttribute("open", "");
-  const line = klass(page).locator("> summary");
-  await expect(line).toContainText(SECTION);
-  await expect(line).toContainText(/3 children\b.*2 answers to check\b.*2 papers to sign off\b/);
-  await line.click();
-  await expect(klass(page).getByRole("table", { name: `${SECTION}: each child` })).toBeVisible();
-  // a class chosen opens where it is
+  await expect(page.getByRole("table", { name: `Each child · ${SECTION}` })).toBeAttached();
+  await expect(page.getByRole("region", { name: SECTION })).toBeAttached();
+  // a class chosen opens where it is, in the filter row
   await page.goto(`/capture?class=${SECTION}`);
-  await expect(klass(page)).toHaveAttribute("open", "");
-  await expect(page.locator("details[data-class][open]")).toHaveCount(1);
+  await expect(page.locator("[data-active-filters]")).toContainText(`Class: ${SECTION}`);
+  await expect(page.getByRole("table", { name: `Each child · ${SECTION}` })).toBeVisible();
+  await expect(page.getByRole("table", { name: /^Each child/ })).toHaveCount(1);
 });

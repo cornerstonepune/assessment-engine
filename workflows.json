@@ -182,7 +182,6 @@
     "frozen": {
       "/": ["filter", "shell", "status", "table", "taglist"],
       "/asks": ["purpose", "shell", "taglist"],
-      "/capture": ["filter", "status", "table", "taglist"],
       "/capture/[id]": ["shell", "status", "taglist"],
       "/growth": ["filter", "shell", "status", "table"],
       "/growth/[id]": ["filter", "shell", "status", "table", "taglist"],

@@ -1,0 +1,30 @@
+name: uxn8-marking
+goal: >
+  Marking (Monday: where every answer on the papers that came back stands) is on the shared blocks. By child, by class
+  and by worksheet are tables with a status chip, chosen and narrowed in one filter row (show, class, status); the
+  children of a class are paged and a class's own children are the educator's own default. The papers of a child or a
+  worksheet are a table with a status chip. How the reader is doing sits behind a fold for the people who build it, as
+  one table whose view is a choice in its filter row. What every count says is unchanged. No migration.
+# Written 2026-10-23 (night), before the code.
+says:
+  - words: "for teachers, in most of the places, can we use tables instead of a lot of places where the tags ... are never aligned"
+    proved_by: "apps/web/tests/u3-marking.spec.ts::by class, by child and by worksheet, each count is where the engine says each answer stands"
+  - words: "use icons or red, amber, green in places that make it easier for people to navigate? Use filters wherever possible."
+    proved_by: "apps/web/tests/u3-marking.spec.ts::a paper shows its score once nothing on it waits"
+  - words: "is there just one view that we can have? It simply shows just one table, which can have a toggle around confidence levels"
+    proved_by: "apps/web/tests/u10-tables-read-straight.spec.ts::how the reader is doing is one table, by day first, by kind or by how sure at a choice in the filter row"
+manual: []
+scenarios: []
+criteria:
+  - name: the rules and the ratchet hold
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_ux_rules.py tests/test_ratchet.py tests/test_layout.py -q -p no:cacheprovider -o addopts=
+    expect: "passed"
+  - name: the marking pages, rendered
+    run: cd apps/web && npx playwright test tests/u3-marking.spec.ts tests/u10-tables-read-straight.spec.ts tests/u38-make-and-marking.spec.ts tests/s4-validation-queue.spec.ts tests/u45-papers-named.spec.ts tests/u51-ux-rules.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
