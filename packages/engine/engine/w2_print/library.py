@@ -142,6 +142,7 @@ def _levels(conn, only=None):
         " from skill s"
         " join skill_level l on l.tenant_id = s.tenant_id and l.skill_code = s.code"
         " where (%s::text is null or s.code = %s) and (%s::text is null or l.difficulty = %s)"
+        "   and l.rule ? 'check'"  # worksheets are made from the bank, which a level with no check has none of (English, E0)
         " order by s.ladder_order nulls last, s.code, l.difficulty",
         (code, code, difficulty, difficulty),
     ).fetchall()

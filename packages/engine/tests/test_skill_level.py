@@ -124,7 +124,7 @@ def test_the_generator_draws_the_same_questions_from_the_rows_as_from_the_blob(c
     """For every skill and level, the generator's draw on one seed from the rows is the draw from the blob — and the
     draw is real: a level with a different rule draws different questions on the same seed."""
     report = check.compare(conn, draws=4)
-    assert report["drawn"] == report["levels"], "a level drew nothing to compare"
+    assert report["drawn"] == report["drawable"], "a level drew nothing to compare"
     assert report["disagree"] == [], report["disagree"][:5]
     s = spec.row(conn, SKILL)
     easy, hard = s["difficulty"]["Easy"]["check"], s["difficulty"]["Hard"]["check"]

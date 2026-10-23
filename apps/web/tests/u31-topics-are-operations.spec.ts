@@ -39,8 +39,8 @@ test.afterAll(async () => {
 
 test("curriculum lists the six topics, and a class's skills each with its own switch", async ({ page }) => {
   await aClass(sql, CLASS, "G3", ["Ruhi", "Sam"]);
-  const topics = (await sql<{ name: string }[]>`select name from topic order by ord`).map((t) => t.name);
-  expect(topics, "six topics, by operation").toEqual(SIX);
+  const topics = (await sql<{ name: string }[]>`select name from topic where subject_code = 'NUM' order by ord`).map((t) => t.name);
+  expect(topics, "the maths has six topics, by operation").toEqual(SIX);
   const said = (skill: string) =>
     sql<{ t: boolean }[]>`select skill_taught_in(tenant_id, ${skill}, ${CLASS}) as t from skill where code = ${skill}`;
   expect((await said("MUL.2D1D"))[0].t, "column multiplication waits for an educator's word").toBe(false);

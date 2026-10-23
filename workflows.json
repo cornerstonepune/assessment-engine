@@ -200,7 +200,7 @@
       "/papers/approve": ["shell", "table"],
       "/papers/make": ["purpose", "shell", "table"],
       "/refused": ["shell"],
-      "/skill-sets/[code]": ["purpose", "shell", "table"],
+      "/skill-sets/[code]": ["shell", "table"],
       "/skill-sets/[code]/edit": ["shell"],
       "/skill-sets/approve": ["purpose", "shell", "table"],
       "/workflows": ["purpose", "shell"],
