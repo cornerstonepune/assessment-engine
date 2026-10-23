@@ -73,6 +73,7 @@ export async function AssessmentsTable({
               <td className="num fact whitespace-nowrap max-md:hidden">
                 {a.copies}
                 {a.spares ? <span className="block text-[11.5px] text-basalt/55">and {a.spares} spare</span> : null}
+                {a.extras ? <span className="block text-[11.5px] text-basalt/55">and {a.extras} extra</span> : null}
               </td>
               <td>
                 <span data-testid="stage-on-row" className="flex flex-wrap gap-1">
