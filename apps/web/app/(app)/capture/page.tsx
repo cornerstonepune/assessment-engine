@@ -1,5 +1,5 @@
 import Link from "@/components/link";
-import { Body, PageHeader } from "@/components/shell";
+import { PageShell } from "@/components/page-shell";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { papersToApprove, readerReport } from "@/lib/queries-read";
@@ -34,13 +34,23 @@ export default async function MarkingPage({ searchParams }: Props) {
   const all = standing(papers);
 
   return (
-    <>
-      <PageHeader
-        stage="Upload papers"
-        title="Upload papers"
-        sub="Papers in, and where every answer on them stands: settled by the engine, checked by a person, or still waiting. Check what waits one answer at a time; sign a child's papers off to build their graph."
-      />
-      <Body>
+    <PageShell
+      stage="Upload papers"
+      title="Upload papers"
+      purpose="Papers in, and where every answer on them stands: settled by the engine, checked by a person, or still waiting."
+      action={
+        all.waiting ? (
+          <Link href="/capture/check" className="btn">
+            Check {all.waiting} {all.waiting === 1 ? "answer" : "answers"} →
+          </Link>
+        ) : (
+          <Link href="/capture/check" className="btn secondary">
+            Check answers
+          </Link>
+        )
+      }
+      next={{ href: "/growth", label: "Class results" }}
+    >
         {/* the upload box at the top (goals/s2-the-assessment-card.yaml) */}
         <div className="mb-[18px] grid min-w-0">
           <ReadScan from="/capture" read={q.read} why={q.why} pages={q.pages} scans={scans} />
@@ -52,11 +62,6 @@ export default async function MarkingPage({ searchParams }: Props) {
             <N id="waiting" n={all.waiting} /> waiting for you to check; <N id="to-sign" n={all.toSign} />{" "}
             {all.toSign === 1 ? "paper" : "papers"} to sign off.
           </p>
-          {all.waiting ? (
-            <Link href="/capture/check" className="btn md:ml-auto">
-              Check them →
-            </Link>
-          ) : null}
         </section>
 
         <nav aria-label="Read marking" className="mb-[18px] flex flex-wrap gap-2">
@@ -79,7 +84,6 @@ export default async function MarkingPage({ searchParams }: Props) {
           <ReaderPanel r={reader} />
           <NothingRead papers={papers} />
         </div>
-      </Body>
-    </>
+    </PageShell>
   );
 }

@@ -193,7 +193,7 @@ test("Marking says in one sentence what waits, and each child is one line with t
   await expect(top).toContainText(
     "3 papers in: 5 answers settled by the engine, 0 checked by a person, 2 waiting for you to check; 2 papers to sign off.",
   );
-  await expect(top.getByRole("link", { name: /check them/i })).toHaveAttribute("href", "/capture/check");
+  await expect(page.locator("[data-ux=action]").getByRole("link", { name: /^check 2 answers/i })).toHaveAttribute("href", "/capture/check");
   const table = klass(page).getByRole("table", { name: `${SECTION}: each child` });
   await expect(table).toBeVisible();
   await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Paper", "Waiting", "Next step"]);

@@ -62,3 +62,19 @@ the page then picks the first again.
 - Left alone on purpose: `/home` (a page for a later workflow, BUILD-ORDER), `/make/custom`, `/make/[section]/week`.
 
 **Handoff**: `/make/custom` and the week page are still off the blocks (`ux.frozen`).
+
+## Upload papers (`/capture`, first half) — goals/uxn6-upload-papers.yaml
+
+**Verified**
+- `/capture` is on `PageShell`: title and one line, the upload box first, "Check N answers →" the one main action, next step
+  "Class results". The files read last are one table (file, read on, pages, copies read, answers, settled by the engine,
+  checked by a person, waiting, a status chip: reading now / to check / done / reading stopped, "Read again"); under a row, what
+  a person must act on (pages given, pages with no code, what the file lacks) keeps its own lists. Same table on Assessments
+  and the assessment card, which use the same upload box.
+- Off `ux.frozen` for `/capture`: `shell`, `purpose`. Still listed: `filter`, `status`, `table`, `taglist` (the marking
+  views and the reader's table, the next slice).
+- Specs changed only for the new shape: `u41`, `u44`, `u48`, `u51-read-an-uploaded-file-again` (the file's row and its cells),
+  `u3`, `u38` (the check link is the page's action).
+
+**Handoff**: the marking views and the reader's statistics on `/capture` (`views.tsx`, `parts.tsx`, `reader-table.tsx`) are
+hand-built tables and chips: next slice.

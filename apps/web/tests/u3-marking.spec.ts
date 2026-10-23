@@ -156,7 +156,7 @@ test("marking is one area, and says how many papers are in and where every answe
   expect(await shown(page.getByRole("region", { name: "Answers to check" }))).toEqual(await counts());
 
   // checking answers is inside Marking, not a page of its own
-  await page.getByRole("link", { name: /check them/i }).click();
+  await page.getByRole("link", { name: /^check \d+ answers/i }).click();
   await expect(page).toHaveURL(/\/capture\/check/);
   await expect(menu.getByRole("link", { name: "Check answers" })).toHaveAttribute("aria-current", "page");
   await page.getByRole("link", { name: "← Upload papers" }).click();
@@ -207,7 +207,7 @@ test("the queue of answers to check sits inside marking with its count, one clic
   await page.goto("/capture");
   const queue = page.getByRole("region", { name: "Answers to check" });
   await expect(queue.getByTestId("waiting")).toHaveText(String(n));
-  await queue.getByRole("link", { name: /check them/i }).click();
+  await page.locator("[data-ux=action]").getByRole("link", { name: /^check \d+ answers/i }).click();
   await expect(page.getByText(`${n} answers left to check`)).toBeVisible();
 });
 
