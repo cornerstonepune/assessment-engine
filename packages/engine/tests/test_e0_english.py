@@ -102,10 +102,12 @@ def test_an_unapproved_english_kind_or_level_is_never_drawn(conn):
     conn.execute(
         "update skill_level set confirmed_by = null, confirmed_at = null where skill_code = %s", (skill,)
     )
+    # Every question names its registry skill (C1); no English skill is linked to the registry yet, so no real English
+    # question can be written: this one names the registry's own spelling rule, as one will.
     conn.execute(
-        "insert into item (tenant_id, item_key, template, rung_code, signal, fmt, spec, responses, skill_set_code,"
-        " difficulty, status, source) values (%s, 'E0.TEST.1', %s, %s, 'Foundational', %s, '{}', '[]', %s, %s,"
-        " 'active', 'generated')",
+        "insert into item (tenant_id, item_key, template, rung_code, skill_codes, signal, fmt, spec, responses,"
+        " skill_set_code, difficulty, status, source) values (%s, 'E0.TEST.1', %s, %s, '{LIT.GRM.04}', 'Foundational',"
+        " %s, '{}', '[]', %s, %s, 'active', 'generated')",
         (tenant, kind, skill, kind, skill, level),
     )
 
@@ -160,16 +162,15 @@ def test_the_maths_is_exactly_as_it_was(conn):
 
 
 def test_a_question_type_written_later_does_not_take_the_englishes_links_for_good(conn):
-    """Writing a question type clears every level's links to be made again from the bank (B2's trigger), and the bank
-    holds no English question: the links are put back by every load, which this proves is enough."""
+    """Writing a question type re-makes only the links the bank holds (C1); the bank holds no English question, so the
+    curriculum's English links stay, with no load to put them back."""
     tenant = one(conn, "select id from tenant limit 1")
+    assert one(conn, "select count(*) from skill_level_question_type where skill_code like 'EN%'") == 833
     conn.execute(
         "insert into question_type (tenant_id, code, fmt, words, marked) values (%s, 'TEST.E0', 'TEST.E0', 'x',"
         " array['closed_set']::eval_type[])",
         (tenant,),
     )
-    assert one(conn, "select count(*) from skill_level_question_type where skill_code like 'EN%'") == 0
-    english.level_kinds(conn, tenant)
     assert one(conn, "select count(*) from skill_level_question_type where skill_code like 'EN%'") == 833
 
 
