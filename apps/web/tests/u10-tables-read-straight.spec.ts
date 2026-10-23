@@ -90,8 +90,6 @@ test("every heading sits over its own column, on every page with a table", async
     expect(await offColumn(page), path).toEqual([]);
   }
   // the reader's table, in each of its views
-  await page.goto("/capture");
-  const panel = page.getByRole("region", { name: "How the reader is doing" });
   for (const view of ["kind", "sure"]) {
     await page.goto(`/capture?reader=${view}`);
     expect(await offColumn(page), view).toEqual([]);
