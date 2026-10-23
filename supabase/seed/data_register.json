@@ -1,0 +1,69 @@
+{
+  "_note": "C6 (goals/c6-consent-and-data-register.yaml): what the school keeps about a child, why, how long and who sees it, in a parent's words; one entry for each kind of thing kept, naming the tables that hold it (tests/test_data_register.py fails if a table holding a child's data is in no entry). A draft for a lawyer to check against India's Digital Personal Data Protection Act, 2023 before any parent reads it. How long anything is kept after a child leaves is for the school to decide; until it does, the words say so.",
+  "data_register": [
+    {
+      "code": "name",
+      "what": "Your child's name, and the languages spoken at home.",
+      "why": "So your child's educators know whose work is whose. The name is kept apart from everything else, and is never sent to the computer service that reads handwriting.",
+      "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
+      "who_sees": "Your child's educators and the school's coordinator.",
+      "tables": ["pii.child"]
+    },
+    {
+      "code": "class",
+      "what": "Your child's class, section and roll number.",
+      "why": "So your child's papers reach them, and their work is shown with their class.",
+      "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
+      "who_sees": "Your child's educators and the school's coordinator.",
+      "tables": ["public.child"]
+    },
+    {
+      "code": "papers",
+      "what": "The papers your child is given and writes on, and the scans or photos of them.",
+      "why": "So each answer can be read and checked, and the next paper fits what your child is ready for.",
+      "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
+      "who_sees": "Your child's educators and the school's coordinator. A computer service reads the handwriting on a scan; it is given the picture of the page, never your child's name.",
+      "tables": ["public.sheet_template", "public.sheet_instance", "public.capture", "public.prescription", "public.home_sheet", "public.item_exposure"]
+    },
+    {
+      "code": "answers",
+      "what": "Each of your child's answers as it was read, how it was marked, and any correction an educator made.",
+      "why": "So marking is checked by a person, and a mistake in reading is put right rather than counted against your child.",
+      "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
+      "who_sees": "Your child's educators and the school's coordinator.",
+      "tables": ["public.item_result", "public.read_correction", "public.gold_finding", "public.child_reading_profile"]
+    },
+    {
+      "code": "learning",
+      "what": "What your child's answers, and what an educator saw, show they can do, skill by skill.",
+      "why": "So your child's educators know what to teach next. A record is kept as it was written; a correction is added beside it, never in its place.",
+      "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
+      "who_sees": "Your child's educators and the school's coordinator.",
+      "tables": ["public.evidence_event", "public.child_skill_state"]
+    },
+    {
+      "code": "reports",
+      "what": "The reports written for you about your child, and who approved them.",
+      "why": "So what reaches you has been read and approved by two people at the school.",
+      "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
+      "who_sees": "You, your child's educators and the school's coordinator.",
+      "tables": ["public.parent_note"]
+    },
+    {
+      "code": "who_looked",
+      "what": "Which member of staff opened your child's page, and when.",
+      "why": "So the school can see who has looked at your child's information.",
+      "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
+      "who_sees": "The school's coordinator.",
+      "tables": ["public.access_log"]
+    },
+    {
+      "code": "consent",
+      "what": "Whether you agreed to this register, or withdrew, when, and who at the school recorded it.",
+      "why": "So the school keeps only what you agreed to, and can show it.",
+      "how_long": "While your child is at the school, and as long as the school keeps anything else on this list.",
+      "who_sees": "The school's coordinator.",
+      "tables": ["public.consent"]
+    }
+  ]
+}

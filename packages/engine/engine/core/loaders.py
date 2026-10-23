@@ -8,7 +8,7 @@ registry cannot be trusted as the thing every assessment result joins to.
 import json
 from typing import Any, LiteralString
 
-from engine.core import asks, db, english, question_formats, settings, topics, vocabulary
+from engine.core import asks, db, english, question_formats, register, settings, topics, vocabulary
 
 SEED = settings.SEED
 
@@ -347,21 +347,11 @@ def _subjects(conn: db.Conn, t: db.Id) -> None:
         )
 
 
-def _prerequisites(conn: db.Conn, t: db.Id) -> None:
-    """What comes before each skill, drafted from the seed once: only while the school has none. After that the rows are
-    a person's, and a prerequisite they removed is never put back (B3-3, ADR 0092)."""
-    conn.execute(
-        "insert into skill_prerequisite (tenant_id, skill_code, before_code)"
-        " select %s, x.skill, x.after from jsonb_to_recordset(%s::jsonb) x(skill text, after text)"
-        " where not exists (select 1 from skill_prerequisite p where p.tenant_id = %s)",
-        (t, json.dumps(settings.seed("skill_prerequisites.json", "skill_prerequisites")), t),
-    )
-
-
 def load_all() -> dict[str, int]:
     with db.connect() as conn:
         t = _tenant(conn)
         vocabulary.load(conn, t, settings.seed)
+        register.load(conn, t, settings.seed)
         for step in (
             _registry,
             _levels,
@@ -382,8 +372,10 @@ def load_all() -> dict[str, int]:
         english.level_kinds(conn, t)
         question_formats.load(conn, t, settings.seed)
         asks.load(conn, t, settings.seed)
-        _prerequisites(conn, t)
+        topics.prerequisites(conn, t, settings.seed)
         english.prerequisites(conn, t)
+        # a school's first load is its curriculum's version 1, once it has skills (C3); later loads leave versions alone
+        conn.execute("select curriculum_begins(%s)", (t,))
         conn.commit()
         return db.counts(conn, FILLED_TABLES)
 
