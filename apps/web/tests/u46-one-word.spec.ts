@@ -107,7 +107,8 @@ test("one word for one thing: a state by its own words, a skill as a skill, a co
   const names = main.getByRole("link", { name: "Asha", exact: true });
   const colour = (l: typeof names) => l.evaluate((el) => getComputedStyle(el).color);
   expect(await colour(names.first())).toBe(await colour(names.last()));
-  const against = main.getByRole("link", { name: new RegExp(`${SECTION} against every skill`) });
+  await page.goto(`/growth?class=${SECTION}`);
+  const against = page.locator("main").getByRole("link", { name: "Against every skill →" });
   expect(await colour(against), "the all-skills link is quieter than a name").not.toBe(await colour(names.last()));
   await page.goto(`/growth/${kids.Asha}/report`);
   await expect(page.locator("main")).toContainText("on this map assessed");
