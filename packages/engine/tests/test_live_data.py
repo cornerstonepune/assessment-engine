@@ -32,6 +32,7 @@ def _answer_on(conn, rung):
         "insert into tenant (slug, name) values (%s, 't') returning id", (f"t-{uuid.uuid4()}",)
     )
     tenant = tenant.fetchone()["id"]
+    rows.a_registry_skill(conn, tenant)  # evidence names a registry skill of its school (C2)
     child = conn.execute(
         "insert into child (tenant_id, roll_no, band, section) values (%s, '1', 'G2', 'G2') returning id",
         (tenant,),

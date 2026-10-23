@@ -1,4 +1,5 @@
-"""The school's words as rows (ADR 0084): its grades, the four levels and the states of a child's map, from
+"""The school's words as rows (ADR 0084): its grades, the four levels, the states of a child's map and the kinds of
+evidence with the scale each is marked on (C2), from
 supabase/seed/vocabulary.json, each list in its order. A topic's subject, a question's level and a child's state are
 keys into these tables, so a word is a row before anything may use it, and adding one is an insert.
 
@@ -54,6 +55,26 @@ def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
                 s["card_group"],
                 s["why"],
             ),
+        )
+    for sc in seed("vocabulary.json", "evidence_scales"):
+        conn.execute(
+            "insert into evidence_scale (tenant_id, code, words) values (%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set words=excluded.words, updated_at=now()",
+            (tenant, sc["code"], sc["words"]),
+        )
+        for i, m in enumerate(sc["marks"]):
+            conn.execute(
+                "insert into evidence_mark (tenant_id, scale, code, ord, words, correct) values (%s,%s,%s,%s,%s,%s)"
+                " on conflict (tenant_id, scale, code) do update set ord=excluded.ord, words=excluded.words,"
+                " correct=excluded.correct, updated_at=now()",
+                (tenant, sc["code"], m["code"], i, m["words"], m["correct"]),
+            )
+    for i, k in enumerate(seed("vocabulary.json", "evidence_kinds")):
+        conn.execute(
+            "insert into evidence_kind (tenant_id, code, ord, words, scale) values (%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set ord=excluded.ord, words=excluded.words,"
+            " scale=excluded.scale, updated_at=now()",
+            (tenant, k["code"], i, k["words"], k["scale"]),
         )
 
 

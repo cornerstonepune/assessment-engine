@@ -102,6 +102,11 @@ jobs:
           bin/engine past | tee /tmp/past.migrated && diff /tmp/past.before /tmp/past.migrated
           # the questions and the levels too (C1 on); update-live below then writes the bank, as it is meant to
           bin/engine past --curriculum | tee /tmp/curriculum.migrated && diff /tmp/curriculum.before /tmp/curriculum.migrated
+      - name: "C2 measured: evidence by kind and mark, and past rows naming no registry skill (counts, no names)"
+        run: |
+          psql "$COPY" -c "select kind, mark, count(*) from evidence_event group by 1, 2 order by 1, 2"
+          psql "$COPY" -c "select count(*) as past_rows_naming_no_registry_skill from evidence_event e where not exists
+            (select 1 from registry_skill r where r.tenant_id = e.tenant_id and r.code = e.skill_code)"
       - name: before, on the copy
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: bin/engine live data --url "$COPY" || true

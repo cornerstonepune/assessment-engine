@@ -36,5 +36,25 @@
     {"code": "amber", "words": "practising", "count_words": "practising"},
     {"code": "green", "words": "got it", "count_words": "secure"},
     {"code": "grey", "words": "not enough yet", "count_words": "too few answers"}
+  ],
+  "_evidence_note": "C2 (goals/c2-one-evidence-record-for-every-kind.yaml): every kind of evidence and the scale it is marked on. A scale's marks are in their order; correct is what the maths graph reads for an answer (right true, wrong false, blank none: three signals, never two); a mark on the seen scale is never right or wrong. The migration 20261205090000 inserts these same rows for every school; tests/test_evidence_every_kind.py keeps them equal.",
+  "evidence_scales": [
+    {"code": "answer", "words": "right, wrong or blank", "marks": [
+      {"code": "right", "words": "right", "correct": true},
+      {"code": "wrong", "words": "wrong", "correct": false},
+      {"code": "blank", "words": "blank", "correct": null}
+    ]},
+    {"code": "seen", "words": "yes, sometimes or not yet", "marks": [
+      {"code": "yes", "words": "yes", "correct": null},
+      {"code": "sometimes", "words": "sometimes", "correct": null},
+      {"code": "not_yet", "words": "not yet", "correct": null}
+    ]}
+  ],
+  "evidence_kinds": [
+    {"code": "written", "words": "written", "scale": "answer"},
+    {"code": "observed", "words": "observed", "scale": "seen"},
+    {"code": "voice", "words": "voice", "scale": "answer"},
+    {"code": "project", "words": "project", "scale": "seen"},
+    {"code": "performance", "words": "performance", "scale": "seen"}
   ]
 }

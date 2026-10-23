@@ -1,0 +1,36 @@
+name: c3-the-curriculum-in-numbered-versions
+goal: >
+  The curriculum is published as numbered versions: each publish records every skill at its version, who published
+  it and the Monday it takes effect, the week after it was published by the school's own clock. Every new scored answer
+  and evidence record names the version in force when it was written, and an edit published this week leaves this
+  week's results on the version before it. Version 1 is the curriculum as it stood; past rows are not touched, and a
+  published version is never edited.
+# Written 2026-10-22, from BUILD-ORDER's locked scope of 22 Oct (slice C3, "Green means"). A skill already kept its own
+# history (`skill_set_version`, `skill.version`); what was missing was the curriculum as a whole at a moment, and a
+# result saying which one it was judged under. Which screen publishes (the Curriculum page with versions) is S6.
+says:
+  - words: "the curriculum published as numbered versions"
+    proved_by: "packages/engine/tests/test_curriculum_versions.py::test_version_one_is_the_curriculum_as_it_stands"
+  - words: "the curriculum published as numbered versions"
+    proved_by: "packages/engine/tests/test_curriculum_versions.py::test_publishing_numbers_the_next_version_from_the_next_monday"
+  - words: "the curriculum published as numbered versions"
+    proved_by: "packages/engine/tests/test_curriculum_versions.py::test_a_published_version_is_never_edited"
+  - words: "every new result names its version"
+    proved_by: "packages/engine/tests/test_curriculum_versions.py::test_every_new_result_names_its_version"
+  - words: "an edit takes effect from the next week"
+    proved_by: "packages/engine/tests/test_curriculum_versions.py::test_an_edit_takes_effect_from_the_next_week"
+  - words: "nothing will change for any of the past assessments, scoring etc. right?"
+    proved_by: "packages/engine/tests/test_curriculum_versions.py::test_past_results_are_the_same_before_and_after"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive; `engine past` prints the same evidence, states, scored answers, questions and levels before and after, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: the curriculum in numbered versions, results naming theirs
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_curriculum_versions.py tests/test_evidence_every_kind.py tests/test_rules.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
