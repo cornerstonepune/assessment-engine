@@ -30,7 +30,18 @@ from engine.api.models import (
     ReadFileResponse,
     TrustedResponse,
 )
-from engine.w3_read import again, copy_scores, inbox, keys, legacy, marking, naming, profiles, same_page, whose_paper
+from engine.w3_read import (
+    again,
+    copy_scores,
+    inbox,
+    keys,
+    legacy,
+    marking,
+    naming,
+    profiles,
+    same_page,
+    whose_paper,
+)
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
