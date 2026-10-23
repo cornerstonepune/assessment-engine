@@ -178,6 +178,21 @@ test("Check answers is built on the blocks: one main action, its next step, one 
   await page.context().close();
 });
 
+test("Check answers lists what is left to check as one table with its filter row", async ({ browser }) => {
+  const page = await (await browser.newContext({ storageState: SIGNED_IN })).newPage();
+  await open(page, `/capture/check?id=${answer}`);
+  const table = page.getByRole("table", { name: "Left to check" });
+  await expect(table.locator("thead th")).toHaveText(["#", "Class", "Roll", "Paper", "Question", "Status", ""]);
+  expect(await table.locator("tbody tr").count()).toBeGreaterThan(0);
+  await expect(table.locator("tbody tr").first().locator("[data-status]")).toBeVisible();
+  await expect(page.locator("[data-filterbar]")).toBeVisible();
+  // a status narrows it, and the answer in hand stays where it is
+  await page.goto(`/capture/check?id=${answer}&why=spot`);
+  await expect(page.locator("[data-active-filters]")).toContainText("Status: Spot-check");
+  for (const chip of await page.getByRole("table", { name: "Left to check" }).locator("tbody [data-status]").all()) await expect(chip).toHaveAttribute("data-status", "spot");
+  await page.context().close();
+});
+
 test("on a phone the main action of Check answers is a thumb's size", async ({ browser }) => {
   const page = await (await browser.newContext({ storageState: SIGNED_IN, viewport: PHONE })).newPage();
   await open(page, `/capture/check?id=${answer}`);

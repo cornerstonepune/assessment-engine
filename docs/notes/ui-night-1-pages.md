@@ -78,3 +78,11 @@ the page then picks the first again.
 
 **Handoff**: the marking views and the reader's statistics on `/capture` (`views.tsx`, `parts.tsx`, `reader-table.tsx`) are
 hand-built tables and chips: next slice.
+
+## Check answers (`/capture/check`) — goals/uxn7-check-answers.yaml
+
+**Verified**
+- Already on the blocks (one action, one next step, one count). Added what a person looks for: what is left to check as one
+  table under the answer in hand (place in the queue, class, roll, paper, question, status chip), with a filter row (class,
+  status) that keeps the answer in hand; "Check this" opens that answer. By class and roll number, never a name.
+- Spec added: `u51` "Check answers lists what is left to check as one table with its filter row".
