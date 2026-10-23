@@ -85,7 +85,7 @@ test("an educator's pages open on their own class, every class one tap away and 
       page.getByRole("search", { name: "Subject, class and search" }).getByLabel("Class").selectOption("every"),
     ]);
     await page.waitForLoadState("networkidle");
-    await page.goto("/growth");
+    await page.goto(`/growth?class=${OTHER}`);
     await expect(page.getByRole("main")).toContainText(OTHER);
     await page.goto("/papers/make");
     expect((await page.getByLabel("Choose a class").locator("option").allTextContents()).join(" ")).toContain(OTHER);
@@ -97,8 +97,9 @@ test("an educator's pages open on their own class, every class one tap away and 
 test("the coordinator sees every class", async ({ page }) => {
   await page.goto("/today");
   await expect(page.getByRole("main")).toContainText(OTHER);
-  await page.goto("/growth");
+  await page.goto(`/growth?class=${MINE}`);
   await expect(page.getByRole("main")).toContainText("Aarav");
+  await page.goto(`/growth?class=${OTHER}`);
   await expect(page.getByRole("main")).toContainText("Chirag");
   await page.goto(`/growth/class/${OTHER}`);
   await expect(page.getByRole("main")).not.toContainText("not one of your classes");
@@ -107,9 +108,9 @@ test("the coordinator sees every class", async ({ page }) => {
 test("an educator linked to no class sees every class", async ({ browser }) => {
   const page = await signedIn(browser, UNLINKED.email);
   try {
+    // every class is on the list: each can be chosen in the filter row
     await page.goto("/growth");
-    await expect(page.getByRole("main")).toContainText(MINE);
-    await expect(page.getByRole("main")).toContainText(OTHER);
+    for (const c of [MINE, OTHER]) await expect(page.locator("[data-filterbar] select[name=class] option", { hasText: c })).toHaveCount(1);
   } finally {
     await page.context().close();
   }

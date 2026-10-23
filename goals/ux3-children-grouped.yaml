@@ -15,9 +15,9 @@ goal: >
 # grade; at 400 px "Needs help on" began at x = 312 of 400.
 says:
   - words: "It should be teacher-specific and all of those things."
-    proved_by: "apps/web/tests/u35-children-grouped.spec.ts::an educator sees each of their classes open, and no other"
+    proved_by: "apps/web/tests/u35-children-grouped.spec.ts::an educator sees their own class as a table of its children, and no other"
   - words: "All these things should be expandable and collapsible."
-    proved_by: "apps/web/tests/u35-children-grouped.spec.ts::the coordinator sees every class closed under its grade, says what waits in each, and opens it in place"
+    proved_by: "apps/web/tests/u35-children-grouped.spec.ts::the coordinator sees every class in one table, says what waits in each, and opens it with a click"
   - words: "They should have the right set of columns which are important."
     proved_by: "apps/web/tests/u35-children-grouped.spec.ts::a class's table has the columns that matter, children who need help first"
   - words: "Most of the pages just have a long list for no reason."

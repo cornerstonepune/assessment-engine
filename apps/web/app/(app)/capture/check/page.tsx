@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { Count } from "@/components/count";
 import { EmptyState } from "@/components/empty-state";
+import { FilterBar } from "@/components/filter-bar";
 import { PageShell } from "@/components/page-shell";
 import { Bar, Notice, Panel } from "@/components/shell";
 import { DataTable } from "@/components/data-table";
@@ -8,9 +9,10 @@ import { StatusChip } from "@/components/status-chip";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
-import { checkItem, checkQueue, held, toJudge, type CheckItem } from "@/lib/queries-read";
+import { checkItem, checkList, checkQueue, held, toJudge, type CheckItem } from "@/lib/queries-read";
 import { EngineDown, engineGet } from "@/lib/engine";
 import { Confirm, Judge, Nothing, TypeIt } from "./answer";
+import { QueueTable, type QueueRow } from "./queue-table";
 import { ZoomPage } from "./zoom-page";
 import { PageProof, type Proof } from "./proof";
 import type { Key } from "../[id]/card";
@@ -101,11 +103,20 @@ export default async function CheckAnswers({ searchParams }: Props) {
   const next = `/capture/check?from=${from}`;
   const box = a?.box?.length === 4 && a.answer_state !== "not_found" ? `?box=${a.box.join(",")}` : "";
 
+  // what is left, in the queue's order, narrowed by class and by why it is here (goals/uxn7-check-answers.yaml)
+  const lines: QueueRow[] = (await deadline(checkList(queue))).map((l, i) => ({ ...l, at: i + 1 }));
+  const classes = [...new Set(lines.map((l) => l.section))].sort();
+  const section = q.class && classes.includes(q.class) ? q.class : undefined;
+  const why = q.why === "spot" || q.why === "check" ? q.why : undefined;
+  const shown = lines.filter((l) => (!section || l.section === section) && (!why || (why === "spot") === l.spot));
+  const page = Math.max(1, Math.floor(Number(q.page)) || 1);
+  const pageHref = (n: number) => `/capture/check?${new URLSearchParams({ ...(entry ? { id: entry.id } : {}), ...(section ? { class: section } : {}), ...(why ? { why } : {}), page: String(n) })}`;
+
   const says = entry?.spot ? (a?.read ?? "") : (a?.guess ?? "");
   return (
     <PageShell
-      stage="Assessments · check answers"
-      title="Check the answers"
+      stage="Check answers"
+      title="Check answers"
       purpose="Every answer the engine was not sure of, one at a time, with the child's own writing. Say what the child wrote; the engine marks it."
       action={
       <div className="grid gap-2">
@@ -124,7 +135,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
     >
       <p className="mb-4">
         <Link href="/capture" className="text-[13px]">
-          ← Marking
+          ← Upload papers
         </Link>
       </p>
       {q.error === "engine" ? (
@@ -231,6 +242,23 @@ export default async function CheckAnswers({ searchParams }: Props) {
           </div>
         </Panel>
       )}
+
+      {lines.length ? (
+        <section aria-label="Left to check" className="mt-[18px]">
+          <h2 className="label mb-2">Left to check · {shown.length === lines.length ? lines.length : `${shown.length} of ${lines.length}`}</h2>
+          <FilterBar
+            action="/capture/check"
+            keep={{ id: entry?.id }}
+            filters={[
+              { name: "class", label: "Class", value: section, all: "Every class", options: classes.map((c) => [c, c] as const) },
+              { name: "why", label: "Status", value: why, all: "Any status", options: [["check", "To check"], ["spot", "Spot-check"]] },
+            ]}
+          />
+          <QueueTable rows={shown} page={page} pageHref={pageHref} />
+          {shown.length === 0 ? <p className="note mt-2">Nothing matches these filters.</p> : null}
+        </section>
+      ) : null}
+
       {children.length > 1 ? (
         <section className="mt-6" aria-label="Children in this file">
           <h2 className="mb-2 text-[15px]">Children in this file</h2>

@@ -1,0 +1,31 @@
+name: uxn9-class-results
+goal: >
+  Class results (Monday's last step: read the class) is a page on the shared blocks. The classes are one table (class, grade,
+  children, who needs help, answers waiting, parent reports waiting, a status chip), the children who need the educator
+  are one table under a filter row (grade, class, status), and one class chosen, or the only one an educator teaches,
+  is a table of its children whose headings sort it, the child who needs help first and a click on a row opening the child.
+  Finding a child stays the bar at the top's; nothing here is a second box for it. No migration.
+# Written 2026-10-23 (night), before the code. Out of scope: a child's page and the class against every skill (they keep
+# their own entries in ux.frozen).
+says:
+  - words: "A class's table has the columns that matter, children who need help first"
+    proved_by: "apps/web/tests/u35-children-grouped.spec.ts::a class's table has the columns that matter, children who need help first"
+  - words: "for teachers, in most of the places, can we use tables instead of a lot of places where the tags ... are never aligned"
+    proved_by: "apps/web/tests/u35-children-grouped.spec.ts::the coordinator sees every class in one table, says what waits in each, and opens it with a click"
+  - words: "Use filters wherever possible."
+    proved_by: "apps/web/tests/u8-children-table.spec.ts::a click anywhere on a child's row opens the child, and any column sorts the table"
+manual: []
+scenarios: []
+criteria:
+  - name: the rules and the ratchet hold
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_ux_rules.py tests/test_ratchet.py tests/test_layout.py -q -p no:cacheprovider -o addopts=
+    expect: "passed"
+  - name: the class pages, rendered
+    run: cd apps/web && npx playwright test tests/u35-children-grouped.spec.ts tests/u8-children-table.spec.ts tests/u26-my-classes-first.spec.ts tests/u2-children.spec.ts tests/u50-declutter.spec.ts tests/u21-class-by-topic.spec.ts tests/u18-staff-and-search.spec.ts tests/u51-ux-rules.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

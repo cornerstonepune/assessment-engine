@@ -60,6 +60,18 @@ export const Icons = {
       <path d="M5 10v10h14V10" />
     </svg>
   ),
+  approve: () => (
+    <svg {...base}>
+      <rect x="4" y="4" width="16" height="16" />
+      <path d="M8 12.5l3 3 5-6" />
+    </svg>
+  ),
+  pencil: () => (
+    <svg {...base}>
+      <path d="M4 20l1-4L16 5l3 3L8 19z" />
+      <path d="M14 7l3 3" />
+    </svg>
+  ),
   flow: () => (
     <svg {...base}>
       <rect x="3" y="4" width="6" height="5" />

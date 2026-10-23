@@ -87,13 +87,12 @@ const row = (page: Page, name: string) => page.locator(`tbody tr[data-child="${i
 test("each class is a table of its children, each row their standing and next step in the school's words", async ({ page }) => {
   const [{ n: before }] = await sql<{ n: number }[]>`
     select count(*)::int as n from access_log where child_id = ${ids.Asha} and actor = ${TEST_STAFF.email}`;
-  await page.goto("/growth");
-  const grade = page.getByRole("region", { name: "Grade 2" });
-  // the coordinator's classes are each a line under their grade, opened in place (goals/ux3-children-grouped.yaml)
-  await grade.locator(`details[data-class="${SECTION}"] summary`).click();
+  // a class chosen in the filter row is a table of its children (goals/uxn9-class-results.yaml)
+  await page.goto(`/growth?class=${SECTION}`);
+  const grade = page.getByRole("main");
   const table = grade.getByRole("table", { name: `${SECTION}: its children` });
   await expect(table.locator("thead th")).toHaveText([
-    /Roll/, /Child/, /Needs help on/, /Needs help/, /Practising/, /Secure/, /Parent report/, // nobody here waits on an answer: that column is left out
+    /Roll/, /Child/, /Needs help on/, /Needs help/, /Practising/, /Secure/, /Parent report/, /Status/, // nobody here waits on an answer: that column is left out
   ]);
 
   // the skill roll 1 most needs help on is the red one, by its name, with the mistake she repeats there; read from the
@@ -102,18 +101,15 @@ test("each class is a table of its children, each row their standing and next st
     select ss.name from skill ss join topic t on t.code = ss.topic_code and ss.taught where ss.rung_code = 'R24' limit 1`;
   const [{ name: mistake }] = await sql<{ name: string }[]>`select mistake_name('M_SMALL_FROM_LARGE', 'NUM.OPS.02') as name`;
   const cells = (name: string) => row(page, name).locator("td");
-  await expect(cells("Asha")).toHaveText(["1", "Asha", new RegExp(`${red}.*${mistake.slice(0, 20)}`), "1", "1", "1", /out of date/]);
+  await expect(cells("Asha")).toHaveText(["1", "Asha", new RegExp(`${red}.*${mistake.slice(0, 20)}`), "1", "1", "1", /out of date/, /needs help/]);
   // nothing to report and an approved report are no one's work: the cell is empty
-  await expect(cells("Bina")).toHaveText(["2", "Bina", "", "", "", "", ""]);
-  await expect(cells("Chetan")).toHaveText(["10", "Chetan", "", "", "", "1", ""]);
+  await expect(cells("Bina")).toHaveText(["2", "Bina", "", "", "", "", "", /doing well/]);
+  await expect(cells("Chetan")).toHaveText(["10", "Chetan", "", "", "", "1", "", /doing well/]);
 
   // in the school's words: no rung, skill or mistake code reaches a teacher
   await expect(table).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/);
   // each class still opens as its children against every skill
-  await expect(grade.getByRole("link", { name: new RegExp(`^${SECTION}`) })).toHaveAttribute(
-    "href",
-    `/growth/class/${SECTION}`,
-  );
+  await expect(grade.getByRole("link", { name: "Against every skill →" })).toHaveAttribute("href", `/growth/class/${SECTION}`);
   // names are read the one logged way
   const [{ n: after }] = await sql<{ n: number }[]>`
     select count(*)::int as n from access_log where child_id = ${ids.Asha} and actor = ${TEST_STAFF.email}`;
@@ -121,7 +117,7 @@ test("each class is a table of its children, each row their standing and next st
 });
 
 test("a click anywhere on a child's row opens the child, and any column sorts the table", async ({ page }) => {
-  await page.goto("/growth");
+  await page.goto(`/growth?class=${SECTION}`);
   const mine = async () =>
     (await page.locator(`tbody tr[data-section="${SECTION}"]`).evaluateAll((trs) => trs.map((t) => t.getAttribute("data-child"))));
   expect(await mine()).toEqual([ids.Asha, ids.Bina, ids.Chetan]); // who needs help first, then by roll, 2 before 10
@@ -130,7 +126,6 @@ test("a click anywhere on a child's row opens the child, and any column sorts th
   // sorted stays open
   const table = page.getByRole("table", { name: `${SECTION}: its children` });
   const sorted = (label: string) => table.locator("th", { hasText: label });
-  await page.locator(`details[data-class="${SECTION}"] summary`).click();
   await table.getByRole("link", { name: "Secure", exact: true }).click();
   await expect(page).toHaveURL(/sort=green/);
   await expect(sorted("Secure")).toHaveAttribute("aria-sort", "descending");

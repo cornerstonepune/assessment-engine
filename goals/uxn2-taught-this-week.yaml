@@ -1,0 +1,27 @@
+name: uxn2-taught-this-week
+goal: >
+  Taught this week (Wednesday's step: say which topics each class has been taught) is a page of its own on the shared
+  blocks, with its one main action and the week's next step, instead of the top of the Curriculum page. Today's line
+  opens it; Curriculum links to it. Who may say it, the words and the switches are unchanged. No migration.
+# Written 2026-10-22 (night), before the code. Out of scope, on purpose: turning its topic panels into a table with a
+# filter row (they are folds of switches, held by u30/u31/u40; a table of every class and topic is its own slice).
+says:
+  - words: "make it easy to navigate, and ensure the entire design consistency"
+    proved_by: "apps/web/tests/u52-taught-this-week.spec.ts::Taught this week is its own page: its main action, the topics not taught yet, and the week's next step"
+  - words: "You have to look at every screen from a teacher educator's point of view"
+    proved_by: "apps/web/tests/u52-taught-this-week.spec.ts::Today's line opens it, and Curriculum links to it instead of carrying the switches"
+manual: []
+scenarios: []
+criteria:
+  - name: the rules and the ratchet hold
+    run: cd packages/engine && .venv/bin/python -m pytest tests/test_ux_rules.py tests/test_ratchet.py tests/test_layout.py -q -p no:cacheprovider -o addopts=
+    expect: "passed"
+  - name: the taught specs, rendered
+    run: cd apps/web && npx playwright test tests/u52-taught-this-week.spec.ts tests/u30-taught-per-class.spec.ts tests/u31-topics-are-operations.spec.ts tests/u40-taught-said-on-its-row.spec.ts tests/u51-ux-rules.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: every page still holds
+    run: cd apps/web && npx playwright test --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

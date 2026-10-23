@@ -3,148 +3,105 @@
 // papers, then every question of one paper, so each child's ladder is whole once their papers are signed off.
 import Link from "@/components/link";
 import { notFound } from "next/navigation";
-import { Body, PageHeader, Panel, Pill } from "@/components/shell";
+import { DataTable } from "@/components/data-table";
+import { StatusChip, type State } from "@/components/status-chip";
+import { Body, PageHeader, Panel } from "@/components/shell";
+import type { Column } from "@/lib/ux-rules";
 import type { PaperRow } from "@/lib/queries-read";
-import { many } from "@/lib/needs-you";
-import { PaperTable, STANDING_HEADS, StandingCells, TotalRow, nextStep, standing } from "./parts";
+import { PapersTable, groupState, nextStep, standing, standingColumns, type Standing } from "./parts";
 
 // as the database orders a roll (`roll_order`): by its first number, a roll with none last
 const roll = (r: string) => Number(r.match(/\d{1,9}/)?.[0] ?? Number.MAX_SAFE_INTEGER);
 const groupBy = <T,>(rows: T[], key: (r: T) => string) =>
   rows.reduce<Map<string, T[]>>((m, r) => m.set(key(r), [...(m.get(key(r)) ?? []), r]), new Map());
 
-export function ByClass({ papers }: { papers: PaperRow[] }) {
+type Group = { key: string; name: string; href: string; children: number; rows: PaperRow[]; s: Standing };
+const group = (key: string, name: string, href: string, rows: PaperRow[]): Group => ({ key, name, href, children: new Set(rows.map((r) => r.child_id)).size, rows, s: standing(rows) });
+
+// By class and by worksheet: one table each, a row a class or a worksheet, where its answers stand in columns that add up
+// to the sentence above the page (goals/u3-marking.yaml, goals/uxn8-marking.yaml).
+function Groups({ groups, first, label, page, pageHref }: { groups: Group[]; first: string; label: string; page: number; pageHref: (n: number) => string }) {
+  const columns: Column<Group>[] = [
+    { key: "name", label: first, value: (g) => g.name, cell: (g) => <Link href={g.href}>{g.name}</Link> },
+    { key: "children", label: "Children", num: true, width: "6rem", value: (g) => g.children },
+    ...standingColumns<Group>((g) => g.s),
+  ];
+  return <DataTable label={label} columns={columns} rows={groups} rowKey={(g) => g.key} more={{ page, href: pageHref }} />;
+}
+
+export function ByClass({ papers, page, pageHref }: { papers: PaperRow[]; page: number; pageHref: (n: number) => string }) {
   const classes = [...groupBy(papers, (p) => p.section).entries()].sort(([a], [b]) => a.localeCompare(b));
   return (
     <Panel title="By class" aside={`${classes.length} class${classes.length === 1 ? "" : "es"}`}>
-      <div className="min-w-0 overflow-x-auto">
-        <table className="grid">
-          <thead>
-            <tr>
-              <th>Class</th>
-              <th className="num">Children</th>
-              {STANDING_HEADS}
-            </tr>
-          </thead>
-          <tbody>
-            {classes.map(([section, rows]) => (
-              <tr key={section}>
-                <td>
-                  <Link href={`/capture?by=child&class=${encodeURIComponent(section)}`}>{section}</Link>
-                </td>
-                <td className="num">{new Set(rows.map((r) => r.child_id)).size}</td>
-                <StandingCells s={standing(rows)} />
-              </tr>
-            ))}
-          </tbody>
-          <TotalRow rows={papers} span={2} kids={new Set(papers.map((r) => r.child_id)).size} />
-        </table>
-      </div>
+      <Groups
+        groups={classes.map(([section, rows]) => group(section, section, `/capture?by=child&class=${encodeURIComponent(section)}`, rows))}
+        first="Class"
+        label="By class"
+        page={page}
+        pageHref={pageHref}
+      />
     </Panel>
   );
 }
 
-/** By child (goals/ux5b-make-and-marking.yaml): each class one line saying what waits in it, open to its children —
- *  Roll, Child, Paper, Waiting, Next step. `open` says which classes start open: the educator's own, or the one asked
- *  for; the coordinator's every class is one closed line. */
-export function ByChild({ papers, open }: { papers: PaperRow[]; open: (section: string) => boolean }) {
-  const classes = [...groupBy(papers, (p) => p.section).entries()].sort(([a], [b]) => a.localeCompare(b));
+const STEP_STATE = (rows: PaperRow[]): { state: State; words?: string } => {
+  const s = standing(rows);
+  return rows.every((p) => p.n_results === 0) ? { state: "unreadable", words: "nothing read" } : { state: groupState(s), words: s.waiting || s.toSign ? undefined : "signed off" };
+};
+
+type Kid = { rows: PaperRow[]; first: PaperRow };
+
+/** By child (goals/ux5b-make-and-marking.yaml, goals/uxn8-marking.yaml): a table of each class's children — Roll, Child,
+ *  Paper, Waiting, Status, Next step; every class in class and roll order, ten to a page, or the one class chosen. */
+export function ByChild({ papers, section, page, pageHref }: { papers: PaperRow[]; section?: string; page: number; pageHref: (n: number) => string }) {
+  const kids: Kid[] = [...groupBy(papers, (p) => p.child_id).values()]
+    .map((rows) => ({ rows, first: rows[0] }))
+    .sort((a, b) => a.first.section.localeCompare(b.first.section) || roll(a.first.roll_no) - roll(b.first.roll_no) || a.first.first_name.localeCompare(b.first.first_name));
+  const columns: Column<Kid>[] = [
+    { key: "class", label: "Class", width: "9rem", value: (k) => k.first.section },
+    { key: "roll", label: "Roll", num: true, width: "4.5rem", value: (k) => k.first.roll_no },
+    { key: "child", label: "Child", width: "9rem", value: (k) => k.first.first_name, cell: (k) => <Link href={`/capture?child=${k.first.child_id}`}>{k.first.first_name}</Link> },
+    {
+      key: "paper",
+      label: "Paper",
+      // several papers are opened from the child's name, which lists them
+      value: (k) => (k.rows.length === 1 ? (k.first.title ?? k.first.paper) : `${k.rows.length} papers`),
+      cell: (k) => (k.rows.length === 1 ? <Link href={`/capture/${k.first.id}`}>{k.first.title ?? k.first.paper}</Link> : `${k.rows.length} papers`),
+    },
+    { key: "waiting", label: "Waiting", num: true, width: "6rem", value: (k) => standing(k.rows).waiting },
+    { key: "state", label: "Status", status: true, width: "11rem", value: (k) => STEP_STATE(k.rows).state, cell: (k) => <StatusChip {...STEP_STATE(k.rows)} /> },
+    {
+      key: "next",
+      label: "Next step",
+      width: "11rem",
+      value: (k) => nextStep(k.rows)?.words,
+      cell: (k) => {
+        const step = nextStep(k.rows);
+        return step ? <Link href={step.href}>{step.words}</Link> : null;
+      },
+    },
+  ];
+  if (!kids.length) return <p className="note">No papers read yet.</p>;
   return (
-    <section aria-label="By child" className="panel min-w-0">
-      {classes.length ? (
-        classes.map(([section, rows]) => <ClassLine key={section} section={section} rows={rows} open={open(section)} />)
-      ) : (
-        <p className="note p-[18px]">No papers read yet.</p>
-      )}
+    <section aria-label="By child">
+      <DataTable label={section ? `Each child · ${section}` : "Each child"} columns={columns} rows={kids} rowKey={(k) => k.first.child_id} more={{ page, href: pageHref }} />
     </section>
   );
 }
 
-function ClassLine({ section, rows, open }: { section: string; rows: PaperRow[]; open: boolean }) {
-  const children = [...groupBy(rows, (p) => p.child_id).values()].sort(
-    (a, b) => roll(a[0].roll_no) - roll(b[0].roll_no) || a[0].first_name.localeCompare(b[0].first_name),
-  );
-  const s = standing(rows);
-  // only what waits is said: a class with nothing waiting is one short line
-  const waits = [s.waiting ? `${many(s.waiting, "answer")} to check` : "", s.toSign ? `${many(s.toSign, "paper")} to sign off` : ""].filter(Boolean);
-  if (!waits.length) waits.push("nothing waiting");
-  return (
-    <details data-class={section} open={open} className="group border-t border-basalt/10 px-[18px] first:border-t-0">
-      <summary className="flex cursor-pointer list-none items-baseline gap-x-2 py-3 text-[13.5px] [&::-webkit-details-marker]:hidden">
-        <span aria-hidden="true" className="inline-block w-3 text-basalt/50 transition-transform group-open:rotate-90">
-          ▸
-        </span>
-        <span className="font-semibold text-basalt">{section}</span>
-        <span className="text-basalt/70">· {[many(children.length, "child", "children"), ...waits].join(" · ")}</span>
-      </summary>
-      <div className="min-w-0 overflow-x-auto pb-3">
-        <table className="grid" aria-label={`${section}: each child`}>
-          <thead>
-            <tr>
-              <th>Roll</th>
-              <th>Child</th>
-              {/* on a phone the paper folds away: the child's name opens their papers, and the next step stays on screen */}
-              <th className="max-sm:hidden">Paper</th>
-              <th className="num">Waiting</th>
-              <th>Next step</th>
-            </tr>
-          </thead>
-          <tbody>
-            {children.map((c) => {
-              const [first] = c;
-              const step = nextStep(c);
-              const waiting = standing(c).waiting;
-              return (
-                <tr key={first.child_id}>
-                  <td className="fact">{first.roll_no}</td>
-                  <td>
-                    <Link href={`/capture?child=${first.child_id}`}>{first.first_name}</Link>
-                  </td>
-                  <td className="max-w-[280px] text-[13px] max-sm:hidden">
-                    {/* several papers are opened from the child's name, which lists them */}
-                    {c.length === 1 ? <Link href={`/capture/${first.id}`}>{first.title ?? first.paper}</Link> : `${c.length} papers`}
-                  </td>
-                  <td className="num">{waiting ? <Pill tone="bamboo">{waiting}</Pill> : "—"}</td>
-                  <td className="whitespace-nowrap">{step ? <Link href={step.href}>{step.words}</Link> : <Pill tone="neem">Signed off</Pill>}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </details>
-  );
-}
-
-export function ByWorksheet({ papers }: { papers: PaperRow[] }) {
+export function ByWorksheet({ papers, page, pageHref }: { papers: PaperRow[]; page: number; pageHref: (n: number) => string }) {
   const sheets = [...groupBy(papers, (p) => p.worksheet).entries()].sort(
     ([, a], [, b]) => (b[0].date ?? "").localeCompare(a[0].date ?? "") || (a[0].title ?? "").localeCompare(b[0].title ?? ""),
   );
   return (
     <Panel title="By worksheet" aside={`${sheets.length} worksheet${sheets.length === 1 ? "" : "s"}`}>
-      <div className="min-w-0 overflow-x-auto">
-        <table className="grid">
-          <thead>
-            <tr>
-              <th>Worksheet</th>
-              <th className="num">Children</th>
-              {STANDING_HEADS}
-            </tr>
-          </thead>
-          <tbody>
-            {sheets.map(([key, rows]) => (
-              <tr key={key}>
-                <td className="max-w-[300px] text-[13px]">
-                  <Link href={`/capture?worksheet=${encodeURIComponent(key)}`}>{rows[0].title ?? key}</Link>
-                </td>
-                <td className="num">{new Set(rows.map((r) => r.child_id)).size}</td>
-                <StandingCells s={standing(rows)} />
-              </tr>
-            ))}
-          </tbody>
-          <TotalRow rows={papers} span={2} kids={new Set(papers.map((r) => r.child_id)).size} />
-        </table>
-      </div>
+      <Groups
+        groups={sheets.map(([key, rows]) => group(key, rows[0].title ?? key, `/capture?worksheet=${encodeURIComponent(key)}`, rows))}
+        first="Worksheet"
+        label="By worksheet"
+        page={page}
+        pageHref={pageHref}
+      />
     </Panel>
   );
 }
@@ -163,12 +120,12 @@ export function WorksheetPapers({ papers, worksheet }: { papers: PaperRow[]; wor
       />
       <Body>
         <p className="mb-4">
-          <Link href="/capture?by=worksheet" className="chip">
+          <Link href="/capture?by=worksheet" className="text-[13px]">
             ← Every worksheet
           </Link>
         </p>
         <Panel title="Each child's copy" aside={`${s.signed} of ${s.papers} signed off`}>
-          <PaperTable rows={[...rows].sort((a, b) => a.section.localeCompare(b.section) || roll(a.roll_no) - roll(b.roll_no))} withChild />
+          <PapersTable label="Each child's copy" rows={[...rows].sort((a, b) => a.section.localeCompare(b.section) || roll(a.roll_no) - roll(b.roll_no))} withChild />
         </Panel>
       </Body>
     </>
@@ -197,20 +154,20 @@ export function ChildPapers({ papers, id }: { papers: PaperRow[]; id: string }) 
       />
       <Body>
         <p className="mb-4 flex flex-wrap gap-2">
-          <Link href={`/capture?by=child&class=${encodeURIComponent(c.section)}`} className="chip">
+          <Link href={`/capture?by=child&class=${encodeURIComponent(c.section)}`} className="text-[13px]">
             ← {c.section}
           </Link>
-          <Link href={`/growth/${c.child_id}`} className="chip">
+          <Link href={`/growth/${c.child_id}`} className="text-[13px]">
             {c.first_name}&rsquo;s page
           </Link>
           {next ? (
-            <Link href={`/capture?child=${next.child_id}`} className="chip ml-auto">
+            <Link href={`/capture?child=${next.child_id}`} className="ml-auto text-[13px]">
               Next child to check: {next.first_name} →
             </Link>
           ) : null}
         </p>
         <Panel title="Papers" aside={s.toSign === 0 ? "all signed off" : `${s.toSign} to sign off`}>
-          <PaperTable rows={read} />
+          <PapersTable label="Papers" rows={read} />
         </Panel>
       </Body>
     </>
@@ -222,12 +179,12 @@ export function NothingRead({ papers }: { papers: PaperRow[] }) {
   const broken = papers.filter((p) => p.n_results === 0);
   if (!broken.length) return null;
   return (
-    <Panel id="nothing-came-back" title="Read, but nothing came back" aside={<Pill tone="terracotta">{broken.length}</Pill>}>
+    <Panel id="nothing-came-back" title="Read, but nothing came back" aside={<StatusChip state="unreadable" words={`${broken.length} papers`} />}>
       <p className="note mb-3">
         These papers were opened and produced no answers at all. A paper entered with the wrong questions, or a read
         that failed part way — either way nothing here counts for anything yet.
       </p>
-      <PaperTable rows={broken} withChild />
+      <PapersTable label="Read, but nothing came back" rows={broken} withChild />
     </Panel>
   );
 }

@@ -115,12 +115,10 @@ test.afterAll(async () => {
 test("each grade opens on its classes, and a class is its children against every step in red, amber, green or grey", async ({
   page,
 }) => {
-  await page.goto("/growth");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Children");
-  const grade = page.getByRole("region", { name: "Grade 2" });
-  // each class a line, opened to its link (goals/ux3-children-grouped.yaml)
-  await grade.locator(`details[data-class="${SECTION}"] summary`).click();
-  await grade.getByRole("link", { name: new RegExp(`^${SECTION}`) }).click();
+  await page.goto(`/growth?class=${SECTION}`);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Class results");
+  // each class a row of the classes table, with its link (goals/uxn9-class-results.yaml)
+  await page.getByRole("table", { name: "Classes" }).getByRole("link", { name: "Against every skill →" }).click();
   await expect(page).toHaveURL(`/growth/class/${SECTION}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(SECTION);
 

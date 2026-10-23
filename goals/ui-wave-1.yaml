@@ -1,0 +1,26 @@
+name: ui-wave-1
+goal: >
+  Every redesigned page of the educator's week is live in one merge and works as a flow: Today, Assessments, Papers to
+  approve, Print and give, Upload papers, Check answers, Marking, Class results, the assessment's card, Curriculum
+  (Maths and English) and Staff and School. Each list is a table whose headings sit over their columns, each status is
+  an icon and a word, each page has its filter row, every row opens something, and no link on the flow dead-ends.
+# Written 2026-10-23, before the merge of the stacked pages (#290 #292 #297 #299 #301 #302 #304 #306 #307 #309 #310 #311
+# #312). Nimish: he wants to see and use the whole flow on the dashboard, not review page by page. Desktop first (1440 px).
+says:
+  - words: "I don't want to see all before-after; just go ahead and build the whole flow and get it live properly"
+    proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::the flow is one chain: each page's next step opens the following page"
+  - words: "only when I see it and interact with it on the dashboard can I suggest changes"
+    proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::Assessments: the upload box on top, one count per assessment, filters"
+manual:
+  - "Website only: Vercel deploys it on merge. No migration and no update-live."
+scenarios: []
+criteria:
+  - name: the week walked page by page at 1440 px, and every page held to the rules
+    run: cd apps/web && npx playwright test tests/u60-ui-wave-1-flow.spec.ts tests/u51-ux-rules.spec.ts tests/u53-the-menu.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

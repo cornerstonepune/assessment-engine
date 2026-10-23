@@ -63,7 +63,7 @@ test("at Made the card shows each child's proposed paper and opens the place to 
   }
   await page.getByRole("link", { name: "Look over and approve for print →" }).click();
   await expect(page).toHaveURL(new RegExp(`/papers/approve\\?section=${SECTION}&week=${week}&kind=practice`));
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Class papers to approve");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Papers to approve");
 });
 
 test("the upload box is at the top of the card, Assessments and Marking", async ({ page }) => {
@@ -160,4 +160,24 @@ test("while a file is read the card says page n of N and about how long", async 
   } finally {
     await sql`update flow_run set status = 'ok', finished_at = now() where flow = 'read-scan' and trigger = 's42: reading.pdf'`;
   }
+});
+
+test("each child's paper has its status chip, and a place in the filter row narrows the table", async ({ page }) => {
+  await page.goto(card("practice"));
+  const table = page.getByRole("table", { name: "Each child's paper" });
+  await expect(table).toBeVisible();
+  // every row says where it is in the one chip, icon and word
+  const rows = await table.locator("tbody tr").count();
+  expect(rows).toBeGreaterThan(0);
+  await expect(table.locator("tbody [data-status]")).toHaveCount(rows);
+  for (const chip of await table.locator("tbody [data-status]").all()) await expect(chip.locator("svg")).toHaveCount(1);
+  // the filter row offers the places the card's papers are at; one narrows the table to them
+  await expect(page.locator("[data-filterbar]")).toBeVisible();
+  const places = await page.locator("[data-filterbar] select[name=where] option[value]:not([value=''])").evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value));
+  expect(places.length).toBeGreaterThan(0);
+  await page.goto(`${card("practice")}&where=${encodeURIComponent(places[0])}`);
+  await expect(page.locator("[data-active-filters]")).toContainText("Where it is:");
+  const narrowed = page.getByRole("table", { name: "Each child's paper" });
+  expect(await narrowed.locator("tbody tr").count()).toBeLessThanOrEqual(rows);
+  expect(await narrowed.locator("tbody tr").count()).toBeGreaterThan(0);
 });

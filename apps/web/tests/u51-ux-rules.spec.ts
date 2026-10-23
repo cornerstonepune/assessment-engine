@@ -122,6 +122,7 @@ async function breaks(page: Page): Promise<string[]> {
 const ROUTES = (): [string, string][] => [
   ["/today", "/today"],
   ["/", "/"],
+  ["/taught", "/taught"],
   ["/library", "/library"],
   ["/worksheets", "/worksheets"],
   ["/worksheets/taxonomy", "/worksheets/taxonomy"],
@@ -164,7 +165,7 @@ test("every page keeps the rules, or is named as still breaking them, and only t
 test("Check answers is built on the blocks: one main action, its next step, one count", async ({ browser }) => {
   const page = await (await browser.newContext({ storageState: SIGNED_IN })).newPage();
   await open(page, `/capture/check?id=${answer}`);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check answers");
   expect(await breaks(page)).toEqual([]);
   expect(FROZEN["/capture/check"]).toBeUndefined();
   // the progress line is all that sits above the card; the decision (Right/Wrong/Blank, or "Yes, the child wrote…")
@@ -174,6 +175,21 @@ test("Check answers is built on the blocks: one main action, its next step, one 
   await expect(page.locator("[data-ux=next]")).toHaveAttribute("href", /\/(capture\/check\?from=|growth)/);
   const waiting = await page.locator('[data-count="answers to check"]').textContent();
   expect(Number(waiting?.replace(/\D/g, ""))).toBeGreaterThan(0);
+  await page.context().close();
+});
+
+test("Check answers lists what is left to check as one table with its filter row", async ({ browser }) => {
+  const page = await (await browser.newContext({ storageState: SIGNED_IN })).newPage();
+  await open(page, `/capture/check?id=${answer}`);
+  const table = page.getByRole("table", { name: "Left to check" });
+  await expect(table.locator("thead th")).toHaveText(["#", "Class", "Roll", "Paper", "Question", "Status", ""]);
+  expect(await table.locator("tbody tr").count()).toBeGreaterThan(0);
+  await expect(table.locator("tbody tr").first().locator("[data-status]")).toBeVisible();
+  await expect(page.locator("[data-filterbar]")).toBeVisible();
+  // a status narrows it, and the answer in hand stays where it is
+  await page.goto(`/capture/check?id=${answer}&why=spot`);
+  await expect(page.locator("[data-active-filters]")).toContainText("Status: Spot-check");
+  for (const chip of await page.getByRole("table", { name: "Left to check" }).locator("tbody [data-status]").all()) await expect(chip).toHaveAttribute("data-status", "spot");
   await page.context().close();
 });
 

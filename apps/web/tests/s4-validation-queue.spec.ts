@@ -76,7 +76,7 @@ async function putBack(r: Row) {
 test("the queue counts what the engine counts, and shows each answer with the child's own writing", async ({ page }) => {
   const n = await waiting();
   await page.goto("/capture/check");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check answers");
   await expect(page.getByText(`${n} answers left to check`)).toBeVisible();
   const writing = page.getByRole("img", { name: /^What .+ wrote for question/ });
   await expect.poll(() => writing.evaluate((i: HTMLImageElement) => i.naturalWidth), { timeout: 15_000 }).toBeGreaterThan(0);
@@ -270,10 +270,11 @@ test("Capture & Mark lists students by class; a student lists their papers; a pa
     from sheet_instance si join child ch on ch.id = si.child_id
     where exists (select 1 ${LIVE} and c.sheet_instance_id = si.id)
     group by si.child_id order by si.child_id::text limit 1`;
-  // each class is one line, closed for the coordinator, opened by name (goals/ux5b-make-and-marking.yaml)
+  // a class opened by name is a table of its children, paged (goals/uxn8-marking.yaml)
   await page.goto(`/capture?class=${encodeURIComponent(c.section)}`);
-  await expect(page.locator(`details[data-class="${c.section}"]`)).toHaveAttribute("open", "");
-  await page.locator(`details[data-class="${c.section}"] a[href="/capture?child=${c.child}"]`).click();
+  const link = page.locator(`a[href="/capture?child=${c.child}"]`);
+  while (!(await link.count())) await page.getByRole("link", { name: /^Later/ }).click();
+  await link.click();
   await expect(page).toHaveURL(new RegExp(`child=${c.child}$`));
   const papers = page.getByRole("table").first().locator("tbody tr");
   await expect(papers).toHaveCount(c.sheets);
@@ -284,7 +285,7 @@ test("Capture & Mark lists students by class; a student lists their papers; a pa
 
   // the first student in the list steps to the next one with something left to check
   await page.goto(`/capture?class=${encodeURIComponent(c.section)}`);
-  await page.getByRole("table", { name: `${c.section}: each child` }).getByRole("link").first().click();
+  await page.getByRole("table", { name: `Each child · ${c.section}` }).getByRole("link").first().click();
   const first = new URL(page.url()).searchParams.get("child");
   await page.getByRole("link", { name: /^Next child to check: / }).click();
   await expect(page).not.toHaveURL(new RegExp(`child=${first}$`));
@@ -368,11 +369,13 @@ test("Capture & Mark says how the reader is doing, with the database's own numbe
     where c.superseded_by is null and l.judged is null
       and (l.item_result_id is not null or (r.state = 'confirmed' and coalesce(r.raw_read::jsonb ->> 'why', '') <> ''))`;
   await page.goto("/capture");
+  // behind a fold, for the people who build the reader (docs/ux-rules.md, rule 8)
+  await page.getByText("How the reader is doing, for the people who build it").click();
   const panel = page.locator("section.panel", { has: page.getByRole("heading", { name: "How the reader is doing" }) });
   await expect(panel.getByText(`In every class, people have checked ${n.checked} answers the reader read.`)).toBeVisible();
   // one table, by day first; each kind of question's standing is a click away (goals/u10-tables-read-straight.yaml)
   await expect(panel.getByRole("table")).toHaveCount(1);
-  await panel.getByRole("button", { name: "By kind of question" }).click();
+  await panel.locator("select[name=reader]").selectOption("kind");
   await expect(panel.getByText(/a person checks every answer|trusted: settles alone/).first()).toBeVisible();
 });
 
@@ -381,8 +384,8 @@ test("the queue is on the menu, and fits a phone", async ({ page }) => {
   await page.goto("/today");
   await page.getByRole("region", { name: "Assessments", exact: true }).waitFor();
   await page.goto("/capture/check");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check the answers");
-  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Assessments" })).toHaveAttribute(
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check answers");
+  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Check answers" })).toHaveAttribute(
     "aria-current",
     "page",
   );

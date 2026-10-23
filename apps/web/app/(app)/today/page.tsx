@@ -1,5 +1,6 @@
 import Link from "@/components/link";
 import { DataTable } from "@/components/data-table";
+import { FilterBar } from "@/components/filter-bar";
 import { PageShell } from "@/components/page-shell";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
@@ -29,6 +30,10 @@ export default async function Today({ searchParams }: { searchParams: Promise<Re
   );
   // the one loud colour, once (design-system/PRINCIPLES.md): the first thing that waits, in Today's order, is the page's
   // main action, at the top; every line's own button is outlined (goals/ux8d-phone-and-one-action.yaml)
+  // narrowed to one place and to what waits (goals/uxn10-today.yaml); the first action and the menu's counts are of everything
+  const where = TODAY_ORDER.find((t) => t === q.where);
+  const waitsOnly = q.status === "waits";
+  const shown = TODAY_ORDER.filter((t) => !where || t === where);
   const first = TODAY_ORDER.flatMap((t) => lines[t]).find((l) => l.waits && l.href && l.action);
   return (
     <PageShell
@@ -59,12 +64,19 @@ export default async function Today({ searchParams }: { searchParams: Promise<Re
           ))}
         </ol>
       </section>
-      {TODAY_ORDER.map((tab) => (
+      <FilterBar
+        action="/today"
+        filters={[
+          { name: "where", label: "Where", value: where, all: "Every place", options: TODAY_ORDER.map((t) => [t, t] as const) },
+          { name: "status", label: "Show", value: waitsOnly ? "waits" : undefined, all: "Everything", options: [["waits", "Only what waits"]] },
+        ]}
+      />
+      {shown.map((tab) => (
         <section key={tab} aria-label={tab} className="mb-6">
           <h2 className="label mb-2">{tab}</h2>
-          {lines[tab].length ? (
+          {lines[tab].filter((l) => !waitsOnly || l.waits).length ? (
             <div className="panel divide-y divide-basalt/12">
-              {lines[tab].map((l) => <Row key={l.title} line={l} />)}
+              {lines[tab].filter((l) => !waitsOnly || l.waits).map((l) => <Row key={l.title} line={l} />)}
             </div>
           ) : (
             <p className="note">Nothing waits here.</p>
@@ -119,7 +131,7 @@ function Row({ line }: { line: Line }) {
 // Whether checking pays (goals/ny2-the-queue-shrinks.yaml): each week's answers, how many a person had to check, and how
 // near the reader is to settling a kind of question alone. Every wrong and blank still waits for a person (ADR 0029).
 const WEEK_COLUMNS: Column<Week>[] = [
-  { key: "week", label: "Week", value: (k) => weekWords(k.week) },
+  { key: "week", label: "Week", value: (k) => weekWords(k.week), cell: (k) => <Link href={`/papers?week=${k.week}`}>{weekWords(k.week)}</Link> },
   { key: "read", label: "Answers read", num: true, value: (k) => k.read },
   { key: "alone", label: "Settled by the engine alone", num: true, value: (k) => k.alone },
   { key: "person", label: "Checked by a person", num: true, value: (k) => k.person },

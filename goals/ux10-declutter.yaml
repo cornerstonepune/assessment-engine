@@ -25,7 +25,7 @@ says:
   - words: "a red count only on Today in the menu"
     proved_by: "apps/web/tests/u50-declutter.spec.ts::in the menu only Today carries a count"
   - words: "the bank's counts move behind Question bank details"
-    proved_by: "apps/web/tests/u50-declutter.spec.ts::Curriculum shows grades, topics and skills with what each level asks; the bank's counts wait behind Question bank details"
+    proved_by: "apps/web/tests/u50-declutter.spec.ts::Curriculum shows each skill in a row with its levels and status; the bank's counts wait behind Question bank details"
 manual: []
 scenarios: []
 criteria:

@@ -74,8 +74,9 @@ test("a scan put in on Marking is read, and its run says what was found and what
   );
 
   // the file's run, refreshed by the page while it is read: its pages from the start
-  const run = panel.getByRole("list", { name: "Scans read last" }).getByRole("listitem").filter({ hasText: FILE }).first();
-  await expect(run).toContainText(`${pages} pages, `);
+  const table = panel.getByRole("table", { name: "Scans read last" });
+  const run = table.getByRole("row").filter({ hasText: FILE }).first();
+  await expect(run).toContainText(`${pages} pages`);
   const [f] = await sql<{ id: string; trigger: string; pages: number }[]>`
     select id, trigger, (result ->> 'pages')::int as pages from flow_run where flow = 'read-scan' and trigger like ${`%${FILE}`}`;
   expect(f).toMatchObject({ trigger: `e2e@cornerstone.test: ${FILE}`, pages });
@@ -105,9 +106,15 @@ test("a scan put in on Marking is read, and its run says what was found and what
   await sql`update flow_run set status = 'ok', error = null, result = result || ${sql.json({ copies })} where id = ${f.id}`;
 
   await page.reload();
-  await expect(run).toContainText(
-    `${pages} pages, 3 copies found for 2 children · 2 copies read, 5 answers: 3 settled by the engine, 1 checked by a person, 1 waiting for a person`,
-  );
+  // what the file came to, a column each (goals/uxn6-upload-papers.yaml)
+  const cell = (label: string) => run.locator(`td[data-label="${label}"]`);
+  await expect(cell("Pages")).toHaveText(`${pages} pages`);
+  await expect(cell("Copies read")).toHaveText("2");
+  await expect(cell("Answers")).toHaveText("5");
+  await expect(cell("Settled by the engine")).toHaveText("3");
+  await expect(cell("Checked by a person")).toHaveText("1");
+  await expect(cell("Waiting")).toHaveText("1");
+  await expect(run.locator("[data-status=toCheck]")).toBeVisible();
   // the blank page: said by its number, never guessed (goals/ux9a-no-guessed-pages.yaml)
-  await expect(run).toContainText(`Page ${pages}: no code could be read on it, so it is not read until you say whose it is.`);
+  await expect(table).toContainText(`Page ${pages}: no code could be read on it, so it is not read until you say whose it is.`);
 });

@@ -48,7 +48,7 @@ test("an educator put on the staff list signs in, and a decision carries their n
     await expect(page).toHaveURL(/\/today$/);
 
     // what they decide carries their name
-    await page.goto("/?taught=1");
+    await page.goto("/taught");
     const row = page.getByRole("region", { name: "Not taught yet", exact: true }).getByRole("listitem").filter({ hasText: topic.name });
     await row.getByText("Say it is taught", { exact: true }).click();
     await row.getByRole("button", { name: `Taught in ${SECTION}, as ${EDUCATOR.name}` }).click();

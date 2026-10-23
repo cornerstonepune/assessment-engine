@@ -66,11 +66,19 @@ branch's migration applied (twice: it is written to run twice), 2026-10-23:
   `31 passed`.
 - `bin/engine done smp_skill_shows_its_samples` → every sentence `PROVED`, every criterion `PASSED` (the browser list `19
   passed`, u17 and u23 among them); `NOT DONE` only for what is not live: not on main, and live did not answer from here.
+- The first rehearsal (`rehearse update-live`, run 40026911503) stopped before this branch's migration: live already had
+  main's C2–C6 tables (#305), which this branch lacked (`function internal.approval_checked() does not exist`). Main
+  (89840961) merged in; `rules.json` written again from a database built fresh from the merged branch (`bin/testdb fresh`:
+  `applied 101 migrations`; the load `english_sample 2499`, `english_sample_wrong 4366`, `passage 253`, `rubric 7`); it
+  differs from main's by the new tables' 19 lines only. Then `bin/engine load --check` → `unchanged on a second run`; the
+  engine tests above with `test_rules` and `test_skill_level` → `39 passed`; `bin/check` → `31 passed`; `npx tsc
+  --noEmit` clean; `npx playwright test` u54, u53, e0, u28 → `10 passed`.
 - Sandbox only: this Playwright wanted a Chromium build the sandbox lacks; its path was linked to the installed one.
 
 ## Handoff
 
 - **Live:** nothing until the merge. After it: `migrate live` adds the tables, the deploy loads the samples.
-- **Before the merge:** the rehearsal on a copy of live (`rehearse update-live`, Actions → Run workflow) has NOT been run.
+- **Before the merge:** the rehearsal on a copy of live (`rehearse update-live`, Actions → Run workflow) must be run again on
+  this branch now that main is merged in; its first run failed only for the missing C2–C6 migrations.
 - **Next:** none for this goal.
 - **Blocked:** nothing.

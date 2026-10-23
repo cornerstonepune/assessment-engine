@@ -22,7 +22,7 @@ test.afterAll(async () => {
 
 test("a finished scan can be read again, and the page says why when the engine will not", async ({ page }) => {
   await page.goto("/capture");
-  const run = page.getByRole("list", { name: "Scans read last" }).getByRole("listitem").filter({ hasText: FILE }).first();
+  const run = page.getByRole("table", { name: "Scans read last" }).getByRole("row").filter({ hasText: FILE }).first();
   await run.getByRole("button", { name: "Read again" }).click();
   await expect(page).toHaveURL(/read=refused/);
   await expect(page.getByRole("region", { name: "Read a scan" })).toContainText("is no longer kept by the engine: send the scan again");

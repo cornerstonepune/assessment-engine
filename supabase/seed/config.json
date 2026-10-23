@@ -392,6 +392,11 @@
           ]
         }
       }
+    },
+    {
+      "key": "school.time_zone",
+      "description": "The school's own clock: its day and its week, which a published curriculum takes effect from (C3). The migration 20261206090000 writes the same for every school.",
+      "value": "Asia/Kolkata"
     }
   ]
 }

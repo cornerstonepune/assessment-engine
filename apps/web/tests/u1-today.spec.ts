@@ -75,11 +75,11 @@ test("the menu is the teacher's week, and says where they are", async ({ page })
   await page.goto("/today");
   const menu = page.getByRole("navigation", { name: "Sections" });
   // the school's order of work (goals/ui1-menu-and-today.yaml); a tab's count of what waits follows its name
-  await expect(menu.getByRole("link")).toHaveText([/^Today/, /^Curriculum/, /^Assessments/, /^Children/]);
+  await expect(menu.getByRole("link")).toHaveText([/^Today/, /^Taught this week/, /^Papers to approve/, /^Assessments/, /^Upload papers/, /^Check answers/, /^Class results/, /^Curriculum/, /^Question bank/]);
   for (const [label, heading] of [
     ["Curriculum", "Curriculum"],
     ["Assessments", "Assessments"],
-    ["Children", "Children"],
+    ["Class results", "Class results"],
     ["Today", "Today"],
   ]) {
     await menu.getByRole("link", { name: label, exact: true }).click();
@@ -141,4 +141,15 @@ test("what has nothing waiting says so, and each count is the page's own", async
     if (!(await group.getByTestId("line").count())) await expect(group.getByText("Nothing waits here.")).toBeVisible();
     for (const n of await group.getByTestId("count").allInnerTexts()) expect(Number(n.replace(/\D/g, ""))).toBeGreaterThan(0);
   }
+});
+
+test("Today has the one filter row: a place and what waits narrow its lines (goals/uxn10-today.yaml)", async ({ page }) => {
+  await page.goto("/today");
+  await expect(page.locator("[data-filterbar]")).toBeVisible();
+  await page.goto("/today?where=Curriculum");
+  await expect(page.locator("[data-active-filters]")).toContainText("Where: Curriculum");
+  await expect(page.getByRole("region", { name: "Curriculum", exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Assessments", exact: true })).toHaveCount(0);
+  await page.goto("/today?status=waits");
+  for (const n of await page.getByTestId("count").allInnerTexts()) expect(Number(n.replace(/\D/g, ""))).toBeGreaterThan(0);
 });

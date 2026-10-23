@@ -33,6 +33,8 @@ export type Column<T> = {
   status?: boolean;
   /** A fixed width, in a CSS length ("9rem"): every table of a kind draws a column the same width. */
   width?: string;
+  /** A heading that sorts the table (needs the table's `sort`): a link, and the sorted column says so. */
+  sortable?: boolean;
   /** Shown even when every row is empty: a column the educator acts in. */
   keep?: boolean;
 };
