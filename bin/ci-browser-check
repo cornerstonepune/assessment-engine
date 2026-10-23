@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""The proof that the browser tests, cut across CI's runners by Playwright's own `--shard`, still all ran exactly once.
+The standard library only; CI's browser job calls it (.github/workflows/ci.yml, goals/ci-browser-shards.yaml):
+
+  bin/ci-browser-check LIST.json SHARD.json …   LIST.json is `playwright test --list --reporter=json`, the whole
+                                               suite; each SHARD.json is one runner's report. Every listed test ran
+                                               in exactly one shard, none was skipped, and none failed twice.
+
+A test is named by its project, file, line and title, so the same spec in two projects counts twice, as Playwright
+runs it twice.
+"""
+
+import json
+import sys
+
+
+def tests(report):
+    """(id, status) for every test in a Playwright JSON report; status is None in a --list report."""
+    out = []
+
+    def walk(suite):
+        for spec in suite.get("specs", []):
+            for t in spec.get("tests", []):
+                tid = (t.get("projectName", ""), spec.get("file", ""), spec.get("line", 0), spec.get("title", ""))
+                out.append((tid, t.get("status") if t.get("results") else None))
+        for child in suite.get("suites", []):
+            walk(child)
+
+    for suite in report.get("suites", []):
+        walk(suite)
+    return out
+
+
+def check(listed, shards):
+    """The problems, empty when every listed test ran once across the shards, passed (or passed on its retry)."""
+    want = [tid for tid, _ in tests(listed)]
+    problems = []
+    if not want:
+        problems.append("the list names no tests")
+    seen = {}
+    for k, report in enumerate(shards, 1):
+        for tid, status in tests(report):
+            if status is None:
+                continue
+            seen.setdefault(tid, []).append(k)
+            if status == "skipped":
+                problems.append(f"skipped in shard {k}: {tid}")
+            elif status == "unexpected":
+                problems.append(f"failed in shard {k}: {tid}")
+    for tid in want:
+        homes = seen.get(tid, [])
+        if not homes:
+            problems.append(f"ran in no shard: {tid}")
+        elif len(homes) > 1:
+            problems.append(f"ran in shards {homes}: {tid}")
+    for tid in seen.keys() - set(want):
+        problems.append(f"ran but is not in the list: {tid}")
+    return problems
+
+
+def main(argv):
+    if len(argv) < 3:
+        print(__doc__)
+        return 2
+    load = lambda p: json.load(open(p, encoding="utf-8"))
+    listed, shards = load(argv[1]), [load(p) for p in argv[2:]]
+    problems = check(listed, shards)
+    for p in problems:
+        print(p)
+    if problems:
+        return 1
+    print(f"every one of the {len(tests(listed))} browser tests ran once across {len(shards)} shards")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

@@ -172,9 +172,19 @@ jobs:
   # built from this repository alone — the engine job's `bin/testdb fresh`. Until 2026-10-01 these ran on a laptop
   # against a copy of live, some leaned on live's classes, and none ran here. A spec builds the rows it needs
   # (tests/rows.ts); one that skips itself fails this job (goals/p1-browser-tests-in-ci.yaml).
-  browser:
+  # The browser specs cut across three runners by Playwright's own --shard, each runner with its own database and servers,
+  # so the specs that share rows or lock tables still run one at a time on their runner (workers: 1). One runner took 24
+  # minutes on 2026-10-23, 6 installing Chromium, 4 building the database and 14 testing, one after another
+  # (goals/ci-browser-shards.yaml). Each runner now builds its database while it installs, as the engine shards do.
+  browser-shard:
+    name: browser shard ${{ matrix.shard }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # SHARDS below and in the browser job must be this list's length
+      matrix: { shard: [1, 2, 3] }
     env:
+      SHARDS: 3
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
       TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
     steps:
@@ -184,6 +194,10 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen
         working-directory: packages/engine
+      # The database is built from this repository alone (bin/testdb fresh), started first so the installs below run
+      # beside it; its result is waited on before the roles and the tests.
+      - name: the test database, started
+        run: ( bin/testdb fresh "$DATABASE_URL" >"$RUNNER_TEMP/testdb.log" 2>&1; echo $? >"$RUNNER_TEMP/testdb.rc" ) &
       # the engine prints a paper through Chromium (assess/render.py)
       - run: uv run playwright install --with-deps chromium
         working-directory: packages/engine
@@ -193,13 +207,17 @@ jobs:
         working-directory: apps/web
       - run: npx playwright install --with-deps chromium
         working-directory: apps/web
-      - run: bin/testdb fresh "$DATABASE_URL"
+      - name: the test database, built
+        run: |
+          while [ ! -f "$RUNNER_TEMP/testdb.rc" ]; do sleep 2; done
+          cat "$RUNNER_TEMP/testdb.log"
+          exit "$(cat "$RUNNER_TEMP/testdb.rc")"
       # The website and the engine reach the database as their own roles, as live will, with passwords made for this
       # run alone; a page or a route needing a grant its role lacks fails here (goals/p1-the-roles-hold.yaml).
       - run: >-
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "alter role app_web password 'ci-web'"
           -c "alter role app_engine password 'ci-engine'"
-      - run: npx playwright test --reporter=list,json
+      - run: npx playwright test --shard=${{ matrix.shard }}/${{ env.SHARDS }} --reporter=list,json
         working-directory: apps/web
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: results.json
@@ -219,4 +237,39 @@ jobs:
       - name: the database's slow statements
         if: failure()
         run: grep -A2 "duration:" "$RUNNER_TEMP/postgres/log" || echo "no statement took over a second"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-shard-${{ matrix.shard }}
+          path: apps/web/results.json
+          retention-days: 7
+
+  # The one pass or fail for the browser tests, under the name the single job had: every shard green, and every listed
+  # test ran in exactly one shard, none skipped (bin/ci-browser-check).
+  browser:
+    needs: [browser-shard]
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      SHARDS: 3
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm, cache-dependency-path: apps/web/package-lock.json }
+      - run: npm ci
+        working-directory: apps/web
+      # the whole suite as Playwright lists it, without running anything
+      - run: npx playwright test --list --reporter=json >"$RUNNER_TEMP/list.json"
+        working-directory: apps/web
+      - uses: actions/download-artifact@v4
+        with: { pattern: browser-shard-*, path: shards }
+      - name: every browser test ran, and ran once
+        run: bin/ci-browser-check "$RUNNER_TEMP/list.json" $(for k in $(seq "$SHARDS"); do echo "shards/browser-shard-$k/results.json"; done)
+      - name: every browser shard passed
+        if: always()
+        run: |
+          echo 'shards: ${{ needs.browser-shard.result }}'
+          [ "${{ needs.browser-shard.result }}" = success ]
 
