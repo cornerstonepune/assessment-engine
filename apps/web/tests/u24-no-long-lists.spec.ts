@@ -95,9 +95,10 @@ test("Papers to approve chooses a class's week in the filter row, however many w
   await page.goto("/papers/approve");
   // no row of a class-and-week tag for every week ever planned: one Week dropdown holds them (goals/uxn4-papers-to-approve.yaml)
   await expect(page.getByRole("navigation", { name: "Classes and weeks" })).toHaveCount(0);
-  const week = page.getByRole("search").getByLabel("Week");
-  expect(await week.locator("option").count()).toBeGreaterThanOrEqual(8);
+  // the page streams in behind its loading screen: wait for the table before reading the filter row
   await expect(page.getByRole("table", { name: "Each child's paper this week" })).toBeVisible();
+  const week = page.locator("[data-filterbar]").getByLabel("Week");
+  expect(await week.locator("option").count()).toBeGreaterThanOrEqual(8);
 });
 
 test("the parent reports waiting are narrowed by class", async ({ page }) => {
