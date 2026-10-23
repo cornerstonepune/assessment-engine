@@ -33,7 +33,11 @@ export function ClassesTable({ rows, page, pageHref }: { rows: ClassLine[]; page
       width: "11rem",
       keep: true,
       value: (c) => c.section,
-      cell: (c) => <Link href={`/growth/class/${encodeURIComponent(c.section)}`}>Against every skill →</Link>,
+      cell: (c) => (
+        <Link href={`/growth/class/${encodeURIComponent(c.section)}`} className="text-basalt/60">
+          Against every skill →
+        </Link>
+      ),
     },
   ];
   return <DataTable label="Classes" columns={columns} rows={rows} rowKey={(c) => c.section} more={{ page, href: pageHref }} />;
