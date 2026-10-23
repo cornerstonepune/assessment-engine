@@ -154,7 +154,12 @@ test("Curriculum shows grades, topics and skills with what each level asks; the 
   await expect(skill.getByRole("listitem").first()).toContainText(/^(Easy|Medium|Hard|Advance) · \S+/);
   // none of the bank's counts, nor its other doors, nor the word the team uses for its map
   const main = page.getByRole("main");
-  for (const word of ["Questions", "Worksheets", "Children assessed", "taxonomy", "Every question in the bank"]) {
+  // the bank's own labels are whole words of their own (a column, a count); a skill's sentence may say "questions" (English's)
+  for (const word of ["Questions", "Worksheets", "Children assessed"]) {
+    await expect(main.getByText(word, { exact: true }), word).toHaveCount(0);
+    await expect(main.getByRole("columnheader", { name: word }), `${word} column`).toHaveCount(0);
+  }
+  for (const word of ["taxonomy", "Every question in the bank"]) {
     await expect(main.getByText(word, { exact: false }), word).toHaveCount(0);
   }
   // one link puts them there

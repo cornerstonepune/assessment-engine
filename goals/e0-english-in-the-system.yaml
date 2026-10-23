@@ -1,0 +1,56 @@
+name: e0-english-in-the-system
+goal: >
+  The English Grades 3 and 4 content is in the system as drafts, in the existing tables, and the school's English
+  educator reviews it on the Curriculum page. `engine load` puts in the English subject, its 8 topics, its 109 skills,
+  their 436 levels (Easy, Medium, Hard, Advance, each in the school's words with its rule), its 15 kinds of question
+  that go on paper, which kinds each level uses (833), the 340 named mistakes and which skill watches for which (405),
+  and what comes before each skill (115). Every row is the seed's, counted, and loading twice moves nothing. Nothing
+  English is approved by the load, so nothing English can be drawn onto a paper until a person approves it. On the
+  Curriculum page, each English skill shows what each level means and the kinds and mistakes it uses; a kind a person
+  reads every answer of says "a person checks every answer"; any member of staff approves a level or a kind, and the
+  record keeps their name and the date. Built in rows that exist; what they cannot hold waits, named in
+  docs/notes/e0-english-in-the-system.md.
+
+# Written 2026-10-22, before the code. Nimish, 2026-10-22 (BUILD-ORDER "E0"): "Ayush is a part of Cornerstone. He has the
+# account... This entire thing should fold within our system itself... a part of a curriculum system that will finally
+# connect to the assessment engine... he'll log into the system and all his responses will be logged in properly".
+# Finding, before any code: three things in the English seed have no row to live in, and a structural change is not
+# part of E0 (the schema track owns tables, one slice at a time): (1) a sample's answer and its wrong answers each
+# naming a mistake (`skill_level_sample` holds one line of text; its triggers also re-make a skill's rows from the
+# level's words), (2) "send back with a reason" (the approval records hold approvals only), (3) the three observed
+# kinds (`question_type.reaches` allows printed, read aloud, drawn). They are not loaded and not faked; the note says
+# which slice each waits on.
+says:
+  - words: "the English Grades 3–4 content is loaded as drafts into the existing tables"
+    proved_by: packages/engine/tests/test_e0_english.py::test_every_row_of_the_seed_that_a_table_can_hold_is_loaded_and_loading_twice_moves_nothing
+  - words: "Nothing English can be drawn onto a paper until approved"
+    proved_by: packages/engine/tests/test_e0_english.py::test_an_unapproved_english_kind_or_level_is_never_drawn
+  - words: "he'll log into the system and all his responses will be logged in properly"
+    proved_by: packages/engine/tests/test_e0_english.py::test_an_approval_of_a_kind_records_the_name_and_the_date
+  - words: "a part of a curriculum system that will finally connect to the assessment engine"
+    proved_by: packages/engine/tests/test_e0_english.py::test_the_maths_is_exactly_as_it_was
+  - words: "a part of a curriculum system that will finally connect to the assessment engine"
+    proved_by: packages/engine/tests/test_e0_english.py::test_a_question_type_written_later_does_not_take_the_englishes_links_for_good
+  - words: "This entire thing should fold within our system itself"
+    proved_by: "apps/web/tests/e0-english.spec.ts::an educator reads an English skill's levels, kinds and mistakes and approves a level and a kind in their own name"
+  - words: "Every staff member may do it"
+    proved_by: "apps/web/tests/e0-english.spec.ts::every member of staff is offered the approval"
+manual:
+  - "A sample's question, right answer and wrong answers (each naming its mistake) are not in the system: no table holds them, and E0 adds no table. The educator reads them in the document of PR #272 until a slice gives them a home. Nimish decides which."
+  - "Send back with a reason is not built: no record holds a reason. It waits for C5 (one approval list for everything new), or a slice Nimish names."
+  - "The 3 observed kinds (read aloud, talk, extended) and the 56 observed skills wait for C2 (one evidence record for every kind)."
+  - "Whether each skill, level and kind is right for a child of 8 or 9 is the educator's judgement; the system only keeps what he approves."
+scenarios: []
+criteria:
+  - name: the English rows, the maths unchanged, nothing drawn before approval
+    run: cd packages/engine && .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_e0_english.py
+    expect: "passed"
+  - name: the loader is idempotent
+    run: bin/engine load --check
+    expect: "unchanged on a second run"
+  - name: the page, with an English skill and an educator
+    run: cd apps/web && npx playwright test tests/e0-english.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

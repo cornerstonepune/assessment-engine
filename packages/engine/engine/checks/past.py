@@ -22,9 +22,16 @@ PARTS: dict[str, LiteralString] = {
     " working_shown, state, confirmed_by, confirmed_at) as r from item_result",
 }
 
+# What a migration of the curriculum's tables must leave as it was (C1 on): the questions and the skills' levels. Read
+# before and after the migrations only; update-live then writes the bank, as it is meant to.
+CURRICULUM: dict[str, LiteralString] = {
+    "questions": "select i::text as r from item i",
+    "levels": "select l::text as r from skill_level l",
+}
 
-def fingerprint(conn: db.Conn) -> dict[str, dict[str, Any]]:
-    """{part: {n, checksum}} for the evidence, the children's states and the scored answers."""
+
+def fingerprint(conn: db.Conn, parts: dict[str, LiteralString] = PARTS) -> dict[str, dict[str, Any]]:
+    """{part: {n, checksum}} for the evidence, the children's states and the scored answers, or the parts given."""
     return {
         part: dict(
             db.one(
@@ -33,12 +40,14 @@ def fingerprint(conn: db.Conn) -> dict[str, dict[str, Any]]:
                 f" from ({sql}) x",
             )
         )
-        for part, sql in PARTS.items()
+        for part, sql in parts.items()
     }
 
 
-def past() -> None:
+def past(
+    curriculum: bool = typer.Option(False, "--curriculum", help="the questions and levels instead"),
+) -> None:
     """The evidence, the children's states and the scored answers, each as a count and a checksum."""
     with db.connect() as conn:
-        for part, f in fingerprint(conn).items():
+        for part, f in fingerprint(conn, CURRICULUM if curriculum else PARTS).items():
             typer.echo(f"{part:<9} {f['n']:>8} rows  checksum {f['checksum']}")

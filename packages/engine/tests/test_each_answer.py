@@ -108,40 +108,79 @@ def test_a_tick_or_a_sentence_is_never_the_childs_handwriting_in_the_notebook():
     assert second_reader._groups({"1.right": tick}) == {}, "nothing the second reader is asked about"
 
 
-def test_a_printed_copy_that_did_not_line_up_asks_the_region_reader_only_for_one_number_questions(
-    monkeypatch,
-):
-    """When a printed copy's boxes cannot be found, its page is read by the words printed above each answer — which
-    reads one number a question. A second answer, a tick or a reason there is a person's, with the reason."""
+def _page_of(monkeypatch, region):
+    """`reading.read_pages` on one page, every outside service stood in: the boxes never line up, and `region` stands
+    in for the reader by words."""
+    monkeypatch.setattr(reading.ocr, "settings", lambda conn: {})
+    monkeypatch.setattr(reading.ocr, "mask_red_pen", lambda jpeg, cfg: jpeg)
+    monkeypatch.setattr(reading.digits, "settings", lambda conn: {"min_confidence": 90})
+    monkeypatch.setattr(reading.render_pdf, "photo", lambda path, page: (None, None))
+    monkeypatch.setattr(reading.crops, "keeper", lambda path, page: None)
+    monkeypatch.setattr(reading.boxes, "read_page", lambda *a, **k: None)
+    monkeypatch.setattr(reading.stencil, "read_page", region)
+    monkeypatch.setattr(legacy, "second_look", lambda *a, **k: None)
+    one = {
+        "spec": {"page": 1, "question": "q"},
+        "responses": [{"rid": "ans", "kind": "digits", "answer": "12"}],
+    }
+    est, ans = (
+        {"rid": "est", "kind": "digits", "answer": "10"},
+        {"rid": "ans", "kind": "digits", "answer": "12"},
+    )
+    two = {"spec": {"page": 1, "question": "q"}, "responses": [est, ans]}
+    tick = {
+        "spec": {"page": 1, "question": "q"},
+        "responses": [{"rid": "right", "kind": "tick", "answer": "right"}],
+    }
+    by_key = {"1": one, "2": {**two, "response": est}, "2.ans": {**two, "response": ans}, "3": tick}
+    by_key = {k: {**it, "item_key": k.split(".")[0]} for k, it in by_key.items()}
+
+    def read(paper):
+        scan = {"path": "x.pdf", "paper": paper, "paper_code": "P", "by_key": by_key, "page_numbers": [1],
+                "images": [b""]}  # fmt: skip
+        return reading.read_pages(None, scan, None, None, notes={}, second=False)[0]
+
+    return read
+
+
+def test_a_printed_page_that_did_not_line_up_goes_whole_to_a_person(monkeypatch):
+    """R2 (Nimish, 2026-10-22): a page of the school's own paper whose boxes cannot be found goes whole to a person. It
+    was read by the words printed above each answer instead, and on a page of pictures, where several questions' words
+    are not found, one field went to all of them: on 22 Oct, one box to Q1, Q7 and Q8 of a Grade 1 copy."""
+    asked = []
+    read = _page_of(
+        monkeypatch,
+        lambda jpeg, questions, *a, **k: asked.append(questions) or {q: _wrote("12") for q in questions},
+    )
+    page = read({"fields": "cells", "geometry": [1], "printed": "x.pdf"})
+    assert asked == [], "a printed page is never read by its words"
+    got = page["readings"]
+    assert set(got) == {"1", "2", "2.ans", "3"}, "every answer on the page is there, for a person"
+    assert all(r["child_answer"] == "" and r["guess"] == "" for r in got.values()), (
+        "nothing read, nothing guessed"
+    )
+    assert {k for k, r in got.items() if r["answer_state"] == "not_found"} == {"1", "2", "2.ans"}
+    assert all(got[k]["why"] == boxes.UNALIGNED for k in ("1", "2", "2.ans")), "the reader's failure, said so"
+    assert got["3"]["answer_state"] == "for_a_person" and profiles.never_read(got["3"]["why"]), (
+        "a tick is a person's to read, lined up or not"
+    )
+    assert "did not line up" in page["note"] and "4 for a person" in page["note"]
+
+
+def test_a_paper_entered_by_hand_is_still_read_by_its_words(monkeypatch):
+    """A paper entered by hand records no boxes: its every question is read by the words above it, as before R2."""
     asked = {}
 
     def region(jpeg, questions, *a, **k):
         asked.update(questions)
         return {q: _wrote("12") for q in questions}
 
-    monkeypatch.setattr(reading.stencil, "read_page", region)
-    monkeypatch.setattr(legacy, "second_look", lambda *a, **k: None)
-    one = {"spec": {"page": 1}, "responses": [{"rid": "ans", "kind": "digits", "answer": "12"}]}
-    est, ans = (
-        {"rid": "est", "kind": "digits", "answer": "10"},
-        {"rid": "ans", "kind": "digits", "answer": "12"},
+    read = _page_of(monkeypatch, region)
+    got = read({"fields": "boxes"})["readings"]
+    assert set(asked) == {"1", "2", "2.ans", "3"}, (
+        "every question is given, so each one's region ends at the next"
     )
-    two = {"spec": {"page": 1}, "responses": [est, ans]}
-    tick = {"spec": {"page": 1}, "responses": [{"rid": "right", "kind": "tick", "answer": "right"}]}
-    by_key = {"1": one, "2": {**two, "response": est}, "2.ans": {**two, "response": ans}, "3": tick}
-    questions = dict.fromkeys(by_key, "q")
-    for printed, read in (({"geometry": [1]}, {"1"}), ({}, set(by_key))):
-        asked.clear()
-        scan = {"path": "x.pdf", "paper": {"fields": "boxes", **printed}, "paper_code": "P", "by_key": by_key}
-        got = reading._by_region(scan, 1, questions, b"", 0, {}, None)
-        assert {"1", "2", "3"} <= set(asked), "every question is given, so each one's region ends at the next"
-        assert {k for k, r in got.items() if r.get("child_answer") == "12"} == read, printed
-    got = reading._by_region({**scan, "paper": {"geometry": [1]}}, 1, questions, b"", 0, {}, None)
-    assert got["2"]["answer_state"] == got["2.ans"]["answer_state"] == "not_found"
-    assert got["2"]["why"] == boxes.UNALIGNED, "a number whose boxes were not found: the reader's failure"
-    assert got["3"]["answer_state"] == "for_a_person" and profiles.never_read(got["3"]["why"]), (
-        "a tick is a person's to read, lined up or not"
-    )
+    assert all(r["child_answer"] == "12" for r in got.values())
 
 
 # ---------------------------------------------------------------------------------------------- reading, every box

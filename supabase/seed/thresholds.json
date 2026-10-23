@@ -355,6 +355,18 @@
    "value": 15,
    "unit": "minutes",
    "description": "How far back the sign-in page counts an email's wrong passwords"
+  },
+  {
+   "key": "across.papers_missing_days",
+   "value": 3,
+   "unit": "days",
+   "description": "A paper given (or printed, where no one said the day) this many days ago and not back is listed on the page across classes (goals/s7-across-classes.yaml)"
+  },
+  {
+   "key": "across.check_overdue_hours",
+   "value": 48,
+   "unit": "hours",
+   "description": "An answer waiting for a person this long after its paper was read is overdue on the page across classes (goals/s7-across-classes.yaml)"
   }
  ]
 }
