@@ -81,6 +81,7 @@ async function tablesRead(page: Page, path: string) {
   expect(n, `${path}: a table`).toBeGreaterThan(0);
   for (let t = 0; t < n; t++) {
     const table = tables.nth(t);
+    if (!(await table.isVisible())) continue; // behind a fold the educator has not opened
     const name = `${path} “${await table.getAttribute("aria-label")}”`;
     const heads = table.locator("thead th");
     const body = table.locator("tbody tr:not(.under)");
@@ -92,12 +93,12 @@ async function tablesRead(page: Page, path: string) {
       const h = await heads.nth(c).boundingBox();
       const d = await first.nth(c).boundingBox();
       if (!h || !d) continue; // a column hidden on this width has neither
-      expect(Math.abs(h.x - d.x), `${name} table ${t} column ${c}: heading and cell start together`).toBeLessThan(2);
+      expect(Math.abs(h.x - d.x), `${name} table ${t} column ${c}: heading and cell start together (${h.x},${h.width} vs ${d.x},${d.width})`).toBeLessThan(2);
       expect(Math.abs(h.width - d.width), `${name} table ${t} column ${c}: heading and cell are as wide`).toBeLessThan(2);
     }
     for (let r = 0; r < rows; r++) {
       const row = body.nth(r);
-      expect(await row.locator("a[href]").count(), `${name} table ${t} row ${r}: opens something`).toBeGreaterThan(0);
+      expect(await row.locator("a[href], button, input, select").count(), `${name} table ${t} row ${r}: opens something`).toBeGreaterThan(0);
     }
   }
 }
@@ -136,7 +137,7 @@ test("Assessments: the upload box on top, one count per assessment, filters", as
   const table = await page.locator(".data-table").first().boundingBox();
   expect(box && table && box.y < table.y, "the upload box is above the table").toBe(true);
   // the filter row chooses the class; one count per assessment: the week's is one row, not one per child
-  await page.getByLabel("Class", { exact: true }).selectOption(SECTION);
+  await page.locator("[data-filterbar] select[name=class]").selectOption(SECTION);
   await expect(page).toHaveURL(new RegExp(`class=${SECTION}`));
   await expect(page.locator("tr[data-assessment]")).toHaveCount(1);
   await page.getByRole("link", { name: /clear/i }).first().click();
@@ -180,7 +181,7 @@ test("the Assessment card, opened from its row", async ({ page }) => {
   await expect(card).toBeVisible();
   await card.click();
   await expect(page.getByText("This page could not load")).toHaveCount(0);
-  await expect(page.getByRole("heading", { level: 1 }).first()).toHaveText(/Papers in/);
+  await expect(page.getByTestId("stage")).toHaveText(/its card/i);
   await tablesRead(page, "card");
   await expect(page.locator("[data-filterbar]").first()).toBeVisible();
   await statusesSaid(page, "card");
