@@ -52,13 +52,13 @@ const STEP_STATE = (rows: PaperRow[]): { state: State; words?: string } => {
 type Kid = { rows: PaperRow[]; first: PaperRow };
 
 /** By child (goals/ux5b-make-and-marking.yaml, goals/uxn8-marking.yaml): a table of each class's children — Roll, Child,
- *  Paper, Waiting, Status, Next step. With no class chosen each class is its own table of its first ten, and a link to the
- *  rest; with one chosen, its children are paged. */
+ *  Paper, Waiting, Status, Next step; every class in class and roll order, ten to a page, or the one class chosen. */
 export function ByChild({ papers, section, page, pageHref }: { papers: PaperRow[]; section?: string; page: number; pageHref: (n: number) => string }) {
   const kids: Kid[] = [...groupBy(papers, (p) => p.child_id).values()]
     .map((rows) => ({ rows, first: rows[0] }))
     .sort((a, b) => a.first.section.localeCompare(b.first.section) || roll(a.first.roll_no) - roll(b.first.roll_no) || a.first.first_name.localeCompare(b.first.first_name));
   const columns: Column<Kid>[] = [
+    { key: "class", label: "Class", width: "9rem", value: (k) => k.first.section },
     { key: "roll", label: "Roll", num: true, width: "4.5rem", value: (k) => k.first.roll_no },
     { key: "child", label: "Child", width: "9rem", value: (k) => k.first.first_name, cell: (k) => <Link href={`/capture?child=${k.first.child_id}`}>{k.first.first_name}</Link> },
     {
@@ -74,7 +74,6 @@ export function ByChild({ papers, section, page, pageHref }: { papers: PaperRow[
       key: "next",
       label: "Next step",
       width: "11rem",
-      keep: true,
       value: (k) => nextStep(k.rows)?.words,
       cell: (k) => {
         const step = nextStep(k.rows);
@@ -85,11 +84,7 @@ export function ByChild({ papers, section, page, pageHref }: { papers: PaperRow[
   if (!kids.length) return <p className="note">No papers read yet.</p>;
   return (
     <section aria-label="By child">
-      {section ? (
-        <DataTable label={`Each child · ${section}`} columns={columns} rows={kids} rowKey={(k) => k.first.child_id} more={{ page, href: pageHref }} />
-      ) : (
-        <DataTable label="Each child" columns={columns} rows={kids} rowKey={(k) => k.first.child_id} more={{ by: (k) => k.first.section, href: (s: string) => `/capture?by=child&class=${encodeURIComponent(s)}` }} />
-      )}
+      <DataTable label={section ? `Each child · ${section}` : "Each child"} columns={columns} rows={kids} rowKey={(k) => k.first.child_id} more={{ page, href: pageHref }} />
     </section>
   );
 }

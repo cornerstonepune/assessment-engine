@@ -133,7 +133,7 @@ test("Home assessments and Marking open on the educator's own class", async ({ b
   await page.goto("/capture");
   // their one class is the table, and the Class filter says so
   await expect(page.getByRole("table", { name: `Each child · ${SECTION}` })).toBeVisible();
-  await expect(page.getByRole("search").getByLabel("Class")).toHaveValue(SECTION);
+  await expect(page.locator("[data-filterbar] select[name=class]")).toHaveValue(SECTION);
   await page.context().close();
 });
 
@@ -196,29 +196,28 @@ test("Marking says in one sentence what waits, and each child is one line with t
   await expect(page.locator("[data-ux=action]").getByRole("link", { name: /^check 2 answers/i })).toHaveAttribute("href", "/capture/check");
   const table = page.getByRole("table", { name: `Each child · ${SECTION}` });
   await expect(table).toBeVisible();
-  await expect(table.locator("thead th")).toHaveText(["Roll", "Child", "Paper", "Waiting", "Status", "Next step"]);
-  expect(await names(table.locator("tbody tr"))).toEqual(["Asha", "Bina", "Dev"]);
+  await expect(table.locator("thead th")).toHaveText(["Class", "Roll", "Child", "Paper", "Waiting", "Status", "Next step"]);
+  expect(await table.locator("tbody tr").evaluateAll((trs) => trs.map((t) => t.querySelectorAll("td")[2].textContent?.trim()))).toEqual(["Asha", "Bina", "Dev"]);
   const cells = (who: string) => table.locator("tbody tr").filter({ hasText: who }).locator("td");
-  await expect(cells("Asha").nth(2).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.asha.id}`);
-  await expect(cells("Asha").nth(2)).toHaveText(sheet.asha.title);
-  await expect(cells("Asha").nth(3)).toHaveText("2");
-  await expect(cells("Asha").nth(5).getByRole("link")).toHaveText("Check 2 answers →");
-  await expect(cells("Asha").nth(5).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.asha.id}`);
-  await expect(cells("Bina").nth(3)).toHaveText("—");
-  await expect(cells("Bina").nth(5).getByRole("link")).toHaveText("Sign off →");
-  await expect(cells("Bina").nth(5).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.bina.id}`);
-  await expect(cells("Dev").nth(4)).toContainText("signed off");
-  await expect(cells("Dev").nth(5).getByRole("link")).toHaveCount(0);
+  await expect(cells("Asha").nth(3).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.asha.id}`);
+  await expect(cells("Asha").nth(3)).toHaveText(sheet.asha.title);
+  await expect(cells("Asha").nth(4)).toHaveText("2");
+  await expect(cells("Asha").nth(6).getByRole("link")).toHaveText("Check 2 answers →");
+  await expect(cells("Asha").nth(6).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.asha.id}`);
+  await expect(cells("Bina").nth(4)).toHaveText("0");
+  await expect(cells("Bina").nth(6).getByRole("link")).toHaveText("Sign off →");
+  await expect(cells("Bina").nth(6).getByRole("link")).toHaveAttribute("href", `/capture/${sheet.bina.id}`);
+  await expect(cells("Dev").nth(5)).toContainText("signed off");
+  await expect(cells("Dev").nth(6).getByRole("link")).toHaveCount(0);
   await page.context().close();
 });
 
-test("the coordinator sees each class as its own table, and one class paged when it is chosen", async ({ page }) => {
-  await page.goto("/capture");
-  await expect(page.getByRole("table", { name: `Each child · ${SECTION}` })).toBeAttached();
-  await expect(page.getByRole("region", { name: SECTION })).toBeAttached();
-  // a class chosen opens where it is, in the filter row
+test("the coordinator sees every class in one table, and one class when it is chosen", async ({ page }) => {
+  // every class is one table, a class column in it; a class chosen opens where it is, in the filter row
   await page.goto(`/capture?class=${SECTION}`);
   await expect(page.locator("[data-active-filters]")).toContainText(`Class: ${SECTION}`);
   await expect(page.getByRole("table", { name: `Each child · ${SECTION}` })).toBeVisible();
   await expect(page.getByRole("table", { name: /^Each child/ })).toHaveCount(1);
+  await page.goto("/capture");
+  await expect(page.getByRole("table", { name: "Each child" }).locator("thead th").first()).toHaveText("Class");
 });

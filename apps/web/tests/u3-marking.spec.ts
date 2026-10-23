@@ -156,7 +156,7 @@ test("marking is one area, and says how many papers are in and where every answe
   expect(await shown(page.getByRole("region", { name: "Answers to check" }))).toEqual(await counts());
 
   // checking answers is inside Marking, not a page of its own
-  await page.getByRole("link", { name: /^check \d+ answers/i }).click();
+  await page.locator("[data-ux=action]").getByRole("link", { name: /^check \d+ answers/i }).click();
   await expect(page).toHaveURL(/\/capture\/check/);
   await expect(menu.getByRole("link", { name: "Check answers" })).toHaveAttribute("aria-current", "page");
   await page.getByRole("link", { name: "← Upload papers" }).click();
@@ -165,7 +165,7 @@ test("marking is one area, and says how many papers are in and where every answe
 
 test("by class, by child and by worksheet, each count is where the engine says each answer stands", async ({ page }) => {
   // by class: the test's class, as its papers were made
-  await page.goto("/capture?by=class");
+  await page.goto(`/capture?by=class&class=${SECTION}`);
   const cls = page.getByRole("row").filter({ has: page.getByRole("link", { name: SECTION, exact: true }) });
   const mine = await counts(sql`ch.section = ${SECTION}`);
   expect(mine).toEqual({ papers: 3, engine: 8, person: 3, waiting: 4 });
@@ -190,7 +190,7 @@ test("by class, by child and by worksheet, each count is where the engine says e
   }
 
   // by worksheet: every child who sat it, together
-  await page.goto("/capture?by=worksheet");
+  await page.goto(`/capture?by=worksheet&class=${SECTION}`);
   const a = page.getByRole("row").filter({ has: page.getByRole("link", { name: "U3 paper A", exact: true }) });
   const sheetA = await counts(sql`t.batch_id = 'U3-A'`);
   expect(sheetA).toEqual({ papers: 2, engine: 6, person: 2, waiting: 2 });

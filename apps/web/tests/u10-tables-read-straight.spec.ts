@@ -105,14 +105,14 @@ test("how the reader is doing is one table, by day first, by kind or by how sure
   const panel = page.getByRole("region", { name: "How the reader is doing" });
   const table = panel.getByRole("table", { name: "How the reader is doing" });
   await expect(panel.getByRole("table")).toHaveCount(1);
-  await expect(panel.getByLabel("Show")).toHaveValue("");
+  await expect(panel.locator("select[name=reader]")).toHaveValue("");
   await expect(table.locator("thead th").first()).toHaveText("Papers read on");
   await expect(table.locator("thead th").nth(1)).toHaveText("Answers checked");
   await expect(table.locator("thead th").nth(2)).toHaveText("Reader right");
 
   await page.goto("/capture?reader=kind");
   const kinds = page.getByRole("region", { name: "How the reader is doing" }).getByRole("table", { name: "How the reader is doing" });
-  await expect(page.getByRole("region", { name: "How the reader is doing" }).getByLabel("Show")).toHaveValue("kind");
+  await expect(page.getByRole("region", { name: "How the reader is doing" }).locator("select[name=reader]")).toHaveValue("kind");
   await expect(kinds.locator("thead th").first()).toHaveText("Kind of question");
   // every kind in words: never a code like word_2step
   for (const kind of await kinds.locator("tbody td:first-child").allInnerTexts()) expect(kind).not.toMatch(/_/);

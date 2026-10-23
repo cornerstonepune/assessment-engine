@@ -285,7 +285,7 @@ test("Capture & Mark lists students by class; a student lists their papers; a pa
 
   // the first student in the list steps to the next one with something left to check
   await page.goto(`/capture?class=${encodeURIComponent(c.section)}`);
-  await page.getByRole("table", { name: `${c.section}: each child` }).getByRole("link").first().click();
+  await page.getByRole("table", { name: `Each child · ${c.section}` }).getByRole("link").first().click();
   const first = new URL(page.url()).searchParams.get("child");
   await page.getByRole("link", { name: /^Next child to check: / }).click();
   await expect(page).not.toHaveURL(new RegExp(`child=${first}$`));
@@ -369,11 +369,13 @@ test("Capture & Mark says how the reader is doing, with the database's own numbe
     where c.superseded_by is null and l.judged is null
       and (l.item_result_id is not null or (r.state = 'confirmed' and coalesce(r.raw_read::jsonb ->> 'why', '') <> ''))`;
   await page.goto("/capture");
+  // behind a fold, for the people who build the reader (docs/ux-rules.md, rule 8)
+  await page.getByText("How the reader is doing, for the people who build it").click();
   const panel = page.locator("section.panel", { has: page.getByRole("heading", { name: "How the reader is doing" }) });
   await expect(panel.getByText(`In every class, people have checked ${n.checked} answers the reader read.`)).toBeVisible();
   // one table, by day first; each kind of question's standing is a click away (goals/u10-tables-read-straight.yaml)
   await expect(panel.getByRole("table")).toHaveCount(1);
-  await panel.getByRole("button", { name: "By kind of question" }).click();
+  await panel.locator("select[name=reader]").selectOption("kind");
   await expect(panel.getByText(/a person checks every answer|trusted: settles alone/).first()).toBeVisible();
 });
 
