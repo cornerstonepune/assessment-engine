@@ -105,6 +105,7 @@ export async function AssessmentsTable({
         <>
           {papersIn(a)} of {a.copies}
           {a.spares ? <span className="block text-[11.5px] text-basalt/55">and {a.spares} spare</span> : null}
+          {a.extras ? <span className="block text-[11.5px] text-basalt/55">and {a.extras} extra</span> : null}
         </>
       ),
     },

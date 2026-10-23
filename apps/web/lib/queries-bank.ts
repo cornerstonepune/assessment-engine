@@ -62,10 +62,12 @@ export type ItemRow = {
  *  none is every grade (goals/ux6-curriculum-for-the-educator.yaml). */
 export type ItemFilter = { set?: string; difficulty?: string; fmt?: string; status?: string; find?: string; scope?: Scope; grades?: string[] };
 
-// A question of a skill taught in any class of the scope.
+// A question of a skill taught in any class of the scope. The taught skills are found once, not once per question: per
+// question, every question asked every child's class (29,000 × the roll), and the bank's page passed its 8 s (CI,
+// 2026-10-23: 9.7 s at 60 children, nothing taught; 0.07 s so).
 const ofTaughtSkill = (scope: Scope = EVERY_CLASS) => sql`
-  exists (select 1 from skill ts where ts.tenant_id = i.tenant_id and ts.code = i.skill_set_code
-          and ${skillTaughtFor(scope, sql`ts.tenant_id`, sql`ts.code`)})`;
+  (i.tenant_id, i.skill_set_code) in (select ts.tenant_id, ts.code from skill ts
+                                      where ${skillTaughtFor(scope, sql`ts.tenant_id`, sql`ts.code`)})`;
 
 // What a person typed, looked for as it is: LIKE's own % and _ (and its escape, \) are escaped, never wildcards.
 const containing = (words: string) => `%${words.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;

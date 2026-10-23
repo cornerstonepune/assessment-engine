@@ -6,6 +6,8 @@ way of laying them that fits best stands if it fits clearly better than the next
 number in words and carry one QR between them, so the print is all there is to go by.
 """
 
+from typing import NamedTuple
+
 import cv2
 import numpy as np
 import pymupdf
@@ -58,7 +60,7 @@ def _fits(img, pdf, page_no, own):
     return _ruled(canon, pdf, page_no) * float(found)
 
 
-def _placing(pages, pdf, margin):
+def _placing(pages, pdf, margin, at=None):
     """(how well, which printed page each photograph is, how well the next best did): the way of laying the
     photographs on distinct pages of `pdf` that they fit (`_fits`) most. Not "in order": on 2026-10-22 four of ten
     copies of a two-page paper were photographed second page first, and a copy with as many photographs as the paper
@@ -75,12 +77,12 @@ def _placing(pages, pdf, margin):
     if k > n or n == 1:
         return None, list(range(1, k + 1)), None
     if k == n:
-        fit = _fitter(pages, pdf)
+        fit = at or _fitter(pages, pdf)
         in_order = list(range(1, n + 1))
         best, run = _best(fit, k, n)
         asis = sum(fit(i, i + 1) for i in range(k))
         return None, (run if best > 0 and best >= margin * asis else in_order), None
-    runs = _runs(pages, pdf)
+    runs = _runs(pages, pdf, at)
     return runs[0][0], runs[0][1], runs[1][0] if len(runs) > 1 else 0.0
 
 
@@ -113,24 +115,77 @@ def _fitter(pages, pdf):
     return at
 
 
-def _runs(pages, pdf):
+def _runs(pages, pdf, at=None):
     """The best and the next best way of laying `pdf`'s pages under the photographs, with how well they fit (`_fits`):
     [(score, pages)], best first. The next best is the best that differs from it in at least one photograph's page.
     Every photograph is measured against every page it could be."""
-    n, k, at = len(pymupdf.open(pdf)), len(pages), _fitter(pages, pdf)
+    return _runs_by(at or _fitter(pages, pdf), len(pages), len(pymupdf.open(pdf)))
+
+
+def _runs_by(at, k, n):
+    """`_runs` for `k` photographs whose fit to page `p` of an `n`-page paper is `at(i, p)`."""
     best = _best(at, k, n)
     others = [_best(at, k, n, {(i, p)}) for i, p in enumerate(best[1])]
     return [best, *sorted((o for o in others if o[1]), reverse=True)[:1]]
+
+
+class Placement(NamedTuple):
+    """`run`: the printed page each kept photograph is, in order (None where they cannot be told apart).
+    `refused`: {photograph (from 0): the page it IS}, each a repeat of a page an earlier photograph already is."""
+
+    run: list[int] | None
+    refused: dict[int, int]
+
+
+def _identity(at, i, n, margin):
+    """The one page photograph `i` is, when it fits that page `margin` times better than any other and fits it at all,
+    else None: a desk, or a photograph that fits every page alike (they share a layout), is nobody's repeat."""
+    scores = {p: at(i, p) for p in range(1, n + 1)}
+    top = max(scores, key=lambda p: (scores[p], -p))
+    rest = max((v for p, v in scores.items() if p != top), default=0.0)
+    return top if scores[top] > 0 and scores[top] >= margin * rest else None
+
+
+def _repeats(at, k, n, margin):
+    """{photograph: the page it IS} for each photograph that clearly is a page an earlier one clearly is already.
+    `_best` lays photographs on distinct pages whatever they fit, so a page photographed twice had its repeat laid on
+    the page the paper had left: the second of two photographs of page 1, fitting page 2 at 0.00 and page 1 at 0.81,
+    was page 2 (2026-10-23). The first photograph of a page is the page; the later ones are its repeats."""
+    seen, out = set(), {}
+    for i in range(k):
+        page = _identity(at, i, n, margin)
+        if page in seen:
+            out[i] = page
+        elif page:
+            seen.add(page)
+    return out
+
+
+def place(pages, pdf, margin) -> Placement:
+    """`placed`, and the photographs that are a page again: those are laid on no page (`refused`), and the rest are
+    placed as `placed` places them. Nothing is measured where nothing can differ: one page, or one photograph."""
+    n, k = len(pymupdf.open(pdf)), len(pages)
+    if n == 1 or k < 2 or k > n:
+        return Placement(placed(pages, pdf, margin), {})
+    at = _fitter(pages, pdf)
+    refused = _repeats(at, k, n, margin)
+    if not refused:
+        return Placement(_decided(*_placing(pages, pdf, margin, at), margin), {})
+    kept = [i for i in range(k) if i not in refused]
+    runs = _runs_by(lambda a, p: at(kept[a], p), len(kept), n)
+    return Placement(_decided(runs[0][0], runs[0][1], runs[1][0] if len(runs) > 1 else 0.0, margin), refused)
+
+
+def _decided(best, run, second, margin):
+    """What `_placing` found, as `placed` answers it: the run, or None where it does not fit `margin` times better than the next."""
+    return run if best is None or (best > 0 and best >= margin * second) else None
 
 
 def placed(pages, pdf, margin) -> list[int] | None:
     """Which page of `pdf` each photographed page of a copy is, in order (`_placing`) — or None when no way of laying
     them fits `margin` times better than the next: its answers are then not read against a key nobody can be sure of,
     and a person places the pages."""
-    best, run, second = _placing(pages, pdf, margin)
-    if best is None:
-        return run
-    return run if best > 0 and best >= margin * second else None
+    return _decided(*_placing(pages, pdf, margin), margin)
 
 
 def as_printed(pages, pdfs):

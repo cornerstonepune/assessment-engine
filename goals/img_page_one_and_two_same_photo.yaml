@@ -1,0 +1,35 @@
+name: img_page_one_and_two_same_photo
+goal: >
+  A paper's page 2 is never page 1 drawn again. On 2026-10-23, on the live check screen of one child's paper from the
+  20-page Grade 1 file (10 copies of 2 pages), "The whole page" showed "Page 1, as it was photographed" and a second
+  photograph that looked identical, though page 2 holds other questions (9 to 12). Root cause, reproduced on synthetic
+  pages (docs/notes/img-page-one-and-two-same-photo.md): placing.py laid the photographs of a copy on DISTINCT pages
+  whatever they fitted, so a second photograph of page 1 (fitting page 2 at 0.00 and page 1 at 0.81) was given page 2,
+  its four questions were read in page 2's boxes on page 1's pixels, and the screen drew it as page 2; and the image
+  server answers a page the file lacks with the file's last page. Now a photograph that is a page an earlier one already
+  is is refused (placing.place) and never stored as a page of the copy; the pages it leaves go whole to a person with
+  "page 2 not found" in words; and a reading made before is told by its pixels (same_page.pages_of) so the screen says
+  so without a re-read. No evidence row is edited or deleted.
+# Written 2026-10-23, before the code, from Nimish's report the same day.
+says:
+  - words: "showing the same 2 pages"
+    proved_by: "packages/engine/tests/test_photograph_page.py::test_a_page_photographed_twice_is_one_page_and_the_repeat_is_refused"
+  - words: "showing the same 2 pages"
+    proved_by: "packages/engine/tests/test_same_page.py::test_a_copy_whose_second_photograph_is_page_1_again_has_no_second_page_and_says_so"
+  - words: "showing the same 2 pages"
+    proved_by: "packages/engine/tests/test_same_page.py::test_a_reading_made_before_is_told_by_its_pixels"
+  - words: "showing the same 2 pages"
+    proved_by: "apps/web/tests/u61-page-two-is-not-page-one.spec.ts::a reading made before: page 2 that is page 1 again is not drawn, and the screen says page 2 is not found"
+manual:
+  - "After deploy: Read again on the 22 Oct Grade 1 file once (Marking, the scan, Read again); every copy whose second photograph is page 1 again then shows 'Page 2 not found' and its page 2 answers wait for a person. Copies already checked by a person keep their checks."
+scenarios: []
+criteria:
+  - name: the placing, the copies, the reader and the new page list did not break each other
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_photograph_page.py tests/test_same_page.py tests/test_boxes.py tests/test_copies.py tests/test_each_answer.py tests/test_lineup.py
+    expect: "passed"
+  - name: the screen says page 2 is not found and never draws a page twice
+    run: cd apps/web && npx playwright test --project=steps u61-page-two-is-not-page-one
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -18,6 +18,8 @@ export const STAGE_STATE: Record<Stage, State> = {
 export const opens = (p: PaperListRow) =>
   p.stage === "made" || p.stage === "printed" || p.stage === "replaced" ? `/worksheets/${encodeURIComponent(p.qr)}` : `/capture/${p.id}`;
 
+const isScored = (p: PaperListRow) => (p.stage === "checked" || p.stage === "signed off") && !!p.scored;
+
 const COLUMNS: Column<PaperListRow>[] = [
   { key: "roll", label: "Roll", width: "8%", num: true, value: (p) => p.roll_no },
   {
@@ -38,7 +40,18 @@ const COLUMNS: Column<PaperListRow>[] = [
     label: "Score",
     width: "14%",
     num: true,
-    value: (p) => ((p.stage === "checked" || p.stage === "signed off") && p.scored ? `${p.right} of ${p.scored}` : null),
+    value: (p) => (isScored(p) ? `${p.right} of ${p.scored}` : null),
+    // a paper with nothing right is probably the wrong page: said under the score (goals/dup_answers_listed_twice.yaml)
+    cell: (p) => (
+      <>
+        {isScored(p) ? `${p.right} of ${p.scored}` : null}
+        {isScored(p) && !p.right ? (
+          <span data-warn className="block text-[11.5px] text-terracotta">
+            {p.blank === p.scored ? "every answer blank" : "none right"}: is this the right page?
+          </span>
+        ) : null}
+      </>
+    ),
   },
 ];
 
@@ -46,12 +59,27 @@ const COLUMNS: Column<PaperListRow>[] = [
 // its work is; the spares, not yet written on, one line under them — they go with the pack and wait for no one. A class
 // is one table, up to forty children: the copies of one assessment are read together, never paged.
 export function CopiesTable({ title, rows }: { title: string; rows: PaperListRow[] }) {
-  const copies = rows.filter((p) => !p.spare);
+  const copies = rows.filter((p) => !p.spare && !p.extra);
   const spares = rows.filter((p) => p.spare);
+  const extras = rows.filter((p) => p.extra);
   return (
     <div className="pb-2">
       {copies.length ? (
         <DataTable label={`${title}: each copy`} columns={COLUMNS} rows={copies} rowKey={(p) => p.id} more={{ page: 1, href: () => "" }} limit={40} extras={{ attrs: (p) => ({ "data-paper": p.id }) }} />
+      ) : null}
+      {extras.length ? (
+        <p data-extras className="mt-2 text-[12.5px] text-basalt/70">
+          {extras.length} extra {extras.length === 1 ? "copy" : "copies"} of {extras.length === 1 ? "a child" : "children"} who {extras.length === 1 ? "has" : "have"}{" "}
+          already handed theirs in, not read:{" "}
+          {extras.map((p, i) => (
+            <span key={p.id}>
+              <Link href={opens(p)} className="fact">
+                {p.qr}
+              </Link>
+              {i < extras.length - 1 ? ", " : ""}
+            </span>
+          ))}
+        </p>
       ) : null}
       {spares.length ? (
         <p data-spares className="mt-2 text-[12.5px] text-basalt/70">

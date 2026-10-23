@@ -78,6 +78,10 @@ export type PaperListRow = {
   waiting: number;
   right: number;
   scored: number;
+  /** Of `scored`, the answers left blank. */
+  blank: number;
+  /** A copy never handed back beside another copy of the same child's, which is read: said apart, not a second child. */
+  extra: boolean;
 };
 
 const LIMIT = 300;
@@ -85,7 +89,7 @@ const LIMIT = 300;
 /** The papers themselves, each with its stage and counts, before any filter. Void papers are left out. A function, not
  *  a constant: `sql` is touched only when data is asked for (lib/db.ts), never when the page is imported to build. */
 export const papersCte = () => sql`
-  papers as (
+  papers_raw as (
     select si.id, si.tenant_id, si.qr_code as qr, coalesce(si.kind, 'earlier') as kind, si.child_id, ch.roll_no, t.difficulty as level,
            -- a child's copy is at the child's grade, a spare at its class's (class_band, the one rule), and only a paper
            -- given to no class at its worksheet's (goals/ux2-one-count-one-thing.yaml)
@@ -102,7 +106,7 @@ export const papersCte = () => sql`
                 when a.n = 0 or a.waiting > 0 then 'scanned'
                 when a.candidate > 0 then 'checked'
                 else 'signed off' end as stage,
-           a.waiting, a.right, a.scored,
+           a.waiting, a.right, a.scored, a.blank,
            -- one assessment (goals/ui5-assessments-readable.yaml): a kind of paper given to a class in a week on one
            -- skill set (each child a worksheet of its own, the same skill) or on one worksheet; a class's home
            -- assessments and chosen papers for a week are one assessment, each child's drawn for them
@@ -144,11 +148,23 @@ export const papersCte = () => sql`
              count(*) filter (where r.status in ('unreadable', 'needs_teacher'))::int as waiting,
              count(*) filter (where r.state = 'candidate')::int as candidate,
              count(*) filter (where r.status = 'correct')::int as right,
-             count(*) filter (where r.status in ('correct', 'wrong', 'blank'))::int as scored
+             count(*) filter (where r.status in ('correct', 'wrong', 'blank'))::int as scored,
+             count(*) filter (where r.status = 'blank')::int as blank
       from capture k join item_result r on r.capture_id = k.id
       where k.sheet_instance_id = si.id and k.superseded_by is null
     ) a
     where si.print_status <> 'void'
+  ),
+  -- an extra copy: a child's copy of an assessment never handed back, beside another copy of the same assessment that is
+  -- read. A second batch of the same class's papers (the pack made twice) gives every child a second sheet; the read
+  -- one is the child's copy and this is said apart, never counted as a second child (goals/dup_answers_listed_twice.yaml)
+  papers as (
+    select r.*, r.set_key is not null and r.child_id is not null and r.stage in ('made', 'printed')
+           and exists (select 1 from papers_raw o
+                       where o.id <> r.id and o.child_id = r.child_id and o.kind = r.kind and o.section is not distinct from r.section
+                         and o.week is not distinct from r.week and o.set_key = r.set_key
+                         and o.stage in ('scanned', 'checked', 'signed off')) as extra
+    from papers_raw r
   )`;
 
 /** Every filter but the stage: the stage counts are counted across stages. Only the classes a person sees. */
@@ -185,7 +201,7 @@ export async function paperList(
       where c.id in (select child_id from shown where child_id is not null)
     )
     select s.id, s.qr, s.kind, s.title, s.section, s.band, s.child_id, names.first_name as child, s.roll_no, s.level,
-           s.set_key as set, s.spare, s.week, s.stage, s.waiting, s.right, s.scored
+           s.set_key as set, s.spare, s.extra, s.week, s.stage, s.waiting, s.right, s.scored, s.blank
     from shown s left join names on names.id = s.child_id
     order by ${order === "roll" ? sql`s.roll_no is null, roll_order(s.roll_no), s.roll_no, s.qr` : sql`s.day desc nulls last, s.created_at desc, s.section, s.qr`}`;
   return { rows: rows.slice(0, LIMIT), more: rows.length > LIMIT };
@@ -200,7 +216,7 @@ export async function paperFilters(
 ): Promise<{ stages: Record<Stage, number>; options: { classes: string[]; weeks: string[]; children: { id: string; label: string }[] } }> {
   const [counts, classes, weeks, children] = await Promise.all([
     sql<{ stage: Stage; n: number }[]>`
-      with ${papersCte()} select stage, count(*)::int as n from papers where ${narrowed(f, scope)} and not spare group by stage`,
+      with ${papersCte()} select stage, count(*)::int as n from papers where ${narrowed(f, scope)} and not spare and not extra group by stage`,
     sql<{ section: string }[]>`
       select distinct coalesce(si.section, c.section) as section from sheet_instance si
       left join child c on c.id = si.child_id
@@ -238,6 +254,8 @@ export type AssessmentRow = {
   /** Its children's copies; its spares, not yet written on, apart: they go with the pack. */
   copies: number;
   spares: number;
+  /** Its children's second copies, never handed back, beside a copy that is read. */
+  extras: number;
   /** Its copies at each stage. */
   by: Record<Stage, number>;
   waiting: number;
@@ -256,10 +274,11 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
     -- the lowest grade of its copies, by the grades' order (grade_ord), never as text
     select kind, section, coalesce((array_agg(class_band order by grade_ord(tenant_id, class_band)) filter (where class_band is not null))[1],
                                    (array_agg(band order by grade_ord(tenant_id, band)))[1]) as band, week, set_key as set, min(set_name) as title,
-           min(subject) as subject, array_agg(qr) filter (where not spare) as qrs,
-           count(*) filter (where not spare)::int as copies, count(*) filter (where spare)::int as spares,
-           jsonb_build_object('made', count(*) filter (where stage = 'made' and not spare),
-                              'printed', count(*) filter (where stage = 'printed' and not spare),
+           min(subject) as subject, array_agg(qr) filter (where not spare and not extra) as qrs,
+           count(*) filter (where not spare and not extra)::int as copies, count(*) filter (where spare)::int as spares,
+           count(*) filter (where extra)::int as extras,
+           jsonb_build_object('made', count(*) filter (where stage = 'made' and not spare and not extra),
+                              'printed', count(*) filter (where stage = 'printed' and not spare and not extra),
                               'scanned', count(*) filter (where stage = 'scanned'),
                               'checked', count(*) filter (where stage = 'checked'),
                               'signed off', count(*) filter (where stage = 'signed off'),

@@ -23,8 +23,8 @@ export type WorksheetFilter = { set?: string; level?: string; scope?: Scope; gra
 // the same worksheets (goals/ux2-one-count-one-thing.yaml) — never one of a skill since replaced, which no list shows.
 const live = (f: WorksheetFilter) => sql`
   t.source = 'library' and t.retired_at is null
-  and exists (select 1 from skill ls where ls.tenant_id = t.tenant_id and ls.code = t.skill_set_code
-              and ${skillTaughtFor(f.scope ?? EVERY_CLASS, sql`ls.tenant_id`, sql`ls.code`)})
+  and (t.tenant_id, t.skill_set_code) in (select ls.tenant_id, ls.code from skill ls  -- found once, as the bank's (queries-bank.ts)
+                                          where ${skillTaughtFor(f.scope ?? EVERY_CLASS, sql`ls.tenant_id`, sql`ls.code`)})
   ${f.grades?.length ? sql`and exists (select 1 from skill_level wl where wl.tenant_id = t.tenant_id and wl.skill_code = t.skill_set_code
                                       and wl.difficulty = t.difficulty and wl.grade = any(${f.grades}))` : sql``}
   ${f.set ? sql`and t.skill_set_code = ${f.set}` : sql``}
