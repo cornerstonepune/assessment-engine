@@ -198,6 +198,7 @@ test("Curriculum, Maths then English, and Staff and School", async ({ page }) =>
   // the filter row says the subject too: its rows are that subject's alone
   await page.locator("[data-filterbar] select[name=subject]").selectOption("English");
   await expect(page).toHaveURL(/subject=English/);
+  await expect(page.getByRole("columnheader", { name: "Subject" })).toBeVisible();
   const column = (await page.locator(".data-table thead th").allInnerTexts()).findIndex((h) => h.trim().toLowerCase() === "subject");
   expect(column, "the table has a Subject column").toBeGreaterThanOrEqual(0);
   const cells = await page.locator(`.data-table tbody tr:not(.under) td:nth-child(${column + 1})`).allInnerTexts();
