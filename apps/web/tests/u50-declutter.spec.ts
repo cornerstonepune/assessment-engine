@@ -165,7 +165,9 @@ test("Curriculum shows each skill in a row with its levels and status; the bank'
     "taxonomy",
     "Every question in the bank",
   ]) {
-    await expect(main.getByText(word, { exact: false }), word).toHaveCount(0);
+    // a bank label is a whole label; a skill's own sentence may hold the word
+    const label = ["Questions", "Worksheets", "Children assessed"].includes(word);
+    await expect(main.getByText(word, { exact: label }), word).toHaveCount(0);
   }
   // one link puts them there
   await page.getByRole("link", { name: "Question bank details" }).click();
