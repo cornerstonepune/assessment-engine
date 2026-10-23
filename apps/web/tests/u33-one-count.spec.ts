@@ -82,8 +82,9 @@ test("the class papers Today counts are the copies the pages it opens show waiti
   // them as Today does (goals/ux5-papers-grouped.yaml)
   await page.goto("/today");
   await page.getByRole("listitem").filter({ hasText: `${CLASS} · class practice` }).getByRole("link").click();
-  await expect(page.getByRole("main").locator("tbody").getByText("to approve", { exact: true })).toHaveCount(2);
-  await expect(page.getByRole("main")).toContainText("1 unnamed");
+  // (the spare is a row of the pack's table, named as one: goals/uxn4-papers-to-approve.yaml)
+  await expect(page.getByRole("main").locator("tbody").getByText("to approve", { exact: true })).toHaveCount(3);
+  await expect(page.getByRole("main").locator("tbody tr").filter({ hasText: "Spare copy" })).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Approve 2 papers and 1 spare" })).toBeEnabled();
 });
 
