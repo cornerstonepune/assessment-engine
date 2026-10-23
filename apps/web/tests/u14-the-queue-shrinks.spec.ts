@@ -69,9 +69,8 @@ test("each kind of question says how many more checks before the reader is trust
     left join kind_trust t on t.tenant_id = (select id from tenant limit 1) and t.fmt = a.fmt
     order by a.fmt`;
   expect(want.length, "the test's paper has checked answers").toBeGreaterThan(0);
-  await page.goto("/capture");
+  await page.goto("/capture?reader=kind");
   const panel = page.getByRole("region", { name: "How the reader is doing" });
-  await panel.getByRole("group", { name: "Show the reader" }).getByRole("button", { name: "By kind of question" }).click();
   const table = panel.getByRole("table", { name: "How the reader is doing" });
   await expect(table.locator("thead th").last()).toHaveText("Checks to trust");
   await expect(table.locator("tbody tr td:last-child")).toHaveText(want.map(({ k }) => (k === 0 ? "trusted" : `${k} more`)));
