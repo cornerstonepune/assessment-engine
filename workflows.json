@@ -193,7 +193,6 @@
       "/library/[key]": ["filter", "shell", "table"],
       "/make/[section]/week": ["shell", "taglist"],
       "/make/custom": ["purpose", "shell", "taglist"],
-      "/papers/card": ["filter"],
       "/papers/make": ["filter", "purpose", "shell", "status", "table"],
       "/refused": ["shell"],
       "/skill-sets/[code]": ["filter", "purpose", "shell", "status", "table", "taglist"],

@@ -124,3 +124,9 @@ hand-built tables and chips: next slice.
   of everything. Off `ux.frozen`: `/today`. Spec added in `u1`.
 - Left as is on purpose: the lines are one list of counts, words and buttons, read by many specs as regions; turning them into a
   table would be its own slice.
+
+## The assessment's card (`/papers/card`) — goals/uxn11-assessment-card.yaml
+
+**Verified**
+- The table of each child's paper gained the page's one filter row ("Where it is") and shows where each paper is as the one
+  status chip (the same words and colours as Assessments). Off `ux.frozen`: `/papers/card`. Spec added in `s42`.
