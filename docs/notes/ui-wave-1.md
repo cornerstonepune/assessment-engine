@@ -4,15 +4,29 @@ Nimish, 23 Oct 2026: "I don't want to see all before-after; just go ahead and bu
 properly - only when I see it and interact with it on the dashboard can I suggest changes". Goal: `goals/ui-wave-1.yaml`
 (`bin/engine done ui-wave-1`). Web only: no migration, no engine change.
 
+Main moved while this was built: #290 itself merged (with #317, CI retry, and #318, a skill's name opens the skill), so
+main was merged in at the end (one conflict, `topics.tsx`, both sides kept).
+
 Supersedes the stacked drafts #290 #292 #297 #299 #301 #302 #304 #306 #307 #309 #310 #311 #312.
 Branch order: #290 (updated with main) → Curriculum + Staff/School (#297, #301) → main (already inside #290's update).
 #314 (whose-paper checking) was not green when this was built, so it is not in; it merges into main on its own.
 
 ## Verified
 
-Run on a database built from this repository (`bin/testdb fresh`), as CI does, at 1440 px.
+Run on databases built from this repository (`bin/testdb fresh`), as CI does, at 1440 px.
 
-- Full browser suite on the merged tree before the flow spec: `npx playwright test` → 371 passed (16.5 min).
+- Full browser suite, run from nothing on a database built by `bin/testdb fresh` (as CI does) on the finished page code:
+  `npx playwright test` → 379 passed, 1 failed (my own flow spec's Curriculum step, a read made before the filtered table had
+  drawn; fixed, `u60` → 9 passed). An earlier full run on a database already used by a first run failed 6 older specs
+  (`s2`, `s43`, `u15`, `u26`, `u43` and the flow spec): they leave rows behind and are written to run once on a fresh
+  copy. They all pass on a fresh one. After the last merge of main: `s2`, `s43`, `u15`, `u26`, `e2e`, `u13`, `u30`, `u52`,
+  `u53`, `u60` pass on a fresh copy; `u51`'s "Check answers lists what is left" reads a column that needs the other specs'
+  papers, as on main.
+- `bin/engine done ui-wave-1` → both of Nimish's sentences PROVED, 3 of 3 criteria PASSED; it ends "NOT DONE" only for "not on
+  main yet" and "the live database did not answer from here". `bin/engine done uxn1-design-system` → 3 sentences PROVED,
+  3 of 4 criteria PASSED; its fourth is the whole browser suite, which failed there because it ran on a used database (see
+  above). The other twelve UI goals each carry that same whole-suite criterion (about 20 minutes each, and a rerun on a used
+  database fails the same way), so they were not run through `engine done`; the one clean full run above covers their specs.
 - `tests/u60-ui-wave-1-flow.spec.ts` (new): Today → Assessments (upload box above the table, one row per assessment, the class
   filter and its clear) → Papers to approve → Print and give → Upload papers → Check answers → Marking → Class results (a
   class, a child) → the Assessment card → Curriculum (the Subject filter, then the top bar's subject, Maths and English) →
