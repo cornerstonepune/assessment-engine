@@ -1,0 +1,40 @@
+name: c2-one-evidence-record-for-every-kind
+goal: >
+  One evidence record for every kind (written, observed, voice, project, performance): each says who saw it, where,
+  which registry skill, its mark on its kind's scale (right / wrong / blank, or yes / sometimes / not yet) and its
+  source. The kinds, scales and marks are rows. A written answer's mark follows `correct` by itself, so right, wrong
+  and blank stay three; a record of any other kind is refused without who, where, its source, a registry skill or a
+  mark on its own scale. The maths graph reads written answers alone, and past rows are untouched (rule 4).
+# Written 2026-10-22, before the code, from BUILD-ORDER's locked scope of 22 Oct (slice C2, "Green means"). Measured on
+# a fresh build: every question's skills, and every mistake's skill, are registry keys (C1), so every written answer's
+# `skill_code` already names a registry skill; a new record of any kind must (a key, `not valid` for past rows). Nothing
+# writes a non-written record yet: the observation engine is the next build, out of scope; this slice gives it its
+# record.
+says:
+  - words: "one evidence record for every kind (written, observed, voice, project, performance)"
+    proved_by: "packages/engine/tests/test_evidence_every_kind.py::test_every_kind_is_a_row_with_its_scale"
+  - words: "who saw it, where, which registry skill, its scale (right/wrong/blank or yes/sometimes/not yet) and its source"
+    proved_by: "packages/engine/tests/test_evidence_every_kind.py::test_a_record_of_every_kind_says_who_where_which_skill_its_mark_and_source"
+  - words: "who saw it, where, which registry skill, its scale (right/wrong/blank or yes/sometimes/not yet) and its source"
+    proved_by: "packages/engine/tests/test_evidence_every_kind.py::test_a_record_missing_who_where_source_or_a_registry_skill_is_refused"
+  - words: "its scale (right/wrong/blank or yes/sometimes/not yet)"
+    proved_by: "packages/engine/tests/test_evidence_every_kind.py::test_a_mark_is_on_its_kinds_scale"
+  - words: "Three signals, never two. Blank, wrong, and wrong-with-working are distinct everywhere."
+    proved_by: "packages/engine/tests/test_evidence_every_kind.py::test_three_signals_never_two"
+  - words: "the observation engine (the next build, which C2 prepares)"
+    proved_by: "packages/engine/tests/test_evidence_every_kind.py::test_the_maths_graph_reads_written_answers_alone"
+  - words: "past rows untouched (rule 4)"
+    proved_by: "packages/engine/tests/test_evidence_every_kind.py::test_past_rows_are_untouched"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive; `engine past` prints the same evidence, states and scored answers (count and checksum) before and after, and the copy comes back clean."
+scenarios: []
+criteria:
+  - name: one record for every kind, past rows untouched
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_evidence_every_kind.py tests/test_live_data.py tests/test_graph.py tests/test_rules.py
+    expect: "passed"
+  - name: nothing else moved — the engine's whole suite
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
