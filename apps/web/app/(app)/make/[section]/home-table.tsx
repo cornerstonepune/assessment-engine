@@ -55,7 +55,7 @@ export function HomeTable({ rows, week, section, draws, differentFor, page, page
         );
       },
     },
-    { key: "why", label: "Why", value: (r) => (r.state === "done" ? "" : r.child.proposal.areas[0]?.why), cell: (r) => <span className="text-[12.5px] text-basalt/75">{r.state === "done" ? null : r.child.proposal.areas[0]?.why}</span> },
+    { key: "why", label: "Why", value: (r) => (r.state === "done" ? "" : r.child.proposal.areas[0]?.why), cell: (r) => <span className="block text-[12.5px] text-basalt/75 xl:min-w-[24rem]">{r.state === "done" ? null : r.child.proposal.areas[0]?.why}</span> },
     {
       key: "state",
       label: "Status",
