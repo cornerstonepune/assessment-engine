@@ -199,7 +199,9 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
 // as a spot-check: the smallest md5 of its id, so it is the same one every time and needs no row of
 // its own; it leaves the queue once a person has looked at it.
 
-export type QueueEntry = { id: string; spot: boolean };
+// `paper_id` is the child's copy, `scan` the folder of the file it was cut from, `roll_no` and `code` the child's roll number
+// and the code printed on their paper: names stay in `pii` (rule 6), so a list of children is by roll number.
+export type QueueEntry = { id: string; spot: boolean; paper_id: string; scan: string; roll_no: string; code: string };
 
 // How the reader is doing, from every check people have made (ADR 0032) — the same numbers as
 // `engine read report`: an answer counts once a person typed its reading or signed it off unchanged, and only one the
@@ -273,7 +275,7 @@ export async function readerReport(): Promise<ReaderReport> {
 export async function checkQueue(scope: Scope = EVERY_CLASS): Promise<QueueEntry[]> {
   return sql<QueueEntry[]>`
     with live as (
-      select r.id, r.rid, r.status, r.state, r.raw_read, r.item_id, c.sheet_instance_id
+      select r.id, r.rid, r.status, r.state, r.raw_read, r.item_id, c.sheet_instance_id, c.path
       from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null
     ),
     spot as (
@@ -288,7 +290,7 @@ export async function checkQueue(scope: Scope = EVERY_CLASS): Promise<QueueEntry
       select s.id, true from spot s
       where s.state = 'candidate' and not exists (select 1 from read_correction rc where rc.item_result_id = s.id)
     )
-    select q.id, q.spot from q
+    select q.id, q.spot, si.id as paper_id, regexp_replace(l.path, '/[^/]*$', '') as scan, ch.roll_no, si.qr_code as code from q
     join live l on l.id = q.id
     join item i on i.id = l.item_id
     join sheet_instance si on si.id = l.sheet_instance_id

@@ -24,12 +24,13 @@ from engine.api.models import (
     MarkRequest,
     MarkResponse,
     NameMistakeRequest,
+    PageChoiceRequest,
     ReadAgainRequest,
     ReadFileRequest,
     ReadFileResponse,
     TrustedResponse,
 )
-from engine.w3_read import again, copy_scores, inbox, keys, legacy, marking, naming, profiles
+from engine.w3_read import again, copy_scores, inbox, keys, legacy, marking, naming, profiles, whose_paper
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -149,6 +150,26 @@ def change_key(body: KeyRequest, conn=Depends(get_conn, scope="function")) -> di
 def capture_keys(capture_id: str, conn=Depends(get_conn, scope="function")) -> dict:
     """Each answer on a capture → the right answer its card prints, as stored, and who changed it (`keys.shown`)."""
     return {r["id"]: r for r in keys.shown(conn, capture_id)}
+
+
+@router.get("/capture/{capture_id}/proof")
+def capture_proof(capture_id: str, page: int = 1, conn=Depends(get_conn, scope="function")) -> dict:
+    """Whose paper this page is (`whose_paper.proof`): the scan, the copy, the page, the printed code, and a notice where
+    the page may not be this child's. `may_confirm` is what the screen reads to allow Yes."""
+    p = whose_paper.proof(conn, capture_id, page)
+    if p is None:
+        raise HTTPException(status_code=404, detail="no such capture")
+    return {**p, "may_confirm": whose_paper.may_confirm(p)}
+
+
+@router.post("/paper/page-choice")
+def page_choice(body: PageChoiceRequest, conn=Depends(get_conn, scope="function")) -> dict:
+    """A person says a page with a notice is, or is not, the child's (`whose_paper.choose`): a new row each time."""
+    try:
+        p = whose_paper.choose(conn, body.capture_id, body.file_page, body.choice, body.by)
+    except ValueError as why:
+        raise HTTPException(status_code=409, detail=str(why)) from why
+    return {**p, "may_confirm": whose_paper.may_confirm(p)}
 
 
 @router.get("/capture/{capture_id}/page/{page_no}.jpg")
