@@ -357,6 +357,10 @@ table.grid.steady tr.under td {
   table.grid.list td {
     display: block;
   }
+  /* the head is for a screen reader: its cells stack, so a wide column never carries a heading's link off the screen */
+  table.grid.list thead th {
+    display: block;
+  }
   table.grid.list tr {
     border-bottom: 1px solid var(--ink-16);
     padding: 6px 0;

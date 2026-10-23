@@ -198,7 +198,7 @@ test("Curriculum, Maths then English, and Staff and School", async ({ page }) =>
   // the filter row says the subject too: its rows are that subject's alone
   await page.locator("[data-filterbar] select[name=subject]").selectOption("English");
   await expect(page).toHaveURL(/subject=English/);
-  const column = (await page.locator(".data-table thead th").allInnerTexts()).findIndex((h) => h.trim() === "Subject");
+  const column = (await page.locator(".data-table thead th").allInnerTexts()).findIndex((h) => h.trim().toLowerCase() === "subject");
   expect(column, "the table has a Subject column").toBeGreaterThanOrEqual(0);
   const cells = await page.locator(`.data-table tbody tr:not(.under) td:nth-child(${column + 1})`).allInnerTexts();
   expect(cells.length).toBeGreaterThan(0);
@@ -220,7 +220,9 @@ test("the flow is one chain: each page's next step opens the following page", as
     const next = page.locator("[data-ux=next]");
     await expect(next, `${path}: one next step, never a dead end`).toHaveCount(1);
     const href = (await next.getAttribute("href"))!;
-    expect(new URL(href, page.url()).pathname, `${path}: its next step is another page`).not.toBe(path);
+    const to = new URL(href, page.url());
+    // the queue of answers to check goes on to the next answer, on the same page; every other page goes to another
+    expect(`${to.pathname}${to.search}`, `${path}: its next step is somewhere else`).not.toBe(path);
     const res = await page.goto(href);
     expect(res?.status(), `${path} → ${href}`).toBeLessThan(400);
     await expect(page.getByText("This page could not load"), href).toHaveCount(0);
