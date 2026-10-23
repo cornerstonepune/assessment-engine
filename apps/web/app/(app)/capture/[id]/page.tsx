@@ -40,6 +40,20 @@ async function keysOn(captureId: string): Promise<Record<string, Key>> {
   }
 }
 
+// Which pages of the paper the engine found a photograph of, and in words why not (`GET /capture/{id}/pages`,
+// goals/img_page_one_and_two_same_photo.yaml). A page that is another page again is never drawn as its own. The
+// engine down, every page is drawn as it was.
+type PageFound = { page: number; found: boolean; said: string | null };
+async function pagesOn(captureId: string): Promise<Record<number, PageFound>> {
+  try {
+    const res = await engineGet(`/capture/${captureId}/pages`);
+    return res.ok ? Object.fromEntries(((await res.json()) as PageFound[]).map((p) => [p.page, p])) : {};
+  } catch (e) {
+    if (e instanceof EngineDown) return {};
+    throw e;
+  }
+}
+
 // The three signals stay three (rule 5), and an answer nobody has settled is not one of them.
 const settled = (a: CaptureAnswer) => ["correct", "wrong", "blank"].includes(a.status);
 
@@ -49,7 +63,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   if (!isMine(reachOf(me), await deadline(paperSection({ id })))) return <NotYours what="This paper's class" />;
   const q = await searchParams;
-  const [paper, answers, names, skills, siblings, unnamed, keys] = await deadline(Promise.all([
+  const [paper, answers, names, skills, siblings, unnamed, keys, found] = await deadline(Promise.all([
     paperHeader(id, me.email),
     paperAnswers(id),
     misconceptionNames(),
@@ -57,6 +71,7 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
     sameChildPapers(id),
     unnamedOn(id),
     keysOn(id),
+    pagesOn(id),
   ]));
   if (!paper) notFound();
   const at = siblings.findIndex((s) => s.id === id);
@@ -230,7 +245,13 @@ export default async function CaptureDetail({ params, searchParams }: Props) {
             <Panel title="The whole page">
               {pages.map((n) => {
                 const first = answers.find((a) => a.page === n);
-                return first ? (
+                const lost = found[n] && !found[n].found ? found[n] : null;
+                return lost ? (
+                  <figure key={n} className="mb-3 last:mb-0" data-page-not-found={n}>
+                    <p className="border border-dashed border-basalt/40 p-4 text-sm">{lost.said}</p>
+                    <figcaption className="note mt-1">Its answers wait for you. Scan page {n} again and send it to be read.</figcaption>
+                  </figure>
+                ) : first ? (
                   <figure key={n} className="mb-3 last:mb-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={`/api/scan/${first.capture_id}/${first.file_page}`} alt={`Page ${n} of the paper`} className="w-full border border-basalt/14" />

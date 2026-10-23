@@ -8,7 +8,17 @@ reader's guess for whatever is left doubted.
 """
 
 from engine.adapters import digits, ocr
-from engine.w3_read import boxes, crops, lists, marking, profiles, render_pdf, second_reader, stencil
+from engine.w3_read import (
+    boxes,
+    crops,
+    lists,
+    marking,
+    profiles,
+    render_pdf,
+    same_page,
+    second_reader,
+    stencil,
+)
 
 
 def _by_region(scan, page_no, questions, jpeg, fraction, cfg, cli):
@@ -40,6 +50,22 @@ def _to_a_person(questions, by_key):
         state, why = ("not_found", boxes.UNALIGNED) if number else ("for_a_person", boxes.FOR_A_PERSON)
         out[k] = {"child_answer": "", "answer_state": state, "why": why, "guess": "", "confidence": 0.0}
     return out
+
+
+def _not_found(page_no, by_key):
+    """A page of the paper the copy's file has no photograph of — the photograph in its place was a page already
+    (`placing.place`, goals/img_page_one_and_two_same_photo.yaml) — whole to a person, who is told in words. Every answer
+    on it waits, a tick and a number alike: there is nothing to read, and no page is shown for it."""
+    questions = {
+        k: it["spec"]["question"] for k, it in by_key.items() if it["spec"].get("page", 1) == page_no
+    }
+    why = same_page.words(page_no)
+    readings = {
+        k: {"child_answer": "", "answer_state": "not_found", "why": why, "guess": "", "confidence": 0.0,
+            "page": page_no, "page_found": False}
+        for k in questions
+    }  # fmt: skip
+    return {"page_no": page_no, "jpeg": b"", "readings": readings or None, "note": f"p{page_no}: {why}"}
 
 
 def _digits(response):
@@ -135,4 +161,5 @@ def read_pages(conn, scan, cli, child_id, notes=None, second=True):
                 + (f"; {note}" if note else ""),
             }
         )
-    return out
+    # the pages of the paper the copy's file has no photograph of come after the photographs (`copies._read_copy`)
+    return out + [_not_found(p, by_key) for p in page_numbers[len(images) :]]
