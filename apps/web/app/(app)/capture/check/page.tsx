@@ -73,25 +73,20 @@ export default async function CheckAnswers({ searchParams }: Props) {
   const box = a?.box?.length === 4 && a.answer_state !== "not_found" ? `?box=${a.box.join(",")}` : "";
 
   const says = entry?.spot ? (a?.read ?? "") : (a?.guess ?? "");
-  // The one main action: the decision this answer waits for (Right/Wrong/Blank, "Yes, the child wrote…", or typing it).
-  const main = !a || !entry ? (
-    <Link href="/capture" className="btn">
-      Mark more papers
-    </Link>
-  ) : toJudge(a) ? (
-    <Judge a={a} next={next} />
-  ) : entry.spot || a.guess ? (
-    <Confirm a={a} next={next} says={says} />
-  ) : (
-    <TypeIt a={a} next={next} label="What the child wrote" primary />
-  );
-
   return (
     <PageShell
       stage="Assessments · check answers"
       title="Check the answers"
       purpose="Every answer the engine was not sure of, one at a time, with the child's own writing. Say what the child wrote; the engine marks it."
-      action={main}
+      action={
+      <div className="grid gap-2">
+        <p className="text-[14px]">
+          <Count of="answers to check" n={waiting} /> {waiting === 1 ? "answer" : "answers"} left to check · {spots} spot-
+          {spots === 1 ? "check" : "checks"} · answer {queue.length ? from + 1 : 0} of {queue.length}
+        </p>
+        <Bar tone="neem" share={queue.length ? from / queue.length : 1} width={320} />
+      </div>
+      }
       next={from + 1 < queue.length ? { href: `/capture/check?from=${from + 1}`, label: "Later — show the next one" } : { href: "/growth", label: "See the class results" }}
     >
       <p className="mb-4">
@@ -102,13 +97,6 @@ export default async function CheckAnswers({ searchParams }: Props) {
       {q.error === "engine" ? (
         <Notice tone="terracotta">The engine could not be reached, so that answer was not saved. Try it again.</Notice>
       ) : null}
-      <div className="mb-[18px] grid gap-2">
-        <p className="text-[14px]">
-          <Count of="answers to check" n={waiting} /> {waiting === 1 ? "answer" : "answers"} left to check · {spots} spot-
-          {spots === 1 ? "check" : "checks"} · answer {queue.length ? from + 1 : 0} of {queue.length}
-        </p>
-        <Bar tone="neem" share={queue.length ? from / queue.length : 1} width={320} />
-      </div>
 
       {!a || !entry ? (
         <EmptyState>Nothing is waiting. Every answer the engine read is settled — by the engine or by a person.</EmptyState>
@@ -180,14 +168,19 @@ export default async function CheckAnswers({ searchParams }: Props) {
                 </p>
               ) : null}
 
-              {/* the one main action is at the top of the page; the ways round it stay here */}
+              {/* the decision sits in the box with the sentence it answers */}
               {toJudge(a) ? (
                 // A judgement says whether the child is right, not what the child wrote: when the reading itself is
                 // wrong, it is corrected here and the engine marks it again.
-                <TypeIt a={a} next={next} label="Not what the child wrote? Type it" />
+                <>
+                  <Judge a={a} next={next} />
+                  <TypeIt a={a} next={next} label="Not what the child wrote? Type it" />
+                </>
               ) : (
                 <>
+                  {entry.spot || a.guess ? <Confirm a={a} next={next} says={says} /> : null}
                   {entry.spot || a.guess ? <TypeIt a={a} next={next} label="No — the child wrote" /> : null}
+                  {!entry.spot && !a.guess ? <TypeIt a={a} next={next} label="What the child wrote" primary /> : null}
                   <Nothing a={a} next={next} />
                 </>
               )}
