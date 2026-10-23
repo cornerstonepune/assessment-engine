@@ -30,7 +30,13 @@ test.beforeAll(async ({ browser }) => {
   const rows = Array.from({ length: 12 }, (_, i) => i + 1)
     .map((n) => `<div style="position:absolute;left:40px;top:${top(n)}px;font:44px sans-serif">${n} ${WORDS}</div>`)
     .join("");
-  await shot.setContent(`<body style="margin:0;background:white">${rows}</body>`);
+  await shot.setContent(`<body style="margin:0;background:white">${rows}</body>`, { waitUntil: "load" });
+  // Not before the page has laid out its fonts and painted two frames: a capture taken on a page that had not yet
+  // painted failed once in CI with "Page.captureScreenshot: Unable to capture screenshot" (run 39921528802), before
+  // any of the school's code ran.
+  await shot.evaluate(
+    () => document.fonts.ready.then(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))),
+  );
   const dir = mkdtempSync(path.join(tmpdir(), "ck1-"));
   const file = path.join(dir, "ck1-paper.png");
   writeFileSync(file, await shot.screenshot());

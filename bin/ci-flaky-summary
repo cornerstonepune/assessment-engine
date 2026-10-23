@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+// Lists the browser tests that failed and then passed on their retry, in the job's summary page and as a warning on the
+// run, so a one-off failure is seen and counted rather than hidden (docs/adr/0094). Reads Playwright's JSON report;
+// it never decides pass or fail, the step before it and the step after it do.
+//   bin/ci-flaky-summary apps/web/results.json
+const { appendFileSync, existsSync, readFileSync } = require("node:fs");
+
+const file = process.argv[2];
+if (!file || !existsSync(file)) {
+  console.log("no report to read: the tests did not get as far as writing one");
+  process.exit(0);
+}
+
+const flaky = [];
+const walk = (suite) => {
+  for (const spec of suite.specs ?? []) {
+    for (const test of spec.tests) {
+      if (test.status !== "flaky") continue;
+      const first = test.results.find((r) => r.status !== "passed" && r.status !== "skipped");
+      const why = String(first?.error?.message ?? "").replace(/\u001b\[[0-9;]*m/g, "").split("\n")[0].trim();
+      flaky.push({ where: `${spec.file}:${spec.line}`, title: spec.title, tries: test.results.length, why });
+    }
+  }
+  for (const child of suite.suites ?? []) walk(child);
+};
+for (const suite of JSON.parse(readFileSync(file, "utf8")).suites) walk(suite);
+
+const lines = flaky.length
+  ? [
+      `### ${flaky.length} flaky browser test${flaky.length > 1 ? "s" : ""}: failed once, passed on the retry`,
+      "",
+      "The run passed. Each of these failed its first attempt for a reason that may not be the product's; look at a test that appears here again.",
+      "",
+      ...flaky.map((f) => `- \`${f.where}\` ${f.title} (${f.tries} attempts): ${f.why}`),
+    ]
+  : ["### No flaky browser tests", "", "Every test passed on its first attempt."];
+console.log(lines.join("\n"));
+if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+for (const f of flaky) console.log(`::warning file=apps/web/${f.where.split(":")[0]},line=${f.where.split(":")[1]}::flaky, passed on retry: ${f.title}`);

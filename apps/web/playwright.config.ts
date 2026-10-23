@@ -2,6 +2,7 @@ import { defineConfig } from "@playwright/test";
 import { randomBytes } from "node:crypto";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { retriesFor } from "./tests/retries";
 
 // The website as it runs on the public address — a production build, signed in with a real
 // session cookie — against the local copy of the database (ADR 0025), never the live one. The live
@@ -35,6 +36,8 @@ export default defineConfig({
   reporter: [["list"]],
   // One at a time: the specs share the copy's rows, and the outage tests lock tables every page reads.
   workers: 1,
+  // A test that fails is run once more in CI and reported flaky if it then passes; twice failed fails the job (docs/adr/0094).
+  retries: retriesFor(process.env.CI),
   globalSetup: "./tests/global-setup.ts",
   use: { baseURL: `http://localhost:${WEB_PORT}`, trace: "off", screenshot: "only-on-failure" },
   projects: [
