@@ -378,6 +378,8 @@ def load_all() -> dict[str, int]:
         question_formats.load(conn, t, settings.seed)
         asks.load(conn, t, settings.seed)
         _prerequisites(conn, t)
+        # a school's first load is its curriculum's version 1, once it has skills (C3); later loads leave versions alone
+        conn.execute("select curriculum_begins(%s)", (t,))
         conn.commit()
         return db.counts(conn, FILLED_TABLES)
 
