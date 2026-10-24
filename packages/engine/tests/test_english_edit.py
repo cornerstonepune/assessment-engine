@@ -226,7 +226,7 @@ def test_a_maths_skill_has_no_samples_to_edit(conn):
         " where t.subject_code <> 'ENG' limit 1",
     )
     got = ed.save(conn, maths, "Easy", "ENG.CHOOSE", None, BY, fields={"ask": "x", "answer": "y"}, wrong=[])
-    assert not got["saved"] and "Maths" in " ".join(got["faults"]["skill"])
+    assert not got["saved"] and "made by code" in " ".join(got["faults"]["skill"])
 
 
 def test_the_website_route_answers_a_failed_check_in_words_and_stores_nothing(monkeypatch):

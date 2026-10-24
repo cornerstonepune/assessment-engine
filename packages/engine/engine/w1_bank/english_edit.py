@@ -6,7 +6,7 @@ Every save is checked by code first (english_check.py) and refused in words when
 that passes is a new row of `english_sample_edit`, which keeps the sample it replaced and is never changed; the page
 reads the newest (`english_sample_now`). Each change withdraws that level's approval, and no other, so the approver
 reads it again. A level keeps three samples of every kind it asks and at least one kind; a kind is added only once it
-is approved and has three samples that pass. A Maths skill has no samples here: its questions are made by code.
+is approved and has three samples that pass. A skill whose questions code makes from its levels' rules has no samples here.
 """
 
 import json
@@ -202,7 +202,9 @@ def save(
         return {"saved": False, "ord": ord, "faults": faults}
 
     if not _is_english(conn, code):
-        return refuse({"skill": ["A Maths skill's questions are made by code, not edited here."]})
+        return refuse(
+            {"skill": ["This skill's questions are made by code from each level's rule, not edited here."]}
+        )
     if kind not in level_kinds(conn, code, level):
         return refuse({"skill": ["This level does not ask that kind of question."]})
     _hold(conn, code, level, kind)
@@ -259,7 +261,7 @@ def add_kind(conn: db.Conn, code: str, level: str, kind: str, samples: list[dict
         return {"saved": False, "why": why, "faults": faults or []}
 
     if not _is_english(conn, code):
-        return refuse("A Maths skill's kinds follow its questions, which code makes.")
+        return refuse("This skill's kinds follow its questions, which code makes.")
     if kind not in {k["code"] for k in approved_kinds(conn)}:
         return refuse("Only a kind of question that has been approved can be added.")
     if kind in level_kinds(conn, code, level):

@@ -23,7 +23,7 @@ import { mayDecide } from "@/lib/decides";
 import { LevelApproval } from "./level-approval";
 import { GradesPanel } from "./grades-panel";
 import { Watched, WaysPanel } from "./ways";
-import { Changed, editingOf, EnglishLevel, MathsNotEdited, SentenceLink } from "./editing";
+import { Changed, editingOf, EnglishLevel, MadeByCode, SentenceLink } from "./editing";
 import { dateWords } from "@/lib/week";
 
 type Props = {
@@ -219,7 +219,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                 );
               })}
             </div>
-            {!bankless && mayChange ? <MathsNotEdited /> : null}
+            {!bankless && mayChange ? <MadeByCode /> : null}
             {bankless ? (
               <div id="decide" className="mt-[14px] flex scroll-mt-6 flex-wrap items-center gap-3">
                 {decide}

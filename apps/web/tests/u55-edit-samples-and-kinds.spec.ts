@@ -149,6 +149,6 @@ test("a Maths skill says in words that its questions are made by code and not ed
     select s.code from skill s join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
     where t.subject_code <> 'ENG' and s.status = 'ratified' order by s.code limit 1`;
   await page.goto(`/skill-sets/${m.code}`);
-  await expect(page.getByText("A Maths skill’s questions are made by code from each level’s rule")).toBeVisible();
+  await expect(page.getByText("This skill’s questions are made by code from each level’s rule")).toBeVisible();
   await expect(page.getByRole("link", { name: /^Edit sample/ })).toHaveCount(0);
 });

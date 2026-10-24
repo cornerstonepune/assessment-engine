@@ -10,7 +10,7 @@ import type { SampleInitial } from "./sample-shape";
 import { LevelWays } from "./ways";
 
 // The parts of the skill page that change a skill (goals/edt_edit_samples_and_kinds.yaml): an English level with its
-// kinds, samples and approval; the form a link opened; how the page says a change was saved; and, for a Maths skill,
+// kinds, samples and approval; the form a link opened; how the page says a change was saved; and, for a skill whose questions code makes,
 // why its questions are not changed here. Nimish, 2026-10-24: "What happens if he wants to make any changes there?"
 
 type Editor = Awaited<ReturnType<typeof editingOf>> | null;
@@ -48,10 +48,10 @@ export function SentenceLink({ code, level }: { code: string; level: string }) {
   );
 }
 
-export function MathsNotEdited() {
+export function MadeByCode() {
   return (
     <p className="note mt-[14px]">
-      A Maths skill&rsquo;s questions are made by code from each level&rsquo;s rule, so they are not edited here; its
+      This skill&rsquo;s questions are made by code from each level&rsquo;s rule, so they are not edited here; its
       description and each level&rsquo;s sentence are.
     </p>
   );
