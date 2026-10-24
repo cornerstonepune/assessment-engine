@@ -24,6 +24,12 @@ export function subjectNow(p: Person, all: readonly Subject[], chosen: string | 
   return mine.find((s) => s.code === chosen) ?? mine[0];
 }
 
+/** The subject a list opens on: the one chosen in the Viewing control when the person teaches several, else every one of theirs
+ *  (undefined). One rule for the menu's count and the page it counts. */
+export function viewSubject(p: { subject?: string | null }, mine: readonly Subject[]): string | undefined {
+  return p.subject && mine.length > 1 && mine.some((s) => s.code === p.subject) ? p.subject : undefined;
+}
+
 /** "Maths · Grade 2 · 2B" as the Viewing control says it. */
 export function viewingWords(subject: string | undefined, classes: string[] | null): string {
   const where = classes === null ? "every class" : classes.length > 3 ? `${classes.length} classes` : classes.join(", ");

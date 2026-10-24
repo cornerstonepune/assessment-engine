@@ -1,4 +1,3 @@
-import { cache } from "react";
 import { sql } from "./db";
 import { inScope, type Scope } from "./scope";
 import { topics as topicRows } from "./queries-people";
@@ -25,7 +24,7 @@ export type TeachingTopic = {
   result: State;
 };
 
-export const teaching = cache(async (scope: Scope): Promise<TeachingTopic[]> => {
+export async function teaching(scope: Scope): Promise<TeachingTopic[]> {
   const [topics, skills, sheets, declared, states] = await Promise.all([
     topicRows(scope),
     sql<{ topic: string; code: string; name: string; approved: boolean; levels: string[] }[]>`
@@ -79,4 +78,4 @@ export const teaching = cache(async (scope: Scope): Promise<TeachingTopic[]> => 
       result: classResult({ red: colour("red"), amber: colour("amber"), green: colour("green") }),
     };
   });
-});
+}

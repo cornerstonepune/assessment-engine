@@ -39,13 +39,13 @@ export default async function StaffPage({ searchParams }: Props) {
     >
       {q.saved ? (
         <Notice tone="neem">
-          {q.saved}&rsquo;s classes are saved. Their pages open on them from now
-          on.
+          {q.saved}&rsquo;s {q.of === "subjects" ? "subjects" : "classes"} are saved. Their pages open on{" "}
+          them from now on.
         </Notice>
       ) : null}
       {q.refused ? (
         <Notice tone="terracotta">
-          Nothing changed: no child is in {q.refused}.
+          Nothing changed: {q.of === "subjects" ? `${q.refused} is not a subject of the school` : `no child is in ${q.refused}`}.
         </Notice>
       ) : null}
       <FilterBar

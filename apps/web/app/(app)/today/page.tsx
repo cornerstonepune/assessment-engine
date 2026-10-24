@@ -11,9 +11,9 @@ import { questionKinds } from "@/lib/question-types";
 import { queueByWeek, trustNow } from "@/lib/queries-today";
 import { tasksFor } from "@/lib/queries-todo";
 import { scopeOf } from "@/lib/scope";
-import { filterTasks, groupTasks, KINDS, type Kind, type Task, waitingCount } from "@/lib/todo";
+import { filterTasks, groupTasks, KINDS, NO_TOPIC, type Kind, type Task, waitingCount } from "@/lib/todo";
 import { TABLE_ROW_LIMIT, type Column } from "@/lib/ux-rules";
-import { subjectsFor } from "@/lib/viewing";
+import { subjectsFor, viewSubject } from "@/lib/viewing";
 import { noteLines, weekNote } from "@/lib/queries-week-note";
 import { isoWeek, weekWords } from "@/lib/week";
 import { Shrinking } from "./shrinking";
@@ -47,15 +47,15 @@ export default async function WhatNeedsDoing({ searchParams }: { searchParams: P
   const mine = subjectsFor(me, offered.subjects);
   const label = (c: string | null) => offered.subjects.find((s) => s.code === c)?.label ?? c ?? "";
   // each page starts at the person's own scope: the subject chosen in the Viewing control, else every subject of theirs
-  const subject = mine.find((s) => s.code === q.subject)?.code ?? (me.subject && mine.some((s) => s.code === me.subject) && mine.length > 1 ? me.subject : undefined);
+  const subject = mine.find((s) => s.code === q.subject)?.code ?? viewSubject(me, mine);
   const mySubjects = mine.map((s) => s.code);
   const known = await deadline(weekNote(scopeOf(me), subject ?? mine[0]?.code ?? ""));
-  const inView = filterTasks(all, {}, mySubjects);
-  const topic = inView.some((t) => t.topic === q.topic) ? q.topic : undefined;
+  const inSubject = filterTasks(all, { subject }, mySubjects);
+  const topic = q.topic === NO_TOPIC || inSubject.some((t) => t.topic === q.topic) ? q.topic : undefined;
   const kind = (Object.keys(KINDS) as Kind[]).find((k) => k === q.kind);
   const tasks = filterTasks(all, { subject, topic, kind }, mySubjects);
   const groups = groupTasks(tasks, label);
-  const topics = [...new Map(inView.filter((t) => t.topic).map((t) => [t.topic!, t.topicName!])).entries()];
+  const topics = [...new Map(inSubject.filter((t) => t.topic).map((t) => [t.topic!, t.topicName!])).entries()];
   const first = tasks.find((t) => t.state === "doNow") ?? tasks[0];
   const page = Math.max(1, Number(q.page) || 1);
   return (
@@ -114,7 +114,7 @@ export default async function WhatNeedsDoing({ searchParams }: { searchParams: P
                       />
                       {!filtered && t.tasks.length > TABLE_ROW_LIMIT ? (
                         <p className="note mt-1">
-                          {t.tasks.length - TABLE_ROW_LIMIT} more · <Link href={address(q, { subject: subject ?? mine.find((m) => label(m.code) === s.subject)?.code, topic: t.tasks[0].topic ?? undefined })}>Show all →</Link>
+                          {t.tasks.length - TABLE_ROW_LIMIT} more · <Link href={address(q, { subject: subject ?? mine.find((m) => label(m.code) === s.subject)?.code, topic: t.tasks[0].topic ?? NO_TOPIC })}>Show all →</Link>
                         </p>
                       ) : null}
                     </div>

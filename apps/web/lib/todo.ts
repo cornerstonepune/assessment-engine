@@ -87,6 +87,8 @@ export function buildTasks(src: Sources, subjectLabel: (code: string | null) => 
 }
 const none: Ref = { subject: null, topic: null, topicName: null };
 
+/** The topic filter that means "the tasks of no topic" (a class's papers, the questions). */
+export const NO_TOPIC = "none";
 export type Filters = { subject?: string; topic?: string; kind?: string };
 
 /** A task with no subject (a class's home papers, a question) belongs to every subject's view. */
@@ -95,7 +97,7 @@ export function filterTasks(tasks: readonly Task[], f: Filters, mySubjects: read
     (t) =>
       (!mySubjects || !t.subject || mySubjects.includes(t.subject)) &&
       (!f.subject || !t.subject || t.subject === f.subject) &&
-      (!f.topic || t.topic === f.topic) &&
+      (!f.topic || (f.topic === NO_TOPIC ? !t.topic : t.topic === f.topic)) &&
       (!f.kind || t.kind === f.kind),
   );
 }

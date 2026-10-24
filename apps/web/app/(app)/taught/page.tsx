@@ -79,11 +79,11 @@ export default async function Teaching({ searchParams }: { searchParams: Promise
       ) : null}
       <FilterBar
         action="/taught"
-        keep={{ subject: subject?.code }}
+        keep={{ subject: subject?.code, topic: named?.code }}
         filters={[{ name: "status", label: "Status", value: status, all: "Every status", options: (Object.keys(STATUS) as TopicStatus[]).map((s) => [s, s === "notTaught" ? "Not taught yet" : s === "nextUp" ? "Next" : s === "teachingNow" ? "Teaching now" : "Taught"] as const) }]}
       />
       {topics.length ? (
-        <DataTable label={`${subject?.label ?? ""} topics`} columns={columns} rows={topics} rowKey={(t) => t.code} extras={{ attrs: (t) => ({ "data-topic": t.code, "data-status": t.status }) }} more={{ page: Math.max(1, Number(q.page) || 1), href: (n: number) => `/taught?subject=${subject?.code}&page=${n}` }} />
+        <DataTable label={`${subject?.label ?? ""} topics`} columns={columns} rows={topics} rowKey={(t) => t.code} extras={{ attrs: (t) => ({ "data-topic": t.code, "data-status": t.status }) }} more={{ page: Math.max(1, Number(q.page) || 1), href: (n: number) => `/taught?${new URLSearchParams({ subject: subject?.code ?? "", ...(status ? { status } : {}), ...(named ? { topic: named.code } : {}), page: String(n) })}` }} />
       ) : (
         <EmptyState next={{ href: "/papers", label: "Assessments" }}>No topics{status ? " in that status" : ""} for {subject?.label ?? "this subject"}.</EmptyState>
       )}

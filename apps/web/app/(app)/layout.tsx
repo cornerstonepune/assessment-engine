@@ -3,7 +3,7 @@ import { Shell } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { tasksFor } from "@/lib/queries-todo";
 import { filterTasks, waitingCount } from "@/lib/todo";
-import { subjectsFor } from "@/lib/viewing";
+import { subjectsFor, viewSubject } from "@/lib/viewing";
 import { choices } from "@/lib/choices";
 import { gradeSpan } from "@/lib/queries";
 
@@ -15,8 +15,9 @@ export const dynamic = "force-dynamic";
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const me = await requireStaff();
   const [tasks, span, offered] = await deadline(Promise.all([tasksFor(me), gradeSpan(), choices()]));
+  const mine = subjectsFor(me, offered.subjects);
   return (
-    <Shell me={me} waiting={waitingCount(filterTasks(tasks, {}, subjectsFor(me, offered.subjects).map((s) => s.code)))} grades={span} choices={offered}>
+    <Shell me={me} waiting={waitingCount(filterTasks(tasks, { subject: viewSubject(me, mine) }, mine.map((s) => s.code)))} grades={span} choices={offered}>
       {children}
     </Shell>
   );

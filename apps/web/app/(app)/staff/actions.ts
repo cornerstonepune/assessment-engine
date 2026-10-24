@@ -54,7 +54,7 @@ export async function setSubjects(formData: FormData): Promise<void> {
   const wanted = [...new Set(formData.getAll("subject").map((c) => String(c).trim()).filter(Boolean))].sort();
   const there = new Set((await sql<{ code: string }[]>`select code from subject`).map((r) => r.code));
   const missing = wanted.filter((c) => !there.has(c));
-  if (missing.length) redirect(`/staff?refused=${encodeURIComponent(missing.join(", "))}`);
+  if (missing.length) redirect(`/staff?of=subjects&refused=${encodeURIComponent(missing.join(", "))}`);
   const [row] = await sql<{ value: Staff[] }[]>`select value from config where key = 'app.staff'`;
   const people = row?.value ?? [];
   const person = people.find((p) => p.email.toLowerCase() === email);
@@ -62,5 +62,5 @@ export async function setSubjects(formData: FormData): Promise<void> {
   const next = people.map((p) => (p === person ? { ...p, subjects: wanted } : p));
   await sql`update config set value = ${sql.json(next)} where key = 'app.staff'`;
   revalidatePath("/", "layout");
-  redirect(`/staff?saved=${encodeURIComponent(person.name)}`);
+  redirect(`/staff?of=subjects&saved=${encodeURIComponent(person.name)}`);
 }
