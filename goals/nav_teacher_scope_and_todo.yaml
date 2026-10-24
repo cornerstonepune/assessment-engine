@@ -1,0 +1,43 @@
+name: nav_teacher_scope_and_todo
+goal: >
+  The educator's site has one slim menu at the top (the new Cornerstone mark, five groups, a three-line menu button) and no
+  left sidebar; a person mapped to one class and one subject sees only those, with no Class or Subject box; What needs doing
+  is a table of red, amber and green rows, each with its own button that opens that one item, and no page offers one button
+  over every row; Teaching is a table of topics, each with its flow (skills ready, baseline, home assessments, practice),
+  and carries no skill approval.
+# Written 2026-10-24 from Nimish's words on the live site after the UI wave. Desktop first (1440 px). The left sidebar, the
+# universal Class and Subject boxes, Today's free text and its "Approve them" button, and Taught this week's skill
+# approval and floating buttons are gone; the old addresses (/today, /taught) still open.
+says:
+  - words: "When a teacher logs in, because there is a mapping of grade and subject to the teacher, only their relevant sections open up."
+    proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::an educator with one class and one subject: top menu, only hers, no Class or Subject boxes, no approve-all"
+  - words: "the menu is being shown on just the left side. I think we can use the whole space of the screen. The menu can be on the top, or it can be a small button with three lines that opens the menu."
+    proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::an admin: the same top menu and a Viewing control, both subjects on Teaching"
+  - words: "ensure that the logo is also changed for the dashboard"
+    proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::an educator with one class and one subject: top menu, only hers, no Class or Subject boxes, no approve-all"
+  - words: "Key things that need to happen should be in a simple table with some red, amber, green notation. Whatever needs to expand can expand."
+    proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::an educator with one class and one subject: top menu, only hers, no Class or Subject boxes, no approve-all"
+  - words: "Everything has to have its own set of approvals."
+    proved_by: "apps/web/tests/u62-scope-and-todo-logic.spec.ts::no page has an 'approve all' control"
+  - words: "Why is the skill approval there? It shouldn't be there."
+    proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::an educator's Teaching: her subject, topics as a table with the topic flow, no skill approval"
+  - words: "When they start with a new topic they go through the skills; they generate some assessments; then they give a first baseline assessment; then as a child progresses they give home assessments; maybe some children get more home assessments; maybe they go back to a previous topic and give them practice."
+    proved_by: "apps/web/tests/u62-scope-and-todo-logic.spec.ts::the baseline is the first class assessment; home papers count children and repeats"
+manual:
+  - "Website only: Vercel deploys it on merge. No migration and no update-live."
+  - "Who teaches which subject is set on the Staff page (a new column); until it is, every educator's pages open on every subject."
+  - "A child's return to an earlier topic is not recorded anywhere (a paper has a topic, not a reason): the flow counts practice papers made after the class was taught the topic."
+scenarios: []
+criteria:
+  - name: the logic of scope, tasks, topic flow and the menu, and no approve-all on any page
+    run: cd apps/web && npx playwright test tests/u62-scope-and-todo-logic.spec.ts
+    expect: "passed"
+  - name: the week walked at 1440 px, as an educator and as an admin
+    run: cd apps/web && npx playwright test tests/u60-ui-wave-1-flow.spec.ts tests/u51-ux-rules.spec.ts tests/u53-the-menu.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

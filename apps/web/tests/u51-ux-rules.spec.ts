@@ -206,19 +206,22 @@ test("on a phone the main action of Check answers is a thumb's size", async ({ b
 
 const DESKTOP = { width: 1440, height: 900 };
 
-test("the top bar: Class and Subject are full-size controls, the student search is a compact field", async ({ browser }) => {
+test("the top bar: the menu button and the Viewing control are full-size, the student search is a compact field", async ({ browser }) => {
   const page = await (await browser.newContext({ storageState: SIGNED_IN, viewport: DESKTOP })).newPage();
   for (const url of ["/today", "/papers", "/growth", "/"]) {
     await open(page, url);
-    const bar = page.getByRole("search", { name: "Subject, class and search" });
-    for (const name of ["Subject", "Class"]) {
-      const box = (await bar.getByLabel(name, { exact: true }).boundingBox())!;
-      expect(box.height, `${url}: ${name} height`).toBeGreaterThanOrEqual(TOP_BAR_MIN_PX);
-      expect(box.width, `${url}: ${name} is not squeezed`).toBeGreaterThanOrEqual(80);
-      const size = await bar.getByLabel(name, { exact: true }).evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-      expect(size, `${url}: ${name} text`).toBeGreaterThanOrEqual(TOP_BAR_TEXT_PX);
+    for (const control of [page.getByRole("button", { name: "Menu" }), page.locator("[data-viewing] summary")]) {
+      expect((await control.boundingBox())!.height, `${url}: a control of the bar`).toBeGreaterThanOrEqual(TOP_BAR_MIN_PX);
     }
-    const search = bar.getByRole("searchbox");
+    // opened, the Viewing control's Subject and Class are full-size: 40 px tall, 15 px text
+    await page.locator("[data-viewing] summary").click();
+    for (const name of ["Subject", "Class"]) {
+      const field = page.locator("[data-viewing]").getByLabel(name, { exact: true });
+      expect((await field.boundingBox())!.height, `${url}: ${name} height`).toBeGreaterThanOrEqual(TOP_BAR_MIN_PX);
+      expect(await field.evaluate((el) => parseFloat(getComputedStyle(el).fontSize)), `${url}: ${name} text`).toBeGreaterThanOrEqual(TOP_BAR_TEXT_PX);
+    }
+    await page.locator("[data-viewing] summary").click();
+    const search = page.getByRole("search", { name: "Find a child or paper" }).getByRole("searchbox");
     const box = (await search.boundingBox())!;
     expect(box.height).toBeGreaterThanOrEqual(TOP_BAR_MIN_PX);
     expect(Math.round(box.width), `${url}: the search is a field, about ${SEARCH_PX} px`).toBeLessThanOrEqual(SEARCH_PX + 20);

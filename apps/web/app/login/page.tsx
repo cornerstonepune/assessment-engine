@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { currentStaff } from "@/lib/auth";
 import { signIn } from "@/lib/auth-actions";
+import { Logo } from "@/components/logo";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -11,11 +12,7 @@ export default async function LoginPage({ searchParams }: Props) {
   return (
     <main className="mx-auto flex min-h-dvh max-w-[420px] flex-col justify-center px-5 py-10">
       <div className="mb-8 flex items-center gap-3 text-basalt">
-        <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
-          <path d="M2 2h22v22H16.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M9.5 24H2V2" fill="none" stroke="currentColor" strokeWidth="1.6" />
-          <circle cx="13" cy="12" r="3.6" fill="currentColor" />
-        </svg>
+        <Logo size={30} />
         <span className="font-heading text-[19px]">cornerstone</span>
         <span className="label ml-1">assessment</span>
       </div>

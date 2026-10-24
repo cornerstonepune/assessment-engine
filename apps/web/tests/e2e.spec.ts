@@ -66,15 +66,16 @@ test.afterAll(async () => {
 test("a teacher can reach every section from the menu, and the menu says where they are", async ({ page }) => {
   await page.goto("/");
   const sections = [
-    ["Today", "Today"],
-    ["Curriculum", "Curriculum"],
+    ["What needs doing", "What needs doing"],
+    ["Setup", "Curriculum"],
     ["Assessments", "Assessments"],
-    ["Class results", "Class results"],
+    ["Results", "Class results"],
   ];
   for (const [label, heading] of sections) {
-    await page.getByRole("navigation").getByRole("link", { name: label, exact: true }).click();
+    const group = page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: label, exact: true });
+    await group.click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
-    await expect(page.getByRole("navigation").getByRole("link", { name: label, exact: true })).toHaveAttribute(
+    await expect(group).toHaveAttribute(
       "aria-current",
       "page",
     );

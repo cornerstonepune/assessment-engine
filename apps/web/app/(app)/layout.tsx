@@ -1,7 +1,9 @@
 import { requireStaff } from "@/lib/auth";
 import { Shell } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
-import { counts, needsYou } from "@/lib/needs-you";
+import { tasksFor } from "@/lib/queries-todo";
+import { filterTasks, waitingCount } from "@/lib/todo";
+import { subjectsFor } from "@/lib/viewing";
 import { choices } from "@/lib/choices";
 import { gradeSpan } from "@/lib/queries";
 
@@ -12,9 +14,9 @@ export const dynamic = "force-dynamic";
 // that chooses the subject and the class and searches (goals/s1-subject-class-and-today.yaml).
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const me = await requireStaff();
-  const [lines, span, offered] = await deadline(Promise.all([needsYou(me), gradeSpan(), choices()]));
+  const [tasks, span, offered] = await deadline(Promise.all([tasksFor(me), gradeSpan(), choices()]));
   return (
-    <Shell me={me} waiting={counts(lines)} grades={span} choices={offered}>
+    <Shell me={me} waiting={waitingCount(filterTasks(tasks, {}, subjectsFor(me, offered.subjects).map((s) => s.code)))} grades={span} choices={offered}>
       {children}
     </Shell>
   );

@@ -82,12 +82,12 @@ export default async function CurriculumPage({ searchParams }: Props) {
         >
           {waiting
             ? mayApprove
-              ? `Approve ${waiting} ${waiting === 1 ? "skill" : "skills"}`
+              ? `Skills to approve (${waiting})`
               : `Read the ${waiting} waiting`
             : "Open the question bank"}
         </Link>
       }
-      next={{ href: "/taught", label: "Taught this week" }}
+      next={{ href: "/taught", label: "Teaching" }}
       details={{
         href: details ? "/" : "/?details=1",
         label: details ? "Hide question bank details" : "Question bank details",

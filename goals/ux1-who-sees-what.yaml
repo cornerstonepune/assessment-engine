@@ -19,7 +19,7 @@ says:
   - words: "Just keep all the features available for both educators and coordinators for now."
     proved_by: "apps/web/tests/u32-who-sees-what.spec.ts::an educator is offered the approval of a skill"
   - words: "Just keep all the features available for both educators and coordinators for now."
-    proved_by: "apps/web/tests/u32-who-sees-what.spec.ts::a worksheet's print list opens on the educator's own children, every class's one tap away"
+    proved_by: "apps/web/tests/u32-who-sees-what.spec.ts::a worksheet's print list is the educator's own children, and every class's is the coordinator's"
   - words: "Just keep all the features available for both educators and coordinators for now."
     proved_by: "apps/web/tests/u32-who-sees-what.spec.ts::the coordinator is shown every decision and every class"
 manual: []

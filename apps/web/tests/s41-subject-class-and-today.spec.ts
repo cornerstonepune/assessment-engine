@@ -69,26 +69,35 @@ test.afterAll(async () => {
   await sql.end();
 });
 
-const bar = (page: import("@playwright/test").Page) => page.getByRole("search", { name: "Subject, class and search" });
+type P = import("@playwright/test").Page;
+/** The Viewing control a coordinator has (goals/nav_teacher_scope_and_todo.yaml), opened; the search is the bar's own. */
+const viewing = (page: P) => page.locator("[data-viewing]");
+const find = (page: P) => page.getByRole("search", { name: "Find a child or paper" });
+const openViewing = async (page: P) => {
+  if (!(await viewing(page).evaluate((el) => (el as HTMLDetailsElement).open))) await viewing(page).locator("summary").click();
+  return viewing(page);
+};
 
-/** A class chosen in the bar, as a person chooses it: the page comes back showing it. */
-async function chooseClass(page: import("@playwright/test").Page, label: string) {
-  await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), bar(page).getByLabel("Class").selectOption({ label })]);
+/** A class chosen in the Viewing control, as a person chooses it: the page comes back showing it. */
+async function chooseClass(page: P, label: string) {
+  const top = await openViewing(page);
+  await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), top.getByLabel("Class").selectOption({ label })]);
   await page.waitForLoadState("networkidle");
-  await expect(bar(page).getByLabel("Class").locator("option:checked")).toHaveText(label);
+  await expect(viewing(page).getByLabel("Class").locator("option:checked")).toHaveText(label);
 }
 
 test("every screen opens under the subject, the class and the search", async ({ page }) => {
   for (const path of ["/today", "/", "/papers", "/growth", "/capture", "/worksheets", `/growth/${kids.Asha}`]) {
     await page.goto(path);
-    const top = bar(page);
+    const top = await openViewing(page);
     await expect(top, path).toBeVisible();
+    await expect(top.locator("summary"), path).toContainText("Viewing:");
     await expect(top.getByLabel("Subject"), path).toBeVisible();
     await expect(top.getByLabel("Subject").locator("option"), path).toContainText(["Maths"]);
     await expect(top.getByLabel("Class"), path).toBeVisible();
-    await expect(top.getByRole("searchbox"), path).toBeVisible();
+    await expect(find(page).getByRole("searchbox"), path).toBeVisible();
     // the bar sits above the page's heading
-    const b = (await top.boundingBox())!;
+    const b = (await find(page).boundingBox())!;
     const h = (await page.getByRole("heading", { level: 1 }).first().boundingBox())!;
     expect(b.y + b.height, path).toBeLessThanOrEqual(h.y);
   }
@@ -97,12 +106,13 @@ test("every screen opens under the subject, the class and the search", async ({ 
 test("the class chosen at the top is the class every page shows", async ({ page }) => {
   await page.goto("/growth");
   await chooseClass(page, `Grade 2 · ${SECTION}`);
-  await expect(bar(page).getByLabel("Class")).toHaveValue(`class:${SECTION}`);
+  await expect(viewing(page).getByLabel("Class")).toHaveValue(`class:${SECTION}`);
+  await expect(viewing(page).locator("summary")).toContainText(SECTION);
   await expect(page.getByRole("main")).toContainText(SECTION);
   await expect(page.getByRole("main")).not.toContainText(OTHER);
   // the choice follows the person to the next page
   await page.goto("/papers");
-  await expect(bar(page).getByLabel("Class")).toHaveValue(`class:${SECTION}`);
+  await expect(viewing(page).getByLabel("Class")).toHaveValue(`class:${SECTION}`);
   await expect(page.getByRole("main")).not.toContainText(OTHER);
   // and every class is one choice away
   await chooseClass(page, "Every class");
@@ -112,7 +122,7 @@ test("the class chosen at the top is the class every page shows", async ({ page 
 
 test("the search finds a child, an assessment and a paper by its code", async ({ page }) => {
   await page.goto("/today");
-  const box = bar(page).getByRole("searchbox");
+  const box = find(page).getByRole("searchbox");
   const found = page.getByRole("list", { name: "Found" });
 
   await box.fill("Bina");
@@ -123,28 +133,30 @@ test("the search finds a child, an assessment and a paper by its code", async ({
   await found.getByRole("link", { name: new RegExp(`Bina.*${SECTION}`) }).click();
   await expect(page).toHaveURL(new RegExp(`/growth/${kids.Bina}$`));
 
-  await bar(page).getByRole("searchbox").fill(QR.toLowerCase());
-  await bar(page).getByRole("searchbox").press("Enter");
+  await find(page).getByRole("searchbox").fill(QR.toLowerCase());
+  await find(page).getByRole("searchbox").press("Enter");
   await page.getByRole("list", { name: "Found" }).getByRole("link", { name: new RegExp(QR) }).click();
   await expect(page).toHaveURL(new RegExp(`/worksheets/${QR}$`));
 
-  await bar(page).getByRole("searchbox").fill(setName.slice(0, 12));
-  await bar(page).getByRole("searchbox").press("Enter");
+  await find(page).getByRole("searchbox").fill(setName.slice(0, 12));
+  await find(page).getByRole("searchbox").press("Enter");
   const assessment = page.getByRole("list", { name: "Found" }).getByRole("link", { name: new RegExp(`${SECTION}`) }).first();
   await expect(assessment).toContainText("Assessment");
   await assessment.click();
   await expect(page).toHaveURL(/\/papers\?/);
   await expect(page.getByRole("main")).toContainText(setName);
 
-  await bar(page).getByRole("searchbox").fill("zzqqxx-no-such-thing");
-  await bar(page).getByRole("searchbox").press("Enter");
+  await find(page).getByRole("searchbox").fill("zzqqxx-no-such-thing");
+  await find(page).getByRole("searchbox").press("Enter");
   await expect(page.getByRole("status").filter({ hasText: "Nothing found" })).toBeVisible();
 });
 
 test("Today opens on five lines of what the system knows this week, then the next actions", async ({ page }) => {
   await page.goto("/today");
   await chooseClass(page, `Grade 2 · ${SECTION}`);
-  const note = page.getByRole("region", { name: "What the system now knows" });
+  // folded under the table (goals/nav_teacher_scope_and_todo.yaml): opened to read
+  const note = page.locator("details[data-know]");
+  await note.locator("summary").click();
   await expect(note).toBeVisible();
   const lines = note.getByRole("listitem");
   await expect(lines).toHaveCount(5);
@@ -155,11 +167,11 @@ test("Today opens on five lines of what the system knows this week, then the nex
   await expect(lines.nth(3)).toContainText(mistake);
   await expect(lines.nth(3)).toHaveText(/1 child/);
   await expect(lines.nth(4)).toHaveText(/1 child needs help on two or more skills/);
-  // the note comes first, the next actions under it, each opening the place it is done
+  // the table of what to do comes first and the note under it; a row opens the place it is done
   const n = (await note.boundingBox())!;
-  const actions = page.getByRole("region", { name: "Assessments", exact: true });
-  await expect(actions.getByRole("link", { name: "Check them" })).toBeVisible();
-  expect(n.y).toBeLessThan((await actions.boundingBox())!.y);
+  const check = page.locator("tr[data-kind=check]").filter({ hasText: SECTION });
+  await expect(check.getByRole("link", { name: "Check this paper" })).toBeVisible();
+  expect((await check.boundingBox())!.y).toBeLessThan(n.y);
   await chooseClass(page, "Every class");
 });
 
@@ -169,22 +181,22 @@ test("on a phone the bar and the heading are at the top and every tap is big eno
   try {
     for (const path of ["/today", "/papers", "/growth", "/"]) {
       await page.goto(path);
-      const top = (await bar(page).boundingBox())!;
+      const top = (await page.locator("header").boundingBox())!;
       expect(top.y, path).toBeLessThan(8);
       const h1 = page.getByRole("heading", { level: 1 }).first();
       const end = await h1.evaluate((el) => el.getBoundingClientRect().top + parseFloat(getComputedStyle(el).lineHeight));
-      expect(end, `${path}: heading's first line ends at ${end}`).toBeLessThanOrEqual(120);
-      // the menu is a row of big tabs at the foot of the screen
-      const menu = (await page.getByRole("navigation", { name: "Sections" }).boundingBox())!;
-      expect(menu.y + menu.height, path).toBeGreaterThan(760);
-      for (const tab of await page.getByRole("navigation", { name: "Sections" }).getByRole("link").all()) {
-        expect((await tab.boundingBox())!.height, path).toBeGreaterThanOrEqual(44);
-      }
-      for (const field of [bar(page).getByLabel("Subject"), bar(page).getByLabel("Class"), bar(page).getByRole("searchbox")]) {
+      expect(end, `${path}: heading's first line ends at ${end}`).toBeLessThanOrEqual(160);
+      // the five groups fold into the menu button on a phone; the button, the Viewing control and the search are each big enough
+      await expect(page.getByRole("navigation", { name: "Sections" })).toBeHidden();
+      for (const field of [page.getByRole("button", { name: "Menu" }), viewing(page).locator("summary"), find(page).getByRole("searchbox")]) {
         expect((await field.boundingBox())!.height, path).toBeGreaterThanOrEqual(44);
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth), path).toBeLessThanOrEqual(400);
     }
+    // and the menu button opens every page, each one a big tap
+    await page.goto("/today");
+    await page.getByRole("button", { name: "Menu" }).click();
+    for (const link of await page.getByRole("dialog", { name: "Menu" }).getByRole("link").all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   } finally {
     await context.close();
   }

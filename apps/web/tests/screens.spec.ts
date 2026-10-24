@@ -5,7 +5,7 @@ import { aClass, aReadPaper, aWorksheet } from "./rows";
 // Every screen must render its heading at a laptop and at a phone, with no console error and no
 // sideways scroll. A teacher on a phone in a corridor is a real case.
 const ROUTES: [string, string][] = [
-  ["/today", "Today"],
+  ["/today", "What needs doing"],
   ["/", "Curriculum"],
   ["/library", "Question bank"],
   ["/worksheets", "Worksheets"],
@@ -67,27 +67,32 @@ for (const { name, width, height } of SIZES) {
 
 test("every section is reachable from the menu", async ({ page }) => {
   await page.goto("/");
-  for (const label of ["Today", "Taught this week", "Papers to approve", "Assessments", "Upload papers", "Check answers", "Class results", "Curriculum", "Question bank"]) {
-    await expect(page.getByRole("navigation").getByRole("link", { name: label, exact: true })).toBeVisible();
+  const groups = page.getByRole("navigation", { name: "Sections" });
+  for (const label of ["What needs doing", "Teaching", "Assessments", "Results", "Setup"]) await expect(groups.getByRole("link", { name: label })).toBeVisible();
+  // and every page of every group from the three-line button
+  await page.getByRole("button", { name: "Menu" }).click();
+  const panel = page.getByRole("dialog", { name: "Menu" });
+  for (const label of ["Papers to approve", "Upload papers", "Check answers", "Class results", "Curriculum", "Question bank", "Staff", "School"]) {
+    await expect(panel.getByRole("link", { name: label, exact: true })).toBeVisible();
   }
 });
 
-// Unlayered, the global `a:hover` beat the sidebar's own hover colour and drew a menu item basalt on
-// basalt: it vanished under the pointer.
+// Unlayered, the global `a:hover` beat the menu's own hover colour and drew an item basalt on basalt: it vanished under the pointer.
 test("a menu item stays readable while the pointer is on it", async ({ page }) => {
   await page.goto("/");
-  const sidebar = await page.locator("aside").evaluate((el) => getComputedStyle(el).backgroundColor);
-  for (const item of await page.locator("aside").getByRole("navigation").getByRole("link").all()) {
+  const bar = await page.locator("header").evaluate((el) => getComputedStyle(el).backgroundColor);
+  for (const item of await page.locator("header").getByRole("navigation", { name: "Sections" }).getByRole("link").all()) {
     await item.hover();
     const colour = await item.evaluate((el) => getComputedStyle(el).color);
-    expect(colour, (await item.textContent()) ?? "").not.toBe(sidebar);
+    expect(colour, (await item.textContent()) ?? "").not.toBe(bar);
   }
 });
 
 test("the menu marks where you are", async ({ page }) => {
-  // the question bank is in the menu on its own, after the curriculum
+  // the question bank is a page of Setup: the group and its tab are both marked
   await page.goto("/library");
-  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Question bank" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Setup" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("navigation", { name: "Pages in this section" }).getByRole("link", { name: "Question bank" })).toHaveAttribute("aria-current", "page");
 });
 
 // A child's page reads in the school's own words: no rung, skill-set or mistake code reaches a teacher, and every skill

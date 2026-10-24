@@ -7,56 +7,54 @@ import { choose } from "@/lib/auth-actions";
 import type { Choices } from "@/lib/choices";
 import { find } from "@/lib/search";
 
-// The bar at the top of every screen (goals/s1-subject-class-and-today.yaml), from the flow map Nimish locked on
-// 2026-10-22: "Subject ▾ (Maths, English, …) · Class ▾ (G1, G2, … or every class) · a search box that finds a child, an
-// assessment or a paper code." Choosing a subject or a class shows it at once, on this page and every page after; the
-// search is posted, so what is typed never goes into an address.
+// The two controls on the right of the top bar. The student search is for everyone. The Viewing control is for a person
+// who chooses what they look at (a coordinator, or someone who teaches two subjects: lib/viewing.ts); an educator mapped to one
+// class and one subject is shown neither a Subject nor a Class box (goals/nav_teacher_scope_and_todo.yaml, Nimish 24 Oct 2026).
+// It is posted, and a choice shows at once on this page and every page after.
 
 /** `chosen`: "mine" (the person's own classes), "every", or "class:" and one class. `own`: the person's own classes. */
-export function TopBar({ choices, subject, chosen, own }: { choices: Choices; subject: string; chosen: string; own: string[] }) {
+export function Viewing({ choices, subject, chosen, own, words }: { choices: Choices; subject: string; chosen: string; own: string[]; words: string }) {
   const form = useRef<HTMLFormElement>(null);
   const submit = () => form.current?.requestSubmit();
   return (
-    <div
-      role="search"
-      aria-label="Subject, class and search"
-      className="relative z-20 flex items-center gap-2 border-b border-basalt/12 bg-chalk px-2 py-1 md:gap-3 md:px-9 md:py-2 print:hidden"
-    >
-      <form ref={form} action={choose} className="flex shrink-0 items-center gap-2">
-        <label className="sr-only" htmlFor="bar-subject">
+    <details className="relative" data-viewing>
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 border border-bamboo/40 px-3 text-[13.5px] text-chalk hover:bg-chalk/10">
+        <span className="text-bamboo">Viewing:</span> {words}
+      </summary>
+      <form ref={form} action={choose} role="group" aria-label="Viewing" className="absolute right-0 z-40 mt-1 grid w-[300px] gap-3 border border-basalt/20 bg-chalk p-4 text-basalt shadow-md">
+        <label className="grid gap-1 text-[13px]" htmlFor="bar-subject">
           Subject
+          <select key={subject} id="bar-subject" name="subject" defaultValue={subject} onChange={submit} className="select min-h-[40px] !w-full !text-[15px] font-medium">
+            {choices.subjects.map((s) => (
+              <option key={s.code} value={s.code}>
+                {s.label}
+              </option>
+            ))}
+          </select>
         </label>
-        <select key={subject} id="bar-subject" name="subject" defaultValue={subject} onChange={submit} className="select min-h-[40px] !w-auto !text-[15px] font-medium max-md:min-h-11 max-md:max-w-[90px]">
-          {choices.subjects.map((s) => (
-            <option key={s.code} value={s.code}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-        <label className="sr-only" htmlFor="bar-class">
+        <label className="grid gap-1 text-[13px]" htmlFor="bar-class">
           Class
+          <select key={chosen} id="bar-class" name="class" defaultValue={chosen} onChange={submit} className="select min-h-[40px] !w-full !text-[15px] font-medium">
+            {own.length ? <option value="mine">Your classes ({own.join(", ")})</option> : null}
+            <option value="every">Every class</option>
+            {choices.classes.map((c) => (
+              <option key={c.section} value={`class:${c.section}`}>
+                {c.words}
+              </option>
+            ))}
+          </select>
         </label>
-        <select key={chosen} id="bar-class" name="class" defaultValue={chosen} onChange={submit} className="select min-h-[40px] !w-auto !text-[15px] font-medium max-md:min-h-11 max-md:max-w-[120px]">
-          {own.length ? <option value="mine">Your classes ({own.join(", ")})</option> : null}
-          <option value="every">Every class</option>
-          {choices.classes.map((c) => (
-            <option key={c.section} value={`class:${c.section}`}>
-              {c.words}
-            </option>
-          ))}
-        </select>
         <noscript>
           <button type="submit" className="btn secondary">
             Show
           </button>
         </noscript>
       </form>
-      <Search />
-    </div>
+    </details>
   );
 }
 
-function Search() {
+export function Search() {
   const [found, search, busy] = useActionState(find, null);
   // the list is open on the page it was asked on: a page opened from it, or any other, puts it away
   const path = usePathname();
@@ -64,7 +62,7 @@ function Search() {
   const open = openOn === path;
   const setOpen = (yes: boolean) => setOpenOn(yes ? path : null);
   return (
-    <form action={search} onSubmit={() => setOpen(true)} className="ml-auto min-w-0 max-md:flex-1 max-md:basis-0 md:shrink-0">
+    <form action={search} role="search" aria-label="Find a child or paper" onSubmit={() => setOpen(true)} className="min-w-0 max-md:flex-1 max-md:basis-0 md:shrink-0">
       <label className="sr-only" htmlFor="bar-search">
         Search
       </label>
@@ -84,7 +82,7 @@ function Search() {
       />
       </div>
       {open && found && !busy ? (
-        <div className="absolute inset-x-2 top-full mt-1 border border-basalt/20 bg-chalk p-2 shadow-sm md:right-9 md:left-auto md:w-[480px]">
+        <div className="absolute inset-x-2 top-full z-40 mt-1 border border-basalt/20 bg-chalk p-2 text-basalt shadow-sm md:right-8 md:left-auto md:w-[480px]">
           {found.hits.length ? (
             <ul aria-label="Found" className="grid">
               {found.hits.map((h) => (

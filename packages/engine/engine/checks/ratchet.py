@@ -46,6 +46,7 @@ def baselines(map_text: str, pyproject_text: str) -> dict:
         "complexity": m.get("complexity"),
         "ux": m.get("ux", {}).get("frozen"),
         "ux_rules": m.get("ux", {}).get("rules"),
+        "approve_all": m.get("ux", {}).get("approveAll"),
         "coverage": float(report.get("fail_under", 0)),
         "types": types,
     }
@@ -148,11 +149,24 @@ def _types(base: dict | None, head: dict | None) -> list[str]:
     return out
 
 
+def _approve_all(base: list[str] | None, head: list[str] | None) -> list[str]:
+    """The pages that still offer one button over every row (Nimish, 24 Oct 2026): a page leaves, nothing joins. The
+    list is being written down on the commit that first holds it."""
+    if base is None:
+        return []
+    return [
+        f"{p} joined the pages allowed an approve-all button: give each row its own"
+        for p in (head or [])
+        if p not in base
+    ]
+
+
 def loosened(base: dict, head: dict) -> list[str]:
     """Every way `head` asks less of the code than `base` did; none is the only passing answer."""
     out = _ceilings(base, head) + _complexity(base["complexity"], head["complexity"])
     out += _types(base.get("types"), head.get("types"))
     out += _ux(base.get("ux"), head.get("ux"), base.get("ux_rules"), head.get("ux_rules"))
+    out += _approve_all(base.get("approve_all"), head.get("approve_all"))
     if head["coverage"] < base["coverage"]:
         out.append(f"the coverage floor fell from {base['coverage']:g}% to {head['coverage']:g}%")
     return out

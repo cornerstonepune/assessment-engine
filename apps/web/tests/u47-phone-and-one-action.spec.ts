@@ -193,6 +193,5 @@ test("the small words: a field says what it asks in full, and the grades are sai
     return ctx.measureText(input.placeholder).width <= room;
   });
   expect(fits, "the placeholder fits its field").toBe(true);
-  await expect(page.locator("aside")).not.toContainText(/Grade \d+–Grade \d+/i);
   await page.context().close();
 });

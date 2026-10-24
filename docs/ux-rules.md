@@ -18,7 +18,7 @@ exception is KG observation (S9), which is done on a phone.
    what needs the educator first.
 4. **No empty noise.** No column of zeros or dashes, no empty chip, no line under the title over 140 characters
    (`PURPOSE_MAX`).
-5. **One count, one meaning.** Computed once, the same on every page and in the menu. Only Today has a red count.
+5. **One count, one meaning.** Computed once, the same on every page and in the menu. Only What needs doing (once Today) has a count.
 6. **The school's words.** Educator, regroup, Easy/Medium/Hard/Advance. No taxonomy, rung or kind on an educator's screen.
 7. **Phone and desktop.** Desktop first (above). A table becomes a list on a phone; it must not break there.
 8. **Setup out of the way.** Statistics, question counts, old scans and reader statistics sit behind a "details" link.
@@ -30,9 +30,15 @@ exception is KG observation (S9), which is done on a phone.
 10. **A status is an icon, a word and a colour.** Never colour alone. One chip (`StatusChip`), one map of the school's
    states to green (done, right), amber (waiting on someone or something) and red (needs the educator now), and a quiet
    grey for a state with nothing to do. Red is rare. A state is added to `STATES` before a page uses it.
-11. **The top bar is for using.** Class and Subject are full-size controls, at least 40 px tall with 15 px text, showing
-   the current choice. The student search is a compact field of about 240 px with a search icon, growing when focused.
-   Nothing in a shared block or the menu names a subject: every subject inherits them.
+11. **The top bar is for using.** One slim bar across the whole screen, no sidebar: the Cornerstone mark, the five groups, the
+   search, and a three-line menu button. The button and the Viewing control are at least 40 px tall, and the Subject and
+   Class inside Viewing have 15 px text. The student search is a compact field of about 240 px with a search icon, growing
+   when focused. Nothing in a shared block or the menu names a subject: every subject inherits them.
+12. **A person sees their own.** A person mapped to one class and one subject sees those, and is offered no Class or Subject
+   box. A coordinator (every class) or a person on two subjects gets one "Viewing" control. Each page carries its own filters
+   (`FilterBar`) for what only it needs, starting at that scope. A view, never a permission (`lib/viewing.ts`, `lib/access.ts`).
+13. **No approve-all.** An approval is a row's own action on its own item. No page offers one button over every row
+   (`apps/web/tests/u62-scope-and-todo-logic.spec.ts`; the pages that still do are `ux.approveAll` in `workflows.json`).
 
 ## The educator's week, and its pages
 
@@ -47,8 +53,17 @@ exception is KG observation (S9), which is done on a phone.
 | Monday | read the class | Class results (and a child) |
 | Setup, apart | | Curriculum; Question bank |
 
-The menu is this table, in this order, with "This week" and "Setup" above the two runs. The current page is marked, only
-Today carries a count (red), and no word of it names a subject. Held by `apps/web/tests/u53-the-menu.spec.ts`.
+The menu is five groups on the top bar (`apps/web/lib/menu.ts`), and the table above is how the week runs through them:
+
+| Group | Its pages (tabs under the bar, and in the menu button's panel) |
+|---|---|
+| What needs doing | one page: a table of what waits, red, amber and green, grouped by subject and topic. It keeps the address `/today`. Carries the one count |
+| Teaching | one page: a tab for each of the person's subjects, a table of topics, each with its flow. It keeps the address `/taught` |
+| Assessments | Assessments, Papers to approve, Upload papers, Check answers |
+| Results | Class results, Parent reports, Across classes |
+| Setup | Curriculum, Skills to approve, Question bank, Staff, School |
+
+The current group and page are marked, no word of the menu names a subject. Held by `apps/web/tests/u53-the-menu.spec.ts`.
 
 ## The blocks (`apps/web/components/`)
 
@@ -61,7 +76,7 @@ Today carries a count (red), and no word of it names a subject. Held by `apps/we
 | `EmptyState` | Nothing to show. On a `PageShell` page the shell supplies the next step. |
 | `Count` | A number of things waiting. Give it the same `of` and value wherever it appears; the menu's badge carries the same `data-count`. |
 
-Rules and constants: `apps/web/lib/ux-rules.ts`. The first page on the blocks is `/capture/check`; copy it.
+Rules and constants: `apps/web/lib/ux-rules.ts`; the menu: `apps/web/lib/menu.ts`. The first page on the blocks is `/capture/check`; copy it.
 
 ## How the build holds the rules
 
@@ -85,5 +100,4 @@ Rules and constants: `apps/web/lib/ux-rules.ts`. The first page on the blocks is
 3. Run `bin/check` and `cd apps/web && npx playwright test tests/u51-ux-rules.spec.ts`.
 4. Note it in the branch's `docs/notes/<goal>.md`.
 
-Not yet held by a test: the menu shows a red count on every tab (rule 5 allows red on Today alone); rules 6 and 8 are
-reviewed by eye. The first waits for the slice that moves Today.
+Not yet held by a test: rules 6 and 8 are reviewed by eye.

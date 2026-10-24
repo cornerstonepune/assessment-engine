@@ -66,7 +66,7 @@ test("an educator put on the staff list signs in, and a decision carries their n
 // child by name or roll without the name entering an address (s41-subject-class-and-today.spec.ts), so the page has one way.
 test("Children has no second box to find a child: the bar at the top finds them", async ({ page }) => {
   await page.goto("/growth");
-  await expect(page.getByRole("search", { name: "Subject, class and search" }).getByRole("searchbox")).toBeVisible();
+  await expect(page.getByRole("search", { name: "Find a child or paper" }).getByRole("searchbox")).toBeVisible();
   await expect(page.getByRole("searchbox", { name: "Find a child" })).toHaveCount(0);
   await expect(page.getByRole("main").getByRole("searchbox")).toHaveCount(0);
 });

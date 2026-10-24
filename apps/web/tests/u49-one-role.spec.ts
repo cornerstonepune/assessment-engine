@@ -50,12 +50,8 @@ async function asEducator(browser: Browser): Promise<Page> {
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
   await expect(page).toHaveURL(/\/today$/);
-  // their own class first; every class one choice away in the bar at the top, as the coordinator sees them
-  await Promise.all([
-    page.waitForResponse((r) => r.request().method() === "POST"),
-    page.getByRole("search", { name: "Subject, class and search" }).getByLabel("Class").selectOption("every"),
-  ]);
-  await page.waitForLoadState("networkidle");
+  // their own class first: an educator mapped to one class has no Class box (goals/nav_teacher_scope_and_todo.yaml)
+  await expect(page.locator("#bar-class, [data-viewing]")).toHaveCount(0);
   return page;
 }
 
@@ -108,8 +104,9 @@ test("an educator takes a decision once the coordinator's alone: approving a ski
   const educator = await asEducator(browser);
   try {
     await educator.goto("/today");
-    await expect(educator.getByRole("main")).toContainText("Skills to approve");
-    await expect(educator.getByRole("link", { name: "How it works" }).first(), "the engineering map is theirs too").toBeAttached();
+    await expect(educator.getByRole("main")).toContainText("Approve a skill");
+    await educator.getByRole("button", { name: "Menu" }).click();
+    await expect(educator.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "How it works" }), "the engineering map is theirs too").toBeVisible();
     await educator.goto(`/skill-sets/${waiting.code}`);
     await expect(educator.getByRole("button", { name: /^Approve, as / })).toBeVisible();
     await educator.goto("/skill-sets/approve");

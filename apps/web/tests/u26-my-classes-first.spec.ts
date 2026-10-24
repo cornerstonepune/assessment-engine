@@ -78,17 +78,9 @@ test("an educator's pages open on their own class, every class one tap away and 
     for (const href of ["/api/paper/CSF1B026/1", `/api/see/${other.Chirag}?week=2026-W42`]) {
       expect((await page.request.get(href)).status(), href).not.toBe(403);
     }
-    // one choice in the bar at the top: every class, as the coordinator sees them
+    // no Class box: an educator mapped to one class is shown that class, and every class is the coordinator's view
     await page.goto("/today");
-    await Promise.all([
-      page.waitForResponse((r) => r.request().method() === "POST"),
-      page.getByRole("search", { name: "Subject, class and search" }).getByLabel("Class").selectOption("every"),
-    ]);
-    await page.waitForLoadState("networkidle");
-    await page.goto(`/growth?class=${OTHER}`);
-    await expect(page.getByRole("main")).toContainText(OTHER);
-    await page.goto("/papers/make");
-    expect((await page.getByLabel("Choose a class").locator("option").allTextContents()).join(" ")).toContain(OTHER);
+    await expect(page.locator("#bar-class, [data-viewing]")).toHaveCount(0);
   } finally {
     await page.context().close();
   }

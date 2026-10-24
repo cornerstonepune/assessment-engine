@@ -1,97 +1,73 @@
 import type { ReactNode } from "react";
-import { Nav, type NavItem } from "./nav";
-import { TopBar } from "./top-bar";
+import Link from "next/link";
+import { GroupNav, GroupTabs, MenuButton } from "./nav";
+import { Search, Viewing } from "./top-bar";
+import { Logo } from "./logo";
 import { signOut } from "@/lib/auth-actions";
 import type { Session } from "@/lib/auth";
 import { mayUse } from "@/lib/access";
 import type { Choices } from "@/lib/choices";
+import { GROUPS } from "@/lib/menu";
+import { isBroad, subjectNow, subjectsFor, viewingWords } from "@/lib/viewing";
 
-// The menu is the educator's week, in its order (goals/uxn3-the-menu.yaml, docs/ux-rules.md): what waits today, what was
-// taught, the papers to approve, the assessments, the papers that come back, their answers, the class's results; then the
-// setup apart. The words are the pages' own titles. Nothing here names a subject. Only Today carries a count, the one red number, from the
-// list it shows (lib/needs-you.ts; goals/ux10-declutter.yaml): each page says for itself what waits on it. A child's own paper (CS + six hex) is an assessment; a library worksheet is
-// curriculum. Making a paper and following it are the Assessments page (goals/u9-papers.yaml); its address stays /papers.
-export const NAV: readonly NavItem[] = [
-  { href: "/today", label: "Today", icon: "check", match: ["/today"], group: "This week" },
-  { href: "/taught", label: "Taught this week", icon: "flow", match: ["/taught"] },
-  { href: "/papers/approve", label: "Papers to approve", icon: "approve", match: ["/papers/approve"] },
-  { href: "/papers", label: "Assessments", icon: "sheet", match: ["/papers", "/make", "/home", "/worksheets/CS"] },
-  { href: "/capture", label: "Upload papers", icon: "camera", match: ["/capture"] },
-  { href: "/capture/check", label: "Check answers", icon: "pencil", match: ["/capture/check"] },
-  { href: "/growth", label: "Class results", icon: "growth", match: ["/growth"] },
-  { href: "/", label: "Curriculum", icon: "map", match: ["/", "/skill-sets", "/worksheets", "/asks"], group: "Setup" },
-  { href: "/library", label: "Question bank", icon: "bank", match: ["/library", "/worksheets/taxonomy"] },
-];
-
-export function Shell({ me, waiting, grades, choices, children }: { me: Session; waiting: Partial<Record<string, number>>; grades: string; choices: Choices; children: ReactNode }) {
-  const subject = choices.subjects.find((x) => x.code === me.subject) ?? choices.subjects[0];
+// The shell of every page (goals/nav_teacher_scope_and_todo.yaml). Nimish, 24 Oct 2026: "the menu is being shown on just the
+// left side. I think we can use the whole space of the screen. The menu can be on the top, or it can be a small button
+// with three lines that opens the menu." One slim bar: the mark, the five groups (lib/menu.ts), then the search, the
+// Viewing control for a person who chooses what they look at, and the menu button. A group's other pages are tabs under the
+// bar. The groups carry one count, on the first: what waits (lib/todo.ts `waitingCount`). Nothing here names a subject.
+export function Shell({ me, waiting, grades, choices, children }: { me: Session; waiting: number; grades: string; choices: Choices; children: ReactNode }) {
+  const mine = subjectsFor(me, choices.subjects);
+  const subject = subjectNow(me, choices.subjects, me.subject);
   const chosen = me.oneClass ? `class:${me.oneClass}` : me.everyClass || !me.classes?.length ? "every" : "mine";
-  // On a phone the menu is one row of big tabs at the foot of the screen, so the bar and a page's heading are both at
-  // the top (goals/ux7-phone-and-words.yaml: the heading in the top 120 px; goals/s1-subject-class-and-today.yaml); who
-  // is signed in moves to the foot of the page there, as it is the menu's foot on a wider screen.
+  const classes = me.oneClass ? [me.oneClass] : me.everyClass || !me.classes?.length ? null : me.classes;
+  const setup = mayUse(me, "setup");
+  const groups = GROUPS.filter((g) => !g.setup || setup);
+  const counts = { doing: waiting || undefined };
   return (
-    <div className="flex min-h-dvh flex-col pb-[56px] md:flex-row md:pb-0 print:pb-0">
-      <aside className="fixed inset-x-0 bottom-0 z-30 flex w-full flex-row items-center gap-2 bg-basalt px-3 py-[2px] text-lime md:static md:w-[230px] md:shrink-0 md:flex-col md:items-stretch md:gap-0 md:px-[18px] md:py-[26px] print:hidden">
-        <div className="hidden items-center gap-[10px] md:mb-9 md:flex">
-          <Mark />
-          <div className="font-heading text-[19px] text-lime">cornerstone</div>
+    <div className="flex min-h-dvh flex-col">
+      <header className="relative z-30 bg-basalt text-lime print:hidden">
+        <div className="mx-auto flex min-h-14 w-full max-w-[1560px] items-center gap-3 px-4 py-1 md:gap-5 md:px-8">
+          <Link href="/today" className="flex shrink-0 items-center gap-[10px] text-lime no-underline hover:text-lime" aria-label="cornerstone, home">
+            <Logo size={28} />
+            <span className="font-heading text-[19px] max-sm:hidden">cornerstone</span>
+          </Link>
+          <GroupNav groups={groups} counts={counts} />
+          <div className="ml-auto flex min-w-0 items-center gap-2 md:gap-3">
+            {isBroad(me) ? <Viewing choices={{ ...choices, subjects: mine }} subject={subject?.code ?? ""} chosen={chosen} own={me.classes ?? []} words={viewingWords(subject?.label, classes)} /> : null}
+            <Search />
+            <MenuButton counts={counts}>
+              <Account me={me} grades={grades} subject={subject?.label ?? ""} />
+            </MenuButton>
+          </div>
         </div>
-        <Nav items={NAV.map((it) => ({ ...it, count: it.label === "Today" ? waiting.Today : undefined }))} />
-        <Account me={me} grades={grades} subject={subject?.label ?? ""} className="mt-auto hidden pt-8 md:block" />
-      </aside>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar choices={choices} subject={subject?.code ?? ""} chosen={chosen} own={me.classes ?? []} />
-        <main className="flex min-w-0 flex-1 flex-col">{children}</main>
-      </div>
-      <footer className="bg-basalt px-5 py-4 md:hidden print:hidden">
-        <Account me={me} grades={grades} subject={subject?.label ?? ""} />
-      </footer>
+      </header>
+      <GroupTabs />
+      <main className="mx-auto flex w-full min-w-0 max-w-[1560px] flex-1 flex-col">{children}</main>
     </div>
   );
 }
 
-function Account({ me, grades, subject, className }: { me: Session; grades: string; subject: string; className?: string }) {
+function Account({ me, grades, subject }: { me: Session; grades: string; subject: string }) {
   return (
-    <div className={className}>
+    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-basalt/75">
       {/* the engineering map is the coordinator's: an educator's menu holds the school's work alone */}
-      {mayUse(me, "the_map") ? (
-        <a href="/workflows" className="mb-4 block text-[12.5px] text-bamboo underline-offset-2 hover:underline">
-          How it works
-        </a>
-      ) : null}
-      <a href="/school" className="mb-4 block text-[12.5px] text-bamboo underline-offset-2 hover:underline">
-        School and staff
-      </a>
-      <div className="label !text-bamboo opacity-75">{grades} · {subject}</div>
-      <div role="group" aria-label="Signed in" className="mt-3 text-[12.5px] text-bamboo">
-        <div className="flex items-center justify-between gap-2">
-          <span className="truncate" title={me.email}>{me.name}</span>
-          {me.devBypass ? (
-            <span className="pill pill-terracotta">dev bypass</span>
-          ) : (
-            <form action={signOut}>
-              <button className="cursor-pointer text-bamboo underline-offset-2 hover:underline" type="submit">
-                Sign out
-              </button>
-            </form>
-          )}
-        </div>
-        {/* what the site opens on for this person (ADR 0073): never a guess; every class one choice away in the bar at the top
-            (goals/s1-subject-class-and-today.yaml) */}
-        <div className="mt-1 opacity-75">{classesSaid(me)}</div>
+      {mayUse(me, "the_map") ? <Link href="/workflows">How it works</Link> : null}
+      <span className="label">{grades} · {subject}</span>
+      <div role="group" aria-label="Signed in" className="ml-auto flex items-center gap-4">
+        <span className="truncate" title={me.email}>
+          {me.name} · {classesSaid(me)}
+        </span>
+        {me.devBypass ? (
+          <span className="pill pill-terracotta">dev bypass</span>
+        ) : (
+          <form action={signOut}>
+            <button className="min-h-11 cursor-pointer underline-offset-2 hover:underline" type="submit">
+              Sign out
+            </button>
+          </form>
+        )}
       </div>
     </div>
-  );
-}
-
-// The courtyard mark: the child at the centre, the ring, the door. One colour at a time.
-function Mark() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
-      <path d="M2 2h22v22H16.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M9.5 24H2V2" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <circle cx="13" cy="12" r="3.6" fill="currentColor" />
-    </svg>
   );
 }
 
