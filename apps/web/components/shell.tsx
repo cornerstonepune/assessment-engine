@@ -36,7 +36,7 @@ export function Shell({ me, waiting, grades, choices, children }: { me: Session;
             {isBroad(me) ? <Viewing choices={{ ...choices, subjects: mine }} subject={subject?.code ?? ""} chosen={chosen} own={me.classes ?? []} words={viewingWords(subject?.label, classes)} /> : null}
             <Search />
             <MenuButton counts={counts}>
-              <Account me={me} grades={grades} subject={subject?.label ?? ""} />
+              <Account me={me} grades={grades} />
             </MenuButton>
           </div>
         </div>
@@ -47,12 +47,16 @@ export function Shell({ me, waiting, grades, choices, children }: { me: Session;
   );
 }
 
-function Account({ me, grades, subject }: { me: Session; grades: string; subject: string }) {
+function Account({ me, grades }: { me: Session; grades: string }) {
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-basalt/75">
       {/* the engineering map is the coordinator's: an educator's menu holds the school's work alone */}
-      {mayUse(me, "the_map") ? <Link href="/workflows">How it works</Link> : null}
-      <span className="label">{grades} · {subject}</span>
+      {mayUse(me, "the_map") ? (
+        <Link href="/workflows" className="inline-flex min-h-11 items-center">
+          How it works
+        </Link>
+      ) : null}
+      <span className="label">{grades}</span>
       <div role="group" aria-label="Signed in" className="ml-auto flex items-center gap-4">
         <span className="truncate" title={me.email}>
           {me.name} · {classesSaid(me)}

@@ -122,7 +122,7 @@ test("the menu is five groups, and only What needs doing carries the count of wh
 });
 
 test("What needs doing lists everything that waits as rows, and each row's button opens that one item", async ({ page }) => {
-  await page.goto("/today");
+  await page.goto("/today?kind=classpaper");
   await expect(page.getByText(/For others|For you/)).toHaveCount(0);
 
   // the test's own class pack, waiting before it prints: its row opens the page that approves exactly that pack
@@ -180,7 +180,7 @@ test("an educator not mapped to a class sees every row a coordinator sees, and t
 });
 
 test("weeks and classes on What needs doing are said in words, not codes", async ({ page }) => {
-  await page.goto("/today");
+  await page.goto("/today?kind=classpaper");
   const main = page.getByRole("main");
   await expect(main.getByText(new RegExp(`Grade 2 · ${SECTION} · class practice · ${weekWords(WEEK)}`))).toBeVisible();
   expect(weekWords(WEEK)).toMatch(/^week of \d{1,2} [A-Z][a-z]{2}$/);

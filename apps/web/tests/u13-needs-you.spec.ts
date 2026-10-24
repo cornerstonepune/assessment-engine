@@ -75,9 +75,9 @@ test("an educator switches a topic on, in their name, and its skills are on Curr
     // and said not taught again, in a person's name, it is not: from inside a fold, never by a stray click
     await page.goto("/taught?subject=NUM");
     const again = page.locator("tr[data-topic=DIV]");
-    await again.getByText("Not taught after all", { exact: true }).click();
+    await again.locator("summary", { hasText: "Not taught after all" }).click();
     if (await again.getByLabel("Class to unmark").count()) await again.getByLabel("Class to unmark").selectOption(CLASS);
-    await again.getByRole("button", { name: "Not taught after all" }).click();
+    await again.locator("details").getByRole("button", { name: "Not taught after all" }).click();
     await expect(page.getByRole("main")).toContainText(`${topic.name} is not taught in ${CLASS} now`);
     expect(await said()).toEqual([{ taught: false, taught_by: TEST_STAFF.name }]);
   } finally {

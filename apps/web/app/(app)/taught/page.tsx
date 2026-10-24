@@ -33,12 +33,15 @@ export default async function Teaching({ searchParams }: { searchParams: Promise
   const [all, offered] = await deadline(Promise.all([teaching(scope), choices()]));
   const mine = subjectsFor(me, offered.subjects);
   // a topic named in the address (What needs doing opens one) is that topic alone, under its own subject
+  const said = q.on ?? q.off;
   const named = all.find((t) => t.code === q.topic && mine.some((s) => s.code === t.subject));
-  const subject = mine.find((s) => s.code === (named?.subject ?? q.subject)) ?? subjectNow(me, offered.subjects, me.subject) ?? mine[0];
+  // what was just said (of a topic or one of its skills) is shown under its own subject
+  const justSaid = all.find((t) => t.code === said || t.skills.some((k) => k.code === said));
+  const subject = mine.find((s) => s.code === (named?.subject ?? justSaid?.subject ?? q.subject)) ?? subjectNow(me, offered.subjects, me.subject) ?? mine[0];
   const status = (Object.keys(STATUS) as TopicStatus[]).find((s) => s === q.status);
   const topics = all.filter((t) => t.subject === subject?.code && (!named || t === named) && (!status || t.status === status));
-  const said = q.on ?? q.off;
-  const switched = all.find((t) => t.code === said)?.name;
+  // said of a topic, or of one skill of it (the Curriculum row's switch comes back here)
+  const switched = all.find((t) => t.code === said)?.name ?? all.flatMap((t) => t.skills).find((k) => k.code === said)?.name;
   const columns: Column<TeachingTopic>[] = [
     { key: "topic", label: "Topic", width: "13rem", value: (t) => t.name, cell: (t) => <b>{t.name}</b> },
     { key: "status", label: "Status", status: true, width: "10rem", keep: true, value: (t) => t.status, cell: (t) => <StatusChip state={STATUS[t.status]} /> },

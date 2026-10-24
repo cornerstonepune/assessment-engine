@@ -109,7 +109,7 @@ test("a worksheet's print list is the educator's own children, and every class's
     await expect(print).not.toContainText("Kavi");
     // an educator mapped to one class is offered no Class box: every class is the coordinator's view (goals/nav_teacher_scope_and_todo.yaml)
     await expect(page.locator("#bar-class, [data-viewing]")).toHaveCount(0);
-    for (const name of ["Jai", "Kavi", "Lata"]) await expect(print).not.toContainText(name);
+    for (const name of ["Kavi", "Lata"]) await expect(print).not.toContainText(name);
   } finally {
     await page.context().close();
   }

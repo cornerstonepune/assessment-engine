@@ -7,7 +7,7 @@ import { asksWaiting, topics } from "./queries-people";
 import { homeByClass } from "./queries-make";
 import { checkQueue } from "./queries-read";
 import { classPacksWaiting, reportsWaiting } from "./queries-today";
-import { gradesOf, inScope, scopeOf } from "./scope";
+import { inScope, scopeOf } from "./scope";
 import { buildTasks, type Sources, type Task } from "./todo";
 import { isoWeek, weekWords } from "./week";
 import { mayUse } from "./access";
@@ -29,18 +29,18 @@ const paperRefs = (ids: string[]) =>
         where si.id = any(${ids}::uuid[])`
     : Promise.resolve([] as PaperRef[]);
 
-/** Every task waiting on this person, each with its own item to open: in the classes they see, and only the decisions that
- *  are theirs (lib/decides.ts). Once per request, whoever asks (the menu's count, the page). */
+/** Every task waiting on this person, each with its own item to open: in the classes they see (a skill is the school's: it is
+ *  seen in the subjects they teach, of every grade), and only the decisions that are theirs (lib/decides.ts). Once per request, whoever asks (the menu's count, the page). */
 export const tasksFor = cache(async (me: Session): Promise<Task[]> => {
   const scope = scopeOf(me);
-  const [g, may, bandCodes, offered] = await Promise.all([grades(), decidable(me), gradesOf(scope), choices()]);
+  const [g, may, offered] = await Promise.all([grades(), decidable(me), choices()]);
   const [skills, home, queue, signoff, packs, reports, tps, generate, asks, empty] = await Promise.all([
     may("skills")
       ? sql<{ code: string; name: string; grade: string; topic: string | null; topic_name: string | null; subject: string | null; levels: number }[]>`
           select s.code, s.name, s.grade, t.code as topic, t.name as topic_name, t.subject_code as subject,
                  (select count(*)::int from jsonb_object_keys(s.difficulty)) as levels
           from skill s left join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
-          where s.status <> 'ratified' and (${bandCodes.length === 0} or s.grade = any(${bandCodes}))
+          where s.status <> 'ratified'
           order by t.ord, s.ladder_order, s.code`
       : Promise.resolve([]),
     may("home_papers") ? homeByClass(isoWeek(), scope) : Promise.resolve([]),

@@ -3,7 +3,7 @@
 import NextLink from "next/link";
 import Link from "./link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { GROUPS, locate, tabsOf, type MenuGroup } from "@/lib/menu";
 
 // The menu on the top bar (goals/nav_teacher_scope_and_todo.yaml): the five groups, then under the bar the pages of the group
@@ -21,25 +21,27 @@ export function GroupNav({ groups, counts }: { groups: readonly MenuGroup[]; cou
       {groups.map((g) => {
         const n = counts[g.key];
         return (
-          <NextLink
-            key={g.key}
-            href={g.href}
-            aria-current={g.key === here ? "page" : undefined}
-            aria-describedby={n ? `waiting-${g.key}` : undefined}
-            className={`${bar} gap-2 ${g.key === here ? "text-chalk shadow-[inset_0_-3px_0_var(--terracotta)]" : "text-bamboo hover:text-chalk"}`}
-          >
-            {g.label}
-            {n ? (
-              <span data-testid="waiting" data-count={g.label} aria-hidden="true" className="min-w-[20px] bg-terracotta px-[5px] py-[1px] text-center text-[11px] text-chalk tabular-nums">
-                {n.toLocaleString("en-IN")}
-              </span>
-            ) : null}
+          <Fragment key={g.key}>
+            <NextLink
+              href={g.href}
+              aria-current={g.key === here ? "page" : undefined}
+              aria-describedby={n ? `waiting-${g.key}` : undefined}
+              className={`${bar} gap-2 ${g.key === here ? "text-chalk shadow-[inset_0_-3px_0_var(--terracotta)]" : "text-bamboo hover:text-chalk"}`}
+            >
+              {g.label}
+              {/* the count is the link's description, not its name: the group is "Teaching" to a reader and a test */}
+              {n ? (
+                <span data-testid="waiting" data-count={g.label} aria-hidden="true" className="min-w-[20px] bg-terracotta px-[5px] py-[1px] text-center text-[11px] text-chalk tabular-nums">
+                  {n.toLocaleString("en-IN")}
+                </span>
+              ) : null}
+            </NextLink>
             {n ? (
               <span id={`waiting-${g.key}`} className="sr-only">
                 {n.toLocaleString("en-IN")} waiting
               </span>
             ) : null}
-          </NextLink>
+          </Fragment>
         );
       })}
     </nav>
@@ -53,7 +55,7 @@ export function GroupTabs() {
   const here = locate(path)?.page.href;
   if (!tabs.length) return null;
   return (
-    <nav aria-label="Pages in this section" className="print:hidden border-b border-basalt/12 bg-chalk">
+    <nav aria-label="Pages in this section" className="border-b max-md:hidden print:hidden border-basalt/12 bg-chalk">
       <ul className="mx-auto flex w-full max-w-[1560px] gap-1 overflow-x-auto px-4 md:px-8">
         {tabs.map((t) => (
           <li key={t.href}>

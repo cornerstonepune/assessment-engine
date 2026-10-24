@@ -48,10 +48,9 @@ test("an educator put on the staff list signs in, and a decision carries their n
     await expect(page).toHaveURL(/\/today$/);
 
     // what they decide carries their name
-    await page.goto("/taught");
-    const row = page.getByRole("region", { name: "Not taught yet", exact: true }).getByRole("listitem").filter({ hasText: topic.name });
-    await row.getByText("Say it is taught", { exact: true }).click();
-    await row.getByRole("button", { name: `Taught in ${SECTION}, as ${EDUCATOR.name}` }).click();
+    await page.goto("/taught?subject=NUM");
+    const row = page.locator("tr[data-topic=DIV]");
+    await row.getByRole("button", { name: "Mark as taught" }).click();
     await expect(page.getByRole("main")).toContainText(`${topic.name} is taught in ${SECTION} now`);
     const [now] = await sql<{ taught: boolean; taught_by: string | null }[]>`
       select bool_and(taught) as taught, min(taught_by) as taught_by from class_skill where section = ${SECTION} and skill_set_code in (select code from skill where topic_code = 'DIV')`;

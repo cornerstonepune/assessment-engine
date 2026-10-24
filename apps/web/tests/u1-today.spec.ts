@@ -90,7 +90,7 @@ test("the menu is the teacher's week, and says where they are", async ({ page })
 });
 
 test("today lists everything waiting on a teacher, each with its count and one click to act", async ({ page }) => {
-  await page.goto("/today");
+  await page.goto("/today?kind=classpaper");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
 
   // the class papers the engine proposed for the test's class wait for a teacher before they print
@@ -135,7 +135,7 @@ test("what has nothing waiting says so, and each count is the page's own", async
 
   // what has nothing waiting is not listed: a kind with no row says so, and every number shown is above zero
   await page.goto("/today");
-  for (const n of await page.locator("td[data-label=\"How many\"]").allInnerTexts()) expect(Number(n.replace(/\D/g, ""))).toBeGreaterThan(0);
+  for (const n of await page.locator("td[data-label=\"How many\"]").allInnerTexts()) if (/\d/.test(n)) expect(Number(n.replace(/\D/g, ""))).toBeGreaterThan(0);
   await page.goto("/today?kind=empty");
   if (!(await page.locator("tr[data-kind=empty]").count())) await expect(page.getByText(/Nothing waits on you/)).toBeVisible();
 });

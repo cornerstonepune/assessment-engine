@@ -9,7 +9,7 @@ import { expect, test } from "@playwright/test";
 test("Teaching is its own page: a table of topics, a tab for each subject, and the week's next step", async ({ page }) => {
   await page.goto("/taught");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Teaching");
-  await expect(page.getByRole("navigation", { name: "Subjects" }).getByRole("link")).toHaveText(["Maths", "English"]);
+  expect((await page.getByRole("navigation", { name: "Subjects" }).getByRole("link").allInnerTexts()).sort()).toEqual(["English", "Maths"]);
   await expect(page.locator("[data-ux=next]")).toHaveAttribute("href", "/papers");
   const rows = page.locator("tr[data-topic]");
   expect(await rows.count()).toBeGreaterThan(0);

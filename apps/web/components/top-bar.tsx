@@ -21,9 +21,9 @@ export function Viewing({ choices, subject, chosen, own, words }: { choices: Cho
       <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 border border-bamboo/40 px-3 text-[13.5px] text-chalk hover:bg-chalk/10">
         <span className="text-bamboo">Viewing:</span> {words}
       </summary>
-      <form ref={form} action={choose} role="group" aria-label="Viewing" className="absolute right-0 z-40 mt-1 grid w-[300px] gap-3 border border-basalt/20 bg-chalk p-4 text-basalt shadow-md">
-        <label className="grid gap-1 text-[13px]" htmlFor="bar-subject">
-          Subject
+      <form ref={form} action={choose} role="group" aria-label="Viewing" className="z-40 grid gap-3 border border-basalt/20 bg-chalk p-4 text-basalt shadow-md max-md:fixed max-md:inset-x-3 max-md:top-16 md:absolute md:right-0 md:mt-1 md:w-[300px]">
+        <div className="grid gap-1 text-[13px]">
+          <label htmlFor="bar-subject">Subject</label>
           <select key={subject} id="bar-subject" name="subject" defaultValue={subject} onChange={submit} className="select min-h-[40px] !w-full !text-[15px] font-medium">
             {choices.subjects.map((s) => (
               <option key={s.code} value={s.code}>
@@ -31,9 +31,9 @@ export function Viewing({ choices, subject, chosen, own, words }: { choices: Cho
               </option>
             ))}
           </select>
-        </label>
-        <label className="grid gap-1 text-[13px]" htmlFor="bar-class">
-          Class
+        </div>
+        <div className="grid gap-1 text-[13px]">
+          <label htmlFor="bar-class">Class</label>
           <select key={chosen} id="bar-class" name="class" defaultValue={chosen} onChange={submit} className="select min-h-[40px] !w-full !text-[15px] font-medium">
             {own.length ? <option value="mine">Your classes ({own.join(", ")})</option> : null}
             <option value="every">Every class</option>
@@ -43,7 +43,7 @@ export function Viewing({ choices, subject, chosen, own, words }: { choices: Cho
               </option>
             ))}
           </select>
-        </label>
+        </div>
         <noscript>
           <button type="submit" className="btn secondary">
             Show

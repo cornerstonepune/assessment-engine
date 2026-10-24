@@ -68,12 +68,13 @@ test("a child's page shows their newest papers and opens every one of them on As
 });
 
 test("Today names the first five classes waiting and opens the rest", async ({ page }) => {
-  await page.goto("/today");
-  const packs = page.getByRole("region", { name: "Class papers to approve", exact: true });
-  const n = Number(await packs.getByTestId("count").innerText());
-  expect(n).toBeGreaterThanOrEqual(PACKS.length);
-  await expect(packs.getByRole("listitem").filter({ has: page.locator('a[href^="/papers/approve?"]') })).toHaveCount(5);
-  await expect(packs.getByRole("link", { name: /^and \d+ more →$/ })).toHaveAttribute("href", "/papers/approve");
+  // a table of ten rows at most: the rest are said and one click away (goals/nav_teacher_scope_and_todo.yaml)
+  await page.goto("/today?kind=classpaper");
+  const rows = page.locator("tr[data-kind=classpaper]");
+  expect(await rows.count()).toBeLessThanOrEqual(10);
+  const all = Number((await page.locator("details[data-topic] > summary .fact").first().innerText()).replace(/\D/g, ""));
+  expect(all).toBeGreaterThanOrEqual(PACKS.length);
+  if (all > 10) await expect(page.getByRole("link", { name: "Show all →" })).toBeVisible();
 });
 
 test("the questions answered are folded under one line until opened", async ({ page }) => {

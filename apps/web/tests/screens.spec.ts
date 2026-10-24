@@ -80,8 +80,8 @@ test("every section is reachable from the menu", async ({ page }) => {
 // Unlayered, the global `a:hover` beat the menu's own hover colour and drew an item basalt on basalt: it vanished under the pointer.
 test("a menu item stays readable while the pointer is on it", async ({ page }) => {
   await page.goto("/");
-  const bar = await page.locator("header").evaluate((el) => getComputedStyle(el).backgroundColor);
-  for (const item of await page.locator("header").getByRole("navigation", { name: "Sections" }).getByRole("link").all()) {
+  const bar = await page.getByRole("banner").first().evaluate((el) => getComputedStyle(el).backgroundColor);
+  for (const item of await page.getByRole("banner").first().getByRole("navigation", { name: "Sections" }).getByRole("link").all()) {
     await item.hover();
     const colour = await item.evaluate((el) => getComputedStyle(el).color);
     expect(colour, (await item.textContent()) ?? "").not.toBe(bar);

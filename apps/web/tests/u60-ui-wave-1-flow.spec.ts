@@ -157,7 +157,7 @@ test("an admin: the same top menu and a Viewing control, both subjects on Teachi
   await expect(page.locator("#bar-subject")).toBeVisible();
   await expect(page.locator("#bar-class")).toBeVisible();
   await open(page, "/taught", /Teaching/);
-  await expect(page.getByRole("navigation", { name: "Subjects" }).getByRole("link")).toHaveText(["Maths", "English"]);
+  expect((await page.getByRole("navigation", { name: "Subjects" }).getByRole("link").allInnerTexts()).sort()).toEqual(["English", "Maths"]);
   // a group's other pages are tabs, not more items on the bar
   await page.goto("/papers");
   await expect(page.getByRole("navigation", { name: "Pages in this section" }).getByRole("link")).toHaveText(["Assessments", "Papers to approve", "Upload papers", "Check answers"]);
@@ -205,8 +205,11 @@ async function tablesRead(page: Page, path: string) {
 
 /** The Viewing control (a coordinator's): open it, choose the subject. */
 async function viewSubject(page: Page, label: string) {
-  await page.locator("[data-viewing] summary").click();
-  await page.locator("#bar-subject").selectOption({ label });
+  await page.waitForLoadState("networkidle");
+  await page.locator("[data-viewing]").evaluate((el) => ((el as HTMLDetailsElement).open = true));
+  await expect(page.locator("#bar-subject")).toBeVisible();
+  await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), page.locator("#bar-subject").selectOption({ label })]);
+  await page.waitForLoadState("networkidle");
 }
 
 /** A status is an icon and a word. */

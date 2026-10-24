@@ -181,7 +181,7 @@ test("on a phone the bar and the heading are at the top and every tap is big eno
   try {
     for (const path of ["/today", "/papers", "/growth", "/"]) {
       await page.goto(path);
-      const top = (await page.locator("header").boundingBox())!;
+      const top = (await page.getByRole("banner").first().boundingBox())!;
       expect(top.y, path).toBeLessThan(8);
       const h1 = page.getByRole("heading", { level: 1 }).first();
       const end = await h1.evaluate((el) => el.getBoundingClientRect().top + parseFloat(getComputedStyle(el).lineHeight));

@@ -22,7 +22,8 @@ test.afterAll(async () => sql.end());
 
 test("every step of the map is drawn in its workflow, with what it is doing now and where it hands on", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("complementary").getByRole("link", { name: "How it works" }).click();
+  await page.getByRole("button", { name: "Menu" }).click();
+  await page.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "How it works" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("How it works");
   for (const w of MAP.workflows) {
     const section = page.getByRole("region", { name: `${w.code} · ${w.name}` });

@@ -94,8 +94,13 @@ test("each class's home papers are proposed from each child's own map, one skill
   // too little work yet: no paper, and it says so
   await expect(table.locator("tbody tr").filter({ hasText: "Chetan" })).toContainText("Not enough checked work yet");
 
-  await page.getByRole("button", { name: "Approve all 2" }).click();
-  await expect(page.getByRole("status")).toContainText("Approved 2");
+  // each child's is approved on the child's own row: there is no button over all of them
+  await expect(page.getByRole("button", { name: /Approve all/ })).toHaveCount(0);
+  await asha.getByRole("button", { name: "Approve", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Approved 1");
+  await expect(asha.locator("[data-status=done]")).toBeVisible();
+  await bina.getByRole("button", { name: "Approve", exact: true }).click();
+  await expect(bina.locator("[data-status=done]")).toBeVisible();
   const made = await sql<{ approved_by: string; kind: string }[]>`
     select si.approved_by, si.kind from sheet_instance si join child c on c.id = si.child_id
     where c.section = ${SECTION} and si.week = ${isoWeek()}`;

@@ -13,7 +13,7 @@ says:
   - words: "also ths page needs to have proper filters and all; no page should have such laundary lists like stuff"
     proved_by: "apps/web/tests/u23-approve-filtered.spec.ts::each waiting skill is one row, its levels folded until opened"
   - words: "also ths page needs to have proper filters and all; no page should have such laundary lists like stuff"
-    proved_by: "apps/web/tests/u23-approve-filtered.spec.ts::a grade and a topic narrow the rows, and approving these approves only the rows shown"
+    proved_by: "apps/web/tests/u23-approve-filtered.spec.ts::a grade and a topic narrow the rows, and approving one approves only its row"
 manual:
   - "Website only: Vercel deploys it on merge. No migration."
 scenarios: []

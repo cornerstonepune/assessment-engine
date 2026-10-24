@@ -47,7 +47,7 @@ test("a coordinator ticks a person's classes on the Staff page and the list keep
   const table = page.getByRole("table", { name: "Staff" });
   const row = table.locator(`tr[data-person="${PERSON.email}"]`);
   await expect(row).toContainText("No class yet");
-  await row.locator("summary").click();
+  await row.locator("summary").first().click();
   await row.getByLabel(CLASS).check();
   await row.getByRole("button", { name: "Save the classes" }).click();
   await expect(page.getByRole("status")).toContainText(
@@ -75,8 +75,8 @@ test("a class no child is in refuses everything, and the filter row finds a pers
     .getByRole("table", { name: "Staff" })
     .locator(`tr[data-person="${PERSON.email}"]`);
   await expect(row).toBeVisible();
-  await row.locator("summary").click();
-  await row.locator("form").evaluate((f) => {
+  await row.locator("summary").first().click();
+  await row.locator("form").first().evaluate((f) => {
     const box = document.createElement("input");
     box.type = "hidden";
     box.name = "class";
@@ -101,7 +101,6 @@ test("School shows each class with its grade, its children and who teaches it", 
   await expect(row).toContainText("Grade 3");
   await expect(row).toContainText("Ayush Test");
   await expect(row.locator("td").nth(2)).toHaveText("2");
-  await expect(
-    page.getByRole("link", { name: "School and staff" }),
-  ).toBeVisible();
+  // the way to the Staff page is a tab beside School
+  await expect(page.getByRole("navigation", { name: "Pages in this section" }).getByRole("link", { name: "Staff" })).toBeVisible();
 });
