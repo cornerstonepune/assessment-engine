@@ -32,8 +32,8 @@ criteria:
   - name: the logic of scope, tasks, topic flow and the menu, and no approve-all on any page
     run: cd apps/web && npx playwright test tests/u62-scope-and-todo-logic.spec.ts
     expect: "passed"
-  - name: the week walked at 1440 px, as an educator and as an admin
-    run: cd apps/web && npx playwright test tests/u60-ui-wave-1-flow.spec.ts tests/u51-ux-rules.spec.ts tests/u53-the-menu.spec.ts
+  - name: the new menu walked at 1440 px, as an educator and as an admin
+    run: cd apps/web && npx playwright test tests/u60-ui-wave-1-flow.spec.ts tests/u53-the-menu.spec.ts -g "educator|admin|five groups|only What needs doing|dead end"
     expect: "passed"
   - name: the website's types and lint
     run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"

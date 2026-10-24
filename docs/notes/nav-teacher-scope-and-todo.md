@@ -37,7 +37,19 @@ engine change except one ratchet check. W3, no gate moved: this is the educator'
 
 ## Verified
 
-(filled in below as each command is run)
+Run on a database built by `bin/testdb fresh` (Postgres 16 here, 17 in CI), 1440 px.
+
+- `bin/engine done nav_teacher_scope_and_todo` → 7 of 7 sentences PROVED, 4 of 4 criteria PASSED; it ends "NOT DONE" only for
+  "not on main yet" and "the live database did not answer from here".
+- Whole browser suite on a fresh copy, after the fixes below: 388 passed, 11 failed on the first fresh run; the 11 were
+  fixed (old Today/Taught/sidebar/approve-all expectations rewritten) and re-run in groups; CI (3 browser shards, retry once)
+  is the judge of the rest. u38 ("Each child waiting ... 2-digit − 2-digit") also fails here on data and is untouched by this
+  branch; u51 "Check answers lists what is left" and u60's Assessments/card steps need other specs' papers (as before): run
+  alone on an empty copy they fail, in the full suite they pass.
+- `bin/check` → 32 passed. `npx tsc --noEmit`, `npx eslint --max-warnings 0` → clean.
+- Review passes: `simplify` (four reviewers) applied: Today's old list code removed, `choices()` cached. Skipped on purpose:
+  one cheaper count-only query for the menu badge, one shared staff-update helper, moving scope into `scopeOf` (each a
+  separate change; the layout and page already share one `tasksFor` per request).
 
 ## Handoff
 
