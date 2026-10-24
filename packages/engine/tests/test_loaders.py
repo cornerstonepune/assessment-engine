@@ -13,7 +13,7 @@ import pathlib
 
 import pytest
 
-from engine.core import db, loaders, references, settings
+from engine.core import db, english, loaders, references, settings
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -180,14 +180,18 @@ def test_every_rung_band_is_a_band_the_levels_know_about(loaded):
 def test_a_deploy_loads_the_rows_the_engine_reads_as_settings_and_no_others(monkeypatch):
     """`engine load --settings`, run by every deploy (deploy-engine.yml): a merged setting — a layout, a
     threshold, a prompt — is live with the code that reads it, and nobody runs `bin/update-live` for it. The
-    rows people own or the bank's own steps build (skill sets, levels, the registry) are not touched."""
+    rows people own or the bank's own steps build (skill sets, levels, the registry) are not touched. The English
+    samples are loaded too: rows no person edits or approves (goals/smp_skill_shows_its_samples.yaml)."""
     touched = []
     for step in ("_registry", "_levels", "_misconceptions", "_dimensions", "_taxonomy_cases",
                  "_skill_sets", "_subjects"):  # fmt: skip
         monkeypatch.setattr(loaders, step, lambda *a, s=step: touched.append(s))
     monkeypatch.setattr(loaders.topics, "load", lambda *a: touched.append("topics"))
 
-    assert set(loaders.load_settings()) == {"prompt", "threshold", "config"} and touched == []
+    assert (
+        set(loaders.load_settings()) == {"prompt", "threshold", "config", *english.SAMPLE_TABLES}
+        and touched == []
+    )
     with db.connect() as conn:
         layouts = conn.execute("select value from config where key = 'render.layouts'").fetchone()["value"]
         assert [x["name"] for x in layouts] == [

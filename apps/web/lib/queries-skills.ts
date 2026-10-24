@@ -64,3 +64,45 @@ export async function skillWatches(code: string): Promise<{ code: string; name: 
     from skill_mistake k join misconception m on m.tenant_id = k.tenant_id and m.code = k.misconception_code and m.op = k.op
     where k.skill_code = ${code} order by m.code`;
 }
+
+/** An English sample as an approver reads it (goals/smp_skill_shows_its_samples.yaml): the question as printed, the right
+ *  answer, and each likely wrong answer with the mistake it names in words; for a kind a person reads every answer of,
+ *  what a right answer says and the rubric. From `english_sample`, filled by `engine load`. */
+export type SampleRow = {
+  difficulty: string;
+  kind: string;
+  kind_words: string;
+  open: boolean;
+  ord: number;
+  ask: string;
+  text: string | null;
+  options: string[] | { left: string[]; right: string[] } | null;
+  answer: string | string[] | string[][] | Record<string, string | string[]>;
+  accept: string[];
+  key_points: string[] | null;
+  passage: { title: string; text: string } | null;
+  rubric: { name: string; scale: string[]; criteria: { code: string; name: string; levels: Record<string, string> }[] } | null;
+  wrong: { answer: string; mistake: string; description: string | null }[];
+};
+
+export async function skillSamples(code: string): Promise<SampleRow[]> {
+  return sql<SampleRow[]>`
+    select e.difficulty, e.question_type as kind, q.words as kind_words, 'open_response' = any(q.marked) as open, e.ord,
+           e.ask, e.text, e.options, e.answer, e.accept, e.key_points,
+           case when p.code is null then null else jsonb_build_object('title', p.title, 'text', p.text) end as passage,
+           case when r.code is null then null
+                else jsonb_build_object('name', r.name, 'scale', r.scale, 'criteria', r.criteria) end as rubric,
+           coalesce((select jsonb_agg(jsonb_build_object('answer', w.answer, 'mistake', m.name, 'description', m.description)
+                                      order by w.answer)
+                     from english_sample_wrong w
+                     join misconception m on m.tenant_id = w.tenant_id and m.code = w.mistake_code and m.op = w.op
+                     where w.sample_id = e.id), '[]'::jsonb) as wrong
+    from english_sample e
+    join question_type q on q.tenant_id = e.tenant_id and q.code = e.question_type
+    join skill_level_question_type l on l.tenant_id = e.tenant_id and l.skill_code = e.skill_code
+      and l.difficulty = e.difficulty and l.question_type = e.question_type
+    left join passage p on p.tenant_id = e.tenant_id and p.code = e.passage_code
+    left join rubric r on r.tenant_id = e.tenant_id and r.code = e.rubric_code
+    where e.skill_code = ${code}
+    order by e.difficulty, l.place nulls last, e.question_type, e.ord`;
+}

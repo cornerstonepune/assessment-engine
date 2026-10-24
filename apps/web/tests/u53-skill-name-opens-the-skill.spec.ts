@@ -68,7 +68,7 @@ test("a Maths skill's name on the approve list opens it, with each level's quest
   await shot(page, "skill-maths");
 });
 
-test("an English skill's name opens it, and each level says in words that its questions come after approval", async ({ page }) => {
+test("an English skill's name opens it, and each level shows its sample questions", async ({ page }) => {
   await page.goto("/skill-sets/approve");
   const link = row(page, english.code).getByRole("rowheader").getByRole("link", { name: english.name });
   await link.click();
@@ -79,7 +79,8 @@ test("an English skill's name opens it, and each level says in words that its qu
   for (const { difficulty: d } of levels) {
     const card = page.getByRole("region", { name: d, exact: true });
     await expect(card).toBeVisible();
-    await expect(card).toContainText("No questions yet: English questions are made after this skill is approved and linked.");
+    // its sample questions, not a promise of questions later (goals/smp_skill_shows_its_samples.yaml)
+    await expect(card.locator("li[data-sample]").first()).toBeVisible();
     await expect(card.getByRole("link", { name: /questions/ }), "no empty count for a skill with no bank").toHaveCount(0);
   }
   await expect(page.getByRole("button", { name: `Approve, as ${TEST_STAFF.name}` })).toBeVisible();

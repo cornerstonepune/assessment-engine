@@ -8,9 +8,10 @@ overwritten, as a maths skill set is; a kind and a mistake are upserted from the
 here approves anything: no level is confirmed and no kind approved, so `drawable_item` offers no English question to a
 paper until a person approves both.
 
-What the tables cannot hold is left out, not faked (the note says which slice each waits on): a sample's answer and
-wrong answers, the observed kinds (`question_type.reaches` allows printed, read aloud and drawn), the passages, the
-rubrics and the observed skills. Three words of the seed are read in the tables' own (a subject's `mark_mode` is `lookup` or `rubric`; English is marked kind by kind): a mistake a model or the educator
+The samples are stored whole (goals/smp_skill_shows_its_samples.yaml): each with its passage, the question as printed,
+the right answer and its likely wrong answers, each naming a mistake, and the rubric an open answer is read against
+(`samples`). What the tables cannot hold is left out, not faked (the note says which slice each waits on): the observed
+kinds (`question_type.reaches` allows printed, read aloud and drawn) and the observed skills. Three words of the seed are read in the tables' own (a subject's `mark_mode` is `lookup` or `rubric`; English is marked kind by kind): a mistake a model or the educator
 detects is `teacher` (`misconception.detectable_by` has four words), which is who reads an open answer while a kind is
 new (BUILD-ORDER, C4 decides when that changes).
 """
@@ -166,4 +167,89 @@ def prerequisites(conn: db.Conn, t: db.Id) -> None:
         "   on s.tenant_id = p.tenant_id and s.code = p.skill_code join topic o"
         "   on o.tenant_id = s.tenant_id and o.code = s.topic_code where p.tenant_id = %s and o.subject_code = %s)",
         (t, json.dumps(seed("skill_prerequisite.json", "skill_prerequisites")), t, SUBJECT),
+    )
+
+
+SAMPLE_TABLES = ("passage", "rubric", "english_sample", "english_sample_wrong")
+
+
+def samples(conn: db.Conn, t: db.Id) -> None:
+    """The passages, the rubrics, and every sample with its wrong answers, upserted from the seed: a row changes only
+    when the seed's words do, so a second load moves nothing. A sample whose level or kind is not loaded yet waits for
+    the load that brings them (a deploy runs this before anyone has run the full load). Nothing here is an approval."""
+    passages = seed("passage.json", "passages")
+    conn.execute(
+        "insert into passage (tenant_id, code, grade, kind, title, text, facts)"
+        " select %s, x.code, x.grade, x.kind, x.title, x.text, x.facts from jsonb_to_recordset(%s::jsonb)"
+        "   x(code text, grade text, kind text, title text, text text, facts jsonb)"
+        " on conflict (tenant_id, code) do update set grade = excluded.grade, kind = excluded.kind,"
+        " title = excluded.title, text = excluded.text, facts = excluded.facts"
+        " where row(passage.grade, passage.kind, passage.title, passage.text, passage.facts)"
+        " is distinct from row(excluded.grade, excluded.kind, excluded.title, excluded.text, excluded.facts)",
+        (t, json.dumps(passages)),
+    )
+    conn.execute(
+        "insert into rubric (tenant_id, code, name, applies_to, criteria, scale, skill_codes)"
+        " select %s, x.code, x.name, x.applies_to, x.criteria, x.scale, x.skill_codes from jsonb_to_recordset(%s::jsonb)"
+        "   x(code text, name text, applies_to text, criteria jsonb, scale text[], skill_codes text[])"
+        " on conflict (tenant_id, code) do update set name = excluded.name, applies_to = excluded.applies_to,"
+        " criteria = excluded.criteria, scale = excluded.scale, skill_codes = excluded.skill_codes"
+        " where row(rubric.name, rubric.applies_to, rubric.criteria, rubric.scale, rubric.skill_codes)"
+        " is distinct from row(excluded.name, excluded.applies_to, excluded.criteria, excluded.scale, excluded.skill_codes)",
+        (t, json.dumps(seed("rubric.json", "rubrics"))),
+    )
+    rows = [
+        {
+            "skill_code": x["skill_code"],
+            "difficulty": x["difficulty"],
+            "question_type": x["question_type"],
+            "ord": x["n"],
+            "ask": x["ask"],
+            "passage_code": x["passage"],
+            "text": x["text"],
+            "options": x["options"],
+            "answer": x["answer"],
+            "accept": x["accept"],
+            "rubric_code": x.get("rubric"),
+            "key_points": x.get("key_points"),
+            "must_contain": x.get("must_contain"),
+            "not_words": x.get("not_words"),
+            "worked_out": x.get("check"),
+            "wrong": [{"answer": a, "mistake_code": m} for a, m in x["wrong"].items()],
+        }
+        for x in seed("skill_level_sample.json", "samples")
+    ]
+    conn.execute(
+        "insert into english_sample as e (tenant_id, skill_code, difficulty, question_type, ord, ask, passage_code, text,"
+        "   options, answer, accept, rubric_code, key_points, must_contain, not_words, worked_out)"
+        " select %s, x.skill_code, x.difficulty, x.question_type, x.ord, x.ask, x.passage_code, x.text, x.options,"
+        "   x.answer, x.accept, x.rubric_code, x.key_points, x.must_contain, x.not_words, x.worked_out"
+        " from jsonb_to_recordset(%s::jsonb) x(skill_code text, difficulty text, question_type text, ord smallint,"
+        "   ask text, passage_code text, text text, options jsonb, answer jsonb, accept jsonb, rubric_code text,"
+        "   key_points jsonb, must_contain jsonb, not_words jsonb, worked_out jsonb)"
+        " join skill_level l on l.tenant_id = %s and l.skill_code = x.skill_code and l.difficulty = x.difficulty"
+        " join question_type q on q.tenant_id = %s and q.code = x.question_type"
+        " on conflict (tenant_id, skill_code, difficulty, question_type, ord) do update set ask = excluded.ask,"
+        "   passage_code = excluded.passage_code, text = excluded.text, options = excluded.options,"
+        "   answer = excluded.answer, accept = excluded.accept, rubric_code = excluded.rubric_code,"
+        "   key_points = excluded.key_points, must_contain = excluded.must_contain, not_words = excluded.not_words,"
+        "   worked_out = excluded.worked_out"
+        " where row(e.ask, e.passage_code, e.text, e.options, e.answer, e.accept, e.rubric_code, e.key_points,"
+        "   e.must_contain, e.not_words, e.worked_out) is distinct from row(excluded.ask, excluded.passage_code,"
+        "   excluded.text, excluded.options, excluded.answer, excluded.accept, excluded.rubric_code,"
+        "   excluded.key_points, excluded.must_contain, excluded.not_words, excluded.worked_out)",
+        (t, json.dumps(rows), t, t),
+    )
+    conn.execute(
+        "insert into english_sample_wrong as w (tenant_id, sample_id, answer, mistake_code)"
+        " select %s, e.id, y.answer, y.mistake_code"
+        " from jsonb_to_recordset(%s::jsonb) x(skill_code text, difficulty text, question_type text, ord smallint,"
+        "   wrong jsonb)"
+        " join english_sample e on e.tenant_id = %s and e.skill_code = x.skill_code and e.difficulty = x.difficulty"
+        "   and e.question_type = x.question_type and e.ord = x.ord"
+        " cross join jsonb_to_recordset(x.wrong) y(answer text, mistake_code text)"
+        " join misconception m on m.tenant_id = e.tenant_id and m.code = y.mistake_code and m.op = 'any'"
+        " on conflict (sample_id, answer) do update set mistake_code = excluded.mistake_code"
+        " where w.mistake_code is distinct from excluded.mistake_code",
+        (t, json.dumps(rows), t),
     )

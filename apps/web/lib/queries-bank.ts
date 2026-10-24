@@ -30,6 +30,15 @@ export type ItemSpec = {
   rows?: number[]; // a part of the multiplication square: its rows and columns; `a` and `b` are the cell asked
   cols?: number[];
   method?: string; // how it is worked or drawn: a division's equal groups are SHARING, GROUPING or ARRAY
+  printed?: Printed; // an English sample, as its paper prints it (`english_sample`)
+};
+
+/** What an English question prints under its ask: the passage it is about, its sentence (a gap is ___), and its options:
+ *  words to choose, order or sort, or two columns to match. */
+export type Printed = {
+  passage: { title: string; text: string } | null;
+  text: string | null;
+  options: string[] | { left: string[]; right: string[] } | null;
 };
 
 // One thing the child writes. `answer` is null where a person reads it (an explanation) and

@@ -13,7 +13,7 @@ import {
   type Difficulty,
 } from "@/lib/queries";
 import { mistakeBook } from "@/lib/queries-bank";
-import { levelExamples, skillKinds, skillMistakes, skillWatches, skillWays } from "@/lib/queries-skills";
+import { levelExamples, skillKinds, skillMistakes, skillSamples, skillWatches, skillWays } from "@/lib/queries-skills";
 import { worksheets } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../../worksheets/library";
 import { approveSkills } from "./actions";
@@ -23,6 +23,7 @@ import { mayDecide } from "@/lib/decides";
 import { LevelApproval } from "./level-approval";
 import { GradesPanel } from "./grades-panel";
 import { LevelWays, Watched, WaysPanel } from "./ways";
+import { LevelSamples } from "./samples";
 import { dateWords } from "@/lib/week";
 
 type Props = {
@@ -40,7 +41,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   const [{ code }, q] = await Promise.all([params, searchParams]);
   const level = (await levels()).order.find((d) => d === q.level);
   const everyLevel = q.level === "all";
-  const [all, examples, kinds, caught, book, sheets, g, { words }, ways, watched] = await deadline(
+  const [all, examples, kinds, caught, book, sheets, g, { words }, ways, watched, samples] = await deadline(
     Promise.all([
       skillSets({ untaught: true, scope: scopeOf(me) }),
       levelExamples(code),
@@ -52,6 +53,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
       questionKinds(),
       skillWays(code),
       skillWatches(code),
+      skillSamples(code),
     ]),
   );
   // a skill whose topic is not taught yet opens too, to be read and approved before it is switched on (goals/ny1-needs-you.yaml)
@@ -71,12 +73,38 @@ export default async function SkillPage({ params, searchParams }: Props) {
     .map((m) => ({ ...m, said: mistakeOf(book, m.code, op) }))
     .filter((m) => m.said);
 
+  // approve or change the words: at the top, or for a skill read from its samples (English), under them, so the
+  // approver reads first (goals/smp_skill_shows_its_samples.yaml)
+  const decide = (
+    <>
+      {s.status === "ratified" ? (
+        <Pill tone="neem">Approved · {s.ratified_by?.split(" (")[0]}</Pill>
+      ) : !mayApprove ? (
+        // approving a skill is the coordinator's (people.decides); an educator is not offered it (goals/ux1-who-sees-what.yaml)
+        <Pill tone="bamboo">Waiting for the coordinator&rsquo;s approval</Pill>
+      ) : (
+        <form action={approveSkills} className="flex flex-wrap items-center gap-3">
+          <Pill tone="bamboo">Waiting for approval</Pill>
+          <input type="hidden" name="code" value={s.code} />
+          <input type="hidden" name="version" value={s.version} />
+          <input type="hidden" name="back" value={`/skill-sets/${s.code}`} />
+          <button className="btn" type="submit">
+            Approve, as {me.name}
+          </button>
+        </form>
+      )}
+      <Link href={`/skill-sets/${s.code}/edit`} className="chip">
+        {s.status !== "ratified" ? "Change the words first" : "Change the words"}
+      </Link>
+    </>
+  );
+
   return (
     <>
       <PageHeader
         stage={`Curriculum · ${g.name(s.band)} · ${s.taught ? `Skill ${sets.indexOf(s) + 1} of ${sets.length}` : "Not taught yet"} · ${s.name}`}
         title={s.learning_objective}
-        sub={bankless ? "What this skill looks like at each level, how it is asked, and the mistakes to watch for." : "What this skill looks like at each level, each with a real question from the bank, the mistakes its questions are built to catch, and its worksheets."}
+        sub={bankless ? "What this skill looks like at each level, with sample questions, how it is asked, and the mistakes to watch for." : "What this skill looks like at each level, each with a real question from the bank, the mistakes its questions are built to catch, and its worksheets."}
       />
       <Body>
         {q.saved ? (
@@ -107,32 +135,11 @@ export default async function SkillPage({ params, searchParams }: Props) {
           <Link href="/" className="chip">
             ← Curriculum
           </Link>
-          {s.status === "ratified" ? (
-            <Pill tone="neem">Approved · {s.ratified_by?.split(" (")[0]}</Pill>
-          ) : !mayApprove ? (
-            // approving a skill is the coordinator's (people.decides); an educator is not offered it (goals/ux1-who-sees-what.yaml)
-            <Pill tone="bamboo">Waiting for the coordinator&rsquo;s approval</Pill>
+          {bankless && s.status !== "ratified" ? (
+            <Link href="#decide" className="chip">Read the sample questions, then approve ↓</Link>
           ) : (
-            <form
-              action={approveSkills}
-              className="flex flex-wrap items-center gap-3"
-            >
-              <Pill tone="bamboo">Waiting for approval</Pill>
-              <input type="hidden" name="code" value={s.code} />
-              <input type="hidden" name="version" value={s.version} />
-              <input
-                type="hidden"
-                name="back"
-                value={`/skill-sets/${s.code}`}
-              />
-              <button className="btn" type="submit">
-                Approve, as {me.name}
-              </button>
-            </form>
+            decide
           )}
-          <Link href={`/skill-sets/${s.code}/edit`} className="chip">
-            {s.status !== "ratified" ? "Change the words first" : "Change the words"}
-          </Link>
         </div>
 
         {/* the skill in five parts, each one click from here (goals/ui3-curriculum.yaml) */}
@@ -150,9 +157,9 @@ export default async function SkillPage({ params, searchParams }: Props) {
           <Panel
             id="levels"
             title="At each level"
-            aside={bankless ? "what the child does at each level, and how it is asked" : "the level in words, and a real question from the bank"}
+            aside={bankless ? "what the child does at each level, its sample questions, and how it is asked" : "the level in words, and a real question from the bank"}
           >
-            <div className="grid gap-[14px] md:grid-cols-2 xl:grid-cols-4">
+            <div className={`grid gap-[14px] ${bankless ? "" : "md:grid-cols-2 xl:grid-cols-4"}`}>
               {levelsOf(s).map((d) => {
                 const it = example(d);
                 return (
@@ -162,16 +169,15 @@ export default async function SkillPage({ params, searchParams }: Props) {
                     className="grid content-start gap-2 border border-basalt/12 p-3"
                   >
                     <h3 className="text-[15px]">{d}</h3>
-                    <LevelApproval s={s} d={d} mayApprove={mayApprove} />
+                    {bankless ? null : <LevelApproval s={s} d={d} mayApprove={mayApprove} />}
                     <p className="text-[13.5px] leading-snug">
                       {s.difficulty[d]?.words}
                     </p>
                     {bankless ? (
                       <>
                         <LevelWays ways={ways} level={d} />
-                        <p className="note">
-                          No questions yet: English questions are made after this skill is approved and linked.
-                        </p>
+                        <LevelSamples samples={samples} level={d} />
+                        <LevelApproval s={s} d={d} mayApprove={mayApprove} />
                       </>
                     ) : it ? (
                       <div className="grid gap-1 bg-chalk p-2 text-[13.5px]">
@@ -212,6 +218,11 @@ export default async function SkillPage({ params, searchParams }: Props) {
                 );
               })}
             </div>
+            {bankless ? (
+              <div id="decide" className="mt-[14px] flex scroll-mt-6 flex-wrap items-center gap-3">
+                {decide}
+              </div>
+            ) : null}
           </Panel>
 
           {bankless ? (

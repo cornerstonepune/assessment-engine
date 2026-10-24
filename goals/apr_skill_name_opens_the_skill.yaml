@@ -10,7 +10,7 @@ says:
   - words: "shouldn't this page have a link that opens the skill in detail - coz the questions associated with each level of difficulty and all needs to be down too."
     proved_by: "apps/web/tests/u53-skill-name-opens-the-skill.spec.ts::a Maths skill's name on the approve list opens it, with each level's questions and the two actions"
   - words: "shouldn't this page have a link that opens the skill in detail - coz the questions associated with each level of difficulty and all needs to be down too."
-    proved_by: "apps/web/tests/u53-skill-name-opens-the-skill.spec.ts::an English skill's name opens it, and each level says in words that its questions come after approval"
+    proved_by: "apps/web/tests/u53-skill-name-opens-the-skill.spec.ts::an English skill's name opens it, and each level shows its sample questions"
   - words: "I can't click on any of these skills and deep dive in."
     proved_by: "apps/web/tests/u53-skill-name-opens-the-skill.spec.ts::on Curriculum, a skill in a table row opens its skill page"
 manual:

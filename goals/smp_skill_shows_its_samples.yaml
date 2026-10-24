@@ -1,0 +1,44 @@
+name: smp_skill_shows_its_samples
+goal: >
+  A skill's page shows, under each level, that level's sample questions grouped by kind, three of each, exactly as a child
+  sees them (the passage, the question, the options, gaps or pairs as printed), the right answer marked for an approver, and
+  each likely wrong answer with the mistake it names in words; a kind a person reads says so and shows its rubric; a skill
+  with none says so. The approval sits under the samples, so an educator reads, then approves, on one page. The English
+  samples are stored whole in four new tables (one additive migration) and loaded by `engine load`, and by every deploy.
+# Written 2026-10-23, before the code. One migration (four new tables, nothing existing changed), the loader, the skill
+# page. W1 (Curriculum / approve), beside the C slices: the E0 content, now with the table its samples waited on.
+says:
+  - words: "How will the educator approve without having sample questions?"
+    proved_by: "apps/web/tests/u54-skill-shows-its-samples.spec.ts::an English skill opened from Approve the skills shows each level's samples by kind, with the right answer and named mistakes"
+  - words: "I was looking to have the questions also there."
+    proved_by: "packages/engine/tests/test_english_samples.py::test_every_sample_passage_rubric_and_wrong_answer_of_the_seed_is_loaded_and_a_second_load_moves_nothing"
+  - words: "I was looking to have the questions also there."
+    proved_by: "packages/engine/tests/test_english_samples.py::test_a_sample_is_stored_whole"
+  - words: "I was looking to have the questions also there."
+    proved_by: "packages/engine/tests/test_english_samples.py::test_the_load_a_deploy_runs_adds_the_samples"
+  - words: "The skill description does not have the example questions or test questions for that level and skill."
+    proved_by: "apps/web/tests/u54-skill-shows-its-samples.spec.ts::a kind a person reads says so, and shows what a person reads the answer against"
+  - words: "The skill description does not have the example questions or test questions for that level and skill."
+    proved_by: "apps/web/tests/u54-skill-shows-its-samples.spec.ts::a skill with no sample questions says so in words"
+  - words: "How will the educator approve without having sample questions?"
+    proved_by: "packages/engine/tests/test_english_samples.py::test_a_load_leaves_an_approved_level_as_it_was"
+manual:
+  - "Before the migration meets live: run the rehearsal on a copy of live (GitHub, Actions, rehearse update-live, Run workflow on this branch); it must pass."
+  - "On live, after the merge and deploy: open Approve the skills, click an English Grade 3 skill's name; each level shows its sample questions."
+scenarios: []
+criteria:
+  - name: the samples are loaded, twice, and nothing moves
+    run: bin/engine load --check
+    expect: "unchanged on a second run"
+  - name: the loader, the roles (row security on every table) and English's other tests
+    run: cd packages/engine && .venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_english_samples.py tests/test_loaders.py tests/test_roles.py tests/test_e0_english.py tests/test_english_kinds_and_samples.py tests/test_migration_order.py
+    expect: "passed"
+  - name: the skill page, the approve list and the curriculum still hold
+    run: cd apps/web && npx playwright test tests/u54-skill-shows-its-samples.spec.ts tests/u53-skill-name-opens-the-skill.spec.ts tests/e0-english.spec.ts tests/u23-approve-filtered.spec.ts tests/u17-curriculum.spec.ts tests/u28-approved-per-level.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the website type-checks
+    run: cd apps/web && npx tsc --noEmit && echo passed
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
