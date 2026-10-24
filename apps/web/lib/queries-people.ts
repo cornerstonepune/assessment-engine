@@ -1,6 +1,6 @@
 import { sql } from "./db";
 import { EVERY_CLASS, type Scope } from "./scope";
-import { classesOf, taughtFor } from "./taught";
+import { classesOf } from "./taught";
 
 // What waits on a person, and who it is for (goals/ny1-needs-you.yaml): who decides each kind of thing (`people.decides`,
 // by the staff list's roles), which topics are taught and who said so, and the questions the engine drafted for a
@@ -110,12 +110,5 @@ export async function asksWaiting(): Promise<{ for_role: string; n: number }[]> 
  *  and the approval page all count these. */
 export async function skillsWaiting(): Promise<number> {
   const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from skill where status <> 'ratified'`;
-  return n;
-}
-
-/** Topics no class of the scope has been taught yet, as Curriculum lists them to say so. */
-export async function topicsOff(scope: Scope = EVERY_CLASS): Promise<number> {
-  const [{ n }] = await sql<{ n: number }[]>`
-    select count(*)::int as n from topic t where not ${taughtFor(scope, sql`t.tenant_id`, sql`t.code`)}`;
   return n;
 }

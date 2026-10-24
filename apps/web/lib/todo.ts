@@ -107,7 +107,9 @@ export function groupTasks(tasks: readonly Task[], subjectLabel: (code: string |
     const s = t.subject ? subjectLabel(t.subject) : "Across subjects";
     const topics = subjects.get(s) ?? new Map<string, Task[]>();
     const k = t.topicName ?? "Across topics";
-    topics.set(k, [...(topics.get(k) ?? []), t]);
+    const at = topics.get(k) ?? [];
+    at.push(t);
+    topics.set(k, at);
     subjects.set(s, topics);
   }
   return [...subjects].map(([subject, topics]) => ({ subject, topics: [...topics].map(([topic, ts]) => ({ topic, tasks: ts })) }));

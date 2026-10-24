@@ -1,8 +1,8 @@
 import { DataTable } from "@/components/data-table";
 import type { ClassLine, Person } from "@/lib/queries-staff";
 import type { Column } from "@/lib/ux-rules";
+import type { Subject as SubjectLine } from "@/lib/viewing";
 
-export type SubjectLine = { code: string; label: string };
 import { setClasses, setSubjects } from "./actions";
 
 function Edit({ person, classes }: { person: Person; classes: ClassLine[] }) {
