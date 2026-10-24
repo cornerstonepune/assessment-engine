@@ -4,11 +4,7 @@ import type { AssessmentRow, PaperListRow, Stage } from "@/lib/queries-papers";
 import type { Column } from "@/lib/ux-rules";
 
 /** An assessment's copies as the counts the steps are read from: a copy replaced by a newer one is none of its copies. */
-export const countsOf = (a: Pick<AssessmentRow, "by" | "unread" | "kind">): Counts => ({
-  by: { made: a.by.made, printed: a.by.printed, scanned: a.by.scanned, checked: a.by.checked, "signed off": a.by["signed off"] },
-  unread: a.unread,
-  home: a.kind === "focus",
-});
+export const countsOf = (a: Pick<AssessmentRow, "by" | "unread" | "kind">): Counts => ({ by: a.by, unread: a.unread, home: a.kind === "focus" });
 
 /** A child's paper as the same counts, of one. */
 export const countsOfPaper = (p: Pick<PaperListRow, "stage" | "answers" | "kind">): Counts => {
@@ -19,7 +15,7 @@ export const countsOfPaper = (p: Pick<PaperListRow, "stage" | "answers" | "kind"
 };
 
 /** One step as a chip: done, how far on, the next to do, or not yet. */
-export function stepChip(c: Cell | undefined) {
+function stepChip(c: Cell | undefined) {
   if (!c) return null;
   return <StatusChip state={c.state} words={c.note} compact />;
 }

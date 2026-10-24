@@ -26,7 +26,11 @@ Goal: `goals/asm_assessments_page.yaml` (`bin/engine done asm_assessments_page`)
 
 ## Verified
 
-Filled in below with the last output of each command.
+Last outputs, local throwaway Postgres built by `bin/testdb fresh`, web as role `app_web` as CI does:
+
+- `bin/check` → 31 passed. `npx tsc --noEmit`, `npx eslint --max-warnings 0` → clean.
+- Whole Playwright suite (417 tests) → 400 passed; 3 failures were old specs naming the old page (menu and tab titles), fixed and rerun → 36 passed.
+- `u62-assessment-steps` (12, pure logic), `u63-assessments-page` (11, the page) → passed.
 
 ## Handoff
 

@@ -209,16 +209,9 @@ export async function paperList(
   return { rows: rows.slice(0, LIMIT), more: rows.length > LIMIT };
 }
 
-/** How many papers stand at each stage under the other filters, and every value each filter can take; children's
- *  names read through pii.read_child, which logs who asked. */
-export async function paperFilters(
-  f: PaperFilter,
-  actor: string,
-  scope: Scope = EVERY_CLASS,
-): Promise<{ stages: Record<Stage, number>; options: { classes: string[]; weeks: string[]; children: { id: string; label: string }[] } }> {
-  const [counts, classes, weeks, children] = await Promise.all([
-    sql<{ stage: Stage; n: number }[]>`
-      with ${papersCte()} select stage, count(*)::int as n from papers where ${narrowed(f, scope)} and not spare and not extra group by stage`,
+/** Every class and week a filter can take, among the classes a person sees. */
+export async function paperFilters(scope: Scope = EVERY_CLASS): Promise<{ options: { classes: string[]; weeks: string[] } }> {
+  const [classes, weeks] = await Promise.all([
     sql<{ section: string }[]>`
       select distinct coalesce(si.section, c.section) as section from sheet_instance si
       left join child c on c.id = si.child_id
@@ -228,16 +221,8 @@ export async function paperFilters(
       select week from (select distinct coalesce(si.week, t.week) as week from sheet_instance si
                         join sheet_template t on t.id = si.sheet_template_id where si.print_status <> 'void') w
       where week is not null order by week desc`,
-    sql<{ id: string; label: string }[]>`
-      select c.id, n.first_name || ' · ' || c.section || ' roll ' || c.roll_no as label
-      from child c, lateral pii.read_child(c.id, ${actor}) n
-      where c.active and ${inScope(scope, sql`c.section`)}
-        and exists (select 1 from sheet_instance si where si.child_id = c.id and si.print_status <> 'void')
-      order by c.section, roll_order(c.roll_no), c.roll_no`,
   ]);
-  const stages = Object.fromEntries(STAGES.map((s) => [s, 0])) as Record<Stage, number>;
-  for (const c of counts) stages[c.stage] = c.n;
-  return { stages, options: { classes: classes.map((c) => c.section), weeks: weeks.map((w) => w.week), children } };
+  return { options: { classes: classes.map((c) => c.section), weeks: weeks.map((w) => w.week) } };
 }
 
 export type AssessmentRow = {
@@ -251,7 +236,7 @@ export type AssessmentRow = {
   title: string;
   /** The code of its subject (`subject.code`), where its questions' topics name one. */
   subject: string | null;
-  /** Its children's copies' paper codes, for the day it was given (`givenOn`). */
+  /** Its children's copies' paper codes, to list the files read against it. */
   qrs: string[];
   /** Its children's copies; its spares, not yet written on, apart: they go with the pack. */
   copies: number;
@@ -318,17 +303,4 @@ export async function assessmentOf(id: string) {
                and q.stage not in ('signed off', 'replaced')) as left
     from papers p where p.id = ${id}::uuid`;
   return row;
-}
-
-/** The day each assessment was given, as the educator said it on the card (`flow_run`, flow "given"): the newest day over
- *  its copies, by the assessment's `qrs`. An assessment never given has none. */
-export async function givenOn(rows: readonly { qrs: string[] }[]): Promise<Map<string, string>> {
-  const qrs = [...new Set(rows.flatMap((r) => r.qrs ?? []))];
-  if (!qrs.length) return new Map();
-  const found = await sql<{ qr: string; on: string }[]>`
-    select q.value as qr, max(r.request ->> 'on') as on
-    from flow_run r cross join lateral jsonb_array_elements_text(r.request -> 'qrs') q(value)
-    where r.flow = 'given' and jsonb_typeof(r.request -> 'qrs') = 'array' and q.value = any(${qrs})
-    group by q.value`;
-  return new Map(found.map((f) => [f.qr, f.on]));
 }

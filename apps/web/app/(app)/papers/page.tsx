@@ -75,7 +75,7 @@ export default async function PapersPage({ searchParams }: Props) {
   };
   const { status, ...sqlFilter } = f;
   const [groups, { options }, queue, scans, g, { subjects }] = await deadline(
-    Promise.all([assessmentList(sqlFilter, scope), paperFilters(sqlFilter, me.email, scope), checkQueue(scope), lastScans(scope), grades(), choices()]),
+    Promise.all([assessmentList(sqlFilter, scope), paperFilters(scope), checkQueue(scope), lastScans(scope), grades(), choices()]),
   );
   // the newest week first, a paper with no week last; within a week the query's order stands (newest made first)
   groups.rows.sort((a, b) => (a.week && b.week ? b.week.localeCompare(a.week) : a.week ? -1 : b.week ? 1 : 0));
@@ -84,21 +84,21 @@ export default async function PapersPage({ searchParams }: Props) {
 
   const named: Named[] = groups.rows.map((a) => {
     const level = a.set && a.levels.length === 1 && !assessmentTitle(a).endsWith(a.levels[0]) ? ` · ${a.levels[0]}` : "";
-    const gradeWords = a.band ? g.name(a.band) : null;
-    const built = builtName({ title: `${assessmentTitle(a)}${level}`, kind: a.kind, kinds: KIND_WORDS, classWords: gradeWords, day: a.day });
-    return { ...a, gradeWords, name: nameOf(chosen.get(assessmentKey(a)), built), files: files.byKey.get(assessmentKey(a)) ?? [] };
+    const classWords = a.band ? g.name(a.band) : null;
+    const built = builtName({ title: `${assessmentTitle(a)}${level}`, kind: a.kind, kinds: KIND_WORDS, classWords, day: a.day });
+    return { ...a, name: nameOf(chosen.get(assessmentKey(a)), built), files: files.byKey.get(assessmentKey(a)) ?? [] };
   });
-  const next = (a: Named) => actionOf(countsOf(a), a.waiting).kind;
-  const count = (kind: string) => named.filter((a) => next(a) === kind).length;
-  const rows = status ? named.filter((a) => next(a) === status) : named;
+  const nexts = new Map(named.map((a) => [a, actionOf(countsOf(a), a.waiting).kind]));
+  const count = (kind: string) => [...nexts.values()].filter((k) => k === kind).length;
+  const rows = status ? named.filter((a) => nexts.get(a) === status) : named;
   // a file that belongs to no assessment is listed first, in red, while no filter hides the assessments around it
-  const unfiltered = !Object.values(f).some(Boolean);
+  const folded = Object.values(f).some(Boolean);
+  const unfiltered = !folded;
   const ghosts: Named[] = unfiltered
     ? files.unmatched.slice(0, 3).map((file) => ({
         ...({ kind: "earlier", section: null, band: null, week: null, set: null, title: "", subject: null, qrs: [], copies: 0, spares: 0, extras: 0, waiting: 0, right: 0, scored: 0, unread: 0, day: null, levels: [], signId: null, by: { made: 0, printed: 0, scanned: 0, checked: 0, "signed off": 0, replaced: 0 } } as const),
         name: "Not matched to an assessment",
         files: [],
-        gradeWords: null,
         ghost: file,
       }))
     : [];
@@ -122,7 +122,6 @@ export default async function PapersPage({ searchParams }: Props) {
   }
   const pages = await deadline(pagesOf([...copies.values()].flat().filter((p) => p.answers > 0).map((p) => p.id)));
   const toCheck = queue.filter((e) => !e.spot).length;
-  const folded = Object.values(f).some(Boolean);
   const here = query(f);
   const trouble = scans.some((s) => s.status === "error" || s.noCode.length || s.lines.length);
 

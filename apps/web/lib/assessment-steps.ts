@@ -123,7 +123,7 @@ export function standingWords(c: Counts, waiting = 0): string {
 
 // --- files ---
 
-export type ScanFile = { file: string; codes: string[] };
+type ScanFile = { file: string; codes: string[] };
 
 /** Each file read, listed against the assessment its printed codes belong to; a file whose codes belong to none is
  *  "not matched". `known` is every code the school printed; `owner` maps a printed code to its assessment's key. */

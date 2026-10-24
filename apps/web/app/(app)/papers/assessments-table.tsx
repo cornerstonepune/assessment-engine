@@ -30,7 +30,6 @@ export type Named = AssessmentRow & {
   name: string;
   /** The files read whose codes belong to it, by their own names. */
   files: string[];
-  gradeWords: string | null;
   /** A file read that belongs to no assessment: it is its own row. */
   ghost?: string;
 };

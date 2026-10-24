@@ -5,13 +5,14 @@ import { UploadScans } from "../capture/upload-scans";
 // Read an assessment (goals/asm_assessments_page.yaml): one drop zone, the Google Drive link, and one button. What the
 // engine said about the last file is one line above it; what each file came to is on its assessment's row.
 export function ReadBox({ read, why, pages, reading }: { read?: string; why?: string; pages?: string; reading: boolean }) {
+  const n = Number(pages) || "";
   const said = {
-    started: `Reading ${Number(pages) || ""} pages. They appear in the list as they are read — a minute or two.`,
+    started: `Reading ${n} pages. They appear in the list as they are read — a minute or two.`,
     refused: `The engine would not take that: ${why ?? ""}`,
     "not-a-link": "Paste the link to the scan on Google Drive (drive.google.com/…).",
     engine: "The engine is not answering; nothing was read.",
-    given: `Page ${Number(pages) || ""} is being read now as the paper of the child you gave it to.`,
-    again: `Reading ${Number(pages) || ""} pages again. Answers a person has checked stay as they left them.`,
+    given: `Page ${n} is being read now as the paper of the child you gave it to.`,
+    again: `Reading ${n} pages again. Answers a person has checked stay as they left them.`,
   }[read ?? ""];
   return (
     <section id="read-box" aria-label="Read an assessment" className="panel flex min-w-0 flex-col gap-2 p-4">
