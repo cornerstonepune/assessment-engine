@@ -148,7 +148,7 @@ test("every page says the tab it is under, above its title, and the menu marks t
   const pages: [string, string][] = [
     ["/", "Curriculum"], ["/skill-sets/approve", "Curriculum"], ["/skill-sets/ADD.2D2D", "Curriculum"], ["/library", "Question bank"],
     [`/library/${key}`, "Question bank"], ["/worksheets", "Curriculum"], ["/worksheets/taxonomy", "Question bank"], ["/asks", "Curriculum"],
-    ["/papers", "Assessments"], ["/papers/make", "Assessments"], ["/papers/approve", "Papers to approve"], ["/make", "Assessments"],
+    ["/papers", "Assessments"], ["/papers/make", "Assessments"], ["/papers/approve", "Assessments"], ["/make", "Assessments"],
     ["/home", "Assessments"], ["/capture", "Upload papers"], ["/growth", "Class results"],
   ];
   for (const [path, tab] of pages) {

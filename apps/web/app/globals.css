@@ -172,6 +172,12 @@ table.grid.steady {
 table.grid.steady td {
   overflow-wrap: anywhere;
 }
+/* a table of many narrow columns (an assessment's steps): less room beside each cell */
+table.grid.dense th,
+table.grid.dense td {
+  padding-left: 6px;
+  padding-right: 6px;
+}
 /* a heading is never split inside a word: a column too narrow for its heading is widened, not broken ("ROL L") */
 table.grid.steady th {
   overflow-wrap: normal;

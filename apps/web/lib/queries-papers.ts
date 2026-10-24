@@ -80,6 +80,8 @@ export type PaperListRow = {
   scored: number;
   /** Of `scored`, the answers left blank. */
   blank: number;
+  /** Answers the reader found on it; none while a scan is in but not yet read. */
+  answers: number;
   /** A copy never handed back beside another copy of the same child's, which is read: said apart, not a second child. */
   extra: boolean;
 };
@@ -106,7 +108,7 @@ export const papersCte = () => sql`
                 when a.n = 0 or a.waiting > 0 then 'scanned'
                 when a.candidate > 0 then 'checked'
                 else 'signed off' end as stage,
-           a.waiting, a.right, a.scored, a.blank,
+           a.waiting, a.right, a.scored, a.blank, a.n as answers,
            -- one assessment (goals/ui5-assessments-readable.yaml): a kind of paper given to a class in a week on one
            -- skill set (each child a worksheet of its own, the same skill) or on one worksheet; a class's home
            -- assessments and chosen papers for a week are one assessment, each child's drawn for them
@@ -201,22 +203,15 @@ export async function paperList(
       where c.id in (select child_id from shown where child_id is not null)
     )
     select s.id, s.qr, s.kind, s.title, s.section, s.band, s.child_id, names.first_name as child, s.roll_no, s.level,
-           s.set_key as set, s.spare, s.extra, s.week, s.stage, s.waiting, s.right, s.scored, s.blank
+           s.set_key as set, s.spare, s.extra, s.week, s.stage, s.waiting, s.right, s.scored, s.blank, s.answers
     from shown s left join names on names.id = s.child_id
     order by ${order === "roll" ? sql`s.roll_no is null, roll_order(s.roll_no), s.roll_no, s.qr` : sql`s.day desc nulls last, s.created_at desc, s.section, s.qr`}`;
   return { rows: rows.slice(0, LIMIT), more: rows.length > LIMIT };
 }
 
-/** How many papers stand at each stage under the other filters, and every value each filter can take; children's
- *  names read through pii.read_child, which logs who asked. */
-export async function paperFilters(
-  f: PaperFilter,
-  actor: string,
-  scope: Scope = EVERY_CLASS,
-): Promise<{ stages: Record<Stage, number>; options: { classes: string[]; weeks: string[]; children: { id: string; label: string }[] } }> {
-  const [counts, classes, weeks, children] = await Promise.all([
-    sql<{ stage: Stage; n: number }[]>`
-      with ${papersCte()} select stage, count(*)::int as n from papers where ${narrowed(f, scope)} and not spare and not extra group by stage`,
+/** Every class and week a filter can take, among the classes a person sees. */
+export async function paperFilters(scope: Scope = EVERY_CLASS): Promise<{ options: { classes: string[]; weeks: string[] } }> {
+  const [classes, weeks] = await Promise.all([
     sql<{ section: string }[]>`
       select distinct coalesce(si.section, c.section) as section from sheet_instance si
       left join child c on c.id = si.child_id
@@ -226,16 +221,8 @@ export async function paperFilters(
       select week from (select distinct coalesce(si.week, t.week) as week from sheet_instance si
                         join sheet_template t on t.id = si.sheet_template_id where si.print_status <> 'void') w
       where week is not null order by week desc`,
-    sql<{ id: string; label: string }[]>`
-      select c.id, n.first_name || ' · ' || c.section || ' roll ' || c.roll_no as label
-      from child c, lateral pii.read_child(c.id, ${actor}) n
-      where c.active and ${inScope(scope, sql`c.section`)}
-        and exists (select 1 from sheet_instance si where si.child_id = c.id and si.print_status <> 'void')
-      order by c.section, roll_order(c.roll_no), c.roll_no`,
   ]);
-  const stages = Object.fromEntries(STAGES.map((s) => [s, 0])) as Record<Stage, number>;
-  for (const c of counts) stages[c.stage] = c.n;
-  return { stages, options: { classes: classes.map((c) => c.section), weeks: weeks.map((w) => w.week), children } };
+  return { options: { classes: classes.map((c) => c.section), weeks: weeks.map((w) => w.week) } };
 }
 
 export type AssessmentRow = {
@@ -249,7 +236,7 @@ export type AssessmentRow = {
   title: string;
   /** The code of its subject (`subject.code`), where its questions' topics name one. */
   subject: string | null;
-  /** Its children's copies' paper codes, for the day it was given (`givenOn`). */
+  /** Its children's copies' paper codes, to list the files read against it. */
   qrs: string[];
   /** Its children's copies; its spares, not yet written on, apart: they go with the pack. */
   copies: number;
@@ -261,6 +248,14 @@ export type AssessmentRow = {
   waiting: number;
   right: number;
   scored: number;
+  /** Its copies in, with no answer found on them yet. */
+  unread: number;
+  /** The day it was made (the newest of its copies). */
+  day: string | null;
+  /** The levels its copies are at: one where every child has the same. */
+  levels: string[];
+  /** The first of its copies waiting to be signed off, where its row's action opens. */
+  signId: string | null;
 };
 
 /** The assessments a filter leaves (goals/ui5-assessments-readable.yaml), newest first, at most 300: each a kind of
@@ -283,7 +278,9 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
                               'checked', count(*) filter (where stage = 'checked'),
                               'signed off', count(*) filter (where stage = 'signed off'),
                               'replaced', count(*) filter (where stage = 'replaced')) as by,
-           sum(waiting)::int as waiting,
+           sum(waiting)::int as waiting, count(*) filter (where stage = 'scanned' and answers = 0)::int as unread, max(day) as day,
+           coalesce(array_agg(distinct level) filter (where level is not null and not spare), '{}') as levels,
+           (array_agg(id order by roll_order(roll_no), qr) filter (where stage = 'checked'))[1] as "signId",
            coalesce(sum("right") filter (where stage in ('checked', 'signed off')), 0)::int as "right",
            coalesce(sum(scored) filter (where stage in ('checked', 'signed off')), 0)::int as scored
     from papers where ${narrowed(f, scope)} and (${stage}::text is null or stage = ${stage})
@@ -306,17 +303,4 @@ export async function assessmentOf(id: string) {
                and q.stage not in ('signed off', 'replaced')) as left
     from papers p where p.id = ${id}::uuid`;
   return row;
-}
-
-/** The day each assessment was given, as the educator said it on the card (`flow_run`, flow "given"): the newest day over
- *  its copies, by the assessment's `qrs`. An assessment never given has none. */
-export async function givenOn(rows: readonly { qrs: string[] }[]): Promise<Map<string, string>> {
-  const qrs = [...new Set(rows.flatMap((r) => r.qrs ?? []))];
-  if (!qrs.length) return new Map();
-  const found = await sql<{ qr: string; on: string }[]>`
-    select q.value as qr, max(r.request ->> 'on') as on
-    from flow_run r cross join lateral jsonb_array_elements_text(r.request -> 'qrs') q(value)
-    where r.flow = 'given' and jsonb_typeof(r.request -> 'qrs') = 'array' and q.value = any(${qrs})
-    group by q.value`;
-  return new Map(found.map((f) => [f.qr, f.on]));
 }
