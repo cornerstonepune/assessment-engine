@@ -67,7 +67,8 @@ export async function skillWatches(code: string): Promise<{ code: string; name: 
 
 /** An English sample as an approver reads it (goals/smp_skill_shows_its_samples.yaml): the question as printed, the right
  *  answer, and each likely wrong answer with the mistake it names in words; for a kind a person reads every answer of,
- *  what a right answer says and the rubric. From `english_sample`, filled by `engine load`. */
+ *  what a right answer says and the rubric. As it stands now (`english_sample_now`): an educator's newest edit where
+ *  there is one, with who made it and when (goals/edt_edit_samples_and_kinds.yaml), else the seed's. */
 export type SampleRow = {
   difficulty: string;
   kind: string;
@@ -80,24 +81,32 @@ export type SampleRow = {
   answer: string | string[] | string[][] | Record<string, string | string[]>;
   accept: string[];
   key_points: string[] | null;
+  not_words: string[] | null;
+  passage_code: string | null;
+  rubric_code: string | null;
   passage: { title: string; text: string } | null;
   rubric: { name: string; scale: string[]; criteria: { code: string; name: string; levels: Record<string, string> }[] } | null;
-  wrong: { answer: string; mistake: string; description: string | null }[];
+  wrong: { answer: string; mistake_code: string; mistake: string; description: string | null }[];
+  edited_by: string | null;
+  edited_at: string | null;
+  earlier: number;
 };
 
 export async function skillSamples(code: string): Promise<SampleRow[]> {
   return sql<SampleRow[]>`
     select e.difficulty, e.question_type as kind, q.words as kind_words, 'open_response' = any(q.marked) as open, e.ord,
-           e.ask, e.text, e.options, e.answer, e.accept, e.key_points,
+           e.ask, e.text, e.options, e.answer, e.accept, e.key_points, e.not_words, e.passage_code, e.rubric_code,
            case when p.code is null then null else jsonb_build_object('title', p.title, 'text', p.text) end as passage,
            case when r.code is null then null
                 else jsonb_build_object('name', r.name, 'scale', r.scale, 'criteria', r.criteria) end as rubric,
-           coalesce((select jsonb_agg(jsonb_build_object('answer', w.answer, 'mistake', m.name, 'description', m.description)
-                                      order by w.answer)
-                     from english_sample_wrong w
-                     join misconception m on m.tenant_id = w.tenant_id and m.code = w.mistake_code and m.op = w.op
-                     where w.sample_id = e.id), '[]'::jsonb) as wrong
-    from english_sample e
+           coalesce((select jsonb_agg(jsonb_build_object('answer', w ->> 'answer', 'mistake_code', m.code,
+                                                         'mistake', m.name, 'description', m.description)
+                                      order by w ->> 'answer')
+                     from jsonb_array_elements(e.wrong) w
+                     join misconception m on m.tenant_id = e.tenant_id and m.code = w ->> 'mistake_code' and m.op = 'any'),
+                    '[]'::jsonb) as wrong,
+           e.edited_by, e.edited_at, e.earlier::int as earlier
+    from english_sample_now e
     join question_type q on q.tenant_id = e.tenant_id and q.code = e.question_type
     join skill_level_question_type l on l.tenant_id = e.tenant_id and l.skill_code = e.skill_code
       and l.difficulty = e.difficulty and l.question_type = e.question_type
@@ -105,4 +114,69 @@ export async function skillSamples(code: string): Promise<SampleRow[]> {
     left join rubric r on r.tenant_id = e.tenant_id and r.code = e.rubric_code
     where e.skill_code = ${code}
     order by e.difficulty, l.place nulls last, e.question_type, e.ord`;
+}
+
+/** What an educator picks from when changing a skill's samples (goals/edt_edit_samples_and_kinds.yaml): the passages
+ *  of its grade, the rubrics it may be read against, its mistakes, and the approved kinds a level may ask. */
+export type SampleChoices = {
+  /** samples a level keeps of each kind it asks (the `samples.per_kind` threshold row) */
+  few: number;
+  passages: { code: string; title: string }[];
+  rubrics: { code: string; name: string }[];
+  mistakes: { code: string; name: string }[];
+  kinds: { code: string; words: string; open: boolean }[];
+};
+
+export async function sampleChoices(code: string): Promise<SampleChoices> {
+  const [[few], passages, rubrics, mistakes, kinds] = await Promise.all([
+    sql<{ n: number }[]>`select coalesce((select value::int from threshold where key = 'samples.per_kind'), 3) as n`,
+    sql<{ code: string; title: string }[]>`
+      select p.code, p.title from passage p join skill s on s.tenant_id = p.tenant_id and s.grade = p.grade
+      where s.code = ${code} order by p.title, p.code`,
+    sql<{ code: string; name: string }[]>`
+      select r.code, r.name from rubric r where ${code} = any(r.skill_codes) order by r.name`,
+    sql<{ code: string; name: string }[]>`
+      select distinct on (m.code) m.code, m.name
+      from skill_mistake k join misconception m on m.tenant_id = k.tenant_id and m.code = k.misconception_code and m.op = k.op
+      where k.skill_code = ${code} order by m.code`,
+    // approved once, and asked by some level of the skill's own subject, as the engine offers them (english_edit.py)
+    sql<{ code: string; words: string; open: boolean }[]>`
+      select q.code, q.words, 'open_response' = any(q.marked) as open
+      from question_type q join question_type_approval a on a.tenant_id = q.tenant_id and a.question_type = q.code
+      where q.reaches <> 'observed' and exists (
+        select 1 from skill_level_question_type l join skill s on s.tenant_id = l.tenant_id and s.code = l.skill_code
+        join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
+        where l.question_type = q.code and t.subject_code = (
+          select t2.subject_code from skill s2 join topic t2 on t2.tenant_id = s2.tenant_id and t2.code = s2.topic_code
+          where s2.code = ${code}))
+      order by q.words`,
+  ]);
+  return { few: few.n, passages, rubrics, mistakes, kinds };
+}
+
+/** How many samples a level holds of a kind as they stand, linked to the level or not: a kind added needs three. */
+export async function sampleCount(code: string, level: string, kind: string): Promise<number> {
+  const [r] = await sql<{ n: number }[]>`
+    select count(*)::int as n from english_sample_now
+    where skill_code = ${code} and difficulty = ${level} and question_type = ${kind}`;
+  return r?.n ?? 0;
+}
+
+/** When each level's samples or kinds last changed, {level: time}: an approval carries the time it was read at, and lands
+ *  only if nothing changed since (goals/edt_edit_samples_and_kinds.yaml). */
+export async function levelsChanged(code: string): Promise<Record<string, string>> {
+  const rows = await sql<{ difficulty: string; at: string }[]>`
+    select difficulty, max(created_at)::text as at from (
+      select difficulty, created_at from english_sample_edit where skill_code = ${code}
+      union all select difficulty, created_at from skill_level_kind_change where skill_code = ${code}) c
+    group by difficulty`;
+  return Object.fromEntries(rows.map((r) => [r.difficulty, r.at]));
+}
+
+/** The database's time as a page is drawn: an approval form carries it, and lands only on skills none of whose samples
+ *  or kinds changed after it (goals/edt_edit_samples_and_kinds.yaml). Text, since postgres.js keeps a time to the
+ *  millisecond and a change stamped in the same millisecond would then look older than the page. */
+export async function openedAt(): Promise<string> {
+  const [r] = await sql<{ at: string }[]>`select now()::text as at`;
+  return r.at;
 }

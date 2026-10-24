@@ -367,6 +367,12 @@
    "value": 48,
    "unit": "hours",
    "description": "An answer waiting for a person this long after its paper was read is overdue on the page across classes (goals/s7-across-classes.yaml)"
+  },
+  {
+   "key": "samples.per_kind",
+   "value": 3,
+   "unit": "samples",
+   "description": "Samples a level keeps of each kind of question it asks, read by its approver (goals/edt_edit_samples_and_kinds.yaml)"
   }
  ]
 }

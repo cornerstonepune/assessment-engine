@@ -13,16 +13,19 @@ const APPROVE_PAGE = /^\/skill-sets\/approve(\?(grade|topic|taught)=[\w.-]+(&(gr
 
 /** A person changes a skill's words — its name, what the child can do, and each level in a
  *  sentence. The rule each question is checked against is not a teacher's field and is not on this
- *  form; it is kept exactly as it was. Any change withdraws the approval (trigger
- *  `skill_set_version_on_change`), so whoever approves next has read these words. */
+ *  form; it is kept exactly as it was. A level whose sentence changed waits for approval again, and
+ *  every level does when the skill's name or what the child can do changed, so whoever approves next
+ *  has read these words. The database keeps a level approved when only its words change (trigger
+ *  `skill_set_version_on_change`: its questions are the same), so the withdrawal is said here
+ *  (goals/edt_edit_samples_and_kinds.yaml). */
 export async function saveWords(formData: FormData): Promise<void> {
   await deciding("skill_drafts");
   const code = String(formData.get("code") ?? "");
   if (!CODE.test(code)) redirect("/");
   const name = String(formData.get("name") ?? "").trim().slice(0, 80);
   const outcome = String(formData.get("learning_objective") ?? "").trim().slice(0, 400);
-  const [row] = await sql<{ difficulty: Record<Difficulty, Band>; levels: Difficulty[] }[]>`
-    select s.difficulty, ${levelsColumn()} from skill s where s.code = ${code}`;
+  const [row] = await sql<{ difficulty: Record<Difficulty, Band>; levels: Difficulty[]; name: string; learning_objective: string }[]>`
+    select s.difficulty, ${levelsColumn()}, s.name, s.learning_objective from skill s where s.code = ${code}`;
   if (!row) redirect("/");
   // only the levels the skill defines: 1-digit − 1-digit has no Hard, and saving must not make one
   const levels = levelsOf(row);
@@ -33,9 +36,12 @@ export async function saveWords(formData: FormData): Promise<void> {
   const difficulty = Object.fromEntries(
     levels.map((d) => [d, { ...row.difficulty[d], words: words[d] }]),
   ) as Record<Difficulty, Band>;
+  const whole = name !== row.name || outcome !== row.learning_objective;
+  const changed = levels.filter((d) => whole || words[d] !== (row.difficulty[d]?.words ?? ""));
   await sql`
     update skill set name = ${name}, learning_objective = ${outcome},
-      difficulty = ${sql.json(difficulty as never)}, updated_at = now()
+      difficulty = ${sql.json(difficulty as never)}, level_approved = level_approved - ${changed}::text[],
+      updated_at = now()
     where code = ${code}`;
   revalidatePath("/");
   revalidatePath(`/skill-sets/${code}`);
@@ -62,6 +68,11 @@ export async function approveSkills(formData: FormData): Promise<void> {
   }
   const onlyTable = !shown.length && typeof formData.get("charges_table") === "string";
   if ((!shown.length && !onlyTable) || versions.length !== shown.length || versions.some((v) => !Number.isInteger(v))) redirect("/");
+  // the samples and kinds as the page showed them (goals/edt_edit_samples_and_kinds.yaml): a skill one of whose levels
+  // changed after the page was drawn keeps waiting; text first, as postgres.js keeps a time to the millisecond only
+  const opened = String(formData.get("opened") ?? "");
+  if (opened && Number.isNaN(Date.parse(opened))) redirect("/");
+  const since = opened || "infinity";
   const approved = await sql<{ code: string }[]>`
     update skill s
     set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', ${me.name}::text, 'at', now()))
@@ -69,6 +80,9 @@ export async function approveSkills(formData: FormData): Promise<void> {
         updated_at = now()
     from unnest(${shown}::text[], ${versions}::int[]) as v(code, version)
     where s.code = v.code and s.version = v.version and s.status = 'draft'
+      and not exists (select 1 from english_sample_edit e where e.skill_code = s.code and e.created_at > ${since}::text::timestamptz)
+      and not exists (select 1 from skill_level_kind_change c where c.skill_code = s.code
+                        and c.created_at > ${since}::text::timestamptz)
     returning s.code`;
   // The table of what a mistake charges, approved exactly as the page showed it: if it changed since,
   // the update matches nothing and it keeps waiting. `::text` first: postgres.js sends a string it
@@ -127,15 +141,25 @@ export async function approveLevel(formData: FormData): Promise<void> {
   const code = String(formData.get("code") ?? "");
   const version = Number(formData.get("version"));
   const level = String(formData.get("level") ?? "");
+  const seen = String(formData.get("seen") ?? "");
   if (!CODE.test(code) || !Number.isInteger(version) || !(await schoolLevels()).order.includes(level)) redirect("/");
-  await sql`
+  if (seen && Number.isNaN(Date.parse(seen))) redirect("/");
+  // the samples and kinds as the page showed them (goals/edt_edit_samples_and_kinds.yaml): one changed since keeps waiting.
+  // `::text` first: bound as a time, postgres.js keeps milliseconds only, and the newest edit would look newer than itself
+  const after = seen || "-infinity";
+  const done = await sql`
     update skill set level_approved = level_approved || jsonb_build_object(${level}::text,
                            jsonb_build_object('by', ${me.name}::text, 'at', now())),
                          updated_at = now()
-    where code = ${code} and version = ${version} and difficulty ? ${level}`;
+    where code = ${code} and version = ${version} and difficulty ? ${level}
+      and not exists (select 1 from english_sample_edit e where e.skill_code = ${code} and e.difficulty = ${level}
+                        and e.created_at > ${after}::text::timestamptz)
+      and not exists (select 1 from skill_level_kind_change c where c.skill_code = ${code} and c.difficulty = ${level}
+                        and c.created_at > ${after}::text::timestamptz)
+    returning 1`;
   revalidatePath("/");
   revalidatePath(`/skill-sets/${code}`);
-  redirect(`/skill-sets/${code}?level_approved=${level}#levels`);
+  redirect(done.length ? `/skill-sets/${code}?level_approved=${level}#levels` : `/skill-sets/${code}?approved=0#levels`);
 }
 
 /** A named person approves one way of asking (`question_type_approval`): once, for every skill and level that uses it —

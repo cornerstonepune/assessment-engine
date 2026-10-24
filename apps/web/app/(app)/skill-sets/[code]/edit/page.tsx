@@ -20,7 +20,7 @@ export default async function EditSkillWords({ params, searchParams }: Props) {
     <>
       <PageHeader
         stage={`Curriculum · ${s.name}`}
-        title="Change the words"
+        title="Change the description and each level's sentence"
         sub="What the child can do, and what each level asks of them, in the school's words. The rule every question is checked against stays as it is."
       />
       <Body>
@@ -43,7 +43,7 @@ export default async function EditSkillWords({ params, searchParams }: Props) {
           <Panel title="Each level in a sentence">
             <div className="grid gap-4">
               {levelsOf(s).map((d) => (
-                <label key={d} className="field">
+                <label key={d} id={`words-${d}`} className="field scroll-mt-6">
                   <span className="label">{d}</span>
                   <textarea className="textarea" name={`words:${d}`} defaultValue={s.difficulty[d]?.words ?? ""} required />
                 </label>
@@ -57,7 +57,10 @@ export default async function EditSkillWords({ params, searchParams }: Props) {
             <Link href={`/skill-sets/${s.code}`} className="chip">
               Cancel
             </Link>
-            <span className="note">Saving sends the skill back for approval, so whoever approves it has read these words.</span>
+            <span className="note">
+              A level whose sentence you change waits for approval again; a changed description or name sends every level
+              back. Whoever approves next has read these words.
+            </span>
           </div>
         </form>
       </Body>

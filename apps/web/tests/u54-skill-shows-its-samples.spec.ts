@@ -81,11 +81,11 @@ test("an English skill opened from Approve the skills shows each level's samples
     const lastSample = card.locator("li[data-sample]").last();
     expect((await approve.boundingBox())!.y).toBeGreaterThan((await lastSample.boundingBox())!.y);
   }
-  // the skill's own approval and "Change the words first" sit under the samples too, once
+  // the skill's own approval and the link that changes its words (U55: it says what it changes) sit under the samples too, once
   const decide = page.locator("#levels #decide");
   await expect(decide.getByRole("button", { name: `Approve, as ${TEST_STAFF.name}` })).toBeVisible();
   await expect(page.getByRole("button", { name: `Approve, as ${TEST_STAFF.name}` })).toHaveCount(1);
-  await expect(decide.getByRole("link", { name: "Change the words first" })).toHaveAttribute("href", `/skill-sets/${skill.code}/edit`);
+  await expect(decide.getByRole("link", { name: "Change the description and each level’s sentence" })).toHaveAttribute("href", `/skill-sets/${skill.code}/edit`);
   await shot(page, "skill-samples");
 });
 

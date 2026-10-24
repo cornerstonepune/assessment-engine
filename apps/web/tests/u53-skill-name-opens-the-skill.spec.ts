@@ -64,7 +64,7 @@ test("a Maths skill's name on the approve list opens it, with each level's quest
     await expect(card.getByRole("link", { name: /\d+ questions/ })).toHaveAttribute("href", new RegExp(`/library\\?set=${MATHS}&difficulty=${d}`));
   }
   await expect(page.getByRole("button", { name: `Approve, as ${TEST_STAFF.name}` })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Change the words first" })).toHaveAttribute("href", `/skill-sets/${MATHS}/edit`);
+  await expect(page.getByRole("link", { name: "Change the description and each level’s sentence" })).toHaveAttribute("href", `/skill-sets/${MATHS}/edit`);
   await shot(page, "skill-maths");
 });
 
@@ -84,7 +84,7 @@ test("an English skill's name opens it, and each level shows its sample question
     await expect(card.getByRole("link", { name: /questions/ }), "no empty count for a skill with no bank").toHaveCount(0);
   }
   await expect(page.getByRole("button", { name: `Approve, as ${TEST_STAFF.name}` })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Change the words first" })).toHaveAttribute("href", `/skill-sets/${english.code}/edit`);
+  await expect(page.getByRole("link", { name: "Change the description and each level’s sentence" })).toHaveAttribute("href", `/skill-sets/${english.code}/edit`);
   await shot(page, "skill-english");
 });
 
