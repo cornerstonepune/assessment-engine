@@ -267,8 +267,8 @@ test("Print and give: the classes as a table, a class's children as a table", as
 test("Upload papers, Check answers, Marking", async ({ page }) => {
   await wholePage(page, "/capture", /Upload papers/, { chips: true });
   await wholePage(page, "/capture/check", /Check answers/, { chips: true });
-  // Marking: the papers read, by class, and one child's
-  await page.goto(`/capture?by=class&class=${SECTION}`);
+  // Marking: the papers read, by child, in the test's class
+  await page.goto(`/capture?class=${SECTION}`);
   await expect(page.getByText("This page could not load")).toHaveCount(0);
   await expect(page.getByRole("link", { name: /Bina/ }).first()).toBeVisible();
 });
