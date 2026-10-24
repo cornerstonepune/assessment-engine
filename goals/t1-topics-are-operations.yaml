@@ -24,7 +24,7 @@ says:
   - words: "These are types of problems. The topics are core addition, subtraction, multiplication, division, and factors."
     proved_by: packages/engine/tests/test_taught_per_class.py::test_regrouping_the_topics_changes_no_classs_paper
   - words: "These are types of problems. The topics are core addition, subtraction, multiplication, division, and factors."
-    proved_by: "apps/web/tests/u31-topics-are-operations.spec.ts::curriculum lists the six topics, and a class's skills each with its own switch"
+    proved_by: "apps/web/tests/u31-topics-are-operations.spec.ts::curriculum lists the six topics, and a class is taught a topic from its row, every skill in it"
   - words: "These are types of problems. The topics are core addition, subtraction, multiplication, division, and factors."
     proved_by: "apps/web/tests/u31-topics-are-operations.spec.ts::no chip names a kind of question, or a topic with nothing taught at the class's grade"
 manual:

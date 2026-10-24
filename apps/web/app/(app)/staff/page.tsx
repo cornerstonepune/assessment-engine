@@ -3,6 +3,7 @@ import Link from "@/components/link";
 import { PageShell } from "@/components/page-shell";
 import { Notice } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { choices } from "@/lib/choices";
 import { classLines, people } from "@/lib/queries-staff";
 import { StaffTable } from "./staff-table";
 
@@ -10,11 +11,12 @@ type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
 // Staff (goals/uxn2-staff-and-school.yaml). Nimish, 2026-10-22: "the staff table of who teaches which class and subject
 // is edited on a Staff page, not by commands." A table: person, role, classes; the coordinator opens a row's classes,
-// ticks the classes and saves. Subject is not kept anywhere yet: it waits for a schema decision, so no column pretends.
+// ticks the classes and saves. Subjects are kept beside the classes in the same staff row (no schema change), so a person's
+// pages open on their own subjects as on their own classes (goals/nav_teacher_scope_and_todo.yaml).
 export default async function StaffPage({ searchParams }: Props) {
   await requireStaff();
   const q = await searchParams;
-  const [all, classes] = await Promise.all([people(), classLines()]);
+  const [all, classes, offered] = await Promise.all([people(), classLines(), choices()]);
   const text = q.q?.trim().toLowerCase();
   const shown = all.filter(
     (p) =>
@@ -37,13 +39,13 @@ export default async function StaffPage({ searchParams }: Props) {
     >
       {q.saved ? (
         <Notice tone="neem">
-          {q.saved}&rsquo;s classes are saved. Their pages open on them from now
-          on.
+          {q.saved}&rsquo;s {q.of === "subjects" ? "subjects" : "classes"} are saved. Their pages open on{" "}
+          them from now on.
         </Notice>
       ) : null}
       {q.refused ? (
         <Notice tone="terracotta">
-          Nothing changed: no child is in {q.refused}.
+          Nothing changed: {q.of === "subjects" ? `${q.refused} is not a subject of the school` : `no child is in ${q.refused}`}.
         </Notice>
       ) : null}
       <FilterBar
@@ -62,6 +64,7 @@ export default async function StaffPage({ searchParams }: Props) {
       <StaffTable
         people={shown}
         classes={classes}
+        subjects={offered.subjects}
         page={page}
         pageHref={(n) =>
           `/staff?${new URLSearchParams({ ...(q.role ? { role: q.role } : {}), ...(q.q ? { q: q.q } : {}), ...(n > 1 ? { page: String(n) } : {}) })}`

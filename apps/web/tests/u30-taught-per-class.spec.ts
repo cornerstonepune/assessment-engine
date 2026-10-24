@@ -65,12 +65,13 @@ const said = (section: string) =>
 test("an educator says a topic is taught in their class, in their name, and no other class changes", async ({ browser }) => {
   const page = await signedIn(browser);
   try {
-    await page.goto("/taught");
-    const row = page.getByRole("region", { name: "Not taught yet", exact: true }).getByRole("listitem").filter({ hasText: topicName });
-    await expect(row).toContainText(`Not taught yet in ${MINE}`);
-    await expect(row, "an educator is offered only their own classes").not.toContainText(OTHER);
-    await row.getByText("Say it is taught", { exact: true }).click();
-    await row.getByRole("button", { name: `Taught in ${MINE}, as ${EDUCATOR.name}` }).click();
+    await page.goto("/taught?subject=NUM");
+    const row = page.locator(`tr[data-topic=${TOPIC}]`);
+    await expect(row).toContainText("not taught yet");
+    // an educator mapped to one class is offered only that class: no box to choose another
+    await expect(row.getByLabel("Class to mark taught")).toHaveCount(0);
+    await expect(row).not.toContainText(OTHER);
+    await row.getByRole("button", { name: "Mark as taught" }).click();
     await expect(page.getByRole("main")).toContainText(`${topicName} is taught in ${MINE} now`);
     expect(await said(MINE)).toEqual([{ taught: true, taught_by: EDUCATOR.name }]);
     expect(await said(OTHER), "no other class changes").toEqual([]);
@@ -78,13 +79,8 @@ test("an educator says a topic is taught in their class, in their name, and no o
     expect(school.taught, "one class's word is not the school's switch").toBe(false);
 
     // another class is theirs to say too, one role for now (goals/ux9c-one-role.yaml): the form sent for it, in their name
-    await page.goto("/taught");
-    const taught = page.getByRole("region", { name: "Taught", exact: true });
-    await taught.locator("summary").click();
-    const off = taught
-      .getByRole("listitem")
-      .filter({ hasText: topicName })
-      .getByRole("button", { name: `Not taught in ${MINE}, as ${EDUCATOR.name}` });
+    await page.goto("/taught?subject=NUM");
+    const off = page.locator(`tr[data-topic=${TOPIC}]`).getByRole("button", { name: "Not taught after all" });
     await off.locator("xpath=ancestor::form").locator('input[name="class"]').evaluate((el, s) => ((el as HTMLInputElement).value = s), OTHER);
     await off.click();
     await expect(page).toHaveURL(new RegExp(`off=${TOPIC}&class=${OTHER}`));

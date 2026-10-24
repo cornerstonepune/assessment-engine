@@ -149,7 +149,7 @@ test.afterAll(async () => sql.end());
 test("marking is one area, and says how many papers are in and where every answer stands", async ({ page }) => {
   await page.goto("/capture");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Upload papers");
-  const menu = page.getByRole("navigation", { name: "Sections" });
+  const menu = page.getByRole("navigation", { name: "Pages in this section" });
   // Marking sits inside Assessments (goals/u9-papers.yaml, goals/ui1-menu-and-today.yaml)
   await expect(menu.getByRole("link", { name: "Upload papers" })).toHaveAttribute("aria-current", "page");
   // one sentence says it (goals/ux5b-make-and-marking.yaml), where five tiles stood

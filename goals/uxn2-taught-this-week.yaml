@@ -7,7 +7,7 @@ goal: >
 # filter row (they are folds of switches, held by u30/u31/u40; a table of every class and topic is its own slice).
 says:
   - words: "make it easy to navigate, and ensure the entire design consistency"
-    proved_by: "apps/web/tests/u52-taught-this-week.spec.ts::Taught this week is its own page: its main action, the topics not taught yet, and the week's next step"
+    proved_by: "apps/web/tests/u52-taught-this-week.spec.ts::Teaching is its own page: a table of topics, a tab for each subject, and the week's next step"
   - words: "You have to look at every screen from a teacher educator's point of view"
     proved_by: "apps/web/tests/u52-taught-this-week.spec.ts::Today's line opens it, and Curriculum links to it instead of carrying the switches"
 manual: []

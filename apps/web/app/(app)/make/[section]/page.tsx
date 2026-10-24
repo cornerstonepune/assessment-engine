@@ -13,7 +13,6 @@ import { CHANGED } from "@/components/questions";
 import { classHome } from "@/lib/queries-make";
 import { classPacksWaiting } from "@/lib/queries-today";
 import { isoWeek, weekWords } from "@/lib/week";
-import { approveHome } from "../actions";
 import { byNeed, HomeTable, type HomeRow } from "./home-table";
 
 type Props = { params: Promise<{ section: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
@@ -72,20 +71,10 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
       purpose={`This week, ${weekWords(week)}. Each child's home assessment works on one skill from their own map; its questions are on its line.`}
       action={
         proposed.length ? (
-          <form action={approveHome}>
-            <input type="hidden" name="week" value={week} />
-            <input type="hidden" name="section" value={section} />
-            {proposed.map((c) => (
-              <span key={c.id} hidden>
-                <input type="hidden" name="child_id" value={c.id} />
-                <input type="hidden" name="draw" value={draws[c.id] ?? 0} />
-                <input type="hidden" name="seen" value={c.proposal.seen} />
-              </span>
-            ))}
-            <button className="btn" type="submit">
-              Approve all {proposed.length}
-            </button>
-          </form>
+          // each child's is approved on the child's own row: there is no button over all of them (Nimish, 24 Oct 2026)
+          <Link href="#home-assessments" className="btn">
+            Go to the first one waiting
+          </Link>
         ) : (
           <Link href={`${here}/week`} className="btn secondary">
             What the class did this week
@@ -118,7 +107,7 @@ export default async function ClassHomePapers({ params, searchParams }: Props) {
         search={{ name: "q", value: find, placeholder: "Find a child" }}
         filters={[{ name: "status", label: "Status", value: stage, all: "Any status", options: Object.entries(STAGE_WORDS) }]}
       />
-      <section aria-label="Home assessments">
+      <section aria-label="Home assessments" id="home-assessments" className="scroll-mt-6">
         <HomeTable rows={shown} week={week} section={section} draws={draws} differentFor={differentFor} page={page} pageHref={pageHref} each={each} />
         {shown.length === 0 ? <p className="note mt-2">{children.length ? "Nothing matches these filters." : "No children on this class's list."}</p> : null}
       </section>

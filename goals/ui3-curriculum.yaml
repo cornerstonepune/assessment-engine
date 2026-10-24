@@ -19,7 +19,7 @@ says:
   - words: "If there are edits, some changes, tagging, etc., or definitions that need to be changed, one can do that."
     proved_by: "apps/web/tests/u17-curriculum.spec.ts::a skill is approved on its own, from skills grouped by grade"
   - words: "If there are edits, some changes, tagging, etc., or definitions that need to be changed, one can do that."
-    proved_by: "apps/web/tests/u17-curriculum.spec.ts::a topic is switched on only after the person has read what it does"
+    proved_by: "apps/web/tests/u17-curriculum.spec.ts::a topic is marked taught from its row on Teaching, in the person's name, for one class"
   - words: "Most of the things come as a long list of items, and some of the views are not useful."
     proved_by: "apps/web/tests/u17-curriculum.spec.ts::each question the engine drafted is one line until it is opened"
   - words: "Most of the things come as a long list of items, and some of the views are not useful."

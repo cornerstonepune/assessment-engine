@@ -223,11 +223,11 @@ test("every waiting skill is approved from one page, in the approver's name", as
         .getByRole("status")
         .filter({ hasText: "What a wrong answer counts against is approved" }),
     ).toBeVisible();
-    await page
-      .getByRole("button", {
-        name: "Approve all 2 skills as written, as End-to-end test",
-      })
-      .click();
+    // each skill is approved on its own row: there is no button over all of them
+    await expect(page.getByRole("button", { name: /Approve all|Approve these/ })).toHaveCount(0);
+    for (const code of ["ADD.1D1D", "SUB.1D1D"]) {
+      await page.locator(`tr[data-row="${code}"]`).getByRole("button", { name: "Approve, as End-to-end test" }).click();
+    }
     await expect(
       page
         .getByRole("status")

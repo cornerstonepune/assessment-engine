@@ -66,9 +66,9 @@ test("a class paper carries its class's grade, a spare copy too", async ({ page 
 });
 
 test("the class papers Today counts are the copies the pages it opens show waiting", async ({ page }) => {
-  await page.goto("/today");
-  const item = page.getByRole("listitem").filter({ hasText: `${CLASS} · class practice` });
-  await expect(item).toContainText("— 2 papers");
+  await page.goto("/today?kind=classpaper");
+  const item = page.locator("tr[data-kind=classpaper]").filter({ hasText: `${CLASS} · class practice` });
+  await expect(item).toContainText("2 papers");
 
   // Assessments: the two children's copies wait to be approved; the spare rides with them, counted apart
   await page.goto(`/papers?class=${CLASS}`);
@@ -80,8 +80,8 @@ test("the class papers Today counts are the copies the pages it opens show waiti
 
   // the approve page Today's line opens: two copies to approve, the spare among the spare copies, the button counting
   // them as Today does (goals/ux5-papers-grouped.yaml)
-  await page.goto("/today");
-  await page.getByRole("listitem").filter({ hasText: `${CLASS} · class practice` }).getByRole("link").click();
+  await page.goto("/today?kind=classpaper");
+  await page.locator("tr[data-kind=classpaper]").filter({ hasText: `${CLASS} · class practice` }).getByRole("link").click();
   // (the spare is a row of the pack's table, named as one: goals/uxn4-papers-to-approve.yaml)
   await expect(page.getByRole("main").locator("tbody").getByText("to approve", { exact: true })).toHaveCount(3);
   await expect(page.getByRole("main").locator("tbody tr").filter({ hasText: "Spare copy" })).toHaveCount(1);

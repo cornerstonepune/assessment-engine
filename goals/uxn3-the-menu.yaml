@@ -9,11 +9,11 @@ goal: >
 # approve". Today's own groups keep their names (Assessments, Curriculum, Children) until Today moves (UI-3).
 says:
   - words: "Make sure that the navigation and all the menu items are perfect"
-    proved_by: "apps/web/tests/u53-the-menu.spec.ts::the menu lists the week's steps in order, then the setup apart, and each page is marked and titled by its own words"
+    proved_by: "apps/web/tests/u53-the-menu.spec.ts::the menu lists the five groups in order, and each page is marked and titled by its own words"
   - words: "make it easy to navigate"
     proved_by: "apps/web/tests/u53-the-menu.spec.ts::no step of the week is a dead end: each page of the menu ends on a next step or opens one"
   - words: "Subject-agnostic: nothing in the shared blocks or the menu names Maths or English"
-    proved_by: "apps/web/tests/u53-the-menu.spec.ts::only Today carries a count, and no word of the menu names a subject"
+    proved_by: "apps/web/tests/u53-the-menu.spec.ts::only What needs doing carries a count, and no word of the menu names a subject"
 manual: []
 scenarios: []
 criteria:

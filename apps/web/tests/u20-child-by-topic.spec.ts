@@ -114,6 +114,6 @@ test("every parent report waiting on a person is one list, and a child's page en
   await expect(page).toHaveURL(new RegExp(`/growth/${kids.Ishaan}/parent$`));
 
   // Today's line for the reports opens the list
-  await page.goto("/today");
-  await expect(page.getByRole("region", { name: "Parent reports to approve" }).getByRole("link", { name: /Approve them|Open the list/ })).toHaveAttribute("href", "/growth/reports");
+  await page.goto("/today?kind=report");
+  await expect(page.locator("tr[data-kind=report]").filter({ hasText: SECTION }).getByRole("link")).toHaveAttribute("href", new RegExp(`^/growth/reports\\?class=${SECTION}`));
 });

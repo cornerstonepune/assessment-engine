@@ -52,12 +52,12 @@ async function clearUp() {
   await sql`delete from sheet_instance where week = ${WEEK}`;
 }
 
-/** The number a Today line shows, or 0 when nothing of its kind waits and the line is left out (goals/ui1-menu-and-today.yaml). */
-async function count(page: Page, line: string): Promise<number> {
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today");
-  const c = page.getByRole("region", { name: line, exact: true });
-  if (!(await c.count())) return 0;
-  return Number((await c.getByTestId("count").innerText()).replace(/\D/g, ""));
+/** The rows of one kind on What needs doing (Today's old address), and how many answers, papers or children they say. */
+async function kind(page: Page, k: string): Promise<{ rows: number; n: number }> {
+  await page.goto(`/today?kind=${k}`);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
+  const many = await page.locator(`tr[data-kind=${k}] td[data-label="How many"]`).allInnerTexts();
+  return { rows: many.length, n: many.reduce((t, m) => t + Number(m.replace(/\D/g, "")), 0) };
 }
 
 test.beforeAll(async () => {
@@ -74,82 +74,79 @@ test.afterAll(async () => {
 test("the menu is the teacher's week, and says where they are", async ({ page }) => {
   await page.goto("/today");
   const menu = page.getByRole("navigation", { name: "Sections" });
-  // the school's order of work (goals/ui1-menu-and-today.yaml); a tab's count of what waits follows its name
-  await expect(menu.getByRole("link")).toHaveText([/^Today/, /^Taught this week/, /^Papers to approve/, /^Assessments/, /^Upload papers/, /^Check answers/, /^Class results/, /^Curriculum/, /^Question bank/]);
+  // five groups (goals/nav_teacher_scope_and_todo.yaml); the group's count of what waits follows its name
+  await expect(menu.getByRole("link")).toHaveText([/^What needs doing/, /^Teaching/, /^Assessments/, /^Results/, /^Setup/]);
   for (const [label, heading] of [
-    ["Curriculum", "Curriculum"],
+    ["Setup", "Curriculum"],
     ["Assessments", "Assessments"],
-    ["Class results", "Class results"],
-    ["Today", "Today"],
+    ["Results", "Class results"],
+    ["Teaching", "Teaching"],
+    ["What needs doing", "What needs doing"],
   ]) {
-    await menu.getByRole("link", { name: label, exact: true }).click();
+    await menu.getByRole("link", { name: new RegExp(`^${label}\\b`) }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
-    await expect(menu.getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "page");
+    await expect(menu.getByRole("link", { name: new RegExp(`^${label}\\b`) })).toHaveAttribute("aria-current", "page");
   }
 });
 
 test("today lists everything waiting on a teacher, each with its count and one click to act", async ({ page }) => {
-  await page.goto("/today");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today");
+  await page.goto("/today?kind=classpaper");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
 
   // the class papers the engine proposed for the test's class wait for a teacher before they print
-  const papers = page.getByRole("region", { name: "Class papers to approve" });
-  const pack = papers.getByRole("link", { name: new RegExp(`${SECTION} · class practice · ${WEEK}`) });
-  await expect(pack).toBeVisible();
-  await pack.click();
+  const pack = page.locator("tr[data-kind=classpaper]").filter({ hasText: new RegExp(`${SECTION} · class practice · `) });
+  await expect(pack).toHaveCount(1);
+  await pack.getByRole("link").click();
   await expect(page).toHaveURL(new RegExp(`/papers/approve\\?section=${SECTION}&week=${WEEK}&kind=practice`));
 
   // a child whose checked work gives the engine a home paper to propose — red, amber or green on any skill —
-  // with no home paper approved this week
-  await page.goto("/today");
+  // with no home paper approved this week: a row for each class, counting its children
   const [{ n }] = await sql<{ n: number }[]>`
     select count(distinct s.child_id)::int as n from child_skill_state s join child c on c.id = s.child_id
     where c.active and s.state in ('patterned_error', 'emerging', 'practising', 'secure', 'stretch_ready')
       and not exists (select 1 from sheet_instance si where si.child_id = s.child_id and si.kind = 'focus'
                       and si.week = ${isoWeek()})`;
-  expect(await count(page, "Home assessments to approve")).toBe(n);
-  await page.getByRole("region", { name: "Home assessments to approve" }).getByRole("link").first().click();
-  await expect(page).toHaveURL("/make");
+  const home = await kind(page, "home");
+  expect(home.n).toBe(n);
+  if (n) {
+    await page.locator("tr[data-kind=home]").first().getByRole("link").click();
+    await expect(page).toHaveURL(/\/make\/[^/]+$/);
+  }
 
-  // the skills that wait for an approval
-  await page.goto("/today");
-  // every skill waiting, taught or not: one is approved before its topic is switched on (goals/ny1-needs-you.yaml)
+  // the skills that wait for an approval: one row each, every skill waiting, taught or not (goals/ny1-needs-you.yaml)
   const [{ drafts }] = await sql<{ drafts: number }[]>`select count(*)::int as drafts from skill s where s.status <> 'ratified'`;
-  expect(await count(page, "Skills to approve")).toBe(drafts);
+  await page.goto("/today?kind=skill");
+  const counted = (await page.locator("details[data-topic] > summary .fact").allInnerTexts()).reduce((t, x) => t + Number(x.replace(/\D/g, "")), 0);
+  expect(counted).toBe(drafts);
   if (drafts > 0) {
-    await page.getByRole("region", { name: "Skills to approve" }).getByRole("link").first().click();
-    await expect(page).toHaveURL(/\/skill-sets\/approve/);
+    await page.locator("tr[data-kind=skill]").first().getByRole("link").click();
+    await expect(page).toHaveURL(/\/skill-sets\/[A-Z0-9_.]+$/);
   }
 });
 
 test("what has nothing waiting says so, and each count is the page's own", async ({ page }) => {
-  await page.goto("/today");
-  const toCheck = await count(page, "Answers to check");
+  const check = await kind(page, "check");
   await page.goto("/capture/check");
-  await expect(page.getByText(`${toCheck} ${toCheck === 1 ? "answer" : "answers"} left to check`)).toBeVisible();
+  await expect(page.getByText(`${check.n} ${check.n === 1 ? "answer" : "answers"} left to check`)).toBeVisible();
 
-  await page.goto("/today");
-  const toSign = await count(page, "Papers to sign off");
+  const sign = await kind(page, "signoff");
   await page.goto("/capture");
-  await expect(page.getByRole("region", { name: "Answers to check" }).getByTestId("to-sign")).toHaveText(String(toSign));
+  await expect(page.getByRole("region", { name: "Answers to check" }).getByTestId("to-sign")).toHaveText(String(sign.rows));
 
-  // what has nothing waiting is not listed; a tab with nothing waiting in it says so
+  // what has nothing waiting is not listed: a kind with no row says so, and every number shown is above zero
   await page.goto("/today");
-  for (const tab of ["Assessments", "Curriculum", "Children"]) {
-    const group = page.getByRole("region", { name: tab, exact: true });
-    await expect(group).toBeVisible(); // Today streams in: count its lines once they are there
-    if (!(await group.getByTestId("line").count())) await expect(group.getByText("Nothing waits here.")).toBeVisible();
-    for (const n of await group.getByTestId("count").allInnerTexts()) expect(Number(n.replace(/\D/g, ""))).toBeGreaterThan(0);
-  }
+  for (const n of await page.locator("td[data-label=\"How many\"]").allInnerTexts()) if (/\d/.test(n)) expect(Number(n.replace(/\D/g, ""))).toBeGreaterThan(0);
+  await page.goto("/today?kind=empty");
+  if (!(await page.locator("tr[data-kind=empty]").count())) await expect(page.getByText(/Nothing waits on you/)).toBeVisible();
 });
 
 test("Today has the one filter row: a place and what waits narrow its lines (goals/uxn10-today.yaml)", async ({ page }) => {
   await page.goto("/today");
   await expect(page.locator("[data-filterbar]")).toBeVisible();
-  await page.goto("/today?where=Curriculum");
-  await expect(page.locator("[data-active-filters]")).toContainText("Where: Curriculum");
-  await expect(page.getByRole("region", { name: "Curriculum", exact: true })).toBeVisible();
-  await expect(page.getByRole("region", { name: "Assessments", exact: true })).toHaveCount(0);
-  await page.goto("/today?status=waits");
-  for (const n of await page.getByTestId("count").allInnerTexts()) expect(Number(n.replace(/\D/g, ""))).toBeGreaterThan(0);
+  await page.goto("/today?kind=skill");
+  await expect(page.locator("[data-active-filters]")).toContainText("What: Approve a skill");
+  await expect(page.locator("tr[data-kind]:not([data-kind=skill])")).toHaveCount(0);
+  await page.goto("/today?subject=NUM");
+  await expect(page.locator("[data-active-filters]")).toContainText("Subject: Maths");
+  for (const where of await page.locator("td[data-label=Where]").allInnerTexts()) expect(where).not.toMatch(/^English/);
 });

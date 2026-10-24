@@ -67,8 +67,8 @@ function unchangedSince(code: ReturnType<typeof sql>, opened: string | null, lev
     where x.skill_code = ${code} ${at} and x.created_at > ${opened}::text::timestamptz)`;
 }
 
-/** A named person approves skills exactly as they read them — one from its own page, or every
- *  waiting skill from the approval page. Only skills still waiting are touched: an approval never
+/** A named person approves one skill exactly as they read it — from its own page, or one row of the approval page.
+ *  Never several at once (Nimish: "NO bulk Approve them button; every approval separate"). Only skills still waiting are touched: an approval never
  *  lands on words changed since the page was opened, because a change sets the skill back to
  *  waiting and bumps its version, and the form carries the version it showed. */
 export async function approveSkills(formData: FormData): Promise<void> {
@@ -85,6 +85,7 @@ export async function approveSkills(formData: FormData): Promise<void> {
     if (i < 0) redirect("/");
     [shown, versions, back] = [[only], [versions[i]], APPROVE_PAGE.test(back) ? back : "/skill-sets/approve"];
   }
+  if (shown.length > 1) redirect("/");
   const onlyTable = !shown.length && typeof formData.get("charges_table") === "string";
   if ((!shown.length && !onlyTable) || versions.length !== shown.length || versions.some((v) => !Number.isInteger(v))) redirect("/");
   const opened = openedOf(formData);

@@ -8,6 +8,8 @@ export type Person = {
   name: string;
   role: string;
   classes: string[];
+  /** The subject codes they teach; none named is every subject (nav_teacher_scope_and_todo). */
+  subjects: string[];
 };
 export type ClassLine = {
   section: string;
@@ -22,6 +24,7 @@ export async function people(): Promise<Person[]> {
     name: s.name,
     role: s.role,
     classes: [...(s.classes ?? [])].sort(),
+    subjects: [...(s.subjects ?? [])].sort(),
   }));
 }
 

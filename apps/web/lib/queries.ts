@@ -179,7 +179,8 @@ export const RULE_WORDS: Record<string, string> = {
 };
 
 // `classes`: the classes a person teaches, as `engine staff add --class` puts them (ADR 0073, D1); the coordinator's are every class.
-export type Staff = { email: string; name: string; role: string; password?: string; classes?: string[] };
+// `subjects`: the subject codes they teach (nav_teacher_scope_and_todo): none named is every subject.
+export type Staff = { email: string; name: string; role: string; password?: string; classes?: string[]; subjects?: string[] };
 
 export async function staffList(): Promise<Staff[]> {
   const row = await sql<{ value: Staff[] }[]>`select value from config where key = 'app.staff'`;
