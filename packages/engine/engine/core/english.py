@@ -48,7 +48,7 @@ def with_english(maths: Callable[[str, str], Any]) -> Callable[[str, str], Any]:
     return read
 
 
-def _paper_kinds() -> list[dict[str, Any]]:
+def paper_kinds() -> list[dict[str, Any]]:
     """The kinds that go on a paper; the observed ones (read aloud, talk, extended) are for the observation engine."""
     return [q for q in seed("question_type.json", "question_types") if q["reaches"] != "observed"]
 
@@ -101,7 +101,7 @@ def kinds(conn: db.Conn, t: db.Id) -> None:
             "marked": ["closed_set" if q["answer"] == "one" else "open_response"],
             "own_words": True,
         }
-        for q in _paper_kinds()
+        for q in paper_kinds()
     ]
     conn.execute(
         "insert into question_type (tenant_id, code, fmt, words, reaches, marked, own_words)"
@@ -124,7 +124,7 @@ def skills(conn: db.Conn, t: db.Id) -> None:
     watched: dict[str, list[str]] = {}
     for m in seed("skill_mistake.json", "skill_mistakes"):
         watched.setdefault(m["skill_code"], []).append(m["misconception_code"])
-    open_kinds = {q["code"] for q in _paper_kinds() if q["answer"] != "one"}
+    open_kinds = {q["code"] for q in paper_kinds() if q["answer"] != "one"}
     for s in seed("skill.json", "skills"):
         eval_type = "open_response" if open_kinds & set(s["question_types"]) else "closed_set"
         conn.execute(
@@ -148,13 +148,17 @@ def skills(conn: db.Conn, t: db.Id) -> None:
 
 def level_kinds(conn: db.Conn, t: db.Id) -> None:
     """Which kinds each level uses. Written after the kinds, because writing a kind clears every level's links to be
-    made again from the bank, which holds no English question (they come back on every load)."""
+    made again from the bank, which holds no English question (they come back on every load). A kind a person took
+    from a level stays taken (`skill_level_kind_change`, goals/edt_edit_samples_and_kinds.yaml)."""
     conn.execute(
         "insert into skill_level_question_type (tenant_id, skill_code, difficulty, question_type)"
         " select %s, x.skill_code, x.difficulty, x.question_type from jsonb_to_recordset(%s::jsonb)"
         "   x(skill_code text, difficulty text, question_type text)"
+        " where not coalesce((select not c.added from skill_level_kind_change c where c.tenant_id = %s"
+        "   and c.skill_code = x.skill_code and c.difficulty = x.difficulty and c.question_type = x.question_type"
+        "   order by c.created_at desc, c.id desc limit 1), false)"
         " on conflict (tenant_id, skill_code, difficulty, question_type) do nothing",
-        (t, json.dumps(seed("skill_level_question_type.json", "skill_level_question_types"))),
+        (t, json.dumps(seed("skill_level_question_type.json", "skill_level_question_types")), t),
     )
 
 

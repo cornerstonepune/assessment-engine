@@ -27,6 +27,7 @@ dependencies = [
     "pillow-heif>=1.8.1",
     "python-multipart>=0.0.32",
     "pillow>=12.3.0",
+    "spylls==0.1.7",
 ]
 
 [project.optional-dependencies]

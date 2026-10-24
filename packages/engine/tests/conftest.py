@@ -7,10 +7,19 @@ and the run stops outright if that copy is anywhere else. Subprocesses a test st
 """
 
 import os
+import sys
+import types
+from pathlib import Path
 
 import pytest
 
 from engine.core import db
+
+# `spylls` (the en_GB dictionary an English sample is spelt against) installs a stray package called `tests` into
+# site-packages, which would stand in for this folder, so `from tests.rows import …` finds no `rows`. This folder is
+# `tests`, named here before any test module is imported.
+sys.modules["tests"] = types.ModuleType("tests")
+sys.modules["tests"].__path__ = [str(Path(__file__).parent)]
 
 if os.environ.get("TEST_DATABASE_URL"):
     try:

@@ -1,0 +1,53 @@
+name: edt_edit_samples_and_kinds
+goal: >
+  An educator who may change a skill changes it on the skill's own page: an English sample (its passage, what the child
+  is told, the sentence, the options, gaps or pairs, the right answer, and each likely wrong answer with the mistake it
+  shows), adds one or removes one (a level keeps three of each kind), changes the kinds a level asks (only approved
+  kinds, each with three samples), and changes the skill's description and any level's sentence. The engine checks every
+  sample by code before it is stored and says in words what failed; a change is a new version that keeps what it
+  replaced, and sends that level, and no other, back for approval. A Maths skill's questions are made by code; its page
+  says so. Making a new set of questions is not here: it is the next job.
+# Written 2026-10-24, before the code. W1, step N1 (skill sets approved by a person). One additive migration (two ledgers
+# and a view), engine checks ported from research/, engine routes, the skill page.
+says:
+  - words: "What happens if he wants to make any changes there?"
+    proved_by: "apps/web/tests/u55-edit-samples-and-kinds.spec.ts::Ayush edits a Hard sample's wrong answer, is told in words why the first try fails, fixes it, and Hard waits for approval again"
+  - words: "Is that capability here, or is it just blue?"
+    proved_by: "packages/engine/tests/test_english_edit.py::test_a_saved_sample_is_a_new_version_and_withdraws_only_its_levels_approval"
+  - words: "Is that capability here, or is it just blue?"
+    proved_by: "packages/engine/tests/test_english_edit.py::test_history_is_kept_and_never_changed"
+  - words: "Let's just say I want to make a change to the hard part, or change the nature of the question, or the way the skill is described, or any change."
+    proved_by: "apps/web/tests/u55-edit-samples-and-kinds.spec.ts::a kind is added to a level only with three samples, each checked"
+  - words: "Let's just say I want to make a change to the hard part, or change the nature of the question, or the way the skill is described, or any change."
+    proved_by: "packages/engine/tests/test_english_edit.py::test_a_kind_is_added_to_a_level_only_with_three_samples_that_pass"
+  - words: "Let's just say I want to make a change to the hard part, or change the nature of the question, or the way the skill is described, or any change."
+    proved_by: "packages/engine/tests/test_english_edit.py::test_a_sample_is_added_and_removed_but_a_level_keeps_three_of_each_kind"
+  - words: "What does 'change the words first' do?"
+    proved_by: "apps/web/tests/u55-edit-samples-and-kinds.spec.ts::a level's sentence is changed from the skill's page, and that level waits for approval again"
+  - words: "It should simply have the capability to edit the skill, where the nature or the description of the skill can be changed."
+    proved_by: "apps/web/tests/u55-edit-samples-and-kinds.spec.ts::a level's sentence is changed from the skill's page, and that level waits for approval again"
+  - words: "It should simply have the capability to edit the skill, where the nature or the description of the skill can be changed."
+    proved_by: "packages/engine/tests/test_english_check.py::test_every_sample_of_the_seed_passes_the_engines_checks"
+  - words: "It should simply have the capability to edit the skill, where the nature or the description of the skill can be changed."
+    proved_by: "packages/engine/tests/test_english_edit.py::test_a_sample_that_fails_a_check_is_refused_in_words_and_nothing_is_stored"
+manual:
+  - "Not here, by design: \"At the same time, a separate set of questions can be generated. That is not here, right?\" Right: making a new set of questions is the next job. It needs prompt rows with an eval score (rule 7), ADR 0006 amended, and these same engine checks on what a model writes."
+  - "Before the migration meets live: run the rehearsal on a copy of live (GitHub, Actions, rehearse update-live, Run workflow on this branch); it must pass."
+  - "On live, after the merge and deploy: as Ayush, open an English Grade 4 skill, press Edit on a Hard sample, change a wrong answer, save; Hard says it waits for approval."
+scenarios: []
+criteria:
+  - name: the checks, the edits, the loaders, the roles (row security on every table) and English's other tests
+    run: cd packages/engine && .venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_english_check.py tests/test_english_edit.py tests/test_english_samples.py tests/test_loaders.py tests/test_roles.py tests/test_rules.py tests/test_e0_english.py tests/test_english_kinds_and_samples.py tests/test_school_words.py tests/test_migration_order.py tests/test_contract.py tests/test_layout.py
+    expect: "passed"
+  - name: the samples are loaded, twice, and nothing moves
+    run: bin/engine load --check
+    expect: "unchanged on a second run"
+  - name: the skill page, its samples, the approve list and the curriculum hold
+    run: cd apps/web && npx playwright test tests/u55-edit-samples-and-kinds.spec.ts tests/u54-skill-shows-its-samples.spec.ts tests/u53-skill-name-opens-the-skill.spec.ts tests/e0-english.spec.ts tests/u23-approve-filtered.spec.ts tests/u28-approved-per-level.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the website type-checks
+    run: cd apps/web && npx tsc --noEmit && echo passed
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

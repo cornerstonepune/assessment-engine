@@ -22,6 +22,7 @@ export type EngineRoutes = {
   "GET /report/{child_id}": null;
   "GET /runs/{run_id}": null;
   "GET /sheet/{qr}/page/{page_no}.jpg": null;
+  "GET /skill/{code}/sample/form": null;
   "GET /week/{section}/{week}/declaration": null;
   "GET /week/{section}/{week}/{kind}/pack.pdf": null;
   "GET /worksheet/{code}.pdf": null;
@@ -58,6 +59,10 @@ export type EngineRoutes = {
   "POST /read/run/{run_id}/again": { by: string };
   "POST /read/run/{run_id}/page": { page: number; child_id: string; by: string };
   "POST /read/upload": null;
+  "POST /skill/{code}/kind": { level: string; kind: string; by: string; samples?: { fields: { ask?: string; text?: string; options?: string; left?: string; right?: string; answer?: string; accept?: string; key_points?: string; not_words?: string }; wrong?: { answer?: string; mistake_code?: string }[]; passage_code?: string | null; passage_title?: string | null; passage_text?: string | null; rubric_code?: string | null }[] };
+  "POST /skill/{code}/kind/remove": { level: string; kind: string; by: string };
+  "POST /skill/{code}/sample": { level: string; kind: string; by: string; fields: { ask?: string; text?: string; options?: string; left?: string; right?: string; answer?: string; accept?: string; key_points?: string; not_words?: string }; wrong?: { answer?: string; mistake_code?: string }[]; passage_code?: string | null; passage_title?: string | null; passage_text?: string | null; rubric_code?: string | null; ord?: number | null };
+  "POST /skill/{code}/sample/remove": { level: string; kind: string; by: string; ord: number };
   "POST /week/approve": { section: string; week: string; kind?: string; by: string };
   "POST /week/assemble": { section: string; week: string; kind?: string };
   "POST /week/declaration": { section: string; week: string; note?: string; skill_sets: string[]; by: string; proposed?: Record<string, unknown>[] };
