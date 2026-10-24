@@ -163,7 +163,7 @@ test("Upload papers, Check answers, Marking", async ({ page }) => {
   await wholePage(page, "/capture", /Upload papers/, { chips: true });
   await wholePage(page, "/capture/check", /Check answers/, { chips: true });
   // Marking: the papers read, by class, and one child's
-  await page.goto("/capture?view=class");
+  await page.goto(`/capture?by=child&class=${SECTION}`);
   await expect(page.getByText("This page could not load")).toHaveCount(0);
   await expect(page.getByRole("link", { name: /Bina/ }).first()).toBeVisible();
 });
