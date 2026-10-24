@@ -22,7 +22,7 @@ const back = (f: FormData, said?: string) => {
   return s ? `/papers?${s}` : "/papers";
 };
 
-/** A new row for the assessment's name; the older names stay (rule 4). An empty name goes back to the built one. */
+/** A new row for the assessment's name; the older names stay (rule 4). An empty name changes nothing. */
 export async function renameAssessment(f: FormData): Promise<void> {
   const me = await requireStaff();
   const key = String(f.get("key") ?? "");

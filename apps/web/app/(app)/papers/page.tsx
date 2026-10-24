@@ -64,8 +64,6 @@ export default async function PapersPage({ searchParams }: Props) {
     child: q.child && UUID.test(q.child) ? q.child : undefined,
     kind: q.kind && q.kind in KIND_WORDS ? q.kind : undefined,
     week: q.week || undefined,
-    // an old address with a stage in it still narrows
-    stage: q.stage || undefined,
     // only a taught topic narrows the list; any other word is every topic
     topic: taught.some((t) => t.code === q.topic) ? q.topic : undefined,
     set: q.set || undefined,

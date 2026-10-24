@@ -1,6 +1,6 @@
 // What the Assessments page adds to an assessment's own row (goals/asm_assessments_page.yaml): the name an educator chose
 // for it, the files read that its printed codes belong to, and the photographed pages of a child's paper. Names no child.
-import { sql } from "./db";
+import { sql, TENANT_SLUG } from "./db";
 import { matchFiles } from "./assessment-steps";
 
 const CODE = /^CS[0-9A-F]{6}$/i;
@@ -9,7 +9,9 @@ const CODE = /^CS[0-9A-F]{6}$/i;
 export async function chosenNames(keys: string[]): Promise<Map<string, string>> {
   if (!keys.length) return new Map();
   const rows = await sql<{ key: string; name: string }[]>`
-    select distinct on (key) key, name from assessment_name where key = any(${keys}) order by key, created_at desc, id desc`;
+    select distinct on (key) key, name from assessment_name
+    where key = any(${keys}) and tenant_id = (select id from tenant where slug = ${TENANT_SLUG})
+    order by key, created_at desc, id desc`;
   return new Map(rows.map((r) => [r.key, r.name]));
 }
 
@@ -19,7 +21,8 @@ export async function fileLinks(rows: readonly { key: string; qrs: string[] }[],
   const runs = await sql<{ trigger: string | null; copies: { code?: string }[] }[]>`
     select trigger, coalesce(result -> 'copies', '[]'::jsonb) as copies from flow_run
     where flow = 'read-scan' and status <> 'running' order by started_at desc limit ${n}`;
-  const scans = runs.map((r) => ({
+  // a run that read nothing at all (it stopped before any copy) is no file to match
+  const scans = runs.filter((r) => r.copies.length).map((r) => ({
     file: (r.trigger ?? "").split(": ").slice(1).join(": ") || "a scan",
     codes: r.copies.flatMap((c) => (c.code && CODE.test(c.code) ? [c.code.toUpperCase()] : [])),
   }));
@@ -35,10 +38,10 @@ export async function fileLinks(rows: readonly { key: string; qrs: string[] }[],
 export async function pagesOf(paperIds: string[]): Promise<Map<string, { capture: string; pages: number[] }>> {
   if (!paperIds.length) return new Map();
   const rows = await sql<{ id: string; capture: string; pages: number[] }[]>`
-    select k.sheet_instance_id as id, k.id as capture,
+    select k.sheet_instance_id as id, (array_agg(k.id order by k.created_at desc))[1] as capture,
            array_agg(distinct coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, 1)) as pages
     from capture k join item_result r on r.capture_id = k.id
     where k.sheet_instance_id = any(${paperIds}::uuid[]) and k.superseded_by is null
-    group by k.sheet_instance_id, k.id`;
+    group by k.sheet_instance_id`;
   return new Map(rows.map((r) => [r.id, { capture: r.capture, pages: [...r.pages].sort((a, b) => a - b) }]));
 }

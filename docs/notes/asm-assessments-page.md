@@ -39,3 +39,13 @@ Last outputs, local throwaway Postgres built by `bin/testdb fresh`, web as role 
 - The migration needs the rehearsal workflow before merge.
 - NAV owns the menu: `u53-the-menu.spec.ts` carries a one-line `MOVED` map for `/papers/approve`; if NAV removes the menu
   item, drop that entry with it.
+
+## Review
+
+- `simplify` and `code-review` run. Fixed: dead `givenOn`, slimmer filter query (no per-child name reads), one action lookup per row,
+  name read limited to the school's tenant, files that read nothing are not "unmatched", one capture per paper for its pages,
+  the old unseen `stage` address no longer narrows silently. Left: unmatched files are built as a light row in the page;
+  `ReadBox`/`approveRow` resemble `ReadScan`/`approvePack`; an empty rename does nothing (no way yet to go back to the built name).
+- `bin/engine done asm_assessments_page` → all 8 of Nimish's sentences PROVED, 3 of 3 criteria PASSED; NOT DONE only for "not on main"
+  and "live did not answer from here".
+- CI on the PR head: all checks green (engine shards, browser shards, web).
