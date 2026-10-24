@@ -135,9 +135,9 @@ test("Today opens, and its first action leads on", async ({ page }) => {
   await expect(page.locator("[data-filterbar]").first()).toBeVisible();
 });
 
-test("Assessments: the upload box on top, one count per assessment, filters", async ({ page }) => {
+test("Assessments: the two blocks on top, one row per assessment, filters", async ({ page }) => {
   await wholePage(page, "/papers", /Assessments/, { chips: true });
-  const box = await page.getByText(/upload|choose a file|drop/i).first().boundingBox();
+  const box = await page.getByRole("region", { name: "Read an assessment" }).boundingBox();
   const table = await page.locator(".data-table").first().boundingBox();
   expect(box && table && box.y < table.y, "the upload box is above the table").toBe(true);
   // the filter row chooses the class; one count per assessment: the week's is one row, not one per child

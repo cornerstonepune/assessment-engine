@@ -147,8 +147,8 @@ test("an assessment shows each child once; a copy never handed back beside a rea
   const asha = copies.locator("tbody tr", { hasText: "Asha" });
   await expect(asha).toContainText("3 of 3");
   await expect(page.locator("[data-extras]")).toHaveText(/1 extra copy of a child who has already handed theirs in, not read:\s*CS520A02/);
-  // the assessment's own line counts the children's copies, not the extra
-  await expect(page.locator(`[data-assessment]`).locator("td.num").first()).toContainText("4");
+  // the assessment's own line counts the children's copies, not the extra: four children, so no step reads "of 5"
+  await expect(page.locator("[data-assessment]").first()).not.toContainText(/of 5\b/);
   // …and the score across copies counts Asha's answers once
   await page.context().close();
 });

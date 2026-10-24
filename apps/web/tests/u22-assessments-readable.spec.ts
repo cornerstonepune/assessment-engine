@@ -69,34 +69,29 @@ test.afterAll(async () => {
 // the assessments are one table, a line for each (goals/uxn1-design-system.yaml)
 const assessments = (page: Page) => page.getByRole("region", { name: "Papers" });
 const ours = (page: Page) => assessments(page).locator("tr[data-assessment]").filter({ hasText: SECTION });
-const column = async (page: Page, name: string) => (await page.getByRole("table", { name: "Assessments" }).locator("thead th").allTextContents()).indexOf(name);
 
 test("Assessments opens on one row for each assessment, its copies counted by stage", async ({ page }) => {
   await page.goto(`/papers?class=${SECTION}`);
   await expect(ours(page).first()).toBeVisible();
   const heads = (await page.getByRole("table", { name: "Assessments" }).locator("thead th").allTextContents()).map((h) => h.trim());
-  // a column nothing fills (Given on) is not drawn; the rest are, in this order
-  expect(heads).toEqual(["Class", "Subject", "Assessment", "Kind", "Stage", "Papers in", "Status"]);
+  // the columns in this order: what it is, then the steps the school does in order, then what to do next
+  const order = ["Assessment", "Kind", "Class", "Made on", "Made", "Printed / given", "Uploaded", "Read", "Checked", "Signed off", "Next"];
+  expect(order.map((h) => heads.indexOf(h)).every((i, k, all) => i >= 0 && (k === 0 || i > all[k - 1])), `columns in order: ${heads}`).toBe(true);
   // three copies of one class assessment are one row, the tally practice another
   await expect(ours(page)).toHaveCount(2);
   const add = ours(page).filter({ hasText: await setName("ADD.2D2D") });
-  await expect(add.locator("td")).toHaveText([
-    `Grade 2 · ${SECTION}`,
-    /\w+/,
-    (await setName("ADD.2D2D")) + weekWords(WEEK),
-    "Class assessment",
-    "Papers in",
-    "1 of 3",
-    "to check · 1 answer",
-  ]);
+  await expect(add).toContainText("Class assessment");
+  await expect(add).toContainText(`Grade 2 · ${SECTION}`);
+  // one copy read, an answer waiting for a person: uploaded and read, checking to do
+  await expect(add.locator("[data-action=check]")).toHaveText("Check 1 answer");
+  await expect(add.locator('[data-status="toCheck"]')).toContainText("to check");
   // the week is said under the name, in words
-  await expect(add.locator("td").nth(2)).toContainText(weekWords(WEEK));
-  // a status filter keeps the copies at that stage
-  await page.locator("[data-filterbar]").locator('select[name="stage"]').selectOption("made");
-  await expect(page).toHaveURL(/stage=made/);
-  await expect(ours(page)).toHaveCount(2);
-  await expect(ours(page).filter({ hasText: await setName("ADD.2D2D") }).locator("td").nth(5)).toHaveText("0 of 1");
-  expect(await column(page, "Papers in")).toBe(5);
+  await expect(add.locator("td").first()).toContainText(weekWords(WEEK));
+  // a status filter keeps the assessments that wait on it
+  await page.locator("[data-filterbar]").locator('select[name="status"]').selectOption("check");
+  await expect(page).toHaveURL(/status=check/);
+  await expect(ours(page)).toHaveCount(1);
+  await expect(ours(page)).toContainText(await setName("ADD.2D2D"));
   // in the school's words: no skill code, no ISO week
   expect(await assessments(page).innerText()).not.toMatch(/\b(\d{4}-W\d{2}|[A-Z]{3,}\.[A-Z0-9]+)\b/);
 });

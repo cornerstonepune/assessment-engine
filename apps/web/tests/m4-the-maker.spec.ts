@@ -136,7 +136,8 @@ test("an educator picks the kind, the children and the way, sees every paper, ma
   await expect(page.locator("tr[data-assessment]")).toContainText("Class assessment");
   const list = page.getByRole("table", { name: /: each copy$/ });
   await expect(list.locator("tbody tr")).toHaveCount(2);
-  for (const row of await list.locator("tbody tr").all()) await expect(row).toContainText("with the children");
+  // approved, so printed: each copy's next step is to put it in once written on
+  for (const row of await list.locator("tbody tr").all()) await expect(row.locator("[data-action=upload]")).toBeVisible();
 });
 
 test("each child's own next step is shown child by child, and a child with nothing to go on can be given a skill", async ({ page }) => {

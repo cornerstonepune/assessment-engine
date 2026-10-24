@@ -103,7 +103,10 @@ test("a class and a topic make the class's default assessment, every child's pap
 test("every assessment's stage, class and week are said in words", async ({ page }) => {
   await page.goto(`/papers?class=${SECTION}`);
   const filters = page.locator("[data-filterbar]");
-  await expect(filters.locator('select[name="stage"]').locator("option")).toHaveText([/^Any status/, /^To approve/, /^With the children/, /^To check/, /^To sign off/, /^Done/]);
+  // the status is the next thing the assessment asks to be done, in words, with how many wait on it
+  const options = await filters.locator('select[name="status"]').locator("option").allTextContents();
+  expect(options[0]).toMatch(/^Any status/);
+  for (const o of options.slice(1)) expect(o).toMatch(/^(To approve|To print|To upload|Being read|To check|To sign off|Done) \(\d+\)$/);
   // its week said in words under its name, a line for the assessment, its copy under it (goals/ux5-papers-grouped.yaml)
   const line = page.locator("tr[data-assessment]").filter({ hasText: "U16 paper" });
   await expect(line).toContainText(weekWords(WEEK));
@@ -111,14 +114,14 @@ test("every assessment's stage, class and week are said in words", async ({ page
   await expect(line).toContainText(`Grade 2 · ${SECTION}`);
   await page.goto(`/papers?class=${SECTION}&child=${kids.Asha}`);
   const copy = page.getByRole("table", { name: "U16 paper: each copy" }).locator("tbody tr");
-  // an empty column (Level, Score) is not drawn: Roll, Child, Stage, Waiting
+  // the child's steps, the last one reached done and the answers to check red
   await expect(copy.locator("td").nth(1)).toHaveText("Asha");
-  await expect(copy.locator("td").nth(2)).toHaveText("to check");
-  await expect(copy.locator("td").nth(3)).toHaveText("1");
+  await expect(copy.locator('[data-status="toCheck"]')).toHaveText(/to check/);
+  await expect(copy.locator("[data-action=check]")).toHaveText("Check 1 answer");
   expect(await page.getByRole("region", { name: "Papers" }).innerText(), "an ISO week code in the list").not.toMatch(/\b\d{4}-W\d{2}\b/);
   await page.goto(`/papers?class=${SECTION}`);
-  await filters.locator('select[name="stage"]').selectOption("scanned");
-  await expect(page).toHaveURL(/stage=scanned/);
+  await filters.locator('select[name="status"]').selectOption("check");
+  await expect(page).toHaveURL(/status=check/);
   await expect(page.locator("tr[data-assessment]").filter({ hasText: "U16 paper" })).toHaveCount(1);
 });
 

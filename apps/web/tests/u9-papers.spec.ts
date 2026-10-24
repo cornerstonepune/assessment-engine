@@ -119,20 +119,29 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
   const cells = (p: Paper) => row(page, p).locator("td");
   await page.goto(`/papers?class=${SECTION}&child=${kids.Bina}`);
   await expect(page.locator("tbody tr[data-paper]")).toHaveCount(2);
-  await expect(cells(papers.made)).toHaveText(["2", "Bina", "Easy", "to approve"]);
-  await expect(cells(papers.signed)).toHaveText(["2", "Bina", "Hard", "done", "1 of 2"]);
+  // the steps of each, in the order the school does them (a class paper has no approval step; a home one starts at it)
+  const steps = (p: Paper) => row(page, p).locator("[data-status]").evaluateAll((es) => es.map((e) => e.getAttribute("data-status")));
+  await expect(cells(papers.made).nth(1)).toHaveText("Bina");
+  await expect(cells(papers.made).nth(2)).toHaveText("Easy");
+  expect(await steps(papers.made)).toEqual(["done", "next", "notYet", "notYet", "notYet", "notYet"]);
+  await expect(cells(papers.signed).nth(2)).toHaveText("Hard");
+  expect(await steps(papers.signed)).toEqual(["done", "done", "done", "done", "done", "done"]);
+  await expect(row(page, papers.signed)).toContainText("1 of 2");
   await page.goto(`/papers?class=${SECTION}&child=${kids.Asha}`);
   await expect(page.locator("tbody tr[data-paper]")).toHaveCount(2);
-  await expect(cells(papers.printed)).toHaveText(["1", "Asha", "with the children"]);
-  await expect(cells(papers.scanned)).toHaveText(["1", "Asha", "to check", "1"]);
+  await expect(cells(papers.printed).nth(1)).toHaveText("Asha");
+  expect(await steps(papers.printed)).toEqual(["done", "done", "done", "next", "notYet", "notYet", "notYet"]);
+  await expect(cells(papers.scanned).nth(1)).toHaveText("Asha");
+  expect(await steps(papers.scanned)).toEqual(["done", "done", "done", "done", "toCheck", "notYet"]);
+  await expect(row(page, papers.scanned).locator("[data-action=check]")).toHaveText("Check 1 answer");
   // in the school's words: no rung, skill or mistake code reaches a teacher
   await expect(page.getByRole("region", { name: "Papers" })).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z0-9]+)\b/);
 
   // the status is a filter in the one filter row, and its choice shows as a filter that is on
   await page.goto(`/papers?class=${SECTION}`);
   const filters = page.locator("[data-filterbar]");
-  await filters.locator('select[name="stage"]').selectOption("scanned");
-  await expect(page).toHaveURL(/stage=scanned/);
+  await filters.locator('select[name="status"]').selectOption("check");
+  await expect(page).toHaveURL(/status=check/);
   await expect(page).toHaveURL(new RegExp(`class=${SECTION}`));
   await expect(lines).toHaveCount(1);
   await expect(lines).toContainText("U9 September paper");
@@ -156,7 +165,7 @@ test("one Assessments in the menu for marking and making, and a row opens the pa
   await expect(menu.getByRole("link", { name: "Make papers" })).toHaveCount(0);
   // making, reading a scan and the queue of answers to check are all here
   await expect(page.getByRole("region", { name: "Make an assessment" }).getByRole("link", { name: /^For a class/ })).toHaveAttribute("href", /^\/papers\/make\?/);
-  await expect(page.getByRole("region", { name: "Read a scan" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Read an assessment" })).toBeVisible();
   await expect(page.getByRole("link", { name: /answers? to check/ })).toHaveAttribute("href", "/capture/check");
   // the pages it merged are still Assessments
   for (const path of ["/make"]) {

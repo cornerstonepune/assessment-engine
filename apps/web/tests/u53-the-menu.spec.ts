@@ -25,11 +25,14 @@ test("the menu lists the week's steps in order, then the setup apart, and each p
   const names = (await menu.getByRole("link").allInnerTexts()).map((n) => n.replace(/\s*\d[\d,]*$/, "").trim());
   expect(names).toEqual([...WEEK, ...SETUP].map(([, label]) => label));
   await expect(menu.locator("[data-nav-group]")).toHaveText(["This week", "Setup"]);
+  // Papers to approve is no page of its own: its address opens Assessments, filtered to what waits for approval
+  const MOVED: Record<string, string> = { "/papers/approve": "Assessments" };
   for (const [path, label] of [...WEEK, ...SETUP]) {
     await page.goto(path);
-    await expect(menu.locator("[aria-current=page]"), path).toHaveText(new RegExp(`^${label}`));
+    const here = MOVED[path] ?? label;
+    await expect(menu.locator("[aria-current=page]"), path).toHaveText(new RegExp(`^${here}`));
     // the page says the same words in its title, above it, or in its stage line
-    await expect(page.getByTestId("stage"), path).toContainText(label);
+    await expect(page.getByTestId("stage"), path).toContainText(here);
   }
 });
 

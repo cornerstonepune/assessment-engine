@@ -80,6 +80,8 @@ export type PaperListRow = {
   scored: number;
   /** Of `scored`, the answers left blank. */
   blank: number;
+  /** Answers the reader found on it; none while a scan is in but not yet read. */
+  answers: number;
   /** A copy never handed back beside another copy of the same child's, which is read: said apart, not a second child. */
   extra: boolean;
 };
@@ -106,7 +108,7 @@ export const papersCte = () => sql`
                 when a.n = 0 or a.waiting > 0 then 'scanned'
                 when a.candidate > 0 then 'checked'
                 else 'signed off' end as stage,
-           a.waiting, a.right, a.scored, a.blank,
+           a.waiting, a.right, a.scored, a.blank, a.n as answers,
            -- one assessment (goals/ui5-assessments-readable.yaml): a kind of paper given to a class in a week on one
            -- skill set (each child a worksheet of its own, the same skill) or on one worksheet; a class's home
            -- assessments and chosen papers for a week are one assessment, each child's drawn for them
@@ -201,7 +203,7 @@ export async function paperList(
       where c.id in (select child_id from shown where child_id is not null)
     )
     select s.id, s.qr, s.kind, s.title, s.section, s.band, s.child_id, names.first_name as child, s.roll_no, s.level,
-           s.set_key as set, s.spare, s.extra, s.week, s.stage, s.waiting, s.right, s.scored, s.blank
+           s.set_key as set, s.spare, s.extra, s.week, s.stage, s.waiting, s.right, s.scored, s.blank, s.answers
     from shown s left join names on names.id = s.child_id
     order by ${order === "roll" ? sql`s.roll_no is null, roll_order(s.roll_no), s.roll_no, s.qr` : sql`s.day desc nulls last, s.created_at desc, s.section, s.qr`}`;
   return { rows: rows.slice(0, LIMIT), more: rows.length > LIMIT };
@@ -261,6 +263,14 @@ export type AssessmentRow = {
   waiting: number;
   right: number;
   scored: number;
+  /** Its copies in, with no answer found on them yet. */
+  unread: number;
+  /** The day it was made (the newest of its copies). */
+  day: string | null;
+  /** The levels its copies are at: one where every child has the same. */
+  levels: string[];
+  /** The first of its copies waiting to be signed off, where its row's action opens. */
+  signId: string | null;
 };
 
 /** The assessments a filter leaves (goals/ui5-assessments-readable.yaml), newest first, at most 300: each a kind of
@@ -283,7 +293,9 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
                               'checked', count(*) filter (where stage = 'checked'),
                               'signed off', count(*) filter (where stage = 'signed off'),
                               'replaced', count(*) filter (where stage = 'replaced')) as by,
-           sum(waiting)::int as waiting,
+           sum(waiting)::int as waiting, count(*) filter (where stage = 'scanned' and answers = 0)::int as unread, max(day) as day,
+           coalesce(array_agg(distinct level) filter (where level is not null and not spare), '{}') as levels,
+           (array_agg(id order by roll_order(roll_no), qr) filter (where stage = 'checked'))[1] as "signId",
            coalesce(sum("right") filter (where stage in ('checked', 'signed off')), 0)::int as "right",
            coalesce(sum(scored) filter (where stage in ('checked', 'signed off')), 0)::int as scored
     from papers where ${narrowed(f, scope)} and (${stage}::text is null or stage = ${stage})

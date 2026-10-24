@@ -69,6 +69,13 @@ test("at Made the card shows each child's proposed paper and opens the place to 
 test("the upload box is at the top of the card, Assessments and Marking", async ({ page }) => {
   for (const path of [card("practice"), "/papers", "/capture"]) {
     await page.goto(path);
+    if (path === "/papers") {
+      // Assessments: the upload box is one of its two blocks above the list (goals/asm_assessments_page.yaml)
+      const block = page.getByRole("region", { name: "Read an assessment" });
+      await expect(block.locator("input[type=file]")).toHaveCount(1);
+      await expect(block.getByText("Choose scans or drop them here")).toBeVisible();
+      continue;
+    }
     // the page itself, past its loading screen, and the upload box drawn on it
     const box = page.getByText("Choose scans or drop them here").first();
     await expect(box, path).toBeVisible();

@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
 import { FilterBar } from "@/components/filter-bar";
 import Link from "@/components/link";
@@ -22,6 +23,8 @@ export default async function ApprovePage({ searchParams }: Props) {
   const me = await requireStaff();
   const scope = scopeOf(me);
   const q = await searchParams;
+  // Papers to approve is no page of its own now: it is Assessments, filtered to what waits for approval
+  if (!q.section) redirect("/papers?status=approve");
   // a class asked for by name is listed whoever asks: every class is every member of staff's (goals/ux9c-one-role.yaml)
   const all = await deadline(weeks(q.section ? reachOf(me) : scope));
   // a link to a class's week that is not on the list (another educator's class, or a week with nothing made) says so,

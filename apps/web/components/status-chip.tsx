@@ -29,6 +29,8 @@ export const STATES = {
   approved: { tone: "ok", words: "approved" },
   taught: { tone: "ok", words: "taught" },
   notTaught: { tone: "quiet", words: "not taught yet" },
+  next: { tone: "wait", words: "next" },
+  notYet: { tone: "quiet", words: "not yet" },
 } as const;
 export type State = keyof typeof STATES;
 export type Tone = (typeof STATES)[State]["tone"];
@@ -65,10 +67,10 @@ function Icon({ tone }: { tone: Tone }) {
   );
 }
 
-export function StatusChip({ state, note, words }: { state: State; note?: string; words?: string }) {
+export function StatusChip({ state, note, words, compact }: { state: State; note?: string; words?: string; compact?: boolean }) {
   const s = STATES[state];
   return (
-    <span data-status={state} data-tone={s.tone} className={`inline-flex items-center gap-[5px] border px-[9px] py-[3px] text-[12px] whitespace-nowrap ${TONE_CLASS[s.tone]}`}>
+    <span data-status={state} data-tone={s.tone} className={`inline-flex items-center border py-[3px] whitespace-nowrap ${compact ? "gap-[4px] px-[6px] text-[11.5px]" : "gap-[5px] px-[9px] text-[12px]"} ${TONE_CLASS[s.tone]}`}>
       <Icon tone={s.tone} />
       {words ?? s.words}
       {note ? ` · ${note}` : ""}
