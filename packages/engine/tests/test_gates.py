@@ -65,8 +65,10 @@ def test_a_goal_criterion_that_runs_pytest_quietly_can_pass():
 def test_ci_runs_every_browser_test_on_a_fresh_database_with_none_skipped():
     """29 browser spec files ran on a laptop against a copy of live, never in CI, and some leaned on live's classes
     (code review, 2026-09-30; goals/p1-browser-tests-in-ci.yaml)."""
-    runs = _runs("browser")
-    assert 'bin/testdb fresh "$DATABASE_URL"' in runs, "the browser job does not build its own database"
+    runs = _runs("browser-shard")
+    assert [r for r in runs if 'bin/testdb fresh "$DATABASE_URL"' in r], (
+        "the browser job does not build its own database"
+    )
     (suite,) = [r for r in runs if r.startswith("npx playwright test")]
     assert "--grep" not in suite and "json" in suite, (
         f"not the whole suite, or no report to count skips in: {suite}"
@@ -83,7 +85,7 @@ def test_a_browser_test_that_fails_is_run_once_more_in_ci_and_flaky_ones_are_lis
     config = (db.REPO_ROOT / "apps" / "web" / "playwright.config.ts").read_text()
     assert "retries: retriesFor(process.env.CI)" in config
     assert "(ci ? 1 : 0)" in (db.REPO_ROOT / "apps" / "web" / "tests" / "retries.ts").read_text()
-    runs = _runs("browser")
+    runs = _runs("browser-shard")
     assert "bin/ci-flaky-summary apps/web/results.json" in runs, "the flaky tests are not listed in the job"
     (check,) = [r for r in runs if "results.json" in r and "process.exit(1)" in r]
     assert "s.skipped || s.unexpected" in check and "flaky" not in check, check
@@ -107,12 +109,12 @@ def test_ci_runs_every_browser_test_as_the_services_own_roles():
     """A role's grants are wide enough only if its service works as it: CI gives both roles a password for the run and
     starts the website and the engine as them, while each spec writes its own rows as the owner
     (goals/p1-the-roles-hold.yaml)."""
-    runs = _runs("browser")
-    built = next(i for i, r in enumerate(runs) if r.startswith("bin/testdb fresh"))
+    runs = _runs("browser-shard")
+    built = next(i for i, r in enumerate(runs) if "bin/testdb fresh" in r)
     (given,) = [i for i, r in enumerate(runs) if "alter role app_web password" in r]
     (suite,) = [i for i, r in enumerate(runs) if r.startswith("npx playwright test")]
     assert built < given < suite and "alter role app_engine password" in runs[given]
-    env = CI["jobs"]["browser"]["steps"][suite].get("env", {})
+    env = CI["jobs"]["browser-shard"]["steps"][suite].get("env", {})
     assert env.get("TEST_WEB_DATABASE_URL", "").startswith("postgresql://app_web:"), env
     assert env.get("TEST_ENGINE_DATABASE_URL", "").startswith("postgresql://app_engine:"), env
     config = (db.REPO_ROOT / "apps" / "web" / "playwright.config.ts").read_text()

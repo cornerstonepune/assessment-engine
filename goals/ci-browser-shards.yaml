@@ -1,0 +1,30 @@
+name: ci-browser-shards
+goal: >
+  The browser tests run on three runners instead of one, each with its own database and servers, and each runner
+  builds its database while it installs its browsers rather than after, so the browser part of CI on a pull request
+  finishes in about half the 24 minutes one runner took (2026-10-23: 6 installing Chromium, 4 building the database,
+  14 running the tests, one after another). The same tests run, each exactly once: CI fails if a browser test drops out
+  of every shard, runs in two, is skipped, or fails twice. Deploys still wait on one "browser" result.
+# Written 2026-10-23, before the workflow changed. Nimish said "Yes, do that" to speeding up this repository's checks the
+# same day, after the step timings above were measured on a passing pull request run.
+says:
+  - words: "every PR that gets generated takes half an hour, one hour, or one and a half hours just to get to the stage of merging"
+    proved_by: "packages/engine/tests/test_ci_browser_check.py::test_a_full_clean_split_passes"
+  - words: "every PR that gets generated takes half an hour, one hour, or one and a half hours just to get to the stage of merging"
+    proved_by: "packages/engine/tests/test_ci_browser_check.py::test_the_check_fails_when_a_browser_test_ran_in_no_shard"
+  - words: "every PR that gets generated takes half an hour, one hour, or one and a half hours just to get to the stage of merging"
+    proved_by: "packages/engine/tests/test_ci_browser_check.py::test_the_check_fails_when_a_browser_test_ran_in_two_shards"
+  - words: "every PR that gets generated takes half an hour, one hour, or one and a half hours just to get to the stage of merging"
+    proved_by: "packages/engine/tests/test_ci_browser_check.py::test_the_check_fails_when_a_browser_test_was_skipped_or_failed_twice"
+  - words: "every PR that gets generated takes half an hour, one hour, or one and a half hours just to get to the stage of merging"
+    proved_by: "packages/engine/tests/test_ci_browser_check.py::test_the_check_fails_when_the_list_is_empty"
+manual:
+  - "On the pull request's CI run: the three browser shards and the browser job end within 14 minutes of the run starting, and the browser job prints \"every one of the N browser tests ran once across 3 shards\" with N the suite's count."
+scenarios: []
+criteria:
+  - name: the browser cut's check
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_ci_browser_check.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

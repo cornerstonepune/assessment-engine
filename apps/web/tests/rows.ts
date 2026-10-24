@@ -49,6 +49,11 @@ export async function aClass(sql: Sql, section: string, band: string, names: str
   return kids;
 }
 
+/** The class a topic switched on is taught in. A fresh copy has none (`bin/testdb fresh`), and a spec that shows a
+ *  taught topic's questions makes its own rather than lean on a spec that ran before it: CI splits the specs across
+ *  runners. The same class m5-every-kind-draws makes, so a full run's rows are as they were. */
+export const aTaughtClass = (sql: Sql) => aClass(sql, "M5-TEST", "G2", ["Asha"]);
+
 export type Worksheet = { code: string; title: string; date: string; band: string; week: string; items: object[] };
 
 /** A worksheet entered by the engine exactly as a school's own paper is (`engine legacy paper`), once.

@@ -8,6 +8,7 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { aTaughtClass } from "./rows";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 
@@ -19,6 +20,10 @@ const KINDS: { fmt: string; set: string; label: string; shows: RegExp; drawn?: R
   { fmt: "lattice", set: "MUL.2D2D", label: "lattice", shows: /= ___/, drawn: /^lattice for \d+ × \d+$/ },
 ];
 const CODE = /\bM_[A-Z_]+\b|\b[A-Z]{2,}\.[A-Z0-9_.]+\b/;
+
+test.beforeAll(async () => {
+  await aTaughtClass(sql);
+});
 
 test.afterAll(async () => {
   await sql.end();

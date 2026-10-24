@@ -3,6 +3,13 @@
 Read `BUILD-ORDER.md` first: it says which step we are on and what "done" means. Then `STATE.md` for what
 is verified. This file only says where the last session stopped.
 
+## 2026-10-23 — CI: the browser tests on three runners (goals/ci-browser-shards.yaml); branch `ci-fast-lane`, not merged
+- **Why:** the browser job was CI's longest at 24 minutes (6 installing Chromium, 4 building the database, 14 testing,
+  in a line). It is now `browser-shard` 1-3 by Playwright's `--shard`, each building its database beside its installs,
+  plus a `browser` job that holds the one result and runs `bin/ci-browser-check` (every listed test ran in one shard).
+- **Proved here:** `engine goal ci-browser-shards` 2/2. **Not yet proved:** the manual line, timed on the PR's own run.
+- **Next:** Nimish merges once the PR's CI shows the browser part within 14 minutes.
+
 ## 2026-10-21 — B0d (W1, gate 3): a child's states and the subject are read from rows; PR #231, not deployed
 - **On `claude/b0d-states-and-subject`** (STATE.md "B0d", ADR 0086, migration 20261122090000): every rule about a state
   is a column of `child_state`; each colour's words are `state_colour` rows; a subject has a `label` ("Maths").
