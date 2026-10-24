@@ -48,6 +48,25 @@ export async function saveWords(formData: FormData): Promise<void> {
   redirect(`/skill-sets/${code}?saved=1`);
 }
 
+/** The time a page was drawn (`openedAt`), as its approval form carried it; none from a form that carried none. */
+function openedOf(formData: FormData): string | null {
+  const opened = String(formData.get("opened") ?? "");
+  if (opened && Number.isNaN(Date.parse(opened))) redirect("/");
+  return opened || null;
+}
+
+/** A skill — one level of it, given `level` — none of whose samples or kinds changed after the page was drawn: an
+ *  approval lands only on what the approver read (goals/edt_edit_samples_and_kinds.yaml). `::text` first: bound as a
+ *  time, postgres.js keeps milliseconds only, and a change in the page's own millisecond would look later than it. */
+function unchangedSince(code: ReturnType<typeof sql>, opened: string | null, level?: string) {
+  if (!opened) return sql`true`;
+  const at = level ? sql`and x.difficulty = ${level}` : sql``;
+  return sql`not exists (
+    select 1 from (select skill_code, difficulty, created_at from english_sample_edit
+                   union all select skill_code, difficulty, created_at from skill_level_kind_change) x
+    where x.skill_code = ${code} ${at} and x.created_at > ${opened}::text::timestamptz)`;
+}
+
 /** A named person approves skills exactly as they read them — one from its own page, or every
  *  waiting skill from the approval page. Only skills still waiting are touched: an approval never
  *  lands on words changed since the page was opened, because a change sets the skill back to
@@ -68,11 +87,7 @@ export async function approveSkills(formData: FormData): Promise<void> {
   }
   const onlyTable = !shown.length && typeof formData.get("charges_table") === "string";
   if ((!shown.length && !onlyTable) || versions.length !== shown.length || versions.some((v) => !Number.isInteger(v))) redirect("/");
-  // the samples and kinds as the page showed them (goals/edt_edit_samples_and_kinds.yaml): a skill one of whose levels
-  // changed after the page was drawn keeps waiting; text first, as postgres.js keeps a time to the millisecond only
-  const opened = String(formData.get("opened") ?? "");
-  if (opened && Number.isNaN(Date.parse(opened))) redirect("/");
-  const since = opened || "infinity";
+  const opened = openedOf(formData);
   const approved = await sql<{ code: string }[]>`
     update skill s
     set level_approved = (select jsonb_object_agg(k, jsonb_build_object('by', ${me.name}::text, 'at', now()))
@@ -80,9 +95,7 @@ export async function approveSkills(formData: FormData): Promise<void> {
         updated_at = now()
     from unnest(${shown}::text[], ${versions}::int[]) as v(code, version)
     where s.code = v.code and s.version = v.version and s.status = 'draft'
-      and not exists (select 1 from english_sample_edit e where e.skill_code = s.code and e.created_at > ${since}::text::timestamptz)
-      and not exists (select 1 from skill_level_kind_change c where c.skill_code = s.code
-                        and c.created_at > ${since}::text::timestamptz)
+      and ${unchangedSince(sql`s.code`, opened)}
     returning s.code`;
   // The table of what a mistake charges, approved exactly as the page showed it: if it changed since,
   // the update matches nothing and it keeps waiting. `::text` first: postgres.js sends a string it
@@ -141,21 +154,14 @@ export async function approveLevel(formData: FormData): Promise<void> {
   const code = String(formData.get("code") ?? "");
   const version = Number(formData.get("version"));
   const level = String(formData.get("level") ?? "");
-  const seen = String(formData.get("seen") ?? "");
   if (!CODE.test(code) || !Number.isInteger(version) || !(await schoolLevels()).order.includes(level)) redirect("/");
-  if (seen && Number.isNaN(Date.parse(seen))) redirect("/");
-  // the samples and kinds as the page showed them (goals/edt_edit_samples_and_kinds.yaml): one changed since keeps waiting.
-  // `::text` first: bound as a time, postgres.js keeps milliseconds only, and the newest edit would look newer than itself
-  const after = seen || "-infinity";
+  const opened = openedOf(formData);
   const done = await sql`
     update skill set level_approved = level_approved || jsonb_build_object(${level}::text,
                            jsonb_build_object('by', ${me.name}::text, 'at', now())),
                          updated_at = now()
     where code = ${code} and version = ${version} and difficulty ? ${level}
-      and not exists (select 1 from english_sample_edit e where e.skill_code = ${code} and e.difficulty = ${level}
-                        and e.created_at > ${after}::text::timestamptz)
-      and not exists (select 1 from skill_level_kind_change c where c.skill_code = ${code} and c.difficulty = ${level}
-                        and c.created_at > ${after}::text::timestamptz)
+      and ${unchangedSince(sql`${code}`, opened, level)}
     returning 1`;
   revalidatePath("/");
   revalidatePath(`/skill-sets/${code}`);

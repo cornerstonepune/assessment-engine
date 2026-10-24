@@ -6,7 +6,7 @@ import { dateWords } from "@/lib/week";
 /** One level's approval on its card (goals/f1d-questions-approved-per-level.yaml): who approved its questions and when,
  *  or — for the coordinator — the button that approves this level alone; an educator reads who it waits for. A level whose
  *  samples changed after the page was opened keeps waiting (goals/edt_edit_samples_and_kinds.yaml). */
-export function LevelApproval({ s, d, mayApprove, seen }: { s: SkillSet; d: Difficulty; mayApprove: boolean; seen?: string }) {
+export function LevelApproval({ s, d, mayApprove, opened }: { s: SkillSet; d: Difficulty; mayApprove: boolean; opened?: string }) {
   const done = s.approved?.[d];
   if (done) {
     return (
@@ -20,8 +20,8 @@ export function LevelApproval({ s, d, mayApprove, seen }: { s: SkillSet; d: Diff
     <form action={approveLevel} className="flex flex-wrap items-center gap-2">
       <Pill tone="bamboo">Waiting for approval</Pill>
       <input type="hidden" name="code" value={s.code} />
-      {/* the samples and kinds as this page showed them: an approval lands only if none changed since */}
-      <input type="hidden" name="seen" value={seen ?? ""} />
+      {/* when this page was drawn: an approval lands only if the level's samples and kinds did not change since */}
+      <input type="hidden" name="opened" value={opened ?? ""} />
       <input type="hidden" name="version" value={s.version} />
       <input type="hidden" name="level" value={d} />
       <button className="btn" type="submit">

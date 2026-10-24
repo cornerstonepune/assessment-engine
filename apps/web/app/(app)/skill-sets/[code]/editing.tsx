@@ -23,7 +23,7 @@ export function EnglishLevel(p: {
   samples: SampleRow[];
   editing: Editor;
   mayApprove: boolean;
-  seen?: string;
+  opened: string;
 }) {
   const { s, level, editing } = p;
   return (
@@ -34,7 +34,7 @@ export function EnglishLevel(p: {
         <LevelWays ways={p.ways} level={level} />
       )}
       <LevelSamples samples={p.samples} level={level} editing={editing} />
-      <LevelApproval s={s} d={level} mayApprove={p.mayApprove} seen={p.seen} />
+      <LevelApproval s={s} d={level} mayApprove={p.mayApprove} opened={p.opened} />
     </>
   );
 }
@@ -86,19 +86,23 @@ export async function editingOf(
   code: string,
   q: Record<string, string | undefined>,
 ): Promise<NonNullable<Editing> & { adding: { level: string; kind: string; need: number } | null }> {
-  const choices = await sampleChoices(code);
   const [level, kind, ord] = (q.edit ?? "").split("~");
-  let start: SampleInitial | null = null;
-  if (level && kind && /^\d+$/.test(ord ?? "")) {
+  const [addLevel, addKind] = (q.addkind ?? "").split("~");
+  const form = async (): Promise<SampleInitial | null> => {
+    if (!level || !kind || !/^\d+$/.test(ord ?? "")) return null;
     const res = await engineGet(
       `/skill/${code}/sample/form?level=${encodeURIComponent(level)}&kind=${encodeURIComponent(kind)}&ord=${ord}`,
     ).catch(() => null);
-    start = res?.ok ? ((await res.json()) as SampleInitial) : null;
-  }
-  const [addLevel, addKind] = (q.addkind ?? "").split("~");
+    return res?.ok ? ((await res.json()) as SampleInitial) : null;
+  };
+  const [choices, start, held] = await Promise.all([
+    sampleChoices(code),
+    form(),
+    addLevel && addKind ? sampleCount(code, addLevel, addKind) : 0,
+  ]);
   const adding =
     addLevel && addKind && choices.kinds.some((k) => k.code === addKind)
-      ? { level: addLevel, kind: addKind, need: Math.max(0, choices.few - (await sampleCount(code, addLevel, addKind))) }
+      ? { level: addLevel, kind: addKind, need: Math.max(0, choices.few - held) }
       : null;
   return { code, open: q.edit ?? null, start, choices, adding };
 }

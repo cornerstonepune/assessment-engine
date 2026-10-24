@@ -9,15 +9,12 @@ copied words are in the text; punctuating keeps the words.
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from engine.w1_bank import english_words as ew
 
 if TYPE_CHECKING:
-    from engine.w1_bank.english_check import Context
-
-Sample = dict[str, Any]
-Faults = dict[str, list[str]]
+    from engine.w1_bank.english_check import Context, Faults, Sample
 
 
 def _is_order(w: str, items: list[str]) -> bool:

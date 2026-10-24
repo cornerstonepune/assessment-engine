@@ -11,6 +11,7 @@ is approved and has three samples that pass. A Maths skill has no samples here: 
 
 import json
 import secrets
+from dataclasses import replace
 from typing import Any
 
 from engine.core import db, english, settings
@@ -84,8 +85,9 @@ def level_kinds(conn: db.Conn, code: str, level: str) -> list[str]:
     ]
 
 
-def _context(conn: db.Conn, code: str, level: str, kind: str, passage: str) -> english_check.Context | None:
-    """What a sample of this level and kind is checked against; None when the skill has no such level or no such kind."""
+def _context(conn: db.Conn, code: str, level: str, kind: str) -> english_check.Context | None:
+    """What a sample of this level and kind is checked against (its passage aside); None when the skill has no such
+    level or no such kind."""
     row = conn.execute(
         "select l.rule, 'open_response' = any(q.marked) as open,"
         " coalesce((select jsonb_object_agg(m.code, m.name) from skill_mistake k join misconception m"
@@ -99,22 +101,19 @@ def _context(conn: db.Conn, code: str, level: str, kind: str, passage: str) -> e
     if row is None:
         return None
     return english_check.Context(
-        open=row["open"],
-        mistakes=row["mistakes"],
-        rule=row["rule"],
-        rubrics=set(row["rubrics"]),
-        passage=passage,
+        open=row["open"], mistakes=row["mistakes"], rule=row["rule"], rubrics=set(row["rubrics"])
     )
 
 
-def _passage(conn: db.Conn, code: str | None, title: str | None, text: str | None) -> tuple[str | None, str]:
-    """(the passage's code, its text): one loaded, or the one the educator wrote (stored when the sample is)."""
-    if text and text.strip():
-        return None, text.strip()
-    if not code:
-        return None, ""
-    row = conn.execute("select text from passage where code = %s", (code,)).fetchone()
-    return (code, row["text"]) if row else (None, "")
+def _written(one: dict[str, Any]) -> tuple[str, str] | None:
+    """(title, text) of a passage the educator wrote on the form, or None."""
+    text = (one.get("passage_text") or "").strip()
+    return ((one.get("passage_title") or "").strip(), text) if text else None
+
+
+def _passage_text(conn: db.Conn, code: str | None) -> str:
+    row = conn.execute("select text from passage where code = %s", (code,)).fetchone() if code else None
+    return row["text"] if row else ""
 
 
 def _withdraw(conn: db.Conn, code: str, level: str) -> None:
@@ -125,7 +124,9 @@ def _withdraw(conn: db.Conn, code: str, level: str) -> None:
     )
 
 
-def _checked(conn: db.Conn, code: str, level: str, kind: str, one: dict[str, Any]) -> tuple[dict, dict]:
+def _checked(
+    conn: db.Conn, context: english_check.Context, kind: str, one: dict[str, Any]
+) -> tuple[dict, dict]:
     """(the sample as it would be stored, its faults) for one sample as the form sent it."""
     s = english_form.from_form(kind, one.get("fields") or {})
     # every row of the form, empty ones too, so a fault is numbered as the form numbers its rows; stored without them
@@ -133,52 +134,53 @@ def _checked(conn: db.Conn, code: str, level: str, kind: str, one: dict[str, Any
         {"answer": (w.get("answer") or "").strip(), "mistake_code": w.get("mistake_code") or ""}
         for w in one.get("wrong") or []
     ]
-    passage_code, passage_text = _passage(
-        conn, one.get("passage_code"), one.get("passage_title"), one.get("passage_text")
-    )
-    s["passage_code"] = passage_code
+    written = _written(one)
+    s["passage_code"] = None if written else (one.get("passage_code") or None)
     s["rubric_code"] = one.get("rubric_code") or None
-    context = _context(conn, code, level, kind, passage_text)
-    if context is None:
-        return s, {"skill": ["This skill has no such level or kind of question."]}
+    passage = written[1] if written else _passage_text(conn, s["passage_code"])
+    if s["passage_code"] and not passage:
+        s["passage_code"] = None
     try:
-        faults = english_check.faults(s, context)
+        faults = english_check.faults(s, replace(context, passage=passage))
     except english_words.NoDictionary:
         return s, {
             "skill": [
                 "The spelling list could not be read just now, so nothing was saved. Try again in a minute."
             ]
         }
-    if one.get("passage_text") and not (one.get("passage_title") or "").strip():
+    if written and not written[0]:
         faults.setdefault("passage", []).append("Give the passage you wrote a title.")
     return s, faults
 
 
-def _store(conn: db.Conn, code: str, level: str, kind: str, ord: int, s: dict, one: dict, by: str) -> None:
-    t = _tenant(conn)
-    if (one.get("passage_text") or "").strip():
+def _snapshot(row: dict[str, Any] | None) -> str | None:
+    return json.dumps({k: row[k] for k in (*COLUMNS, "wrong")}) if row else None
+
+
+def _ledger(
+    conn: db.Conn, t: db.Id, slot: tuple[str, str, str, int], by: str, sample: dict | None, was: dict | None
+) -> None:
+    """One version of one sample: the sample as saved, or none for a removal; what it replaced; who."""
+    conn.execute(
+        "insert into english_sample_edit (tenant_id, skill_code, difficulty, question_type, ord, removed, sample,"
+        " replaced, edited_by) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (t, *slot, sample is None, json.dumps(sample) if sample else None, _snapshot(was), by),
+    )
+
+
+def _store(
+    conn: db.Conn, t: db.Id, slot: tuple[str, str, str, int], s: dict, one: dict, by: str, was: dict | None
+) -> None:
+    code = slot[0]
+    if written := _written(one):
         s["passage_code"] = f"P.ED.{code}.{secrets.token_hex(3)}"
         conn.execute(
             "insert into passage (tenant_id, code, grade, kind, title, text)"
             " select %s, %s, s.grade, 'written by an educator', %s, %s from skill s where s.code = %s",
-            (t, s["passage_code"], one["passage_title"].strip(), one["passage_text"].strip(), code),
+            (t, s["passage_code"], *written, code),
         )
-    was = current(conn, code, level, kind, ord)
     keep = {k: s.get(k) for k in COLUMNS} | {"wrong": [w for w in s["wrong"] if w["answer"]]}
-    conn.execute(
-        "insert into english_sample_edit (tenant_id, skill_code, difficulty, question_type, ord, sample, replaced, edited_by)"
-        " values (%s, %s, %s, %s, %s, %s, %s, %s)",
-        (
-            t,
-            code,
-            level,
-            kind,
-            ord,
-            json.dumps(keep),
-            json.dumps({k: was[k] for k in (*COLUMNS, "wrong")}) if was else None,
-            by,
-        ),
-    )
+    _ledger(conn, t, slot, by, keep, was)
 
 
 def _next_ord(conn: db.Conn, code: str, level: str, kind: str) -> int:
@@ -195,30 +197,26 @@ def save(
     conn: db.Conn, code: str, level: str, kind: str, ord: int | None, by: str, **one: Any
 ) -> dict[str, Any]:
     """One sample saved: changed where `ord` names one, added where it is None. {saved, ord, faults}."""
-    if not _is_english(conn, code):
-        return {
-            "saved": False,
-            "ord": ord,
-            "faults": {"skill": ["A Maths skill's questions are made by code, not edited here."]},
-        }
-    if kind not in level_kinds(conn, code, level):
-        return {
-            "saved": False,
-            "ord": ord,
-            "faults": {"skill": ["This level does not ask that kind of question."]},
-        }
-    _hold(conn, code, level, kind)
-    if ord is not None and not current(conn, code, level, kind, ord):
-        return {
-            "saved": False,
-            "ord": ord,
-            "faults": {"skill": ["That sample is not on this level any more."]},
-        }
-    s, faults = _checked(conn, code, level, kind, one)
-    if faults:
+
+    def refuse(faults: dict[str, list[str]]) -> dict[str, Any]:
         return {"saved": False, "ord": ord, "faults": faults}
+
+    if not _is_english(conn, code):
+        return refuse({"skill": ["A Maths skill's questions are made by code, not edited here."]})
+    if kind not in level_kinds(conn, code, level):
+        return refuse({"skill": ["This level does not ask that kind of question."]})
+    _hold(conn, code, level, kind)
+    was = current(conn, code, level, kind, ord) if ord is not None else None
+    if ord is not None and not was:
+        return refuse({"skill": ["That sample is not on this level any more."]})
+    context = _context(conn, code, level, kind)
+    if context is None:
+        return refuse({"skill": ["This skill has no such level or kind of question."]})
+    s, faults = _checked(conn, context, kind, one)
+    if faults:
+        return refuse(faults)
     ord = ord or _next_ord(conn, code, level, kind)
-    _store(conn, code, level, kind, ord, s, one, by)
+    _store(conn, _tenant(conn), (code, level, kind, ord), s, one, by, was)
     _withdraw(conn, code, level)
     return {"saved": True, "ord": ord, "faults": {}}
 
@@ -229,29 +227,20 @@ def remove(conn: db.Conn, code: str, level: str, kind: str, ord: int, by: str) -
     if not was or not _is_english(conn, code):
         return {"removed": False, "why": "That sample is not on this level any more."}
     _hold(conn, code, level, kind)
-    if _count(conn, code, level, kind) <= few(conn):
+    if _count(conn, code, level, kind) <= (n := few(conn)):
         return {
             "removed": False,
-            "why": f"A level keeps at least {_said(few(conn))} samples of each kind it asks; add one first.",
+            "why": f"A level keeps at least {_said(n)} samples of each kind it asks; add one first.",
         }
-    conn.execute(
-        "insert into english_sample_edit (tenant_id, skill_code, difficulty, question_type, ord, removed, replaced,"
-        " edited_by) values (%s, %s, %s, %s, %s, true, %s, %s)",
-        (_tenant(conn), code, level, kind, ord, json.dumps({k: was[k] for k in (*COLUMNS, "wrong")}), by),
-    )
+    _ledger(conn, _tenant(conn), (code, level, kind, ord), by, None, was)
     _withdraw(conn, code, level)
     return {"removed": True, "why": ""}
 
 
 def approved_kinds(conn: db.Conn) -> list[dict[str, Any]]:
-    """The kinds an English level may ask: approved once, on a paper or read aloud (not observed), and asked by some
-    English level, so a level is offered only what English papers carry. The website offers the same list."""
+    """The kinds an English level may be given (`level_kind_choice`, which the website offers from too)."""
     return conn.execute(
-        "select q.code, q.words from question_type q join question_type_approval a on a.tenant_id = q.tenant_id"
-        " and a.question_type = q.code where q.reaches <> 'observed' and exists (select 1 from skill_level_question_type l"
-        " join skill s on s.tenant_id = l.tenant_id and s.code = l.skill_code join topic t on t.tenant_id = s.tenant_id"
-        " and t.code = s.topic_code where l.question_type = q.code and t.subject_code = %s) order by q.words",
-        (english.SUBJECT,),
+        "select code, words from level_kind_choice where subject_code = %s order by words", (english.SUBJECT,)
     ).fetchall()
 
 
@@ -265,33 +254,29 @@ def _kind_changed(conn: db.Conn, code: str, level: str, kind: str, added: bool, 
 
 def add_kind(conn: db.Conn, code: str, level: str, kind: str, samples: list[dict], by: str) -> dict[str, Any]:
     """A kind added to a level, with the samples it needs to have three that pass. {saved, why, faults per sample}."""
+
+    def refuse(why: str, faults: list | None = None) -> dict[str, Any]:
+        return {"saved": False, "why": why, "faults": faults or []}
+
     if not _is_english(conn, code):
-        return {
-            "saved": False,
-            "why": "A Maths skill's kinds follow its questions, which code makes.",
-            "faults": [],
-        }
+        return refuse("A Maths skill's kinds follow its questions, which code makes.")
     if kind not in {k["code"] for k in approved_kinds(conn)}:
-        return {
-            "saved": False,
-            "why": "Only a kind of question that has been approved can be added.",
-            "faults": [],
-        }
+        return refuse("Only a kind of question that has been approved can be added.")
     if kind in level_kinds(conn, code, level):
-        return {"saved": False, "why": "This level already asks that kind.", "faults": []}
+        return refuse("This level already asks that kind.")
+    context = _context(conn, code, level, kind)
+    if context is None:
+        return refuse("This skill has no such level or kind of question.")
     _hold(conn, code, level, kind)
-    need = few(conn) - _count(conn, code, level, kind)
-    if len(samples) < need:
-        return {
-            "saved": False,
-            "why": f"Add {_said(few(conn))} samples for this kind: a level shows {_said(few(conn))} of each.",
-            "faults": [],
-        }
-    checked = [_checked(conn, code, level, kind, one) for one in samples]
+    n = few(conn)
+    if len(samples) < n - _count(conn, code, level, kind):
+        return refuse(f"Add {_said(n)} samples for this kind: a level shows {_said(n)} of each.")
+    checked = [_checked(conn, context, kind, one) for one in samples]
     if any(f for _, f in checked):
-        return {"saved": False, "why": "A sample did not pass its checks.", "faults": [f for _, f in checked]}
-    for (s, _), one in zip(checked, samples, strict=True):
-        _store(conn, code, level, kind, _next_ord(conn, code, level, kind), s, one, by)
+        return refuse("A sample did not pass its checks.", [f for _, f in checked])
+    t, first = _tenant(conn), _next_ord(conn, code, level, kind)
+    for i, ((s, _), one) in enumerate(zip(checked, samples, strict=True)):
+        _store(conn, t, (code, level, kind, first + i), s, one, by, None)
     conn.execute(
         "insert into skill_level_question_type (tenant_id, skill_code, difficulty, question_type)"
         " select tenant_id, skill_code, difficulty, %s from skill_level where skill_code = %s and difficulty = %s"

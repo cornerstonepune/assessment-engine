@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { deciding } from "@/lib/decides";
-import { type BodyOf, EngineDown, engineSend } from "@/lib/engine";
+import { type BodyOf, EngineDown, engineSend, type PostPath } from "@/lib/engine";
 import { levels as schoolLevels } from "@/lib/levels";
 import { NEW_PASSAGE } from "./sample-shape";
 
@@ -13,8 +13,7 @@ import { NEW_PASSAGE } from "./sample-shape";
 // a refused save comes back to the form with those words beside their fields and what was typed kept. A save withdraws
 // that level's approval and keeps what it replaced (the engine's `english_sample_edit`).
 
-const CODE = /^[A-Z0-9._]+$/;
-const KIND = /^[A-Z0-9._]+$/;
+const CODE = /^[A-Z0-9._]+$/; // a skill's code, and a kind's
 const FIELDS = ["ask", "text", "options", "left", "right", "answer", "accept", "key_points", "not_words"] as const;
 
 /** What a form sent back: the faults by field, in words; for a kind added with its samples, one set per sample. */
@@ -55,7 +54,7 @@ async function where(fd: FormData): Promise<{ code: string; level: string; kind:
   const code = String(fd.get("code") ?? "");
   const level = String(fd.get("level") ?? "");
   const kind = String(fd.get("kind") ?? "");
-  if (!CODE.test(code) || !KIND.test(kind) || !(await schoolLevels()).order.includes(level)) redirect("/");
+  if (!CODE.test(code) || !CODE.test(kind) || !(await schoolLevels()).order.includes(level)) redirect("/");
   return { code, level, kind };
 }
 
@@ -75,18 +74,31 @@ export async function saveSample(_: SampleState, fd: FormData): Promise<SampleSt
   const me = await deciding("skill_drafts");
   const { code, level, kind } = await where(fd);
   const ord = Number(fd.get("ord")) || null;
-  let saved = false;
   try {
     const res = await engineSend(`/skill/${code}/sample`, { level, kind, ord, by: me.name, ...sampleOf(fd) });
     const body = (await res.json()) as { saved?: boolean; faults?: Record<string, string[]> };
     if (!res.ok || !body.saved)
       return { faults: body.faults ?? { skill: ["That sample could not be saved. Nothing was changed."] }, sent: sentOf(fd) };
-    saved = true;
   } catch (e) {
     return unreachable(e, fd);
   }
-  if (saved) done(code, level, ord ? "sample" : "added");
-  return { faults: {} };
+  done(code, level, ord ? "sample" : "added");
+}
+
+/** A removal the engine answers {removed, why}: back to the level, saying it was done or why it was not. */
+async function taking<P extends PostPath>(
+  code: string, level: string, path: P, body: BodyOf<P>, said: string,
+): Promise<never> {
+  let why = "";
+  try {
+    const res = await engineSend(path, body);
+    const answer = (await res.json()) as { removed?: boolean; why?: string };
+    why = answer.removed ? "" : (answer.why ?? "That could not be taken off.");
+  } catch (e) {
+    why = e instanceof EngineDown ? e.message : "The engine could not be reached. Nothing was changed.";
+  }
+  if (why) redirect(`/skill-sets/${code}?refused=${encodeURIComponent(why)}&at=${level}#level-${level}`);
+  done(code, level, said);
 }
 
 /** One sample taken off its level; a level keeps three of each kind. */
@@ -95,16 +107,7 @@ export async function removeSample(fd: FormData): Promise<void> {
   const { code, level, kind } = await where(fd);
   const ord = Number(fd.get("ord"));
   if (!Number.isInteger(ord) || ord < 1) redirect("/");
-  let why = "";
-  try {
-    const res = await engineSend(`/skill/${code}/sample/remove`, { level, kind, ord, by: me.name });
-    const body = (await res.json()) as { removed?: boolean; why?: string };
-    why = body.removed ? "" : (body.why ?? "That sample could not be removed.");
-  } catch (e) {
-    why = e instanceof EngineDown ? e.message : "The engine could not be reached. Nothing was changed.";
-  }
-  if (why) redirect(`/skill-sets/${code}?refused=${encodeURIComponent(why)}&at=${level}#level-${level}`);
-  done(code, level, "removed");
+  await taking(code, level, `/skill/${code}/sample/remove`, { level, kind, ord, by: me.name }, "removed");
 }
 
 /** A kind added to a level, with the three samples it needs; each is checked. */
@@ -113,32 +116,20 @@ export async function addKind(_: SampleState, fd: FormData): Promise<SampleState
   const { code, level, kind } = await where(fd);
   const n = Math.min(Number(fd.get("samples")) || 0, 6);
   const samples = Array.from({ length: n }, (_, i) => sampleOf(fd, `s${i}.`));
-  let saved = false;
   try {
     const res = await engineSend(`/skill/${code}/kind`, { level, kind, samples, by: me.name });
     const body = (await res.json()) as { saved?: boolean; why?: string; faults?: Record<string, string[]>[] };
     if (!res.ok || !body.saved)
       return { faults: {}, why: body.why ?? "That kind could not be added.", samples: body.faults ?? [], sent: sentOf(fd) };
-    saved = true;
   } catch (e) {
     return unreachable(e, fd);
   }
-  if (saved) done(code, level, "kind_added");
-  return { faults: {} };
+  done(code, level, "kind_added");
 }
 
 /** A kind taken from a level; a level asks at least one. */
 export async function removeKind(fd: FormData): Promise<void> {
   const me = await deciding("skill_drafts");
   const { code, level, kind } = await where(fd);
-  let why = "";
-  try {
-    const res = await engineSend(`/skill/${code}/kind/remove`, { level, kind, by: me.name });
-    const body = (await res.json()) as { removed?: boolean; why?: string };
-    why = body.removed ? "" : (body.why ?? "That kind could not be taken off.");
-  } catch (e) {
-    why = e instanceof EngineDown ? e.message : "The engine could not be reached. Nothing was changed.";
-  }
-  if (why) redirect(`/skill-sets/${code}?refused=${encodeURIComponent(why)}&at=${level}#level-${level}`);
-  done(code, level, "kind_removed");
+  await taking(code, level, `/skill/${code}/kind/remove`, { level, kind, by: me.name }, "kind_removed");
 }

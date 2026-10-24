@@ -139,17 +139,12 @@ export async function sampleChoices(code: string): Promise<SampleChoices> {
       select distinct on (m.code) m.code, m.name
       from skill_mistake k join misconception m on m.tenant_id = k.tenant_id and m.code = k.misconception_code and m.op = k.op
       where k.skill_code = ${code} order by m.code`,
-    // approved once, and asked by some level of the skill's own subject, as the engine offers them (english_edit.py)
+    // the one list the engine accepts from too (`level_kind_choice`), for the skill's own subject
     sql<{ code: string; words: string; open: boolean }[]>`
-      select q.code, q.words, 'open_response' = any(q.marked) as open
-      from question_type q join question_type_approval a on a.tenant_id = q.tenant_id and a.question_type = q.code
-      where q.reaches <> 'observed' and exists (
-        select 1 from skill_level_question_type l join skill s on s.tenant_id = l.tenant_id and s.code = l.skill_code
-        join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
-        where l.question_type = q.code and t.subject_code = (
-          select t2.subject_code from skill s2 join topic t2 on t2.tenant_id = s2.tenant_id and t2.code = s2.topic_code
-          where s2.code = ${code}))
-      order by q.words`,
+      select k.code, k.words, k.open from level_kind_choice k
+      where k.subject_code = (select t.subject_code from skill s join topic t on t.tenant_id = s.tenant_id
+                                and t.code = s.topic_code where s.code = ${code})
+      order by k.words`,
   ]);
   return { few: few.n, passages, rubrics, mistakes, kinds };
 }
@@ -160,17 +155,6 @@ export async function sampleCount(code: string, level: string, kind: string): Pr
     select count(*)::int as n from english_sample_now
     where skill_code = ${code} and difficulty = ${level} and question_type = ${kind}`;
   return r?.n ?? 0;
-}
-
-/** When each level's samples or kinds last changed, {level: time}: an approval carries the time it was read at, and lands
- *  only if nothing changed since (goals/edt_edit_samples_and_kinds.yaml). */
-export async function levelsChanged(code: string): Promise<Record<string, string>> {
-  const rows = await sql<{ difficulty: string; at: string }[]>`
-    select difficulty, max(created_at)::text as at from (
-      select difficulty, created_at from english_sample_edit where skill_code = ${code}
-      union all select difficulty, created_at from skill_level_kind_change where skill_code = ${code}) c
-    group by difficulty`;
-  return Object.fromEntries(rows.map((r) => [r.difficulty, r.at]));
 }
 
 /** The database's time as a page is drawn: an approval form carries it, and lands only on skills none of whose samples

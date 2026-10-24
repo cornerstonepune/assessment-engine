@@ -38,7 +38,7 @@ class Context:
     mistakes: dict[str, str]
     rule: dict[str, Any] = field(default_factory=dict)
     rubrics: set[str] = field(default_factory=set)
-    passage: str = ""
+    passage: str = ""  # the text of the passage the sample is about, if any
 
 
 def flat(v: Any) -> list[str]:
@@ -185,24 +185,17 @@ def _texts(s: Sample) -> list[tuple[str, str]]:
 
 
 def _words(s: Sample, c: Context) -> Faults:
+    """British spelling and the school's words, in every text of the sample and in its passage."""
     f: Faults = {}
     nots = s.get("not_words") or []
-    for where, text in _texts(s):
-        lowered = where == "text" and s["question_type"] == "ENG.PUNCTUATE"
-        for w in ew.misspelt(text, [] if where == "key_points" else nots, lowered):
-            f.setdefault(where, []).append(f"{ew.quoted(w)} is not a word British English spells that way.")
     for where, text in [*_texts(s), ("passage", c.passage)]:
+        lowered = where == "text" and s["question_type"] == "ENG.PUNCTUATE"
+        for w in ew.misspelt(text, [] if where in ("key_points", "passage") else nots, lowered):
+            f.setdefault(where, []).append(f"{ew.quoted(w)} is not a word British English spells that way.")
         for w in school_words.found(text):
             f.setdefault(where, []).append(
                 f'{ew.quoted(w)}: the school says "regroup" or "exchange", never "carry" or "borrow".'
             )
-    return f
-
-
-def _passage_words(c: Context) -> Faults:
-    f: Faults = {}
-    for w in ew.misspelt(c.passage):
-        f.setdefault("passage", []).append(f"{ew.quoted(w)} is not a word British English spells that way.")
     return f
 
 
@@ -298,4 +291,4 @@ def faults(s: Sample, c: Context) -> Faults:
     shape = _open(s, c) if c.open else SHAPES.get(q, _said)(s, c)
     if shape:
         return shape
-    return _merge(english_wrong.check(s, c), _words(s, c), _passage_words(c), _rule(s, c))
+    return _merge(english_wrong.check(s, c), _words(s, c), _rule(s, c))

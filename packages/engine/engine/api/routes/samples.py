@@ -42,31 +42,28 @@ class SampleForm(BaseModel):
     rubric_code: str | None = Field(default=None, max_length=80)
 
 
-class SampleSaveRequest(SampleForm):
+class Where(BaseModel):
+    """Which level and kind a change is to, and who makes it."""
+
     level: str = Field(min_length=1, max_length=20)
     kind: str = Field(min_length=1, max_length=40)
+    by: str = Field(min_length=1, max_length=200)
+
+
+class SampleSaveRequest(SampleForm, Where):
     ord: int | None = Field(default=None, ge=1)
-    by: str = Field(min_length=1, max_length=200)
 
 
-class SampleRemoveRequest(BaseModel):
-    level: str = Field(min_length=1, max_length=20)
-    kind: str = Field(min_length=1, max_length=40)
+class SampleRemoveRequest(Where):
     ord: int = Field(ge=1)
-    by: str = Field(min_length=1, max_length=200)
 
 
-class KindAddRequest(BaseModel):
-    level: str = Field(min_length=1, max_length=20)
-    kind: str = Field(min_length=1, max_length=40)
+class KindAddRequest(Where):
     samples: list[SampleForm] = Field(default_factory=list, max_length=6)
-    by: str = Field(min_length=1, max_length=200)
 
 
-class KindRemoveRequest(BaseModel):
-    level: str = Field(min_length=1, max_length=20)
-    kind: str = Field(min_length=1, max_length=40)
-    by: str = Field(min_length=1, max_length=200)
+class KindRemoveRequest(Where):
+    pass
 
 
 def _form(f: SampleForm) -> dict[str, Any]:

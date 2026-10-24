@@ -50,7 +50,26 @@ a person). Making a new set of questions is the next job, not this one.
 
 ## Verified
 
-(filled at the commit boundary below)
+On a database built from this branch alone (`bin/testdb fresh`, Postgres 16 in this sandbox, 102 migrations), the website
+and engine reaching it as `app_web` and `app_engine`, 2026-10-24:
+
+- Tests first: `tests/test_english_check.py` and `tests/test_english_edit.py` written before the modules (collection
+  failed: no module). Now `pytest tests/test_english_check.py tests/test_english_edit.py` → `37 passed`; among them every
+  one of the seed's 2,499 samples passes the engine's checks, and every form round-trips into the stored shape.
+  Coverage of the new engine code 92% (`--cov`, per file 88–100%).
+- `bin/engine done edt_edit_samples_and_kinds` → every sentence `PROVED`, every criterion `PASSED` (engine `94 passed`,
+  `load --check` `unchanged on a second run`, browser `17 passed`, `tsc` clean, `bin/check` `31 passed`); `NOT DONE`
+  only for what is not live: not on main, and live did not answer from here.
+- Every browser spec: `CI=1 npx playwright test` → `396 passed, 1 flaky` (u50, a printed question's picture, passed on
+  its retry; it opens no skill page). After the review's changes: u55, u54, u53, e0, u23, u28, u17, u5 → `28 passed`.
+- `bin/engine ratchet --base origin/main` → `every baseline held or tightened`. `engine/checks/rules.json` written again
+  from the local copy (`bin/engine live rules --write`), the two ledgers' rules only.
+- Existing tests changed on purpose: u23, u53, u54 read the link's new words; `tests/test_school_words.py` reads the rule
+  from the engine and leaves its file out.
+- Reviews: `/code-review` (10 findings: 8 fixed, among them the word list the server could not see and approvals landing
+  on a change made after the page was opened; 2 kept and said in the PR) and `/simplify` (four reviewers; the shared
+  kinds list `level_kind_choice`, one stale-approval rule, one ledger insert, a cheaper view, fewer queries). gstack's
+  install was refused by this session's permission check.
 
 ## Handoff
 

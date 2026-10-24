@@ -13,7 +13,7 @@ import {
   type Difficulty,
 } from "@/lib/queries";
 import { mistakeBook } from "@/lib/queries-bank";
-import { levelExamples, levelsChanged, openedAt, skillKinds, skillMistakes, skillSamples, skillWatches, skillWays } from "@/lib/queries-skills";
+import { levelExamples, openedAt, skillKinds, skillMistakes, skillSamples, skillWatches, skillWays } from "@/lib/queries-skills";
 import { worksheets } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../../worksheets/library";
 import { approveSkills } from "./actions";
@@ -70,7 +70,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   // first that has any — a skill's 73 worksheets listed at once were a page of codes
   const shownLevel = level ?? (everyLevel ? undefined : levelsOf(s).find((d) => sheets.some((w) => w.difficulty === d)));
   const shown = shownLevel ? sheets.filter((w) => w.difficulty === shownLevel) : sheets;
-  const [editing, changedAt] = bankless ? await deadline(Promise.all([mayChange ? editingOf(s.code, q) : null, levelsChanged(s.code)])) : [null, {} as Record<string, string>];
+  const editing = bankless && mayChange ? await deadline(editingOf(s.code, q)) : null;
   const mistakes = caught
     .map((m) => ({ ...m, said: mistakeOf(book, m.code, op) }))
     .filter((m) => m.said);
@@ -179,7 +179,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                     </p>
                     {mayChange ? <SentenceLink code={s.code} level={d} /> : null}
                     {bankless ? (
-                      <EnglishLevel s={s} level={d} ways={ways} samples={samples} editing={editing} mayApprove={mayApprove} seen={changedAt[d]} />
+                      <EnglishLevel s={s} level={d} ways={ways} samples={samples} editing={editing} mayApprove={mayApprove} opened={opened} />
                     ) : it ? (
                       <div className="grid gap-1 bg-chalk p-2 text-[13.5px]">
                         <span className="label">For example</span>

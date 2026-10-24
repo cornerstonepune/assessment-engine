@@ -75,6 +75,15 @@ def corrections(text: str, answer: str) -> int:
     return sum(max(i2 - i1, j2 - j1) for tag, i1, i2, j1, j2 in ops if tag != "equal")
 
 
+def fetch() -> None:
+    """The pinned dictionary in data/ before anyone saves (a deploy's `engine load --settings`), so a first save does not
+    wait on the download; a deploy that cannot reach it leaves the first save to try, and refuse in words."""
+    try:
+        _dictionary()
+    except NoDictionary as e:
+        print(f"  en_GB dictionary not fetched ({e}); a save fetches it")
+
+
 @functools.cache
 def _dictionary():
     from spylls.hunspell import Dictionary

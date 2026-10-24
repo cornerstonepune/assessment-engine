@@ -10,6 +10,7 @@
 --   skill_level_kind_change  a kind added to or taken from a level, who and when; the newest says where it stands, and
 --                            a load does not bring back a kind a person took away
 --   english_sample_now       the samples as they stand: the newest edit where there is one, else the seed's
+--   level_kind_choice        the kinds a level may be given, by subject, read by the engine and the website
 -- Additive only: no existing table, column or row is changed. The engine writes both ledgers, after its checks
 -- (engine/w1_bank/english_check.py); the website reads them.
 --
@@ -56,9 +57,11 @@ drop trigger if exists skill_level_kind_change_kept on skill_level_kind_change;
 create trigger skill_level_kind_change_kept before update or delete on skill_level_kind_change
   for each statement execute function internal.forbid_change();
 
+-- `not materialized`: a read of one skill's samples looks up that skill's edits, not every edit's
 create or replace view english_sample_now with (security_invoker = true) as
-with last as (
-  select distinct on (x.tenant_id, x.skill_code, x.difficulty, x.question_type, x.ord) x.*
+with last as not materialized (
+  select distinct on (x.tenant_id, x.skill_code, x.difficulty, x.question_type, x.ord) x.*,
+         count(*) over (partition by x.tenant_id, x.skill_code, x.difficulty, x.question_type, x.ord) - 1 as earlier
   from english_sample_edit x
   order by x.tenant_id, x.skill_code, x.difficulty, x.question_type, x.ord, x.created_at desc, x.id desc
 )
@@ -69,27 +72,36 @@ select e.tenant_id, e.skill_code, e.difficulty, e.question_type, e.ord, e.ask, e
                  from english_sample_wrong w where w.sample_id = e.id), '[]'::jsonb) as wrong,
        null::text as edited_by, null::timestamptz as edited_at, 0::bigint as earlier
 from english_sample e
-where not exists (select 1 from last l where l.tenant_id = e.tenant_id and l.skill_code = e.skill_code
+where not exists (select 1 from english_sample_edit l where l.tenant_id = e.tenant_id and l.skill_code = e.skill_code
                     and l.difficulty = e.difficulty and l.question_type = e.question_type and l.ord = e.ord)
 union all
 select l.tenant_id, l.skill_code, l.difficulty, l.question_type, l.ord, l.sample ->> 'ask', l.sample ->> 'passage_code',
        l.sample ->> 'text', nullif(l.sample -> 'options', 'null'::jsonb), l.sample -> 'answer',
        coalesce(nullif(l.sample -> 'accept', 'null'::jsonb), '[]'::jsonb), l.sample ->> 'rubric_code',
        nullif(l.sample -> 'key_points', 'null'::jsonb), nullif(l.sample -> 'not_words', 'null'::jsonb),
-       coalesce(nullif(l.sample -> 'wrong', 'null'::jsonb), '[]'::jsonb), l.edited_by, l.created_at,
-       (select count(*) from english_sample_edit p where p.tenant_id = l.tenant_id and p.skill_code = l.skill_code
-          and p.difficulty = l.difficulty and p.question_type = l.question_type and p.ord = l.ord and p.id <> l.id)
+       coalesce(nullif(l.sample -> 'wrong', 'null'::jsonb), '[]'::jsonb), l.edited_by, l.created_at, l.earlier
 from last l
 where not l.removed;
+
+-- The kinds a level may be given, by subject: approved once, on a paper or read aloud (not observed), and asked by some
+-- level of that subject. The engine accepts and the website offers from this one list.
+create or replace view level_kind_choice with (security_invoker = true) as
+select distinct t.tenant_id, t.subject_code, q.code, q.words, 'open_response' = any(q.marked) as open
+from question_type q
+join question_type_approval a on a.tenant_id = q.tenant_id and a.question_type = q.code
+join skill_level_question_type l on l.tenant_id = q.tenant_id and l.question_type = q.code
+join skill s on s.tenant_id = l.tenant_id and s.code = l.skill_code
+join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code
+where q.reaches <> 'observed';
 
 -- The engine writes; the website reads.
 do $$ begin
   if exists (select from pg_roles where rolname = 'app_engine') then
     grant select, insert on english_sample_edit, skill_level_kind_change to app_engine;
-    grant select on english_sample_now to app_engine;
+    grant select on english_sample_now, level_kind_choice to app_engine;
   end if;
   if exists (select from pg_roles where rolname = 'app_web') then
-    grant select on english_sample_edit, skill_level_kind_change, english_sample_now to app_web;
+    grant select on english_sample_edit, skill_level_kind_change, english_sample_now, level_kind_choice to app_web;
   end if;
 end $$;
 
