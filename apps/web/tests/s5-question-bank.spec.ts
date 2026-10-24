@@ -6,8 +6,13 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { aTaughtClass } from "./rows";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
+// the bank lists the questions of skills taught in a class: a fresh copy has none, and CI splits the specs across runners
+test.beforeAll(async () => {
+  await aTaughtClass(sql);
+});
 test.afterAll(async () => sql.end());
 
 test("the bank says in plain words what it is, with the database's own numbers", async ({ page }) => {
