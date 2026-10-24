@@ -56,7 +56,7 @@ test("each waiting skill is one row, its levels folded until opened", async ({ p
     await row.getByText("Read the levels").click();
     await expect(easy).toBeVisible();
     await expect(row.getByRole("button", { name: `Approve, as ${TEST_STAFF.name}` })).toBeVisible();
-    await expect(row.getByRole("link", { name: "Change the words first" })).toHaveAttribute("href", "/skill-sets/ADD.2D2D/edit");
+    await expect(row.getByRole("link", { name: "Change the description and each level’s sentence" })).toHaveAttribute("href", "/skill-sets/ADD.2D2D/edit");
     // a skill whose topic is not taught yet says so on its row
     await expect(rows(page).and(page.locator('[data-row="DIV.3D1D"]'))).toContainText("Not taught yet");
   });

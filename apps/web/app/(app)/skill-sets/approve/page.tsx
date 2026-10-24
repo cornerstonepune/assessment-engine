@@ -8,6 +8,7 @@ import { questionKinds } from "@/lib/question-types";
 import { grades as schoolGrades, levelsOf, skillSets, type SkillSet } from "@/lib/queries";
 import { chargesTable } from "@/lib/queries-charges";
 import { approveSkills } from "../[code]/actions";
+import { openedAt } from "@/lib/queries-skills";
 import { mayDecide } from "@/lib/decides";
 
 // Every skill waiting for approval as one table to work through (goals/ui6a-approve-filtered.yaml; Nimish, 2026-10-12:
@@ -41,8 +42,8 @@ function keeps(x: SkillSet, f: Filter, except?: keyof Filter) {
 export default async function ApproveSkills({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
   const q = await searchParams;
-  const [sets, charges, mayApprove, school, { words }] = await deadline(
-    Promise.all([skillSets({ untaught: true, scope: scopeOf(me) }), chargesTable(), mayDecide(me, "skills"), schoolGrades(), questionKinds()]),
+  const [sets, charges, mayApprove, school, { words }, opened] = await deadline(
+    Promise.all([skillSets({ untaught: true, scope: scopeOf(me) }), chargesTable(), mayDecide(me, "skills"), schoolGrades(), questionKinds(), openedAt()]),
   );
   const waiting = sets.filter((s) => s.status !== "ratified");
   // the school's grades in their order (`grade`): every grade a skill holds is one of them
@@ -97,6 +98,7 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
           // approved on its own: a press meant for some skills never approves it
           <form action={approveSkills} className="mb-[18px]">
             <input type="hidden" name="back" value={query(f)} />
+            <input type="hidden" name="opened" value={opened} />
             <input type="hidden" name="charges_table" value={JSON.stringify(charges.table)} />
             <Panel title="What a wrong answer counts against">
               <p className="text-[15px] leading-snug">
@@ -165,6 +167,8 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
 
             <form action={approveSkills} className="grid gap-[18px]">
               <input type="hidden" name="back" value={query(f)} />
+              {/* the database's time as this page was drawn: a skill changed since keeps waiting */}
+              <input type="hidden" name="opened" value={opened} />
               <section className="panel" aria-label="Skills waiting">
                 <div className="min-w-0 overflow-x-auto">
                   <table className="grid" aria-label="Skills waiting for approval">
@@ -212,7 +216,7 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
                               </button>
                             ) : null}
                             <Link href={`/skill-sets/${x.code}/edit`} className="mt-1 block text-[13px]">
-                              {mayApprove ? "Change the words first" : "Change the words"}
+                              Change the description and each level&rsquo;s sentence
                             </Link>
                           </td>
                         </tr>

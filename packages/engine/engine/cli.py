@@ -328,6 +328,10 @@ def load(
     if settings:
         for table, n in loaders.load_settings().items():
             typer.echo(f"  {table:<9}  {n:>5}")
+        # the spelling dictionary an English sample is checked against, ready before the first save
+        from engine.w1_bank import english_words
+
+        english_words.fetch()
         return
     counts = loaders.load_all()
     width = max(len(t) for t in counts)

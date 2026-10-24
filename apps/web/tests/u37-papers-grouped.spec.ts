@@ -114,8 +114,8 @@ test("Assessments opens on one table, newest first, each row saying where it sta
   await expect(rows.nth(0)).toContainText(weekWords(THIS));
   await expect(rows.nth(1)).toContainText(weekWords(OLD));
   // what waits is in the status of each row, in words
-  await expect(row(page, THIS)).toContainText("to check");
-  await expect(row(page, OLD)).toContainText(/done|to sign off|with the children|to approve/);
+  await expect(row(page, THIS).locator('[data-status="toCheck"]')).toBeVisible();
+  await expect(row(page, OLD).locator("[data-action]")).toHaveText(/See results|Sign off|Upload|Print|Approve/);
   // one line an assessment: what it is and its class; no copies until it is opened
   const a = row(page, THIS);
   await expect(a).toHaveCount(1);
@@ -132,15 +132,17 @@ test("an assessment opens in place to its copies in roll order, its spares on on
   await expect(page).toHaveURL(/[?&]open=/);
   const copies = page.getByRole("table", { name: `${skill}: each copy` });
   await expect(copies).toBeVisible();
-  await expect(copies.locator("thead th")).toHaveText(["Roll", "Child", "Level", "Stage", "Waiting"]);
+  const heads = (await copies.locator("thead th").allTextContents()).map((h) => h.trim());
+  expect(heads.slice(0, 3)).toEqual(["Roll", "Child", "Level"]);
+  for (const h of ["Made", "Printed / given", "Uploaded", "Read", "Checked", "Signed off"]) expect(heads).toContain(h);
   const rows = copies.locator("tbody tr");
   await expect(rows).toHaveCount(3);
   expect(await rows.evaluateAll((trs) => trs.map((t) => t.querySelectorAll("td")[1].textContent?.trim()))).toEqual(["Asha", "Bina", "Chetan"]);
   const cells = (i: number) => rows.nth(i).locator("td");
   await expect(cells(0).nth(2)).toHaveText("Hard");
-  await expect(cells(1).nth(3)).toHaveText("to check");
-  await expect(cells(1).nth(4)).toHaveText("1");
-  await expect(cells(2).nth(3)).toHaveText("to approve");
+  await expect(rows.nth(1).locator('[data-status="toCheck"]')).toBeVisible();
+  await expect(rows.nth(1).locator("[data-action=check]")).toHaveText("Check 1 answer");
+  await expect(rows.nth(2).locator('[data-status="next"]')).toBeVisible();
   // a copy opens where its work is: one not read yet, its page; one read, its answers
   await expect(cells(0).getByRole("link", { name: "Asha" })).toHaveAttribute("href", `/worksheets/${QR.asha}`);
   await expect(cells(1).getByRole("link", { name: "Bina" })).toHaveAttribute("href", /^\/capture\/[0-9a-f-]{36}$/);
@@ -155,7 +157,7 @@ test("the one filter row is there, with its active filters, and a child chosen s
   await page.goto("/papers");
   const bar = page.locator("[data-filterbar]");
   await expect(bar).toBeVisible();
-  for (const l of ["Class", "Topic", "Subject", "Kind", "Week", "Status"]) await expect(bar.locator(`select[name="${({ Class: "class", Topic: "topic", Subject: "subject", Kind: "kind", Week: "week", Status: "stage" } as Record<string, string>)[l]}"]`)).toBeVisible();
+  for (const l of ["Class", "Topic", "Subject", "Kind", "Week", "Status"]) await expect(bar.locator(`select[name="${({ Class: "class", Topic: "topic", Subject: "subject", Kind: "kind", Week: "week", Status: "status" } as Record<string, string>)[l]}"]`)).toBeVisible();
   await expect(page.getByRole("navigation", { name: "View" })).toHaveCount(0);
   await expect(page.locator("[data-active-filters]")).toHaveCount(0);
   // a child chosen: their papers, each assessment showing their copy

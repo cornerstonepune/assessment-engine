@@ -10,7 +10,8 @@ const GROUPS = ["What needs doing", "Teaching", "Assessments", "Results", "Setup
 const PAGES = [
   ["/today", "What needs doing", "What needs doing"],
   ["/taught", "Teaching", "Teaching"],
-  ["/papers/approve", "Assessments", "Papers to approve"],
+  // bare, its address opens Assessments filtered to what waits for approval
+  ["/papers/approve", "Assessments", "Assessments"],
   ["/papers", "Assessments", "Assessments"],
   ["/capture", "Assessments", "Upload papers"],
   ["/capture/check", "Assessments", "Check answers"],

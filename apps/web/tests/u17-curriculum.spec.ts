@@ -146,7 +146,7 @@ test("every page says the tab it is under, above its title, and the menu marks t
   const pages: [string, string][] = [
     ["/", "Curriculum"], ["/skill-sets/approve", "Curriculum"], ["/skill-sets/ADD.2D2D", "Curriculum"], ["/library", "Question bank"],
     [`/library/${key}`, "Question bank"], ["/worksheets", "Curriculum"], ["/worksheets/taxonomy", "Question bank"], ["/asks", "Curriculum"],
-    ["/papers", "Assessments"], ["/papers/make", "Assessments"], ["/papers/approve", "Papers to approve"], ["/make", "Assessments"],
+    ["/papers", "Assessments"], ["/papers/make", "Assessments"], ["/papers/approve", "Assessments"], ["/make", "Assessments"],
     ["/home", "Assessments"], ["/capture", "Upload papers"], ["/growth", "Class results"],
   ];
   // the tab is a page of a group of the top menu (lib/menu.ts): the group is marked, and so is the tab under it

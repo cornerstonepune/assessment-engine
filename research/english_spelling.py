@@ -9,7 +9,7 @@ likely wrong answer. Not checked: the likely wrong answers, which are misspelt o
 to correct, a word part such as -ing or ough): it lists it in `not_words`, and the check holds that the dictionary
 really does not know it. A word with a capital letter that the dictionary does not know is a name
 (Meera, Kothrud) and is listed, not failed. Indian English words a Pune classroom uses are in
-research/english_words.txt, one per line with what it means, so each is a decision someone can read.
+supabase/seed/english_words.txt (the engine reads it too), one per line with what it means, so each is a decision someone can read.
 
 uv run --no-project --with spylls==0.1.7 python research/english_spelling.py              # exit 1 on any fault
 uv run --no-project --with spylls==0.1.7 python research/english_spelling.py --chunk DIR  # a draft in DIR
@@ -47,7 +47,7 @@ def dictionary():
 
 
 def allowed(chunk=None):
-    paths = [R / "research/english_words.txt"] + ([Path(chunk) / "english_words.txt"] if chunk else [])
+    paths = [R / "supabase/seed/english_words.txt"] + ([Path(chunk) / "english_words.txt"] if chunk else [])
     lines = [ln for p in paths if p.exists() for ln in p.read_text().splitlines()]
     return {ln.split("—")[0].strip().lower() for ln in lines if ln.strip() and not ln.startswith("#")}
 

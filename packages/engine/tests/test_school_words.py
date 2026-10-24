@@ -19,23 +19,12 @@ from pathlib import Path
 
 import pytest
 
-from engine.core import db
+from engine.core import db, school_words
 from engine.w4_close import parent_check
 
 ROOT = db.REPO_ROOT
-SAID = re.compile(r"\b(carr(?:y|ies|ied|ying)|borrow\w*)\b", re.IGNORECASE)
-# "carry" that is not a column passing ten: a person or a van carrying things, a skill carrying a code, a run carrying a
-# name. Each is the whole phrase as it stands, so a new arithmetic "carry" beside one of them is still caught.
-NOT_SUMS = re.compile(
-    r"carr(?:y|ies|ied|ying) (?:out|on Tuesday|their sitting mat|a tray|water|Water|a sharp|a Sharp|pointed|many things|"
-    r"her in|the bag|bag and|conjuncts|विसर्ग|informally|none\.|the range|this symbol|it\b|a child|a skill|no version|"
-    r"\{a\} passengers|\{b\} more|\{a\} boxes|\d+ (?:boxes|girls|children)|the count|their own wrong)"
-    r"|Carrying (?:their|a tray|a Tray|Water|water|a Sharp|pointed)|Carring a sharp|carries and folds|carries water|"
-    r"carries a sharp|carrying and placing|van carry\?|evidence carries|run carries it|carries the|Carries a tray|"
-    r"carried into the rows|carried by"
-    # the rule itself, the forbidden word quoted: never "borrow"
-    r"|[\"'](?:carry|borrow)[\"']"
-)
+# the rule is the engine's (engine/core/school_words.py), so what an educator saves is held by it too
+SAID, NOT_SUMS = school_words.SAID, school_words.NOT_SUMS
 WEB = ("apps/web/app", "apps/web/lib", "apps/web/components")
 _COMMENTS = re.compile(r"/\*.*?\*/|(?<![:\"'`\w])//[^\n]*", re.DOTALL)
 
@@ -83,6 +72,8 @@ def test_no_screen_says_carry_or_borrow():
 def test_no_printed_paper_mistake_or_report_the_engine_writes_says_carry_or_borrow():
     found = []
     for p in sorted((ROOT / "packages/engine/engine").rglob("*.py")):
+        if p == ROOT / "packages/engine/engine/core/school_words.py":
+            continue  # the rule's own patterns name the words
         for line, s in _python_words(p):
             found += _said(f"{p.relative_to(ROOT)}:{line}", s)
     for p in sorted((ROOT / "packages/engine/engine").rglob("*.json")):

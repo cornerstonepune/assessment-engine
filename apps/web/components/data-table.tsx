@@ -29,6 +29,7 @@ export function DataTable<T>({
   limit = TABLE_ROW_LIMIT,
   extras,
   sort,
+  dense,
 }: {
   label: string;
   columns: readonly Column<T>[];
@@ -38,6 +39,8 @@ export function DataTable<T>({
   limit?: number;
   extras?: RowExtras<T>;
   sort?: Sort;
+  /** Less room beside each cell, for a table of many narrow columns (the steps of an assessment). */
+  dense?: boolean;
 }) {
   const cols = visibleColumns(columns, rows);
   if ("by" in more) {
@@ -47,7 +50,7 @@ export function DataTable<T>({
         {groupRows(rows, by).map((g) => (
           <section key={g.name} aria-label={g.name}>
             <h3 className="mb-1 text-[14px]">{g.name}</h3>
-            <Grid label={`${label} · ${g.name}`} cols={cols} rows={g.rows.slice(0, limit)} rowKey={rowKey} extras={extras} sort={sort} />
+            <Grid label={`${label} · ${g.name}`} cols={cols} rows={g.rows.slice(0, limit)} rowKey={rowKey} extras={extras} sort={sort} dense={dense} />
             {g.rows.length > limit ? (
               <p className="note mt-1">
                 {g.rows.length - limit} more in {g.name}
@@ -67,7 +70,7 @@ export function DataTable<T>({
   const p = pageOf(rows, more.page, limit);
   return (
     <div>
-      <Grid label={label} cols={cols} rows={p.rows} rowKey={rowKey} extras={extras} sort={sort} />
+      <Grid label={label} cols={cols} rows={p.rows} rowKey={rowKey} extras={extras} sort={sort} dense={dense} />
       {p.pages > 1 ? (
         <nav className="mt-2 flex items-center gap-3 text-[13px]" aria-label={`${label} pages`}>
           {p.page > 1 ? <Link href={more.href(p.page - 1)} className="chip">← Earlier</Link> : null}
@@ -79,11 +82,11 @@ export function DataTable<T>({
   );
 }
 
-function Grid<T>({ label, cols, rows, rowKey, extras, sort }: { label: string; cols: Column<T>[]; rows: readonly T[]; rowKey: (r: T) => string; extras?: RowExtras<T>; sort?: Sort }) {
+function Grid<T>({ label, cols, rows, rowKey, extras, sort, dense }: { label: string; cols: Column<T>[]; rows: readonly T[]; rowKey: (r: T) => string; extras?: RowExtras<T>; sort?: Sort; dense?: boolean }) {
   const cls = (c: Column<T>) => `a-${alignOf(c)}`;
   return (
     <div className="data-table">
-      <table className="grid list steady" aria-label={label}>
+      <table className={`grid list steady${dense ? " dense" : ""}`} aria-label={label}>
         <colgroup>
           {cols.map((c) => (
             <col key={c.key} style={c.width ? { width: c.width } : undefined} />

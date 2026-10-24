@@ -13,7 +13,7 @@ import {
   type Difficulty,
 } from "@/lib/queries";
 import { mistakeBook } from "@/lib/queries-bank";
-import { levelExamples, skillKinds, skillMistakes, skillSamples, skillWatches, skillWays } from "@/lib/queries-skills";
+import { levelExamples, openedAt, skillKinds, skillMistakes, skillSamples, skillWatches, skillWays } from "@/lib/queries-skills";
 import { worksheets } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../../worksheets/library";
 import { approveSkills } from "./actions";
@@ -22,8 +22,8 @@ import { scopeOf } from "@/lib/scope";
 import { mayDecide } from "@/lib/decides";
 import { LevelApproval } from "./level-approval";
 import { GradesPanel } from "./grades-panel";
-import { LevelWays, Watched, WaysPanel } from "./ways";
-import { LevelSamples } from "./samples";
+import { Watched, WaysPanel } from "./ways";
+import { Changed, editingOf, EnglishLevel, MadeByCode, SentenceLink } from "./editing";
 import { dateWords } from "@/lib/week";
 
 type Props = {
@@ -34,14 +34,15 @@ type Props = {
 
 // One skill as a teacher reads it: what the child can do, what that looks like at each level with a
 // real question from the bank, the kinds of question that test it, the mistakes it watches for, and
-// its worksheets. Codes are provenance at the foot of the page, never the lead.
+// its worksheets. Codes are provenance at the foot of the page, never the lead. An English skill's samples and the kinds
+// each level asks are changed here by whoever may change the skill (goals/edt_edit_samples_and_kinds.yaml).
 export default async function SkillPage({ params, searchParams }: Props) {
   const me = await requireStaff();
-  const mayApprove = await deadline(mayDecide(me, "skills"));
+  const [mayApprove, mayChange] = await deadline(Promise.all([mayDecide(me, "skills"), mayDecide(me, "skill_drafts")]));
   const [{ code }, q] = await Promise.all([params, searchParams]);
   const level = (await levels()).order.find((d) => d === q.level);
   const everyLevel = q.level === "all";
-  const [all, examples, kinds, caught, book, sheets, g, { words }, ways, watched, samples] = await deadline(
+  const [all, examples, kinds, caught, book, sheets, g, { words }, ways, watched, samples, opened] = await deadline(
     Promise.all([
       skillSets({ untaught: true, scope: scopeOf(me) }),
       levelExamples(code),
@@ -53,7 +54,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
       questionKinds(),
       skillWays(code),
       skillWatches(code),
-      skillSamples(code),
+      skillSamples(code), openedAt(),
     ]),
   );
   // a skill whose topic is not taught yet opens too, to be read and approved before it is switched on (goals/ny1-needs-you.yaml)
@@ -69,6 +70,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
   // first that has any — a skill's 73 worksheets listed at once were a page of codes
   const shownLevel = level ?? (everyLevel ? undefined : levelsOf(s).find((d) => sheets.some((w) => w.difficulty === d)));
   const shown = shownLevel ? sheets.filter((w) => w.difficulty === shownLevel) : sheets;
+  const editing = bankless && mayChange ? await deadline(editingOf(s.code, q)) : null;
   const mistakes = caught
     .map((m) => ({ ...m, said: mistakeOf(book, m.code, op) }))
     .filter((m) => m.said);
@@ -86,15 +88,16 @@ export default async function SkillPage({ params, searchParams }: Props) {
         <form action={approveSkills} className="flex flex-wrap items-center gap-3">
           <Pill tone="bamboo">Waiting for approval</Pill>
           <input type="hidden" name="code" value={s.code} />
-          <input type="hidden" name="version" value={s.version} />
+          <input type="hidden" name="version" value={s.version} /><input type="hidden" name="opened" value={opened} />
           <input type="hidden" name="back" value={`/skill-sets/${s.code}`} />
           <button className="btn" type="submit">
             Approve, as {me.name}
           </button>
         </form>
       )}
+      {/* what it changes, said (Nimish, 2026-10-24: "What does 'change the words first' do?") */}
       <Link href={`/skill-sets/${s.code}/edit`} className="chip">
-        {s.status !== "ratified" ? "Change the words first" : "Change the words"}
+        Change the description and each level&rsquo;s sentence
       </Link>
     </>
   );
@@ -107,6 +110,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
         sub={bankless ? "What this skill looks like at each level, with sample questions, how it is asked, and the mistakes to watch for." : "What this skill looks like at each level, each with a real question from the bank, the mistakes its questions are built to catch, and its worksheets."}
       />
       <Body>
+        <Changed q={q} />
         {q.saved ? (
           <Notice tone="neem">
             Saved. The new words wait for approval before they are the
@@ -164,21 +168,18 @@ export default async function SkillPage({ params, searchParams }: Props) {
                 const it = example(d);
                 return (
                   <section
-                    key={d}
+                    key={d} id={`level-${d}`}
                     aria-label={d}
-                    className="grid content-start gap-2 border border-basalt/12 p-3"
+                    className="grid scroll-mt-6 content-start gap-2 border border-basalt/12 p-3"
                   >
                     <h3 className="text-[15px]">{d}</h3>
                     {bankless ? null : <LevelApproval s={s} d={d} mayApprove={mayApprove} />}
                     <p className="text-[13.5px] leading-snug">
                       {s.difficulty[d]?.words}
                     </p>
+                    {mayChange ? <SentenceLink code={s.code} level={d} /> : null}
                     {bankless ? (
-                      <>
-                        <LevelWays ways={ways} level={d} />
-                        <LevelSamples samples={samples} level={d} />
-                        <LevelApproval s={s} d={d} mayApprove={mayApprove} />
-                      </>
+                      <EnglishLevel s={s} level={d} ways={ways} samples={samples} editing={editing} mayApprove={mayApprove} opened={opened} />
                     ) : it ? (
                       <div className="grid gap-1 bg-chalk p-2 text-[13.5px]">
                         <span className="label">For example</span>
@@ -218,6 +219,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                 );
               })}
             </div>
+            {!bankless && mayChange ? <MadeByCode /> : null}
             {bankless ? (
               <div id="decide" className="mt-[14px] flex scroll-mt-6 flex-wrap items-center gap-3">
                 {decide}

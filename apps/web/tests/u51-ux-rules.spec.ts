@@ -239,15 +239,14 @@ test("Assessments is a table of aligned columns with the one filter row, and a s
   expect(await breaks(page)).toEqual([]);
   const table = page.getByRole("table", { name: "Assessments" });
   const heads = (await table.locator("thead th").allTextContents()).map((h) => h.trim());
-  for (const h of ["Class", "Assessment", "Kind", "Stage", "Papers in", "Status"]) expect(heads, "columns").toContain(h);
+  for (const h of ["Class", "Assessment", "Kind", "Made on", "Made", "Printed / given", "Uploaded", "Read", "Checked", "Signed off", "Next"]) expect(heads, "columns").toContain(h);
   // text left, numbers right, a state in the middle: heading and cells together
   const align = async (name: string) => {
     const i = heads.indexOf(name);
     return table.locator(`tbody tr[data-assessment] td:nth-child(${i + 1})`).first().evaluate((el) => getComputedStyle(el).textAlign);
   };
   expect(await align("Assessment")).toBe("left");
-  expect(await align("Papers in")).toBe("right");
-  expect(await align("Status")).toBe("center");
+  expect(await align("Read")).toBe("center");
   // every status carries an icon and a word, and is one of the three colours
   const chips = table.locator("[data-status]");
   expect(await chips.count()).toBeGreaterThan(0);

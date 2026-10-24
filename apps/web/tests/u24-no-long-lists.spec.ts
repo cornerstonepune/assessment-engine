@@ -93,7 +93,9 @@ test("the questions answered are folded under one line until opened", async ({ p
 });
 
 test("Papers to approve chooses a class's week in the filter row, however many weeks there are", async ({ page }) => {
-  await page.goto("/papers/approve");
+  const [plan] = await sql<{ section: string; week: string; kind: string }[]>`
+    select c.section, p.week, p.kind from prescription p join child c on c.id = p.child_id order by p.week desc, c.section limit 1`;
+  await page.goto(`/papers/approve?section=${plan.section}&week=${plan.week}&kind=${plan.kind}`);
   // no row of a class-and-week tag for every week ever planned: one Week dropdown holds them (goals/uxn4-papers-to-approve.yaml)
   await expect(page.getByRole("navigation", { name: "Classes and weeks" })).toHaveCount(0);
   // the page streams in behind its loading screen: wait for the table before reading the filter row

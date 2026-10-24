@@ -1,0 +1,39 @@
+name: asm_assessments_page
+goal: >
+  The Assessments page is built for how an educator works: two equal blocks side by side (make one, read one), under
+  them the last ten assessments as one table, each named for what it is (from the topic, level, kind and class its own
+  code says, renamable), with its steps in the order the school does them, one next action, and its children and their
+  own pages one click away. Papers to approve is that table filtered to what waits for approval.
+# Written 2026-10-24, before the work. Nimish, the founder, 24 Oct 2026. Web only, plus one additive table
+# (`assessment_name`, append-only) for the names an educator chooses.
+says:
+  - words: "This whole tab 'Papers to approve': there won't be any papers to approve, right? What do you mean by 'papers to approve'?"
+    proved_by: "apps/web/tests/u63-assessments-page.spec.ts::Papers to approve is the status filter of this list; the old addresses still work"
+  - words: "It can just be two nice blocks side by side."
+    proved_by: "apps/web/tests/u63-assessments-page.spec.ts::two equal blocks side by side above the list; no explanatory paragraph in the read block"
+  - words: "Then we have a very proper list of the last 5, last 7, whatever assessments that have been uploaded or papers that have been generated and are yet to be approved, so that table comes out very clearly."
+    proved_by: "apps/web/tests/u63-assessments-page.spec.ts::the list is the last ten assessments, newest first, paged"
+  - words: "We should not use these file names, because if we know the assessment code, there is a QR inside these files. That QR is associated with a certain topic, so we can actually show proper names."
+    proved_by: "apps/web/tests/u63-assessments-page.spec.ts::an assessment is named from its sheet, never from its file; the file is a small note under it"
+  - words: "We should ideally have the ability to name the assessment."
+    proved_by: "apps/web/tests/u63-assessments-page.spec.ts::an educator renames an assessment; the old name stays as a row, the newest shows"
+  - words: "Then you have this 4. There is no sequence of anything. That's my major issue."
+    proved_by: "apps/web/tests/u63-assessments-page.spec.ts::the steps are in the order the school does them, each an icon, a word and a colour"
+  - words: "One can very easily open any question, like a certain paper that a child has given. Those two or three pages of the child can be opened up. There is nothing hidden from the system."
+    proved_by: "apps/web/tests/u63-assessments-page.spec.ts::a row opens to its children: roll, child, level, the same steps, the score and their pages"
+  - words: "There are some papers you need to approve ... Everything has to have its own set of approvals"
+    proved_by: "apps/web/tests/u63-assessments-page.spec.ts::a home assessment starts at To approve with one Approve for its row, never for all"
+manual:
+  - "The page as an educator sees it on the live site, with the school's own scans, after the merge and the migration."
+  - "Migration 20261212090000 (`assessment_name`) needs the rehearsal workflow before merge, then migrate live."
+scenarios: []
+criteria:
+  - name: the logic, the page and every spec that touches Assessments
+    run: cd apps/web && npx playwright test tests/u62-assessment-steps.spec.ts tests/u63-assessments-page.spec.ts tests/u60-ui-wave-1-flow.spec.ts tests/u51-ux-rules.spec.ts tests/u53-the-menu.spec.ts tests/u9-papers.spec.ts tests/u22-assessments-readable.spec.ts tests/u37-papers-grouped.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

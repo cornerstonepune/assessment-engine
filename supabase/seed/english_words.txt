@@ -1,5 +1,6 @@
 # Indian English words a Pune classroom uses that the en_GB dictionary does not list, one per line: word — what it means.
-# research/english_spelling.py reads every passage and key against the dictionary and these words.
+# research/english_spelling.py reads every passage and key against the dictionary and these words, and the engine every
+# sample an educator saves (engine/w1_bank/english_words.py).
 aloo — potato
 autos — auto-rickshaws, short form used in Pune
 bajra — pearl millet
