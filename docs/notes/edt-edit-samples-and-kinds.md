@@ -8,7 +8,7 @@ a person). Making a new set of questions is the next job, not this one.
 
 ## What changed
 
-- **One additive migration**, `20261212090000_an_edited_sample_keeps_what_it_replaced.sql`: two ledgers the database
+- **One additive migration**, `20261212100000_an_edited_sample_keeps_what_it_replaced.sql`: two ledgers the database
   refuses to change (`internal.forbid_change`), `english_sample_edit` (one saved version of one sample, the sample it
   replaced, who, when; a removal is a version) and `skill_level_kind_change` (a kind added to or taken from a level, who,
   when), and a view `english_sample_now` (the newest edit, else the seed's sample). No existing table, column or row
