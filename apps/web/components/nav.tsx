@@ -6,13 +6,13 @@ import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { GROUPS, locate, tabsOf, type MenuGroup } from "@/lib/menu";
 
-// The menu on the top bar (goals/nav_teacher_scope_and_todo.yaml): the five groups, then under the bar the pages of the group
+// The menu on the top bar (goals/nav_teacher_scope_and_todo.yaml): the four groups, then under the bar the pages of the group
 // you are in as tabs, and a three-line button that opens every group and its pages. Only the first group carries a count.
 // Nothing here names a subject. Only the group links pre-load, as the old menu's did.
 
 const bar = "relative flex min-h-11 items-center px-3 text-[14.5px] no-underline";
 
-/** The five groups. `counts`: what waits, by group key. On a phone they fold into the menu button. */
+/** The groups. `counts`: what waits, by group key. On a phone they fold into the menu button. */
 export function GroupNav({ groups, counts }: { groups: readonly MenuGroup[]; counts: Partial<Record<string, number>> }) {
   const path = usePathname();
   const here = locate(path)?.group.key;

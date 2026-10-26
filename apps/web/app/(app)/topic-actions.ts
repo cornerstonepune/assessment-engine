@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { deciding, mustBeMine } from "@/lib/decides";
 import { sql } from "@/lib/db";
@@ -22,12 +23,17 @@ export async function switchTopic(formData: FormData): Promise<void> {
   const on = formData.get("taught") === "on";
   if (!CODE.test(code) || !section || (skill && !SKILL.test(skill))) redirect("/");
   mustBeMine(me, "topics", [section]);
-  const rows = await sql<{ n: number }[]>`
+  await sql`
     select say_taught(t.tenant_id, ${section}, t.code, ${skill}, ${on}, ${me.name}) as n from topic t where t.code = ${code}`;
-  const n = rows[0]?.n ?? 0;
-  // every page reads what is taught: Curriculum, Today, the Question bank, the papers
+  // every page reads what is taught: Curriculum, What needs doing, the Question bank, the papers
   revalidatePath("/", "layout");
-  // one skill said: back to that class's skills of the topic, where it was said
-  const said = new URLSearchParams({ [on ? "on" : "off"]: skill ?? code, class: section, ...(skill ? { skills: code, in: section } : {}) });
-  redirect(n ? `/taught?${said}#${skill ? "skills" : on ? "taught" : "not-taught"}` : "/taught");
+  // back to the page it was said on (What needs doing, or a Curriculum row); only a path of this site is followed
+  const from = (await headers()).get("referer");
+  const back = from ? new URL(from).pathname + new URL(from).search : "/today";
+  const to = new URL(back.startsWith("/") && !back.startsWith("//") ? back : "/today", "http://site");
+  // it comes back saying what was said, on the page it was said on (`TaughtNotice`)
+  to.searchParams.set("said", skill ?? code);
+  to.searchParams.set("in", section);
+  to.searchParams.set("taught", on ? "1" : "0");
+  redirect(to.pathname + to.search);
 }

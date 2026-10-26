@@ -11,7 +11,10 @@ import { CopiesTable } from "./copies-table";
 import { countsOf, stepColumns } from "./step-columns";
 
 // A class's home assessments or chosen papers for a week are one assessment, named for what they are.
-const MANY: Record<string, string> = { focus: "Home assessments", custom: "Chosen papers" };
+const MANY: Record<string, string> = {
+  focus: "Home assessments",
+  custom: "Chosen papers",
+};
 
 /** Which assessment a paper or a row is: its kind, class, week and skill set or worksheet. */
 export const assessmentKey = (a: { kind: string; section: string | null; week: string | null; set: string | null }) =>
@@ -19,7 +22,12 @@ export const assessmentKey = (a: { kind: string; section: string | null; week: s
 
 /** Its card (goals/s2-the-assessment-card.yaml): the assessment from Made to Results, with its next step. */
 export const cardHref = (a: { kind: string; section: string | null; week: string | null; set: string | null }) => {
-  const q = new URLSearchParams({ class: a.section ?? "", week: a.week ?? "", kind: a.kind, ...(a.set ? { set: a.set } : {}) });
+  const q = new URLSearchParams({
+    class: a.section ?? "",
+    week: a.week ?? "",
+    kind: a.kind,
+    ...(a.set ? { set: a.set } : {}),
+  });
   return `/papers/card?${q}`;
 };
 
@@ -56,7 +64,12 @@ const where = (a: Named, act: Action): Go => {
 };
 
 function ActionCell({ a, back }: { a: Named; back: string }) {
-  if (a.ghost) return <Link href="/capture" className="btn secondary whitespace-nowrap">Look at the file</Link>;
+  if (a.ghost)
+    return (
+      <Link href="/capture" className="btn secondary whitespace-nowrap">
+        Look at the file
+      </Link>
+    );
   const counts = countsOf(a);
   const act = actionOf(counts, a.waiting);
   const go = where(a, act);
@@ -115,10 +128,16 @@ function NameCell({ a, open, href, back }: { a: Named; open: boolean; href: stri
       ) : null}
       <details className="pl-4 text-[12px]">
         <summary className="cursor-pointer text-basalt/60">Rename</summary>
-        <form action={renameAssessment} className="mt-1 flex gap-1">
+        <form action={renameAssessment} className="mt-1 flex flex-wrap gap-1">
           <input type="hidden" name="key" value={key} />
           <input type="hidden" name="back" value={back} />
-          <input name="name" defaultValue={a.name} maxLength={120} aria-label="Name this assessment" className="input min-w-0 flex-1 !py-1 !text-[13px]" />
+          <input
+            name="name"
+            defaultValue={a.name}
+            maxLength={120}
+            aria-label="Name this assessment"
+            className="input min-w-0 flex-1 !py-1 !text-[13px]"
+          />
           <button type="submit" className="btn secondary !px-2 !py-1 !text-[12px]">
             Save
           </button>
@@ -136,6 +155,7 @@ export async function AssessmentsTable({
   copies,
   pages,
   page,
+  of,
   back,
   href,
   pageHref,
@@ -144,6 +164,8 @@ export async function AssessmentsTable({
   copies: Map<string, PaperListRow[]>;
   pages: Map<string, { capture: string; pages: number[] }>;
   page: number;
+  /** How many assessments there are in all, where `rows` is just the page. */
+  of?: number;
   /** The list as it is addressed now, so a rename or an approval comes back to it. */
   back: string;
   href: (a: Named, open: boolean) => string;
@@ -155,14 +177,29 @@ export async function AssessmentsTable({
     {
       key: "name",
       label: "Assessment",
-      width: "15%",
+      width: "24%",
       keep: true,
       value: (a) => a.name,
       cell: (a) => <NameCell a={a} open={copies.has(assessmentKey(a))} href={href(a, copies.has(assessmentKey(a)))} back={back} />,
     },
-    { key: "kind", label: "Kind", width: "8.5%", value: (a) => (a.ghost ? null : (KIND_WORDS[a.kind] ?? a.kind)) },
-    { key: "class", label: "Class", width: "8%", value: (a) => (a.ghost || !a.section ? null : a.band ? classWords(g, a.band, a.section) : a.section) },
-    { key: "made", label: "Made on", width: "7%", value: (a) => (a.day ? dateWords(a.day.slice(0, 10)) : null) },
+    {
+      key: "kind",
+      label: "Kind",
+      width: "9%",
+      value: (a) => (a.ghost ? null : (KIND_WORDS[a.kind] ?? a.kind)),
+    },
+    {
+      key: "class",
+      label: "Class",
+      width: "9%",
+      value: (a) => (a.ghost || !a.section ? null : a.band ? classWords(g, a.band, a.section) : a.section),
+    },
+    {
+      key: "made",
+      label: "Made on",
+      width: "7%",
+      value: (a) => (a.day ? dateWords(a.day.slice(0, 10)) : null),
+    },
     ...stepColumns<Named>(cells),
     {
       key: "score",
@@ -171,7 +208,14 @@ export async function AssessmentsTable({
       num: true,
       value: (a) => (a.scored ? `${a.right} of ${a.scored}` : null),
     },
-    { key: "action", label: "Next", width: "14%", keep: true, value: () => "action", cell: (a) => <ActionCell a={a} back={back} /> },
+    {
+      key: "action",
+      label: "Next",
+      width: "12%",
+      keep: true,
+      value: () => "action",
+      cell: (a) => <ActionCell a={a} back={back} />,
+    },
   ];
   return (
     <DataTable
@@ -180,7 +224,7 @@ export async function AssessmentsTable({
       columns={columns}
       rows={rows}
       rowKey={(a) => (a.ghost ? `file~${a.ghost}` : assessmentKey(a))}
-      more={{ page, href: pageHref }}
+      more={of == null ? { page, href: pageHref } : { page, href: pageHref, of }}
       extras={{
         attrs: (a): Record<string, string> => (a.ghost ? { "data-unmatched-file": a.ghost } : { "data-assessment": assessmentKey(a) }),
         expand: (a) => {
@@ -190,6 +234,11 @@ export async function AssessmentsTable({
               <Link href={cardHref(a)} className="btn secondary mb-2">
                 Open its card →
               </Link>
+              {/* what the assessment is made of: the name leaves this out (Nimish, 26 Oct 2026) */}
+              <p className="mb-2 text-[13px] text-basalt/80" data-composition>
+                <span className="label">Made of</span> {a.skills.length ? a.skills.join(" · ") : assessmentTitle(a)}
+                {a.levels.length ? ` — ${a.levels.join(", ")}` : ""}
+              </p>
               <CopiesTable title={assessmentTitle(a)} rows={open} pages={pages} />
             </div>
           ) : null;

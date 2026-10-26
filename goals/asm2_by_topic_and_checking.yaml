@@ -1,0 +1,41 @@
+name: asm2_by_topic_and_checking
+goal: >
+  The Assessments page can also be read by topic: every topic a collapsed group with its count, opening into the table of
+  its assessments, paged, only the open topic's rows read. An assessment is named the way a teacher would say it (topic,
+  skill, difficulty, kind, class, date), never by the list of its digit sizes. Check answers lists assessments, each
+  opening into its papers, so one assessment is finished before the next is started. Each assessment shows the seven
+  steps in order, and can be filtered by stage and by class.
+# Written 2026-10-26, before the work. Nimish, the founder, 26 Oct 2026, after using the Assessments page of #324 on the live
+# site. Web only; no migration. Rule 1: the facts of a name are rows (topic, skill, difficulty, grade, class); the one rule
+# that joins them is `builtName` in apps/web/lib/assessment-steps.ts, held by u62-assessment-steps.spec.ts.
+says:
+  - words: "Assessments need reading status. In the first part, the table on the main assessments page, there are three or four stages of assessment: uploaded, created. I think that's there. There must be some view where I'll be able to just see the assessments by topic also. Let's say if someone wants to go and see addition, they can see all the assessments under addition."
+    proved_by: "apps/web/tests/asm2-by-topic.spec.ts::a By topic view lists the topics collapsed, each with its count, next to the list"
+  - words: "Let's say if someone wants to go and see addition, they can see all the assessments under addition."
+    proved_by: "apps/web/tests/asm2-by-topic.spec.ts::opening a topic shows only its assessments, ten to a page, and no other topic's rows are read"
+  - words: "What is happening is that you are just giving this: 2 digits, 2 digits, and 2 digits. It's like the composition of the assessment is what you're showing here, which is not at all useful as such. The nomenclature can be better."
+    proved_by: "apps/web/tests/u62-assessment-steps.spec.ts::an assessment is named as a teacher would say it: topic, skill, level, kind, class and day; the composition is never the title"
+  - words: "The nomenclature can be better."
+    proved_by: "apps/web/tests/asm2-by-topic.spec.ts::the name an educator gave wins, and the composition, every skill and level, is in the detail view, not the title"
+  - words: "When I come to needs checking, everyone checks the assessment by the last upload that they do. Think about how you really make these pages useful."
+    proved_by: "apps/web/tests/asm2-checking.spec.ts::Check answers lists one line per assessment, with its papers waiting, its answers left and its oldest wait"
+  - words: "everyone checks the assessment by the last upload that they do."
+    proved_by: "apps/web/tests/asm2-checking.spec.ts::an assessment opens into its papers, and finishing a paper offers the next paper of the same assessment"
+  - words: "Think about how you really make these pages useful."
+    proved_by: "apps/web/tests/asm2-checking.spec.ts::the three signals stay three on the card, and the flat list of every answer is gone"
+  - words: "Each assessment row shows its stage as a visible sequence: created, approved, printed, uploaded, read, checked, results in."
+    proved_by: "apps/web/tests/asm2-by-topic.spec.ts::each assessment shows the seven steps in order, each a chip; the stage and the class filter live inside the page"
+manual:
+  - "The pages as Nimish sees them on the live site, with the school's own papers, after the merge."
+  - "gstack (browse/QA skills) could not be installed in this session: the permission layer refused `git clone` of it. The pages were looked at in Playwright at 1440 px instead."
+scenarios: []
+criteria:
+  - name: the logic, the new screens and every spec that touches Assessments or Check answers
+    run: cd apps/web && npx playwright test tests/asm2-by-topic.spec.ts tests/asm2-checking.spec.ts tests/u62-assessment-steps.spec.ts tests/u63-assessments-page.spec.ts tests/p6-check-is-quick.spec.ts tests/u51-ux-rules.spec.ts tests/s4-validation-queue.spec.ts tests/s44-whose-paper.spec.ts tests/u9-papers.spec.ts tests/u22-assessments-readable.spec.ts tests/u37-papers-grouped.spec.ts tests/u16-assessments.spec.ts tests/s42-the-assessment-card.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

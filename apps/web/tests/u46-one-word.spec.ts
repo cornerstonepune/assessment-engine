@@ -88,14 +88,6 @@ test("the question bank says what its total counts, beside Curriculum's", async 
   await page.context().close();
 });
 
-test("Today says what the reader can settle in an educator's words", async ({ browser }) => {
-  const page = await asEducator(browser);
-  const queue = page.getByRole("region", { name: "Is the queue shrinking?", exact: true });
-  await expect(queue).toContainText("The reader settles a right answer by itself only on a kind of question it has earned trust on");
-  await expect(queue).not.toContainText("the nearest");
-  await page.context().close();
-});
-
 test("one word for one thing: a state by its own words, a skill as a skill, a count with its noun", async ({ browser }) => {
   const page = await asEducator(browser);
   await page.goto("/growth");

@@ -17,7 +17,7 @@ const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "UI1-TEST";
 const WEEK = isoWeek();
 const EDUCATOR = { email: "ui1-educator@cornerstone.test", name: "UI1 educator", role: "educator" };
-const GROUPS = ["What needs doing", "Teaching", "Assessments", "Results", "Setup"];
+const GROUPS = ["What needs doing", "Assessments", "Results", "Setup"];
 
 async function engine(path: string, body: object) {
   const r = await fetch(`http://127.0.0.1:${ENGINE_PORT}${path}`, {
@@ -74,18 +74,15 @@ async function signInAs(page: Page, email: string) {
   await page.context().addCookies([{ name: "cs_staff", value: `${body}.${mac}`, domain: "localhost", path: "/", httpOnly: true, secure: false, sameSite: "Lax" }]);
 }
 
-/** The rows of What needs doing, as {what, where, kind, state}, across every topic's table (the subject sections are open). */
+/** The rows of What needs doing, as {what, where, kind, state}, across every group's table, as the page shows them. */
 async function rows(page: Page) {
-  const out = [];
-  for (const tr of await page.locator("tr[data-kind]").all()) {
-    out.push({
-      kind: (await tr.getAttribute("data-kind"))!,
-      state: (await tr.getAttribute("data-state"))!,
-      what: (await tr.locator("td[data-label=What]").innerText()).trim(),
-      where: (await tr.locator("td[data-label=Where]").innerText()).trim(),
-    });
-  }
-  return out;
+  return page.locator("tr[data-kind]").evaluateAll((trs) =>
+    trs.map((tr) => ({
+      kind: tr.getAttribute("data-kind")!,
+      state: tr.getAttribute("data-state")!,
+      where: (tr.querySelector("td[data-label=Where]") as HTMLElement | null)?.innerText.trim() ?? "",
+    })),
+  );
 }
 
 /** The count the group "What needs doing" carries, 0 when it carries none. */
@@ -105,7 +102,7 @@ test.afterAll(async () => {
   await sql.end();
 });
 
-test("the menu is five groups, and only What needs doing carries the count of what waits", async ({ page }) => {
+test("the menu is four groups, and only What needs doing carries the count of what waits", async ({ page }) => {
   await page.goto("/today");
   const menu = page.getByRole("navigation", { name: "Sections" });
   const names = await menu.getByRole("link").allInnerTexts();
@@ -114,7 +111,7 @@ test("the menu is five groups, and only What needs doing carries the count of wh
   // the count is what the sections of the page add up to (red and amber; what can wait is said apart)
   const todo = (await page.locator("[data-todo]").evaluateAll((els) => els.map((e) => Number(e.getAttribute("data-todo")))));
   expect(await badge(page), "the group's count is the page's").toBe(todo.reduce((a, b) => a + b, 0));
-  for (const [group, heading] of [["Setup", "Curriculum"], ["Assessments", "Assessments"], ["Results", "Class results"], ["Teaching", "Teaching"], ["What needs doing", "What needs doing"]]) {
+  for (const [group, heading] of [["Setup", "Curriculum"], ["Assessments", "Assessments"], ["Results", "Class results"], ["What needs doing", "What needs doing"]]) {
     await menu.getByRole("link", { name: new RegExp(`^${group}\\b`) }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
     await expect(menu.getByRole("link", { name: new RegExp(`^${group}\\b`) })).toHaveAttribute("aria-current", "page");
@@ -122,7 +119,7 @@ test("the menu is five groups, and only What needs doing carries the count of wh
 });
 
 test("What needs doing lists everything that waits as rows, and each row's button opens that one item", async ({ page }) => {
-  await page.goto("/today?kind=classpaper");
+  await page.goto(`/today?kind=classpaper&class=${SECTION}`);
   await expect(page.getByText(/For others|For you/)).toHaveCount(0);
 
   // the test's own class pack, waiting before it prints: its row opens the page that approves exactly that pack
@@ -136,7 +133,7 @@ test("What needs doing lists everything that waits as rows, and each row's butto
   // skills to approve: one row each, as many as the skills the rows say are waiting
   const [{ drafts }] = await sql<{ drafts: number }[]>`select count(*)::int as drafts from skill where status <> 'ratified'`;
   await page.goto("/today?kind=skill");
-  const counted = (await page.locator("details[data-topic] > summary .fact").allInnerTexts()).reduce((n, t) => n + Number(t.replace(/\D/g, "")), 0);
+  const counted = (await page.locator("details[data-group] > summary [data-group-count]").allInnerTexts()).reduce((n, t) => n + Number(t.replace(/\D/g, "")), 0);
   expect(counted, "a row for every skill waiting").toBe(drafts);
   const skill = page.locator("tr[data-kind=skill]").first();
   if (drafts) {
@@ -153,7 +150,7 @@ test("What needs doing lists everything that waits as rows, and each row's butto
   expect(taught.length > 0 || off === 0).toBe(true);
 
   // the test child's parent report, written and not approved: its row opens the reports of that class
-  await page.goto("/today?kind=report");
+  await page.goto(`/today?kind=report&class=${SECTION}`);
   const report = page.locator("tr[data-kind=report]").filter({ hasText: SECTION });
   await expect(report).toHaveCount(1);
   await expect(report).toContainText("Grade 2");
@@ -165,6 +162,7 @@ test("What needs doing lists everything that waits as rows, and each row's butto
 test("an educator not mapped to a class sees every row a coordinator sees, and the engineering map", async ({ page }) => {
   // one role for now (goals/ux9c-one-role.yaml): what waits on the coordinator waits on an educator too
   await page.goto("/today");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
   const coordinator = await rows(page);
   await page.getByRole("button", { name: "Menu" }).click();
   await expect(page.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "How it works" })).toBeVisible();
@@ -180,7 +178,7 @@ test("an educator not mapped to a class sees every row a coordinator sees, and t
 });
 
 test("weeks and classes on What needs doing are said in words, not codes", async ({ page }) => {
-  await page.goto("/today?kind=classpaper");
+  await page.goto(`/today?kind=classpaper&class=${SECTION}`);
   const main = page.getByRole("main");
   await expect(main.getByText(new RegExp(`Grade 2 · ${SECTION} · class practice · ${weekWords(WEEK)}`))).toBeVisible();
   expect(weekWords(WEEK)).toMatch(/^week of \d{1,2} [A-Z][a-z]{2}$/);

@@ -105,11 +105,11 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
   await expect(lines).toHaveCount(4);
   for (const [title, kind] of [
     [await setName("ADD.2D2D"), "Class practice"],
-    ["Home assessments", "Home assessment"],
+    ["Home assessment", "Home assessment"],
     ["U9 September paper", "Earlier paper"],
     [await setName("SUB.2D2D"), "Class assessment"],
   ]) {
-    const line = lines.filter({ hasText: title });
+    const line = lines.filter({ hasText: title }).filter({ hasText: kind });
     await expect(line).toHaveCount(1);
     await expect(line).toContainText(kind);
     await expect(line).toContainText(`Grade 2 · ${SECTION}`);
@@ -151,7 +151,7 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
   await filters.locator('select[name="kind"]').selectOption({ label: "Home assessment" });
   await expect(page).toHaveURL(/kind=focus/);
   await expect(lines).toHaveCount(1);
-  await expect(lines).toContainText("Home assessments");
+  await expect(lines).toContainText("Home assessment");
   await page.goto(`/papers?class=${SECTION}&child=${kids.Bina}`);
   await expect(lines).toHaveCount(2);
   await expect(page.locator("tbody tr[data-paper]")).toHaveCount(2);

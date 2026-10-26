@@ -1,25 +1,19 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { GroupNav, GroupTabs, MenuButton } from "./nav";
-import { Search, Viewing } from "./top-bar";
+import { Search } from "./top-bar";
 import { Logo } from "./logo";
 import { signOut } from "@/lib/auth-actions";
 import type { Session } from "@/lib/auth";
 import { mayUse } from "@/lib/access";
-import type { Choices } from "@/lib/choices";
 import { GROUPS } from "@/lib/menu";
-import { isBroad, subjectNow, subjectsFor, viewingWords } from "@/lib/viewing";
 
 // The shell of every page (goals/nav_teacher_scope_and_todo.yaml). Nimish, 24 Oct 2026: "the menu is being shown on just the
 // left side. I think we can use the whole space of the screen. The menu can be on the top, or it can be a small button
-// with three lines that opens the menu." One slim bar: the mark, the five groups (lib/menu.ts), then the search, the
-// Viewing control for a person who chooses what they look at, and the menu button. A group's other pages are tabs under the
+// with three lines that opens the menu." One slim bar: the mark, the four groups (lib/menu.ts), then the search
+// and the menu button. A group's other pages are tabs under the
 // bar. The groups carry one count, on the first: what waits (lib/todo.ts `waitingCount`). Nothing here names a subject.
-export function Shell({ me, waiting, grades, choices, children }: { me: Session; waiting: number; grades: string; choices: Choices; children: ReactNode }) {
-  const mine = subjectsFor(me, choices.subjects);
-  const subject = subjectNow(me, choices.subjects, me.subject);
-  const chosen = me.oneClass ? `class:${me.oneClass}` : me.everyClass || !me.classes?.length ? "every" : "mine";
-  const classes = me.oneClass ? [me.oneClass] : me.everyClass || !me.classes?.length ? null : me.classes;
+export function Shell({ me, waiting, grades, children }: { me: Session; waiting: number; grades: string; children: ReactNode }) {
   const setup = mayUse(me, "setup");
   const groups = GROUPS.filter((g) => !g.setup || setup);
   const counts = { doing: waiting || undefined };
@@ -33,7 +27,6 @@ export function Shell({ me, waiting, grades, choices, children }: { me: Session;
           </Link>
           <GroupNav groups={groups} counts={counts} />
           <div className="ml-auto flex min-w-0 items-center gap-2 md:gap-3">
-            {isBroad(me) ? <Viewing choices={{ ...choices, subjects: mine }} subject={subject?.code ?? ""} chosen={chosen} own={me.classes ?? []} words={viewingWords(subject?.label, classes)} /> : null}
             <Search />
             <MenuButton counts={counts}>
               <Account me={me} grades={grades} />

@@ -54,9 +54,14 @@ async function clearUp() {
 
 /** The rows of one kind on What needs doing (Today's old address), and how many answers, papers or children they say. */
 async function kind(page: Page, k: string): Promise<{ rows: number; n: number }> {
-  await page.goto(`/today?kind=${k}`);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
-  const many = await page.locator(`tr[data-kind=${k}] td[data-label="How many"]`).allInnerTexts();
+  // the rows are paged ten at a time: every page of the one group the kind opens
+  const many: string[] = [];
+  for (let at = 1; ; at++) {
+    await page.goto(`/today?kind=${k}&page=${at}`);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
+    many.push(...(await page.locator(`tr[data-kind=${k}] td[data-label="How many"]`).allInnerTexts()));
+    if (!(await page.getByRole("link", { name: "Later →" }).count())) break;
+  }
   return { rows: many.length, n: many.reduce((t, m) => t + Number(m.replace(/\D/g, "")), 0) };
 }
 
@@ -74,13 +79,12 @@ test.afterAll(async () => {
 test("the menu is the teacher's week, and says where they are", async ({ page }) => {
   await page.goto("/today");
   const menu = page.getByRole("navigation", { name: "Sections" });
-  // five groups (goals/nav_teacher_scope_and_todo.yaml); the group's count of what waits follows its name
-  await expect(menu.getByRole("link")).toHaveText([/^What needs doing/, /^Teaching/, /^Assessments/, /^Results/, /^Setup/]);
+  // four groups (goals/nav3_what_needs_doing.yaml); the group's count of what waits follows its name
+  await expect(menu.getByRole("link")).toHaveText([/^What needs doing/, /^Assessments/, /^Results/, /^Setup/]);
   for (const [label, heading] of [
     ["Setup", "Curriculum"],
     ["Assessments", "Assessments"],
     ["Results", "Class results"],
-    ["Teaching", "Teaching"],
     ["What needs doing", "What needs doing"],
   ]) {
     await menu.getByRole("link", { name: new RegExp(`^${label}\\b`) }).click();
@@ -90,7 +94,7 @@ test("the menu is the teacher's week, and says where they are", async ({ page })
 });
 
 test("today lists everything waiting on a teacher, each with its count and one click to act", async ({ page }) => {
-  await page.goto("/today?kind=classpaper");
+  await page.goto(`/today?kind=classpaper&class=${SECTION}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
 
   // the class papers the engine proposed for the test's class wait for a teacher before they print
@@ -116,7 +120,7 @@ test("today lists everything waiting on a teacher, each with its count and one c
   // the skills that wait for an approval: one row each, every skill waiting, taught or not (goals/ny1-needs-you.yaml)
   const [{ drafts }] = await sql<{ drafts: number }[]>`select count(*)::int as drafts from skill s where s.status <> 'ratified'`;
   await page.goto("/today?kind=skill");
-  const counted = (await page.locator("details[data-topic] > summary .fact").allInnerTexts()).reduce((t, x) => t + Number(x.replace(/\D/g, "")), 0);
+  const counted = (await page.locator("details[data-group] > summary [data-group-count]").allInnerTexts()).reduce((t, x) => t + Number(x.replace(/\D/g, "")), 0);
   expect(counted).toBe(drafts);
   if (drafts > 0) {
     await page.locator("tr[data-kind=skill]").first().getByRole("link").click();
@@ -143,8 +147,8 @@ test("what has nothing waiting says so, and each count is the page's own", async
 test("Today has the one filter row: a place and what waits narrow its lines (goals/uxn10-today.yaml)", async ({ page }) => {
   await page.goto("/today");
   await expect(page.locator("[data-filterbar]")).toBeVisible();
-  await page.goto("/today?kind=skill");
-  await expect(page.locator("[data-active-filters]")).toContainText("What: Approve a skill");
+  await page.goto("/today?group=skills");
+  await expect(page.locator("[data-active-filters]")).toContainText("What: Skills to approve");
   await expect(page.locator("tr[data-kind]:not([data-kind=skill])")).toHaveCount(0);
   await page.goto("/today?subject=NUM");
   await expect(page.locator("[data-active-filters]")).toContainText("Subject: Maths");

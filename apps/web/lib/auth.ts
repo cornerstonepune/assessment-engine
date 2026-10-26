@@ -5,24 +5,12 @@ import { cache } from "react";
 import { sql, TENANT_SLUG } from "./db";
 import { deadline } from "./deadline";
 import { staffList, type Staff } from "./queries";
-import { isBroad } from "./viewing";
 import { devBypass, SESSION_COOKIE, SESSION_DAYS, sessionEmail, sessionIssued, sessionValue } from "./session-cookie";
 
 // Who is signed in, without the password hash: a session can reach a client component, and the hash must not.
-/** What the bar at the top shows (`choose`, goals/s1-subject-class-and-today.yaml): `everyClass`, every class rather
- *  than the person's own (goals/ux9c-one-role.yaml); `oneClass`, one class alone; `subject`, the subject chosen, a code
- *  of `subject` (null: the first). A view, never a permission. */
-export type Session = Omit<Staff, "password" | "password_set_at"> & { devBypass: boolean; everyClass: boolean; oneClass: string | null; subject: string | null };
-/** The cookie that keeps a person's choice of class: "every", or "class:" and one class; none is their own classes. */
-export const CLASSES_COOKIE = "cs_classes";
-/** The cookie that keeps the subject chosen at the top. */
-export const SUBJECT_COOKIE = "cs_subject";
-
-/** The class choice a cookie holds. */
-export function classChoice(value: string | undefined): { everyClass: boolean; oneClass: string | null } {
-  if (value === "every") return { everyClass: true, oneClass: null };
-  return { everyClass: false, oneClass: value?.startsWith("class:") && value.length > 6 ? value.slice(6) : null };
-}
+/** Who is signed in. No view is kept: a person sees the classes and subjects their staff row names, and each page narrows
+ *  further with its own filters (goals/nav3_what_needs_doing.yaml, Nimish 26 Oct 2026). Never a permission (lib/access.ts). */
+export type Session = Omit<Staff, "password" | "password_set_at"> & { devBypass: boolean };
 
 // `scrypt$n$salt$hash`: the work it took is written beside it, so the cost can be raised later without locking
 // everyone out — a hash made before this (`scrypt$salt$hash`) took node's own default and still reads. scrypt is in
@@ -107,9 +95,8 @@ async function decoy(): Promise<string> {
 // the login page during an outage, which read as a broken password. Once per request, however many
 // pages, layouts and data reads ask.
 export const currentStaff = cache(async (): Promise<Session | null> => {
-  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], subjects: [], devBypass: true, everyClass: true, oneClass: null, subject: null };
-  const jar = await cookies();
-  const raw = jar.get(SESSION_COOKIE)?.value;
+  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], subjects: [], devBypass: true };
+  const raw = (await cookies()).get(SESSION_COOKIE)?.value;
   const email = sessionEmail(raw);
   if (!email) return null;
   const staff = (await deadline(staffList())).find((s) => s.email.toLowerCase() === email.toLowerCase());
@@ -119,18 +106,7 @@ export const currentStaff = cache(async (): Promise<Session | null> => {
   // (goals/auth-email-password.yaml: "every other open session of that person is ended").
   const set = staff.password_set_at ? Date.parse(staff.password_set_at) : NaN;
   if (!Number.isNaN(set) && set > (sessionIssued(raw) ?? 0)) return null;
-  const mine = { classes: staff.classes ?? [], subjects: staff.subjects ?? [] };
-  // a person mapped to one class and one subject is not offered a choice, and a cookie from before never widens it
-  const broad = isBroad(mine);
-  return {
-    email: staff.email,
-    name: staff.name,
-    role: staff.role,
-    ...mine,
-    devBypass: false,
-    ...(broad ? classChoice(jar.get(CLASSES_COOKIE)?.value) : { everyClass: false, oneClass: null }),
-    subject: broad ? jar.get(SUBJECT_COOKIE)?.value || null : (mine.subjects[0] ?? null),
-  };
+  return { email: staff.email, name: staff.name, role: staff.role, classes: staff.classes ?? [], subjects: staff.subjects ?? [], devBypass: false };
 });
 
 // For every page, route and server action: the signed-in staff member, or a redirect to /login. Each calls it
