@@ -344,7 +344,7 @@ def test_the_shared_rule_gives_the_state_the_graph_always_gave():
                     for repeating in (None, "M_X"):
                         got = db.one(
                             c,
-                            "select internal.graph_state_of(%s, %s::numeric, %s::numeric, %s::numeric, %s::text) as state",
+                            "select public.graph_state_of(%s, %s::numeric, %s::numeric, %s::numeric, %s::text) as state",
                             (t, n, share, observers, repeating),
                         )["state"]
                         want = _the_case_before_cal(n, share, observers, repeating)

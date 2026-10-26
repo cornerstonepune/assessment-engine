@@ -8,7 +8,7 @@
 --     again (calibration.review_again_children). The seed holds them too (supabase/seed/thresholds.json); written here so
 --     live has them from the deploy, before the next `engine load`. A row already there is not touched.
 --   * "Secure" is the graph's own rule, not a second one. The case that turned a child's answers on a skill into a state
---     lived inside `rebuild_child_skill_state`; it is now `internal.graph_state_of`, which that function and the new view
+--     lived inside `rebuild_child_skill_state`; it is now `public.graph_state_of`, which that function and the new view
 --     both call. `rebuild_child_skill_state` gives every child the very state it gave: only where the case is written moved.
 --   * `child_level_state`: the same rule on a child's answers at one level of one skill (ring B, a view: a pure function of
 --     the confirmed evidence, so nothing to rebuild). A blank is an answer that was given and is not a success: the child
@@ -33,8 +33,8 @@ from tenant t,
      ) v (key, value, unit, description)
 on conflict (tenant_id, key) do nothing;
 
--- The graph's rule, once. The words are 20261023090000's case, unchanged; its four numbers are the thresholds it read.
-create or replace function internal.graph_state_of(
+-- The graph's rule, once (public, so the roles that read the views can run it). The words are 20261023090000's case, unchanged; its four numbers are the thresholds it read.
+create or replace function public.graph_state_of(
   p_tenant uuid, p_n_events numeric, p_share numeric, p_observers numeric, p_repeating text
 ) returns text
 language sql stable set search_path = public as $$
@@ -68,7 +68,7 @@ begin
   insert into child_skill_state
     (tenant_id, child_id, skill_code, rung_code, state, n_events, n_correct, repeating_misconception, last_seen)
   select s.tenant_id, s.child_id, s.skill_code, s.rung_code,
-         internal.graph_state_of(s.tenant_id, s.n_events, s.share, s.observers, s.repeating),
+         public.graph_state_of(s.tenant_id, s.n_events, s.share, s.observers, s.repeating),
          s.n_events, s.n_correct, s.repeating, s.last_seen
   from (
     select e.tenant_id, e.child_id, e.skill_code, e.placed_rung as rung_code,
@@ -102,7 +102,7 @@ end $function$;
 -- A child's state at one level of one skill: the graph's rule on the confirmed answers of questions made for that level.
 create or replace view child_level_state with (security_invoker = true) as
 select s.tenant_id, s.child_id, s.skill_code, s.difficulty,
-       internal.graph_state_of(s.tenant_id, s.n_events, s.share, s.observers, s.repeating) as state,
+       public.graph_state_of(s.tenant_id, s.n_events, s.share, s.observers, s.repeating) as state,
        s.n_events, s.n_correct, s.last_seen
 from (
   select e.tenant_id, e.child_id, i.skill_set_code as skill_code, i.difficulty,
@@ -196,5 +196,18 @@ left join lateral (
   order by v.reviewed_at desc, v.id limit 1
 ) r on abs(n.assessed - r.assessed) < th.again and abs(n.secure - r.secure) < th.again
 where th.share is not null and th.min_children is not null and th.again is not null;
+
+-- The website reads the views and adds a review; the engine reads (the roles of CI and live; absent on a plain copy).
+do $$ begin
+  if exists (select from pg_roles where rolname = 'app_engine') then
+    grant execute on function public.graph_state_of(uuid, numeric, numeric, numeric, text) to app_engine;
+    grant select on child_level_state, level_calibration, calibration_review to app_engine;
+  end if;
+  if exists (select from pg_roles where rolname = 'app_web') then
+    grant execute on function public.graph_state_of(uuid, numeric, numeric, numeric, text) to app_web;
+    grant select on child_level_state, level_calibration to app_web;
+    grant select, insert on calibration_review to app_web;
+  end if;
+end $$;
 
 select internal.apply_conventions();
