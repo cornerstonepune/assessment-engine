@@ -34,6 +34,25 @@ educator's sample) is the next PR. Decision record: ADR 0096.
 
 ## Verified
 
+On a database built from this branch alone (`bin/testdb fresh`, Postgres 16 in this sandbox, 105 migrations), 2026-10-26:
+
+- Tests first: `tests/test_retire_kind.py` collected with `cannot import name 'retire'` before the module; now 7 passed.
+  Two found on the way and fixed at the cause: withdrawing a level's approval stops the whole level drawing until it is
+  approved again (the tests and the confirm step now say so), and the lookup query compared every question with every
+  other (rewritten).
+- `bin/engine done gen_retire_a_kind` → 7 of 7 sentences `PROVED`, 4 of 4 criteria `PASSED` (engine `51 passed`,
+  browser `11 passed`, `tsc` clean, `bin/check` `32 passed`); `NOT DONE` only for what is not live: not on main, and
+  live did not answer from here.
+- The tests of every area the change reaches (approvals, English edits and checks, focus papers, hand-outs, library,
+  maker, packs, question types, rules, roles, the week, the loop): `273 passed, 2 skipped, 1 failed`; the one,
+  `test_e0_english` loading twice, failed while a second run loaded the same copy at once, and passes alone (`1 passed`).
+  The whole suite did not finish here inside its hour; CI runs it.
+- Browser: u64, u55, u54, u23, u53, e0, u28 → `18 passed`. The first run broke u54, u55 and e0 (the panel's per-level
+  headings had the levels' names) and the stop action refused a kind named by a printed format (`bare_sum`); both fixed.
+- `drawable_item` the same rows as before (an `except` both ways: 0 and 0), 57 ms against 606 ms.
+- `engine/checks/rules.json` written again from the local copy (`bin/engine live rules --write --url` the copy): the new
+  table's three rules only.
+
 ## Handoff
 
 - **Live:** nothing until the merge. Before it: the rehearsal on a copy of live (`rehearse update-live` on this branch).
