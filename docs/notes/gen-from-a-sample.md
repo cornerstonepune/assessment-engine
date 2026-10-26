@@ -39,6 +39,22 @@ ability for the system to then generate a certain number of questions of that pa
 
 ## Verified
 
+On a database built from this branch (`bin/testdb fresh`, Postgres 16 in this sandbox, 106 migrations, then this
+branch's seed), 2026-10-26. The model is replaced in the engine tests by fixed replies: what is proven is the code that
+decides; no model was called (no key here).
+
+- Tests first: `tests/test_generate.py` collected with `cannot import name 'generate'` without the module. With it,
+  2 failed first (the checker reads the kind from the question; `english_edit.check` now passes it), then `5 passed`.
+- The prompt as the model would get it, filled for a Medium gap question: no placeholder left (`_fill`, `{{…}}`: none).
+- `bin/engine done gen_from_a_sample` → 6 of 6 sentences `PROVED`, 5 of 5 criteria `PASSED` (engine `74 passed` in
+  the set, `load --check` `unchanged on a second run`, browser `10 passed`, `tsc` clean, `bin/check` `32 passed`);
+  `NOT DONE` only for what is not live.
+- Browser u65, u64, u55, u54, e0 → `12 passed`. Screens looked at: the Maths form, the English "Make more like this",
+  the notice.
+- `engine eval`'s function was at its complexity ceiling; two scorers that take only a version moved to their own
+  functions (`BY_VERSION`), and its frozen numbers were written down to what it measures now (C901 14, statements 54).
+- `engine/checks/rules.json` written again from the local copy: the new columns' and table's seven rules only.
+
 ## Handoff
 
 - **Live:** nothing until both merges. Before each: the rehearsal on a copy of live (`rehearse update-live`).
