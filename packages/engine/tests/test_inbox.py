@@ -85,7 +85,7 @@ def test_the_run_is_committed_on_its_own_before_the_reading_starts(tmp_path, mon
     log = []
     monkeypatch.setattr(inbox.db, "connect", lambda *a, **k: _Conn(log))
     assert inbox.start("tenant-1", tmp_path / "24 sept.pdf", "achal@school") == RUN
-    assert log == ["insert into flow_run", "run committed"]
+    assert log == ["select pg_advisory_xact_lock(hashtext(%s))", "insert into flow_run", "run committed"]
 
 
 @pytest.fixture

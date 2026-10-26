@@ -232,7 +232,10 @@ def read_file(
         raise HTTPException(status_code=400, detail=str(why)) from why
     with pymupdf.open(path) as doc:
         pages = len(doc)
-    run_id = inbox.start(tenant_id, path, body.actor, pages=pages)
+    try:
+        run_id = inbox.start(tenant_id, path, body.actor, pages=pages)
+    except inbox.Refused as no:
+        raise HTTPException(status_code=no.status, detail=str(no)) from no
     background.add_task(inbox.read, run_id, path, body.actor, body.again)
     return {"run_id": run_id, "pages": pages}
 
@@ -258,14 +261,15 @@ def read_run_again(
     run_id: str, body: ReadAgainRequest, background: BackgroundTasks, conn=Depends(get_conn, scope="function")
 ):
     """A file sent to be read, read afresh (goals/ck2-photograph-is-its-page.yaml): a run of its own, every copy no
-    person has worked on read anew and its old reading superseded, a person's checks kept (`inbox.again`)."""
+    person has worked on read anew and its old reading superseded, a person's checks kept (`inbox.again`). Not while
+    any run of the file is being read (`inbox.start`)."""
     try:
         path, tenant = inbox.again(conn, run_id)
+        with pymupdf.open(path) as doc:
+            pages = len(doc)
+        new = inbox.start(tenant, path, body.by, pages=pages)
     except inbox.Refused as no:
         raise HTTPException(status_code=no.status, detail=str(no)) from no
-    with pymupdf.open(path) as doc:
-        pages = len(doc)
-    new = inbox.start(tenant, path, body.by, pages=pages)
     background.add_task(inbox.read, new, path, body.by, True)
     return {"run_id": new, "pages": pages}
 
