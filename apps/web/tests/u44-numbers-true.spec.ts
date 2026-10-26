@@ -13,6 +13,7 @@ import { expect, test, type Browser, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
 import { isoWeek } from "../lib/week";
+import { queueByWeek } from "../lib/queries-today";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const MINE = "U44-MINE";
@@ -88,11 +89,9 @@ test("Today's queue counts the educator's own classes, as the line above it does
   const toCheck = (await page.locator("tr[data-kind=check] td[data-label=\"How many\"]").allTextContents()).reduce((n, s) => n + num(s), 0);
   // the educator's one waiting answer is Asha's; Chetan's two are another class's
   expect(toCheck).toBe(1);
-  const table = page.getByRole("table", { name: "Answers read, week by week" });
-  // the column by its heading: a column that is all zeros is not drawn (docs/ux-rules.md rule 4), so its place moves
-  const heads = await table.locator("thead th").allTextContents();
-  const waiting = await table.locator(`tbody tr td:nth-child(${heads.indexOf("Still waiting") + 1})`).allTextContents();
-  expect(waiting.reduce((n, s) => n + num(s), 0), "Still waiting, summed over the weeks shown").toBe(toCheck);
+  // the parked trend (docs/notes/nav3-what-needs-doing.md) counts the same classes: its data, in the educator's scope
+  const waiting = (await queueByWeek({ classes: [MINE], note: null })).reduce((n, w) => n + w.waiting, 0);
+  expect(waiting, "Still waiting, summed over the weeks").toBe(toCheck);
   await page.context().close();
 });
 

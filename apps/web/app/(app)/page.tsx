@@ -2,6 +2,7 @@ import Link from "@/components/link";
 import { FilterBar } from "@/components/filter-bar";
 import { PageShell } from "@/components/page-shell";
 import { Notice } from "@/components/shell";
+import { TaughtNotice } from "@/components/taught-notice";
 import { deadline } from "@/lib/deadline";
 import { curriculumRows } from "@/lib/queries-curriculum";
 import { skillsWaiting } from "@/lib/queries-people";
@@ -47,7 +48,7 @@ export default async function CurriculumPage({ searchParams }: Props) {
   const href = (n: number) => {
     const p = new URLSearchParams(
       Object.entries(q).filter(
-        ([k, v]) => v && !["page", "approved", "on", "off"].includes(k),
+        ([k, v]) => v && !["page", "approved", "said", "in", "taught"].includes(k),
       ) as [string, string][],
     );
     if (n > 1) p.set("page", String(n));
@@ -87,12 +88,13 @@ export default async function CurriculumPage({ searchParams }: Props) {
             : "Open the question bank"}
         </Link>
       }
-      next={{ href: "/taught", label: "Teaching" }}
+      next={{ href: "/today", label: "What needs doing" }}
       details={{
         href: details ? "/" : "/?details=1",
         label: details ? "Hide question bank details" : "Question bank details",
       }}
     >
+      <TaughtNotice q={q} />
       {q.approved === "0" ? (
         <Notice tone="terracotta">
           Nothing was approved: it changed since this page was opened. Read it

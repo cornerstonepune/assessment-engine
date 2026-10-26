@@ -58,7 +58,7 @@ test("when the staff check cannot reach the database, the page says so instead o
 // Now only the menu pages are fetched ahead — Next 16 asks for a page's outline and its loading
 // screen separately, so at most two small requests each.
 test("opening the Skill Map loads nothing ahead but the menu pages", async ({ page }) => {
-  const MENU = ["/today", "/taught", "/papers/approve", "/", "/papers", "/make", "/worksheets", "/library", "/capture", "/capture/check", "/growth", "/home", "/workflows"];
+  const MENU = ["/today", "/papers/approve", "/", "/papers", "/make", "/worksheets", "/library", "/capture", "/capture/check", "/growth", "/home", "/workflows"];
   const background: string[] = [];
   page.on("request", (r) => {
     if (r.resourceType() !== "document" && r.headers()["rsc"] === "1") background.push(new URL(r.url()).pathname);
@@ -73,7 +73,6 @@ test("every menu page opens within three seconds of its click", async ({ page })
   await page.goto("/", { waitUntil: "networkidle" });
   for (const [label, heading] of [
     ["What needs doing", "What needs doing"],
-    ["Teaching", "Teaching"],
     ["Assessments", "Assessments"],
     ["Results", "Class results"],
     ["Setup", "Curriculum"],

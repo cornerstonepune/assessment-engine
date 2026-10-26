@@ -17,7 +17,7 @@ says:
   - words: "I can't seem to actually find where I go and check the papers or questions for which human validation is required."
     proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::What needs doing lists everything that waits as rows, and each row's button opens that one item"
   - words: "At any tab that requires validation"
-    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::the menu is five groups, and only What needs doing carries the count of what waits"
+    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::the menu is four groups, and only What needs doing carries the count of what waits"
   - words: "better UI, better navigation, and better linking"
     proved_by: "apps/web/tests/u1-today.spec.ts::the menu is the teacher's week, and says where they are"
   - words: "They are the educators, the teachers, so we don't have any more layers in there."

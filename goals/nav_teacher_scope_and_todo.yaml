@@ -12,7 +12,7 @@ says:
   - words: "When a teacher logs in, because there is a mapping of grade and subject to the teacher, only their relevant sections open up."
     proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::an educator with one class and one subject: top menu, only hers, no Class or Subject boxes, no approve-all"
   - words: "the menu is being shown on just the left side. I think we can use the whole space of the screen. The menu can be on the top, or it can be a small button with three lines that opens the menu."
-    proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::an admin: the same top menu and a Viewing control, both subjects on Teaching"
+    proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::an admin: the same top menu, and no Viewing control"
   - words: "ensure that the logo is also changed for the dashboard"
     proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::an educator with one class and one subject: top menu, only hers, no Class or Subject boxes, no approve-all"
   - words: "Key things that need to happen should be in a simple table with some red, amber, green notation. Whatever needs to expand can expand."
@@ -20,7 +20,7 @@ says:
   - words: "Everything has to have its own set of approvals."
     proved_by: "apps/web/tests/u62-scope-and-todo-logic.spec.ts::no page has an 'approve all' control"
   - words: "Why is the skill approval there? It shouldn't be there."
-    proved_by: "apps/web/tests/u60-ui-wave-1-flow.spec.ts::an educator's Teaching: her subject, topics as a table with the topic flow, no skill approval"
+    proved_by: "apps/web/tests/u65-what-needs-doing-walk.spec.ts::Teaching is not in the menu and its old address opens What needs doing"
   - words: "When they start with a new topic they go through the skills; they generate some assessments; then they give a first baseline assessment; then as a child progresses they give home assessments; maybe some children get more home assessments; maybe they go back to a previous topic and give them practice."
     proved_by: "apps/web/tests/u62-scope-and-todo-logic.spec.ts::the baseline is the first class assessment; home papers count children and repeats"
 manual:

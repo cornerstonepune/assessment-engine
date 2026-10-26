@@ -7,9 +7,9 @@ goal: >
 # filter row (they are folds of switches, held by u30/u31/u40; a table of every class and topic is its own slice).
 says:
   - words: "make it easy to navigate, and ensure the entire design consistency"
-    proved_by: "apps/web/tests/u52-taught-this-week.spec.ts::Teaching is its own page: a table of topics, a tab for each subject, and the week's next step"
+    proved_by: "apps/web/tests/u52-taught-this-week.spec.ts::a topic waiting to be marked taught is a row with its own button, in the group that opens Curriculum"
   - words: "You have to look at every screen from a teacher educator's point of view"
-    proved_by: "apps/web/tests/u52-taught-this-week.spec.ts::Today's line opens it, and Curriculum links to it instead of carrying the switches"
+    proved_by: "apps/web/tests/u52-taught-this-week.spec.ts::Curriculum's next step is What needs doing"
 manual: []
 scenarios: []
 criteria:
@@ -25,3 +25,5 @@ criteria:
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check
     expect: "passed"
+# 26 Oct 2026 (goals/nav3_what_needs_doing.yaml): Nimish: "I don't understand the purpose of this teaching page". Teaching is gone; the two
+# sentences above are now held by the tests of what replaced it, a row of What needs doing and Curriculum's next step.

@@ -68,7 +68,7 @@ for (const { name, width, height } of SIZES) {
 test("every section is reachable from the menu", async ({ page }) => {
   await page.goto("/");
   const groups = page.getByRole("navigation", { name: "Sections" });
-  for (const label of ["What needs doing", "Teaching", "Assessments", "Results", "Setup"]) await expect(groups.getByRole("link", { name: label })).toBeVisible();
+  for (const label of ["What needs doing", "Assessments", "Results", "Setup"]) await expect(groups.getByRole("link", { name: label })).toBeVisible();
   // and every page of every group from the three-line button
   await page.getByRole("button", { name: "Menu" }).click();
   const panel = page.getByRole("dialog", { name: "Menu" });
