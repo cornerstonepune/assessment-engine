@@ -14,6 +14,8 @@ line tools, a cloud session, GitHub Actions).
   athena block ID REASON            stop work, write BLOCKED.md for Nimish
   athena unlock ID                  only after Nimish types "UNLOCK ID"
   athena verify-locks               every LOCK still matches its files
+  athena scorecard                  per component: times fired, sessions, cost, last fired
+  athena health                     one PASS/FAIL line per check; exit 1 if any fails
   athena check-scope-changes --base REF [--labels JSON]   CI: no silent scope edits
   athena hook {session-start|guard|stop|prompt}           called by Claude Code
 """
@@ -27,7 +29,7 @@ import sys
 import time
 from pathlib import Path
 
-VERSION = "2.4.0"
+VERSION = "2.5.0"
 ID_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
 STRIKE_LIMIT = 3
 CHECK_TIMEOUT = int(os.environ.get("ATHENA_CHECK_TIMEOUT", "900"))
@@ -516,6 +518,21 @@ def cmd_status(args):
     return 0
 
 
+def cmd_scorecard(args):
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import athena_measure
+    print(athena_measure.scorecard(ROOT, Path.home()))
+    return 0
+
+
+def cmd_health(args):
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import athena_measure
+    results = athena_measure.health(ROOT, Path.home(), VERSION)
+    print(athena_measure.render(results))
+    return 1 if any(s == "FAIL" for s, _ in results) else 0
+
+
 # ---------------------------------------------------------------- strikes
 def _strikes_path(spec_id):
     return STATE / f"strikes-{spec_id}.json"
@@ -796,6 +813,7 @@ COMMANDS = {
     "new": cmd_new, "next-id": cmd_next_id, "lock": cmd_lock, "start": cmd_start, "done": cmd_done, "finish": cmd_finish,
     "block": cmd_block, "unlock": cmd_unlock, "verify-locks": cmd_verify_locks,
     "check-scope-changes": cmd_check_scope_changes, "status": cmd_status, "hook": cmd_hook,
+    "scorecard": cmd_scorecard, "health": cmd_health,
 }
 
 

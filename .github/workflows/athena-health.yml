@@ -1,0 +1,30 @@
+# Managed by the Athena harness: reinstalling overwrites this file.
+# Nightly health check of the harness in this repository. No AI model and no secrets beyond GITHUB_TOKEN.
+# Failures open or update one issue titled "Athena health: <date>"; a clean night closes it.
+name: athena-health
+on:
+  schedule:
+    - cron: "47 21 * * *"   # 03:17 IST
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: athena health
+        env:
+          ATHENA_HEALTH_CI: "1"
+        run: python3 .claude/athena/bin/athena health || [ $? -eq 1 ]   # 1 means checks failed; anything else is a crash
+      - name: athena scorecard
+        env:
+          ATHENA_HEALTH_CI: "1"
+        run: python3 .claude/athena/bin/athena scorecard
+      - name: Keep the Athena health issue in step
+        env:
+          ATHENA_HEALTH_CI: "1"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .claude/athena/bin/health_issue.py
