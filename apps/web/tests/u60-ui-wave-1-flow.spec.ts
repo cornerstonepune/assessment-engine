@@ -12,6 +12,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
+import { createHmac } from "node:crypto";
 import { isoWeek } from "../lib/week";
 
 test.use({ viewport: { width: 1440, height: 900 } });
@@ -67,6 +68,101 @@ test.afterAll(async () => {
   await sql.end();
 });
 
+// An educator mapped to one class and one subject (goals/nav_teacher_scope_and_todo.yaml): signed in as the site signs one in.
+const EDUCATOR = { email: "wv1-educator@cornerstone.test", name: "Wave Educator", role: "educator", classes: [SECTION], subjects: ["NUM"] };
+test.beforeAll(async () => {
+  await sql`
+    update config set value = value || ${sql.json([EDUCATOR])}
+    where key = 'app.staff' and not value @> ${sql.json([{ email: EDUCATOR.email }])}`;
+});
+async function asEducator(browser: import("@playwright/test").Browser) {
+  const body = `${Buffer.from(EDUCATOR.email).toString("base64url")}.${Date.now() + 3_600_000}`;
+  const mac = createHmac("sha256", process.env.E2E_AUTH_SECRET!).update(body).digest("hex");
+  const context = await browser.newContext({ baseURL: "http://localhost:3100", viewport: { width: 1440, height: 900 } });
+  await context.addCookies([{ name: "cs_staff", value: `${body}.${mac}`, domain: "localhost", path: "/", httpOnly: true, secure: false, sameSite: "Lax" }]);
+  return { context, page: await context.newPage() };
+}
+
+const GROUP_NAMES = ["What needs doing", "Teaching", "Assessments", "Results", "Setup"];
+
+/** The top navigation: the mark, the five groups on one bar, a menu button, and no sidebar. */
+async function theTopBar(page: Page) {
+  await expect(page.locator("header img[data-brand-mark]"), "the new logo mark").toBeVisible();
+  expect(await page.locator("aside").count(), "no left sidebar").toBe(0);
+  const groups = page.getByRole("navigation", { name: "Sections" });
+  expect((await groups.getByRole("link").allInnerTexts()).map((n) => n.replace(/\s*\d[\d,]*$/, "").trim())).toEqual(GROUP_NAMES);
+  const bar = await groups.boundingBox();
+  expect(bar && bar.y < 60, "the groups are in the bar at the top").toBe(true);
+  const main = await page.getByRole("main").boundingBox();
+  expect(main && main.x < 100, "the content starts at the left, no gutter for a menu").toBe(true);
+  await expect(page.getByRole("button", { name: "Menu" })).toBeVisible();
+}
+
+test("an educator with one class and one subject: top menu, only hers, no Class or Subject boxes, no approve-all", async ({ browser }) => {
+  const { context, page } = await asEducator(browser);
+  await open(page, "/today", /What needs doing/);
+  await theTopBar(page);
+  await expect(page.locator("#bar-subject, #bar-class, [data-viewing]"), "no universal Class or Subject selector").toHaveCount(0);
+  // the menu button opens every group with its pages, and sign out
+  await page.getByRole("button", { name: "Menu" }).click();
+  const panel = page.getByRole("dialog", { name: "Menu" });
+  for (const name of ["Papers to approve", "Check answers", "Class results", "Skills to approve", "Staff"]) await expect(panel.getByRole("link", { name }), name).toBeVisible();
+  await expect(panel.getByRole("button", { name: "Sign out" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  // What needs doing: a table, red/amber/green rows, one action on each row that opens that item
+  const rows = page.locator(".data-table tbody tr[data-kind]");
+  expect(await rows.count(), "rows of tasks").toBeGreaterThan(0);
+  for (const row of await rows.all()) {
+    await expect(row.locator("[data-status]"), "a priority chip with its icon").toHaveCount(1);
+    await expect(row.locator("a[data-action]"), "one action").toHaveCount(1);
+  }
+  expect(await page.locator("tr[data-state=doNow]").count(), "a red row first").toBeGreaterThan(0);
+  expect(await page.locator("tr[data-state=doNow]").first().evaluate((el) => el.closest("table")!.querySelector("tbody tr")?.getAttribute("data-state"))).toBe("doNow");
+  await expect(page.getByRole("button", { name: /approve (all|them|these|every)/i })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /approve (all|them|these|every)/i })).toHaveCount(0);
+  // only her class: no row names another class's paper
+  const where = await page.locator("td[data-label=Where]").allInnerTexts();
+  expect(where.filter((w) => /·\s*\d[A-Z]\b/.test(w) && !w.includes(SECTION)), "rows of another class").toEqual([]);
+  const first = rows.first().locator("a[data-action]");
+  const href = (await first.getAttribute("href"))!;
+  await first.click();
+  await expect(page).toHaveURL(new RegExp(href.split("?")[0].replace(/[/]/g, "\\/")));
+  await expect(page.getByText("This page could not load")).toHaveCount(0);
+  await context.close();
+});
+
+test("an educator's Teaching: her subject, topics as a table with the topic flow, no skill approval", async ({ browser }) => {
+  const { context, page } = await asEducator(browser);
+  await open(page, "/taught", /Teaching/);
+  await expect(page.getByRole("navigation", { name: "Subjects" }), "one subject, so no subject tabs").toHaveCount(0);
+  await tablesRead(page, "/taught");
+  expect(await page.locator("button, a").filter({ hasText: /approve/i }).count(), "no skill-approval control on Teaching").toBe(0);
+  // her class's flow on the topic her papers are of: skills ready, a baseline given, home assessments
+  const flow = page.locator(`[data-flow="${SECTION}"]`).first();
+  await expect(flow).toBeVisible();
+  await expect(flow).toContainText("Baseline");
+  await expect(flow).toContainText("Home assessments");
+  await expect(flow.locator("[data-step]")).toHaveCount(4);
+  // one action per row, in the row: say it is taught
+  const row = page.locator("tr[data-topic]").filter({ has: page.locator(`[data-flow="${SECTION}"]`) }).first();
+  await expect(row.getByRole("button", { name: /Mark as taught|Not taught after all/ })).toHaveCount(1);
+  await context.close();
+});
+
+test("an admin: the same top menu and a Viewing control, both subjects on Teaching", async ({ page }) => {
+  await open(page, "/today", /What needs doing/);
+  await theTopBar(page);
+  await expect(page.locator("[data-viewing] summary")).toContainText("Viewing:");
+  await page.locator("[data-viewing] summary").click();
+  await expect(page.locator("#bar-subject")).toBeVisible();
+  await expect(page.locator("#bar-class")).toBeVisible();
+  await open(page, "/taught", /Teaching/);
+  expect((await page.getByRole("navigation", { name: "Subjects" }).getByRole("link").allInnerTexts()).sort()).toEqual(["English", "Maths"]);
+  // a group's other pages are tabs, not more items on the bar
+  await page.goto("/papers");
+  await expect(page.getByRole("navigation", { name: "Pages in this section" }).getByRole("link")).toHaveText(["Assessments", "Papers to approve", "Upload papers", "Check answers"]);
+});
+
 /** The page opened, with nothing broken on it. */
 async function open(page: Page, path: string, title: RegExp) {
   const res = await page.goto(path);
@@ -107,6 +203,15 @@ async function tablesRead(page: Page, path: string) {
   }
 }
 
+/** The Viewing control (a coordinator's): open it, choose the subject. */
+async function viewSubject(page: Page, label: string) {
+  await page.waitForLoadState("networkidle");
+  await page.locator("[data-viewing]").evaluate((el) => ((el as HTMLDetailsElement).open = true));
+  await expect(page.locator("#bar-subject")).toBeVisible();
+  await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), page.locator("#bar-subject").selectOption({ label })]);
+  await page.waitForLoadState("networkidle");
+}
+
 /** A status is an icon and a word. */
 async function statusesSaid(page: Page, path: string) {
   const chips = page.locator("[data-status]:visible");
@@ -128,8 +233,8 @@ async function wholePage(page: Page, path: string, title: RegExp, { filter = tru
   }
 }
 
-test("Today opens, and its first action leads on", async ({ page }) => {
-  await open(page, "/today", /Today/);
+test("What needs doing opens, and its first action leads on", async ({ page }) => {
+  await open(page, "/today", /What needs doing/);
   await expect(page.locator("[data-ux=action] a, [data-ux=action] button").first()).toBeVisible();
   await tablesRead(page, "/today");
   await expect(page.locator("[data-filterbar]").first()).toBeVisible();
@@ -204,11 +309,11 @@ test("Curriculum, Maths then English, and Staff and School", async ({ page }) =>
   const cells = await page.locator(`.data-table tbody tr:not(.under) td:nth-child(${column + 1})`).allInnerTexts();
   expect(cells.length).toBeGreaterThan(0);
   for (const cell of cells) expect(cell.trim()).toBe("English");
-  await page.locator("#bar-subject").selectOption({ label: "English" });
+  await viewSubject(page, "English");
   await expect(page.getByRole("heading", { level: 1 }).first()).toHaveText(/Curriculum/);
   await expect(page.getByText("This page could not load")).toHaveCount(0);
   await tablesRead(page, "/ (English)");
-  await page.locator("#bar-subject").selectOption({ label: "Maths" });
+  await viewSubject(page, "Maths");
   await wholePage(page, "/staff", /Staff/, { filter: false });
   await wholePage(page, "/school", /School/, { filter: false });
 });

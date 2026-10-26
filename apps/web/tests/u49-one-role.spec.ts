@@ -19,7 +19,8 @@ test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const MINE = "U49-MINE";
 const OTHER = "U49-OTHER";
-const EDUCATOR = { email: "u49-educator@cornerstone.test", name: "U49 Educator", role: "educator", classes: [MINE] };
+// not mapped to a class, so the same pages open on every class as the coordinator's: the test is about what is offered, not the data
+const EDUCATOR = { email: "u49-educator@cornerstone.test", name: "U49 Educator", role: "educator", classes: [] as string[] };
 const PASSWORD = "u49-a-long-test-password";
 const SALT = "00112233445566778899aabbccddeeff";
 const others = sql`(select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s where s ->> 'email' <> ${EDUCATOR.email})`;
@@ -50,12 +51,6 @@ async function asEducator(browser: Browser): Promise<Page> {
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
   await expect(page).toHaveURL(/\/today$/);
-  // their own class first; every class one choice away in the bar at the top, as the coordinator sees them
-  await Promise.all([
-    page.waitForResponse((r) => r.request().method() === "POST"),
-    page.getByRole("search", { name: "Subject, class and search" }).getByLabel("Class").selectOption("every"),
-  ]);
-  await page.waitForLoadState("networkidle");
   return page;
 }
 
@@ -108,8 +103,9 @@ test("an educator takes a decision once the coordinator's alone: approving a ski
   const educator = await asEducator(browser);
   try {
     await educator.goto("/today");
-    await expect(educator.getByRole("main")).toContainText("Skills to approve");
-    await expect(educator.getByRole("link", { name: "How it works" }).first(), "the engineering map is theirs too").toBeAttached();
+    await expect(educator.getByRole("main")).toContainText("Approve a skill");
+    await educator.getByRole("button", { name: "Menu" }).click();
+    await expect(educator.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "How it works" }), "the engineering map is theirs too").toBeVisible();
     await educator.goto(`/skill-sets/${waiting.code}`);
     await expect(educator.getByRole("button", { name: /^Approve, as / })).toBeVisible();
     await educator.goto("/skill-sets/approve");

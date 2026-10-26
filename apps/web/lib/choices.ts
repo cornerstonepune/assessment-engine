@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { sql } from "./db";
 import { grades } from "./queries";
 
@@ -7,7 +8,7 @@ import { grades } from "./queries";
 
 export type Choices = { subjects: { code: string; label: string }[]; classes: { section: string; words: string }[] };
 
-export async function choices(): Promise<Choices> {
+export const choices = cache(async (): Promise<Choices> => {
   const [subjects, classes, g] = await Promise.all([
     // the first is what a page opens on for someone who has not chosen: a subject with approved skills before one still
     // waiting for its first approval (English's, E0), so the school's site opens where its work is
@@ -21,4 +22,4 @@ export async function choices(): Promise<Choices> {
     grades(),
   ]);
   return { subjects, classes: classes.map((c) => ({ section: c.section, words: `${g.name(c.band)} · ${c.section}` })) };
-}
+});

@@ -28,14 +28,14 @@ async function whileLocked(table: "item" | "config", work: () => Promise<void>):
 const COULD_NOT_LOAD = "This page could not load";
 
 async function menu(page: Page, label: string) {
-  await page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: label, exact: true }).click();
+  await page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: new RegExp(`^${label}\\b`) }).click();
 }
 
 test("a click shows the page is loading at once, and a database that does not answer is said in words within 12 s", async ({ page }) => {
   await page.goto("/today", { waitUntil: "networkidle" });
   await whileLocked("item", async () => {
     const clicked = Date.now();
-    await menu(page, "Curriculum");
+    await menu(page, "Setup");
     await expect(page.getByRole("status", { name: "Loading this page" })).toBeVisible({ timeout: 1_500 });
     await expect(page.getByRole("heading", { name: COULD_NOT_LOAD })).toBeVisible({ timeout: 12_000 });
     expect(Date.now() - clicked).toBeLessThan(12_000);
@@ -72,10 +72,11 @@ test("opening the Skill Map loads nothing ahead but the menu pages", async ({ pa
 test("every menu page opens within three seconds of its click", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
   for (const [label, heading] of [
-    ["Today", "Today"],
-    ["Curriculum", "Curriculum"],
+    ["What needs doing", "What needs doing"],
+    ["Teaching", "Teaching"],
     ["Assessments", "Assessments"],
-    ["Class results", "Class results"],
+    ["Results", "Class results"],
+    ["Setup", "Curriculum"],
   ]) {
     const clicked = Date.now();
     await menu(page, label);

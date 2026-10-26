@@ -1,7 +1,9 @@
 import { DataTable } from "@/components/data-table";
 import type { ClassLine, Person } from "@/lib/queries-staff";
 import type { Column } from "@/lib/ux-rules";
-import { setClasses } from "./actions";
+import type { Subject as SubjectLine } from "@/lib/viewing";
+
+import { setClasses, setSubjects } from "./actions";
 
 function Edit({ person, classes }: { person: Person; classes: ClassLine[] }) {
   return (
@@ -38,14 +40,40 @@ function Edit({ person, classes }: { person: Person; classes: ClassLine[] }) {
   );
 }
 
+function EditSubjects({ person, subjects }: { person: Person; subjects: SubjectLine[] }) {
+  const names = subjects.filter((s) => person.subjects.includes(s.code)).map((s) => s.label);
+  return (
+    <details>
+      <summary className="btn secondary cursor-pointer list-none text-[13px]">{names.length ? names.join(", ") : "Every subject: choose"}</summary>
+      <form action={setSubjects} className="mt-2 grid gap-2">
+        <input type="hidden" name="email" value={person.email} />
+        <fieldset className="flex flex-wrap gap-x-4 gap-y-1">
+          <legend className="sr-only">Subjects {person.name} teaches</legend>
+          {subjects.map((s) => (
+            <label key={s.code} className="flex items-center gap-2 text-[14px]">
+              <input type="checkbox" name="subject" value={s.code} defaultChecked={person.subjects.includes(s.code)} />
+              {s.label}
+            </label>
+          ))}
+        </fieldset>
+        <button type="submit" className="btn w-fit">
+          Save the subjects
+        </button>
+      </form>
+    </details>
+  );
+}
+
 export function StaffTable({
   people,
   classes,
+  subjects,
   page,
   pageHref,
 }: {
   people: Person[];
   classes: ClassLine[];
+  subjects: SubjectLine[];
   page: number;
   pageHref: (page: number) => string;
 }) {
@@ -76,6 +104,13 @@ export function StaffTable({
       keep: true,
       value: (p) => p.classes.join(", "),
       cell: (p) => <Edit person={p} classes={classes} />,
+    },
+    {
+      key: "subjects",
+      label: "Subjects they teach",
+      keep: true,
+      value: (p) => p.subjects.join(", "),
+      cell: (p) => <EditSubjects person={p} subjects={subjects} />,
     },
   ];
   return (

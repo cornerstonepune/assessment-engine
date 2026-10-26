@@ -1,6 +1,6 @@
 import { sql } from "./db";
 import { EVERY_CLASS, type Scope } from "./scope";
-import { classesOf, taughtFor } from "./taught";
+import { classesOf } from "./taught";
 
 // What waits on a person, and who it is for (goals/ny1-needs-you.yaml): who decides each kind of thing (`people.decides`,
 // by the staff list's roles), which topics are taught and who said so, and the questions the engine drafted for a
@@ -27,14 +27,14 @@ export type ClassTaught = { section: string; taught: boolean; by: string | null;
 
 /** `taught`: in any of the classes shown. `shown`: one of its skills is taught in one of them and reaches that class's
  *  grade, so a page about those classes can show it (goals/t1-topics-are-operations.yaml). */
-export type Topic = { code: string; name: string; taught: boolean; shown: boolean; classes: ClassTaught[]; skills: { code: string; name: string }[] };
+export type Topic = { code: string; name: string; subject: string; taught: boolean; shown: boolean; classes: ClassTaught[]; skills: { code: string; name: string }[] };
 
 /** Every topic in the tree's order, with its skills' names and each class's word on each of its skills: the classes
  *  of the scope. */
 export async function topics(scope: Scope = EVERY_CLASS): Promise<Topic[]> {
   const classes = await classesOf(scope);
-  const rows = await sql<{ code: string; name: string; skills: { code: string; name: string }[]; classes: { section: string; skills: SkillTaught[] }[] }[]>`
-    select t.code, t.name,
+  const rows = await sql<{ code: string; name: string; subject: string; skills: { code: string; name: string }[]; classes: { section: string; skills: SkillTaught[] }[] }[]>`
+    select t.code, t.name, t.subject_code as subject,
            coalesce((select json_agg(json_build_object('code', s.code, 'name', s.name) order by s.code) from skill s
                      where s.tenant_id = t.tenant_id and s.topic_code = t.code), '[]'::json) as skills,
            (select coalesce(json_agg(json_build_object('section', k.section, 'skills', (
@@ -69,6 +69,7 @@ export async function topics(scope: Scope = EVERY_CLASS): Promise<Topic[]> {
     return {
       code: t.code,
       name: t.name,
+      subject: t.subject,
       skills: t.skills,
       classes: each,
       taught: each.some((c) => c.taught),
@@ -109,12 +110,5 @@ export async function asksWaiting(): Promise<{ for_role: string; n: number }[]> 
  *  and the approval page all count these. */
 export async function skillsWaiting(): Promise<number> {
   const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from skill where status <> 'ratified'`;
-  return n;
-}
-
-/** Topics no class of the scope has been taught yet, as Curriculum lists them to say so. */
-export async function topicsOff(scope: Scope = EVERY_CLASS): Promise<number> {
-  const [{ n }] = await sql<{ n: number }[]>`
-    select count(*)::int as n from topic t where not ${taughtFor(scope, sql`t.tenant_id`, sql`t.code`)}`;
   return n;
 }

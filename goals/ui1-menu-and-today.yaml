@@ -15,15 +15,15 @@ goal: >
 # Re-pointed 2026-10-22 (goals/ux10-declutter.yaml): Nimish's "a red count only on Today" narrows the menu's count to Today.
 says:
   - words: "I can't seem to actually find where I go and check the papers or questions for which human validation is required."
-    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::Today lists everything that waits, under the tab where it is done, and each line opens that place"
+    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::What needs doing lists everything that waits as rows, and each row's button opens that one item"
   - words: "At any tab that requires validation"
-    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::the menu is Today, Curriculum, Assessments, Children, and only Today carries the count of what waits"
+    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::the menu is five groups, and only What needs doing carries the count of what waits"
   - words: "better UI, better navigation, and better linking"
     proved_by: "apps/web/tests/u1-today.spec.ts::the menu is the teacher's week, and says where they are"
   - words: "They are the educators, the teachers, so we don't have any more layers in there."
-    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::an educator sees every line a coordinator sees, and the engineering map"
+    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::an educator not mapped to a class sees every row a coordinator sees, and the engineering map"
   - words: "I think it's still very confusing."
-    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::weeks and classes on Today are said in words, not codes"
+    proved_by: "apps/web/tests/u15-menu-and-today.spec.ts::weeks and classes on What needs doing are said in words, not codes"
 manual:
   - "Website only: Vercel deploys it on merge. No migration and no update-live."
 scenarios: []

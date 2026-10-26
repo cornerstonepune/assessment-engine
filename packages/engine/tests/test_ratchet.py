@@ -112,3 +112,13 @@ def test_a_ux_rule_written_down_for_the_first_time_records_its_debt_once():
     )
     assert ratchet.loosened(new, {**new, "ux": {**new["ux"], "/c": ["shell", "taglist"]}})
     assert ratchet.loosened(new, {**new, "ux_rules": rules})
+
+
+def test_no_page_joins_those_with_an_approve_all_button():
+    """Nimish, 24 Oct 2026: no page-level approve-all; the pages that still have one are listed once and only leave."""
+    base = _with(approve_all=["a.tsx"])
+    assert ratchet.loosened(base, _with(approve_all=[])) == []
+    assert ratchet.loosened(base, _with(approve_all=["a.tsx", "b.tsx"])) == [
+        "b.tsx joined the pages allowed an approve-all button: give each row its own"
+    ]
+    assert ratchet.loosened(_with(approve_all=None), _with(approve_all=["a.tsx"])) == []

@@ -1,5 +1,5 @@
 /**
- * U15 — the menu and Today (goals/ui1-menu-and-today.yaml). Nimish, 2026-10-11: "I can't seem to actually find where I
+ * U15 — the menu and What needs doing (goals/ui1-menu-and-today.yaml, rewritten for goals/nav_teacher_scope_and_todo.yaml). Nimish, 2026-10-11: "I can't seem to actually find where I
  * go and check the papers or questions for which human validation is required." The menu is the school's order of
  * work, each tab with the count of what waits in it; Today lists every one of those things under the tab where it is
  * done, each line opening that place; nothing hides behind a role; weeks and classes are said in words.
@@ -17,7 +17,7 @@ const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "UI1-TEST";
 const WEEK = isoWeek();
 const EDUCATOR = { email: "ui1-educator@cornerstone.test", name: "UI1 educator", role: "educator" };
-const TABS = ["Today", "Taught this week", "Papers to approve", "Assessments", "Upload papers", "Check answers", "Class results", "Curriculum", "Question bank"];
+const GROUPS = ["What needs doing", "Teaching", "Assessments", "Results", "Setup"];
 
 async function engine(path: string, body: object) {
   const r = await fetch(`http://127.0.0.1:${ENGINE_PORT}${path}`, {
@@ -74,25 +74,23 @@ async function signInAs(page: Page, email: string) {
   await page.context().addCookies([{ name: "cs_staff", value: `${body}.${mac}`, domain: "localhost", path: "/", httpOnly: true, secure: false, sameSite: "Lax" }]);
 }
 
-/** {line title: its count} for every line under one tab's heading on Today, and whether it adds to the tab's count. */
-async function lines(page: Page, tab: string): Promise<{ title: string; n: number; waits: boolean }[]> {
-  const group = page.getByRole("region", { name: tab, exact: true });
-  await expect(group).toBeVisible();
+/** The rows of What needs doing, as {what, where, kind, state}, across every topic's table (the subject sections are open). */
+async function rows(page: Page) {
   const out = [];
-  for (const line of await group.getByTestId("line").all()) {
+  for (const tr of await page.locator("tr[data-kind]").all()) {
     out.push({
-      title: (await line.getByRole("heading").innerText()).trim(),
-      n: Number((await line.getByTestId("count").innerText()).replace(/\D/g, "")),
-      waits: (await line.getAttribute("data-waits")) === "yes",
+      kind: (await tr.getAttribute("data-kind"))!,
+      state: (await tr.getAttribute("data-state"))!,
+      what: (await tr.locator("td[data-label=What]").innerText()).trim(),
+      where: (await tr.locator("td[data-label=Where]").innerText()).trim(),
     });
   }
   return out;
 }
 
-/** The count a menu tab carries, 0 when it carries none. */
-async function badge(page: Page, tab: string): Promise<number> {
-  const link = page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: new RegExp(`^${tab}\\b`) });
-  const n = link.getByTestId("waiting");
+/** The count the group "What needs doing" carries, 0 when it carries none. */
+async function badge(page: Page): Promise<number> {
+  const n = page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: /^What needs doing/ }).getByTestId("waiting");
   return (await n.count()) ? Number((await n.innerText()).replace(/\D/g, "")) : 0;
 }
 
@@ -107,94 +105,84 @@ test.afterAll(async () => {
   await sql.end();
 });
 
-test("the menu is Today, Curriculum, Assessments, Children, and only Today carries the count of what waits", async ({ page }) => {
+test("the menu is five groups, and only What needs doing carries the count of what waits", async ({ page }) => {
   await page.goto("/today");
   const menu = page.getByRole("navigation", { name: "Sections" });
   const names = await menu.getByRole("link").allInnerTexts();
-  expect(names.map((n) => n.replace(/\s*\d[\d,]*$/, "").trim())).toEqual(TABS);
-
-  let total = 0;
-  // the lines Today groups under a name, and the tab of that name in the menu (Children is Class results)
-  for (const [tab, group] of [["Curriculum", "Curriculum"], ["Assessments", "Assessments"], ["Class results", "Children"]]) {
-    const waiting = (await lines(page, group)).filter((l) => l.waits).reduce((s, l) => s + l.n, 0);
-    // a red count only on Today (goals/ux10-declutter.yaml): the tab's lines are counted on Today, not on the tab
-    expect(await badge(page, tab), `${tab} carries no count`).toBe(0);
-    total += waiting;
-  }
-  expect(await badge(page, "Today"), "Today's count is every tab's").toBe(total);
-
-  for (const [tab, heading] of [["Curriculum", "Curriculum"], ["Assessments", "Assessments"], ["Class results", "Class results"], ["Today", "Today"]]) {
-    await menu.getByRole("link", { name: new RegExp(`^${tab}\\b`) }).click();
+  expect(names.map((n) => n.replace(/\s*\d[\d,]*$/, "").trim())).toEqual(GROUPS);
+  await expect(menu.getByTestId("waiting"), "one count, on one group").toHaveCount(1);
+  // the count is what the sections of the page add up to (red and amber; what can wait is said apart)
+  const todo = (await page.locator("[data-todo]").evaluateAll((els) => els.map((e) => Number(e.getAttribute("data-todo")))));
+  expect(await badge(page), "the group's count is the page's").toBe(todo.reduce((a, b) => a + b, 0));
+  for (const [group, heading] of [["Setup", "Curriculum"], ["Assessments", "Assessments"], ["Results", "Class results"], ["Teaching", "Teaching"], ["What needs doing", "What needs doing"]]) {
+    await menu.getByRole("link", { name: new RegExp(`^${group}\\b`) }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
-    await expect(menu.getByRole("link", { name: new RegExp(`^${tab}\\b`) })).toHaveAttribute("aria-current", "page");
+    await expect(menu.getByRole("link", { name: new RegExp(`^${group}\\b`) })).toHaveAttribute("aria-current", "page");
   }
 });
 
-test("Today lists everything that waits, under the tab where it is done, and each line opens that place", async ({ page }) => {
-  await page.goto("/today");
+test("What needs doing lists everything that waits as rows, and each row's button opens that one item", async ({ page }) => {
+  await page.goto("/today?kind=classpaper");
   await expect(page.getByText(/For others|For you/)).toHaveCount(0);
 
-  // Assessments: the answers to check, as the page that checks them counts them
-  const assessments = await lines(page, "Assessments");
-  const toCheck = assessments.find((l) => l.title === "Answers to check")?.n ?? 0;
-  if (toCheck) {
-    await page.getByRole("region", { name: "Answers to check" }).getByRole("link").first().click();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check answers");
-    await expect(page.getByText(`${toCheck} ${toCheck === 1 ? "answer" : "answers"} left to check`)).toBeVisible();
-    await page.goto("/today");
-  }
-
-  // the test's own class pack, waiting before it prints: its line opens the page that approves exactly that pack
-  const pack = page.getByRole("region", { name: "Class papers to approve" }).getByRole("link", { name: new RegExp(SECTION) });
-  await expect(pack).toBeVisible();
-  await pack.click();
+  // the test's own class pack, waiting before it prints: its row opens the page that approves exactly that pack
+  const pack = page.locator("tr[data-kind=classpaper]").filter({ hasText: SECTION });
+  await expect(pack).toHaveCount(1);
+  await expect(pack.locator("[data-status]")).toContainText("this week");
+  await pack.getByRole("link").click();
   await expect(page).toHaveURL(new RegExp(`section=${SECTION}&week=${WEEK}&kind=practice`));
   await expect(page.getByRole("button", { name: /Approve/ })).toBeVisible();
-  await page.goto("/today");
 
-  // Curriculum: skills to approve, the engine's questions, the topics not taught yet, each counted as the rows say
-  const curriculum = Object.fromEntries((await lines(page, "Curriculum")).map((l) => [l.title, l]));
+  // skills to approve: one row each, as many as the skills the rows say are waiting
   const [{ drafts }] = await sql<{ drafts: number }[]>`select count(*)::int as drafts from skill where status <> 'ratified'`;
-  const [{ asks }] = await sql<{ asks: number }[]>`select count(*)::int as asks from ask where answer is null`;
-  const [{ off }] = await sql<{ off: number }[]>`select count(*)::int as off from topic t where not exists (select 1 from child k where k.tenant_id = t.tenant_id and k.active and taught_in(t.tenant_id, t.code, k.section))`;
-  expect(curriculum["Skills to approve"]?.n ?? 0).toBe(drafts);
-  expect(curriculum["Questions the engine drafted for you"]?.n ?? 0).toBe(asks);
-  expect(curriculum["Topics not taught yet"]?.n ?? 0).toBe(off);
-  expect(curriculum["Topics not taught yet"]?.waits ?? false, "a topic not taught yet is the school's choice, not work waiting").toBe(false);
-  for (const [title, heading] of [["Skills to approve", "Approve the skills"], ["Questions the engine drafted for you", "Questions to answer"]]) {
-    if (!curriculum[title]) continue;
-    await page.getByRole("region", { name: title }).getByRole("link").first().click();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
+  await page.goto("/today?kind=skill");
+  const counted = (await page.locator("details[data-topic] > summary .fact").allInnerTexts()).reduce((n, t) => n + Number(t.replace(/\D/g, "")), 0);
+  expect(counted, "a row for every skill waiting").toBe(drafts);
+  const skill = page.locator("tr[data-kind=skill]").first();
+  if (drafts) {
+    await skill.getByRole("link").click();
+    await expect(page).toHaveURL(/\/skill-sets\/[A-Z0-9_.]+$/);
     await page.goto("/today");
   }
 
-  // Children: the test child's parent report, written and not approved, opens on the report itself
-  const report = page.getByRole("region", { name: "Parent reports to approve" }).getByRole("link", { name: new RegExp(`Grade 2 · ${SECTION} · Roll 1`) });
-  await expect(report).toBeVisible();
-  await report.click();
-  await expect(page).toHaveURL(/\/growth\/[0-9a-f-]+\/parent$/);
-  await expect(page.getByTestId("parent-report")).toBeVisible();
+  // a topic not taught is a green row, "when ready": the school's choice, never counted as waiting
+  await page.goto("/today?kind=taught");
+  const [{ off }] = await sql<{ off: number }[]>`select count(*)::int as off from topic t where not exists (select 1 from child k where k.tenant_id = t.tenant_id and k.active and taught_in(t.tenant_id, t.code, k.section))`;
+  const taught = await rows(page);
+  expect(taught.every((r) => r.state === "whenReady"), "marking a topic taught is never red or amber").toBe(true);
+  expect(taught.length > 0 || off === 0).toBe(true);
+
+  // the test child's parent report, written and not approved: its row opens the reports of that class
+  await page.goto("/today?kind=report");
+  const report = page.locator("tr[data-kind=report]").filter({ hasText: SECTION });
+  await expect(report).toHaveCount(1);
+  await expect(report).toContainText("Grade 2");
+  await report.getByRole("link").click();
+  await expect(page).toHaveURL(new RegExp(`/growth/reports\\?class=${SECTION}`));
+  await expect(page.getByText("This page could not load")).toHaveCount(0);
 });
 
-test("an educator sees every line a coordinator sees, and the engineering map", async ({ page }) => {
+test("an educator not mapped to a class sees every row a coordinator sees, and the engineering map", async ({ page }) => {
   // one role for now (goals/ux9c-one-role.yaml): what waits on the coordinator waits on an educator too
   await page.goto("/today");
-  const coordinator = { a: await lines(page, "Assessments"), c: await lines(page, "Curriculum"), k: await lines(page, "Children") };
-  await expect(page.getByRole("complementary").getByRole("link", { name: "How it works" })).toBeVisible();
+  const coordinator = await rows(page);
+  await page.getByRole("button", { name: "Menu" }).click();
+  await expect(page.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "How it works" })).toBeVisible();
 
   await sql`update config set value = value || ${sql.json([EDUCATOR])} where key = 'app.staff'`;
   await signInAs(page, EDUCATOR.email);
   await page.goto("/today");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today");
-  expect({ a: await lines(page, "Assessments"), c: await lines(page, "Curriculum"), k: await lines(page, "Children") }).toEqual(coordinator);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
+  expect(await rows(page)).toEqual(coordinator);
   await expect(page.getByText(/For others|For you|No one on the staff list/)).toHaveCount(0);
-  await expect(page.getByRole("complementary").getByRole("link", { name: "How it works" })).toBeVisible();
+  await page.getByRole("button", { name: "Menu" }).click();
+  await expect(page.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "How it works" })).toBeVisible();
 });
 
-test("weeks and classes on Today are said in words, not codes", async ({ page }) => {
-  await page.goto("/today");
+test("weeks and classes on What needs doing are said in words, not codes", async ({ page }) => {
+  await page.goto("/today?kind=classpaper");
   const main = page.getByRole("main");
   await expect(main.getByText(new RegExp(`Grade 2 · ${SECTION} · class practice · ${weekWords(WEEK)}`))).toBeVisible();
   expect(weekWords(WEEK)).toMatch(/^week of \d{1,2} [A-Z][a-z]{2}$/);
-  expect(await main.innerText(), "an ISO week code on Today").not.toMatch(/\b\d{4}-W\d{2}\b/);
+  expect(await main.innerText(), "an ISO week code on the page").not.toMatch(/\b\d{4}-W\d{2}\b/);
 });

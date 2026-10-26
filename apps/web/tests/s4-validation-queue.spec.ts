@@ -380,12 +380,12 @@ test("Capture & Mark says how the reader is doing, with the database's own numbe
 });
 
 test("the queue is on the menu, and fits a phone", async ({ page }) => {
-  // U1: the queue sits inside Assessments (U9, UI1), and Today's line opens it whenever an answer waits
+  // the queue is a page of Assessments, and What needs doing has a row that opens it whenever an answer waits
   await page.goto("/today");
-  await page.getByRole("region", { name: "Assessments", exact: true }).waitFor();
+  await page.getByRole("heading", { level: 1, name: "What needs doing" }).waitFor();
   await page.goto("/capture/check");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Check answers");
-  await expect(page.getByRole("navigation", { name: "Sections" }).getByRole("link", { name: "Check answers" })).toHaveAttribute(
+  await expect(page.getByRole("navigation", { name: "Pages in this section" }).getByRole("link", { name: "Check answers" })).toHaveAttribute(
     "aria-current",
     "page",
   );

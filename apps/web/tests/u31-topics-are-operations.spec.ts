@@ -37,7 +37,7 @@ test.afterAll(async () => {
   await sql.end();
 });
 
-test("curriculum lists the six topics, and a class's skills each with its own switch", async ({ page }) => {
+test("curriculum lists the six topics, and a class is taught a topic from its row, every skill in it", async ({ page }) => {
   await aClass(sql, CLASS, "G3", ["Ruhi", "Sam"]);
   const topics = (await sql<{ name: string }[]>`select name from topic where subject_code = 'NUM' order by ord`).map((t) => t.name);
   expect(topics, "the maths has six topics, by operation").toEqual(SIX);
@@ -45,41 +45,30 @@ test("curriculum lists the six topics, and a class's skills each with its own sw
     sql<{ t: boolean }[]>`select skill_taught_in(tenant_id, ${skill}, ${CLASS}) as t from skill where code = ${skill}`;
   expect((await said("MUL.2D1D"))[0].t, "column multiplication waits for an educator's word").toBe(false);
   try {
-    await page.goto("/taught");
-    // equal groups, Grade 1's, is taught by the school: so Multiplication is taught in the class, with one skill of it;
-    // its skills open on their own, one class and one topic at a time
-    const taught = page.getByRole("region", { name: "Taught", exact: true });
-    await taught.locator("summary").first().click();
-    const mine = taught.getByRole("listitem").filter({ hasText: "Multiplication" }).first().locator(`[data-class="${CLASS}"]`);
-    await mine.getByRole("link", { name: new RegExp(`skills taught in ${CLASS}`) }).click();
-    const panel = page.getByRole("region", { name: "Skills of a topic in a class" });
-    await expect(panel).toContainText(`Multiplication in ${CLASS}`);
-    const columns = panel.locator('[data-skill="MUL.2D1D"]');
-    await expect(columns).toContainText("not taught yet");
-    await columns.getByRole("button", { name: `Taught in ${CLASS}` }).click();
-    await expect(page.getByRole("main")).toContainText(`is taught in ${CLASS} now: it is on the class's pages`);
-    await expect(panel.locator('[data-skill="MUL.2D1D"]'), "back where it was said").toContainText("· taught");
-    expect((await said("MUL.2D1D"))[0].t).toBe(true);
-    expect((await said("MUL.FACTS"))[0].t, "one skill said; the others keep their word").toBe(false);
-    const [who] = await sql<{ taught_by: string }[]>`
-      select taught_by from class_skill where section = ${CLASS} and skill_set_code = 'MUL.2D1D'`;
-    expect(who.taught_by, "in the name of who said it").toBe(TEST_STAFF.name);
-
-    // the topic's own switch says it of every skill in it
-    await page.goto("/taught");
-    await page.getByRole("region", { name: "Taught", exact: true }).locator("summary").first().click();
-    await page
-      .getByRole("region", { name: "Taught", exact: true })
-      .getByRole("listitem")
-      .filter({ hasText: "Multiplication" })
-      .first()
-      .getByRole("button", { name: `Not taught in ${CLASS}, as ${TEST_STAFF.name}` })
-      .click();
+    // equal groups, Grade 1's, is taught by the school: so Multiplication is taught in the class, with one skill of it.
+    // A skill is said taught for one class from its own row on Curriculum (tests/u40), the topic from its row on Teaching
+    await page.goto("/taught?subject=NUM");
+    const row = page.locator("tr[data-topic=MUL]");
+    await row.getByText(/\d+ skills/).click();
+    await expect(row.locator('[data-skill="MUL.2D1D"]')).toBeVisible();
+    // the topic's own switch says it of every skill in it, and unsays it of every skill
+    const fold = row.locator("details", { hasText: "Not taught after all" });
+    if (await fold.count()) await fold.locator("summary").click();
+    if (await row.getByLabel("Class to unmark").count()) await row.getByLabel("Class to unmark").selectOption(CLASS);
+    await row.getByRole("button", { name: "Not taught after all" }).last().click();
     await expect(page.getByRole("main")).toContainText(`Multiplication is not taught in ${CLASS} now`);
     const left = await sql<{ n: number }[]>`
       select count(*)::int as n from skill s
       where s.topic_code = 'MUL' and skill_taught_in(s.tenant_id, s.code, ${CLASS})`;
     expect(left[0].n, "not one multiplication skill is taught in the class now").toBe(0);
+    const again = page.locator("tr[data-topic=MUL]");
+    if (await again.getByLabel("Class to mark taught").count()) await again.getByLabel("Class to mark taught").selectOption(CLASS);
+    await again.getByRole("button", { name: "Mark as taught" }).click();
+    await expect(page.getByRole("main")).toContainText(`Multiplication is taught in ${CLASS} now`);
+    expect((await said("MUL.2D1D"))[0].t, "every skill of the topic, the columns too").toBe(true);
+    const [who] = await sql<{ taught_by: string }[]>`
+      select taught_by from class_skill where section = ${CLASS} and skill_set_code = 'MUL.2D1D'`;
+    expect(who.taught_by, "in the name of who said it").toBe(TEST_STAFF.name);
   } finally {
     await sql`delete from class_skill where section = ${CLASS}`;
   }

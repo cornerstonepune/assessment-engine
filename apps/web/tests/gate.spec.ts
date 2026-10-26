@@ -63,7 +63,7 @@ test("an email with too many wrong passwords waits, whatever password it tries",
   await sql.end();
 });
 
-test("a right password signs you in and lands on Today", async ({ page }) => {
+test("a right password signs you in and lands on What needs doing", async ({ page }) => {
   // goals/ny1-needs-you.yaml — Nimish, 2026-10-10: "I'm not even able to see that". What waits on a person is the first
   // page anyone sees. A member of staff of the test's own, hashed as `bin/engine set-password` hashes, then taken off.
   const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
@@ -79,7 +79,7 @@ test("a right password signs you in and lands on Today", async ({ page }) => {
     await page.getByLabel("Password").fill(password);
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL(/\/today$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
   } finally {
     await sql`
       update config set value = (select coalesce(jsonb_agg(s), '[]'::jsonb) from jsonb_array_elements(value) s

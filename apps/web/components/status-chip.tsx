@@ -29,6 +29,13 @@ export const STATES = {
   approved: { tone: "ok", words: "approved" },
   taught: { tone: "ok", words: "taught" },
   notTaught: { tone: "quiet", words: "not taught yet" },
+  doNow: { tone: "act", words: "do now" },
+  doSoon: { tone: "wait", words: "this week" },
+  whenReady: { tone: "ok", words: "when ready" },
+  teachingNow: { tone: "wait", words: "teaching now" },
+  nextUp: { tone: "quiet", words: "next" },
+  gettingThere: { tone: "wait", words: "getting there" },
+  noResult: { tone: "quiet", words: "no result yet" },
   next: { tone: "wait", words: "next" },
   notYet: { tone: "quiet", words: "not yet" },
 } as const;

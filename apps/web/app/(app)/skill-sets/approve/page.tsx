@@ -226,14 +226,6 @@ export default async function ApproveSkills({ searchParams }: { searchParams: Pr
                 </div>
                 {shown.length === 0 ? <p className="note p-4">Nothing waits under these choices.</p> : null}
               </section>
-              {shown.length && mayApprove ? (
-                <div className="flex flex-wrap items-center gap-3">
-                  <button className="btn" type="submit">
-                    Approve {narrowed ? "these" : "all"} {shown.length} {shown.length === 1 ? "skill" : "skills"} as written, as {me.name}
-                  </button>
-                  <span className="note">Your name goes on each one. Changing a skill later sends it back here.</span>
-                </div>
-              ) : null}
             </form>
           </>
         ) : null}

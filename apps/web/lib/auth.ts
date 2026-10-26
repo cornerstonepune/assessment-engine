@@ -5,6 +5,7 @@ import { cache } from "react";
 import { sql, TENANT_SLUG } from "./db";
 import { deadline } from "./deadline";
 import { staffList, type Staff } from "./queries";
+import { isBroad } from "./viewing";
 import { devBypass, SESSION_COOKIE, SESSION_DAYS, sessionEmail, sessionValue } from "./session-cookie";
 
 // Who is signed in, without the password hash: a session can reach a client component, and the hash must not.
@@ -79,23 +80,25 @@ export async function verifyStaff(email: string, password: string): Promise<Staf
 // the login page during an outage, which read as a broken password. Once per request, however many
 // pages, layouts and data reads ask.
 export const currentStaff = cache(async (): Promise<Session | null> => {
-  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], devBypass: true, everyClass: true, oneClass: null, subject: null };
+  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], subjects: [], devBypass: true, everyClass: true, oneClass: null, subject: null };
   const jar = await cookies();
   const email = sessionEmail(jar.get(SESSION_COOKIE)?.value);
   if (!email) return null;
   const staff = (await deadline(staffList())).find((s) => s.email.toLowerCase() === email.toLowerCase());
   // named fields, never the record: the password hash stays on the server
-  return staff
-    ? {
-        email: staff.email,
-        name: staff.name,
-        role: staff.role,
-        classes: staff.classes ?? [],
-        devBypass: false,
-        ...classChoice(jar.get(CLASSES_COOKIE)?.value),
-        subject: jar.get(SUBJECT_COOKIE)?.value || null,
-      }
-    : null;
+  if (!staff) return null;
+  const mine = { classes: staff.classes ?? [], subjects: staff.subjects ?? [] };
+  // a person mapped to one class and one subject is not offered a choice, and a cookie from before never widens it
+  const broad = isBroad(mine);
+  return {
+    email: staff.email,
+    name: staff.name,
+    role: staff.role,
+    ...mine,
+    devBypass: false,
+    ...(broad ? classChoice(jar.get(CLASSES_COOKIE)?.value) : { everyClass: false, oneClass: null }),
+    subject: broad ? jar.get(SUBJECT_COOKIE)?.value || null : (mine.subjects[0] ?? null),
+  };
 });
 
 // For every page, route and server action: the signed-in staff member, or a redirect to /login. Each calls it

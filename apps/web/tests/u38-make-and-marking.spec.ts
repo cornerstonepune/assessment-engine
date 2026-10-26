@@ -180,8 +180,9 @@ test("the children already approved are rows of the table, after the ones waitin
   await expect(dev.locator("[data-status=done]")).toContainText(`approved · by ${EDUCATOR.name}`);
   await expect(dev.getByRole("link", { name: QR.home })).toHaveAttribute("href", `/worksheets/${QR.home}`);
   await expect(table.getByRole("row").filter({ hasText: "Chetan" }).locator("[data-status=chooseOne]")).toBeVisible();
-  // what waits is still one tap, the page's one main action
-  await expect(page.locator("[data-ux=action]").getByRole("button", { name: "Approve all 2" })).toBeVisible();
+  // what waits is one tap to the first, the page's one main action; each child's is approved on the child's own row
+  await expect(page.locator("[data-ux=action]").getByRole("link", { name: "Go to the first one waiting" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Approve all/ })).toHaveCount(0);
   await page.context().close();
 });
 

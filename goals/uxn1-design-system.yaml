@@ -17,7 +17,7 @@ says:
   - words: "Use filters wherever possible"
     proved_by: "packages/engine/tests/test_ux_rules.py::test_a_filter_bar_has_every_part_the_pages_rely_on"
   - words: "the class and the subject buttons are too small, and then there is this massive strip for just typing the student name"
-    proved_by: "apps/web/tests/u51-ux-rules.spec.ts::the top bar: Class and Subject are full-size controls, the student search is a compact field"
+    proved_by: "apps/web/tests/u51-ux-rules.spec.ts::the top bar: the menu button and the Viewing control are full-size, the student search is a compact field"
   - words: "Enforced by the build: a page that breaks them fails"
     proved_by: "packages/engine/tests/test_ux_rules.py::test_the_list_only_shrinks"
 manual: []
