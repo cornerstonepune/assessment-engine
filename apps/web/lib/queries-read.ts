@@ -9,7 +9,7 @@
 import { sql } from "./db";
 import { ownBox } from "./own-box";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
-import { paperName } from "./queries-papers";
+import { paperName, setKeySql } from "./queries-papers";
 
 // ---- the approval queue. One row per paper a child sat, and every answer on it.
 //
@@ -201,20 +201,58 @@ export async function paperAnswers(id: string): Promise<CaptureAnswer[]> {
 
 // `paper_id` is the child's copy, `scan` the folder of the file it was cut from, `roll_no` and `code` the child's roll number
 // and the code printed on their paper: names stay in `pii` (rule 6), so a list of children is by roll number.
-export type QueueEntry = { id: string; spot: boolean; paper_id: string; scan: string; roll_no: string; code: string };
+// `assessment` is the assessment the paper is a copy of (its key, as the Assessments page makes it) and `captured` the day its
+// scan came in: the queue runs one assessment at a time, the one that has waited longest first.
+export type QueueEntry = {
+  id: string;
+  spot: boolean;
+  paper_id: string;
+  scan: string;
+  roll_no: string;
+  code: string;
+  assessment: string;
+  captured: string;
+};
 
 // How the reader is doing, from every check people have made (ADR 0032) — the same numbers as
 // `engine read report`: an answer counts once a person typed its reading or signed it off unchanged, and only one the
 // reader was handed (`never_read`: a tick, a sentence or a sign is a person's to read, no measure of the reader).
 // A kind's standing — its newest checks the reader stood behind, how many were right, whether that is trust, and the right
 // checks still needed (`to_trust`) — is the database's one rule, `kind_trust`, which the engine marks by too.
-export type ReaderKind = { fmt: string; checked: number; right: number; gave_up: number; window_n: number; window_right: number; trusted: boolean; to_trust: number };
+export type ReaderKind = {
+  fmt: string;
+  checked: number;
+  right: number;
+  gave_up: number;
+  window_n: number;
+  window_right: number;
+  trusted: boolean;
+  to_trust: number;
+};
 // One row per day papers were read: how often the reader matched the people who checked that day's answers.
-export type ReaderDay = { day: string; checked: number; stood_behind: number; right: number; gave_up: number };
+export type ReaderDay = {
+  day: string;
+  checked: number;
+  stood_behind: number;
+  right: number;
+  gave_up: number;
+};
 // One row per band of the reader's own confidence: of the checked answers it read that surely, how many were what the
 // person said — its reading where it stood behind one, its guess where it did not. What says where the floor can sit.
 export type ReaderBand = { lo: number; hi: number; n: number; right: number };
-export type ReaderReport = { checked: number; stood_behind: number; right: number; gave_up: number; guess_right: number; kinds: ReaderKind[]; days: ReaderDay[]; bands: ReaderBand[]; floor: number; window: number; bar: number };
+export type ReaderReport = {
+  checked: number;
+  stood_behind: number;
+  right: number;
+  gave_up: number;
+  guess_right: number;
+  kinds: ReaderKind[];
+  days: ReaderDay[];
+  bands: ReaderBand[];
+  floor: number;
+  window: number;
+  bar: number;
+};
 
 export async function readerReport(): Promise<ReaderReport> {
   const [gate] = await sql<{ bar: number; window: number }[]>`
@@ -255,7 +293,9 @@ export async function readerReport(): Promise<ReaderReport> {
       on s.confidence >= b.lo and s.confidence < b.hi
     where s.said <> ''
     group by b.lo, b.hi order by b.lo`;
-  const [floor] = await sql<{ floor: number }[]>`select coalesce((select value from threshold where key = 'read.auto_confirm_above'), 0.9)::float * 100 as floor`;
+  const [floor] = await sql<
+    { floor: number }[]
+  >`select coalesce((select value from threshold where key = 'read.auto_confirm_above'), 0.9)::float * 100 as floor`;
   const sum = (k: keyof (typeof rows)[number]) => rows.reduce((n, r) => n + Number(r[k]), 0);
   return {
     checked: sum("checked"),
@@ -275,7 +315,7 @@ export async function readerReport(): Promise<ReaderReport> {
 export async function checkQueue(scope: Scope = EVERY_CLASS): Promise<QueueEntry[]> {
   return sql<QueueEntry[]>`
     with live as (
-      select r.id, r.rid, r.status, r.state, r.raw_read, r.item_id, c.sheet_instance_id, c.path
+      select r.id, r.rid, r.status, r.state, r.raw_read, r.item_id, c.sheet_instance_id, c.path, c.created_at as captured
       from item_result r join capture c on c.id = r.capture_id where c.superseded_by is null
     ),
     spot as (
@@ -290,14 +330,21 @@ export async function checkQueue(scope: Scope = EVERY_CLASS): Promise<QueueEntry
       select s.id, true from spot s
       where s.state = 'candidate' and not exists (select 1 from read_correction rc where rc.item_result_id = s.id)
     )
-    select q.id, q.spot, si.id as paper_id, regexp_replace(l.path, '/[^/]*$', '') as scan, ch.roll_no, si.qr_code as code from q
+    select q.id, q.spot, si.id as paper_id, regexp_replace(l.path, '/[^/]*$', '') as scan, ch.roll_no, si.qr_code as code,
+           (select concat_ws('~', coalesce(si.kind, 'earlier'), coalesce(si.section, ch.section, ''), coalesce(si.week, t.week, ''),
+                             coalesce(${setKeySql("si", "t")}, ''))) as assessment,
+           l.captured::text as captured from q
     join live l on l.id = q.id
     join item i on i.id = l.item_id
     join sheet_instance si on si.id = l.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
     join child ch on ch.id = si.child_id
     where ${inScope(scope, sql`ch.section`)}
-    order by t.key ->> 'date' desc nulls last, roll_order(ch.roll_no), ch.roll_no, si.id, coalesce((l.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1),
+    -- one assessment at a time, the one waiting longest first, its papers in roll order (Nimish, 26 Oct 2026: "everyone
+    -- checks the assessment by the last upload that they do")
+    order by min(l.captured) over (partition by coalesce(si.kind, 'earlier'), coalesce(si.section, ch.section), coalesce(si.week, t.week), ${setKeySql("si", "t")}),
+             coalesce(si.kind, 'earlier'), coalesce(si.section, ch.section), coalesce(si.week, t.week), ${setKeySql("si", "t")},
+             roll_order(ch.roll_no), ch.roll_no, si.id, coalesce((l.raw_read::jsonb ->> 'page')::int, (i.spec ->> 'page')::int, 1),
              nullif(regexp_replace(result_slot(i.item_key, l.raw_read::jsonb), '[^0-9]', '', 'g'), '')::int, i.item_key,
              result_order(i.responses, l.rid)`;
 }
@@ -346,23 +393,4 @@ export async function checkItem(id: string, actor: string): Promise<CheckItem | 
     ) k on true
     where r.id = ${id}::uuid`;
   return rows[0];
-}
-
-/** One line of the queue for the list of what is left (goals/uxn7-check-answers.yaml): the answer's place on the paper
- *  and whose paper it is, by class and roll number — never a name (rule 6) — in the queue's own order. */
-export type QueueLine = { id: string; spot: boolean; section: string; roll_no: string; paper: string; slot: string };
-
-export async function checkList(queue: QueueEntry[]): Promise<QueueLine[]> {
-  if (!queue.length) return [];
-  const rows = await sql<Omit<QueueLine, "spot">[]>`
-    select r.id, ch.section, ch.roll_no, ${paperName("t")} as paper, result_slot(i.item_key, r.raw_read::jsonb) as slot
-    from item_result r
-    join capture c on c.id = r.capture_id
-    join item i on i.id = r.item_id
-    join sheet_instance si on si.id = c.sheet_instance_id
-    join sheet_template t on t.id = si.sheet_template_id
-    join child ch on ch.id = si.child_id
-    where r.id = any(${queue.map((e) => e.id)}::uuid[])`;
-  const by = new Map(rows.map((r) => [r.id, r]));
-  return queue.flatMap((e) => (by.has(e.id) ? [{ ...by.get(e.id)!, spot: e.spot }] : []));
 }

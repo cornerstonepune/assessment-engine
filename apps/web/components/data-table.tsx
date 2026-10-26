@@ -5,7 +5,9 @@ import { type Column, TABLE_ROW_LIMIT, alignOf, groupRows, pageOf, visibleColumn
 // to see the rest: grouped (a week, a class — one table each, the group's own rows capped, `href` to its rest) or paged.
 export type More<T> =
   | { by: (row: T) => string; href?: (group: string) => string }
-  | { page: number; href: (page: number) => string };
+  | { page: number; href: (page: number) => string }
+  // the caller read just that page of `of` rows (a database too big to send whole): the rows are the page
+  | { page: number; href: (page: number) => string; of: number };
 
 // What a row can carry beyond its cells: data attributes (for a test or a link target), and a row of its own under it,
 // full width (an assessment opened to its copies).
@@ -67,7 +69,10 @@ export function DataTable<T>({
       </div>
     );
   }
-  const p = pageOf(rows, more.page, limit);
+  const p =
+    "of" in more
+      ? { rows: rows.slice(0, limit), page: Math.max(1, more.page), pages: Math.max(1, Math.ceil(more.of / limit)) }
+      : pageOf(rows, more.page, limit);
   return (
     <div>
       <Grid label={label} cols={cols} rows={p.rows} rowKey={rowKey} extras={extras} sort={sort} dense={dense} />

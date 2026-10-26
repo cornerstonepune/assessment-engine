@@ -105,8 +105,8 @@ test("every assessment's stage, class and week are said in words", async ({ page
   const filters = page.locator("[data-filterbar]");
   // the status is the next thing the assessment asks to be done, in words, with how many wait on it
   const options = await filters.locator('select[name="status"]').locator("option").allTextContents();
-  expect(options[0]).toMatch(/^Any status/);
-  for (const o of options.slice(1)) expect(o).toMatch(/^(To approve|To print|To upload|Being read|To check|To sign off|Done) \(\d+\)$/);
+  expect(options[0]).toMatch(/^Any stage/);
+  for (const o of options.slice(1)) expect(o).toMatch(/^(Created, to approve|Approved, to print|Printed, to upload|Uploaded, being read|Read, to check|Checked, to sign off|Results in) \(\d+\)$/);
   // its week said in words under its name, a line for the assessment, its copy under it (goals/ux5-papers-grouped.yaml)
   const line = page.locator("tr[data-assessment]").filter({ hasText: "U16 paper" });
   await expect(line).toContainText(weekWords(WEEK));

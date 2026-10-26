@@ -96,18 +96,18 @@ test("beside the crop, the page's own proof: the page with the crop outlined, th
 test("checking runs per child: a next-child step only when this child is done, and a list of the file's children with answers left", async ({ page }) => {
   await open(page, "CSA00001", 0);
   await expect(page.locator("[data-ux=next]")).toHaveText(/next answer of this paper/);
-  const list = page.getByRole("table", { name: /Children in this file/ });
-  await expect(list.getByRole("row", { name: /^1 · this paper CSA00001 3$/ })).toBeVisible();
-  await expect(list.getByRole("row", { name: /^2 CSA00002 2$/ })).toBeVisible();
+  const list = page.getByRole("table", { name: /^Papers of / });
+  await expect(list.getByRole("row", { name: /^1 .* CSA00001 3 / })).toBeVisible();
+  await expect(list.getByRole("row", { name: /^2 .* CSA00002 2 / })).toBeVisible();
   await open(page, "CSA00001", 1);
   await expect(page.locator("[data-ux=next]")).toHaveText(/next answer of this paper/);
   await expect(page.getByText("answer 2 of 3 · 1 left")).toBeVisible();
-  // Bina has two answers waiting: on the second, her paper is done, and only then is the next child offered
-  await page.getByRole("table", { name: /Children in this file/ }).getByRole("link", { name: "2", exact: true }).click();
+  // Bina has two answers waiting: on the second, her paper is done, and only then is the next paper offered
+  await page.getByRole("table", { name: /^Papers of / }).getByRole("row", { name: /CSA00002/ }).getByRole("link", { name: "Check this" }).click();
   await expect(page.getByText("answer 1 of 2 · 1 left")).toBeVisible();
   await page.locator("[data-ux=next]").click();
   await expect(page.getByText("answer 2 of 2 · 0 left")).toBeVisible();
-  await expect(page.locator("[data-ux=next]")).toHaveText(/This paper is done — next child/);
+  await expect(page.locator("[data-ux=next]")).toHaveText(/Next paper in this assessment|This assessment is done — next assessment/);
 });
 
 test("the same photograph on two children's copies is a plain red notice, and Yes waits for a person", async ({ page }) => {

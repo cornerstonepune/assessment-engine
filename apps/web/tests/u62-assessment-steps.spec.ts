@@ -3,19 +3,69 @@
  * assessment has been through and the one thing to do next, and a file listed against its assessment. No page is opened.
  */
 import { expect, test } from "@playwright/test";
-import { actionOf, builtName, matchFiles, nameOf, stepCells, standingWords, type Counts } from "../lib/assessment-steps";
+import {
+  actionOf,
+  actionOfSig,
+  builtName,
+  matchFiles,
+  nameOf,
+  sigOf,
+  sigsFor,
+  stepCells,
+  standingWords,
+  type Counts,
+} from "../lib/assessment-steps";
 
 const KINDS = { assessment: "Class assessment", focus: "Home assessment" };
 const by = (o: Partial<Counts["by"]>): Counts["by"] => ({ made: 0, printed: 0, scanned: 0, checked: 0, "signed off": 0, ...o });
 const cls = (o: Partial<Counts["by"]>, unread = 0): Counts => ({ by: by(o), unread, home: false });
 
-test("a name is built from the sheet's skill, class, kind and day, never a file name; a day is said as every page says it", () => {
-  expect(builtName({ title: "Equal groups (repeated addition) · Easy", kind: "assessment", kinds: KINDS, classWords: "Grade 1", day: "2026-10-19" })).toBe(
-    "Equal groups (repeated addition) · Easy · Grade 1 · class assessment · 19-Oct-2026",
+const facts = { title: "", topics: [] as string[], skills: [] as string[], levels: [] as string[], kinds: KINDS };
+
+test("an assessment is named as a teacher would say it: topic, skill, level, kind, class and day; the composition is never the title", () => {
+  expect(
+    builtName({
+      ...facts,
+      topics: ["Addition & subtraction"],
+      skills: ["2-digit + 2-digit"],
+      levels: ["Easy"],
+      kind: "focus",
+      classWords: "Grade 1 · 1A",
+      day: "2026-10-12",
+    }),
+  ).toBe("Addition & subtraction · 2-digit + 2-digit · Easy · Home assessment · Grade 1 · 1A · 12-Oct-2026");
+  // three or more skills are counted, never listed; levels that differ are left out; two topics are joined, more are "mixed"
+  expect(
+    builtName({
+      ...facts,
+      topics: ["Addition & subtraction"],
+      skills: ["a", "b", "c", "d"],
+      levels: ["Easy", "Hard"],
+      kind: "focus",
+      classWords: null,
+      day: null,
+    }),
+  ).toBe("Addition & subtraction · 4 skills · Home assessment");
+  expect(builtName({ ...facts, topics: ["A", "B", "C"], skills: ["x"], kind: "assessment", classWords: null, day: null })).toBe(
+    "Mixed topics · x · Class assessment",
   );
-  // a part the sheet does not carry is left out, and a title that already says its kind is not made to say it twice
-  expect(builtName({ title: "Home assessments", kind: "focus", kinds: KINDS, classWords: null, day: null })).toBe("Home assessments");
-  expect(builtName({ title: "Home assessments", kind: "focus", kinds: KINDS, classWords: "Grade 2", day: "2026-10-24" })).toBe("Home assessments · Grade 2 · 24-Oct-2026");
+  // a part the sheet does not carry is left out; a paper with no skill is named by its own title, and not told its kind twice
+  expect(builtName({ ...facts, title: "Home assessments", kind: "focus", classWords: null, day: null })).toBe("Home assessments");
+  expect(builtName({ ...facts, title: "Home assessments", kind: "focus", classWords: "Grade 2", day: "2026-10-24" })).toBe(
+    "Home assessments · Grade 2 · 24-Oct-2026",
+  );
+  // one child's alone says whose, by roll number and never a name
+  expect(
+    builtName({
+      ...facts,
+      skills: ["x"],
+      kind: "custom",
+      kinds: { custom: "Chosen paper" },
+      classWords: "Grade 3 · 3B",
+      roll: "7",
+      day: null,
+    }),
+  ).toBe("x · Chosen paper · Grade 3 · 3B roll 7");
 });
 
 test("a name an educator chose wins; a blank one does not", () => {
@@ -24,7 +74,7 @@ test("a name an educator chose wins; a blank one does not", () => {
   expect(nameOf(undefined, "built")).toBe("built");
 });
 
-test("steps run Made, Printed, Uploaded, Read, Checked, Signed off; a class assessment has no approval step", () => {
+test("steps run Created, Printed, Uploaded, Read, Checked, Results in; a class assessment has no approval step", () => {
   const { cells, next } = stepCells(cls({ printed: 28 }));
   expect(cells.map((c) => c.step)).toEqual(["made", "printed", "uploaded", "read", "checked", "signedOff"]);
   expect(cells.map((c) => c.state)).toEqual(["done", "done", "next", "notYet", "notYet", "notYet"]);
@@ -37,11 +87,12 @@ test("a class assessment made but not printed asks to print; no approval is aske
   expect(stepCells(cls({ made: 28 })).cells[0].state).toBe("done");
 });
 
-test("a home assessment starts at To approve, with one Approve", () => {
+test("a home assessment has Approved after Created, with one Approve", () => {
   const home: Counts = { by: by({ made: 12 }), unread: 0, home: true };
   const { cells, next } = stepCells(home);
-  expect(cells[0].step).toBe("approve");
-  expect(cells[0].state).toBe("next");
+  expect(cells.map((c) => c.step).slice(0, 3)).toEqual(["made", "approve", "printed"]);
+  expect(cells[0].state).toBe("done");
+  expect(cells[1].state).toBe("next");
   expect(next).toBe("approve");
   expect(actionOf(home, 0)).toEqual({ kind: "approve", label: "Approve" });
   // once approved the pack is printed, and the next step is the upload
@@ -71,8 +122,8 @@ test("an uploaded file with no answers found yet is Uploaded but not Read", () =
 });
 
 test("furthest step and what is next are said", () => {
-  expect(standingWords(cls({ printed: 3 }))).toBe("Printed / given · next: Uploaded");
-  expect(standingWords(cls({ "signed off": 3 }))).toBe("Signed off · all done");
+  expect(standingWords(cls({ printed: 3 }))).toBe("Printed · next: Uploaded");
+  expect(standingWords(cls({ "signed off": 3 }))).toBe("Results in · all done");
 });
 
 test("what waits on a person now comes before what waits on paper to come back", () => {
@@ -92,7 +143,11 @@ test("an assessment whose copies are all replaced has nothing to do", () => {
 });
 
 test("a file is listed against the assessment its codes belong to; one tied to none is not matched", () => {
-  const owner = new Map([["CS000001", "assessment~G1A~2026-W43~EQ"], ["CS000002", "assessment~G1A~2026-W43~EQ"], ["CS000009", "focus~G1A~2026-W43~"]]);
+  const owner = new Map([
+    ["CS000001", "assessment~G1A~2026-W43~EQ"],
+    ["CS000002", "assessment~G1A~2026-W43~EQ"],
+    ["CS000009", "focus~G1A~2026-W43~"],
+  ]);
   const known = new Set([...owner.keys(), "CS000777"]);
   const r = matchFiles(
     [
@@ -108,4 +163,12 @@ test("a file is listed against the assessment its codes belong to; one tied to n
   expect(r.byKey.get("assessment~G1A~2026-W43~EQ")).toEqual(["IMG_0042.pdf", "both.pdf"]);
   expect(r.byKey.get("focus~G1A~2026-W43~")).toEqual(["both.pdf"]);
   expect(r.unmatched).toEqual(["stranger.pdf", "nocode.pdf"]);
+});
+
+test("a stage can be chosen in the database: the signature reads the same facts as the next step", () => {
+  for (const kind of ["approve", "print", "upload", "reading", "check", "signoff", "results", "none"] as const)
+    for (const sig of sigsFor(kind)) expect(actionOfSig(sig)).toBe(kind);
+  const c = cls({ printed: 2, scanned: 1 });
+  expect(sigsFor(actionOf(c, 1).kind)).toContain(sigOf(c, 1));
+  expect(sigOf({ by: by({ made: 3 }), unread: 0, home: true }, 0)).toBe("10000001");
 });

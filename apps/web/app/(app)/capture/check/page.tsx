@@ -4,22 +4,27 @@ import { EmptyState } from "@/components/empty-state";
 import { FilterBar } from "@/components/filter-bar";
 import { PageShell } from "@/components/page-shell";
 import { Bar, Notice, Panel } from "@/components/shell";
-import { DataTable } from "@/components/data-table";
 import { StatusChip } from "@/components/status-chip";
 import { requireStaff } from "@/lib/auth";
 import { scopeOf } from "@/lib/scope";
 import { deadline } from "@/lib/deadline";
-import { checkItem, checkList, checkQueue, held, toJudge, type CheckItem } from "@/lib/queries-read";
+import { checkItem, checkQueue, held, toJudge, type CheckItem } from "@/lib/queries-read";
+import { firstNames, groupQueue, paperFacts } from "@/lib/queries-check-groups";
+import { builtName, nameOf } from "@/lib/assessment-steps";
+import { chosenNames } from "@/lib/queries-assessment-extras";
+import { KIND_WORDS } from "@/lib/queries-papers";
+import { topicNamesOf } from "@/lib/queries-by-topic";
+import { grades } from "@/lib/queries";
+import { classWords } from "@/lib/needs-you";
 import { EngineDown, engineGet } from "@/lib/engine";
 import { Confirm, Judge, Nothing, TypeIt } from "./answer";
-import { QueueTable, type QueueRow } from "./queue-table";
+import { GroupsTable } from "./groups-table";
 import { ZoomPage } from "./zoom-page";
 import { PageProof, type Proof } from "./proof";
 import type { Key } from "../[id]/card";
 import { dateWords } from "@/lib/week";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
-
 
 // Why the engine is asking, in a sentence a teacher can act on — never the reader's own vocabulary.
 function whyHere(a: CheckItem, spot: boolean): string {
@@ -37,8 +42,7 @@ function whyHere(a: CheckItem, spot: boolean): string {
   if (toJudge(a)) return "The reader read it, but only a person can say whether it is right.";
   if (a.answer_state === "not_found") return "The reader could not find this question on the photograph, so the whole page is shown.";
   const why = a.why ?? "";
-  if (why.includes("numbers in the region"))
-    return "The reader found a different number of numbers here than the question has answers.";
+  if (why.includes("numbers in the region")) return "The reader found a different number of numbers here than the question has answers.";
   if (why.includes("not a number"))
     return "The answer is not a number, so the reader leaves it to you. Type it the way the paper asks for it: the numbers in order, the sign, or the word the child chose.";
   if (why.includes("no number")) return "There is writing here, but no number the reader could make out.";
@@ -88,29 +92,42 @@ export default async function CheckAnswers({ searchParams }: Props) {
   const place = entry ? mine.findIndex((e) => e.id === entry.id) : 0;
   const nextChild = entry ? queue.findIndex((e, i) => i > from && e.paper_id !== entry.paper_id) : -1;
   const nextAt = place + 1 < mine.length ? queue.indexOf(mine[place + 1]) : nextChild;
-  const children = entry
-    ? [...new Map(queue.filter((e) => e.scan === entry.scan).map((e) => [e.paper_id, e])).values()].map((e) => ({
-        paper_id: e.paper_id,
-        roll: e.roll_no,
-        code: e.code,
-        left: queue.filter((x) => x.paper_id === e.paper_id).length,
-        here: e.paper_id === entry.paper_id,
-        at: queue.findIndex((x) => x.paper_id === e.paper_id),
-      }))
-    : [];
+  // the queue runs an assessment at a time, so the next paper after this one is of the same assessment while any is left
+  const sameAssessment = nextAt >= 0 && place + 1 >= mine.length && queue[nextAt].assessment === entry?.assessment;
   const waiting = queue.filter((e) => !e.spot).length;
   const spots = queue.length - waiting;
   const next = `/capture/check?from=${from}`;
   const box = a?.box?.length === 4 && a.answer_state !== "not_found" ? `?box=${a.box.join(",")}` : "";
 
-  // what is left, in the queue's order, narrowed by class and by why it is here (goals/uxn7-check-answers.yaml)
-  const lines: QueueRow[] = (await deadline(checkList(queue))).map((l, i) => ({ ...l, at: i + 1 }));
-  const classes = [...new Set(lines.map((l) => l.section))].sort();
+  // what is left, an assessment to a line, narrowed by class and by why it is here (goals/asm2_by_topic_and_checking.yaml)
+  const facts = await deadline(paperFacts([...new Set(queue.map((e) => e.paper_id))]));
+  const classes = [...new Set([...facts.values()].map((f) => f.section ?? ""))].filter(Boolean).sort();
   const section = q.class && classes.includes(q.class) ? q.class : undefined;
   const why = q.why === "spot" || q.why === "check" ? q.why : undefined;
-  const shown = lines.filter((l) => (!section || l.section === section) && (!why || (why === "spot") === l.spot));
-  const page = Math.max(1, Math.floor(Number(q.page)) || 1);
-  const pageHref = (n: number) => `/capture/check?${new URLSearchParams({ ...(entry ? { id: entry.id } : {}), ...(section ? { class: section } : {}), ...(why ? { why } : {}), page: String(n) })}`;
+  const kept = queue.filter((e) => (!section || facts.get(e.paper_id)?.section === section) && (!why || (why === "spot") === e.spot));
+  const groups = groupQueue(kept, facts);
+  const [g, topicList, chosen] = await deadline(Promise.all([grades(), topicNamesOf(), chosenNames(groups.map((x) => x.key))]));
+  const topicName = new Map(topicList.map((t) => [t.code, t.name]));
+  const rows = groups.map((x) => {
+    const cw = x.facts.band && x.facts.section ? classWords(g, x.facts.band, x.facts.section) : (x.facts.section ?? null);
+    const built = builtName({
+      title: x.facts.title,
+      topics: x.facts.topics.map((c) => topicName.get(c) ?? c),
+      skills: x.facts.skills,
+      levels: x.levels,
+      kind: x.facts.kind,
+      kinds: KIND_WORDS,
+      classWords: cw,
+      day: x.facts.day,
+    });
+    return { ...x, name: nameOf(chosen.get(x.key), built), classWords: cw };
+  });
+  // the assessment open is the one on the card, unless another is asked for
+  const openKey = q.open === "none" ? undefined : q.open && rows.some((r) => r.key === q.open) ? q.open : entry?.assessment;
+  const openGroup = rows.find((r) => r.key === openKey);
+  const names = await deadline(firstNames(openGroup?.papers.map((p) => p.paper_id) ?? [], me.email));
+  const href = (extra: Record<string, string | undefined>) =>
+    `/capture/check?${new URLSearchParams(Object.entries({ ...(entry ? { id: entry.id } : {}), ...(section ? { class: section } : {}), ...(why ? { why } : {}), ...extra }).filter((kv): kv is [string, string] => Boolean(kv[1])))}`;
 
   const says = entry?.spot ? (a?.read ?? "") : (a?.guess ?? "");
   return (
@@ -119,17 +136,25 @@ export default async function CheckAnswers({ searchParams }: Props) {
       title="Check answers"
       purpose="Every answer the engine was not sure of, one at a time, with the child's own writing. Say what the child wrote; the engine marks it."
       action={
-      <div className="grid gap-2">
-        <p className="text-[14px]">
-          <Count of="answers to check" n={waiting} /> {waiting === 1 ? "answer" : "answers"} left to check · {spots} spot-
-          {spots === 1 ? "check" : "checks"} · answer {queue.length ? from + 1 : 0} of {queue.length}
-        </p>
-        <Bar tone="neem" share={queue.length ? from / queue.length : 1} width={320} />
-      </div>
+        <div className="grid gap-2">
+          <p className="text-[14px]">
+            <Count of="answers to check" n={waiting} /> {waiting === 1 ? "answer" : "answers"} left to check · {spots} spot-
+            {spots === 1 ? "check" : "checks"} · answer {queue.length ? from + 1 : 0} of {queue.length}
+          </p>
+          <Bar tone="neem" share={queue.length ? from / queue.length : 1} width={320} />
+        </div>
       }
       next={
         nextAt >= 0
-          ? { href: `/capture/check?from=${nextAt}`, label: place + 1 < mine.length ? "Later — show the next answer of this paper" : "This paper is done — next child" }
+          ? {
+              href: `/capture/check?from=${nextAt}`,
+              label:
+                place + 1 < mine.length
+                  ? "Later — show the next answer of this paper"
+                  : sameAssessment
+                    ? "Next paper in this assessment"
+                    : "This assessment is done — next assessment",
+            }
           : { href: "/growth", label: "See the class results" }
       }
     >
@@ -167,10 +192,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
                   className="max-h-[560px] w-full border border-basalt/14 bg-chalk object-contain"
                 />
               ) : (
-                <ZoomPage
-                  src={`/api/scan/${a.capture_id}/${a.file_page}`}
-                  alt={`What ${a.first_name} wrote for question ${a.slot}`}
-                />
+                <ZoomPage src={`/api/scan/${a.capture_id}/${a.file_page}`} alt={`What ${a.first_name} wrote for question ${a.slot}`} />
               )}
               <figcaption className="note mt-1">
                 {box
@@ -190,7 +212,12 @@ export default async function CheckAnswers({ searchParams }: Props) {
                 <p className="mt-1">
                   <span className="label">Right answer</span>{" "}
                   <strong className="fact">{key?.right ?? a.answer ?? "a person judges this one"}</strong>
-                  {key?.by ? <span className="text-[12px] text-basalt/55"> · changed from {key.was ?? "none"} by {key.by}</span> : null}
+                  {key?.by ? (
+                    <span className="text-[12px] text-basalt/55">
+                      {" "}
+                      · changed from {key.was ?? "none"} by {key.by}
+                    </span>
+                  ) : null}
                 </p>
               </div>
               <p className="note">{whyHere(a, entry.spot)}</p>
@@ -201,12 +228,14 @@ export default async function CheckAnswers({ searchParams }: Props) {
                 </p>
               ) : a.second_read !== null ? (
                 <p>
-                  Two readers disagree. The reader thinks the child wrote <strong className="fact">{a.guess}</strong>; the second reader, shown the child&rsquo;s own answers, reads <strong className="fact">{a.second_read || "nothing"}</strong>. Look at the photograph.
+                  Two readers disagree. The reader thinks the child wrote <strong className="fact">{a.guess}</strong>; the second reader,
+                  shown the child&rsquo;s own answers, reads <strong className="fact">{a.second_read || "nothing"}</strong>. Look at the
+                  photograph.
                 </p>
               ) : a.guess && a.guess_by ? (
                 <p>
-                  The second reader, shown {a.guess_by.match(/with (\d+)/)?.[1] ?? "some"} of the child&rsquo;s own answers, thinks the child wrote{" "}
-                  <strong className="fact">{a.guess}</strong>.
+                  The second reader, shown {a.guess_by.match(/with (\d+)/)?.[1] ?? "some"} of the child&rsquo;s own answers, thinks the
+                  child wrote <strong className="fact">{a.guess}</strong>.
                 </p>
               ) : a.guess ? (
                 <p>
@@ -235,44 +264,51 @@ export default async function CheckAnswers({ searchParams }: Props) {
                 {from > 0 ? <Link href={`/capture/check?from=${from - 1}`}>← Previous</Link> : null}
               </div>
               <p className="note">
-                Your answer is saved in your name and the engine marks it; what the engine read first is kept beside it, so
-                the reader can be measured against you.
+                Your answer is saved in your name and the engine marks it; what the engine read first is kept beside it, so the reader can
+                be measured against you.
               </p>
             </div>
           </div>
         </Panel>
       )}
 
-      {lines.length ? (
+      {rows.length || kept.length !== queue.length ? (
         <section aria-label="Left to check" className="mt-[18px]">
-          <h2 className="label mb-2">Left to check · {shown.length === lines.length ? lines.length : `${shown.length} of ${lines.length}`}</h2>
+          <h2 className="label mb-2">Left to check · {rows.length === 1 ? "1 assessment" : `${rows.length} assessments`}</h2>
           <FilterBar
             action="/capture/check"
             keep={{ id: entry?.id }}
             filters={[
-              { name: "class", label: "Class", value: section, all: "Every class", options: classes.map((c) => [c, c] as const) },
-              { name: "why", label: "Status", value: why, all: "Any status", options: [["check", "To check"], ["spot", "Spot-check"]] },
+              {
+                name: "class",
+                label: "Class",
+                value: section,
+                all: "Every class",
+                options: classes.map((c) => [c, c] as const),
+              },
+              {
+                name: "why",
+                label: "Status",
+                value: why,
+                all: "Any status",
+                options: [
+                  ["check", "To check"],
+                  ["spot", "Spot-check"],
+                ],
+              },
             ]}
           />
-          <QueueTable rows={shown} page={page} pageHref={pageHref} />
-          {shown.length === 0 ? <p className="note mt-2">Nothing matches these filters.</p> : null}
-        </section>
-      ) : null}
-
-      {children.length > 1 ? (
-        <section className="mt-6" aria-label="Children in this file">
-          <h2 className="mb-2 text-[15px]">Children in this file</h2>
-          <DataTable
-            label="Children in this file"
-            rows={children}
-            rowKey={(c) => c.paper_id}
-            more={{ page: Math.max(1, Number(q.kids) || 1), href: (n: number) => `/capture/check?from=${from}&kids=${n}` }}
-            columns={[
-              { key: "roll", label: "Roll", value: (c) => c.roll, cell: (c) => (c.here ? <strong>{c.roll} · this paper</strong> : <Link href={`/capture/check?from=${c.at}`}>{c.roll}</Link>) },
-              { key: "code", label: "Paper", value: (c) => c.code },
-              { key: "left", label: "Answers left", value: (c) => c.left, num: true },
-            ]}
+          <GroupsTable
+            rows={rows.slice(0)}
+            open={openKey}
+            names={names}
+            page={Math.max(1, Math.floor(Number(q.page)) || 1)}
+            papersPage={Math.max(1, Math.floor(Number(q.pp)) || 1)}
+            openHref={(key, isOpen) => href({ open: isOpen ? "none" : key })}
+            pageHref={(n) => href({ page: String(n), open: openKey ?? "none" })}
+            papersPageHref={(n) => href({ pp: String(n), open: openKey })}
           />
+          {rows.length === 0 ? <p className="note mt-2">Nothing matches these filters.</p> : null}
         </section>
       ) : null}
     </PageShell>

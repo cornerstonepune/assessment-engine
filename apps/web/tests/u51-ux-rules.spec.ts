@@ -239,7 +239,7 @@ test("Assessments is a table of aligned columns with the one filter row, and a s
   expect(await breaks(page)).toEqual([]);
   const table = page.getByRole("table", { name: "Assessments" });
   const heads = (await table.locator("thead th").allTextContents()).map((h) => h.trim());
-  for (const h of ["Class", "Assessment", "Kind", "Made on", "Made", "Printed / given", "Uploaded", "Read", "Checked", "Signed off", "Next"]) expect(heads, "columns").toContain(h);
+  for (const h of ["Class", "Assessment", "Kind", "Made on", "Created", "Printed", "Uploaded", "Read", "Checked", "Results in", "Next"]) expect(heads, "columns").toContain(h);
   // text left, numbers right, a state in the middle: heading and cells together
   const align = async (name: string) => {
     const i = heads.indexOf(name);

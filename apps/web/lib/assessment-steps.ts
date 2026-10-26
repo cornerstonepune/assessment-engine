@@ -6,13 +6,42 @@
 import type { State } from "@/components/status-chip";
 import { dateWords } from "./week";
 
-/** What the sheet's code says, in the school's words: the skill and level (or a whole paper's title), its kind, its class,
- *  the day it was made, said as every page says a date — "Equal groups (repeated addition) · Easy · Grade 1 · class assessment · 19-Oct-2026". A part the
+/** What an assessment is made of, as the rows say it: the topics and skills its questions are on, the levels of its copies,
+ *  its kind, its class, and the day it was made. Every word is a row (topic, skill, difficulty, grade, class); only the way
+ *  they are joined is here. */
+export type NameFacts = {
+  /** A whole paper's own title: the name where no skill names it. */
+  title: string;
+  topics: string[];
+  skills: string[];
+  levels: string[];
+  kind: string;
+  kinds: Record<string, string>;
+  classWords: string | null;
+  /** The roll number, where the assessment is one child's alone. */
+  roll?: string | null;
+  day: string | null;
+};
+
+/** An assessment as a teacher would say it (Nimish, 26 Oct 2026: "the composition of the assessment is what you're showing
+ *  here, which is not at all useful... the nomenclature can be better"): topic · skill · level · kind · class · day, for
+ *  example "Addition & subtraction · 2-digit + 2-digit · Easy · Home assessment · Grade 1 · 12-Oct-2026". Three or more
+ *  skills are counted, never listed, and levels that differ are left out: the list of them is in the detail view. A part the
  *  sheet does not carry is left out, never written as a dash. */
-export function builtName(p: { title: string; kind: string; kinds: Record<string, string>; classWords: string | null; day: string | null }): string {
-  const kind = (p.kinds[p.kind] ?? p.kind).toLowerCase();
-  // "Home assessments" already says its kind
-  return [p.title, p.classWords, p.title.toLowerCase().includes(kind) ? null : kind, p.day ? dateWords(p.day.slice(0, 10)) : null].filter(Boolean).join(" · ");
+export function builtName(p: NameFacts): string {
+  const kind = p.kinds[p.kind] ?? p.kind;
+  const topic = p.topics.length > 2 ? "Mixed topics" : p.topics.join(" + ");
+  const what = p.skills.length === 0 ? p.title : p.skills.length > 2 ? `${p.skills.length} skills` : p.skills.join(", ");
+  const parts = [
+    topic && topic !== what ? topic : null,
+    what,
+    p.levels.length === 1 && !what.endsWith(p.levels[0]) ? p.levels[0] : null,
+    // a title that already says its kind ("Home assessments") is not given it twice
+    what.toLowerCase().includes(kind.toLowerCase()) ? null : kind,
+    p.classWords ? `${p.classWords}${p.roll ? ` roll ${p.roll}` : ""}` : null,
+    p.day ? dateWords(p.day.slice(0, 10)) : null,
+  ];
+  return parts.filter(Boolean).join(" · ");
 }
 
 /** The name an educator chose, else the built one. `chosen` is the newest row for the assessment's key. */
@@ -20,17 +49,20 @@ export const nameOf = (chosen: string | null | undefined, built: string) => (cho
 
 // --- the steps ---
 
-export const STEPS = ["approve", "made", "printed", "uploaded", "read", "checked", "signedOff"] as const;
+export const STEPS = ["made", "approve", "printed", "uploaded", "read", "checked", "signedOff"] as const;
 export type Step = (typeof STEPS)[number];
 
+// The school's seven steps, in the order it does them (Nimish, 26 Oct 2026: "created, approved, printed, uploaded, read,
+// checked, results in"): the pack built, the educator's approval, the paper printed and given, the scans in, the engine's
+// reading, a person's check, and the results confirmed. A class assessment has no approval step of its own.
 export const STEP_WORDS: Record<Step, string> = {
-  approve: "To approve",
-  made: "Made",
-  printed: "Printed / given",
+  made: "Created",
+  approve: "Approved",
+  printed: "Printed",
   uploaded: "Uploaded",
   read: "Read",
   checked: "Checked",
-  signedOff: "Signed off",
+  signedOff: "Results in",
 };
 
 /** An assessment's live copies by the stage each stands at (`AssessmentRow.by`), and of those read-in, how many had no
@@ -92,6 +124,41 @@ export function actionOf(c: Counts, waiting = 0): Action {
   return { kind: "results", label: "See results" };
 }
 
+// --- the stage, said as a row's signature ---
+
+/** The eight facts `actionOf` reads, each as one digit: any copy made, printed, in, checked, signed off; any copy with no
+ *  answer found yet; any answer waiting for a person; a home assessment. `actionOf` looks only at whether each is more than
+ *  nothing, so a row's next step is known from this alone, and the database can group by it (`sigSql`) without a second copy
+ *  of the rule. */
+export const sigOf = (c: Counts, waiting: number) =>
+  [c.by.made, c.by.printed, c.by.scanned, c.by.checked, c.by["signed off"], c.unread, waiting, c.home ? 1 : 0]
+    .map((n) => (n > 0 ? 1 : 0))
+    .join("");
+
+/** Every signature whose next step is `kind`, for the database to filter by. */
+export function sigsFor(kind: Action["kind"]): string[] {
+  const out: string[] = [];
+  for (let n = 0; n < 256; n++) {
+    const bit = (i: number) => (n >> (7 - i)) & 1;
+    const counts: Counts = {
+      by: { made: bit(0), printed: bit(1), scanned: bit(2), checked: bit(3), "signed off": bit(4) },
+      unread: bit(5),
+      home: bit(7) === 1,
+    };
+    if (actionOf(counts, bit(6)).kind === kind) out.push(sigOf(counts, bit(6)));
+  }
+  return out;
+}
+
+/** The next step of a signature (`sigOf`). */
+export function actionOfSig(sig: string): Action["kind"] {
+  const b = [...sig].map(Number);
+  return actionOf(
+    { by: { made: b[0], printed: b[1], scanned: b[2], checked: b[3], "signed off": b[4] }, unread: b[5], home: b[7] === 1 },
+    b[6],
+  ).kind;
+}
+
 /** The steps of one assessment as cells: done (green), under way (amber, "9 of 28"), the one the next action is at (red
  *  where answers wait for the educator, amber otherwise), or not yet (grey). A class assessment has no approval step. */
 export function stepCells(c: Counts, waiting = 0): { cells: Cell[]; next: Step | null; total: number } {
@@ -127,7 +194,11 @@ type ScanFile = { file: string; codes: string[] };
 
 /** Each file read, listed against the assessment its printed codes belong to; a file whose codes belong to none is
  *  "not matched". `known` is every code the school printed; `owner` maps a printed code to its assessment's key. */
-export function matchFiles(scans: ScanFile[], owner: Map<string, string>, known: Set<string>): { byKey: Map<string, string[]>; unmatched: string[] } {
+export function matchFiles(
+  scans: ScanFile[],
+  owner: Map<string, string>,
+  known: Set<string>,
+): { byKey: Map<string, string[]>; unmatched: string[] } {
   const byKey = new Map<string, string[]>();
   const unmatched: string[] = [];
   for (const s of scans) {
