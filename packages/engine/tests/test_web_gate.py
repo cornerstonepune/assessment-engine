@@ -18,8 +18,20 @@ APP = WEB / "app"
 # `deciding(kind)` (lib/decides.ts, goals/f1c-who-decides-what.yaml) is a check because its first line is
 # `requireStaff()`; the last test below holds it to that
 CHECKS = re.compile(r"\b(?:requireStaff|currentStaff|deciding)\(")
-OPEN_PAGES = {"app/login/page.tsx"}  # the one page anyone may open
-OPEN_ACTIONS = {"lib/auth-actions.ts::signIn", "lib/auth-actions.ts::signOut"}
+# The doors a person with no session must be able to open: signing in, and setting a password they have forgotten
+# (goals/auth-email-password.yaml). Each of the last four is held by the link it is given instead of a session — a
+# token only its owner's email carried, checked by `emailFor` — and a signed-in person must still be able to finish a
+# reset, so none may send a session-holder away.
+OPEN_PAGES = {"app/login/page.tsx", "app/login/new-password/page.tsx"}
+OPEN_ROUTES = {"app/login/link/route.ts"}
+OPEN_ACTIONS = {
+    "lib/auth-actions.ts::signIn",
+    "lib/auth-actions.ts::signOut",
+    "lib/password-actions.ts::askForLink",
+    "lib/password-actions.ts::setNewPassword",
+}
+# what makes a door that is open to anyone safe to open: the token its link carried
+BY_LINK = re.compile(r"\bemailFor\(")
 
 pytestmark = pytest.mark.skipif(not WEB.exists(), reason="the website is not beside the engine here")
 
@@ -28,20 +40,20 @@ def _rel(p):
     return str(p.relative_to(WEB))
 
 
-def _unchecked(name):
+def _unchecked(name, open_ones):
     return [
         _rel(p)
         for p in sorted(APP.rglob(name))
-        if _rel(p) not in OPEN_PAGES and not CHECKS.search(p.read_text())
+        if _rel(p) not in open_ones and not CHECKS.search(p.read_text())
     ]
 
 
 def test_every_page_checks_who_is_asking():
-    assert _unchecked("page.tsx") == []
+    assert _unchecked("page.tsx", OPEN_PAGES) == []
 
 
 def test_every_route_checks_who_is_asking():
-    assert _unchecked("route.ts") == []
+    assert _unchecked("route.ts", OPEN_ROUTES) == []
 
 
 def test_every_server_action_checks_who_is_asking():
@@ -56,6 +68,16 @@ def test_every_server_action_checks_who_is_asking():
                 unchecked.append(f"{_rel(p)}::{name}")
     assert seen > 20, "found too few server actions; the search reads nothing"
     assert unchecked == []
+
+
+def test_a_door_open_to_anyone_for_a_forgotten_password_is_held_by_its_link():
+    """The password pages and actions open to a person with no session each read the link's token first: nothing in
+    them is reached by a request that did not carry a live one (`askForLink` asks for a link and opens nothing)."""
+    for page in sorted((OPEN_PAGES | OPEN_ROUTES) - {"app/login/page.tsx"}):
+        assert BY_LINK.search((WEB / page).read_text()), f"{page} is open to anyone and checks no link"
+    src = (WEB / "lib" / "password-actions.ts").read_text()
+    (body,) = re.findall(r"^export async function setNewPassword\((.*?)(?=^export |\Z)", src, re.M | re.S)
+    assert BY_LINK.search(body), "setNewPassword sets a password without checking the link"
 
 
 def test_deciding_checks_who_is_asking_before_anything_else():
