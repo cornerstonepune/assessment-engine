@@ -373,6 +373,24 @@
    "value": 3,
    "unit": "samples",
    "description": "Samples a level keeps of each kind of question it asks, read by its approver (goals/edt_edit_samples_and_kinds.yaml)"
+  },
+  {
+   "key": "calibration.too_easy_share",
+   "value": 0.8,
+   "unit": "proportion",
+   "description": "A level is suggested for review when at least this share of the children assessed at it are secure (goals/cal_levels_to_review.yaml)"
+  },
+  {
+   "key": "calibration.min_children",
+   "value": 8,
+   "unit": "children",
+   "description": "Fewest children assessed at a level before it is judged at all (goals/cal_levels_to_review.yaml)"
+  },
+  {
+   "key": "calibration.review_again_children",
+   "value": 2,
+   "unit": "children",
+   "description": "A suggestion marked looked-at comes back when the children assessed, or the children secure, moved by this many"
   }
  ]
 }

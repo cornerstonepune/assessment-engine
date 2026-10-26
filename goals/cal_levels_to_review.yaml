@@ -1,0 +1,58 @@
+name: cal_levels_to_review
+goal: >
+  The system learns when a level is too easy for the children it is set for. For each skill and each level (Easy, Medium,
+  Hard, Advance), for a grade and separately for one class, code counts the children who are secure at that level (the
+  graph's own rule, applied to the answers at that level) over the children assessed at it. With at least the minimum of
+  children assessed, and the secure share at or over the threshold, a page "Levels to review" suggests, in words, that the
+  level be made harder or a harder one added. It only suggests: no level is ever changed by it. Fewer children than the
+  minimum say "not enough children yet (n of 8)" and suggest nothing. The share and the minimum are rows of the
+  thresholds table. An educator sees only the classes in their own scope.
+# Written 2026-10-26, before the code, from Nimish's words and decisions of that day (BUILD-ORDER: a derived view,
+# ring B, beside the S5 curriculum page; it adds no table the graph reads and changes no level).
+says:
+  - words: "The system will need to start understanding whether, for a certain skill, something is advanced or hard. If 8 out of 10 people in the class are able to solve the advanced level for that particular grade or school, then that's not actually advanced."
+    proved_by: "packages/engine/tests/test_calibration.py::test_eight_of_ten_secure_at_a_level_is_suggested_with_its_counts"
+  - words: "The system will need to start understanding whether, for a certain skill, something is advanced or hard. If 8 out of 10 people in the class are able to solve the advanced level for that particular grade or school, then that's not actually advanced."
+    proved_by: "packages/engine/tests/test_calibration.py::test_secure_at_a_level_is_the_graphs_own_rule_applied_to_that_levels_answers"
+  - words: "The system will need to start understanding whether, for a certain skill, something is advanced or hard. If 8 out of 10 people in the class are able to solve the advanced level for that particular grade or school, then that's not actually advanced."
+    proved_by: "packages/engine/tests/test_calibration.py::test_a_blank_is_not_a_success_and_only_confirmed_answers_count"
+  - words: "The system will need to start understanding whether, for a certain skill, something is advanced or hard. If 8 out of 10 people in the class are able to solve the advanced level for that particular grade or school, then that's not actually advanced."
+    proved_by: "packages/engine/tests/test_calibration.py::test_a_grade_and_a_class_are_counted_separately"
+  - words: "We'll need some section which gives us an understanding that certain things need to be upgraded, like a step."
+    proved_by: "apps/web/tests/u66-levels-to-review.spec.ts::the page lists a suggestion in words, with its counts, and links to the skill"
+  - words: "We'll need some section which gives us an understanding that certain things need to be upgraded, like a step."
+    proved_by: "apps/web/tests/u66-levels-to-review.spec.ts::a skill's levels fold under the topic and the skill, and the page is on the shared blocks"
+  - words: "The system ONLY SUGGESTS, it never changes a level by itself."
+    proved_by: "packages/engine/tests/test_calibration.py::test_the_system_only_suggests_no_level_is_changed"
+  - words: "The system ONLY SUGGESTS, it never changes a level by itself."
+    proved_by: "apps/web/tests/u66-levels-to-review.spec.ts::I've looked at this hides the suggestion for that grade and only adds a row"
+  - words: "The threshold is 80 percent."
+    proved_by: "packages/engine/tests/test_calibration.py::test_the_threshold_is_80_percent_and_is_a_row"
+  - words: "The minimum is 8 children before a suggestion is made at all."
+    proved_by: "packages/engine/tests/test_calibration.py::test_under_eight_children_say_not_enough_and_suggest_nothing"
+  - words: "The minimum is 8 children before a suggestion is made at all."
+    proved_by: "packages/engine/tests/test_calibration.py::test_the_minimum_is_a_row"
+  - words: "A teacher sees only the classes in their own scope."
+    proved_by: "apps/web/tests/u66-levels-to-review.spec.ts::an educator sees only the classes in their own scope"
+manual:
+  - "Actions → rehearse update-live, on this branch: the migration runs on a copy of live after live's rows arrive, and the copy comes back clean."
+  - "The page shows 'not enough children yet' wherever fewer than 8 children have been assessed at a level; the real counts on live were not visible from this session."
+  - "The one line for What needs doing ('Levels to review: N suggestions') is not added here; another session owns that page. The function to call is `levelsToReviewCount` in apps/web/lib/queries-calibration.ts."
+  - "A review ('I've looked at this') comes back when the numbers move by calibration.review_again_children (2 children, my default, not Nimish's): his word is needed."
+scenarios: []
+criteria:
+  - name: the counts, the verdicts, the rows and the review row
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_calibration.py
+    expect: "passed"
+  - name: the graph still gives every child the very state it gave (one rule, now shared)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_graph.py tests/test_states_and_subject.py tests/test_loaders.py
+    expect: "passed"
+  - name: the page, its two actions and the educator's scope, in a browser
+    run: cd apps/web && npx playwright test tests/u66-levels-to-review.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
