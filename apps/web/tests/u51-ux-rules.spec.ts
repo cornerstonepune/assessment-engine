@@ -93,7 +93,8 @@ async function breaks(page: Page): Promise<string[]> {
       if ([...document.querySelectorAll("main [data-status]")].some((c) => !c.querySelector("svg") || !(c.textContent ?? "").trim())) out.add("no-icon");
       const empty = (s: string) => /^\s*([-–—]|0+([.,]0+)?)?\s*$/.test(s);
       for (const t of document.querySelectorAll("main table")) {
-        const rows = [...t.querySelectorAll("tbody tr")];
+        // its own rows: a table opened under a row (copies, papers) is counted as its own table
+        const rows = [...t.querySelectorAll(":scope > tbody > tr:not(.under)")];
         if (rows.length > limit) out.add("long-table");
         // a paged table keeps its columns the same on every page: a column with nothing on this page has its words on another
         const paged = !!t.closest("div")?.parentElement?.querySelector("nav[aria-label$=' pages']");

@@ -87,18 +87,19 @@ test("opening a topic shows only its assessments, ten to a page, and no other to
 });
 
 test("the name an educator gave wins, and the composition (every skill and level) is in the detail view, not the title", async ({ page }) => {
+  // built: the topic, the skill, the kind and the class, never a list of digit sizes (a week no test renames)
+  await page.goto(`/papers?class=${SECTION}&week=${WEEKS[1]}`);
+  const built = page.locator(`tr[data-assessment^='assessment~${SECTION}~${WEEKS[1]}~']`).locator("a[aria-expanded]");
+  await expect(built).toContainText("Addition & subtraction");
+  await expect(built).toContainText(addName);
+  await expect(built).toContainText("Class assessment");
+  await expect(built).toContainText(SECTION);
+  await built.click();
+  await expect(page.locator("[data-copies] [data-composition]")).toContainText(addName);
+  // the educator's own name wins
   const week = WEEKS[0];
   await page.goto(`/papers?class=${SECTION}&week=${week}`);
   const row = page.locator(`tr[data-assessment^='assessment~${SECTION}~${week}~']`);
-  const title = row.locator("a[aria-expanded]");
-  // built: the topic, the skill, the kind and the class, never a list of digit sizes
-  await expect(title).toContainText("Addition & subtraction");
-  await expect(title).toContainText(addName);
-  await expect(title).toContainText("Class assessment");
-  await expect(title).toContainText(SECTION);
-  await title.click();
-  await expect(page.locator("[data-copies] [data-composition]")).toContainText(addName);
-  // the educator's own name wins
   await row.getByText("Rename").click();
   await row.getByLabel("Name this assessment").fill("Week 10 addition check");
   await row.getByRole("button", { name: "Save" }).click();

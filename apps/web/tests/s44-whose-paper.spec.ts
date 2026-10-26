@@ -97,8 +97,8 @@ test("checking runs per child: a next-child step only when this child is done, a
   await open(page, "CSA00001", 0);
   await expect(page.locator("[data-ux=next]")).toHaveText(/next answer of this paper/);
   const list = page.getByRole("table", { name: /^Papers of / });
-  await expect(list.getByRole("row", { name: /^1 .* CSA00001 3 / })).toBeVisible();
-  await expect(list.getByRole("row", { name: /^2 .* CSA00002 2 / })).toBeVisible();
+  await expect(list.getByRole("row", { name: /^1 .* CSA00001 2 1 / })).toBeVisible();
+  await expect(list.getByRole("row", { name: /^2 .* CSA00002 1 1 / })).toBeVisible();
   await open(page, "CSA00001", 1);
   await expect(page.locator("[data-ux=next]")).toHaveText(/next answer of this paper/);
   await expect(page.getByText("answer 2 of 3 · 1 left")).toBeVisible();

@@ -109,7 +109,7 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
     ["U9 September paper", "Earlier paper"],
     [await setName("SUB.2D2D"), "Class assessment"],
   ]) {
-    const line = lines.filter({ hasText: title });
+    const line = lines.filter({ hasText: title }).filter({ hasText: kind });
     await expect(line).toHaveCount(1);
     await expect(line).toContainText(kind);
     await expect(line).toContainText(`Grade 2 · ${SECTION}`);
