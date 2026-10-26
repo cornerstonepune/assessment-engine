@@ -77,7 +77,7 @@ def english(conn: db.Conn, code: str, level: str, kind: str, ord: int, n: int, b
         return refuse("Say who asks for them.")
     if not english_edit.is_english(conn, code):
         return refuse(
-            "This skill's questions are made by code from each level's rule: give a Maths sample instead."
+            "This skill's questions are made by code from each level's rule: type a sum under its level instead."
         )
     if why := _too_many(conn, n):
         return refuse(why)
