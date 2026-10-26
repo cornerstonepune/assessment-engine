@@ -116,7 +116,7 @@ def _passage_text(conn: db.Conn, code: str | None) -> str:
     return row["text"] if row else ""
 
 
-def _withdraw(conn: db.Conn, code: str, level: str) -> None:
+def withdraw(conn: db.Conn, code: str, level: str) -> None:
     """The level waits for approval again; the database sets the skill back to waiting with it."""
     conn.execute(
         "update skill set level_approved = level_approved - %s::text, updated_at = now() where code = %s",
@@ -219,7 +219,7 @@ def save(
         return refuse(faults)
     ord = ord or _next_ord(conn, code, level, kind)
     _store(conn, _tenant(conn), (code, level, kind, ord), s, one, by, was)
-    _withdraw(conn, code, level)
+    withdraw(conn, code, level)
     return {"saved": True, "ord": ord, "faults": {}}
 
 
@@ -235,7 +235,7 @@ def remove(conn: db.Conn, code: str, level: str, kind: str, ord: int, by: str) -
             "why": f"A level keeps at least {_said(n)} samples of each kind it asks; add one first.",
         }
     _ledger(conn, _tenant(conn), (code, level, kind, ord), by, None, was)
-    _withdraw(conn, code, level)
+    withdraw(conn, code, level)
     return {"removed": True, "why": ""}
 
 
@@ -286,7 +286,7 @@ def add_kind(conn: db.Conn, code: str, level: str, kind: str, samples: list[dict
         (kind, code, level),
     )
     _kind_changed(conn, code, level, kind, True, by)
-    _withdraw(conn, code, level)
+    withdraw(conn, code, level)
     return {"saved": True, "why": "", "faults": []}
 
 
@@ -302,5 +302,5 @@ def remove_kind(conn: db.Conn, code: str, level: str, kind: str, by: str) -> dic
         (code, level, kind),
     )
     _kind_changed(conn, code, level, kind, False, by)
-    _withdraw(conn, code, level)
+    withdraw(conn, code, level)
     return {"removed": True, "why": ""}
