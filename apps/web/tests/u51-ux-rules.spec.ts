@@ -19,7 +19,7 @@ import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
 import { SIGNED_IN } from "../playwright.config";
-import { FILTER_FROM_ROWS, PURPOSE_MAX, SEARCH_PX, TABLE_ROW_LIMIT, TOP_BAR_MIN_PX, TOP_BAR_TEXT_PX, groupRows, isEmptyCell, pageOf, visibleColumns } from "../lib/ux-rules";
+import { FILTER_FROM_ROWS, PURPOSE_MAX, SEARCH_PX, TABLE_ROW_LIMIT, TOP_BAR_MIN_PX, groupRows, isEmptyCell, pageOf, visibleColumns } from "../lib/ux-rules";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SECTION = "U51-CLASS";
@@ -122,7 +122,6 @@ async function breaks(page: Page): Promise<string[]> {
 const ROUTES = (): [string, string][] => [
   ["/today", "/today"],
   ["/", "/"],
-  ["/taught", "/taught"],
   ["/library", "/library"],
   ["/worksheets", "/worksheets"],
   ["/worksheets/taxonomy", "/worksheets/taxonomy"],
@@ -206,21 +205,12 @@ test("on a phone the main action of Check answers is a thumb's size", async ({ b
 
 const DESKTOP = { width: 1440, height: 900 };
 
-test("the top bar: the menu button and the Viewing control are full-size, the student search is a compact field", async ({ browser }) => {
+test("the top bar: the menu button is full-size, the student search is a compact field", async ({ browser }) => {
   const page = await (await browser.newContext({ storageState: SIGNED_IN, viewport: DESKTOP })).newPage();
   for (const url of ["/today", "/papers", "/growth", "/"]) {
     await open(page, url);
-    for (const control of [page.getByRole("button", { name: "Menu" }), page.locator("[data-viewing] summary")]) {
-      expect((await control.boundingBox())!.height, `${url}: a control of the bar`).toBeGreaterThanOrEqual(TOP_BAR_MIN_PX);
-    }
-    // opened, the Viewing control's Subject and Class are full-size: 40 px tall, 15 px text
-    await page.locator("[data-viewing] summary").click();
-    for (const name of ["Subject", "Class"]) {
-      const field = page.locator("[data-viewing]").getByLabel(name, { exact: true });
-      expect((await field.boundingBox())!.height, `${url}: ${name} height`).toBeGreaterThanOrEqual(TOP_BAR_MIN_PX);
-      expect(await field.evaluate((el) => parseFloat(getComputedStyle(el).fontSize)), `${url}: ${name} text`).toBeGreaterThanOrEqual(TOP_BAR_TEXT_PX);
-    }
-    await page.locator("[data-viewing] summary").click();
+    expect((await page.getByRole("button", { name: "Menu" }).boundingBox())!.height, `${url}: the menu button`).toBeGreaterThanOrEqual(TOP_BAR_MIN_PX);
+    await expect(page.locator("[data-viewing]"), `${url}: no Viewing control in the bar`).toHaveCount(0);
     const search = page.getByRole("search", { name: "Find a child or paper" }).getByRole("searchbox");
     const box = (await search.boundingBox())!;
     expect(box.height).toBeGreaterThanOrEqual(TOP_BAR_MIN_PX);

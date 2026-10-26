@@ -65,11 +65,11 @@ const said = (section: string) =>
 test("an educator says a topic is taught in their class, in their name, and no other class changes", async ({ browser }) => {
   const page = await signedIn(browser);
   try {
-    await page.goto("/taught?subject=NUM");
-    const row = page.locator(`tr[data-topic=${TOPIC}]`);
-    await expect(row).toContainText("not taught yet");
+    await page.goto(`/today?kind=taught&subject=NUM&class=${MINE}`);
+    const row = page.locator(`tr[data-kind=taught][data-shows="${topicName}"]`);
+    await expect(row).toBeVisible();
     // an educator mapped to one class is offered only that class: no box to choose another
-    await expect(row.getByLabel("Class to mark taught")).toHaveCount(0);
+    await expect(row.getByLabel(`Class taught ${topicName}`)).toHaveCount(0);
     await expect(row).not.toContainText(OTHER);
     await row.getByRole("button", { name: "Mark as taught" }).click();
     await expect(page.getByRole("main")).toContainText(`${topicName} is taught in ${MINE} now`);
@@ -77,13 +77,6 @@ test("an educator says a topic is taught in their class, in their name, and no o
     expect(await said(OTHER), "no other class changes").toEqual([]);
     const [school] = await sql<{ taught: boolean }[]>`select bool_or(taught) as taught from skill where topic_code = ${TOPIC}`;
     expect(school.taught, "one class's word is not the school's switch").toBe(false);
-
-    // another class is theirs to say too, one role for now (goals/ux9c-one-role.yaml): the form sent for it, in their name
-    await page.goto("/taught?subject=NUM");
-    const off = page.locator(`tr[data-topic=${TOPIC}]`).getByRole("button", { name: "Not taught after all" });
-    await off.locator("xpath=ancestor::form").locator('input[name="class"]').evaluate((el, s) => ((el as HTMLInputElement).value = s), OTHER);
-    await off.click();
-    await expect(page).toHaveURL(new RegExp(`off=${TOPIC}&class=${OTHER}`));
   } finally {
     await page.context().close();
     await sql`delete from class_skill where section in (${MINE}, ${OTHER})`;

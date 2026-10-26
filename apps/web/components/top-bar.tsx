@@ -2,57 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useActionState, useRef, useState } from "react";
-import { choose } from "@/lib/auth-actions";
-import type { Choices } from "@/lib/choices";
+import { useActionState, useState } from "react";
 import { find } from "@/lib/search";
 
-// The two controls on the right of the top bar. The student search is for everyone. The Viewing control is for a person
-// who chooses what they look at (a coordinator, or someone who teaches two subjects: lib/viewing.ts); an educator mapped to one
-// class and one subject is shown neither a Subject nor a Class box (goals/nav_teacher_scope_and_todo.yaml, Nimish 24 Oct 2026).
-// It is posted, and a choice shows at once on this page and every page after.
-
-/** `chosen`: "mine" (the person's own classes), "every", or "class:" and one class. `own`: the person's own classes. */
-export function Viewing({ choices, subject, chosen, own, words }: { choices: Choices; subject: string; chosen: string; own: string[]; words: string }) {
-  const form = useRef<HTMLFormElement>(null);
-  const submit = () => form.current?.requestSubmit();
-  return (
-    <details className="relative" data-viewing>
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 border border-bamboo/40 px-3 text-[13.5px] text-chalk hover:bg-chalk/10">
-        <span className="text-bamboo">Viewing:</span> {words}
-      </summary>
-      <form ref={form} action={choose} role="group" aria-label="Viewing" className="z-40 grid gap-3 border border-basalt/20 bg-chalk p-4 text-basalt shadow-md max-md:fixed max-md:inset-x-3 max-md:top-16 md:absolute md:right-0 md:mt-1 md:w-[300px]">
-        <div className="grid gap-1 text-[13px]">
-          <label htmlFor="bar-subject">Subject</label>
-          <select key={subject} id="bar-subject" name="subject" defaultValue={subject} onChange={submit} className="select min-h-[40px] !w-full !text-[15px] font-medium">
-            {choices.subjects.map((s) => (
-              <option key={s.code} value={s.code}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="grid gap-1 text-[13px]">
-          <label htmlFor="bar-class">Class</label>
-          <select key={chosen} id="bar-class" name="class" defaultValue={chosen} onChange={submit} className="select min-h-[40px] !w-full !text-[15px] font-medium">
-            {own.length ? <option value="mine">Your classes ({own.join(", ")})</option> : null}
-            <option value="every">Every class</option>
-            {choices.classes.map((c) => (
-              <option key={c.section} value={`class:${c.section}`}>
-                {c.words}
-              </option>
-            ))}
-          </select>
-        </div>
-        <noscript>
-          <button type="submit" className="btn secondary">
-            Show
-          </button>
-        </noscript>
-      </form>
-    </details>
-  );
-}
+// The student search on the top bar, for everyone. There is no Class or Subject control here any more (Nimish, 26 Oct 2026:
+// "the filter ... in the main menu at the top just needs to go because that does not remain sacrosanct across pages"):
+// each page carries its own filters (FilterBar), starting at the person's own classes and subjects.
 
 export function Search() {
   const [found, search, busy] = useActionState(find, null);

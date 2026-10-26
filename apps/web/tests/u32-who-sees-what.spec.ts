@@ -79,7 +79,7 @@ test("an educator's Today lists every decision the coordinator's does, and the m
   const page = await signedIn(browser);
   try {
     const main = page.getByRole("main");
-    await expect(main).toContainText("Approve a skill");
+    await expect(main).toContainText("Skills to approve");
     // the menu carries a count on What needs doing alone: a row for each skill waiting and one for the questions
     expect(await badge(page, "What needs doing"), "every skill waiting and the questions").toBeGreaterThanOrEqual((await waitingSkills()) + ((await waitingAsks(null)) > 0 ? 1 : 0));
     expect(await badge(page, "Setup"), "no count on Setup").toBe(0);
@@ -117,7 +117,7 @@ test("a worksheet's print list is the educator's own children, and every class's
 
 test("the coordinator is shown every decision and every class", async ({ page }) => {
   await page.goto("/today");
-  await expect(page.getByRole("main")).toContainText("Approve a skill");
+  await expect(page.getByRole("main")).toContainText("Skills to approve");
   // the menu carries a count on What needs doing alone: a row for each skill waiting and one for the questions
   expect(await badge(page, "What needs doing"), "every skill waiting and the questions").toBeGreaterThanOrEqual((await waitingSkills()) + ((await waitingAsks(null)) > 0 ? 1 : 0));
   expect(await badge(page, "Setup"), "no count on Setup").toBe(0);

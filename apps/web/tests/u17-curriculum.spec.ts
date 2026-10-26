@@ -71,17 +71,17 @@ test("a skill is approved on its own, from skills grouped by grade", async ({ pa
   }
 });
 
-test("a topic is marked taught from its row on Teaching, in the person's name, for one class", async ({ page }) => {
+test("a topic is marked taught from its row on What needs doing, in the person's name, for one class", async ({ page }) => {
   // said of one class, the test's own (goals/f1f-taught-per-class.yaml); one click on the topic's own row, undone from a fold
   await aClass(sql, CLASS, "G3", ["Ojas", "Pari"]);
   const [topic] = await sql<{ name: string; taught: boolean }[]>`select name, taught_in(tenant_id, code, null) as taught from topic where code = 'DIV'`;
   expect(topic.taught, "division waits for an educator's word").toBe(false);
   try {
-    await page.goto("/taught?subject=NUM");
-    const row = page.locator("tr[data-topic=DIV]");
+    await page.goto(`/today?kind=taught&subject=NUM&class=${CLASS}`);
+    const row = page.locator(`tr[data-kind=taught][data-shows="${topic.name}"]`);
     // skills are approved in Setup: nothing on this row approves one
     await expect(row.getByRole("button", { name: /approve/i })).toHaveCount(0);
-    if (await row.getByLabel("Class to mark taught").count()) await row.getByLabel("Class to mark taught").selectOption(CLASS);
+    if (await row.getByLabel(`Class taught ${topic.name}`).count()) await row.getByLabel(`Class taught ${topic.name}`).selectOption(CLASS);
     await row.getByRole("button", { name: "Mark as taught" }).click();
     await expect(page.getByRole("main")).toContainText(`${topic.name} is taught in ${CLASS} now`);
     const [now] = await sql<{ taught: boolean }[]>`select bool_and(taught) as taught from class_skill where section = ${CLASS} and skill_set_code in (select code from skill where topic_code = 'DIV')`;

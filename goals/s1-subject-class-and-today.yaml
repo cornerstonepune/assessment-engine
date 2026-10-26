@@ -14,10 +14,9 @@ goal: >
 # member of staff. One subject (Maths) has rows today, so the subject list holds one entry until a second subject's
 # row arrives; the five lines count by it now, through the skill's topic (skill_set → topic → subject).
 says:
-  - words: "At the top of every screen: Subject ▾ (Maths, English, …) · Class ▾ (G1, G2, … or every class) · a search box that finds a child, an assessment or a paper code."
-    proved_by: "apps/web/tests/s41-subject-class-and-today.spec.ts::every screen opens under the subject, the class and the search"
-  - words: "Class ▾ (G1, G2, … or every class)"
-    proved_by: "apps/web/tests/s41-subject-class-and-today.spec.ts::the class chosen at the top is the class every page shows"
+# Nimish, 26 Oct 2026, taking the Subject and Class boxes out of the bar ("the filter ... in the main menu at the top just needs
+# to go"): two sentences asked for them at the top of every screen and are retired, with their tests (goals/nav3_what_needs_doing.yaml).
+# The search box stays at the top, below.
   - words: "a search box that finds a child, an assessment or a paper code"
     proved_by: "apps/web/tests/s41-subject-class-and-today.spec.ts::the search finds a child, an assessment and a paper by its code"
   - words: "Today with the next actions and the weekly five-line note"
@@ -25,7 +24,7 @@ says:
   - words: "a full dashboard for educators, on a phone too"
     proved_by: "apps/web/tests/s41-subject-class-and-today.spec.ts::on a phone the bar and the heading are at the top and every tap is big enough"
 manual:
-  - "Once deployed: on a phone, open Today, choose your class at the top and read the five lines against what you know of the week."
+  - "Once deployed: on a phone, open Today, choose your class in the page's own filter and read the five lines against what you know of the week."
 scenarios: []
 criteria:
   - name: every page still holds

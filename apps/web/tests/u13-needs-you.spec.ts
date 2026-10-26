@@ -25,7 +25,8 @@ async function todo(page: Page, kind: string, by: "many" | "rows" = "many"): Pro
   await page.goto(`/today?kind=${kind}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
   if (by === "rows") {
-    const facts = await page.locator("details[data-topic] > summary .fact").allInnerTexts();
+    // the group's own count on its line (a table shows ten rows a page)
+    const facts = await page.locator("details[data-group] > summary [data-group-count]").allInnerTexts();
     return facts.reduce((n, f) => n + Number(f.replace(/\D/g, "")), 0);
   }
   const many = await page.locator(`tr[data-kind=${kind}] td[data-label="How many"]`).allInnerTexts();
@@ -37,17 +38,17 @@ test("Today lists what waits on a person, under the tab where it is done, hidden
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
   // the school's two educators are its only layer: no row is filed under someone else's name
   await expect(page.getByText(/For others|For you|No one on the staff list/)).toHaveCount(0);
-  // the topics a class has not been taught, one green row each ("when ready"), and one click to Teaching
+  // the topics a class has not been taught, one green row each ("when ready"), and a button in its row
   const [{ off }] = await sql<{ off: number }[]>`select count(*)::int as off from topic t where exists (select 1 from child k where k.tenant_id = t.tenant_id and k.active and not taught_in(t.tenant_id, t.code, k.section))`;
   expect(await todo(page, "taught", "rows")).toBe(off);
   // every question the engine drafted, still waiting, whoever it was drafted for
   const [{ open }] = await sql<{ open: number }[]>`select count(*)::int as open from ask where answer is null`;
   expect(open, "the engine has drafted questions to answer").toBeGreaterThan(0);
   expect(await todo(page, "ask")).toBe(open);
+  // a topic is marked taught in its own row; its group's heading opens Curriculum
   await page.goto("/today?kind=taught");
-  await page.locator("tr[data-kind=taught]").first().getByRole("link").click();
-  await expect(page).toHaveURL(/\/taught\?topic=/);
-  await expect(page.locator("tr[data-topic]")).toHaveCount(1);
+  await expect(page.locator("tr[data-kind=taught]").first().getByRole("button", { name: "Mark as taught" })).toBeVisible();
+  await expect(page.locator("details[data-group=taught] a[data-group-home]")).toHaveAttribute("href", "/");
 });
 
 test("an educator switches a topic on, in their name, and its skills are on Curriculum and the Question bank", async ({ page }) => {
@@ -57,29 +58,17 @@ test("an educator switches a topic on, in their name, and its skills are on Curr
   expect(topic.taught, "division waits for an educator's word").toBe(false);
   const said = () => sql`select bool_and(taught) as taught, min(taught_by) as taught_by from class_skill where section = ${CLASS} and skill_set_code in (select code from skill where topic_code = 'DIV')`;
   try {
-    await page.goto("/taught?subject=NUM");
-    const row = page.locator("tr[data-topic=DIV]");
+    await page.goto(`/today?kind=taught&subject=NUM&class=${CLASS}`);
+    const row = page.locator(`tr[data-kind=taught][data-shows="${topic.name}"]`);
     await expect(row).toContainText(topic.name);
-    // its skills, opened, with their levels: "2-digit ÷ 1-digit", and no approval offered on this page
-    await row.getByText(/\d+ skills/).click();
-    await expect(row).toContainText("2-digit ÷ 1-digit");
-    await expect(row).toContainText("3-digit ÷ 1-digit");
     // with one class on the roll there is no choice to make, and so no box
-    if (await row.getByLabel("Class to mark taught").count()) await row.getByLabel("Class to mark taught").selectOption(CLASS);
+    if (await row.getByLabel(`Class taught ${topic.name}`).count()) await row.getByLabel(`Class taught ${topic.name}`).selectOption(CLASS);
     await row.getByRole("button", { name: "Mark as taught" }).click();
     await expect(page.getByRole("main")).toContainText(`${topic.name} is taught in ${CLASS} now`);
     expect(await said()).toEqual([{ taught: true, taught_by: TEST_STAFF.name }]);
     // its skills are taught in a class now: on the Question bank, with their questions
     await page.goto("/library?set=DIV.2D1D");
     await expect(page.getByRole("main")).toContainText("2-digit ÷ 1-digit");
-    // and said not taught again, in a person's name, it is not: from inside a fold, never by a stray click
-    await page.goto("/taught?subject=NUM");
-    const again = page.locator("tr[data-topic=DIV]");
-    await again.locator("summary", { hasText: "Not taught after all" }).click();
-    if (await again.getByLabel("Class to unmark").count()) await again.getByLabel("Class to unmark").selectOption(CLASS);
-    await again.locator("details").getByRole("button", { name: "Not taught after all" }).click();
-    await expect(page.getByRole("main")).toContainText(`${topic.name} is not taught in ${CLASS} now`);
-    expect(await said()).toEqual([{ taught: false, taught_by: TEST_STAFF.name }]);
   } finally {
     await sql`delete from class_skill where section = ${CLASS}`;
   }

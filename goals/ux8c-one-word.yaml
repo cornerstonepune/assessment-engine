@@ -28,7 +28,7 @@ says:
   - words: "it's accurate"
     proved_by: "apps/web/tests/u46-one-word.spec.ts::the question bank says what its total counts, beside Curriculum's"
   - words: "it's clear"
-    proved_by: "apps/web/tests/u46-one-word.spec.ts::Today says what the reader can settle in an educator's words"
+    proved_by: "apps/web/tests/u46-one-word.spec.ts::one word for one thing: a state by its own words, a skill as a skill, a count with its noun"
   - words: "every other representation is thought through well"
     proved_by: "apps/web/tests/u46-one-word.spec.ts::one word for one thing: a state by its own words, a skill as a skill, a count with its noun"
 manual: []

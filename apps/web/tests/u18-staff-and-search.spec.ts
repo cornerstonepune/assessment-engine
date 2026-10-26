@@ -48,8 +48,8 @@ test("an educator put on the staff list signs in, and a decision carries their n
     await expect(page).toHaveURL(/\/today$/);
 
     // what they decide carries their name
-    await page.goto("/taught?subject=NUM");
-    const row = page.locator("tr[data-topic=DIV]");
+    await page.goto(`/today?kind=taught&subject=NUM&class=${SECTION}`);
+    const row = page.locator(`tr[data-kind=taught][data-shows="${topic.name}"]`);
     await row.getByRole("button", { name: "Mark as taught" }).click();
     await expect(page.getByRole("main")).toContainText(`${topic.name} is taught in ${SECTION} now`);
     const [now] = await sql<{ taught: boolean; taught_by: string | null }[]>`

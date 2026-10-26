@@ -6,8 +6,8 @@
 import { expect, test } from "@playwright/test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import { isBroad, subjectNow, subjectsFor, viewingWords } from "../lib/viewing";
-import { buildTasks, filterTasks, groupTasks, KINDS, waitingCount, type Sources } from "../lib/todo";
+import { subjectsFor } from "../lib/viewing";
+import { buildTasks, filterTasks, KINDS, waitingCount, type Sources } from "../lib/todo";
 import { classResult, topicFlow, topicStatuses } from "../lib/topic-flow";
 import { groupOf, GROUPS, tabsOf } from "../lib/menu";
 
@@ -17,26 +17,10 @@ const SUBJECTS = [
 ];
 
 test.describe("scope per role", () => {
-  test("an educator with one class and one subject sees that alone and is offered no choice", () => {
-    const p = { classes: ["2B"], subjects: ["NUM"] };
-    expect(isBroad(p)).toBe(false);
-    expect(subjectsFor(p, SUBJECTS).map((s) => s.code)).toEqual(["NUM"]);
-    expect(subjectNow(p, SUBJECTS, "ENG")?.code).toBe("NUM");
-  });
-  test("a coordinator (every class) or a person with two subjects chooses what to view", () => {
-    expect(isBroad({ classes: [], subjects: [] })).toBe(true);
-    expect(isBroad({ classes: ["2B"], subjects: ["NUM", "ENG"] })).toBe(true);
-    expect(subjectNow({ classes: [], subjects: [] }, SUBJECTS, "ENG")?.code).toBe("ENG");
-    expect(subjectNow({ classes: [], subjects: [] }, SUBJECTS, null)?.code).toBe("NUM");
-  });
-  test("a subject the staff list names that the school lacks is ignored; none named is every subject", () => {
+  test("a person sees the subjects the staff list names that the school has; none named is every subject", () => {
+    expect(subjectsFor({ classes: ["2B"], subjects: ["NUM"] }, SUBJECTS).map((s) => s.code)).toEqual(["NUM"]);
     expect(subjectsFor({ subjects: ["ART"] }, SUBJECTS)).toHaveLength(2);
     expect(subjectsFor({}, SUBJECTS)).toHaveLength(2);
-  });
-  test("the Viewing control says its scope in words", () => {
-    expect(viewingWords("Maths", null)).toBe("Maths · every class");
-    expect(viewingWords("Maths", ["2B", "2C"])).toBe("Maths · 2B, 2C");
-    expect(viewingWords(undefined, ["1A", "1B", "1C", "1D"])).toBe("4 classes");
   });
 });
 
@@ -86,12 +70,7 @@ test.describe("what needs doing", () => {
     expect(eng.every((t) => t.subject === "ENG" || t.subject === null)).toBe(true);
     expect(eng.some((t) => t.kind === "home")).toBe(true);
     expect(filterTasks(tasks, { subject: "NUM", kind: "skill" }, null).map((t) => t.id)).toEqual(["skill:NUM.OPS.01", "skill:NUM.OPS.02"]);
-    expect(filterTasks(tasks, { topic: "ADDSUB" }, null)).toHaveLength(2);
-  });
-  test("grouped by subject then topic, red first inside", () => {
-    const g = groupTasks(tasks, label);
-    expect(g[0].subject).toBe("Maths");
-    expect(g.flatMap((s) => s.topics.map((t) => t.topic))).toContain("Across topics");
+    expect(filterTasks(tasks, { section: "2C" }, null).every((t) => !t.sections.length || t.sections.includes("2C"))).toBe(true);
   });
   test("the menu's count is what the educator must act on, not what can wait", () => {
     expect(waitingCount(tasks)).toBe(tasks.filter((t) => t.state !== "whenReady").length);
@@ -145,12 +124,12 @@ test.describe("topic flow", () => {
 });
 
 test.describe("the menu", () => {
-  test("five groups, in order, and every sub-page belongs to one", () => {
-    expect(GROUPS.map((g) => g.label)).toEqual(["What needs doing", "Teaching", "Assessments", "Results", "Setup"]);
+  test("four groups, in order, and every sub-page belongs to one", () => {
+    expect(GROUPS.map((g) => g.label)).toEqual(["What needs doing", "Assessments", "Results", "Setup"]);
     expect(groupOf("/papers/approve")?.label).toBe("Assessments");
     expect(groupOf("/capture/check")?.label).toBe("Assessments");
     expect(groupOf("/skill-sets/approve")?.label).toBe("Setup");
-    expect(groupOf("/taught")?.label).toBe("Teaching");
+    expect(groupOf("/taught")).toBeUndefined();
     expect(groupOf("/growth/class/2B")?.label).toBe("Results");
     expect(tabsOf("/papers").map((t) => t.label)).toContain("Papers to approve");
     expect(tabsOf("/today")).toEqual([]);
