@@ -357,6 +357,54 @@
    "description": "How far back the sign-in page counts an email's wrong passwords"
   },
   {
+   "key": "password.min_length",
+   "value": 10,
+   "unit": "characters",
+   "description": "The shortest a password a member of staff sets may be (goals/auth-email-password.yaml)"
+  },
+  {
+   "key": "password.scrypt_n",
+   "value": 65536,
+   "unit": "scrypt n",
+   "description": "How hard a password set from now on is hashed (scrypt n, r=8, p=1); each hash carries the n it was made with, so raising this costs only new passwords more"
+  },
+  {
+   "key": "password_link.reset_minutes",
+   "value": 60,
+   "unit": "minutes",
+   "description": "How long a \"Forgot your password?\" link works before it runs out"
+  },
+  {
+   "key": "password_link.first_days",
+   "value": 7,
+   "unit": "days",
+   "description": "How long the first \"set your password\" link of a new member of staff works"
+  },
+  {
+   "key": "password_ask.max_per_email",
+   "value": 5,
+   "unit": "asks",
+   "description": "This many \"Forgot your password?\" asks for one email inside password_ask.window_minutes and the form stops sending, while saying what it always says"
+  },
+  {
+   "key": "password_ask.max_per_ip",
+   "value": 20,
+   "unit": "asks",
+   "description": "This many asks from one address inside password_ask.window_minutes and the form stops sending"
+  },
+  {
+   "key": "password_ask.window_minutes",
+   "value": 60,
+   "unit": "minutes",
+   "description": "How far back the forgot-password form counts what one email and one address asked for"
+  },
+  {
+   "key": "watch.mail_window_minutes",
+   "value": 1440,
+   "unit": "minutes",
+   "description": "How far back `engine live watch` counts the set-password emails that could not be sent (goals/auth-email-password.yaml)"
+  },
+  {
    "key": "across.papers_missing_days",
    "value": 3,
    "unit": "days",

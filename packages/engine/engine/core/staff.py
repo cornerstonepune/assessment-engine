@@ -13,13 +13,18 @@ from typing import Any
 
 from engine.core import db
 
+# node's own scrypt cost, and what a hash with no `n` in it was made with.
+NODE_DEFAULT_N = 16384
 
-def staff_hash(password: str, salt: str) -> str:
-    """`scrypt$salt$hash` exactly as `apps/web/lib/auth.ts` checks it: node's `scryptSync` defaults
-    (N=16384, r=8, p=1), 64 bytes, and the hex salt used as TEXT, not decoded — node takes a string
-    salt as its UTF-8 bytes, and decoding it here would make every password look wrong."""
-    digest = hashlib.scrypt(password.encode(), salt=salt.encode(), n=16384, r=8, p=1, dklen=64)
-    return f"scrypt${salt}${digest.hex()}"
+
+def staff_hash(password: str, salt: str, n: int = NODE_DEFAULT_N) -> str:
+    """`scrypt$n$salt$hash` exactly as `apps/web/lib/auth.ts` checks it: r=8, p=1, 64 bytes, and the hex salt used as
+    TEXT, not decoded — node takes a string salt as its UTF-8 bytes, and decoding it here would make every password
+    look wrong. `n` is how hard it is hashed, written beside the hash so it can be raised later without locking
+    anyone out; the website's `password.scrypt_n` row says what a new password gets, and `scrypt$salt$hash` with no
+    `n` (every hash made before 2026-10-26) is node's own default."""
+    digest = hashlib.scrypt(password.encode(), salt=salt.encode(), n=n, r=8, p=1, dklen=64, maxmem=1152 * n)
+    return f"scrypt${n}${salt}${digest.hex()}"
 
 
 def staff(conn: db.Conn) -> list[dict[str, Any]]:
