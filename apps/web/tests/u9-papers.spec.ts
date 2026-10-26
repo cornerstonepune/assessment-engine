@@ -105,7 +105,7 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
   await expect(lines).toHaveCount(4);
   for (const [title, kind] of [
     [await setName("ADD.2D2D"), "Class practice"],
-    ["Home assessments", "Home assessment"],
+    ["Home assessment", "Home assessment"],
     ["U9 September paper", "Earlier paper"],
     [await setName("SUB.2D2D"), "Class assessment"],
   ]) {

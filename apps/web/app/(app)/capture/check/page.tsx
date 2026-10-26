@@ -302,7 +302,7 @@ export default async function CheckAnswers({ searchParams }: Props) {
             rows={rows.slice(0)}
             open={openKey}
             names={names}
-            page={Math.max(1, Math.floor(Number(q.page)) || 1)}
+            page={Math.floor(Number(q.page)) || Math.floor(Math.max(0, rows.findIndex((r) => r.key === openKey)) / 10) + 1}
             papersPage={Math.max(1, Math.floor(Number(q.pp)) || 1)}
             openHref={(key, isOpen) => href({ open: isOpen ? "none" : key })}
             pageHref={(n) => href({ page: String(n), open: openKey ?? "none" })}

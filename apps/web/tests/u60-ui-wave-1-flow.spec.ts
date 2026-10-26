@@ -180,11 +180,11 @@ async function tablesRead(page: Page, path: string) {
     const table = tables.nth(t);
     if (!(await table.isVisible())) continue; // behind a fold the educator has not opened
     const name = `${path} “${await table.getAttribute("aria-label")}”`;
-    const heads = table.locator("thead th");
-    const body = table.locator("tbody tr:not(.under)");
+    const heads = table.locator(":scope > thead > tr > th");
+    const body = table.locator(":scope > tbody > tr:not(.under)");
     const rows = await body.count();
     if (rows === 0) continue;
-    const first = body.first().locator("td");
+    const first = body.first().locator(":scope > td");
     expect(await first.count(), `${name} table ${t}: a cell under each heading`).toBe(await heads.count());
     // a heading is never split inside a word: one wider than its column would overflow it
     const cramped = await heads.evaluateAll((hs) => hs.filter((h) => h.scrollWidth > h.clientWidth + 1).map((h) => h.textContent));

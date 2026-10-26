@@ -181,15 +181,14 @@ test("Check answers is built on the blocks: one main action, its next step, one 
 test("Check answers lists what is left to check as one table with its filter row", async ({ browser }) => {
   const page = await (await browser.newContext({ storageState: SIGNED_IN })).newPage();
   await open(page, `/capture/check?id=${answer}`);
-  const table = page.getByRole("table", { name: "Left to check" });
-  await expect(table.locator("thead th")).toHaveText(["#", "Class", "Roll", "Paper", "Question", "Status", ""]);
-  expect(await table.locator("tbody tr").count()).toBeGreaterThan(0);
-  await expect(table.locator("tbody tr").first().locator("[data-status]")).toBeVisible();
+  const table = page.getByRole("table", { name: "Left to check, by assessment" });
+  await expect(table.locator(":scope > thead th")).toContainText(["Assessment", "Class", "Papers waiting", "Answers left", "Oldest wait"]);
+  expect(await table.locator(":scope > tbody > tr[data-assessment]").count()).toBeGreaterThan(0);
   await expect(page.locator("[data-filterbar]")).toBeVisible();
   // a status narrows it, and the answer in hand stays where it is
   await page.goto(`/capture/check?id=${answer}&why=spot`);
   await expect(page.locator("[data-active-filters]")).toContainText("Status: Spot-check");
-  for (const chip of await page.getByRole("table", { name: "Left to check" }).locator("tbody [data-status]").all()) await expect(chip).toHaveAttribute("data-status", "spot");
+  for (const cell of await page.getByRole("table", { name: "Left to check, by assessment" }).locator("td[data-label='Answers left']").all()) await expect(cell).toHaveText("0");
   await page.context().close();
 });
 
