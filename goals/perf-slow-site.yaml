@@ -1,0 +1,31 @@
+name: perf-slow-site
+goal: >
+  On Check answers, a click on what the child wrote shows the next answer at once, as it did before 23 October, on a
+  queue the size of the school's (80 answers over 12 papers, each a copy cut from one scan file): whose paper a page is
+  is read from rows told once per page, never by drawing every photograph of the file on every card; and the screen and
+  the five pages most used open within the same budget.
+
+# Written 2026-10-26, before the fix: a fault fix, no gate moved (BUILD-ORDER). Nimish's words are what he said that day.
+# The timings are this machine's and CI's, never live's (docs/notes/perf-slow-site.md).
+says:
+  - words: "Once I click what the child has written, it literally takes a few seconds to go to the next one. This wasn't the case previously."
+    proved_by: "apps/web/tests/p6-check-is-quick.spec.ts::one click of Yes shows the next answer within its budget"
+  - words: "slow on all clicks"
+    proved_by: "packages/engine/tests/test_whose_paper.py::test_a_page_is_told_once_and_the_card_never_draws_a_photograph_again"
+  - words: "Overall the tool and its loading has become slow."
+    proved_by: "apps/web/tests/p6-check-is-quick.spec.ts::the five most-used pages open within their budget"
+manual: []
+scenarios: []
+criteria:
+  - name: whose paper a page is, told once per page and read from rows
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider -o addopts= tests/test_whose_paper.py
+    expect: "passed"
+  - name: the check screen, a click, and the five main pages, on 80 answers, within the budget
+    run: cd apps/web && npx playwright test tests/p6-check-is-quick.spec.ts
+    expect: "passed"
+  - name: the screens that show the proof still show it
+    run: cd apps/web && npx playwright test tests/s44-whose-paper.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

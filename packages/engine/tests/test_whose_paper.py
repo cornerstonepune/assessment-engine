@@ -112,3 +112,38 @@ def test_a_worksheets_own_code_is_not_a_wrong_child():
     assert W.verdict("R8-H02", "CS00000A", []) is None
     assert W.verdict(None, "CS00000A", []) is None
     assert W.verdict("CS00000A", "CS00000A", []) is None
+
+
+def test_a_page_is_told_once_and_the_card_never_draws_a_photograph_again(conn, tmp_path, monkeypatch):
+    """Nimish, 2026-10-26: "Once I click what the child has written, it literally takes a few seconds to go to the next
+    one." Every card drew the photograph of every page of every copy in its file to tell whose paper it is: about half a
+    second a page. A page's picture and printed code are facts of a file that never changes, told once (`record`) and
+    kept as rows; a card reads the rows."""
+    folder = tmp_path / "scan-g"
+    a = _copy(conn, folder, 1, "CS00000A", 2, ["CS00000A", "page two"])
+    b = _copy(
+        conn, folder, 2, "CS00000B", 2, ["CS00000A", "page two of b"]
+    )  # copy 2's page 1 is copy 1's photograph
+    W.record(conn, a)
+    W.record(conn, b)
+    told = conn.execute(
+        "select count(*) n from capture_page where capture_id in (%s, %s)", (a, b)
+    ).fetchone()["n"]
+    assert told == 4
+
+    def drawn(*_args, **_kw):
+        raise AssertionError("a card drew a photograph its rows already tell")
+
+    monkeypatch.setattr(W.render_pdf, "photo", drawn)
+    p = W.proof(conn, b, 1)
+    assert p["problem"]["kind"] == W.SAME and p["code"] == "CS00000A"
+    assert W.proof(conn, a, 2)["problem"] is None
+
+
+def test_a_page_read_before_its_rows_existed_is_told_on_its_first_card_and_kept(conn, tmp_path, monkeypatch):
+    a = _copy(conn, tmp_path / "scan-h", 1, "CS00000A", 1, ["CS00000A"])
+    assert W.proof(conn, a, 1)["code"] == "CS00000A"  # no row yet: told now, and kept
+    monkeypatch.setattr(
+        W.render_pdf, "photo", lambda *_a, **_k: (_ for _ in ()).throw(AssertionError("drawn twice"))
+    )
+    assert W.proof(conn, a, 1)["code"] == "CS00000A"

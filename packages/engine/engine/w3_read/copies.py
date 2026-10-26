@@ -18,7 +18,7 @@ from typing import NamedTuple
 import pymupdf
 
 from engine.core import db, roster
-from engine.w3_read import checked, legacy, marking, placing, printed_paper, render_pdf, sorting
+from engine.w3_read import checked, legacy, marking, placing, printed_paper, render_pdf, sorting, whose_paper
 
 # Where the school's scans live, on this Mac and on the server alike (`deploy/compose.server.yml` mounts only this):
 # a copy cut anywhere else can be read here but never shown on the approval screens.
@@ -320,6 +320,7 @@ def _read_copy(conn, scan, copy, row, name, actor, again):
     s = _imported(conn, cut, code, cid, actor, again, template, by_key)
     _replaces(conn, s["capture_id"], scan)
     _placed_on(conn, s["capture_id"], cut, by_key, file_page)
+    whose_paper.record(conn, s["capture_id"])  # its cards then read whose paper it is from rows
     answers = s.get("already_results") if s.get("already") else len(s["results"])
     return {**row, "answers": answers, "already": bool(s.get("already")), "unread": unread,
             "capture_id": s["capture_id"], "missing": missing, "twice": twice, "lacks": lacks,
