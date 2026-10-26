@@ -76,6 +76,9 @@ test("the map lists every skill, a row each, led by what the child can do, and n
 });
 
 test("every kind of link on the Curriculum opens", async ({ page }) => {
+  // one request for each kind of link, one after another: about 30 s on a small runner, the default budget, so it fails by a
+  // second on a slow one (clean main took 31 s on a fresh database, 2026-10-26); the pages are not slow, the sum is
+  test.setTimeout(120_000);
   // the counts (a skill's worksheets, a level's questions in the bank) are behind "Question bank details"
   await page.goto("/?details=1");
   await page.getByRole("button", { name: "Open everything" }).click();
