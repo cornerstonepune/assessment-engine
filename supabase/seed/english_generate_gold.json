@@ -1,0 +1,96 @@
+{
+ "note": "The fixed set english_generate is scored on (goals/gen_from_a_sample.yaml, rule 7): the first Medium sample of each English kind in the seed, by skill code and number. `engine eval english_generate` asks for 5 questions like each and scores the share that pass every code check (english_check.py). Change it only with a new eval score in DECISIONS-LOG.md.",
+ "n": 5,
+ "samples": [
+  {
+   "skill": "EN3.GRAM.JOIN",
+   "level": "Medium",
+   "kind": "ENG.CHOOSE",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.READ.CHARACTER",
+   "level": "Medium",
+   "kind": "ENG.COPY",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.GRAM.TENSE",
+   "level": "Medium",
+   "kind": "ENG.CORRECT",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.SPELL.CONSONANT",
+   "level": "Medium",
+   "kind": "ENG.DICTATION",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.GRAM.JOIN",
+   "level": "Medium",
+   "kind": "ENG.GAP",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.GRAM.NOUNVERB",
+   "level": "Medium",
+   "kind": "ENG.MARK_WORDS",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.GRAM.IRREGULAR",
+   "level": "Medium",
+   "kind": "ENG.MATCH",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.READ.INSTRUCT",
+   "level": "Medium",
+   "kind": "ENG.ORDER",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.PUNCT.END",
+   "level": "Medium",
+   "kind": "ENG.PUNCTUATE",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.GRAM.JOIN",
+   "level": "Medium",
+   "kind": "ENG.REWRITE",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.READ.CHARACTER",
+   "level": "Medium",
+   "kind": "ENG.SHORT_ANSWER",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.GRAM.WRITETYPE",
+   "level": "Medium",
+   "kind": "ENG.SHORT_WRITE",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.GRAM.NOUNVERB",
+   "level": "Medium",
+   "kind": "ENG.SORT",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.READ.COMPARE",
+   "level": "Medium",
+   "kind": "ENG.TABLE",
+   "ord": 1
+  },
+  {
+   "skill": "EN3.GRAM.IRREGULAR",
+   "level": "Medium",
+   "kind": "ENG.WRITE_WORD",
+   "ord": 1
+  }
+ ]
+}

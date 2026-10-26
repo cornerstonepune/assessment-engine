@@ -1,0 +1,47 @@
+name: gen_from_a_sample
+goal: >
+  An educator who may change a skill puts in a sample question at a level and asks for a number of questions of that
+  pattern (at most the row `generate.max_per_request`). For English a model writes them, and every one passes the same
+  code checks as an educator's own sample (#323) before it is shown or stored; the educator is told how many were made
+  and how many were thrown away, and why, in words. For Maths code makes them (ADR 0005): the sample is measured by code,
+  and where it is a case the generator knows it makes more of that case at that level; where it is not, the sample is
+  kept as a sample only, and nothing is made. A model never gives a number or an answer key its last word. What is made
+  is a draft: it says "made from your sample", can be removed one by one, and its level waits for approval again; no
+  paper draws it before a person approves the level. The English prompt is a row, scored by `engine eval english_generate`
+  against a fixed set of samples before it is made active (rule 7).
+# Written 2026-10-26, before the code. W1, steps N1 and N2. One additive migration, an engine module and routes, the
+# prompt row (inactive until its eval is recorded), its eval set, the skill page, ADR 0006 amended.
+says:
+  - words: "The capability to edit a certain level in a skill by putting in the sample questions, and the ability for the system to then generate a certain number of questions of that pattern."
+    proved_by: "packages/engine/tests/test_generate.py::test_english_questions_that_fail_a_check_are_never_stored_and_the_educator_is_told_why"
+  - words: "The capability to edit a certain level in a skill by putting in the sample questions, and the ability for the system to then generate a certain number of questions of that pattern."
+    proved_by: "packages/engine/tests/test_generate.py::test_english_questions_that_pass_are_drafts_made_from_the_sample_and_the_level_waits_for_approval"
+  - words: "The capability to edit a certain level in a skill by putting in the sample questions, and the ability for the system to then generate a certain number of questions of that pattern."
+    proved_by: "packages/engine/tests/test_generate.py::test_a_maths_sample_of_a_known_case_makes_more_of_that_case_by_code"
+  - words: "The capability to edit a certain level in a skill by putting in the sample questions, and the ability for the system to then generate a certain number of questions of that pattern."
+    proved_by: "packages/engine/tests/test_generate.py::test_a_maths_sample_of_no_known_case_is_kept_as_a_sample_and_nothing_is_made"
+  - words: "The capability to edit a certain level in a skill by putting in the sample questions, and the ability for the system to then generate a certain number of questions of that pattern."
+    proved_by: "packages/engine/tests/test_generate.py::test_how_many_is_at_most_the_row_and_no_prompt_is_used_until_it_is_active"
+  - words: "The capability to edit a certain level in a skill by putting in the sample questions, and the ability for the system to then generate a certain number of questions of that pattern."
+    proved_by: "apps/web/tests/u65-more-like-this.spec.ts::an educator asks for more questions like a Maths sample and is told what was made, and an English one waits for its score"
+manual:
+  - "Before the migration meets live: run the rehearsal on a copy of live (GitHub, Actions, rehearse update-live, Run workflow on this branch); it must pass."
+  - "After the merge and deploy, before English is switched on: GitHub, Actions, engine eval, purpose english_generate, version 1. Record its score in DECISIONS-LOG.md; only if it meets eval.english_generate.kept (0.8) is the row made active. Until then \"Make more like this\" on an English sample says it is not switched on yet."
+  - "On live, after the deploy: open Maths 2-digit + 2-digit, under Medium type 47 + 38, in columns, ask for 5; the page says 5 were made and Medium waits for approval."
+scenarios: []
+criteria:
+  - name: making from a sample, the stops beside it, the edits, the checks, the roles (row security on every table), the bars of every eval
+    run: cd packages/engine && .venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_generate.py tests/test_retire_kind.py tests/test_english_edit.py tests/test_english_check.py tests/test_bars.py tests/test_roles.py tests/test_rules.py tests/test_migration_order.py tests/test_contract.py tests/test_layout.py
+    expect: "passed"
+  - name: the seed loads twice and nothing moves (the prompt row, the two threshold rows)
+    run: bin/engine load --check
+    expect: "unchanged on a second run"
+  - name: the skill page, its samples, the stops
+    run: cd apps/web && npx playwright test tests/u65-more-like-this.spec.ts tests/u64-stop-a-kind.spec.ts tests/u55-edit-samples-and-kinds.spec.ts tests/u54-skill-shows-its-samples.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the website type-checks
+    run: cd apps/web && npx tsc --noEmit && echo passed
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -49,7 +49,7 @@ def _tenant(conn: db.Conn) -> db.Id:
     return db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
 
 
-def _is_english(conn: db.Conn, code: str) -> bool:
+def is_english(conn: db.Conn, code: str) -> bool:
     row = conn.execute(
         "select t.subject_code from skill s join topic t on t.tenant_id = s.tenant_id and t.code = s.topic_code"
         " where s.code = %s",
@@ -201,7 +201,7 @@ def save(
     def refuse(faults: dict[str, list[str]]) -> dict[str, Any]:
         return {"saved": False, "ord": ord, "faults": faults}
 
-    if not _is_english(conn, code):
+    if not is_english(conn, code):
         return refuse(
             {"skill": ["This skill's questions are made by code from each level's rule, not edited here."]}
         )
@@ -226,7 +226,7 @@ def save(
 def remove(conn: db.Conn, code: str, level: str, kind: str, ord: int, by: str) -> dict[str, Any]:
     """One sample taken off its level: a version that says so, the sample kept in what it replaced."""
     was = current(conn, code, level, kind, ord)
-    if not was or not _is_english(conn, code):
+    if not was or not is_english(conn, code):
         return {"removed": False, "why": "That sample is not on this level any more."}
     _hold(conn, code, level, kind)
     if _count(conn, code, level, kind) <= (n := few(conn)):
@@ -260,7 +260,7 @@ def add_kind(conn: db.Conn, code: str, level: str, kind: str, samples: list[dict
     def refuse(why: str, faults: list | None = None) -> dict[str, Any]:
         return {"saved": False, "why": why, "faults": faults or []}
 
-    if not _is_english(conn, code):
+    if not is_english(conn, code):
         return refuse("This skill's kinds follow its questions, which code makes.")
     if kind not in {k["code"] for k in approved_kinds(conn)}:
         return refuse("Only a kind of question that has been approved can be added.")
@@ -293,7 +293,7 @@ def add_kind(conn: db.Conn, code: str, level: str, kind: str, samples: list[dict
 def remove_kind(conn: db.Conn, code: str, level: str, kind: str, by: str) -> dict[str, Any]:
     """A kind taken from a level; its samples stay stored, off the page. A level keeps at least one kind."""
     kinds = level_kinds(conn, code, level)
-    if not _is_english(conn, code) or kind not in kinds:
+    if not is_english(conn, code) or kind not in kinds:
         return {"removed": False, "why": "This level does not ask that kind."}
     if len(kinds) == 1:
         return {"removed": False, "why": "A level asks at least one kind of question; add another first."}
@@ -304,3 +304,49 @@ def remove_kind(conn: db.Conn, code: str, level: str, kind: str, by: str) -> dic
     _kind_changed(conn, code, level, kind, False, by)
     withdraw(conn, code, level)
     return {"removed": True, "why": ""}
+
+
+def check(conn: db.Conn, code: str, level: str, kind: str, s: dict[str, Any]) -> dict[str, list[str]]:
+    """The faults of a question in the stored shape (`english_sample_now`'s), as a sample of this level and kind is
+    checked before it is stored: {field: [what is wrong, in words]}, empty when it may be stored."""
+    context = _context(conn, code, level, kind)
+    if context is None:
+        return {"skill": ["This skill has no such level or kind of question."]}
+    try:
+        return english_check.faults(
+            {**s, "question_type": kind}, replace(context, passage=_passage_text(conn, s.get("passage_code")))
+        )
+    except english_words.NoDictionary:
+        return {
+            "skill": [
+                "The spelling list could not be read just now, so nothing was saved. Try again in a minute."
+            ]
+        }
+
+
+def made(
+    conn: db.Conn, code: str, level: str, kind: str, ord: int, samples: list[dict], by: str, run: db.Id | None
+) -> list[int]:
+    """Questions made from sample `ord` that passed `check`: each a new sample of its own, saying what it was made from
+    and the model's run that wrote it, a draft until the level is approved again. Their numbers."""
+    _hold(conn, code, level, kind)
+    t, first = _tenant(conn), _next_ord(conn, code, level, kind)
+    for i, s in enumerate(samples):
+        conn.execute(
+            "insert into english_sample_edit (tenant_id, skill_code, difficulty, question_type, ord, sample, edited_by,"
+            " made_from, flow_run_id) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (
+                t,
+                code,
+                level,
+                kind,
+                first + i,
+                json.dumps({k: s.get(k) for k in (*COLUMNS, "wrong")}),
+                by,
+                ord,
+                run,
+            ),
+        )
+    if samples:
+        withdraw(conn, code, level)
+    return list(range(first, first + len(samples)))

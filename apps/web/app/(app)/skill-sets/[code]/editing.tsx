@@ -67,6 +67,15 @@ export function Changed({ q }: { q: Record<string, string | undefined> }) {
           it first; what it replaced is kept.
         </Notice>
       ) : null}
+      {q.made === "0" ? (
+        <Notice tone="terracotta">No question passed its checks, so none was stored{q.thrown ? `: ${q.thrown}` : ""}.</Notice>
+      ) : q.made ? (
+        <Notice tone="neem">
+          {q.made} {q.made === "1" ? "question" : "questions"} made like your sample
+          {q.returned ? ` (${q.returned} written, ${Number(q.returned) - Number(q.made)} thrown away${q.thrown ? `: ${q.thrown}` : ""})` : ""}.
+          They are drafts: {q.at ?? "That level"} waits for approval again, and no paper draws them before it is approved.
+        </Notice>
+      ) : null}
       {q.withdrawn ? (
         <Notice tone="terracotta">
           These papers were approved but not yet given, and go back for approval, unchanged: {q.withdrawn.split(",").join(", ")}.

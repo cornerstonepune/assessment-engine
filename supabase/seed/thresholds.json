@@ -373,6 +373,18 @@
    "value": 3,
    "unit": "samples",
    "description": "Samples a level keeps of each kind of question it asks, read by its approver (goals/edt_edit_samples_and_kinds.yaml)"
+  },
+  {
+   "key": "generate.max_per_request",
+   "value": 20,
+   "unit": "questions",
+   "description": "The most questions an educator may ask for at once from one sample (goals/gen_from_a_sample.yaml). Nimish, 2026-10-26: \"a certain number of questions\"; the brief: a small number, like 10 or 20"
+  },
+  {
+   "key": "eval.english_generate.kept",
+   "value": 0.8,
+   "unit": "proportion",
+   "description": "Of the questions english_generate returns on the eval set, the share that pass every code check (english_check.py). The checks keep a wrong one from ever being stored, so this bar is what it costs, not what it risks: a lower share is more thrown away per request. Set before its first score; the score is recorded in DECISIONS-LOG.md before the prompt is made active (rule 7)"
   }
  ]
 }
