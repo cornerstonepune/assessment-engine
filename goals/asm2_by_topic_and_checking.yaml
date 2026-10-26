@@ -16,7 +16,7 @@ says:
   - words: "What is happening is that you are just giving this: 2 digits, 2 digits, and 2 digits. It's like the composition of the assessment is what you're showing here, which is not at all useful as such. The nomenclature can be better."
     proved_by: "apps/web/tests/u62-assessment-steps.spec.ts::an assessment is named as a teacher would say it: topic, skill, level, kind, class and day; the composition is never the title"
   - words: "The nomenclature can be better."
-    proved_by: "apps/web/tests/asm2-by-topic.spec.ts::the name an educator gave wins, and the composition (every skill and level) is in the detail view, not the title"
+    proved_by: "apps/web/tests/asm2-by-topic.spec.ts::the name an educator gave wins, and the composition, every skill and level, is in the detail view, not the title"
   - words: "When I come to needs checking, everyone checks the assessment by the last upload that they do. Think about how you really make these pages useful."
     proved_by: "apps/web/tests/asm2-checking.spec.ts::Check answers lists one line per assessment, with its papers waiting, its answers left and its oldest wait"
   - words: "everyone checks the assessment by the last upload that they do."

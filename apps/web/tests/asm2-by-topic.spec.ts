@@ -86,7 +86,7 @@ test("opening a topic shows only its assessments, ten to a page, and no other to
   await expect(page.locator("tr[data-assessment]")).toHaveCount(0);
 });
 
-test("the name an educator gave wins, and the composition (every skill and level) is in the detail view, not the title", async ({ page }) => {
+test("the name an educator gave wins, and the composition, every skill and level, is in the detail view, not the title", async ({ page }) => {
   // built: the topic, the skill, the kind and the class, never a list of digit sizes (a week no test renames)
   await page.goto(`/papers?class=${SECTION}&week=${WEEKS[1]}`);
   const built = page.locator(`tr[data-assessment^='assessment~${SECTION}~${WEEKS[1]}~']`).locator("a[aria-expanded]");
