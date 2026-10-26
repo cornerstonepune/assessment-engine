@@ -1,5 +1,5 @@
 {
-  "athena": "2.5.0",
+  "athena": "2.5.1",
   "files": {
     ".claude/agents/appsec-engineer.md": "e0566869ce131ef35a3dd0615f152dba68bc1dcab09ee44254f59db2a69ea73d",
     ".claude/agents/athena-proof-writer.md": "bc8416750eb968dfb1c8ea5fc83d5c68dc1a8912849dbac434dd76c7e4fafe6a",
@@ -11,7 +11,7 @@
     ".claude/athena/SUPERPOWERS-NOTICE.md": "c9621c9cf7e7b7f8d000ed99d449db7c0712bbc4a922f5d337477e74dc5d7e75",
     ".claude/athena/THIRD-PARTY.md": "a27eac872b2ba3f1bd5adf245fa31a283bcffe2af6b0ce78eedfefb45b1cbbef",
     ".claude/athena/bin/assurance": "11ce729f7b9c750a4a63928749c302897f5b84e5bbdcc81f1dcc9d0db1ba3e13",
-    ".claude/athena/bin/athena": "99a652c7215047c03217308f78bfca6be7b8df15f61b96ea2d2a2bb98588fc21",
+    ".claude/athena/bin/athena": "1b89a292a8dfe380f9e39913b02712fec86f1d88bc4c38e302c5fe91575164e3",
     ".claude/athena/bin/athena_measure.py": "ef72715c796c5d7011dc5160da9e1982092c848c5236ec9c46afc2db3bb7d66b",
     ".claude/athena/bin/checklib.sh": "8783a4a4827d1304e512a9eea4e57684172b9795b2790306fe1030c1d11eff78",
     ".claude/athena/bin/health_issue.py": "75a3eceb02e18f40fed538e6c765f6564b83cc89597940040653f3c9e5ad7345",
@@ -248,7 +248,7 @@
     ".claude/skills/using-git-worktrees/SKILL.md": "8cfb86f121269e8f7f12361e6795c4f6738828340e28964c9229d365666c9edd",
     ".claude/skills/verification-before-completion/SKILL.md": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3",
     ".claude/skills/writing-plans/SKILL.md": "6d476f62d4c961a363e96ef25da05d3305405362e93e011cd37743e5eb8054a3",
-    ".github/workflows/athena-health.yml": "de5a846585c11423bd705e51811b57e6af71e3c15732ac4937493637da1588c4"
+    ".github/workflows/athena-health.yml": "b2b3e4e8556d9838313101fc67aefa08e7511efcf4c6ead939aaec84c102b2d3"
   },
   "settings": {
     "env": [
