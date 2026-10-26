@@ -16,6 +16,8 @@ line tools, a cloud session, GitHub Actions).
   athena verify-locks               every LOCK still matches its files
   athena scorecard                  per component: times fired, sessions, cost, last fired
   athena health                     one PASS/FAIL line per check; exit 1 if any fails
+  athena verify-hooks               fail if a hook is not on the installer's allowlist or a VS Code task runs on folder open
+  athena scan-ioc                   fail on a known indicator from the August npm worm (counts and file names only)
   athena check-scope-changes --base REF [--labels JSON]   CI: no silent scope edits
   athena hook {session-start|guard|stop|prompt}           called by Claude Code
 """
@@ -29,7 +31,7 @@ import sys
 import time
 from pathlib import Path
 
-VERSION = "2.5.0"
+VERSION = "2.5.1"
 ID_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
 STRIKE_LIMIT = 3
 CHECK_TIMEOUT = int(os.environ.get("ATHENA_CHECK_TIMEOUT", "900"))
@@ -801,6 +803,136 @@ def cmd_hook(args):
 
 
 # ---------------------------------------------------------------- main
+# ---- supply-chain checks: hooks are ours, no known worm indicators ---------------------------------------
+HOOKS_ALLOW = HARNESS / "hooks.allow.json"
+IOC_FILES = ("Math_Symbol.js", "math_init.js", "gh-token-monitor.sh")  # the August npm worm's named files
+LOCKFILES = ("package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock")
+
+
+def hook_commands(settings: dict) -> list:
+    """Every hook in a settings.json, whatever the event or type: its command, or its JSON when it has none."""
+    out = []
+    for groups in (settings.get("hooks") or {}).values():
+        for g in groups if isinstance(groups, list) else []:
+            for h in (g.get("hooks") or []) if isinstance(g, dict) else []:
+                if isinstance(h, dict) and h:
+                    out.append(str(h["command"]) if h.get("command") else json.dumps(h, sort_keys=True))
+    return out
+
+
+def _json_c(text: str):
+    """JSON with // and /* */ comments and trailing commas, as VS Code reads tasks.json."""
+    out, i, n, in_str = [], 0, len(text), False
+    while i < n:
+        c = text[i]
+        if in_str:
+            out.append(c)
+            if c == "\\":
+                out.append(text[i + 1:i + 2])
+                i += 1
+            elif c == '"':
+                in_str = False
+        elif c == '"':
+            in_str = True
+            out.append(c)
+        elif text.startswith("//", i):
+            i = text.find("\n", i)
+            i = n if i < 0 else i - 1
+        elif text.startswith("/*", i):
+            j = text.find("*/", i + 2)
+            i = n if j < 0 else j + 1
+        else:
+            out.append(c)
+        i += 1
+    return json.loads(re.sub(r",(\s*[}\]])", r"\1", "".join(out)))
+
+
+def cmd_verify_hooks(args):
+    """Fail if a hook in .claude/settings.json is not on the installer's allowlist, or a VS Code task runs on folder open."""
+    problems, n = [], 0
+    settings = ROOT / ".claude" / "settings.json"
+    if settings.exists():
+        try:
+            cmds = hook_commands(json.loads(settings.read_text()))
+        except ValueError:
+            die(".claude/settings.json is not valid JSON")
+        n = len(cmds)
+        try:
+            allowed = set(json.loads(HOOKS_ALLOW.read_text())["commands"])
+        except (OSError, ValueError, KeyError):
+            allowed = None
+        if cmds and allowed is None:
+            problems.append("no allowlist at .claude/athena/hooks.allow.json; run the Athena installer")
+        else:
+            problems += [f"hook not on the allowlist: {c[:200]}" for c in cmds if c not in allowed]
+    tasks = ROOT / ".vscode" / "tasks.json"
+    if tasks.exists():
+        try:
+            for t in _json_c(tasks.read_text()).get("tasks", []):
+                if isinstance(t, dict) and (t.get("runOptions") or {}).get("runOn") == "folderOpen":
+                    problems.append(f"VS Code task runs on folder open: {str(t.get('label', t.get('command', '?')))[:200]}")
+        except ValueError:
+            problems.append(".vscode/tasks.json cannot be read, so its folder-open tasks cannot be checked")
+    if problems:
+        print(f"verify-hooks: FAIL, {len(problems)} problem(s)")
+        for p in problems:
+            print(f"  {p}")
+        return 1
+    print(f"verify-hooks: PASS, {n} hook(s), all on the allowlist, no folder-open tasks")
+    return 0
+
+
+def _pkg_versions(path: Path):
+    """(name, version) pairs a lockfile holds. Only package names and versions are ever read out of it."""
+    text = path.read_text(errors="replace")
+    if path.suffix == ".json":
+        try:
+            data = json.loads(text)
+        except ValueError:
+            return
+        def walk(deps):
+            for name, v in (deps or {}).items():
+                if isinstance(v, dict):
+                    yield name, v.get("version")
+                    yield from walk(v.get("dependencies"))
+        for key, v in (data.get("packages") or {}).items():
+            if isinstance(v, dict) and key.rsplit("node_modules/", 1)[-1] and "node_modules/" in key:
+                yield key.rsplit("node_modules/", 1)[-1], v.get("version")
+        yield from walk(data.get("dependencies"))
+    elif path.name == "pnpm-lock.yaml":
+        for m in re.finditer(r"(?m)^\s*['\"]?/?(@?[^@\s'\"/]+(?:/[^@\s'\"/]+)?)[@/](\d[^(_:'\"\s]*)", text):
+            yield m.group(1), m.group(2)
+    else:  # yarn.lock, classic and berry: a header line per package, then an indented version line
+        names = ()
+        for line in text.splitlines():
+            if line and not line[0].isspace() and line.rstrip().endswith(":") and not line.startswith("#"):
+                names = tuple(e.strip().strip('"').rsplit("@", 1)[0] for e in line.rstrip()[:-1].split(","))
+            m = re.match(r'\s+version:?\s+"?([^"\s]+)"?\s*$', line)
+            if m:
+                for nm in names:
+                    yield nm, m.group(1)
+
+
+def cmd_scan_ioc(args):
+    """Fail on a known indicator from the August npm worm. Output is counts and file names only."""
+    files, pkgs = [], []
+    for dp, dn, fn in os.walk(ROOT):
+        dn[:] = [d for d in dn if d != ".git"]
+        for f in fn:
+            rel = (Path(dp) / f).relative_to(ROOT)
+            if f in IOC_FILES:
+                files.append(str(rel))
+            elif f in LOCKFILES and any(p == ("keyv", "6.0.0") for p in _pkg_versions(Path(dp) / f)):
+                pkgs.append(f"keyv 6.0.0 in {rel}")
+    total = len(files) + len(pkgs)
+    print(f"scan-ioc: {'FAIL' if total else 'PASS'}, {total} finding(s)")
+    for f in sorted(files):
+        print(f"  file: {f}")
+    for p in sorted(pkgs):
+        print(f"  package: {p}")
+    return 1 if total else 0
+
+
 def _opt(args, name, default=None):
     if name in args:
         i = args.index(name)
@@ -814,6 +946,7 @@ COMMANDS = {
     "block": cmd_block, "unlock": cmd_unlock, "verify-locks": cmd_verify_locks,
     "check-scope-changes": cmd_check_scope_changes, "status": cmd_status, "hook": cmd_hook,
     "scorecard": cmd_scorecard, "health": cmd_health,
+    "verify-hooks": cmd_verify_hooks, "scan-ioc": cmd_scan_ioc,
 }
 
 
