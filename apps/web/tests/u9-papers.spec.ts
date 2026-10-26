@@ -151,7 +151,7 @@ test("every paper is one row, what it is, whose, and where it stands, filtered b
   await filters.locator('select[name="kind"]').selectOption({ label: "Home assessment" });
   await expect(page).toHaveURL(/kind=focus/);
   await expect(lines).toHaveCount(1);
-  await expect(lines).toContainText("Home assessments");
+  await expect(lines).toContainText("Home assessment");
   await page.goto(`/papers?class=${SECTION}&child=${kids.Bina}`);
   await expect(lines).toHaveCount(2);
   await expect(page.locator("tbody tr[data-paper]")).toHaveCount(2);

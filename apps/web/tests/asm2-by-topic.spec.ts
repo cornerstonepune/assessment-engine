@@ -133,5 +133,6 @@ test("each assessment shows the seven steps in order, each a chip; the stage and
   // the class filter is in the same bar
   await expect(page.locator("[data-filterbar] select[name=class]")).toHaveValue(SECTION);
   await page.goto(`/papers?class=NO-SUCH-CLASS&view=topic`);
-  await expect(page.getByRole("table", { name: "Assessments by topic" })).toHaveCount(0);
+  await expect(page.locator("tr[data-topic]")).toHaveCount(0);
+  await expect(page.getByText("Nothing matches these filters.")).toBeVisible();
 });
