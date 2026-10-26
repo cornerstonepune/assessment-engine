@@ -93,7 +93,8 @@ async function breaks(page: Page): Promise<string[]> {
       if ([...document.querySelectorAll("main [data-status]")].some((c) => !c.querySelector("svg") || !(c.textContent ?? "").trim())) out.add("no-icon");
       const empty = (s: string) => /^\s*([-–—]|0+([.,]0+)?)?\s*$/.test(s);
       for (const t of document.querySelectorAll("main table")) {
-        const rows = [...t.querySelectorAll("tbody tr")];
+        // its own rows: a table opened under a row (copies, papers) is counted as its own table
+        const rows = [...t.querySelectorAll(":scope > tbody > tr:not(.under)")];
         if (rows.length > limit) out.add("long-table");
         // a paged table keeps its columns the same on every page: a column with nothing on this page has its words on another
         const paged = !!t.closest("div")?.parentElement?.querySelector("nav[aria-label$=' pages']");
@@ -180,15 +181,14 @@ test("Check answers is built on the blocks: one main action, its next step, one 
 test("Check answers lists what is left to check as one table with its filter row", async ({ browser }) => {
   const page = await (await browser.newContext({ storageState: SIGNED_IN })).newPage();
   await open(page, `/capture/check?id=${answer}`);
-  const table = page.getByRole("table", { name: "Left to check" });
-  await expect(table.locator("thead th")).toHaveText(["#", "Class", "Roll", "Paper", "Question", "Status", ""]);
-  expect(await table.locator("tbody tr").count()).toBeGreaterThan(0);
-  await expect(table.locator("tbody tr").first().locator("[data-status]")).toBeVisible();
+  const table = page.getByRole("table", { name: "Left to check, by assessment" });
+  await expect(table.locator(":scope > thead th")).toContainText(["Assessment", "Class", "Papers waiting", "Answers left", "Oldest wait"]);
+  expect(await table.locator(":scope > tbody > tr[data-assessment]").count()).toBeGreaterThan(0);
   await expect(page.locator("[data-filterbar]")).toBeVisible();
   // a status narrows it, and the answer in hand stays where it is
   await page.goto(`/capture/check?id=${answer}&why=spot`);
   await expect(page.locator("[data-active-filters]")).toContainText("Status: Spot-check");
-  for (const chip of await page.getByRole("table", { name: "Left to check" }).locator("tbody [data-status]").all()) await expect(chip).toHaveAttribute("data-status", "spot");
+  for (const cell of await page.getByRole("table", { name: "Left to check, by assessment" }).locator("td[data-label='Answers left']").all()) await expect(cell).toHaveText("0");
   await page.context().close();
 });
 
@@ -229,7 +229,7 @@ test("Assessments is a table of aligned columns with the one filter row, and a s
   expect(await breaks(page)).toEqual([]);
   const table = page.getByRole("table", { name: "Assessments" });
   const heads = (await table.locator("thead th").allTextContents()).map((h) => h.trim());
-  for (const h of ["Class", "Assessment", "Kind", "Made on", "Made", "Printed / given", "Uploaded", "Read", "Checked", "Signed off", "Next"]) expect(heads, "columns").toContain(h);
+  for (const h of ["Class", "Assessment", "Kind", "Made on", "Created", "Printed", "Uploaded", "Read", "Checked", "Results in", "Next"]) expect(heads, "columns").toContain(h);
   // text left, numbers right, a state in the middle: heading and cells together
   const align = async (name: string) => {
     const i = heads.indexOf(name);

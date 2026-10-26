@@ -76,7 +76,7 @@ test("the class papers Today counts are the copies the pages it opens show waiti
   await expect(ours(page).locator("[data-action=print]")).toHaveText("Print");
   await expect(ours(page).locator('[data-status="next"]')).toHaveCount(1);
   const status = page.locator('[data-filterbar] select[name="status"] option[value="print"]');
-  await expect(status, "the class's assessment waiting to be printed").toHaveText(/^To print \(1\)$/);
+  await expect(status, "the class's assessment waiting to be printed").toHaveText(/^Approved, to print \(1\)$/);
 
   // the approve page Today's line opens: two copies to approve, the spare among the spare copies, the button counting
   // them as Today does (goals/ux5-papers-grouped.yaml)
