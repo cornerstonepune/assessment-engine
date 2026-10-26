@@ -29,7 +29,8 @@ test.beforeAll(async () => {
                from drawable_item group by 1, 2, 3),
          many as (select code, level from k group by 1, 2 having count(*) > 1)
     select k.code, k.level, k.kind, q.words, k.n from k join many using (code, level)
-    join question_type q on q.code = k.kind order by 1, 2, 3 limit 1`;
+    join question_type q on q.code = k.kind join difficulty d on d.code = k.level
+    order by k.code, d.ord, k.kind limit 1`; // the first level, so its row is on the table's first page
   [{ kept }] = await sql<{ kept: unknown }[]>`select level_approved as kept from skill where code = ${k.code}`;
   await sql`update skill set level_approved = (select jsonb_object_agg(x, jsonb_build_object('by', 'Achal', 'at', now()))
                                                from jsonb_object_keys(difficulty) x) where code = ${k.code}`;

@@ -10,13 +10,14 @@ import { levels as schoolLevels } from "@/lib/levels";
 // change the skill. The engine refuses in words (a level keeps one kind in use); what it did comes back to the page:
 // the levels that wait for approval again, and the approved papers not yet given that went back for approval.
 
-const CODE = /^[A-Z0-9._]+$/;
+const CODE = /^[A-Z0-9._]+$/; // a skill's code
+const KIND = /^[A-Za-z0-9._]+$/; // a kind's: a template's name, or a printed format's ("bare_sum")
 
 async function where(fd: FormData): Promise<{ code: string; level: string | null; kind: string }> {
   const code = String(fd.get("code") ?? "");
   const level = String(fd.get("level") ?? "");
   const kind = String(fd.get("kind") ?? "");
-  if (!CODE.test(code) || !CODE.test(kind) || (level !== "all" && !(await schoolLevels()).order.includes(level))) redirect("/");
+  if (!CODE.test(code) || !KIND.test(kind) || (level !== "all" && !(await schoolLevels()).order.includes(level))) redirect("/");
   return { code, level: level === "all" ? null : level, kind };
 }
 

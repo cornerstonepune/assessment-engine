@@ -263,7 +263,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
             </div>
           </Panel>
           )}
-          <KindStops code={s.code} ways={ways} levels={levelsOf(s)} stop={q.stop} mayChange={mayChange} />
+          <KindStops code={s.code} ways={ways} levels={levelsOf(s)} q={q} mayChange={mayChange} />
           <Panel
             id="mistakes"
             title="Mistakes it watches for"

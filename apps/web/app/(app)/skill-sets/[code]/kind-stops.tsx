@@ -16,19 +16,20 @@ type Touches = { levels: string[]; questions: number; papers: number; withdraw: 
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-export async function KindStops({ code, ways, levels, stop, mayChange }: {
+export async function KindStops({ code, ways, levels, q, mayChange }: {
   code: string;
   ways: WaysRow[];
   levels: string[];
-  /** the stop being confirmed (`?stop=<level or all>~<kind>`) */
-  stop: string | undefined;
+  /** the page's address: the stop being confirmed (`stop=<level or all>~<kind>`), and the table's page (`kinds`) */
+  q: Record<string, string | undefined>;
   mayChange: boolean;
 }) {
   const rows: Row[] = levels.flatMap((level) =>
     ways.filter((w) => w.levels.includes(level)).map((w) => ({ level, kind: w.code, words: w.words, stopped: w.stopped.includes(level) })),
   );
   if (!rows.length) return null;
-  const [at, kind] = (stop ?? "").split("~");
+  const [at, kind] = (q.stop ?? "").split("~");
+  const page = Math.max(1, Number(q.kinds) || 1);
   const asked = mayChange ? rows.find((r) => r.kind === kind && (at === "all" || r.level === at) && !r.stopped) : undefined;
   return (
     <Panel id="stop-kinds" title="Kinds of question in use" aside="a stopped kind is drawn by no new paper; past papers keep theirs">
@@ -37,9 +38,10 @@ export async function KindStops({ code, ways, levels, stop, mayChange }: {
         label="Kinds of question in use"
         rowKey={(r) => `${r.level}~${r.kind}`}
         rows={rows}
-        more={{ by: (r) => r.level }}
+        more={{ page, href: (n: number) => `/skill-sets/${code}?kinds=${n}#stop-kinds` }}
         extras={{ attrs: (r) => ({ "data-kind": r.kind, "data-level": r.level }) }}
         columns={[
+          { key: "level", label: "Level", width: "7rem", value: (r) => r.level },
           { key: "kind", label: "Kind of question", value: (r) => r.words },
           { key: "state", label: "Now", status: true, width: "9rem", value: (r) => (r.stopped ? "stopped" : "in use"),
             cell: (r) => <StatusChip state={r.stopped ? "stopped" : "inUse"} /> },
@@ -77,7 +79,11 @@ async function Confirm({ code, level, kind, words }: { code: string; level: stri
       <strong>Stop using &ldquo;{words}&rdquo; {where}?</strong>
       <ul className="grid list-disc gap-1 pl-5">
         <li>{plural(t.questions, "question", "questions")} in the bank will not be drawn for any new paper. Nothing is deleted.</li>
-        <li>{plural(t.papers, "past paper holds", "past papers hold")} them; {t.papers === 1 ? "it stays" : "they stay"} as {t.papers === 1 ? "it is" : "they are"}, and every answer on {t.papers === 1 ? "it" : "them"} keeps its meaning.</li>
+        <li>
+          {t.papers
+            ? `${plural(t.papers, "past paper holds", "past papers hold")} them; ${t.papers === 1 ? "it stays as it is" : "they stay as they are"}, and every answer on ${t.papers === 1 ? "it" : "them"} keeps its meaning.`
+            : "No past paper holds them."}
+        </li>
         {t.withdraw.length ? (
           <li data-withdraw={t.withdraw.join(" ")}>
             {plural(t.withdraw.length, "paper is", "papers are")} approved but not yet given ({t.withdraw.join(", ")}):{" "}
