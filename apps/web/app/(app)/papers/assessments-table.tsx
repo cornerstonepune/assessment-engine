@@ -128,7 +128,7 @@ function NameCell({ a, open, href, back }: { a: Named; open: boolean; href: stri
       ) : null}
       <details className="pl-4 text-[12px]">
         <summary className="cursor-pointer text-basalt/60">Rename</summary>
-        <form action={renameAssessment} className="mt-1 flex gap-1">
+        <form action={renameAssessment} className="mt-1 flex flex-wrap gap-1">
           <input type="hidden" name="key" value={key} />
           <input type="hidden" name="back" value={back} />
           <input
