@@ -30,24 +30,47 @@ def copy_of(path: str) -> tuple[str, int | None]:
     return str(p.parent), int(m.group(1)) if m else None
 
 
-def _print(path, page_no: int) -> str | None:
-    """The page's picture as `same_page.fingerprint` gives it, or None where the file or page is not there. The same
-    photograph put in two copies gives the same fingerprint; two photographs of one paper never do."""
+def _told(path, page_no: int) -> tuple[str, str | None] | None:
+    """(the page's picture as `same_page.fingerprint` gives it, the code printed on it as `sorting.qr_of` reads it), from
+    one drawing of the photograph; None where the file or page is not there. The same photograph put in two copies gives
+    the same fingerprint; two photographs of one paper never do."""
     full = Path(path).expanduser()
     if not full.exists():
         return None
     with pymupdf.open(full) as doc:
         if not 1 <= page_no <= len(doc):
             return None
-    return same_page.fingerprint(render_pdf.photo(full, page_no)[0])
+    img = render_pdf.photo(full, page_no)[0]
+    return same_page.fingerprint(img), sorting.qr_of(img)
 
 
-def printed_code(path, page_no: int) -> str | None:
-    """The code printed on this page, read off the page (`sorting.qr_of`), or None where none can be read."""
-    full = Path(path).expanduser()
-    if not full.exists():
-        return None
-    return sorting.qr_of(render_pdf.photo(full, page_no)[0])
+def pages_told(conn, wanted: list[tuple]) -> dict[tuple, tuple[str, str | None]]:
+    """{(capture id, file page): (fingerprint, printed code)} for each (capture id, path, file page) wanted: read from
+    `capture_page`, and a page not told yet (a file read before the rows existed) told now and kept. A page's photograph
+    is drawn once in its life, never on a card (docs/notes/perf-slow-site.md: 8 seconds a click)."""
+    ids = list({str(c) for c, _, _ in wanted})
+    rows = conn.execute(
+        "select capture_id::text, file_page, print, code from capture_page where capture_id = any(%s::uuid[])",
+        (ids,),
+    ).fetchall()
+    told = {(r["capture_id"], r["file_page"]): (r["print"], r["code"]) for r in rows}
+    for c, path, page in wanted:
+        if (str(c), page) in told or (fact := _told(path, page)) is None:
+            continue
+        conn.execute(
+            "insert into capture_page (capture_id, file_page, tenant_id, print, code)"
+            " select id, %s, tenant_id, %s, %s from capture where id = %s on conflict do nothing",
+            (page, *fact, c),
+        )
+        told[(str(c), page)] = fact
+    return told
+
+
+def record(conn, capture_id) -> None:
+    """Every page of a capture told and kept, as it is read (`copies._read_copy`), so its first card is as quick as any."""
+    cap = conn.execute("select path, pages from capture where id = %s", (capture_id,)).fetchone()
+    if cap:
+        pages_told(conn, [(capture_id, cap["path"], q) for q in range(1, (cap["pages"] or 0) + 1)])
 
 
 def verdict(code, filed_code, same_as: list[int]) -> dict | None:
@@ -89,12 +112,17 @@ def proof(conn, capture_id, file_page: int) -> dict | None:
     folder, k = copy_of(cap["path"])
     sibs = _siblings(conn, folder, capture_id)
     nums = [n for s in sibs if (n := copy_of(s["path"])[1])] + ([k] if k else [])
-    mine = _print(cap["path"], file_page)
+    others = [s for s in sibs if s["child_id"] != cap["child_id"] and copy_of(s["path"])[1]]
+    told = pages_told(conn, [(capture_id, cap["path"], file_page)])
+    mine, code = told.get((str(capture_id), file_page), (None, None))
+    if mine:
+        told |= pages_told(
+            conn, [(s["id"], s["path"], q) for s in others for q in range(1, (s["pages"] or 0) + 1)]
+        )
     same_as = sorted({
-        n for s in sibs if mine and s["child_id"] != cap["child_id"] and (n := copy_of(s["path"])[1])
-        and any(_print(s["path"], q) == mine for q in range(1, (s["pages"] or 0) + 1))
-    })  # fmt: skip
-    code = printed_code(cap["path"], file_page)
+        n for s in others if (n := copy_of(s["path"])[1])
+        and any(told.get((str(s["id"]), q), (None,))[0] == mine for q in range(1, (s["pages"] or 0) + 1))
+    }) if mine else []  # fmt: skip
     problem = verdict(code, cap["qr_code"], same_as)
     chose = conn.execute(
         "select choice, by from page_choice where capture_id = %s and file_page = %s order by created_at desc limit 1",
