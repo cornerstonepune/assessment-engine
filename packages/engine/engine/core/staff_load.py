@@ -136,7 +136,10 @@ def _decide(line: Line, me: dict[str, Any] | None, change_roles: bool = False) -
             f"refused: already on the list as {me['role']}, and this tool changes only classes and subjects"
             " (add --change-roles to change the role as well)"
         )
-    elif was == line.role and (me.get("classes", []), me.get("subjects", [])) == (line.classes, line.subjects):
+    elif was == line.role and (me.get("classes", []), me.get("subjects", [])) == (
+        line.classes,
+        line.subjects,
+    ):
         line.action, line.said = "same", "no change"
     else:
         line.action = "update"
@@ -193,7 +196,12 @@ def apply(conn: db.Conn, lines: Sequence[Line], cost: int) -> dict[str, str]:
     for s in staff(conn):
         ln = todo.pop(s["email"].lower(), None)
         out.append(
-            {**s, "classes": ln.classes, "subjects": ln.subjects, **({"role": ln.role} if ln.change_role else {})}
+            {
+                **s,
+                "classes": ln.classes,
+                "subjects": ln.subjects,
+                **({"role": ln.role} if ln.change_role else {}),
+            }
             if ln
             else s
         )

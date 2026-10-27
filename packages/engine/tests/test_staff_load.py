@@ -191,10 +191,15 @@ def test_a_role_is_changed_only_when_asked_and_the_person_keeps_their_password(t
     refused = _load(path)
     assert "refused: already on the list as educator" in refused.output_plain
     assert "add --change-roles" in refused.output_plain
-    assert _load(path, "--apply").exit_code != 0 and {s["email"]: s for s in _staff()}["dee@example.test"] == mine
+    assert (
+        _load(path, "--apply").exit_code != 0
+        and {s["email"]: s for s in _staff()}["dee@example.test"] == mine
+    )
 
     asked = _load(path, "--change-roles")
-    assert re.search(r"dee@example\.test\s+update role educator to coordinator", asked.output_plain), asked.output_plain
+    assert re.search(r"dee@example\.test\s+update role educator to coordinator", asked.output_plain), (
+        asked.output_plain
+    )
     assert {s["email"]: s for s in _staff()}["dee@example.test"] == mine, "a dry run changes nothing"
 
     done = _load(path, "--change-roles", "--apply")
