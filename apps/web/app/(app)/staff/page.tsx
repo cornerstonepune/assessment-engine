@@ -4,10 +4,18 @@ import { PageShell } from "@/components/page-shell";
 import { Notice } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { choices } from "@/lib/choices";
-import { classLines, people } from "@/lib/queries-staff";
+import { classLines, people, rolesHeld } from "@/lib/queries-staff";
+import { AddPerson } from "./add-person";
 import { StaffTable } from "./staff-table";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
+
+// Why nobody was added, in the words the coordinator reads.
+const NOT_ADDED: Record<string, string> = {
+  email: "a name and a school email are both needed",
+  role: "that role is not one the school names",
+  already: "that email is already on the staff list",
+};
 
 // Staff (goals/uxn2-staff-and-school.yaml). Nimish, 2026-10-22: "the staff table of who teaches which class and subject
 // is edited on a Staff page, not by commands." A table: person, role, classes; the coordinator opens a row's classes,
@@ -16,7 +24,7 @@ type Props = { searchParams: Promise<Record<string, string | undefined>> };
 export default async function StaffPage({ searchParams }: Props) {
   await requireStaff();
   const q = await searchParams;
-  const [all, classes, offered] = await Promise.all([people(), classLines(), choices()]);
+  const [all, classes, offered, givable] = await Promise.all([people(), classLines(), choices(), rolesHeld()]);
   const text = q.q?.trim().toLowerCase();
   const shown = all.filter(
     (p) =>
@@ -37,17 +45,29 @@ export default async function StaffPage({ searchParams }: Props) {
       }
       next={{ href: "/", label: "Curriculum" }}
     >
-      {q.saved ? (
+      {q.saved && q.of === "new" ? (
+        <Notice tone="neem">
+          {q.saved} is on the staff list, and a link to set their own password is on its way to their email. It works
+          once and lasts seven days. Choose their classes and subjects on their row.
+        </Notice>
+      ) : null}
+      {q.saved && q.of !== "new" ? (
         <Notice tone="neem">
           {q.saved}&rsquo;s {q.of === "subjects" ? "subjects" : "classes"} are saved. Their pages open on{" "}
           them from now on.
         </Notice>
       ) : null}
-      {q.refused ? (
+      {q.refused && q.of === "new" ? (
+        <Notice tone="terracotta">
+          Nobody was added: {NOT_ADDED[q.refused] ?? "that cannot be saved"}.
+        </Notice>
+      ) : null}
+      {q.refused && q.of !== "new" ? (
         <Notice tone="terracotta">
           Nothing changed: {q.of === "subjects" ? `${q.refused} is not a subject of the school` : `no child is in ${q.refused}`}.
         </Notice>
       ) : null}
+      <AddPerson roles={givable} />
       <FilterBar
         action="/staff"
         filters={[

@@ -54,6 +54,24 @@ def problems(conn: db.Conn, free_bytes: int) -> list[str]:
         out.append(f"and {len(drifted) - 5} more database rules are not the migrations'")
     if free_bytes < floor * 10**9:
         out.append(f"the server's disk has {free_bytes / 10**9:.1f} GB free, less than {floor:g} GB")
+    # A "set your password" email that never left: the sender is not configured in Vercel, or it refused. The rows
+    # carry the word alone, never an address or a reason (goals/auth-email-password.yaml), so this line can go to a
+    # public issue as the rest do.
+    mail_window = int(limit.get("watch.mail_window_minutes", 1440))
+    said = {
+        "not configured": "mail is not configured, so {n} set-password links of the last {mins} minutes were never sent",
+        "failed": "the mail sender refused {n} set-password links of the last {mins} minutes",
+        "not recorded": "{n} set-password links of the last {mins} minutes say nothing of their email",
+    }
+    out += [
+        said[r["mail"]].format(n=r["n"], mins=mail_window)
+        for r in conn.execute(
+            "select coalesce(mail, 'not recorded') as mail, count(*) as n from password_link"
+            " where mail is distinct from 'sent' and created_at > now() - make_interval(mins => %s)"
+            " group by 1 order by 1",
+            (mail_window,),
+        )
+    ]
     if not os.environ.get("TYPESAFE_API_KEY"):  # the engine's own environment: the watch runs inside it
         out.append("Jev's key is missing on the engine: every judgement Jev makes goes to a person")
     return out

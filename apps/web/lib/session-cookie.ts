@@ -32,11 +32,22 @@ export function sessionValue(email: string, now = Date.now()): string {
 
 /** The email a cookie names, or null when it is missing, edited or expired. */
 export function sessionEmail(raw: string | undefined, now = Date.now()): string | null {
+  return session(raw, now)?.email ?? null;
+}
+
+/** When a cookie was signed, or null when it is no good: its expiry is SESSION_DAYS after that moment, and nothing
+ *  else in it moves. A password set after it ends that session (`currentStaff`), which is how a reset signs the
+ *  person's other browsers out without a session table to keep. */
+export function sessionIssued(raw: string | undefined, now = Date.now()): number | null {
+  return session(raw, now)?.issued ?? null;
+}
+
+function session(raw: string | undefined, now: number): { email: string; issued: number } | null {
   const [email, expiry, mac] = (raw ?? "").split(".");
   if (!email || !expiry || !mac) return null;
   const want = Buffer.from(sign(`${email}.${expiry}`));
   const got = Buffer.from(mac);
   if (want.length !== got.length || !timingSafeEqual(want, got)) return null;
   if (Number(expiry) < now) return null;
-  return Buffer.from(email, "base64url").toString();
+  return { email: Buffer.from(email, "base64url").toString(), issued: Number(expiry) - SESSION_DAYS * 86_400_000 };
 }
