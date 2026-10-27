@@ -238,9 +238,9 @@ export default async function ChildPage({ params, searchParams }: Props) {
 
             <TheirPapers childId={id} sheets={sheets} read={read} failed={papers.length - read.length} staff={staffNames} />
 
-            <ParentReportPanel childId={id} report={report} approver={report.note?.approved_by ? (staffNames[report.note.approved_by] ?? report.note.approved_by) : null} />
-
             <GradeClassPanel me={me} child={child} q={q} staff={staffNames} />
+
+            <ParentReportPanel childId={id} report={report} approver={report.note?.approved_by ? (staffNames[report.note.approved_by] ?? report.note.approved_by) : null} />
           </div>
         </div>
       </Body>
