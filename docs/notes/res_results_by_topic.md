@@ -52,8 +52,29 @@ W3 (the educator's site over the graph, N10); no gate moved. Website only: no mi
 
 ## Verified
 
-(filled at the end of the session)
+Run on databases built by `bin/testdb fresh` (Postgres 16 here, 17 in CI), on this branch stacked on PR #342's head `9d5f8bd`.
+
+- `bin/engine done res_results_by_topic` -> 5 of 5 sentences PROVED, 5 of 5 criteria PASSED; it ends "NOT DONE" only for "not on
+  main yet" and "the live database did not answer from here".
+- `bin/check` -> 34 passed. `npx tsc --noEmit`, `npx eslint --max-warnings 0` -> clean.
+- **Load time**, median of 3 warm loads, a class of 40 with a state on every Grade 2 skill, fresh seeded copy (8 classes):
+  class results 376 ms, a topic open 411 ms, a skill open 429 ms, a child's page 649 ms (was 859 ms before the mistake names
+  were narrowed to the child's own). `u71` holds each under 1 s on a seeded copy, and, as `u65` does, no slower than the other
+  most-used pages on a copy other specs have filled.
+- **A slow query not of this change**: on a copy the whole suite had filled (106 classes) every page took 4 to 6 s, this one's
+  and What needs doing alike. With `log_min_duration_statement` on, the one slow statement is the layout's menu count of topics
+  to mark taught (a topic × class cross join, 4.0–4.5 s each load). On that copy, on PR #342's head too, u12, u49, u53 (both),
+  u60's flow chain, u66 and u67 (two) fail the same way (timeouts, or a count another spec changed). Not touched here.
+- Older specs that read the old layout, rewritten to it, each saying so: s44, u2, u8, u21, u26, u35, u46, u50 (the children
+  view, `?view=children`), u11, u20, u36, u52, screens (a child's topics as rows, `?topic=`), u60 (a topic and a skill opened,
+  then a child). u35's "other class not listed" looked at the whole page, so it held only when other specs' classes pushed that
+  class off the first page (it failed on #342's head on a fresh copy); it now looks among the children who need you.
+- Whole browser suite, locally, on one copy filled as the run goes: 465 passed, 31 failed before the rewrites; after them every
+  failure left is one of the pre-existing ones above.
 
 ## Handoff
 
-(filled at the end of the session)
+- Stacked on PR #342 (`staff_sees`, `reachOf`, `workScope`): merge #342 first; this PR's diff shows #342's until then.
+- No migration. Nimish to judge the pages on live; the heat map (children as rows) is next when he asks for it, and then the
+  children view (`?view=children`) and `/growth/class/[section]` can go.
+- Parked for its own task: the menu count of topics to mark taught (above), which makes every page slow on a full school.
