@@ -25,6 +25,11 @@ PURPOSE = "english_generate"
 SAMPLE = re.compile(r"^\s*(\d{1,4})\s*([+\-−×x*÷/])\s*(\d{1,4})\s*(=\s*\??\s*)?$")
 OPS = {"+": "+", "-": "-", "−": "-", "×": "×", "x": "×", "*": "×", "÷": "÷", "/": "÷"}
 FMT = {"line": "bare_sum", "columns": "column_grid"}
+CARRIED = (
+    "passage_code",
+    "rubric_code",
+)  # a question of the sample's pattern is about its passage, read by its rubric
+NOT_IN_FORM = "The writer's reply was not in the form we need; nothing was added."
 
 
 def most(conn: db.Conn) -> int:
@@ -60,7 +65,8 @@ def _variables(conn: db.Conn, code: str, level: str, kind: str, s: dict, here: l
         "rule": row["rule"],
         "kind": row["words"],
         "passage": f"Every question is about this passage:\n{row['passage']}" if row["passage"] else "",
-        "sample": {k: s[k] for k in (*english_edit.COLUMNS, "wrong") if k != "passage_code"},
+        # the passage and the rubric are the sample's, carried over by code (`_written`): the writer is not asked
+        "sample": {k: s[k] for k in (*english_edit.COLUMNS, "wrong") if k not in CARRIED},
         "mistakes": row["mistakes"],
         "already": [h["text"] or h["ask"] for h in here],
     }
@@ -87,6 +93,8 @@ def english(conn: db.Conn, code: str, level: str, kind: str, ord: int, n: int, b
     meta: dict[str, Any] = {}
     try:
         returned, kept, thrown = _written(conn, code, level, kind, s, n, meta)
+    except llm.LLMSchemaError:
+        return refuse(NOT_IN_FORM)
     except llm.LLMError as e:
         if "an active prompt" in str(e):  # llm.active_prompt's refusal: no version of it is active yet
             return refuse(
@@ -112,7 +120,7 @@ def _written(
     seen = {_key(h) for h in here}
     kept, thrown = [], Counter()
     for q in out["questions"]:
-        q = {**q, "passage_code": s["passage_code"], "rubric_code": s["rubric_code"]}
+        q = {**q, **{k: s[k] for k in CARRIED}}
         faults = english_edit.check(conn, code, level, kind, q)
         if _key(q) in seen:
             faults = {"text": ["It is the same as a question already here."]} | faults
@@ -126,7 +134,8 @@ def _written(
 
 def evaluate(conn: db.Conn, version: int | None = None) -> dict[str, Any]:
     """`engine eval english_generate`: on the fixed set (supabase/seed/english_generate_gold.json), the share of the
-    questions returned that pass every check, and why the rest failed. Nothing is stored; the runs are (`flow_run`)."""
+    questions returned that pass every check, and why the rest failed; a reply out of form counts as the questions
+    asked for, none kept. Nothing is stored; the runs are (`flow_run`)."""
     gold = json.loads((db.REPO_ROOT / "supabase" / "seed" / "english_generate_gold.json").read_text())
     returned = kept = 0
     why: Counter = Counter()
@@ -136,7 +145,10 @@ def evaluate(conn: db.Conn, version: int | None = None) -> dict[str, Any]:
             raise LookupError(
                 f"the eval's sample {g} is not in the seed any more: change the set with a new score"
             )
-        r, k, t = _written(conn, g["skill"], g["level"], g["kind"], s, gold["n"], {}, version)
+        try:
+            r, k, t = _written(conn, g["skill"], g["level"], g["kind"], s, gold["n"], {}, version)
+        except llm.LLMSchemaError:  # a reply out of form keeps none of the questions asked for
+            r, k, t = gold["n"], [], [{"why": NOT_IN_FORM, "n": gold["n"]}]
         returned, kept = returned + r, kept + len(k)
         why.update({x["why"]: x["n"] for x in t})
     return {"returned": returned, "kept": kept, "thrown": dict(why.most_common())}

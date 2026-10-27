@@ -64,3 +64,11 @@ english_generate` scores it on a fixed set (`supabase/seed/english_generate_gold
 DECISIONS-LOG.md (rule 7). A Maths sample calls no model (ADR 0005): code measures it, makes more of its case where the
 level holds it, and keeps it as a sample only where it does not. Rejected: letting the model's question reach a paper
 on its own checks alone (a person approves the level first), and a model reading a Maths sample (code can).
+
+Amended 2026-10-27 (goals/genfix_rubric_in_reply.yaml): the passage and the rubric of a question made from a sample
+are the sample's, carried over by code; the model is neither sent them nor asked for them. v1 was sent the sample with
+its `rubric_code` and told to answer "in the same fields as the sample", so it returned one its schema forbids, and
+the first eval ended with no score (run 40469097359). Rejected: adding `rubric_code` to the schema. A question a person
+reads is complete only with its rubric, but one of the sample's pattern is read against the sample's rubric, chosen
+by the educator and already checked; a model's choice would be a second answer to a settled question, to be checked
+back to the same value.

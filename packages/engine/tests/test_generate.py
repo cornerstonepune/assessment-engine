@@ -9,6 +9,7 @@ what it was made from, and its level waits for approval. Each test rolls back.
 """
 
 import copy
+import json
 import os
 
 import pytest
@@ -167,8 +168,94 @@ def test_how_many_is_at_most_the_row_and_no_prompt_is_used_until_it_is_active(co
             "select count(*) from prompt where purpose = %s and json_schema is not null",
             generate.PURPOSE,
         )
-        == 1
+        == 2
     )
     got = generate.english(conn, s["skill_code"], s["difficulty"], s["question_type"], s["ord"], 3, BY)
     assert not got["made"] and "not switched on yet" in got["why"]
     assert one(conn, f"select count(*) from english_sample_edit where {MINE}") == 0
+
+
+NOT_IN_FORM = "The writer's reply was not in the form we need; nothing was added."
+
+
+def an_open_sample(conn):
+    """A question a person marks by reading (an open kind), with its rubric, and its skill approved at every level."""
+    row = conn.execute(
+        "select s.* from english_sample_now s join question_type q on q.code = s.question_type"
+        " where 'open_response' = any(q.marked) and s.rubric_code is not null and s.difficulty = 'Medium'"
+        " order by s.skill_code, s.ord limit 1"
+    ).fetchone()
+    approve_all(conn, row["skill_code"])
+    return row
+
+
+def writer(*questions):
+    """The model's transport, replaced: the real adapter still checks the reply against the row's schema."""
+
+    def fake(models, text, images, schema, effort=None):
+        return {"questions": [copy.deepcopy(q) for q in questions]}, "fixed", 0, 0, 0
+
+    return fake
+
+
+def test_a_reply_not_in_the_prompts_form_adds_nothing_and_the_educator_is_told_so_in_words(conn, monkeypatch):
+    """Run 40469097359 (2026-10-27): the model returned a `rubric_code` the schema does not allow, and the request
+    died with the adapter's own words. The reply is refused as a whole, and the educator is told plainly."""
+    s = a_sample(conn)
+    conn.execute("update prompt set active = (version = 1) where purpose = %s", (generate.PURPOSE,))
+    q = asked(s, s["text"].replace(".", " today.", 1)) | {"rubric_code": "R_ENG_ANSWER"}
+    monkeypatch.setattr(generate.llm, "_dispatch", writer(q))
+    got = generate.english(conn, s["skill_code"], s["difficulty"], s["question_type"], s["ord"], 1, BY)
+    assert not got["made"] and got["why"] == NOT_IN_FORM, got
+    assert one(conn, f"select count(*) from english_sample_edit where {MINE}") == 0
+
+
+def test_the_eval_counts_a_reply_not_in_its_form_as_thrown_away_and_still_gives_a_score(conn, monkeypatch):
+    """The same run: one reply out of form ended the eval with no score at all. Each sample's questions asked are
+    counted, and a reply out of form keeps none of them."""
+    s = a_sample(conn)
+    q = asked(s, s["text"].replace(".", " today.", 1)) | {"rubric_code": "R_ENG_ANSWER"}
+    monkeypatch.setattr(generate.llm, "_dispatch", writer(q))
+    got = generate.evaluate(conn, 1)
+    gold = json.loads((db.REPO_ROOT / "supabase/seed/english_generate_gold.json").read_text())
+    asked_for = gold["n"] * len(gold["samples"])
+    assert got["returned"] == asked_for and got["kept"] == 0 and got["thrown"] == {NOT_IN_FORM: asked_for}, (
+        got
+    )
+
+
+def test_the_writer_is_never_asked_for_a_rubric_and_a_question_read_by_a_person_keeps_its_samples(
+    conn, monkeypatch
+):
+    """A question a person marks by reading is complete only with its rubric (english_check: "choose what they read
+    it against"). A question of the same pattern is read against the same rubric, which the educator chose for the
+    sample: code carries it over, so the writer is neither sent it nor asked for it."""
+    s = an_open_sample(conn)
+    sent = {}
+
+    def fake(conn, purpose, variables, images=(), subject=None, meta=None, version=None):
+        sent.update(variables)
+        if meta is not None:
+            meta.update(flow_run_id=None, model="fixed", prompt_id=None, cost_inr=0)
+        return {"questions": [asked(s, (s["text"] or "") + " Say why.")]}
+
+    monkeypatch.setattr(generate.llm, "generate", fake)
+    got = generate.english(conn, s["skill_code"], s["difficulty"], s["question_type"], s["ord"], 1, BY)
+    assert "rubric_code" not in sent["sample"] and "passage_code" not in sent["sample"]
+    assert got["kept"] == 1, got
+    new = ed.current(conn, s["skill_code"], s["difficulty"], s["question_type"], got["ords"][0])
+    assert new["rubric_code"] == s["rubric_code"]
+
+
+def test_the_second_version_names_only_the_fields_its_schema_takes_and_waits_for_its_score(conn):
+    """Rule 2: the fix is a new version row, the first kept as it was; rule 7: inactive until it is scored."""
+    rows = {
+        r["version"]: r
+        for r in conn.execute(
+            "select version, text, active, json_schema from prompt where purpose = %s", (generate.PURPOSE,)
+        ).fetchall()
+    }
+    assert set(rows) == {1, 2} and not rows[1]["active"] and not rows[2]["active"]
+    fields = rows[2]["json_schema"]["properties"]["questions"]["items"]["required"]
+    assert all(f"- {f}:" in rows[2]["text"] for f in fields)
+    assert "rubric" not in fields and "same fields as the sample" not in rows[2]["text"]

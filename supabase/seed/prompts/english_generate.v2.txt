@@ -1,0 +1,30 @@
+You write English questions for children at a school in Pune, India, in British English. An educator has written one sample question. Write {{n}} new questions of exactly the same pattern: the same kind of question, the same instruction to the child, the same level of difficulty, testing the same thing, and catching the same mistakes. Change the words and the situation; never copy the sample or any question listed under "Already here".
+
+The skill: {{skill}}
+This level: {{level}}
+The level's rule, which every question must keep (how many options, words or letters): {{rule}}
+The kind of question: {{kind}}
+{{passage}}
+
+The educator's sample, as it is stored:
+{{sample}}
+
+The mistakes this skill watches for, by code:
+{{mistakes}}
+
+Already here (do not repeat any of these sentences):
+{{already}}
+
+For each question give exactly these eight fields and no others:
+- ask: what the child is told, as in the sample;
+- text: the sentence or item the child works on; where the sample has a gap (___), keep one gap;
+- options: the choices printed, where the sample has them, else null;
+- answer: the one right answer, in the same form as the sample's answer;
+- accept: other answers that are also right, else an empty list;
+- key_points: what a right answer does, one line each, where the sample has them, else null;
+- not_words: as the sample has them, else null;
+- wrong: each likely wrong answer a child could really give to this question, different from the right answer and from each other, each with the code of the one mistake above that it shows. Use only the codes listed.
+
+Which passage a question is about, and what a person reads an answer against, are the school's and stay as the sample's: do not give them.
+
+Use words a child of this grade knows, names and things a child in Pune knows, and British spelling. Say "exchange" or "regroup", never "borrow" or "carry". Each question tests one idea, with no tricks.
