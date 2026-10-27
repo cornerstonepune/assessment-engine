@@ -60,7 +60,7 @@ says:
 - words: 'Add a test that fails if two migrations share a version number: a collision was the cause of a failed live update.'
   proved_by: packages/engine/tests/test_migration_order.py::test_the_check_names_two_migrations_that_share_a_version
 manual:
-- 'Actions → rehearse update-live (rehearse-update-live.yml), on this branch, before merge: the migration 20261218090000 runs
+- 'Actions → rehearse update-live (rehearse-update-live.yml), on this branch, before merge: the migration 20261220090000 runs
   on a copy of live after live''s rows arrive, and the copy comes back clean.'
 - 'On the live site, the owner finds the child by name on Children, opens the child''s page and uses ''Grade and class''.
   No child was moved from this session: its name, and the live database, were not visible here (rule 6).'

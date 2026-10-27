@@ -19,7 +19,7 @@ way to change where a child is, from the child's own page. One additive migratio
 
 ## Handoff
 
-- Live: nothing. Needs `rehearse-update-live.yml` run on this branch before merge. Migration `20261218090000` (main's newest was `...216090000`; open PR #337 takes `...217090000`).
+- Live: nothing. Needs `rehearse-update-live.yml` run on this branch before merge. Migration `20261220090000` (main's newest was `...219150000`).
 - The owner opens the child on Children → "Grade and class". The roster file still lists where the child was: the loader leaves that row alone and says "left as changed here".
 - Known, not fixed: a returned *library worksheet* is matched to a child by the name or roll written on it, within the class the file was uploaded for
   (`w3_read/copies.py`); a moved child's old worksheet scanned under their old class will not find them by name (an error is raised), and a roll number written on it finds whoever holds that roll in the old class now.
