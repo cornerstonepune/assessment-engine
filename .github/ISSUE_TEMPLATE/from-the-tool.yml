@@ -1,0 +1,63 @@
+# The same fields as the "Report a problem or suggest something" form of the assessment site, so an issue made by hand
+# reads like one made from the site (goals/feed_report_from_the_tool.yaml; apps/web/lib/feedback-words.ts `issueBody`).
+# This repository is public: never write a child's name, a parent's name, an email or a phone number here.
+name: Report a problem or suggest something
+description: Something is broken, something new you would like, or a question.
+labels: ["from-the-tool"]
+body:
+  - type: markdown
+    attributes:
+      value: "Please do not type a child's name, a parent's name or a phone number here. Use the class and roll number instead. Anyone can read this page."
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind?
+      options:
+        - Something is broken
+        - I would like something new
+        - A question
+    validations:
+      required: true
+  - type: textarea
+    id: doing
+    attributes:
+      label: What were you doing?
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: What did you expect, and what happened?
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: how_often
+    attributes:
+      label: How often?
+      description: For something broken, if you know.
+      options:
+        - once
+        - sometimes
+        - every time
+        - not said
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The page's path, with no ids (for example /growth/[id]).
+  - type: input
+    id: reported_by
+    attributes:
+      label: Reported by
+      description: The role and class, never a name (for example "an educator of 3A").
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+  - type: input
+    id: when
+    attributes:
+      label: When
+      description: DD-MMM-YYYY HH:MM IST
