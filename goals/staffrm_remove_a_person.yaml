@@ -1,0 +1,44 @@
+name: staffrm_remove_a_person
+goal: >
+  Nimish ran `engine staff list` on the live site and found a placeholder staff entry (email: the text `your-email`,
+  role coordinator, a password set, every class): a full-access login nobody owns, and no command could remove it.
+  `engine staff remove EMAIL [EMAIL ...]` takes people off the staff list. Without `--apply` it changes nothing and
+  says what it would do for each email; with `--apply` it removes the named people in one transaction and no one
+  else is touched. It refuses, in words, an email not on the list, a removal that would leave no coordinator who can
+  sign in, and the same email named twice. A removed person's past sign-offs stay as they were, and they lose access
+  at their next request.
+
+# Written 2026-10-27, before the code. A setup tool for the site's sign-in, not a step of the workflow: no gate of
+# BUILD-ORDER moves (as goals/staffload_a_table_of_staff.yaml). No migration: it writes the `app.staff` row the other
+# staff commands write. The clauses below are the owner's brief for this tool, set down as sentences each with its
+# test; the one thing he said himself is the first. The orchestrator cannot reach the live database, so the last run
+# on live is Nimish's.
+says:
+  - words: "the account should not exist"
+    proved_by: "packages/engine/tests/test_staff_remove.py::test_the_placeholder_with_no_at_sign_is_removed_by_the_command_and_leaves_everyone_else_as_they_were"
+  - words: "Without --apply it changes nothing and says, for each email, would remove NAME (ROLE), or refused, and why"
+    proved_by: "packages/engine/tests/test_staff_remove.py::test_a_dry_run_changes_nothing_and_says_what_it_would_do_for_each_email"
+  - words: "It refuses, in words: an email not on the list, the same email twice in one call, and a removal that would leave no coordinator who can sign in; case does not matter"
+    proved_by: "packages/engine/tests/test_staff_remove.py::test_every_refusal_is_said_in_words_and_one_refusal_stops_the_whole_apply"
+  - words: "An email need not look like a real address"
+    proved_by: "packages/engine/tests/test_staff_remove.py::test_the_placeholder_with_no_at_sign_is_removed_by_the_command_and_leaves_everyone_else_as_they_were"
+  - words: "--apply removes the named people in one transaction, holding the staff list the way staff load does"
+    proved_by: "packages/engine/tests/test_staff_remove.py::test_apply_holds_the_staff_list_and_removes_in_one_transaction"
+  - words: "Evidence and decisions already recorded in a removed person's name stay as they are"
+    proved_by: "packages/engine/tests/test_staff_remove.py::test_a_removed_persons_past_sign_offs_are_not_touched"
+  - words: "A person who is signed in when they are removed loses access at their next request"
+    proved_by: "packages/engine/tests/test_staff_remove.py::test_the_website_decides_a_session_by_the_staff_list_on_every_request"
+  - words: "engine staff remove --help says plainly what it does and does not do, with one made-up example"
+    proved_by: "packages/engine/tests/test_staff_remove.py::test_help_says_what_it_does_and_does_not_do_with_a_made_up_example"
+manual:
+  - "Nimish runs `bin/engine staff remove your-email` on his Mac against the live database, reads the line it prints,
+    then runs it again with `--apply`. Not run against live: nothing here could reach it."
+  - "Nimish decides which of his own two coordinator rows to keep; this command removes only the people he names."
+scenarios: []
+criteria:
+  - name: the staff commands, the loader and the remover
+    run: cd packages/engine && .venv/bin/python -m pytest -q tests/test_staff.py tests/test_staff_load.py tests/test_staff_remove.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
