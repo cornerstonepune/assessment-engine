@@ -47,9 +47,23 @@ decisions themselves (approving a skill stays every educator's, goals/ux9c-one-r
 
 ## Verified
 
-(filled in at the end of the session, below)
+Run on databases built by `bin/testdb fresh` (Postgres 16 here, 17 in CI), on head `0ff106e8` (main merged in).
+
+- `bin/engine done own_who_sees_answers` -> 4 of 4 sentences PROVED, 4 of 4 criteria PASSED; it ends "NOT DONE" only for "not
+  on main yet" and "the live database did not answer from here".
+- CI on `0ff106e8`: every job green (12 engine shards, 3 browser shards, web, engine-checks). `rehearse update-live` on
+  `0ff106e8` (run 40486680115): success.
+- Older specs rewritten to the new rule, each saying so: u15 (an educator linked to no class sees the school's rows only),
+  u26 (another class's pages refused; linked to no class sees none), u27 (another class's pack refused, nothing approved), u49
+  (the educator compared is mapped to every class). Their goals (ui1, f1b, f1c) point at the new words.
+- Speed: `staff_sees_sheet` asks the cheapest question first; on a full copy, the waiting answers query takes 3 ms as the
+  coordinator and 33 ms as an educator; page loads measured the same on this branch and on main (about 2.5 s each in this
+  container, where every page is slow).
+- Whole browser suite, locally, on a fresh copy: 487 passed, 9 failed; 4 of the 9 fail identically on main on the same copy
+  (u60, u66, two of u67-guide: page timeouts in this container); u49 and u53 were page timeouts at the 30 s limit here and
+  pass in CI.
 
 ## Handoff
 
-- Needs the rehearsal (`rehearse-update-live.yml`) on the branch before merge: one migration.
+- One migration (`20261222090000`); the rehearsal ran green on `0ff106e8`. A later push needs it again.
 - Ask Nimish to confirm the rule (class OR uploader, subject narrows the class arm); it is one function to change.
