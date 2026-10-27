@@ -11,7 +11,7 @@ from engine.checks.cli_live import live_app
 from engine.checks.levels import levels_app
 from engine.core import asks, db, levels, loaders, references
 from engine.core.cli_staff import register as register_staff
-from engine.w1_bank import bank, mistake_guess, review, spec, story_eval, story_keys, story_shape
+from engine.w1_bank import bank, generate, mistake_guess, review, spec, story_eval, story_keys, story_shape
 from engine.w1_bank.cli_bank import bank_app
 from engine.w1_bank.question_types import types_app
 from engine.w2_print.cli_library import library_app
@@ -33,6 +33,7 @@ EVALS = (
     "week_skills",
     *review.REVIEWERS,
     "item_generate",
+    generate.PURPOSE,
 )
 
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)
@@ -170,13 +171,54 @@ def _eval_item_generate(n: int, only: str) -> None:
     _held("item_generate", {"pass_rate": _of(total_ok, total)})
 
 
+def _eval_english_generate(version: int) -> None:
+    """english_generate: the share of the questions written for the fixed samples that pass every check."""
+    with db.connect() as conn:
+        try:
+            r = generate.evaluate(conn, version or None)
+        except LLMError as e:
+            conn.commit()
+            typer.echo(f"MODEL  {e}", err=True)
+            raise typer.Exit(1)
+        conn.commit()  # the flow_run rows: what the eval spent; nothing else is written
+    typer.echo(json.dumps(r, indent=2, ensure_ascii=False))
+    typer.echo(f"english_generate v{version or 'active'}: {r['kept']}/{r['returned']} passed every check")
+    return _held(generate.PURPOSE, {"kept": _of(r["kept"], r["returned"])})
+
+
+def _eval_story_shape(version: int) -> None:
+    """story_shape: stories placed in the right case, and one-step answers computed right."""
+    with db.connect() as conn:
+        r = story_eval.evaluate(conn, version=version or None)
+        conn.commit()
+    for m in r["misses"]:
+        typer.echo(
+            f"  {'LEFT' if m['got'] is None else 'MISS':<5} {m['text'][:60]}  wanted {m['want']}, {m['got'] or m['why']}"
+            + "".join(f"\n          Jev: {o} {p:.2f}" for o, p in m.get("ranked") or [])
+        )
+    typer.echo(
+        f"  {story_shape.PURPOSE}: named {r['named']}/{r['n']}, the shape right on {r['right']} · one-step answers computed"
+        f" {r['keyed']}, wrong {r['wrong_answer']} · left for a person {r['left']}"
+    )
+    _unanswered(r, r["n"])
+    return _held(
+        story_shape.PURPOSE, {"shape_right": _of(r["right"], r["n"]), "wrong_answers": r["wrong_answer"]}
+    )
+
+
+# the scorers that take only the version they score
+BY_VERSION = {generate.PURPOSE: _eval_english_generate, story_shape.PURPOSE: _eval_story_shape}
+
+
 @app.command("eval")
 def eval_(
     purpose: str,
     n: int = typer.Option(10, "--n", help="Items asked per skill set × difficulty"),
     only: str = typer.Option("", "--only", help="One skill set code, else all"),
     version: int = typer.Option(
-        0, "--version", help="parent_report, story_shape: the prompt version to score, active or not"
+        0,
+        "--version",
+        help="parent_report, story_shape, english_generate: the prompt version to score, active or not",
     ),
     review_version: int = typer.Option(
         0, "--review-version", help="parent_report: the parent_review version that reads each draft"
@@ -190,6 +232,8 @@ def eval_(
     """Score a prompt. item_generate: accepted ÷ returned. The reviewers: agreement with the
     hand-judged gold set in supabase/seed/validator_gold.json. parent_report: every child with signed-off answers,
     each draft held to its facts by code — the bar is all of them."""
+    if purpose in BY_VERSION:
+        return BY_VERSION[purpose](version)
     if purpose == parent_report.PURPOSE:
         with db.connect() as conn:
             try:
@@ -259,22 +303,6 @@ def eval_(
             f" over {len(r['rows'])} skill sets · {r['model']} · ₹{r['cost_inr']}"
         )
         return _held(purpose, {"useful": r["useful"]})
-
-    if purpose == story_shape.PURPOSE:
-        with db.connect() as conn:
-            r = story_eval.evaluate(conn, version=version or None)
-            conn.commit()
-        for m in r["misses"]:
-            typer.echo(
-                f"  {'LEFT' if m['got'] is None else 'MISS':<5} {m['text'][:60]}  wanted {m['want']}, {m['got'] or m['why']}"
-                + "".join(f"\n          Jev: {o} {p:.2f}" for o, p in m.get("ranked") or [])
-            )
-        typer.echo(
-            f"  {purpose}: named {r['named']}/{r['n']}, the shape right on {r['right']} · one-step answers computed"
-            f" {r['keyed']}, wrong {r['wrong_answer']} · left for a person {r['left']}"
-        )
-        _unanswered(r, r["n"])
-        return _held(purpose, {"shape_right": _of(r["right"], r["n"]), "wrong_answers": r["wrong_answer"]})
 
     if purpose == mistake_guess.PURPOSE:
         with db.connect() as conn:

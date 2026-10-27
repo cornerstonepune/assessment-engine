@@ -3,6 +3,7 @@ import { Answers, Question } from "@/components/question";
 import type { ItemRow } from "@/lib/queries-bank";
 import type { SampleChoices, SampleRow } from "@/lib/queries-skills";
 import { dateWords } from "@/lib/week";
+import { EnglishMore } from "./more-like-this";
 import { removeSample } from "./sample-actions";
 import { SampleForm } from "./sample-form";
 import { BLANK, type SampleInitial } from "./sample-shape";
@@ -140,9 +141,10 @@ function Sample({ s, editing, removable }: { s: SampleRow; editing: Editing; rem
           </ul>
         </div>
       ) : null}
+      {s.made_from ? <span className="note" data-made-from={s.made_from}>Made from your sample {s.made_from}</span> : null}
       {s.edited_by && s.edited_at ? (
         <span className="note">
-          Changed by {s.edited_by.split(" (")[0]} · {dateWords(s.edited_at)}
+          {s.made_from ? "Made for" : "Changed by"} {s.edited_by.split(" (")[0]} · {dateWords(s.edited_at)}
           {s.earlier ? ` · ${s.earlier} earlier ${s.earlier === 1 ? "version" : "versions"} kept` : ""}
         </span>
       ) : null}
@@ -162,6 +164,7 @@ function Sample({ s, editing, removable }: { s: SampleRow; editing: Editing; rem
               </button>
             </form>
           ) : null}
+          <EnglishMore code={editing.code} level={s.difficulty} kind={s.kind} ord={s.ord} most={editing.choices.most} />
         </div>
       ) : null}
     </li>
