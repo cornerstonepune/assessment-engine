@@ -433,6 +433,24 @@
    "value": 0.8,
    "unit": "proportion",
    "description": "Of the questions english_generate returns on the eval set, the share that pass every code check (english_check.py). The checks keep a wrong one from ever being stored, so this bar is what it costs, not what it risks: a lower share is more thrown away per request. Set before its first score; the score is recorded in DECISIONS-LOG.md before the prompt is made active (rule 7)"
+   },
+   {
+   "key": "calibration.too_easy_share",
+   "value": 0.8,
+   "unit": "proportion",
+   "description": "A level is suggested for review when at least this share of the children assessed at it are secure (goals/cal_levels_to_review.yaml)"
+  },
+  {
+   "key": "calibration.min_children",
+   "value": 8,
+   "unit": "children",
+   "description": "Fewest children assessed at a level before it is judged at all (goals/cal_levels_to_review.yaml)"
+  },
+  {
+   "key": "calibration.review_again_children",
+   "value": 2,
+   "unit": "children",
+   "description": "A suggestion marked looked-at comes back when the children assessed, or the children secure, moved by this many"
   }
  ]
 }

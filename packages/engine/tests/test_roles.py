@@ -39,6 +39,8 @@ WEB_WRITES = {
     "public.question_type_approval": {"INSERT"},
     # the name an educator gives an assessment, added and never changed (goals/asm_assessments_page.yaml)
     "public.assessment_name": {"INSERT"},
+    # "I've looked at this" on a level suggested for review, added and never changed (goals/cal_levels_to_review.yaml)
+    "public.calibration_review": {"INSERT"},
     # a class's word on a skill is said through `say_taught` (goals/t1-topics-are-operations.yaml), never written
 }
 # Every function of ours the website calls: signing a paper off, settling one answer, a roll in its order, a name, a
@@ -63,6 +65,7 @@ WEB_CALLS = {
     "say_taught",  # a person's word that a class has (or has not) been taught a topic or one skill of it
     "checks_to_trust",
     "skill_levels",  # a skill's levels as one object, built from their rows (goals/b1-levels-are-rows.yaml)
+    "graph_state_of",  # the graph's one rule for a state, which the `child_level_state` view calls as the website (goals/cal_levels_to_review.yaml)
 }
 
 

@@ -54,12 +54,20 @@ export function ScansTable({ scans, from }: { scans: Scan[]; from: string }) {
   );
 }
 
-/** What waits on a person in one file, or nothing (the row under it is then not drawn). */
+/** What waits on a person in one file, and its other readings, or nothing (the row under it is then not drawn). */
 function Detail({ s, from }: { s: Scan; from: string }) {
-  if (s.status === "error") return <p className="text-terracotta">The reading stopped: {s.error ?? ""}</p>;
-  if (!s.given.length && !s.noCode.length && !s.lines.length) return null;
+  const attempts = s.attempts.length ? <Attempts scan={s} /> : null;
+  if (s.status === "error")
+    return (
+      <div className="grid gap-1 text-[13px]">
+        <p className="text-terracotta">The reading stopped: {s.error ?? ""}</p>
+        {attempts}
+      </div>
+    );
+  if (!s.given.length && !s.noCode.length && !s.lines.length) return attempts;
   return (
     <div className="grid gap-1 text-[13px]">
+      {attempts}
       {s.given.length ? (
         <p>
           {s.given.map((g) => `Page ${g.page} given to ${g.who}`).join("; ")}
@@ -77,6 +85,26 @@ function Detail({ s, from }: { s: Scan; from: string }) {
         </ul>
       ) : null}
     </div>
+  );
+}
+
+/** A file read more than once is one line (Nimish, 2026-10-26: five "reading stopped" lines for one file): its other
+ *  readings, newest first, folded under it, each when and how it ended. */
+function Attempts({ scan: s }: { scan: Scan }) {
+  const said = (a: Scan["attempts"][number]) => (a.status === "running" ? "reading now" : a.status === "ok" ? "read" : `stopped: ${a.error ?? ""}`);
+  return (
+    <details>
+      <summary className="cursor-pointer">
+        Read {s.attempts.length + 1} times; the {s.attempts.length === 1 ? "other reading" : `other ${s.attempts.length} readings`}
+      </summary>
+      <ul aria-label={`Other readings of ${s.file}`} className="ml-5 list-disc">
+        {s.attempts.map((a, i) => (
+          <li key={i}>
+            {a.when}: {said(a)}
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }
 

@@ -1,0 +1,30 @@
+name: dbt_one_read_per_file
+goal: >
+  One scan file is read by one reading at a time. "Read again" on any line of a file while a reading of that file goes
+  on is refused in words ("already being read") and starts nothing, so a second reading never waits on the first one's
+  open rows of sheet_instance until the statement timeout stops it; two presses at the same moment start one reading.
+  On Marking a file read again is one line, the reading that stands on it and its other readings inside.
+
+# Written 2026-10-26, before the fix: a fault fix, no gate moved (BUILD-ORDER). Nimish's words are what he said that day.
+# What was proved and what could not be (the live database and its logs are not reachable from here):
+# docs/notes/dbt-one-read-per-file.md.
+says:
+  - words: "one scan file reads to the end, however many times I press Read again"
+    proved_by: "packages/engine/tests/test_one_read_per_file.py::test_read_again_on_an_earlier_row_of_the_file_is_refused_while_a_later_one_reads"
+  - words: "one scan file reads to the end, however many times I press Read again"
+    proved_by: "packages/engine/tests/test_one_read_per_file.py::test_two_presses_at_the_same_moment_start_one_reading"
+  - words: "five identical \"reading stopped\" rows for one file is clutter"
+    proved_by: "apps/web/tests/u64-a-file-read-again-is-one-line.spec.ts::a file read four times is one line, the finished reading on it and the stopped ones inside"
+manual:
+  - "After the deploy, on the live site: tap Read again once on the 24 Oct file and let it read to the end."
+scenarios: []
+criteria:
+  - name: one reading of a file at a time, refused in words, on every route that starts one
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider -o addopts= tests/test_one_read_per_file.py tests/test_inbox.py tests/test_upload.py
+    expect: "passed"
+  - name: a file read again is one line on Marking, with no Read again while it reads
+    run: cd apps/web && npx playwright test tests/u64-a-file-read-again-is-one-line.spec.ts tests/u51-read-an-uploaded-file-again.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -117,7 +117,10 @@ def file_again(
             path, tenant = inbox.again(conn, str(run["id"]))
         except inbox.Refused as no:
             raise typer.BadParameter(str(no)) from no
-    new = inbox.start(tenant, path, actor)
+    try:
+        new = inbox.start(tenant, path, actor)
+    except inbox.Refused as no:
+        raise typer.BadParameter(str(no)) from no
     for c in inbox.read(new, path, actor, again=True):
         typer.echo(
             f"  copy {c['copy']}: {c.get('answers', 0)} answers" + (f" — {c['why']}" if c.get("why") else "")

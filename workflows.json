@@ -16,7 +16,7 @@
       "gives": ["skill_set", "rung", "taxonomy_case", "misconception"],
       "files": ["engine/w1_bank/spec.py", "engine/w1_bank/english_edit.py", "engine/w1_bank/english_check.py", "engine/w1_bank/english_wrong.py", "engine/w1_bank/english_words.py", "engine/w1_bank/english_form.py"],
       "commands": ["engine load", "engine bank levels", "engine asks"],
-      "screens": ["/", "/skill-sets/[code]", "/skill-sets/[code]/edit", "/skill-sets/approve", "/asks"],
+      "screens": ["/", "/skill-sets/[code]", "/skill-sets/[code]/edit", "/skill-sets/approve", "/skill-sets/levels", "/asks"],
       "subject": {"any": false, "note": "The shape (skill → four levels → cases, approved once) is any subject's. The content is maths: the add/sub ladder, the 269 cases and the named mistakes are rows a new subject writes for itself — no code."}
     },
     {

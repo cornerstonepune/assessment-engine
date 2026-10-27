@@ -148,15 +148,40 @@ def start(tenant, path: Path, actor: str, pages: int | None = None) -> str:
     committed on its own connection, before the reading starts: FastAPI runs a background task BEFORE the
     request's own transaction commits (2026-09-25, the first live run: `/runs/{id}` said "no run" for minutes,
     and the reading could not mark a row it could not see). The file's pages are on it from the start, so Marking can
-    say how many were found while the reading goes on."""
+    say how many were found while the reading goes on. Refused while the file is being read (`_one_at_a_time`)."""
     with db.connect() as conn:
-        return str(
-            db.one(
-                conn,
-                "insert into flow_run (tenant_id, flow, trigger, result) values (%s, %s, %s, %s::jsonb) returning id",
-                (tenant, FLOW, f"{actor}: {path.name}", json.dumps({"pages": pages, "file": path.name})),
-            )["id"]
-        )
+        _one_at_a_time(conn, path.name)
+        run = conn.execute(
+            "insert into flow_run (tenant_id, flow, trigger, result) select %s, %s, %s, %s::jsonb"
+            f" where not exists (select 1 from flow_run where flow = %s and status = 'running' and {_FILE} = %s)"
+            " returning id",
+            (
+                tenant,
+                FLOW,
+                f"{actor}: {path.name}",
+                json.dumps({"pages": pages, "file": path.name}),
+                FLOW,
+                path.name,
+            ),
+        ).fetchone()
+        if not run:
+            raise Refused(409, BEING_READ)
+        return str(run["id"])
+
+
+BEING_READ = (
+    "this scan is already being read: it is on this page as it is read; read it again once it is read"
+)
+
+
+def _one_at_a_time(conn, name: str) -> None:
+    """One reading of a file at a time, held to the end of the caller's transaction. A reading writes every copy's
+    `sheet_instance` row in one transaction that stays open until the whole file is read, minutes; a second reading of
+    the same file waits on the first copy's row until the statement timeout stops it (Nimish, 2026-10-26: "Read again"
+    pressed several times on one 23-page file, each later reading "QueryCanceled … while inserting index tuple … in
+    relation "sheet_instance""). The lock makes the look for a run already reading the file and the run that starts
+    one a single step, so two presses at the same moment start one reading."""
+    conn.execute("select pg_advisory_xact_lock(hashtext(%s))", (f"{FLOW}:{name}",))
 
 
 def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]:
@@ -254,6 +279,13 @@ def give(conn, run_id: str, page: int, child_id: str, by: str) -> Path:
     path = INBOX / Path(run["file"]).name
     if not path.exists():
         raise Refused(410, f"{path.name} is no longer kept by the engine: send the scan again")
+    # last: what is wrong with the request itself is said first; this is only "not now"
+    _one_at_a_time(conn, run["file"])
+    if conn.execute(
+        f"select 1 from flow_run where flow = %s and status = 'running' and {_FILE} = %s and id <> %s",
+        (FLOW, run["file"], run_id),
+    ).fetchone():
+        raise Refused(409, BEING_READ)
     word = {"page": page, "child_id": child_id, "by": by}
     conn.execute(
         "update flow_run set status = 'running', error = null, finished_at = null, updated_at = now(),"
