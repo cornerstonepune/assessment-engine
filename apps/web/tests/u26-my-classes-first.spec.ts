@@ -65,7 +65,7 @@ test("an educator's pages open on their own class, and another class's pages, ch
   const page = await signedIn(browser, LINKED.email);
   try {
     // where the pages start: their own class
-    await page.goto("/growth");
+    await page.goto("/growth?view=children");
     await expect(page.getByRole("main")).toContainText("Aarav");
     await expect(page.getByRole("main")).not.toContainText("Chirag");
     // another class's pages, by address, are refused in words, and show nothing of it (goals/own_who_sees_answers.yaml)
@@ -90,9 +90,9 @@ test("an educator's pages open on their own class, and another class's pages, ch
 test("the coordinator sees every class", async ({ page }) => {
   await page.goto(`/today?kind=classpaper&class=${OTHER}`);
   await expect(page.getByRole("main")).toContainText(OTHER);
-  await page.goto(`/growth?class=${MINE}`);
+  await page.goto(`/growth?view=children&class=${MINE}`);
   await expect(page.getByRole("main")).toContainText("Aarav");
-  await page.goto(`/growth?class=${OTHER}`);
+  await page.goto(`/growth?view=children&class=${OTHER}`);
   await expect(page.getByRole("main")).toContainText("Chirag");
   await page.goto(`/growth/class/${OTHER}`);
   await expect(page.getByRole("main")).not.toContainText("not one of your classes");
@@ -102,7 +102,7 @@ test("an educator linked to no class sees no class's children until the coordina
   const page = await signedIn(browser, UNLINKED.email);
   try {
     // no class is theirs: none is on the list, and a class's page is refused in words
-    await page.goto("/growth");
+    await page.goto("/growth?view=children");
     for (const c of [MINE, OTHER]) await expect(page.locator("[data-filterbar] select[name=class] option", { hasText: c })).toHaveCount(0);
     await page.goto(`/growth/class/${MINE}`);
     await expect(page.getByRole("main")).toContainText("not one of your classes");

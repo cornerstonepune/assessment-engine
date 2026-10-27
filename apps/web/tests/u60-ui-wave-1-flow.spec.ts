@@ -243,8 +243,13 @@ test("Upload papers, Check answers, Marking", async ({ page }) => {
 });
 
 test("Class results, its class and a child", async ({ page }) => {
-  await wholePage(page, "/growth", /Class results/, { chips: true });
-  await page.goto(`/growth?class=${SECTION}`);
+  // a class's topics; a topic opened to its skills, a skill to its children, each in a status chip
+  // (goals/res_results_by_topic.yaml)
+  await wholePage(page, `/growth?class=${SECTION}`, /Class results/, { chips: false });
+  await page.locator("tr[data-topic]").first().getByRole("link").first().click();
+  await page.locator("tr[data-skill]").first().getByRole("link").first().click();
+  await expect(page.locator("tr[data-child]").first()).toBeVisible();
+  await statusesSaid(page, "/growth, a skill opened");
   const child = page.getByRole("link", { name: /Bina/ }).first();
   await expect(child).toBeVisible();
   await child.click();

@@ -90,7 +90,7 @@ test("the question bank says what its total counts, beside Curriculum's", async 
 
 test("one word for one thing: a state by its own words, a skill as a skill, a count with its noun", async ({ browser }) => {
   const page = await asEducator(browser);
-  await page.goto("/growth");
+  await page.goto("/growth?view=children");
   const main = page.locator("main");
   await expect(main).toContainText("Needs help on");
   await expect(main).not.toContainText(/red skill|amber one/);
@@ -99,7 +99,7 @@ test("one word for one thing: a state by its own words, a skill as a skill, a co
   const names = main.getByRole("link", { name: "Asha", exact: true });
   const colour = (l: typeof names) => l.evaluate((el) => getComputedStyle(el).color);
   expect(await colour(names.first())).toBe(await colour(names.last()));
-  await page.goto(`/growth?class=${SECTION}`);
+  await page.goto(`/growth?view=children&class=${SECTION}`);
   const against = page.locator("main").getByRole("link", { name: "Against every skill →" });
   expect(await colour(against), "the all-skills link is quieter than a name").not.toBe(await colour(names.last()));
   await page.goto(`/growth/${kids.Asha}/report`);

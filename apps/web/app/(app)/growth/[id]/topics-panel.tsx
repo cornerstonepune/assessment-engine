@@ -126,7 +126,7 @@ function TopicOpen({ name, row, answers, names, states, papers }: { name: string
       <section aria-label={`${row.name}: skills`}>
         <h3 className="label mb-2">Skills</h3>
         {assessed.length ? (
-          <ul className="grid gap-2">
+          <ul aria-label={row.name} className="grid gap-2">
             {assessed.map((s) => (
               <SkillLine
                 key={`${s.code}|${s.skill_code}`}

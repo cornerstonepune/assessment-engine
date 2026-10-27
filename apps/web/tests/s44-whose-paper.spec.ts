@@ -143,11 +143,11 @@ test("signing a paper off says the score recorded, and the last paper of an asse
   await expect(page.getByText("2 of 3").first()).toBeVisible();
   // and on the Children page, which used to show learning gaps and nothing of the paper just signed off
   // (a class chosen in the filter row lists all its children, each row with the score of its last paper)
-  await page.goto("/growth?class=S44-TEST");
+  await page.goto("/growth?view=children&class=S44-TEST");
   const row = (who: string) => page.getByRole("row").filter({ has: page.getByRole("link", { name: who, exact: true }) });
   await expect(row("Chitra")).toContainText("3 of 3 right");
   // a child with no paper signed off has no score, not "0 of 0"
   await expect(row("Bina")).not.toContainText("right");
-  await page.goto("/growth?class=S44-ALONE");
+  await page.goto("/growth?view=children&class=S44-ALONE");
   await expect(row("Devi")).toContainText("2 of 3 right");
 });
