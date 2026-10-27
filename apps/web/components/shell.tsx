@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { GroupNav, GroupTabs, MenuButton } from "./nav";
-import { Search } from "./top-bar";
+import { ReportLink, Search } from "./top-bar";
 import { Logo } from "./logo";
 import { signOut } from "@/lib/auth-actions";
 import type { Session } from "@/lib/auth";
@@ -27,6 +27,7 @@ export function Shell({ me, waiting, grades, children }: { me: Session; waiting:
           </Link>
           <GroupNav groups={groups} counts={counts} />
           <div className="ml-auto flex min-w-0 items-center gap-2 md:gap-3">
+            <ReportLink />
             <Search />
             <MenuButton counts={counts}>
               <Account me={me} grades={grades} />

@@ -5,7 +5,8 @@ import { createHmac } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import postgres from "postgres";
-import { MAIL_PORT, SIGNED_IN, WEB_PORT } from "../playwright.config";
+import { GITHUB_PORT, MAIL_PORT, SIGNED_IN, WEB_PORT } from "../playwright.config";
+import { startGithubServer } from "./github-server";
 import { startMailServer } from "./mail-server";
 
 export const TEST_STAFF = { email: "e2e@cornerstone.test", name: "End-to-end test", role: "coordinator" };
@@ -13,6 +14,7 @@ export const TEST_STAFF = { email: "e2e@cornerstone.test", name: "End-to-end tes
 export default async function globalSetup(): Promise<void> {
   // Before the website starts, so the first email it sends has somewhere to go.
   startMailServer(MAIL_PORT);
+  startGithubServer(GITHUB_PORT);
   const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
   // Only ever the copy: playwright.config.ts has already refused any other address.
   await sql`

@@ -1,0 +1,62 @@
+name: feed_report_from_the_tool
+goal: >
+  A signed-in member of staff can, from any page, tell us that something is broken, ask for something new, or ask a
+  question, in a short form of plain words. The note is saved first and kept for good; then it becomes one GitHub issue
+  in cornerstonepune/assessment-engine, labelled `from-the-tool` and `bug`, `feature` or `question`, that says the
+  person's words, the page (its path, no ids), the person's role and class (never their name or email), the browser and
+  the time, and nothing else. A phone number or an email in the words is refused kindly; an @mention or #number cannot
+  ping or link anyone. If GitHub is not connected or refuses, the person is still thanked, the note waits as `saved` or
+  `failed`, it is sent on a later try, and the health check says so in words with no secret. The person sees their own
+  reports as received, taken up or done. Nimish decides what is built by adding `scope-locked`, as before.
+
+# Written 2026-10-27, before the code. No gate moves: this is a tool beside the four workflows (BUILD-ORDER), not a
+# step of one. What the owner must set in Vercel before an issue can be made is in docs/notes/feed_report_from_the_tool.md.
+says:
+  - words: "I also want to have a capability inside the tool"
+    proved_by: "apps/web/tests/u70-report-a-problem.spec.ts::the report button is on the top bar of every signed-in page"
+  - words: "where one can raise a feature request or file a bug"
+    proved_by: "apps/web/tests/u70-report-a-problem.spec.ts::a phone number is refused, then the note is saved, the person is thanked, and GitHub gets exactly one issue"
+  - words: "and that directly reaches you as an issue"
+    proved_by: "apps/web/tests/u70-feedback-rules.spec.ts::the issue says the role and class, the page without its ids, the browser and the time, and nothing else"
+  - words: "and that directly reaches you as an issue"
+    proved_by: "apps/web/tests/u70-feedback-rules.spec.ts::the title is the first line of the person's words, at most 80 characters"
+  - words: "and then we decide to work on it"
+    proved_by: "apps/web/tests/u70-report-a-problem.spec.ts::your reports say received, taken up and done from the issue"
+  - words: "The issue must not contain a child's name, an email, a phone number or any id"
+    proved_by: "apps/web/tests/u70-feedback-rules.spec.ts::a phone number or an email in the note is refused with a kind message"
+  - words: "neutralise @mentions and #numbers in the text"
+    proved_by: "apps/web/tests/u70-feedback-rules.spec.ts::an @mention or #number in the note cannot ping anyone or link an issue"
+  - words: "Never lose a note"
+    proved_by: "apps/web/tests/u70-report-a-problem.spec.ts::a note GitHub refused is kept, the person is thanked, and it is sent on the next try"
+  - words: "if it is missing the form still works"
+    proved_by: "apps/web/tests/u70-feedback-rules.spec.ts::without the token nothing is sent and no secret is said"
+  - words: "the health check reports \"feedback is not connected to GitHub\" in words with no secret"
+    proved_by: "packages/engine/tests/test_feedback_rules.py::test_unsent_notes_are_said_in_the_health_check_with_no_secret"
+  - words: "the web role may insert only, append-only, no names or emails, role and class only"
+    proved_by: "packages/engine/tests/test_feedback_rules.py::test_the_website_may_add_a_note_and_mark_it_sent_but_never_change_its_words"
+  - words: "the web role may insert only, append-only, no names or emails, role and class only"
+    proved_by: "packages/engine/tests/test_feedback_rules.py::test_a_note_keeps_role_and_class_and_never_a_name_or_email"
+  - words: "rate limit per signed-in person (a row in the thresholds table such as feedback.max_per_hour, rule 1; not a constant), a maximum length of the text (a row)"
+    proved_by: "packages/engine/tests/test_feedback_rules.py::test_the_limits_are_rows"
+  - words: "rate limit per signed-in person"
+    proved_by: "apps/web/tests/u70-report-a-problem.spec.ts::past the hourly limit a note is refused in words"
+  - words: "Staff only: a signed-out request is refused."
+    proved_by: "apps/web/tests/u70-report-a-problem.spec.ts::a signed-out request cannot send a note"
+manual:
+  - "The GitHub token: Nimish makes a fine-grained personal access token limited to cornerstonepune/assessment-engine with Issues: Read and write, and pastes it into Vercel as GITHUB_FEEDBACK_TOKEN (Production). Until he does, every note is saved, the person is thanked, and `engine live watch` says `feedback is not connected to GitHub: N notes from staff are saved and wait to be sent`."
+  - "The repository is public: anyone on the internet can read an issue made from the tool. Nimish decides whether that is acceptable or moves the issues to a private repository."
+  - "This migration needs `rehearse-update-live.yml` run on the branch before merge (one new table)."
+scenarios: []
+criteria:
+  - name: the table, its grants, the limits as rows, and the health line
+    run: cd packages/engine && .venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_feedback_rules.py
+    expect: "passed"
+  - name: the website writes only what a person changes on it, the new table included
+    run: cd packages/engine && .venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_roles.py
+    expect: "passed"
+  - name: the rules of a note, and the whole flow in a browser against a fake GitHub
+    run: cd apps/web && npx playwright test tests/u70-feedback-rules.spec.ts tests/u70-report-a-problem.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

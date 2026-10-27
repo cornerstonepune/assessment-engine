@@ -3,6 +3,7 @@ import { randomBytes } from "node:crypto";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { retriesFor } from "./tests/retries";
+import { TEST_TOKEN } from "./tests/github-server";
 
 // The website as it runs on the public address — a production build, signed in with a real
 // session cookie — against the local copy of the database (ADR 0025), never the live one. The live
@@ -27,6 +28,8 @@ export const WEB_PORT = 3100;
 export const ENGINE_PORT = 8932;
 // The run's own sender (tests/mail-server.ts): the forgotten-password flow is tested on the email it really sends.
 export const MAIL_PORT = 8933;
+// The run's own GitHub (tests/github-server.ts): a note from staff is tested on the issue it makes, never on GitHub.
+export const GITHUB_PORT = 8934;
 // Made fresh for each run, in the runner, and inherited by its workers and servers: the servers
 // exist for one run on this machine, and no value here is ever a real secret.
 process.env.E2E_AUTH_SECRET ??= randomBytes(24).toString("hex");
@@ -77,6 +80,8 @@ export default defineConfig({
         SMTP_USER: "tests",
         SMTP_PASSWORD: "no secret of anyone's",
         SMTP_FROM: "assessment@cornerstone.test",
+        GITHUB_API_URL: `http://127.0.0.1:${GITHUB_PORT}`,
+        GITHUB_FEEDBACK_TOKEN: TEST_TOKEN,
       },
     },
   ],
