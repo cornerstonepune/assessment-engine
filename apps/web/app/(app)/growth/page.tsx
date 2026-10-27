@@ -31,7 +31,9 @@ export default async function ClassResults({ searchParams }: Props) {
   const [reach, own] = await deadline(Promise.all([reachOf(me), workScope(me)]));
   if (q.class && !isMine(reach, q.class)) return <NotYours what={`Class ${q.class}`} />;
   const [classes, mine] = await deadline(Promise.all([classesOf(reach), classesOf(own)]));
-  const section = q.class ?? mine[0] ?? classes[0];
+  // one order for the choices and the default, whoever asks: the first class offered that is the person's own
+  classes.sort();
+  const section = q.class ?? classes.find((c) => mine.includes(c)) ?? classes[0];
   const shell = (body: React.ReactNode) => (
     <PageShell
       stage="Class results"
