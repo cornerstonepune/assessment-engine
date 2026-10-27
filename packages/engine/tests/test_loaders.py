@@ -66,7 +66,10 @@ def test_load_config_keeps_a_password_set_in_the_app():
         settings.load_config(conn, tenant)
 
         after = conn.execute("select value from config where key = 'app.staff'").fetchone()["value"]
-        assert after == staff, "loading the seed took someone, or a password, away"
+        # each person is given an id as they are put on the list (goals/own_who_sees_answers.yaml); nothing else changes
+        assert all(p.get("id") for p in after)
+        no_id = lambda people: [{k: v for k, v in p.items() if k != "id"} for p in people]  # noqa: E731
+        assert no_id(after) == no_id(staff), "loading the seed took someone, or a password, away"
         conn.rollback()
 
 
