@@ -72,6 +72,24 @@ def problems(conn: db.Conn, free_bytes: int) -> list[str]:
             (mail_window,),
         )
     ]
+    # A note from staff that has not reached GitHub (goals/feed_report_from_the_tool.yaml): `saved` past its first try
+    # means the token is not set in Vercel, `failed` that GitHub refused. Counts only, as the rest.
+    unsent = {
+        r["status"]: r["n"]
+        for r in conn.execute(
+            "select status, count(*) as n from staff_note where status <> 'sent'"
+            " and created_at < now() - make_interval(mins => %s) group by status",
+            (stuck,),
+        )
+    }
+    if unsent.get("saved"):
+        out.append(
+            f"feedback is not connected to GitHub: {unsent['saved']} notes from staff are saved and wait to be sent"
+        )
+    if unsent.get("failed"):
+        out.append(
+            f"GitHub refused {unsent['failed']} notes from staff: they are kept and sent again on the next try"
+        )
     if not os.environ.get("TYPESAFE_API_KEY"):  # the engine's own environment: the watch runs inside it
         out.append("Jev's key is missing on the engine: every judgement Jev makes goes to a person")
     return out

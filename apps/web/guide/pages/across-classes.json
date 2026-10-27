@@ -1,0 +1,45 @@
+{
+  "menu": "/across",
+  "forWhat": [
+    "Every class at once: where each class's newest assessment stands, answers waiting too long, papers not back, and children who are {colour:red} in more than one subject."
+  ],
+  "layout": [
+    {
+      "area": "Title and main button",
+      "shows": "[[Check answers]]."
+    },
+    {
+      "area": "Each class and subject",
+      "shows": "Its newest assessment and where its papers stand."
+    },
+    {
+      "area": "Checks overdue",
+      "shows": "Answers waiting for a person over {t:across.check_overdue_hours} hours after their paper was read, with [[Check them]]."
+    },
+    {
+      "area": "Papers not back",
+      "shows": "Papers given over {t:across.papers_missing_days} days ago that have not come back."
+    },
+    {
+      "area": "Needing help in more than one subject",
+      "shows": "Each child who is {colour:red} in more than one subject, linked to their page."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "overdue",
+      "title": "Clear what is overdue",
+      "steps": [
+        "Open Across classes.",
+        "Under [[Checks overdue]], press [[Check them]] for each class.",
+        "Under [[Papers not back]], find the papers still with the children."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Check them",
+      "does": "Opens that class's answers waiting for a person."
+    }
+  ]
+}

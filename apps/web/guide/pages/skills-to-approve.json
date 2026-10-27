@@ -1,0 +1,44 @@
+{
+  "menu": "/skill-sets/approve",
+  "forWhat": [
+    "The engine has written each skill as what a child can do, and each level as a sentence. Read them, then approve them as written, or change the words first."
+  ],
+  "layout": [
+    {
+      "area": "Back link",
+      "shows": "[[← Curriculum]]."
+    },
+    {
+      "area": "Choices",
+      "shows": "Grade, then Topic and Taught, with [[Show]] and [[Clear]]."
+    },
+    {
+      "area": "Table",
+      "shows": "Skill, Grade, Topic, What a child can do, and the approve button. [[Read the levels]] opens each row."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "approve",
+      "title": "Approve a skill",
+      "steps": [
+        "Open Skills to approve.",
+        "Press [[Read the levels]] on a row and read every level.",
+        "If the words are right, press [[Approve, as …]]. It is approved in your name.",
+        "If not, press [[Change the description and each level's sentence]] and change them first.",
+        "On a skill's own page you can also approve one level at a time with [[Approve …]]."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Approve, as …",
+      "does": "Approves that one skill as written, in your name.",
+      "doesNot": "There is no button that approves every skill at once. If the skill changed since you opened the page, nothing is approved."
+    },
+    {
+      "label": "Change the description and each level's sentence",
+      "does": "Opens the page to change the skill's words."
+    }
+  ]
+}

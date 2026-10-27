@@ -451,6 +451,24 @@
    "value": 2,
    "unit": "children",
    "description": "A suggestion marked looked-at comes back when the children assessed, or the children secure, moved by this many"
+  },
+  {
+   "key": "feedback.max_per_hour",
+   "value": 5,
+   "unit": "notes",
+   "description": "This many notes from one member of staff inside an hour and the \"Report a problem\" form asks them to wait (goals/feed_report_from_the_tool.yaml)"
+  },
+  {
+   "key": "feedback.max_chars",
+   "value": 2000,
+   "unit": "characters",
+   "description": "The longest a box of the \"Report a problem\" form may be (goals/feed_report_from_the_tool.yaml)"
+  },
+  {
+   "key": "feedback.send_per_try",
+   "value": 5,
+   "unit": "notes",
+   "description": "How many waiting notes one visit to the form tries to send to GitHub, oldest first (goals/feed_report_from_the_tool.yaml)"
   }
  ]
 }

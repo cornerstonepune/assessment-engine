@@ -1,0 +1,90 @@
+{
+  "menu": "/growth",
+  "forWhat": [
+    "Your classes, and the children who need you first. Open a child to see each skill, their papers and their home assessment.",
+    "Everything here comes from checked answers only."
+  ],
+  "layout": [
+    {
+      "area": "Title and main button",
+      "shows": "[[Check … answers]] when answers wait, or [[Make an assessment]]."
+    },
+    {
+      "area": "Filter row",
+      "shows": "Grade, Class and Status."
+    },
+    {
+      "area": "Children",
+      "shows": "One row per child: what they need help on, counts of skills by colour, their last paper, and what waits on you. A row opens the child."
+    },
+    {
+      "area": "Classes",
+      "shows": "One row per class, and [[Against every skill]] to see the class skill by skill."
+    },
+    {
+      "area": "Details",
+      "shows": "What each colour means, folded away."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "a-child",
+      "title": "See how a child is doing",
+      "steps": [
+        "Open Class results and press the child's row.",
+        "[[What their answers show]] lists their skills by topic, each in its colour.",
+        "[[Repeated mistakes]] shows a mistake they make more than once.",
+        "[[Their papers]] lists their newest papers. [[Report card]] and [[Parent report]] open their reports."
+      ]
+    },
+    {
+      "id": "home-assessment",
+      "title": "Make a home assessment",
+      "steps": [
+        "Open the child from Class results.",
+        "The panel [[Home assessment]] shows the paper the engine proposes, from the child's own answers.",
+        "Press [[See it as it will print]] to look at it. Press [[Different questions]] for others; it makes nothing.",
+        "To choose the skills and levels yourself, press [[Choose a different home assessment]].",
+        "Press [[Approve this home assessment]]. It is made and printed in your name."
+      ]
+    },
+    {
+      "id": "sign-off",
+      "title": "Check and sign off a child's answers",
+      "steps": [
+        "On the child's page, [[Answers to check]] lists answers waiting for a person. Press [[Right]], [[Wrong]] or [[Blank]] on each.",
+        "Answers the engine marked wait under [[Marked, waiting to be signed off]]. Press [[Sign off … as …]].",
+        "What their answers show is rebuilt straight away."
+      ]
+    },
+    {
+      "id": "place",
+      "title": "A skill with {colour:grey}",
+      "steps": [
+        "[[Checks that would place]] lists a short check for each skill where the child has {colour:grey}.",
+        "Press [[Make this check]]. It opens the paper maker with the skill and level chosen. Nothing prints until you make it."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Approve this home assessment",
+      "does": "Makes and prints the home assessment you saw, in your name."
+    },
+    {
+      "label": "Different questions",
+      "does": "Draws other questions to look at.",
+      "doesNot": "It makes nothing."
+    },
+    {
+      "label": "Sign off … as …",
+      "does": "Signs off the answers the engine marked, in your name. Only signed off answers count.",
+      "doesNot": "A signed off answer is never edited afterwards. A correction is added as a new one."
+    },
+    {
+      "label": "Make this check",
+      "does": "Opens the paper maker with the check chosen.",
+      "doesNot": "It prints nothing by itself."
+    }
+  ]
+}

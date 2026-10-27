@@ -35,6 +35,9 @@ WEB_WRITES = {
     # which columns exactly is tests/test_password_rules.py.
     "public.password_link": {"INSERT"},
     "public.password_ask": {"INSERT"},
+    # a note from staff for GitHub, added and its words never changed; the website also says how its sending went, three
+    # columns, which tests/test_feedback_rules.py holds (goals/feed_report_from_the_tool.yaml)
+    "public.staff_note": {"INSERT"},
     # a person's approval of a way of asking, added once and never changed (goals/e0-english-in-the-system.yaml)
     "public.question_type_approval": {"INSERT"},
     # the name an educator gives an assessment, added and never changed (goals/asm_assessments_page.yaml)

@@ -1,0 +1,56 @@
+{
+  "menu": "/staff",
+  "forWhat": [
+    "Who teaches which class and subject. A person's pages open on their own classes."
+  ],
+  "layout": [
+    {
+      "area": "Title and main button",
+      "shows": "[[See the school's classes]]."
+    },
+    {
+      "area": "Add a member of staff",
+      "shows": "A form for name, school email and role."
+    },
+    {
+      "area": "Filter row",
+      "shows": "Role, and [[Find a person]]."
+    },
+    {
+      "area": "Table",
+      "shows": "Person, Role, Classes they teach and Subjects they teach. A cell opens to tick classes or subjects."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "add",
+      "title": "Add a member of staff",
+      "steps": [
+        "Press [[Add a member of staff]].",
+        "Type their name, school email and role. Press [[Add and send a link]].",
+        "They get an email with a link to set their password. It works once and lasts {t:password_link.first_days} days.",
+        "Then open their row, tick their classes and press [[Save the classes]]."
+      ]
+    },
+    {
+      "id": "classes",
+      "title": "Change who teaches a class",
+      "steps": [
+        "Open the person's classes, tick the ones they teach and press [[Save the classes]].",
+        "For subjects, tick them and press [[Save the subjects]]."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Add and send a link",
+      "does": "Adds the person and emails them a link to set their password.",
+      "doesNot": "Nobody types a password for them."
+    },
+    {
+      "label": "Save the classes",
+      "does": "Saves which classes the person teaches.",
+      "doesNot": "A class with no child in it cannot be chosen."
+    }
+  ]
+}

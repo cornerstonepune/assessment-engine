@@ -58,3 +58,24 @@ export function Search() {
     </form>
   );
 }
+
+/** "Report a problem or suggest something", on every signed-in page (goals/feed_report_from_the_tool.yaml). It carries
+ *  the page it was pressed on, and the form keeps only its path with the ids taken out. */
+export function ReportLink() {
+  const path = usePathname();
+  const from = path.startsWith("/feedback") ? "/" : path;
+  return (
+    <Link
+      href={`/feedback?from=${encodeURIComponent(from)}`}
+      prefetch={false}
+      aria-label="Report a problem or suggest something"
+      title="Report a problem or suggest something"
+      className="inline-flex min-h-10 shrink-0 items-center px-1 text-[13px] whitespace-nowrap text-bamboo no-underline hover:text-chalk"
+    >
+      <span className="max-lg:hidden">Report a problem</span>
+      <span className="lg:hidden" aria-hidden="true">
+        ?
+      </span>
+    </Link>
+  );
+}

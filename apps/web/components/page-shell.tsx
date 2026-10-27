@@ -1,5 +1,6 @@
 import Link from "@/components/link";
 import { Body, PageHeader } from "./shell";
+import { HelpLink } from "./help-link";
 
 type To = { href: string; label: string };
 
@@ -26,7 +27,12 @@ export function PageShell({
 }) {
   return (
     <>
-      <PageHeader stage={stage} title={title} sub={purpose} />
+      <div className="relative">
+        <PageHeader stage={stage} title={title} sub={purpose} />
+        <div className="absolute top-3 right-5 md:top-6 md:right-9 print:hidden">
+          <HelpLink />
+        </div>
+      </div>
       <Body>
         <div className="mb-4 flex flex-wrap items-center gap-3" data-ux="action">
           {action}

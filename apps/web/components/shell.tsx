@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { GroupNav, GroupTabs, MenuButton } from "./nav";
-import { Search } from "./top-bar";
+import { ReportLink, Search } from "./top-bar";
 import { Logo } from "./logo";
 import { signOut } from "@/lib/auth-actions";
 import type { Session } from "@/lib/auth";
@@ -27,6 +27,7 @@ export function Shell({ me, waiting, grades, children }: { me: Session; waiting:
           </Link>
           <GroupNav groups={groups} counts={counts} />
           <div className="ml-auto flex min-w-0 items-center gap-2 md:gap-3">
+            <ReportLink />
             <Search />
             <MenuButton counts={counts}>
               <Account me={me} grades={grades} />
@@ -49,6 +50,9 @@ function Account({ me, grades }: { me: Session; grades: string }) {
           How it works
         </Link>
       ) : null}
+      <Link href="/guide" className="inline-flex min-h-11 items-center">
+        Guide
+      </Link>
       <span className="label">{grades}</span>
       <div role="group" aria-label="Signed in" className="ml-auto flex items-center gap-4">
         <span className="truncate" title={me.email}>

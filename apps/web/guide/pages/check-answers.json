@@ -1,0 +1,65 @@
+{
+  "menu": "/capture/check",
+  "forWhat": [
+    "Every answer the engine was not sure of, one at a time, with the child's own writing.",
+    "You say what the child wrote. The engine then marks it by the answer key."
+  ],
+  "layout": [
+    {
+      "area": "Title and progress",
+      "shows": "How many answers are left, how many are spot checks, and where you are."
+    },
+    {
+      "area": "The answer card",
+      "shows": "The child's writing on the left, whose page it is in the middle, and the question, the right answer and your buttons on the right."
+    },
+    {
+      "area": "Why it is here",
+      "shows": "One sentence saying why this answer waits for a person."
+    },
+    {
+      "area": "Left to check",
+      "shows": "Each assessment with answers waiting, and [[Start checking]]."
+    },
+    {
+      "area": "Next step",
+      "shows": "The next answer, the next paper, or the class results when all is done."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "check",
+      "title": "Check answers",
+      "steps": [
+        "Open Check answers and press [[Start checking]].",
+        "Look at the child's writing.",
+        "If the engine read it right, press [[Yes, the child wrote …]].",
+        "If not, use [[No — the child wrote]], type what the child wrote and press [[Save]].",
+        "If the box is empty, press [[Nothing is written here]].",
+        "For an answer only a person can mark, press [[Right]], [[Wrong]] or [[Blank]].",
+        "The next answer opens by itself."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Yes, the child wrote …",
+      "does": "Says the engine read the answer right. The engine marks it.",
+      "doesNot": "The engine's own reading is kept beside yours, so the reader can be measured."
+    },
+    {
+      "label": "Nothing is written here",
+      "does": "Says the box is empty."
+    },
+    {
+      "label": "Right",
+      "does": "For an answer only a person can mark, settles that one answer.",
+      "doesNot": "It does not sign off the whole page."
+    },
+    {
+      "label": "Open the whole paper",
+      "does": "Shows the child's whole page."
+    }
+  ],
+  "note": "Why answers come here is on [How it is worked out](/guide/worked-out#checking)."
+}
