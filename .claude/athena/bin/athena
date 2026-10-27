@@ -14,6 +14,11 @@ line tools, a cloud session, GitHub Actions).
   athena block ID REASON            stop work, write BLOCKED.md for Nimish
   athena unlock ID                  only after Nimish types "UNLOCK ID"
   athena verify-locks               every LOCK still matches its files
+  athena tier                       file list on stdin: the tier (0-3) of that change and what it needs
+  athena check-pr-scope --base REF --body-file F   CI: a tier 1 pull request carries a short scope
+  athena pr-times OUT.json          CI nightly: tier and CI minutes of the last merged pull requests
+  athena retire ID                  retire a finished spec; CI skips it once the 'spec-retired' label is on
+  athena done --all --ci [--base REF] [--labels JSON]   CI: touched specs only with --base, plus the fast checks
   athena scorecard                  per component: times fired, sessions, cost, last fired
   athena health                     one PASS/FAIL line per check; exit 1 if any fails
   athena verify-hooks               fail if a hook is not on the installer's allowlist or a VS Code task runs on folder open
@@ -31,7 +36,7 @@ import sys
 import time
 from pathlib import Path
 
-VERSION = "2.5.1"
+VERSION = "2.6.0"
 ID_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
 STRIKE_LIMIT = 3
 CHECK_TIMEOUT = int(os.environ.get("ATHENA_CHECK_TIMEOUT", "900"))
@@ -181,6 +186,67 @@ def all_specs():
     if not SPECS.is_dir():
         return []
     return sorted(p.name for p in SPECS.iterdir() if p.is_dir() and ID_RE.match(p.name))
+
+
+# ---------------------------------------------------------------- tiers
+TIERS_FILE = HARNESS / "tiers.json"
+FAST_CHECKS = HARNESS / "fast-checks.sh"
+SENSITIVE_DIRS = ("specs/", ".github/", ".claude/")
+NEEDS = {0: [], 1: ["pr-scope"], 2: ["scope-issue", "scope-locked", "proof-writer", "second-reviewer"]}
+NEEDS[3] = NEEDS[2]
+
+
+def tier_rules() -> dict:
+    try:
+        t = json.loads(TIERS_FILE.read_text())
+    except Exception:
+        t = {}
+    return {"default": t.get("default", 2), "rules": t.get("rules", [])}
+
+
+def tier_of(path: str, t: dict):
+    """(tier, why) for one repo-relative path. Built-in sensitive paths are tier 3 whatever tiers.json says."""
+    if path.startswith(SENSITIVE_DIRS) or "migrations" in Path(path).parts[:-1]:
+        return 3, f"{path} is a sensitive path (always tier 3)"
+    best = None
+    for r in t["rules"]:
+        if path.startswith(r["path"]) and (best is None or len(r["path"]) > len(best["path"])):
+            best = r
+    if best:
+        return best["tier"], f"{path} matches the rule {best['path']}"
+    return t["default"], f"{path} matches no rule (default tier {t['default']})"
+
+
+def tier_for(files):
+    """The highest tier among the files, with the reason from the first file that decides it."""
+    t = tier_rules()
+    scored = [tier_of(f, t) + (f,) for f in sorted(set(files))]
+    if not scored:
+        return 0, "no files changed"
+    top = max(s[0] for s in scored)
+    return top, next(s[1] for s in scored if s[0] == top)
+
+
+def changed_files(base: str, three_dots=True):
+    """Files changed against base: for CI `base...HEAD`; for a live session also the working tree and new files."""
+    diff = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD" if three_dots else base],
+                          cwd=str(ROOT), capture_output=True, text=True)
+    if diff.returncode != 0:
+        return None
+    files = diff.stdout.split()
+    if not three_dots:
+        files += subprocess.run(["git", "ls-files", "--others", "--exclude-standard"], cwd=str(ROOT),
+                                capture_output=True, text=True).stdout.split()
+    return files
+
+
+def run_fast_checks():
+    """None when the repo has no fast checks, else (ok, output tail)."""
+    if not FAST_CHECKS.exists():
+        return None
+    p = subprocess.run(["bash", str(FAST_CHECKS)], cwd=str(ROOT), env=dict(os.environ, ATHENA_ROOT=str(ROOT)),
+                       capture_output=True, text=True, timeout=CHECK_TIMEOUT)
+    return p.returncode == 0, ((p.stdout or "") + (p.stderr or ""))[-2000:]
 
 
 # ---------------------------------------------------------------- running proofs
@@ -362,25 +428,62 @@ def cmd_start(args):
     return 0
 
 
+def _retired_at(base, spec_id):
+    """Was this spec already retired on the base branch (so an earlier merge approved it)?"""
+    if not base:
+        return False
+    p = subprocess.run(["git", "show", f"{base}:specs/{spec_id}/status.json"], cwd=str(ROOT), capture_output=True, text=True)
+    try:
+        return bool(json.loads(p.stdout).get("retired"))
+    except Exception:
+        return False
+
+
 def cmd_done(args):
-    ids = [a for a in args if not a.startswith("--")]
+    base, raw_labels = _opt(args, "--base"), _opt(args, "--labels", "[]")
+    values = {v for v in (base, raw_labels) if v is not None}
+    ids = [a for a in args if not a.startswith("--") and a not in values]
+    skipped = []
     if "--all" in args:
         # Only finished work is re-proven: a locked scope that is not built yet is a queue item,
         # not a regression, so scopes can be locked and merged ahead of their build.
         ids = [i for i in all_specs() if (SPECS / i / "LOCK").exists()
                and read_status(SPECS / i).get("status") == "built"]
+        try:
+            labels = json.loads(raw_labels or "[]")
+        except Exception:
+            labels = []
+        changed = changed_files(base) if base else None
+        if base and changed is None:
+            die("could not diff against base", 2)
+        everything = changed is None or tier_for(changed)[0] == 3  # a tier 3 change runs every finished spec
+        for i in list(ids):
+            st = read_status(SPECS / i)
+            covers = st.get("files")  # a spec that names no files always runs
+            if (st.get("retired") and ("spec-retired" in labels or _retired_at(base, i))) or \
+                    (not everything and covers and not any(c.startswith(tuple(covers)) for c in changed)):
+                ids.remove(i)
+                skipped.append(i)
     elif not ids:
         a = active_id()
         if not a:
             die("no spec given and none active")
         ids = [a]
-    if not ids:
+    fast = run_fast_checks() if "--ci" in args else None
+    if not ids and not skipped and fast is None:
         print("no locked specs to check")
         return 0
-    results = [run_checks(i) for i in ids]
+    for i in skipped:
+        print(f"skipped {i}")
+    results = []
+    for i in ids:
+        print(f"ran {i}")
+        results.append(run_checks(i))
     for r in results:
         print(describe(r))
-    ok = all(r["ok"] for r in results)
+    if fast is not None:
+        print("fast checks: " + ("pass" if fast[0] else "FAIL\n" + fast[1]))
+    ok = all(r["ok"] for r in results) and (fast is None or fast[0])
     boxed = sum(len(r["box"]) for r in results)
     if boxed:
         print(f"note: {boxed} proof(s) can only run on the production box and were not run here. "
@@ -396,6 +499,12 @@ def cmd_done(args):
     return 0 if ok else 1
 
 
+def _files_covered():
+    """The folders this build changed, outside specs/: what CI uses to tell which specs a pull request touches."""
+    files = _session_files() or []
+    return sorted({f.rsplit("/", 1)[0] + "/" if "/" in f else f for f in files if not f.startswith("specs/")})
+
+
 def cmd_finish(args):
     if not args:
         die("usage: athena finish ID")
@@ -405,6 +514,9 @@ def cmd_finish(args):
         print(describe(res))
         die(f"{spec_id} is not done; its proofs fail", 1)
     write_status(spec_dir(spec_id), status="built", built_at=now_iso(), box_pending=res["box"])
+    covers = _files_covered()
+    if covers:
+        write_status(spec_dir(spec_id), files=covers)
     if active_id() == spec_id:
         set_active(None)
     _strikes_reset(spec_id)
@@ -461,7 +573,7 @@ def cmd_verify_locks(args):
     bad = []
     for i in all_specs():
         d = SPECS / i
-        if (d / "LOCK").exists() and not lock_intact(d):
+        if (d / "LOCK").exists() and not lock_intact(d) and not read_status(d).get("retired"):
             bad.append(i)
     for i in bad:
         print(f"LOCK BROKEN {i}: its spec or proofs changed after locking")
@@ -493,7 +605,8 @@ def cmd_check_scope_changes(args):
                 parts[2] in ("spec.md", "checks.sh", "LOCK", "proofs"):
             had_lock = subprocess.run(["git", "cat-file", "-e", f"{base}:specs/{parts[1]}/LOCK"],
                                       cwd=str(ROOT), capture_output=True).returncode == 0
-            if had_lock:
+            retired = "spec-retired" in labels and read_status(SPECS / parts[1]).get("retired")
+            if had_lock and not retired:
                 violations.append(path)
     for v in violations:
         print(f"SCOPE CHANGED WITHOUT APPROVAL: {v}")
@@ -516,8 +629,77 @@ def cmd_status(args):
         lock = "locked" if (d / "LOCK").exists() else "unlocked"
         if lock == "locked" and lock_intact(d) is False:
             lock = "LOCK BROKEN"
-        print(f"{'*' if i == a else ' '} {i:12} {s.get('status', '?'):10} {lock}")
+        print(f"{'*' if i == a else ' '} {i:12} {s.get('status', '?'):10} {lock}{' retired' if s.get('retired') else ''}")
     return 0
+
+
+def cmd_retire(args):
+    if not args:
+        die("usage: athena retire ID")
+    d = spec_dir(args[0])
+    if not (d / "LOCK").exists():
+        die(f"{args[0]} is not a locked spec")
+    write_status(d, retired=True)
+    print(f"{args[0]} retired. CI and the stop gate skip it once Nimish adds the 'spec-retired' label to the pull request.")
+    return 0
+
+
+def cmd_tier(args):
+    tier, why = tier_for(sys.stdin.read().split())
+    print(f"tier {tier}: {why}")
+    print("needs: " + (", ".join(NEEDS[tier]) or "none"))
+    return 0
+
+
+def cmd_pr_times(args):
+    """Nightly in CI (needs `gh` and GH_TOKEN): the tier and CI minutes of the last merged pull requests, as JSON."""
+    if not args:
+        die("usage: athena pr-times OUT.json")
+    repo = os.environ.get("GITHUB_REPOSITORY") or die("GITHUB_REPOSITORY is not set")
+
+    def api(path):
+        return json.loads(subprocess.run(["gh", "api", f"repos/{repo}/{path}"], capture_output=True, text=True,
+                                         check=True).stdout)
+
+    def minutes(run):
+        t = lambda k: _dt.datetime.fromisoformat(run[k].replace("Z", "+00:00"))
+        return (t("updated_at") - t("run_started_at")).total_seconds() / 60
+
+    records = []
+    for pr in api("pulls?state=closed&per_page=100"):
+        if not pr.get("merged_at"):
+            continue
+        runs = [r for r in api(f"actions/runs?head_sha={pr['head']['sha']}&event=pull_request")["workflow_runs"]
+                if r["name"] == "athena" and r["conclusion"] == "success"]
+        if runs:
+            files = [f["filename"] for f in api(f"pulls/{pr['number']}/files?per_page=100")]
+            records.append({"number": pr["number"], "tier": tier_for(files)[0], "merged_at": pr["merged_at"],
+                            "ci_minutes": round(max(minutes(r) for r in runs), 1)})
+    Path(args[0]).write_text(json.dumps(records))
+    print(f"{len(records)} merged pull requests with a passing athena run")
+    return 0
+
+
+SCOPE_LINE = re.compile(r"^(What|Done when):", re.M)
+
+
+def cmd_check_pr_scope(args):
+    base, body_file = _opt(args, "--base", "origin/main"), _opt(args, "--body-file")
+    files = changed_files(base)
+    if files is None:
+        die("could not diff against base", 2)
+    tier, why = tier_for(files)
+    if tier != 1:
+        print(f"tier {tier}: {why}. No pull request scope is required for this tier.")
+        return 0
+    body = Path(body_file).read_text() if body_file and Path(body_file).exists() else ""
+    found = SCOPE_LINE.findall(body)
+    if "What" in found and "Done when" in found and len(found) <= 3:
+        print(f"tier 1: the pull request carries its scope ({len(found)} lines)")
+        return 0
+    print(f"tier 1: {why}. The pull request description needs a short scope: one line starting 'What:' and "
+          f"one or two starting 'Done when:' (three lines at most). Found {len(found)}.")
+    return 1
 
 
 def cmd_scorecard(args):
@@ -674,12 +856,49 @@ def hook_guard(payload):
     return 0
 
 
+def _session_files():
+    """What this session has changed: against ATHENA_BASE, else origin/main, main or master; None if unknown."""
+    base = os.environ.get("ATHENA_BASE") or next(
+        (b for b in ("origin/main", "main", "master")
+         if subprocess.run(["git", "rev-parse", "--verify", "-q", b], cwd=str(ROOT), capture_output=True).returncode == 0),
+        None)
+    return changed_files(base, three_dots=False) if base else None
+
+
+def _fast_gate(sid, spec=True):
+    """Run the fast checks; on failure hold the session (three strikes, then stop). True when it spoke."""
+    fast = run_fast_checks()
+    key = f"{sid}.fast"  # its own counter, so it never resets the proof strikes
+    if fast is None or fast[0]:
+        _strikes_reset(key)
+        return False
+    n = _strike(key, hashlib.sha1(fast[1].encode()).hexdigest())
+    if n >= STRIKE_LIMIT:
+        if spec:
+            _block(sid, f"The repository's fast checks failed {n} times in a row. Stopping instead of guessing.")
+        print(json.dumps({"systemMessage": f"Athena: the fast checks failed {n} times in a row. Stopping instead of guessing."}))
+        return True
+    print(json.dumps({"decision": "block", "reason":
+        f"Athena fast checks failed (strike {n} of {STRIKE_LIMIT}):\n{fast[1]}"}))
+    return True
+
+
 def hook_stop(payload):
     sid = active_id()
     if not sid:
+        # No spec: a tier 0 or 1 change still has to pass the repository's fast checks before the session ends.
+        files = _session_files()
+        if files and tier_for(files)[0] <= 1:
+            _fast_gate("fast")
         return 0
     d = SPECS / sid
-    if read_status(d).get("status") != "building":
+    if read_status(d).get("status") != "building" or read_status(d).get("retired"):
+        return 0
+    if _fast_gate(sid):
+        return 0
+    # A tier 0 or 1 change runs the full proofs only until they have passed once; tier 2 and up, every attempt.
+    files = _session_files()
+    if files is not None and tier_for(files)[0] <= 1 and (STATE / f"told-{sid}").exists():
         return 0
     res = run_checks(sid)
     if res["ok"]:
@@ -947,6 +1166,7 @@ COMMANDS = {
     "check-scope-changes": cmd_check_scope_changes, "status": cmd_status, "hook": cmd_hook,
     "scorecard": cmd_scorecard, "health": cmd_health,
     "verify-hooks": cmd_verify_hooks, "scan-ioc": cmd_scan_ioc,
+    "tier": cmd_tier, "check-pr-scope": cmd_check_pr_scope, "retire": cmd_retire, "pr-times": cmd_pr_times,
 }
 
 
