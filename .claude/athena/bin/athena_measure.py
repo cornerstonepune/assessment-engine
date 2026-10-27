@@ -6,6 +6,7 @@ $HOME/.claude/projects, the plan-usage files under $HOME/.athena/usage and usage
 """
 import json
 import os
+import statistics
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -128,6 +129,30 @@ def has_records(home):
 
 
 # ---------------------------------------------------------------- scorecard
+TIER_BUDGET_MIN = {0: 5, 1: 10, 2: 20}  # median CI minutes a tier may take; tier 3 has no budget
+
+
+def tier_lines(path):
+    """One line per tier: the median CI minutes of that tier's newest 20 pull requests, RED when over budget."""
+    try:
+        records = json.loads(Path(path).read_text())
+    except Exception:
+        return []
+    if not records:
+        return []
+    lines = ["", "CI time by tier (median minutes of the newest 20 pull requests):"]
+    for tier in range(4):
+        newest = sorted((r for r in records if r["tier"] == tier), key=lambda r: r["merged_at"])[-20:]
+        if not newest:
+            continue
+        med = statistics.median(r["ci_minutes"] for r in newest)
+        budget = TIER_BUDGET_MIN.get(tier)
+        flag = f"  RED: budget is {budget} min" if budget is not None and med > budget else \
+            ("  (no budget)" if budget is None else "")
+        lines.append(f"tier {tier}: median {med:.1f} min over {len(newest)} pull requests{flag}")
+    return lines
+
+
 def scorecard(root, home):
     rows = collect(root, home)
     lines = [f"{'component':34} {'kind':7} {'fired':>5} {'sessions':>8} {'cost (tokens)':>14}  last fired"]
@@ -137,6 +162,8 @@ def scorecard(root, home):
             lines.append(f"{name:34} {r['kind']:7} {r['fired']:>5} {r['sessions']:>8} {r['tokens']:>14}  {last}")
         else:
             lines.append(f"{name:34} {r['kind']:7} {'-':>5} {'-':>8} {'-':>14}  not measured here (runs in CI)")
+    if os.environ.get("ATHENA_PR_TIMES"):
+        lines += tier_lines(os.environ["ATHENA_PR_TIMES"])
     return "\n".join(lines)
 
 

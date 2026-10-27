@@ -9,6 +9,8 @@ on:
 permissions:
   contents: read
   issues: write
+  pull-requests: read
+  actions: read
 jobs:
   health:
     runs-on: ubuntu-latest
@@ -19,6 +21,11 @@ jobs:
         env:
           ATHENA_HEALTH_CI: "1"
         run: python3 .claude/athena/bin/athena health || [ $? -eq 1 ]   # 1 means checks failed; anything else is a crash
+      - name: CI time of the last merged pull requests, by tier
+        continue-on-error: true   # a GitHub hiccup must never silence the health issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .claude/athena/bin/athena pr-times "$RUNNER_TEMP/pr-times.json" && echo "ATHENA_PR_TIMES=$RUNNER_TEMP/pr-times.json" >> "$GITHUB_ENV"
       - name: athena scorecard
         env:
           ATHENA_HEALTH_CI: "1"

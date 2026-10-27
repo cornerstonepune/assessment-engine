@@ -11,15 +11,21 @@ Nimish is a non-technical founder. He decides scope and merges pull requests. He
 1. **Think first.** State your assumptions. If the scope has two readings, present both; never pick one silently. If something is unclear, name it and stop (block, in an unattended run).
 2. **Simplest thing that works.** No feature, abstraction, option or error handling the scope didn't ask for. If 200 lines could be 50, rewrite them. Would a senior engineer call it overcomplicated? Then simplify.
 3. **Surgical.** Every changed line traces to the scope. Don't refactor, rename or "improve" anything outside it; match the existing style. Remove only what your own change made unused; mention pre-existing dead code, never delete it.
-4. **Goal-driven.** Turn the task into a check that fails first, then loop until it passes; only the two exceptions in step 1 below skip this. The locked proofs below are this rule, made mandatory.
+4. **Goal-driven.** Turn the task into a check that fails first, then loop until it passes; tier 0 and 1 changes (see Tiers) are proven by the repository's fast checks instead. The locked proofs below are this rule, made mandatory.
 
 ## The loop every change follows
 
 **A repository with its own loop.** Where `.claude/athena/config.json` sets `own_loop`, the repository already proves work its own way, as strictly (Cornerstone's assessment-engine is one). There, its own `CLAUDE.md` replaces this loop, *The repository's memory* and *Where things are*; its own proofs stand in for the locked proofs; wherever this file says `athena done`, read the command in `own_loop.done`, and for `docs/HANDOFF.md`, the file in `own_loop.handoff`. Everything else in this file applies.
 
-1. **Scope.** Nimish writes, or approves, a GitHub issue in the repository, using the Scope form, with three parts: *What*, *Done when* (numbered, observable outcomes) and *Out of scope*. Its title starts with the spec ID (for example `ATL-9: …`). He adds the label `scope-locked`; only he adds it. Nothing gets built without a locked scope. Two exceptions skip the loop: a one-line typo or copy fix, and a repo chore with no behaviour change. Small is not an exception.
+**Tiers.** `athena tier` sorts a change by the files it touches, using the repository's `.claude/athena/tiers.json` (folder prefix to tier; the default is tier 2). The highest tier wins, and `specs/`, `.github/`, `.claude/` and any `migrations/` folder are always tier 3, whatever the file says. A script decides the tier, never the model. Every tier runs the repository's fast checks (`.claude/athena/fast-checks.sh`, when it exists).
+- **Tier 0**, content only (copy, a speaker, a photo): no scope issue, no `scope-locked` label, no proof-writer, no second reviewer. The fast checks and the build must pass, and Nimish merges.
+- **Tier 1**, one page or component: no label wait. The pull request description carries a short scope (one `What:` line and one or two `Done when:` lines); CI fails without it.
+- **Tier 2**, a new feature: the loop below, in full.
+- **Tier 3**, database, security, public interfaces, money, client data, Jhaveri production or the harness itself: the loop below, in full.
+
+1. **Scope** (tier 2 and 3). Nimish writes, or approves, a GitHub issue in the repository, using the Scope form, with three parts: *What*, *Done when* (numbered, observable outcomes) and *Out of scope*. Its title starts with the spec ID (for example `ATL-9: …`). He adds the label `scope-locked`; only he adds it. Nothing in tier 2 or 3 gets built without a locked scope.
 2. **Proofs first.** The `athena-scope` skill copies the scope verbatim into `specs/<ID>/spec.md`. The `athena-proof-writer` agent then writes `specs/<ID>/checks.sh` and `specs/<ID>/proofs/`: one executable check per *Done when* line. It confirms they fail, then runs `athena lock <ID>`.
-3. **Build.** The `athena-build` skill runs `athena start <ID>`, plans with `writing-plans`, and builds with `test-driven-development`. A stop gate re-runs the proofs every time you try to finish. You cannot end the session while they fail.
+3. **Build.** The `athena-build` skill runs `athena start <ID>`, plans with `writing-plans`, and builds with `test-driven-development`. A stop gate runs the fast checks every time you try to finish; when a spec is active it also re-runs that spec's proofs every time (in tier 0 and 1, only until they have passed once). You cannot end the session while they fail.
 4. **Stop rule.** After the same failure three times, the gate writes `specs/<ID>/BLOCKED.md` and lets you stop. Do the same yourself, earlier, with `athena block <ID> "<reason>"`, when:
    - the scope is ambiguous;
    - a proof looks wrong; or
@@ -31,12 +37,12 @@ Nimish is a non-technical founder. He decides scope and merges pull requests. He
    - opens a pull request whose title starts with the spec ID and whose body says `Closes #<issue number>`, so merging closes the issue;
    - writes the plain-English summary for Nimish;
    - records lessons in `docs/athena/learnings.md`.
-7. **Done.** Only Nimish marks work done, by merging. CI re-runs every proof on the pull request, and again every night on main.
+7. **Done.** Only Nimish marks work done, by merging. CI runs the fast checks and the proofs of the specs the pull request touches (a spec lists its files in `status.json`; one that lists none always runs), and re-runs every finished spec every night on main. A finished spec that is no longer wanted is retired with `athena retire <ID>` and Nimish's `spec-retired` label on the pull request.
 
 ## Hard rules (hooks enforce most of them)
 
 - Never edit `spec.md`, `checks.sh`, `proofs/` or `LOCK` in a locked spec. If a proof is wrong, block and say why. Nimish unlocks a spec by typing `UNLOCK <ID>`.
-- Never say "done", "fixed", "works" or "passes" without `athena done <ID>` output from this session to show.
+- Never say "done", "fixed", "works" or "passes" without `athena done <ID>` output from this session to show (for a tier 0 or 1 change with no spec, the fast checks' output).
 - Never push to `main` or `master`. Never force-push. Never use `--no-verify`.
 - Never put secrets, client data or credentials in code, tests, fixtures, screenshots or logs. Use environment variables and fake data. Jhaveri is a SEBI-regulated broker: client names, PANs, holdings and P&L never leave production systems.
 - **Proof data follows `.claude/athena/config.json`.**
