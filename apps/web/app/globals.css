@@ -384,6 +384,13 @@ table.grid.steady tr.under td {
     font-size: 11px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+    /* a wide cell (a bar and its counts) never squeezes its label to a letter a line */
+    flex-shrink: 0;
+  }
+  /* a row opened under its row (a topic's skills) is the full width, not a labelled cell */
+  table.grid.list tr.under > td {
+    display: block;
+    padding: 4px 0;
   }
   table.grid.list td a {
     display: inline-flex;

@@ -81,23 +81,33 @@ async function TopicOpen({ me, o, states }: { me: Session; o: Open; states: Stat
     { key: "levels", label: "Level they are at", width: "11rem", value: (s) => s.levels.map((l) => `${l.n} at ${l.level}`).join(" · ") || null },
     { key: "last", label: "Last assessed", width: "9rem", keep: true, value: (s) => (s.last ? dateWords(s.last) : "not yet") },
   ];
+  // a skill no child has answered is named once, under the table, never a row of grey (goals/ux4-class-and-child.yaml)
+  const answered = skills.filter((s) => s.children > s.spread.none);
+  const none = skills.filter((s) => s.children <= s.spread.none);
   return (
     <div className="grid gap-3 py-2 pl-5">
       <p data-testid="topic-papers" className="text-[13px] text-basalt/80">
         {papers.length ? papersWords(papers) : "No checked paper in this topic yet."}
       </p>
-      <DataTable
-        label={`${o.section}: skills of the topic`}
-        columns={columns}
-        rows={skills}
-        rowKey={(s) => s.code}
-        more={{ page: 1, href: () => hrefOf(o, {}) }}
-        limit={skills.length}
-        extras={{
-          attrs: (s) => ({ "data-skill": s.code }),
-          expand: (s) => (s.code === o.skill ? <SkillOpen me={me} o={o} states={states} /> : null),
-        }}
-      />
+      {none.length ? (
+        <p data-testid="skills-not-yet" className="note order-last">
+          Not assessed yet: {none.map((s) => s.name).join(" · ")}
+        </p>
+      ) : null}
+      {answered.length ? (
+        <DataTable
+          label={`${o.section}: skills of the topic`}
+          columns={columns}
+          rows={answered}
+          rowKey={(s) => s.code}
+          more={{ page: 1, href: () => hrefOf(o, {}) }}
+          limit={Math.max(1, answered.length)}
+          extras={{
+            attrs: (s) => ({ "data-skill": s.code }),
+            expand: (s) => (s.code === o.skill ? <SkillOpen me={me} o={o} states={states} /> : null),
+          }}
+        />
+      ) : null}
     </div>
   );
 }
@@ -127,7 +137,7 @@ async function SkillOpen({ me, o, states }: { me: Session; o: Open; states: Stat
   const columns: Column<ChildOnSkill>[] = [
     { key: "roll", label: "Roll", num: true, width: "4rem", value: (c) => c.roll_no },
     { key: "name", label: "Child", width: "8rem", value: (c) => c.first_name, cell: (c) => <Link href={`/growth/${c.id}`}>{c.first_name}</Link> },
-    { key: "level", label: "Level", width: "6rem", value: (c) => c.level },
+    { key: "level", label: "Level", width: "7.5rem", value: (c) => c.level },
     {
       key: "state",
       label: "State",
@@ -149,7 +159,7 @@ async function SkillOpen({ me, o, states }: { me: Session; o: Open; states: Stat
           </Link>
         ) : null,
     },
-    { key: "last", label: "Last assessed", width: "9rem", value: (c) => (c.last ? dateWords(c.last) : null) },
+    { key: "last", label: "Last assessed", width: "9rem", value: (c) => (c.last ? dateWords(c.last) : "not yet") },
   ];
   return (
     <div className="py-2 pl-5">

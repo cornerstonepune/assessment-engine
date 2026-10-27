@@ -57,7 +57,7 @@ export function TopicsPanel({
     {
       key: "topic",
       label: "Topic",
-      width: "14rem",
+      width: "12rem",
       value: (r) => r.name,
       cell: (r) => (
         <Link id={`topic-${r.code}`} href={href(r)} aria-expanded={isOpen(r)} className="scroll-mt-24 font-medium no-underline hover:underline">
@@ -69,12 +69,12 @@ export function TopicsPanel({
       ),
     },
     // the topic's skills counted by where they stand, and those no paper has reached: what the row's state is read from
-    { key: "skills", label: "Skills", width: "12rem", value: (r) => skillCounts(r.counts, states) },
+    { key: "skills", label: "Skills", width: "10rem", value: (r) => skillCounts(r.counts, states) },
     { key: "level", label: "Level", width: "6rem", value: (r) => r.level },
     {
       key: "last",
       label: "Last assessment",
-      width: "13rem",
+      width: "11rem",
       value: (r) => (r.last ? r.last.date : null),
       cell: (r) =>
         r.last ? (
@@ -84,7 +84,7 @@ export function TopicsPanel({
           </span>
         ) : null,
     },
-    { key: "state", label: "State", status: true, width: "10rem", keep: true, value: (r) => topicStanding(r.skills, states), cell: (r) => <StandingChip standing={topicStanding(r.skills, states)} states={states} /> },
+    { key: "state", label: "State", status: true, width: "9rem", keep: true, value: (r) => topicStanding(r.skills, states), cell: (r) => <StandingChip standing={topicStanding(r.skills, states)} states={states} /> },
     { key: "note", label: "Strength or weakness", value: (r) => r.note, cell: (r) => (r.note ? <span className="text-[13px]">{r.note}</span> : null) },
   ];
   return (
