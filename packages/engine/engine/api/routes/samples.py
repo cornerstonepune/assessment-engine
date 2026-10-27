@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from engine.api.deps import get_conn, require_engine_key
-from engine.w1_bank import english_edit, english_form, retire
+from engine.w1_bank import english_edit, english_form, generate, retire
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 Text = Field(default="", max_length=4000)
@@ -64,6 +64,23 @@ class KindAddRequest(Where):
 
 class KindRemoveRequest(Where):
     pass
+
+
+class MoreRequest(Where):
+    """More questions like English sample `ord`; how many is checked against its row by the engine."""
+
+    ord: int = Field(ge=1)
+    n: int = Field(ge=1, le=100)
+
+
+class MathsMoreRequest(BaseModel):
+    """More questions like a typed Maths sum, in a line or in columns."""
+
+    level: str = Field(min_length=1, max_length=20)
+    text: str = Field(min_length=1, max_length=40)
+    layout: str = Field(pattern="^(line|columns)$")
+    n: int = Field(ge=1, le=100)
+    by: str = Field(min_length=1, max_length=200)
 
 
 class KindStopRequest(BaseModel):
@@ -131,3 +148,15 @@ def stop_kind(code: str, body: KindStopRequest, conn=Depends(get_conn, scope="fu
 def start_kind(code: str, body: KindStopRequest, conn=Depends(get_conn, scope="function")):
     """A stopped kind used again: {started, why, levels}."""
     return retire.start(conn, code, body.kind, body.by, body.level)
+
+
+@router.post("/skill/{code}/sample/more")
+def more_english(code: str, body: MoreRequest, conn=Depends(get_conn, scope="function")):
+    """Questions like an English sample, each checked by code: {made, why, returned, kept, thrown, ords}."""
+    return generate.english(conn, code, body.level, body.kind, body.ord, body.n, body.by)
+
+
+@router.post("/skill/{code}/maths/more")
+def more_maths(code: str, body: MathsMoreRequest, conn=Depends(get_conn, scope="function")):
+    """Questions like a typed Maths sum, made by code: {made, why, cases, kept, sample}."""
+    return generate.maths(conn, code, body.level, body.text, body.layout, body.n, body.by)

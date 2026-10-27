@@ -64,7 +64,9 @@ export type EngineRoutes = {
   "POST /skill/{code}/kind/remove": { level: string; kind: string; by: string };
   "POST /skill/{code}/kind/start": { level?: string | null; kind: string; by: string };
   "POST /skill/{code}/kind/stop": { level?: string | null; kind: string; by: string };
+  "POST /skill/{code}/maths/more": { level: string; text: string; layout: string; n: number; by: string };
   "POST /skill/{code}/sample": { level: string; kind: string; by: string; fields: { ask?: string; text?: string; options?: string; left?: string; right?: string; answer?: string; accept?: string; key_points?: string; not_words?: string }; wrong?: { answer?: string; mistake_code?: string }[]; passage_code?: string | null; passage_title?: string | null; passage_text?: string | null; rubric_code?: string | null; ord?: number | null };
+  "POST /skill/{code}/sample/more": { level: string; kind: string; by: string; ord: number; n: number };
   "POST /skill/{code}/sample/remove": { level: string; kind: string; by: string; ord: number };
   "POST /week/approve": { section: string; week: string; kind?: string; by: string };
   "POST /week/assemble": { section: string; week: string; kind?: string };

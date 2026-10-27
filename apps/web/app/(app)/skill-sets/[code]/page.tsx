@@ -24,6 +24,7 @@ import { LevelApproval } from "./level-approval";
 import { GradesPanel } from "./grades-panel";
 import { Watched, WaysPanel } from "./ways";
 import { KindStops } from "./kind-stops";
+import { MathsMore } from "./more-like-this";
 import { Changed, editingOf, EnglishLevel, MadeByCode, SentenceLink } from "./editing";
 import { dateWords } from "@/lib/week";
 
@@ -213,6 +214,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
                         "no worksheets yet"
                       )}
                     </p>}
+                    {!bankless && mayChange ? <MathsMore code={s.code} level={d} /> : null}
                   </section>
                 );
               })}

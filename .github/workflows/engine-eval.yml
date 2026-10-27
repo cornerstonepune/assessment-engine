@@ -11,7 +11,7 @@ on:
         type: choice
         # read_with_examples: the second reader's opinion where the box reader guessed (ADR 0091), measured with the code of
         # the branch this is run on, piped into the engine (.github/measure/second_opinion.py); the versions are ignored
-        options: [parent_report, parent_review, mistake_guess, story_shape, week_skills, read_with_examples]
+        options: [parent_report, parent_review, mistake_guess, story_shape, week_skills, read_with_examples, english_generate]
       version:
         description: "its version, active or not (Jev's decisions score their active version)"
         type: choice

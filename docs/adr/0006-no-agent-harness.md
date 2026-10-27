@@ -47,3 +47,20 @@ iterated on by the model itself before a person sees it. Neither exists in N1–
 
 Provider is a one-file change: the pilot calls Gemini over REST; production on Claude replaces
 `_call` with the Anthropic SDK and nothing else moves. Every prompt keeps its eval (rule 7).
+
+## Amended 2026-10-26: an educator's sample is the pattern (goals/gen_from_a_sample.yaml)
+
+Nimish: "the ability for the system to then generate a certain number of questions of that pattern." A seventh shape:
+
+| Prompt | In | Out |
+|---|---|---|
+| english_generate | one English sample an educator chose, its level, rule, kind and mistakes | questions of the same pattern |
+
+Still one call, no loop: the model writes, then code decides. Every question it returns passes the same checks as an
+educator's own sample (`english_check.py`) or is thrown away, never shown or stored, and the educator is told how many
+and why. What passes is a draft: it says "made from your sample", can be removed one by one, and its level waits for
+approval, so no paper draws it before a person approves the level. The prompt is a row, inactive until `engine eval
+english_generate` scores it on a fixed set (`supabase/seed/english_generate_gold.json`) and the score is in
+DECISIONS-LOG.md (rule 7). A Maths sample calls no model (ADR 0005): code measures it, makes more of its case where the
+level holds it, and keeps it as a sample only where it does not. Rejected: letting the model's question reach a paper
+on its own checks alone (a person approves the level first), and a model reading a Maths sample (code can).

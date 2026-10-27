@@ -93,6 +93,8 @@ export type SampleRow = {
   rubric: { name: string; scale: string[]; criteria: { code: string; name: string; levels: Record<string, string> }[] } | null;
   wrong: { answer: string; mistake_code: string; mistake: string; description: string | null }[];
   edited_by: string | null;
+  /** the number of the sample it was made from (goals/gen_from_a_sample.yaml); none when a person wrote it */
+  made_from: number | null;
   edited_at: string | null;
   earlier: number;
 };
@@ -110,7 +112,7 @@ export async function skillSamples(code: string): Promise<SampleRow[]> {
                      from jsonb_array_elements(e.wrong) w
                      join misconception m on m.tenant_id = e.tenant_id and m.code = w ->> 'mistake_code' and m.op = 'any'),
                     '[]'::jsonb) as wrong,
-           e.edited_by, e.edited_at, e.earlier::int as earlier
+           e.edited_by, e.edited_at, e.earlier::int as earlier, e.made_from
     from english_sample_now e
     join question_type q on q.tenant_id = e.tenant_id and q.code = e.question_type
     join skill_level_question_type l on l.tenant_id = e.tenant_id and l.skill_code = e.skill_code
@@ -126,6 +128,8 @@ export async function skillSamples(code: string): Promise<SampleRow[]> {
 export type SampleChoices = {
   /** samples a level keeps of each kind it asks (the `samples.per_kind` threshold row) */
   few: number;
+  /** the most questions asked for at once from one sample (the `generate.max_per_request` row) */
+  most: number;
   passages: { code: string; title: string }[];
   rubrics: { code: string; name: string }[];
   mistakes: { code: string; name: string }[];
@@ -134,7 +138,9 @@ export type SampleChoices = {
 
 export async function sampleChoices(code: string): Promise<SampleChoices> {
   const [[few], passages, rubrics, mistakes, kinds] = await Promise.all([
-    sql<{ n: number }[]>`select coalesce((select value::int from threshold where key = 'samples.per_kind'), 3) as n`,
+    sql<{ n: number; most: number }[]>`
+      select coalesce((select value::int from threshold where key = 'samples.per_kind'), 3) as n,
+             coalesce((select value::int from threshold where key = 'generate.max_per_request'), 20) as most`,
     sql<{ code: string; title: string }[]>`
       select p.code, p.title from passage p join skill s on s.tenant_id = p.tenant_id and s.grade = p.grade
       where s.code = ${code} order by p.title, p.code`,
@@ -151,7 +157,7 @@ export async function sampleChoices(code: string): Promise<SampleChoices> {
                                 and t.code = s.topic_code where s.code = ${code})
       order by k.words`,
   ]);
-  return { few: few.n, passages, rubrics, mistakes, kinds };
+  return { few: few.n, most: few.most, passages, rubrics, mistakes, kinds };
 }
 
 /** How many samples a level holds of a kind as they stand, linked to the level or not: a kind added needs three. */
