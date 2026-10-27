@@ -8,7 +8,7 @@
  */
 import { sql } from "./db";
 import { ownBox } from "./own-box";
-import { EVERY_CLASS, inScope, type Scope } from "./scope";
+import { seesSheet, type Who } from "./reach";
 import { paperName, setKeySql } from "./queries-papers";
 
 // ---- the approval queue. One row per paper a child sat, and every answer on it.
@@ -79,10 +79,10 @@ const paperRows = (where: ReturnType<typeof sql>, actor: string) => sql<PaperRow
 
 // Every paper that has been read. Names come through pii.read_child, which logs who asked
 // (rule 6) — a queue of papers is still a list of children.
-export async function papersToApprove(actor: string, scope: Scope = EVERY_CLASS): Promise<PaperRow[]> {
+export async function papersToApprove(actor: string, me: Who): Promise<PaperRow[]> {
   return paperRows(
     sql`exists (select 1 from capture c where c.sheet_instance_id = si.id and c.superseded_by is null)
-        and ${inScope(scope, sql`ch.section`)}`,
+        and ${seesSheet(me, sql`si.id`)}`,
     actor,
   );
 }
@@ -312,7 +312,9 @@ export async function readerReport(): Promise<ReaderReport> {
   };
 }
 
-export async function checkQueue(scope: Scope = EVERY_CLASS): Promise<QueueEntry[]> {
+/** Every answer waiting for a person, of the papers this person sees (`staff_sees`, goals/own_who_sees_answers.yaml): the
+ *  Check answers list, and every count of it (the menu, What needs doing, Assessments). */
+export async function checkQueue(me: Who): Promise<QueueEntry[]> {
   return sql<QueueEntry[]>`
     with live as (
       select r.id, r.rid, r.status, r.state, r.raw_read, r.item_id, c.sheet_instance_id, c.path, c.created_at as captured
@@ -339,7 +341,7 @@ export async function checkQueue(scope: Scope = EVERY_CLASS): Promise<QueueEntry
     join sheet_instance si on si.id = l.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
     join child ch on ch.id = si.child_id
-    where ${inScope(scope, sql`ch.section`)}
+    where ${seesSheet(me, sql`si.id`)}
     -- one assessment at a time, the one waiting longest first, its papers in roll order (Nimish, 26 Oct 2026: "everyone
     -- checks the assessment by the last upload that they do")
     order by min(l.captured) over (partition by coalesce(si.kind, 'earlier'), coalesce(si.section, ch.section), coalesce(si.week, t.week), ${setKeySql("si", "t")}),

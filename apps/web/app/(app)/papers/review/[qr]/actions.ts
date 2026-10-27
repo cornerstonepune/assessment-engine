@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { deciding, mustBeMine } from "@/lib/decides";
-import { paperSection } from "@/lib/scope";
+import { deciding } from "@/lib/decides";
+import { sees } from "@/lib/reach";
 import { engineSend } from "@/lib/engine";
 import type { Session } from "@/lib/auth";
 
@@ -13,11 +13,11 @@ import type { Session } from "@/lib/auth";
 const QR = /^CS[0-9A-F]{6}$/;
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Who may change or approve this paper. THE ONE PLACE TO SWITCH: when OWN's shared rule ("my classes or my uploads")
- *  is on main, call it here instead. Until then, the own-classes check of #325 (`mustBeMine`, lib/access.ts), which
- *  since Nimish's 22 Oct decision reaches every class for every member of staff. */
+/** Who may change or approve this paper: whoever the shared rule lets see it (`staff_sees`: a coordinator, the class's
+ *  educators, or whoever put the paper's file in; lib/reach.ts, goals/own_who_sees_answers.yaml). Asked on the server of
+ *  every action: a link to another class's paper changes nothing. */
 async function mayChange(me: Session, qr: string): Promise<void> {
-  mustBeMine(me, "home_papers", [await paperSection({ qr })]);
+  if (!(await sees(me, [{ qr }]))) redirect("/refused?kind=papers&paper=1");
 }
 
 async function said(res: Response): Promise<string> {

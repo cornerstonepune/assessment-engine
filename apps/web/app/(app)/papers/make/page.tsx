@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
-import { scopeOf } from "@/lib/scope";
+import { workScope } from "@/lib/reach";
 import { deadline } from "@/lib/deadline";
 import { forChildren, KINDS, lineTopics, planBatch, readBatch, topicLines, UUID, WAYS } from "@/lib/maker";
 import { levels } from "@/lib/levels";
@@ -39,7 +39,7 @@ export default async function Maker({ searchParams }: Props) {
   const q = await searchParams;
   const get = (k: string) => all(q[k]);
   const week = isoWeek();
-  const [classes, homeN, g, { usual }] = await deadline(Promise.all([homeByClass(week, scopeOf(me)), homeLength(), grades(), levels()]));
+  const [classes, homeN, g, { usual }] = await deadline(Promise.all([homeByClass(week, await workScope(me)), homeLength(), grades(), levels()]));
   const cls = classes.find((c) => c.section === get("class")[0]);
   // every skill, each saying whether this class was taught it: an educator may choose any (ADR 0081); the engine's
   // own choice, a child's next step, keeps to what the class was taught (goals/f1f-taught-per-class.yaml)

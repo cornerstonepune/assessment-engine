@@ -19,7 +19,8 @@ test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const MINE = "U49-MINE";
 const OTHER = "U49-OTHER";
-// not mapped to a class, so the same pages open on every class as the coordinator's: the test is about what is offered, not the data
+// mapped to every class there is, so the same pages hold the same classes as the coordinator's (since 27 Oct 2026 an educator
+// sees the classes they are mapped to: goals/own_who_sees_answers.yaml): the test is about what is offered, not the data
 const EDUCATOR = { email: "u49-educator@cornerstone.test", name: "U49 Educator", role: "educator", classes: [] as string[] };
 const PASSWORD = "u49-a-long-test-password";
 const SALT = "00112233445566778899aabbccddeeff";
@@ -29,6 +30,7 @@ let pages: string[] = [];
 test.beforeAll(async () => {
   await aClass(sql, MINE, "G2", ["Ira", "Jai"]);
   const other = await aClass(sql, OTHER, "G3", ["Kavi", "Lata"]);
+  EDUCATOR.classes = (await sql<{ section: string }[]>`select distinct section from child where active order by 1`).map((r) => r.section);
   const password = `scrypt$${SALT}$${scryptSync(PASSWORD, SALT, 64).toString("hex")}`;
   await sql`update config set value = ${others} || ${sql.json([{ ...EDUCATOR, password }])} where key = 'app.staff'`;
   const [{ code: draft }] = await sql<{ code: string }[]>`select code from skill order by status = 'ratified', code limit 1`;

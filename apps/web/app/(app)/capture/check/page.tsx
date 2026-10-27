@@ -6,7 +6,8 @@ import { PageShell } from "@/components/page-shell";
 import { Bar, Notice, Panel } from "@/components/shell";
 import { StatusChip } from "@/components/status-chip";
 import { requireStaff } from "@/lib/auth";
-import { scopeOf } from "@/lib/scope";
+import { sees } from "@/lib/reach";
+import { NotYours } from "@/components/not-yours";
 import { deadline } from "@/lib/deadline";
 import { checkItem, checkQueue, held, toJudge, type CheckItem } from "@/lib/queries-read";
 import { firstNames, groupQueue, paperFacts } from "@/lib/queries-check-groups";
@@ -79,9 +80,10 @@ async function proofOf(capture: string, page: number): Promise<Proof | undefined
 export default async function CheckAnswers({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
-  const queue = await deadline(checkQueue(scopeOf(me)));
+  const queue = await deadline(checkQueue(me));
   // ?id= opens one answer where it stands in the queue; ?from= keeps the place after an answer is settled.
   const at = q.id ? queue.findIndex((e) => e.id === q.id) : -1;
+  if (q.id && at < 0 && !(await deadline(sees(me, [{ result: q.id }])))) return <NotYours what="This answer's class" paper />;
   const from = at >= 0 ? at : Math.min(Math.max(0, Number(q.from) || 0), Math.max(0, queue.length - 1));
   const entry = queue[from];
   const a = entry ? await deadline(checkItem(entry.id, me.email)) : undefined;

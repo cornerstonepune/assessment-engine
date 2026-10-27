@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { deciding, mustBeMine } from "@/lib/decides";
-import { childSection, resultSection } from "@/lib/scope";
+import { deciding, mustBeMine, mustSee } from "@/lib/decides";
+import { seesSheet } from "@/lib/reach";
+import { childSection } from "@/lib/scope";
 import { sql } from "@/lib/db";
 import { engineSend, markWhatTrustSettles } from "@/lib/engine";
 import { makePaper, readDraw } from "@/lib/next-paper";
@@ -16,10 +17,12 @@ export async function confirmChild(formData: FormData): Promise<void> {
   const me = await deciding("answers");
   const id = String(formData.get("child_id") ?? "");
   if (!UUID.test(id)) redirect("/growth");
-  mustBeMine(me, "answers", [await childSection(id)]);
-  const [{ n }] = await sql<
-    { n: number }[]
-  >`select confirm_results(${id}::uuid, ${me.email}) as n`;
+  await mustBeMine(me, "answers", [await childSection(id)]);
+  // only the papers this person sees: a subject or an upload not theirs is left for whoever it belongs to
+  const [{ n }] = await sql<{ n: number }[]>`
+    select coalesce(sum(confirm_results(${id}::uuid, ${me.email}, c.id)), 0)::int as n
+    from capture c join sheet_instance si on si.id = c.sheet_instance_id
+    where si.child_id = ${id}::uuid and c.superseded_by is null and ${seesSheet(me, sql`si.id`)}`;
   const marked = await markWhatTrustSettles(); // a sign-off may be what earns a kind the reader's trust
   revalidatePath(`/growth/${id}`);
   revalidatePath("/capture/check");
@@ -33,7 +36,7 @@ export async function resolveOne(formData: FormData): Promise<void> {
   const child = String(formData.get("child_id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!UUID.test(id) || !UUID.test(child)) redirect("/growth");
-  mustBeMine(me, "answers", [await resultSection(id), await childSection(child)]);
+  await mustSee(me, "answers", [{ result: id }, { child }]);
   if (!["correct", "wrong", "blank"].includes(status))
     redirect(`/growth/${child}?error=resolve`);
   await sql`select resolve_result(${id}::uuid, ${status}, '{}'::text[], ${me.email})`;
@@ -53,7 +56,7 @@ export async function approveNextPaper(formData: FormData): Promise<void> {
   const draw = readDraw(String(formData.get("draw") ?? ""));
   const seen = String(formData.get("seen") ?? "");
   if (!UUID.test(id) || !/^\d{4}-W\d{2}$/.test(week) || !seen) redirect("/growth");
-  mustBeMine(me, "home_papers", [await childSection(id)]);
+  await mustBeMine(me, "home_papers", [await childSection(id)]);
   const { qr, changed } = await makePaper(id, week, me.email, { draw, seen }, undefined, replaces);
   revalidatePath(`/growth/${id}`);
   // the questions shown are no longer what would print: nothing printed, and the page shows them as they are now
@@ -69,7 +72,7 @@ export async function writeParentReport(formData: FormData): Promise<void> {
   const me = await deciding("reports");
   const id = String(formData.get("child_id") ?? "");
   if (!UUID.test(id)) redirect("/growth");
-  mustBeMine(me, "reports", [await childSection(id)]);
+  await mustBeMine(me, "reports", [await childSection(id)]);
   const r = await engineSend(`/child/${id}/parent-report`, {
     by: me.email,
   }).catch(() => null);
@@ -89,7 +92,7 @@ export async function approveParentReport(formData: FormData): Promise<void> {
   const id = String(formData.get("child_id") ?? "");
   const note = String(formData.get("note_id") ?? "");
   if (!UUID.test(id) || !UUID.test(note)) redirect("/growth");
-  mustBeMine(me, "reports", [await childSection(id)]);
+  await mustBeMine(me, "reports", [await childSection(id)]);
   const r = await engineSend(`/child/${id}/parent-report/${note}/approve`, {
     by: me.email,
   }).catch(() => null);
@@ -106,7 +109,7 @@ export async function editParentReport(formData: FormData): Promise<void> {
   const id = String(formData.get("child_id") ?? "");
   const note = String(formData.get("note_id") ?? "");
   if (!UUID.test(id) || !UUID.test(note)) redirect("/growth");
-  mustBeMine(me, "reports", [await childSection(id)]);
+  await mustBeMine(me, "reports", [await childSection(id)]);
   const name = String(formData.get("name") ?? "").trim();
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const named = name ? new RegExp(`\\b${escaped}\\b`, "g") : null;

@@ -4,6 +4,7 @@ import { requireStaff } from "@/lib/auth";
 import { decidersOf, KIND_WORDS, type Kind } from "@/lib/decides";
 import { ROLE_WORDS } from "@/lib/queries-people";
 import { deadline } from "@/lib/deadline";
+import { PAPER_NOT_YOURS } from "@/components/not-yours";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
@@ -21,7 +22,9 @@ export default async function Refused({ searchParams }: Props) {
       <PageHeader stage="Not changed" title="Nothing was changed" sub="A decision on the site is taken by the people the school names for it." />
       <Body>
         <p role="status" className="max-w-[62ch]">
-          {q.class
+          {q.paper
+            ? PAPER_NOT_YOURS
+            : q.class
             ? `${what}: that is not one of your classes. The coordinator links you to the classes you teach.`
             : `${what} is a decision for ${who.join(" or ")}.`}
         </p>

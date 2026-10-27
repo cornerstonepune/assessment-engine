@@ -1,5 +1,6 @@
 import { currentStaff } from "@/lib/auth";
-import { isMine, notYoursResponse, paperSection, reachOf } from "@/lib/scope";
+import { notYoursResponse } from "@/lib/scope";
+import { sees } from "@/lib/reach";
 import { engineImage } from "@/lib/engine";
 
 const QR = /^CS[0-9A-F]{6}$/;
@@ -16,6 +17,6 @@ export async function GET(_: Request, { params }: { params: Promise<{ qr: string
   if (!QR.test(qr) || !Number.isInteger(n) || n < 1 || n > 99) {
     return new Response("no such page", { status: 400 });
   }
-  if (!isMine(reachOf(me), await paperSection({ qr }))) return notYoursResponse();
+  if (!(await sees(me, [{ qr }]))) return notYoursResponse();
   return engineImage(`/sheet/${qr}/page/${n}.jpg`);
 }

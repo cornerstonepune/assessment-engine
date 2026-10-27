@@ -3,7 +3,8 @@ import Link from "@/components/link";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
-import { childSection, isMine, reachOf } from "@/lib/scope";
+import { childSection, isMine } from "@/lib/scope";
+import { reachOf } from "@/lib/reach";
 import { deadline } from "@/lib/deadline";
 import { engineSend } from "@/lib/engine";
 import { customHref, readArea, readDraw, seeHref, type Area } from "@/lib/next-paper";
@@ -32,7 +33,7 @@ export default async function CustomPaper({ searchParams }: Props) {
   const id = all(q.child)[0] ?? "";
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const section = await deadline(childSection(id));
-  if (!isMine(reachOf(me), section)) return <NotYours what="This child's class" />;
+  if (!isMine(await reachOf(me), section)) return <NotYours what="This child's class" />;
   // every skill, each saying whether the child's class was taught it: the educator's choice decides (ADR 0081)
   const [child, sets, g, { usual }] = await deadline(
     Promise.all([oneChild(id, me.email), skillSets({ untaught: true, section: section ?? "" }), grades(), levels()]),

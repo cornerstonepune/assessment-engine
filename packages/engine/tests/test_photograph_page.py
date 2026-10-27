@@ -138,7 +138,9 @@ def test_an_uploaded_file_is_read_again_as_a_run_of_its_own_with_again_set(clien
     monkeypatch.setattr(
         inbox,
         "start",
-        lambda tenant, path, actor, pages=None: order.append(("start", tenant, actor, pages)) or "new",
+        lambda tenant, path, actor, pages=None, of_run=None: (
+            order.append(("start", tenant, actor, pages, of_run)) or "new"
+        ),
     )
     monkeypatch.setattr(
         inbox, "read", lambda run_id, path, actor, again=False: order.append(("read", run_id, path, again))
@@ -146,7 +148,12 @@ def test_an_uploaded_file_is_read_again_as_a_run_of_its_own_with_again_set(clien
     r = c.post(f"/read/run/{RUN}/again", json={"by": "achal@school"})
     assert r.status_code == 200, r.text
     assert r.json() == {"run_id": "new", "pages": 4}
-    assert order == [("again", RUN), ("start", "tenant-1", "achal@school", 4), ("read", "new", scan, True)]
+    # the new run keeps the uploader of the run it reads again (goals/own_who_sees_answers.yaml)
+    assert order == [
+        ("again", RUN),
+        ("start", "tenant-1", "achal@school", 4, RUN),
+        ("read", "new", scan, True),
+    ]
 
 
 def test_a_file_still_being_read_or_no_longer_kept_is_not_read_again_and_says_why(client, monkeypatch):

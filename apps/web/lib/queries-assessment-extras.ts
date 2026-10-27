@@ -1,6 +1,7 @@
 // What the Assessments page adds to an assessment's own row (goals/asm_assessments_page.yaml): the name an educator chose
 // for it, the files read that its printed codes belong to, and the photographed pages of a child's paper. Names no child.
 import { sql, TENANT_SLUG } from "./db";
+import { seesRun, type Who } from "./reach";
 import { matchFiles } from "./assessment-steps";
 
 const CODE = /^CS[0-9A-F]{6}$/i;
@@ -17,10 +18,11 @@ export async function chosenNames(keys: string[]): Promise<Map<string, string>> 
 
 /** The last files read, each listed against the assessment its codes belong to (`rows`: key and the codes of its
  *  copies); a file whose codes belong to no paper the school printed is listed apart, to be said as not matched. */
-export async function fileLinks(rows: readonly { key: string; qrs: string[] }[], n = 40) {
+export async function fileLinks(rows: readonly { key: string; qrs: string[] }[], me: Who, n = 40) {
+  // only the files the person sees (`staff_sees`): theirs, or holding a paper they see
   const runs = await sql<{ trigger: string | null; copies: { code?: string }[] }[]>`
-    select trigger, coalesce(result -> 'copies', '[]'::jsonb) as copies from flow_run
-    where flow = 'read-scan' and status <> 'running' order by started_at desc limit ${n}`;
+    select trigger, coalesce(result -> 'copies', '[]'::jsonb) as copies from flow_run r
+    where flow = 'read-scan' and status <> 'running' and ${seesRun(me, sql`r`)} order by started_at desc limit ${n}`;
   // a run that read nothing at all (it stopped before any copy) is no file to match
   const scans = runs.filter((r) => r.copies.length).map((r) => ({
     file: (r.trigger ?? "").split(": ").slice(1).join(": ") || "a scan",

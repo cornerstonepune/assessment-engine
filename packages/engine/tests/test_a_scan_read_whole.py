@@ -126,6 +126,8 @@ def test_what_a_files_reading_came_to_is_kept_on_its_run_with_no_name(tmp_path, 
     monkeypatch.setattr(copies, "read", lambda *a, **k: lines)
 
     assert inbox.read(RUN, tmp_path / "2026-10-16.pdf", "achal@school") == lines
-    [(sql, params)] = kept
+    # each paper read is its uploader's (goals/own_who_sees_answers.yaml), then the run says what the reading came to
+    [(stamp, read), (sql, params)] = kept
+    assert "uploaded_by" in stamp and read == (RUN, ["k1"])
     assert "status = 'ok'" in sql and "result" in sql
     assert json.loads(params[0]) == {"copies": lines}

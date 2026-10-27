@@ -143,16 +143,21 @@ def _one_paper(photos: list[tuple[str, bytes]]) -> Path:
     return _kept(f"{Path(photos[0][0]).stem}.pdf", doc.tobytes())
 
 
-def start(tenant, path: Path, actor: str, pages: int | None = None) -> str:
+def start(tenant, path: Path, actor: str, pages: int | None = None, of_run: str | None = None) -> str:
     """The run a person or a flow can look at (`/runs/{id}`): what the engine is doing with this file. Written and
     committed on its own connection, before the reading starts: FastAPI runs a background task BEFORE the
     request's own transaction commits (2026-09-25, the first live run: `/runs/{id}` said "no run" for minutes,
     and the reading could not mark a row it could not see). The file's pages are on it from the start, so Marking can
-    say how many were found while the reading goes on. Refused while the file is being read (`_one_at_a_time`)."""
+    say how many were found while the reading goes on. Refused while the file is being read (`_one_at_a_time`).
+
+    Who put the file in is kept on the run by their staff id (`staff_id`), never guessed: a file read again (`of_run`)
+    keeps the uploader of the run it reads again, none if that had none (goals/own_who_sees_answers.yaml)."""
     with db.connect() as conn:
         _one_at_a_time(conn, path.name)
         run = conn.execute(
-            "insert into flow_run (tenant_id, flow, trigger, result) select %s, %s, %s, %s::jsonb"
+            "insert into flow_run (tenant_id, flow, trigger, result, uploaded_by)"
+            " select %s, %s, %s, %s::jsonb,"
+            " case when %s::uuid is null then staff_id(%s) else (select uploaded_by from flow_run where id = %s::uuid) end"
             f" where not exists (select 1 from flow_run where flow = %s and status = 'running' and {_FILE} = %s)"
             " returning id",
             (
@@ -160,6 +165,9 @@ def start(tenant, path: Path, actor: str, pages: int | None = None) -> str:
                 FLOW,
                 f"{actor}: {path.name}",
                 json.dumps({"pages": pages, "file": path.name}),
+                of_run,
+                actor,
+                of_run,
                 FLOW,
                 path.name,
             ),
@@ -201,6 +209,12 @@ def read(run_id: str, path: Path, actor: str, again: bool = False) -> list[dict]
                 again=again,
                 given=given(conn, path.name),
                 progress=_progress(run_id),
+            )
+            # every paper read from the file is its uploader's too (`staff_sees`); a reading kept from before stays as it was
+            conn.execute(
+                "update capture set uploaded_by = r.uploaded_by from flow_run r"
+                " where r.id = %s and capture.id = any(%s::uuid[]) and capture.uploaded_by is null",
+                (run_id, [str(c["capture_id"]) for c in out if c.get("capture_id")]),
             )
             conn.execute(
                 "update flow_run set status = 'ok', result = coalesce(result, '{}') || %s::jsonb, finished_at = now(),"

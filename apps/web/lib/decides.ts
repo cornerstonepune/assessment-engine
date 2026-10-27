@@ -2,11 +2,11 @@ import { redirect } from "next/navigation";
 import { requireStaff, type Session } from "./auth";
 import { sql } from "./db";
 import { mayUse } from "./access";
-import { isMine, reachOf } from "./scope";
+import { sees, type Thing } from "./reach";
 
 // Who decides what (goals/f1c-who-decides-what.yaml, ADR 0073 decision 3): every decision taken on the site is checked on
 // the server before it writes. The roles are the school's row, `people.decides`; the coordinator may take any decision;
-// and what a decision touches must be in one of the signer's classes. Hiding a button is not the check — a form can be
+// and what a decision touches must be the signer's to see (`staff_sees`, lib/reach.ts). Hiding a button is not the check — a form can be
 // changed by hand.
 
 export type Kind =
@@ -57,8 +57,7 @@ export async function decidable(me: Pick<Session, "role">): Promise<(kind: Kind)
 /** Whether a person may take a kind of decision on these classes; a class of null (nothing found) is no one's. */
 export async function mayDecide(me: Session, kind: Kind, classes: (string | null)[] = []): Promise<boolean> {
   if (!(await decidable(me))(kind)) return false;
-  const scope = reachOf(me);
-  return classes.every((c) => isMine(scope, c));
+  return sees(me, classes.map((section) => ({ section })));
 }
 
 /** For a server action, first: the signed-in person, when their role may take this kind of decision; otherwise the page
@@ -69,8 +68,13 @@ export async function deciding(kind: Kind): Promise<Session> {
   return me;
 }
 
-/** For a server action, once it knows what it touches: every class must be one of the signer's, or nothing is written. */
-export function mustBeMine(me: Session, kind: Kind, classes: (string | null)[]): void {
-  const scope = reachOf(me);
-  if (classes.some((c) => !isMine(scope, c))) redirect(`/refused?kind=${kind}&class=1`);
+/** For a server action, once it knows what it touches: every class must be one the signer sees, or nothing is written. */
+export async function mustBeMine(me: Session, kind: Kind, classes: (string | null)[]): Promise<void> {
+  if (!(await sees(me, classes.map((section) => ({ section }))))) redirect(`/refused?kind=${kind}&class=1`);
+}
+
+/** For a server action on a child's paper or answers: every paper, scan and answer it names must be one the signer sees
+ *  (goals/own_who_sees_answers.yaml), or nothing is written and they read that the paper belongs to another class. */
+export async function mustSee(me: Session, kind: Kind, things: Thing[]): Promise<void> {
+  if (!(await sees(me, things))) redirect(`/refused?kind=${kind}&paper=1`);
 }

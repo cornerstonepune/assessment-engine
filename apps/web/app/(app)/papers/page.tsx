@@ -89,21 +89,21 @@ export default async function PapersPage({ searchParams }: Props) {
   const listFilter = byTopic ? { ...sqlFilter, topic: undefined } : sqlFilter;
   const [groups, { options }, queue, scans, g, { subjects }] = await deadline(
     Promise.all([
-      byTopic ? Promise.resolve({ rows: [], more: false, total: 0 }) : assessmentList(listFilter, scope),
-      paperFilters(scope),
-      checkQueue(scope),
-      lastScans(scope),
+      byTopic ? Promise.resolve({ rows: [], more: false, total: 0 }) : assessmentList(listFilter, me),
+      paperFilters(me),
+      checkQueue(me),
+      lastScans(me),
       grades(),
       choices(),
     ]),
   );
-  const topicList = byTopic ? await deadline(topicGroups(listFilter, scope)) : [];
+  const topicList = byTopic ? await deadline(topicGroups(listFilter, me)) : [];
   const open = topicList.find((x) => x.code === openTopic)?.code;
   const topicPage = PAGE(q.page);
   // only the open topic's rows are read, one page of them, with the stage chosen in the database
   const opened_ = open
     ? await deadline(
-        assessmentList({ ...listFilter, topic: open }, scope, {
+        assessmentList({ ...listFilter, topic: open }, me, {
           limit: 10,
           offset: (topicPage - 1) * 10,
           sigs: status ? sigsFor(status as never) : undefined,
@@ -117,7 +117,7 @@ export default async function PapersPage({ searchParams }: Props) {
     key: assessmentKey(a),
     qrs: a.qrs ?? [],
   }));
-  const [chosen, files] = await deadline(Promise.all([chosenNames(keys.map((k) => k.key)), fileLinks(keys)]));
+  const [chosen, files] = await deadline(Promise.all([chosenNames(keys.map((k) => k.key)), fileLinks(keys, me)]));
 
   const topicNames = new Map((await deadline(topicNamesOf())).map((t) => [t.code, t.name]));
   const named: Named[] = namedRows(groups.rows, {
@@ -141,7 +141,7 @@ export default async function PapersPage({ searchParams }: Props) {
   // a child chosen shows their copy under every assessment; otherwise only the one opened has its children read
   const read = await deadline(
     f.child
-      ? paperList(listFilter, me.email, scope, "roll")
+      ? paperList(listFilter, me.email, me, "roll")
       : opened
         ? paperList(
             {
@@ -152,7 +152,7 @@ export default async function PapersPage({ searchParams }: Props) {
               set: set || undefined,
             },
             me.email,
-            scope,
+            me,
             "roll",
           )
         : Promise.resolve(null),

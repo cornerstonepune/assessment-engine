@@ -8,7 +8,8 @@ import { Notice, Panel } from "@/components/shell";
 import { StatusChip, type State } from "@/components/status-chip";
 import { NotYours } from "@/components/not-yours";
 import { requireStaff } from "@/lib/auth";
-import { isMine, paperSection, reachOf } from "@/lib/scope";
+import { deadline } from "@/lib/deadline";
+import { sees } from "@/lib/reach";
 import { EngineDown, engineGet } from "@/lib/engine";
 import { staffList } from "@/lib/queries";
 import { ApproveButton, Printed, RemoveButton, SeeIt, type Q, type Review } from "./parts";
@@ -45,7 +46,7 @@ export default async function ReviewPage({ params, searchParams }: Props) {
   const me = await requireStaff();
   const { qr } = await params;
   if (!/^CS[0-9A-F]{6}$/.test(qr)) notFound();
-  if (!isMine(reachOf(me), await paperSection({ qr }))) return <NotYours what="This paper's class" />;
+  if (!(await deadline(sees(me, [{ qr }])))) return <NotYours what="This paper's class" paper />;
   const sp = await searchParams;
   const [topic, skill, level, kind, pick] = ["topic", "skill", "level", "kind", "q"].map((k) => one(sp[k]));
   const r = await read<Review>(`/paper/${qr}/review`);

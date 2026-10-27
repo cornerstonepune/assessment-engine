@@ -5,8 +5,8 @@ import { questionKinds } from "@/lib/question-types";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { deadline } from "@/lib/deadline";
 import { requireStaff } from "@/lib/auth";
+import { workScope } from "@/lib/reach";
 import { childrenOnRoll, grades, type ChildRow } from "@/lib/queries";
-import { scopeOf } from "@/lib/scope";
 import { worksheetCases } from "@/lib/queries-taxonomy";
 import { libraryWorksheet, worksheetItems } from "@/lib/queries-worksheets";
 import { kindsInWords } from "../library";
@@ -22,7 +22,7 @@ export const sheetWords = (code: string) => `sheet ${Number(code.split("-").pop(
 export async function LibraryWorksheetPage({ code }: { code: string }) {
   const me = await requireStaff();
   const [w, questions, cases, kids, g, { words }] = await deadline(
-    Promise.all([libraryWorksheet(code), worksheetItems(code), worksheetCases(code), childrenOnRoll(me.email, scopeOf(me)), grades(), questionKinds()]),
+    Promise.all([libraryWorksheet(code), worksheetItems(code), worksheetCases(code), childrenOnRoll(me.email, await workScope(me)), grades(), questionKinds()]),
   );
   if (!w) notFound();
   const kinds = questions.reduce<Record<string, number>>((a, q) => ({ ...a, [q.fmt]: (a[q.fmt] ?? 0) + 1 }), {});

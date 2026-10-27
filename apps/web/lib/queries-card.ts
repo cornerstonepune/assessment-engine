@@ -1,5 +1,5 @@
 import { sql } from "./db";
-import { EVERY_CLASS } from "./scope";
+import type { Who } from "./reach";
 import { paperList, type PaperFilter, type PaperListRow } from "./queries-papers";
 
 // One assessment as one card (goals/s2-the-assessment-card.yaml), from the scope Nimish locked on 2026-10-22: "Every
@@ -54,9 +54,9 @@ export function standing(card: Card) {
 }
 
 /** The assessment's copies in roll order, its spares apart, with the educator's word and what the scans said. */
-export async function assessmentCard(key: CardKey, actor: string): Promise<Card> {
+export async function assessmentCard(key: CardKey, actor: string, me: Who): Promise<Card> {
   const f: PaperFilter = { class: key.class, week: key.week, kind: key.kind, set: key.set };
-  const { rows } = await paperList(f, actor, EVERY_CLASS, "roll");
+  const { rows } = await paperList(f, actor, me, "roll");
   const qrs = rows.map((r) => r.qr);
   const [printed, given, away, scans, [reading]] = await Promise.all([
     sql<{ qr: string; printed: boolean; on: string | null }[]>`

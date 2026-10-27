@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { deciding, mustBeMine } from "@/lib/decides";
-import { childSection, paperSection, resultSection } from "@/lib/scope";
+import { deciding, mustSee } from "@/lib/decides";
+import { sees } from "@/lib/reach";
 import { sql } from "@/lib/db";
 import { EngineDown, enginePost, engineSend, markWhatTrustSettles, uploadTicket } from "@/lib/engine";
 
@@ -56,7 +56,8 @@ export async function givePage(formData: FormData): Promise<void> {
   const child = String(formData.get("child") ?? "");
   const n = Number(formData.get("page"));
   if (!UUID.test(run) || !UUID.test(child) || !Number.isInteger(n) || n < 1) redirect(`${page}#read-scan`);
-  mustBeMine(me, "papers", [await childSection(child)]);
+  // a page of a file the person put in, or given to a child they see
+  if (!(await sees(me, [{ run }])) && !(await sees(me, [{ child }]))) redirect("/refused?kind=papers&paper=1");
   try {
     const res = await engineSend(`/read/run/${run}/page`, { page: n, child_id: child, by: me.email });
     if (!res.ok) {
@@ -80,6 +81,7 @@ export async function readAgain(formData: FormData): Promise<void> {
   const page = formData.get("from") === "/papers" ? "/papers" : "/capture";
   const run = String(formData.get("run") ?? "");
   if (!UUID.test(run)) redirect(`${page}#read-scan`);
+  await mustSee(me, "papers", [{ run }]);
   try {
     const res = await engineSend(`/read/run/${run}/again`, { by: me.email });
     if (!res.ok) {
@@ -116,7 +118,7 @@ export async function correctRead(formData: FormData): Promise<void> {
   const paper = String(formData.get("paper_id") ?? "");
   const wrote = String(formData.get("human_read") ?? "").trim().slice(0, 40);
   if (!UUID.test(id) || !UUID.test(paper)) redirect("/capture");
-  mustBeMine(me, "answers", [await resultSection(id), await paperSection({ id: paper })]);
+  await mustSee(me, "answers", [{ result: id }, { sheet: paper }]);
   try {
     await enginePost("/capture/correct", { result_id: id, human_read: wrote, by: me.email });
   } catch (e) {
@@ -139,7 +141,7 @@ export async function changeKey(formData: FormData): Promise<void> {
   const slot = String(formData.get("slot") ?? "").slice(0, 12);
   const answer = String(formData.get("answer") ?? "").trim().slice(0, 40);
   if (!UUID.test(id) || !UUID.test(paper)) redirect("/capture");
-  mustBeMine(me, "questions", [await resultSection(id), await paperSection({ id: paper })]);
+  await mustSee(me, "questions", [{ result: id }, { sheet: paper }]);
   let to: string;
   try {
     const res = await engineSend("/paper/key", { result_id: id, answer, by: me.email });
@@ -172,7 +174,10 @@ export async function confirmPaper(formData: FormData): Promise<void> {
   const paper = String(formData.get("paper_id") ?? "");
   const child = String(formData.get("child_id") ?? "");
   if (!UUID.test(paper) || !UUID.test(child)) redirect("/capture");
-  mustBeMine(me, "papers", [await paperSection({ id: paper }), await childSection(child)]);
+  await mustSee(me, "papers", [{ sheet: paper }]);
+  // the child signed for is the paper's own: a form naming another child signs nothing
+  const [own] = await sql<{ ok: boolean }[]>`select child_id = ${child}::uuid as ok from sheet_instance where id = ${paper}::uuid`;
+  if (!own?.ok) redirect("/refused?kind=papers&paper=1");
   // One statement, one confirm per file of this sitting: a Grade 3 paper arrives as one
   // photograph per page, and signing off the paper means signing off all of it.
   const [{ n }] = await sql<{ n: number }[]>`
@@ -194,7 +199,7 @@ export async function judgeRead(formData: FormData): Promise<void> {
   const paper = String(formData.get("paper_id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!UUID.test(id) || !UUID.test(paper)) redirect("/capture");
-  mustBeMine(me, "answers", [await resultSection(id), await paperSection({ id: paper })]);
+  await mustSee(me, "answers", [{ result: id }, { sheet: paper }]);
   if (!["correct", "wrong", "blank"].includes(status)) redirect(`/capture/${paper}?error=judge`);
   await sql`select resolve_result(${id}::uuid, ${status}, '{}'::text[], ${me.email})`;
   revalidatePath(`/capture/${paper}`);
@@ -212,7 +217,7 @@ export async function judgeOne(formData: FormData): Promise<void> {
   const status = String(formData.get("status") ?? "");
   const next = back(formData) ?? "/capture/check";
   if (!UUID.test(id) || !["correct", "wrong", "blank"].includes(status)) redirect(next);
-  mustBeMine(me, "answers", [await resultSection(id)]);
+  await mustSee(me, "answers", [{ result: id }]);
   // One statement, so the judgement and the record of who made it land together or not at all.
   await sql`
     with judged as (
@@ -236,7 +241,7 @@ export async function nameMistake(formData: FormData): Promise<void> {
   const paper = String(formData.get("paper_id") ?? "");
   const code = String(formData.get("code") ?? "").slice(0, 80);
   if (!UUID.test(id) || !UUID.test(paper) || !code) redirect("/capture");
-  mustBeMine(me, "answers", [await resultSection(id), await paperSection({ id: paper })]);
+  await mustSee(me, "answers", [{ result: id }, { sheet: paper }]);
   // Jev's shortlist as the person saw it, [[code, chance], …], as the engine takes it; anything else is not kept
   let proposed: unknown[][] = [];
   try {
@@ -267,7 +272,7 @@ export async function choosePage(formData: FormData): Promise<void> {
   const choice = String(formData.get("choice") ?? "");
   const next = back(formData) ?? "/capture/check";
   if (!UUID.test(id) || !UUID.test(capture) || !Number.isInteger(page) || !["theirs", "not_theirs"].includes(choice)) redirect(next);
-  mustBeMine(me, "answers", [await resultSection(id)]);
+  await mustSee(me, "answers", [{ result: id }]);
   try {
     await enginePost("/paper/page-choice", { capture_id: capture, file_page: page, choice, by: me.email });
   } catch (e) {

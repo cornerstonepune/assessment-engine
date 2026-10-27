@@ -1,7 +1,7 @@
 import Link from "@/components/link";
 import { PageShell } from "@/components/page-shell";
 import { requireStaff } from "@/lib/auth";
-import { scopeOf } from "@/lib/scope";
+import { workScope } from "@/lib/reach";
 import { papersToApprove, readerReport } from "@/lib/queries-read";
 import { lastScans } from "@/lib/queries-scans";
 import { deadline } from "@/lib/deadline";
@@ -31,8 +31,8 @@ const N = ({ id, n }: { id: string; n: number }) => <strong data-testid={id}>{n}
 export default async function MarkingPage({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
-  const scope = scopeOf(me);
-  const [papers, reader, scans] = await deadline(Promise.all([papersToApprove(me.email, scope), readerReport(), lastScans(scope)]));
+  const scope = await workScope(me);
+  const [papers, reader, scans] = await deadline(Promise.all([papersToApprove(me.email, me), readerReport(), lastScans(me)]));
   if (q.child) return <ChildPapers papers={papers} id={q.child} />;
   if (q.worksheet) return <WorksheetPapers papers={papers} worksheet={q.worksheet} />;
 

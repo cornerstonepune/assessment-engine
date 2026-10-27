@@ -95,7 +95,7 @@ async function decoy(): Promise<string> {
 // the login page during an outage, which read as a broken password. Once per request, however many
 // pages, layouts and data reads ask.
 export const currentStaff = cache(async (): Promise<Session | null> => {
-  if (devBypass()) return { email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], subjects: [], devBypass: true };
+  if (devBypass()) return { id: undefined, email: "dev@local", name: "Dev bypass", role: "coordinator", classes: [], subjects: [], devBypass: true };
   const raw = (await cookies()).get(SESSION_COOKIE)?.value;
   const email = sessionEmail(raw);
   if (!email) return null;
@@ -106,7 +106,7 @@ export const currentStaff = cache(async (): Promise<Session | null> => {
   // (goals/auth-email-password.yaml: "every other open session of that person is ended").
   const set = staff.password_set_at ? Date.parse(staff.password_set_at) : NaN;
   if (!Number.isNaN(set) && set > (sessionIssued(raw) ?? 0)) return null;
-  return { email: staff.email, name: staff.name, role: staff.role, classes: staff.classes ?? [], subjects: staff.subjects ?? [], devBypass: false };
+  return { id: staff.id, email: staff.email, name: staff.name, role: staff.role, classes: staff.classes ?? [], subjects: staff.subjects ?? [], devBypass: false };
 });
 
 // For every page, route and server action: the signed-in staff member, or a redirect to /login. Each calls it

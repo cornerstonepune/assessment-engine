@@ -159,8 +159,10 @@ test("What needs doing lists everything that waits as rows, and each row's butto
   await expect(page.getByText("This page could not load")).toHaveCount(0);
 });
 
-test("an educator not mapped to a class sees every row a coordinator sees, and the engineering map", async ({ page }) => {
-  // one role for now (goals/ux9c-one-role.yaml): what waits on the coordinator waits on an educator too
+test("an educator not mapped to a class sees the rows of no class a coordinator sees, and the engineering map", async ({ page }) => {
+  // one role for now (goals/ux9c-one-role.yaml): every decision is an educator's too; but since 27 Oct 2026 a class's work
+  // is its own educators' and the coordinator's (goals/own_who_sees_answers.yaml), so one linked to no class sees the
+  // school's work only: skills and the engine's questions
   await page.goto("/today");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
   const coordinator = await rows(page);
@@ -171,7 +173,8 @@ test("an educator not mapped to a class sees every row a coordinator sees, and t
   await signInAs(page, EDUCATOR.email);
   await page.goto("/today");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("What needs doing");
-  expect(await rows(page)).toEqual(coordinator);
+  const school = ["skill", "ask"];
+  expect(await rows(page)).toEqual(coordinator.filter((r) => school.includes(r.kind)));
   await expect(page.getByText(/For others|For you|No one on the staff list/)).toHaveCount(0);
   await page.getByRole("button", { name: "Menu" }).click();
   await expect(page.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "How it works" })).toBeVisible();

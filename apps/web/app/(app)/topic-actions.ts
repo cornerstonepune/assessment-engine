@@ -22,7 +22,7 @@ export async function switchTopic(formData: FormData): Promise<void> {
   const section = String(formData.get("class") ?? "");
   const on = formData.get("taught") === "on";
   if (!CODE.test(code) || !section || (skill && !SKILL.test(skill))) redirect("/");
-  mustBeMine(me, "topics", [section]);
+  await mustBeMine(me, "topics", [section]);
   await sql`
     select say_taught(t.tenant_id, ${section}, t.code, ${skill}, ${on}, ${me.name}) as n from topic t where t.code = ${code}`;
   // every page reads what is taught: Curriculum, What needs doing, the Question bank, the papers
