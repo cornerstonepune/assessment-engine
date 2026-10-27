@@ -1,0 +1,34 @@
+name: genfix_rubric_in_reply
+goal: >
+  Asked for questions like an English sample, the system makes them, or says in words why it did not. A reply from the
+  writer that is not in the form its prompt asks for adds nothing and the educator is told "The writer's reply was not
+  in the form we need; nothing was added", never the adapter's own error. A question read by a person carries the
+  sample's rubric, put there by code; the writer is neither sent it nor asked for it. The prompt's fix is a new version
+  row (v2), seeded inactive beside v1, and the engine eval workflow can score it: each purpose is passed only the options
+  it uses, and any version the seed holds can be asked for.
+# Written 2026-10-27, before the code, after run 40469097359 (engine eval english_generate v1) failed on `rubric_code`.
+# W1, steps N1 and N2. No migration: a prompt version is a seed row.
+says:
+  - words: "The ability for the system to generate a certain number of questions of that pattern."
+    proved_by: "packages/engine/tests/test_generate.py::test_a_reply_not_in_the_prompts_form_adds_nothing_and_the_educator_is_told_so_in_words"
+  - words: "The ability for the system to generate a certain number of questions of that pattern."
+    proved_by: "packages/engine/tests/test_generate.py::test_the_writer_is_never_asked_for_a_rubric_and_a_question_read_by_a_person_keeps_its_samples"
+  - words: "The ability for the system to generate a certain number of questions of that pattern."
+    proved_by: "packages/engine/tests/test_generate.py::test_the_eval_counts_a_reply_not_in_its_form_as_thrown_away_and_still_gives_a_score"
+  - words: "The ability for the system to generate a certain number of questions of that pattern."
+    proved_by: "packages/engine/tests/test_generate.py::test_the_second_version_names_only_the_fields_its_schema_takes_and_waits_for_its_score"
+  - words: "The ability for the system to generate a certain number of questions of that pattern."
+    proved_by: "packages/engine/tests/test_eval_command.py::test_every_version_the_seed_holds_can_be_scored_and_none_is_typed_in_the_workflow"
+manual:
+  - "After the merge and deploy: GitHub, Actions, engine eval, Run workflow on main, purpose english_generate, version 2, review_version and jev_version empty. Record its score in DECISIONS-LOG.md; only if it meets eval.english_generate.kept (0.8) is v2 made active."
+scenarios: []
+criteria:
+  - name: making from a sample, its eval, the workflow's command, the bars, the map
+    run: cd packages/engine && .venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_generate.py tests/test_eval_command.py tests/test_english_edit.py tests/test_english_check.py tests/test_bars.py tests/test_jev.py tests/test_cli.py tests/test_layout.py
+    expect: "passed"
+  - name: the seed loads twice and nothing moves (the new prompt row)
+    run: bin/engine load --check
+    expect: "unchanged on a second run"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

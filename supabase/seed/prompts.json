@@ -2812,6 +2812,103 @@
           }
         }
       }
+    },
+    {
+      "purpose": "english_generate",
+      "version": 2,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/english_generate.v2.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "questions"
+        ],
+        "properties": {
+          "questions": {
+            "type": "array",
+            "maxItems": 40,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "ask",
+                "text",
+                "options",
+                "answer",
+                "accept",
+                "key_points",
+                "not_words",
+                "wrong"
+              ],
+              "properties": {
+                "ask": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "text": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "options": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {}
+                },
+                "answer": {},
+                "accept": {
+                  "type": "array",
+                  "items": {}
+                },
+                "key_points": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "not_words": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "wrong": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "answer",
+                      "mistake_code"
+                    ],
+                    "properties": {
+                      "answer": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "mistake_code": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

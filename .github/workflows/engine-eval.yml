@@ -1,6 +1,7 @@
 # Score a prompt on the server, where the model's key is (CLAUDE.md rule 7: a new prompt version is scored before it
-# is made active). Run by hand; it reads the live rows and writes only the flow_run rows of what it spent. The inputs
-# are a fixed list, so this runs `engine eval`, or the second reader's measure, and nothing else.
+# is made active). Run by hand; it reads the live rows and writes only the flow_run rows of what it spent. The purpose
+# is a fixed list and every version is checked against the seed (.github/eval/command.py), so this runs `engine eval`,
+# or the second reader's measure, and nothing else.
 name: engine eval
 
 on:
@@ -13,17 +14,18 @@ on:
         # the branch this is run on, piped into the engine (.github/measure/second_opinion.py); the versions are ignored
         options: [parent_report, parent_review, mistake_guess, story_shape, week_skills, read_with_examples, english_generate]
       version:
-        description: "its version, active or not (Jev's decisions score their active version)"
-        type: choice
-        options: ["12", "11", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1"]
+        # free text: any version the seed holds, checked by .github/eval/command.py (a typed list went stale)
+        description: "its version, active or not; empty: the active one (Jev's decisions score their active version)"
+        type: string
+        default: ""
       review_version:
-        description: "parent_report only: the parent_review version that reads each draft"
-        type: choice
-        options: ["5", "4", "3", "2", "1"]
+        description: "parent_report only: the parent_review version that reads each draft; empty for every other"
+        type: string
+        default: ""
       jev_version:
-        description: "parent_review only: the version of Jev's three questions that read each sentence first (0: none)"
-        type: choice
-        options: ["1", "0"]
+        description: "parent_review only: the version of Jev's three questions that read each sentence first (0: none); empty for every other"
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -58,4 +60,6 @@ jobs:
               $S -o ServerAliveInterval=30 'sudo docker exec -i deploy-engine-1 python -'
             exit
           fi
-          $S "sudo docker exec deploy-engine-1 engine eval $PURPOSE --version $VERSION --review-version $REVIEW --jev-version $JEV"
+          # each purpose gets only the options it uses, each checked against the seed (run 40469097359, 27 Oct)
+          RUN=$(python3 .github/eval/command.py)
+          $S -o ServerAliveInterval=30 "sudo docker exec deploy-engine-1 $RUN"

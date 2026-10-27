@@ -44,6 +44,10 @@ class LLMError(RuntimeError):
     pass
 
 
+class LLMSchemaError(LLMError):
+    """The model answered, but not in the form its row's json_schema asks for."""
+
+
 def active_prompt(conn, purpose, subject=None, version=None):
     """The prompt row that answers `purpose`: a row scoped to `subject` wins over the shared row
     (subject is null), so a second subject carries its own master prompt (ADR 0009). `version` names
@@ -97,7 +101,7 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
         try:
             jsonschema.validate(out, row["json_schema"])
         except jsonschema.ValidationError as e:
-            raise LLMError(f"{purpose} output failed its schema: {e.message}") from e
+            raise LLMSchemaError(f"{purpose} output failed its schema: {e.message}") from e
     except LLMError as e:
         conn.execute(
             "update flow_run set finished_at = clock_timestamp(), status = %s, error = %s where id = %s",
