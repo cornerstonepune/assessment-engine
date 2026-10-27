@@ -11,13 +11,13 @@ goal: >
 # class arm, and asked the owner to confirm. W3 (the educator's site over W2/W3's data); no gate moved.
 says:
   - words: "The skill and the curriculum is something at a subject level that is open to all teachers."
-    proved_by: "apps/web/tests/u67-who-sees-answers.spec.ts::curriculum, skills and the question bank stay open to an educator of another class"
+    proved_by: "apps/web/tests/u68-who-sees-answers.spec.ts::curriculum, skills and the question bank stay open to an educator of another class"
   - words: "In Maths, if Achal and Neha Sharma are mapped to a certain grade, they should still be able to see curriculum and skills across; but their assessments, answers to be checked etc. should be restricted to their grade."
-    proved_by: "apps/web/tests/u67-who-sees-answers.spec.ts::an educator of another class sees none of the paper, and its link and its sign-off are refused in words"
+    proved_by: "apps/web/tests/u68-who-sees-answers.spec.ts::an educator of another class sees none of the paper, and its link and its sign-off are refused in words"
   - words: "Right now 147 answers to check comes to everyone."
-    proved_by: "apps/web/tests/u67-who-sees-answers.spec.ts::for each person the counts in the menu, What needs doing and Assessments agree with the lists behind them"
+    proved_by: "apps/web/tests/u68-who-sees-answers.spec.ts::for each person the counts in the menu, What needs doing and Assessments agree with the lists behind them"
   - words: "But Achal should only see the papers he has uploaded."
-    proved_by: "apps/web/tests/u67-who-sees-answers.spec.ts::the educator who uploaded a paper of another class sees it, and the coordinator sees both"
+    proved_by: "apps/web/tests/u68-who-sees-answers.spec.ts::the educator who uploaded a paper of another class sees it, and the coordinator sees both"
 manual:
   - "A migration: the rehearsal (rehearse-update-live.yml) must run on the branch before merge; update-live applies it."
   - "Uploads before this migration have no uploader; for them only the class rule applies (never a guessed uploader)."
@@ -27,7 +27,7 @@ criteria:
     run: cd packages/engine && uv run pytest -q tests/test_who_sees.py tests/test_migration_order.py tests/test_roles.py
     expect: "passed"
   - name: two educators and a coordinator in the browser
-    run: cd apps/web && npx playwright test tests/u67-who-sees-answers.spec.ts
+    run: cd apps/web && npx playwright test tests/u68-who-sees-answers.spec.ts
     expect: "passed"
   - name: the website's types and lint
     run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
