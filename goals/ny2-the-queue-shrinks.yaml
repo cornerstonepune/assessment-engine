@@ -25,7 +25,7 @@ says:
   - words: "the number of data points that we then need to validate becomes lower"
     proved_by: packages/engine/tests/api/test_capture_routes.py::test_a_check_or_a_sign_off_marks_again_what_trust_now_settles
   - words: "We had aligned on this, right?"
-    proved_by: "apps/web/tests/u14-the-queue-shrinks.spec.ts::Today shows, week by week, how many answers needed a person"
+    proved_by: "apps/web/tests/u14-the-queue-shrinks.spec.ts::the queue's trend, week by week, says how many answers needed a person"
   - words: "I'm not even able to see that"
     proved_by: "apps/web/tests/u14-the-queue-shrinks.spec.ts::each kind of question says how many more checks before the reader is trusted on it"
 manual:

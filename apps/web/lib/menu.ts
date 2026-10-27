@@ -1,6 +1,6 @@
-// The site's menu: five groups, and the pages inside each (goals/nav_teacher_scope_and_todo.yaml). Nimish, 24 Oct 2026:
-// "They were menus and submenus within the pages. Now this feels like there are like 10 things on the menu." So five
-// things sit on the top bar; a group's other pages are tabs under it (or in the menu panel), never more items on the bar.
+// The site's menu: four groups, and the pages inside each (goals/nav_teacher_scope_and_todo.yaml). Nimish, 24 Oct 2026:
+// "They were menus and submenus within the pages. Now this feels like there are like 10 things on the menu." So four
+// things sit on the top bar (Teaching went on 26 Oct: goals/nav3_what_needs_doing.yaml); a group's other pages are tabs under it (or in the menu panel), never more items on the bar.
 // Pure, so a test can read it. Nothing here names a subject (docs/ux-rules.md rule 11).
 
 export type MenuPage = { href: string; label: string; match: readonly string[] };
@@ -8,7 +8,6 @@ export type MenuGroup = { key: string; label: string; href: string; pages: reado
 
 export const GROUPS: readonly MenuGroup[] = [
   { key: "doing", label: "What needs doing", href: "/today", pages: [{ href: "/today", label: "What needs doing", match: ["/today"] }] },
-  { key: "teaching", label: "Teaching", href: "/taught", pages: [{ href: "/taught", label: "Teaching", match: ["/taught"] }] },
   {
     key: "assessments",
     label: "Assessments",

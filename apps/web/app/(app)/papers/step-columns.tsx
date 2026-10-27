@@ -22,7 +22,7 @@ function stepChip(c: Cell | undefined) {
 
 /** The columns of the steps, in the order the school does them. A step the row does not have (a class assessment's
  *  approval) is an empty cell, and a column empty on every row is not drawn. */
-const WIDTHS: Record<Step, string> = { approve: "7.2%", made: "6.4%", printed: "7.2%", uploaded: "7.6%", read: "6.4%", checked: "7.2%", signedOff: "6.8%" };
+const WIDTHS: Record<Step, string> = { approve: "5.6%", made: "5.4%", printed: "5.6%", uploaded: "5.8%", read: "5%", checked: "5.6%", signedOff: "5.8%" };
 
 export function stepColumns<T>(cells: (row: T) => Cell[]): Column<T>[] {
   return STEPS.map((step: Step) => ({

@@ -106,7 +106,7 @@ test("an assessment is named from its sheet, never from its file; the file is a 
   const r = row(page);
   await expect(r).toHaveCount(1);
   const name = r.locator("a[aria-expanded]");
-  await expect(name).toHaveText(new RegExp(`^${skillName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?: · (?:Easy|Medium|Hard|Advance))? · Grade 2 · class assessment · \\d{2}-[A-Z][a-z]{2}-\\d{4}$`));
+  await expect(name).toHaveText(new RegExp(`^[^·]+ · ${skillName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?: · (?:Easy|Medium|Hard|Advance))? · Class assessment · Grade 2 · ${SECTION} · \\d{2}-[A-Z][a-z]{2}-\\d{4}$`));
   await expect(name).not.toContainText(/\.pdf|IMG_/);
   await expect(r.locator("[data-files]")).toHaveText(/file: IMG_ASM\.pdf/);
 });
@@ -123,7 +123,7 @@ test("a file that belongs to no assessment says so, in red, with its file name s
 test("the steps are in the order the school does them, each an icon, a word and a colour", async ({ page }) => {
   await gotoClass(page);
   const heads = await page.locator(".data-table thead th").allInnerTexts();
-  const steps = ["To approve", "Made", "Printed / given", "Uploaded", "Read", "Checked", "Signed off"];
+  const steps = ["Created", "Approved", "Printed", "Uploaded", "Read", "Checked", "Results in"];
   const at = steps.map((s) => heads.findIndex((h) => h.trim().toLowerCase() === s.toLowerCase()));
   expect(at.every((i) => i >= 0), `all steps in ${heads}`).toBe(true);
   expect([...at].sort((a, b) => a - b), "in order").toEqual(at);
@@ -135,7 +135,7 @@ test("the steps are in the order the school does them, each an icon, a word and 
     expect(["ok", "wait", "act", "quiet"]).toContain(await chips.nth(i).getAttribute("data-tone"));
   }
   // made, and two of the three printed: the second step is partway, the next one still to do
-  await expect(r.locator("td").nth(heads.findIndex((h) => /^made$/i.test(h.trim()))).locator("[data-status]")).toHaveAttribute("data-status", "done");
+  await expect(r.locator("td").nth(heads.findIndex((h) => /^created$/i.test(h.trim()))).locator("[data-status]")).toHaveAttribute("data-status", "done");
 });
 
 test("the row's one action opens the next item", async ({ page }) => {
@@ -177,7 +177,7 @@ test("a row opens to its children: roll, child, level, the same steps, the score
   await expect(kids).toHaveCount(3);
   const heads = (await page.locator("[data-copies] thead th").allInnerTexts()).map((h) => h.trim().toLowerCase());
   expect(heads.slice(0, 3)).toEqual(["roll", "child", "level"]);
-  for (const s of ["made", "printed / given", "uploaded", "read", "checked", "signed off"]) expect(heads).toContain(s);
+  for (const s of ["created", "printed", "uploaded", "read", "checked", "results in"]) expect(heads).toContain(s);
   const bina = kids.filter({ hasText: "Bina" });
   await expect(bina.locator("[data-status]").first()).toBeVisible();
   // the child's own pages for this assessment, and from them the whole-page view
@@ -221,8 +221,8 @@ test("a home assessment starts at To approve with one Approve for its row, never
   await expect(home).toHaveCount(1);
   await expect(home.locator("[data-action=approve]")).toHaveText("Approve");
   const heads = (await page.locator(".data-table thead th").allInnerTexts()).map((h) => h.trim().toLowerCase());
-  expect(heads.indexOf("to approve")).toBeGreaterThanOrEqual(0);
-  expect(heads.indexOf("to approve")).toBeLessThan(heads.indexOf("made"));
+  expect(heads.indexOf("approved")).toBeGreaterThan(heads.indexOf("created"));
+  expect(heads.indexOf("approved")).toBeLessThan(heads.indexOf("printed"));
   await expect(page.getByText(/approve all/i)).toHaveCount(0);
   await expect(page.getByRole("button", { name: /approve all/i })).toHaveCount(0);
   // a class assessment has no approval step and no Approve

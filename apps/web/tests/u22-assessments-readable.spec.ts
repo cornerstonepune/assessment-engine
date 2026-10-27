@@ -75,7 +75,7 @@ test("Assessments opens on one row for each assessment, its copies counted by st
   await expect(ours(page).first()).toBeVisible();
   const heads = (await page.getByRole("table", { name: "Assessments" }).locator("thead th").allTextContents()).map((h) => h.trim());
   // the columns in this order: what it is, then the steps the school does in order, then what to do next
-  const order = ["Assessment", "Kind", "Class", "Made on", "Made", "Printed / given", "Uploaded", "Read", "Checked", "Signed off", "Next"];
+  const order = ["Assessment", "Kind", "Class", "Made on", "Created", "Printed", "Uploaded", "Read", "Checked", "Results in", "Next"];
   expect(order.map((h) => heads.indexOf(h)).every((i, k, all) => i >= 0 && (k === 0 || i > all[k - 1])), `columns in order: ${heads}`).toBe(true);
   // three copies of one class assessment are one row, the tally practice another
   await expect(ours(page)).toHaveCount(2);

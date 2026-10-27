@@ -1,0 +1,36 @@
+name: nav3_what_needs_doing
+goal: >
+  The top bar has no class or view filter, and a person still sees only their own sections; What needs doing opens as a short
+  list of groups, one line each (the kind of task, a count, red/amber/green, the one next action), each folded until opened
+  into its own table, in the order the work really happens, each group's heading and each row opening the page that does that
+  work; the "queue shrinking" trend is off it; Teaching is out of the menu and its old address still opens What needs doing.
+# Written 2026-10-26 from Nimish's words on the live site on 26 Oct, after the 24 Oct wave (nav_teacher_scope_and_todo). Desktop
+# first (1440 px). Website only: no migration, no engine change. W3, no gate moved.
+says:
+  - words: "There is still this confusing filter part at the top, viewed in every class. The filter that we have in the main menu at the top just needs to go because that does not remain sacrosanct across pages, and it's very confusing."
+    proved_by: "apps/web/tests/u65-what-needs-doing-walk.spec.ts::the top bar has no Viewing, Class or Subject control, for a coordinator or an educator, and an educator still sees only her own class"
+  - words: "When I go to What Needs Doing, everything opens up like a huge table. Can we have proper expand/collapse, and different types of things that you need to do... It can be a very simple thing: skills to be checked or topics to be marked. The actual actionables that they need to do are there, and then it expands as a table. Everything is very well sequenced with clarity."
+    proved_by: "apps/web/tests/u65-what-needs-doing-walk.spec.ts::What needs doing is a short list of folded groups in the order the work happens, each opening into its own table with no approve-all"
+  - words: "What Needs Doing essentially connects to each of the other sub-tabs."
+    proved_by: "apps/web/tests/u65-what-needs-doing-walk.spec.ts::every group heading and every row opens a page that exists and shows that item"
+  - words: "Is the queue shrinking? I'm not too sure if we need that right now here. It should come in some other part."
+    proved_by: "apps/web/tests/u65-what-needs-doing-walk.spec.ts::the queue-shrinking trend is off What needs doing, its data and function kept, and parked in the notes"
+  - words: "Honestly, I don't understand the purpose of this teaching page... there's this laundry list with some topic flow, and finally, when I click it, it goes to the assessments page only. I really don't think this is useful."
+    proved_by: "apps/web/tests/u65-what-needs-doing-walk.spec.ts::Teaching is not in the menu and its old address opens What needs doing"
+manual:
+  - "Website only: Vercel deploys it on merge. No migration and no update-live."
+  - "The topic's flow strip (skills ready, baseline, home papers, practice) and a topic's class-result colour had no page that owns them: they are not shown anywhere now; `teaching()` and `topicFlow()` are kept, tested, and named in docs/notes/nav3-what-needs-doing.md."
+scenarios: []
+criteria:
+  - name: the groups, their order, their links and the menu, no database
+    run: cd apps/web && npx playwright test tests/u64-what-needs-doing-groups.spec.ts tests/u62-scope-and-todo-logic.spec.ts
+    expect: "passed"
+  - name: the screens walked at 1440 px, as an educator and as an admin
+    run: cd apps/web && npx playwright test tests/u65-what-needs-doing-walk.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -5,11 +5,10 @@
  */
 import { expect, test } from "@playwright/test";
 
-const GROUPS = ["What needs doing", "Teaching", "Assessments", "Results", "Setup"];
+const GROUPS = ["What needs doing", "Assessments", "Results", "Setup"];
 // every page of the week, with the group it is in and the words of its own title (or its tab)
 const PAGES = [
   ["/today", "What needs doing", "What needs doing"],
-  ["/taught", "Teaching", "Teaching"],
   // bare, its address opens Assessments filtered to what waits for approval
   ["/papers/approve", "Assessments", "Assessments"],
   ["/papers", "Assessments", "Assessments"],
@@ -20,7 +19,7 @@ const PAGES = [
   ["/library", "Setup", "Question bank"],
 ] as const;
 
-test("the menu lists the five groups in order, and each page is marked and titled by its own words", async ({ page }) => {
+test("the menu lists the four groups in order, and each page is marked and titled by its own words", async ({ page }) => {
   await page.goto("/today");
   const menu = page.getByRole("navigation", { name: "Sections" });
   const names = (await menu.getByRole("link").allInnerTexts()).map((n) => n.replace(/\s*\d[\d,]*$/, "").trim());
@@ -51,6 +50,6 @@ test("no step of the week is a dead end: each page of the menu ends on a next st
     const next = await page.locator("[data-ux=next]").count();
     expect(next + (await page.getByRole("main").getByRole("link").count()), `${path}: a way on`).toBeGreaterThan(0);
   }
-  await page.goto("/taught");
+  await page.goto("/today");
   await expect(page.locator("[data-ux=next]")).toHaveAttribute("href", "/papers");
 });

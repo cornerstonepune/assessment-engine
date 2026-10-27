@@ -87,7 +87,7 @@ test("an educator's pages open on their own class, every class one tap away and 
 });
 
 test("the coordinator sees every class", async ({ page }) => {
-  await page.goto("/today?kind=classpaper");
+  await page.goto(`/today?kind=classpaper&class=${OTHER}`);
   await expect(page.getByRole("main")).toContainText(OTHER);
   await page.goto(`/growth?class=${MINE}`);
   await expect(page.getByRole("main")).toContainText("Aarav");

@@ -83,9 +83,9 @@ async function asEducator(browser: import("@playwright/test").Browser) {
   return { context, page: await context.newPage() };
 }
 
-const GROUP_NAMES = ["What needs doing", "Teaching", "Assessments", "Results", "Setup"];
+const GROUP_NAMES = ["What needs doing", "Assessments", "Results", "Setup"];
 
-/** The top navigation: the mark, the five groups on one bar, a menu button, and no sidebar. */
+/** The top navigation: the mark, the four groups on one bar, a menu button, and no sidebar. */
 async function theTopBar(page: Page) {
   await expect(page.locator("header img[data-brand-mark]"), "the new logo mark").toBeVisible();
   expect(await page.locator("aside").count(), "no left sidebar").toBe(0);
@@ -109,12 +109,13 @@ test("an educator with one class and one subject: top menu, only hers, no Class 
   for (const name of ["Papers to approve", "Check answers", "Class results", "Skills to approve", "Staff"]) await expect(panel.getByRole("link", { name }), name).toBeVisible();
   await expect(panel.getByRole("button", { name: "Sign out" })).toBeVisible();
   await page.keyboard.press("Escape");
-  // What needs doing: a table, red/amber/green rows, one action on each row that opens that item
+  // What needs doing: groups, each folded into a table of red/amber/green rows, one action on each row that opens that item
+  await page.locator("details[data-group]").evaluateAll((els) => els.forEach((e) => ((e as HTMLDetailsElement).open = true)));
   const rows = page.locator(".data-table tbody tr[data-kind]");
   expect(await rows.count(), "rows of tasks").toBeGreaterThan(0);
   for (const row of await rows.all()) {
     await expect(row.locator("[data-status]"), "a priority chip with its icon").toHaveCount(1);
-    await expect(row.locator("a[data-action]"), "one action").toHaveCount(1);
+    await expect(row.locator("[data-action]"), "one action").toHaveCount(1);
   }
   expect(await page.locator("tr[data-state=doNow]").count(), "a red row first").toBeGreaterThan(0);
   expect(await page.locator("tr[data-state=doNow]").first().evaluate((el) => el.closest("table")!.querySelector("tbody tr")?.getAttribute("data-state"))).toBe("doNow");
@@ -123,7 +124,7 @@ test("an educator with one class and one subject: top menu, only hers, no Class 
   // only her class: no row names another class's paper
   const where = await page.locator("td[data-label=Where]").allInnerTexts();
   expect(where.filter((w) => /·\s*\d[A-Z]\b/.test(w) && !w.includes(SECTION)), "rows of another class").toEqual([]);
-  const first = rows.first().locator("a[data-action]");
+  const first = page.locator("tr[data-kind]:not([data-kind=taught]) a[data-action]").first();
   const href = (await first.getAttribute("href"))!;
   await first.click();
   await expect(page).toHaveURL(new RegExp(href.split("?")[0].replace(/[/]/g, "\\/")));
@@ -131,33 +132,10 @@ test("an educator with one class and one subject: top menu, only hers, no Class 
   await context.close();
 });
 
-test("an educator's Teaching: her subject, topics as a table with the topic flow, no skill approval", async ({ browser }) => {
-  const { context, page } = await asEducator(browser);
-  await open(page, "/taught", /Teaching/);
-  await expect(page.getByRole("navigation", { name: "Subjects" }), "one subject, so no subject tabs").toHaveCount(0);
-  await tablesRead(page, "/taught");
-  expect(await page.locator("button, a").filter({ hasText: /approve/i }).count(), "no skill-approval control on Teaching").toBe(0);
-  // her class's flow on the topic her papers are of: skills ready, a baseline given, home assessments
-  const flow = page.locator(`[data-flow="${SECTION}"]`).first();
-  await expect(flow).toBeVisible();
-  await expect(flow).toContainText("Baseline");
-  await expect(flow).toContainText("Home assessments");
-  await expect(flow.locator("[data-step]")).toHaveCount(4);
-  // one action per row, in the row: say it is taught
-  const row = page.locator("tr[data-topic]").filter({ has: page.locator(`[data-flow="${SECTION}"]`) }).first();
-  await expect(row.getByRole("button", { name: /Mark as taught|Not taught after all/ })).toHaveCount(1);
-  await context.close();
-});
-
-test("an admin: the same top menu and a Viewing control, both subjects on Teaching", async ({ page }) => {
+test("an admin: the same top menu, and no Viewing control", async ({ page }) => {
   await open(page, "/today", /What needs doing/);
   await theTopBar(page);
-  await expect(page.locator("[data-viewing] summary")).toContainText("Viewing:");
-  await page.locator("[data-viewing] summary").click();
-  await expect(page.locator("#bar-subject")).toBeVisible();
-  await expect(page.locator("#bar-class")).toBeVisible();
-  await open(page, "/taught", /Teaching/);
-  expect((await page.getByRole("navigation", { name: "Subjects" }).getByRole("link").allInnerTexts()).sort()).toEqual(["English", "Maths"]);
+  await expect(page.locator("[data-viewing], #bar-subject, #bar-class")).toHaveCount(0);
   // a group's other pages are tabs, not more items on the bar
   await page.goto("/papers");
   await expect(page.getByRole("navigation", { name: "Pages in this section" }).getByRole("link")).toHaveText(["Assessments", "Papers to approve", "Upload papers", "Check answers"]);
@@ -180,11 +158,11 @@ async function tablesRead(page: Page, path: string) {
     const table = tables.nth(t);
     if (!(await table.isVisible())) continue; // behind a fold the educator has not opened
     const name = `${path} “${await table.getAttribute("aria-label")}”`;
-    const heads = table.locator("thead th");
-    const body = table.locator("tbody tr:not(.under)");
+    const heads = table.locator(":scope > thead > tr > th");
+    const body = table.locator(":scope > tbody > tr:not(.under)");
     const rows = await body.count();
     if (rows === 0) continue;
-    const first = body.first().locator("td");
+    const first = body.first().locator(":scope > td");
     expect(await first.count(), `${name} table ${t}: a cell under each heading`).toBe(await heads.count());
     // a heading is never split inside a word: one wider than its column would overflow it
     const cramped = await heads.evaluateAll((hs) => hs.filter((h) => h.scrollWidth > h.clientWidth + 1).map((h) => h.textContent));
@@ -201,15 +179,6 @@ async function tablesRead(page: Page, path: string) {
       expect(await row.locator("a[href], button, input, select").count(), `${name} table ${t} row ${r}: opens something`).toBeGreaterThan(0);
     }
   }
-}
-
-/** The Viewing control (a coordinator's): open it, choose the subject. */
-async function viewSubject(page: Page, label: string) {
-  await page.waitForLoadState("networkidle");
-  await page.locator("[data-viewing]").evaluate((el) => ((el as HTMLDetailsElement).open = true));
-  await expect(page.locator("#bar-subject")).toBeVisible();
-  await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), page.locator("#bar-subject").selectOption({ label })]);
-  await page.waitForLoadState("networkidle");
 }
 
 /** A status is an icon and a word. */
@@ -309,17 +278,15 @@ test("Curriculum, Maths then English, and Staff and School", async ({ page }) =>
   const cells = await page.locator(`.data-table tbody tr:not(.under) td:nth-child(${column + 1})`).allInnerTexts();
   expect(cells.length).toBeGreaterThan(0);
   for (const cell of cells) expect(cell.trim()).toBe("English");
-  await viewSubject(page, "English");
   await expect(page.getByRole("heading", { level: 1 }).first()).toHaveText(/Curriculum/);
   await expect(page.getByText("This page could not load")).toHaveCount(0);
   await tablesRead(page, "/ (English)");
-  await viewSubject(page, "Maths");
   await wholePage(page, "/staff", /Staff/, { filter: false });
   await wholePage(page, "/school", /School/, { filter: false });
 });
 
 test("the flow is one chain: each page's next step opens the following page", async ({ page }) => {
-  const chain = ["/today", "/taught", "/papers/approve", "/papers", "/capture", "/capture/check", "/growth"];
+  const chain = ["/today", "/papers/approve", "/papers", "/capture", "/capture/check", "/growth"];
   for (const path of chain) {
     await page.goto(path);
     await expect(page.getByText("This page could not load"), path).toHaveCount(0);

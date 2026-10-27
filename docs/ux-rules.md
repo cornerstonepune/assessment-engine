@@ -30,13 +30,13 @@ exception is KG observation (S9), which is done on a phone.
 10. **A status is an icon, a word and a colour.** Never colour alone. One chip (`StatusChip`), one map of the school's
    states to green (done, right), amber (waiting on someone or something) and red (needs the educator now), and a quiet
    grey for a state with nothing to do. Red is rare. A state is added to `STATES` before a page uses it.
-11. **The top bar is for using.** One slim bar across the whole screen, no sidebar: the Cornerstone mark, the five groups, the
-   search, and a three-line menu button. The button and the Viewing control are at least 40 px tall, and the Subject and
-   Class inside Viewing have 15 px text. The student search is a compact field of about 240 px with a search icon, growing
-   when focused. Nothing in a shared block or the menu names a subject: every subject inherits them.
-12. **A person sees their own.** A person mapped to one class and one subject sees those, and is offered no Class or Subject
-   box. A coordinator (every class) or a person on two subjects gets one "Viewing" control. Each page carries its own filters
-   (`FilterBar`) for what only it needs, starting at that scope. A view, never a permission (`lib/viewing.ts`, `lib/access.ts`).
+11. **The top bar is for using.** One slim bar across the whole screen, no sidebar: the Cornerstone mark, the four groups, the
+   search, and a three-line menu button. The button is at least 40 px tall. The student search is a compact field of about
+   240 px with a search icon, growing when focused. Nothing in a shared block or the menu names a subject. No Class, Subject or
+   "Viewing" control sits in the bar (Nimish, 26 Oct 2026): a filter that does not stay the same across pages is confusing.
+12. **A person sees their own.** What a person sees is what their staff row names: its classes and subjects, every class when
+   none is named. Each page carries its own filters (`FilterBar`) for what only it needs, starting at that scope. A view,
+   never a permission (`lib/viewing.ts`, `lib/access.ts`).
 13. **No approve-all.** An approval is a row's own action on its own item. No page offers one button over every row
    (`apps/web/tests/u62-scope-and-todo-logic.spec.ts`; the pages that still do are `ux.approveAll` in `workflows.json`).
 
@@ -45,7 +45,7 @@ exception is KG observation (S9), which is done on a phone.
 | Day | Step | Page (menu item = page title) |
 |---|---|---|
 | Wednesday | see what waits | Today |
-| Wednesday | say what was taught | Taught this week |
+| Wednesday | say what was taught | What needs doing (a topic is marked taught in its own row) |
 | Thursday, Friday | approve | Papers to approve |
 | Friday | print, give, follow | Assessments |
 | Monday | papers come back | Upload papers |
@@ -53,12 +53,11 @@ exception is KG observation (S9), which is done on a phone.
 | Monday | read the class | Class results (and a child) |
 | Setup, apart | | Curriculum; Question bank |
 
-The menu is five groups on the top bar (`apps/web/lib/menu.ts`), and the table above is how the week runs through them:
+The menu is four groups on the top bar (`apps/web/lib/menu.ts`), and the table above is how the week runs through them:
 
 | Group | Its pages (tabs under the bar, and in the menu button's panel) |
 |---|---|
-| What needs doing | one page: a table of what waits, red, amber and green, grouped by subject and topic. It keeps the address `/today`. Carries the one count |
-| Teaching | one page: a tab for each of the person's subjects, a table of topics, each with its flow. It keeps the address `/taught` |
+| What needs doing | one page: a short list of kinds of work (skills, topics to mark taught, papers, answers, reports ...), one line each with its count, red/amber/green and next action, in the order the week runs; each folded into its own table. It keeps the address `/today`. Carries the one count |
 | Assessments | Assessments, Papers to approve, Upload papers, Check answers |
 | Results | Class results, Parent reports, Across classes |
 | Setup | Curriculum, Skills to approve, Question bank, Staff, School |

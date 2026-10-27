@@ -46,23 +46,16 @@ test("curriculum lists the six topics, and a class is taught a topic from its ro
   expect((await said("MUL.2D1D"))[0].t, "column multiplication waits for an educator's word").toBe(false);
   try {
     // equal groups, Grade 1's, is taught by the school: so Multiplication is taught in the class, with one skill of it.
-    // A skill is said taught for one class from its own row on Curriculum (tests/u40), the topic from its row on Teaching
-    await page.goto("/taught?subject=NUM");
-    const row = page.locator("tr[data-topic=MUL]");
-    await row.getByText(/\d+ skills/).click();
-    await expect(row.locator('[data-skill="MUL.2D1D"]')).toBeVisible();
-    // the topic's own switch says it of every skill in it, and unsays it of every skill
-    const fold = row.locator("details", { hasText: "Not taught after all" });
-    if (await fold.count()) await fold.locator("summary").click();
-    if (await row.getByLabel("Class to unmark").count()) await row.getByLabel("Class to unmark").selectOption(CLASS);
-    await row.getByRole("button", { name: "Not taught after all" }).last().click();
-    await expect(page.getByRole("main")).toContainText(`Multiplication is not taught in ${CLASS} now`);
+    // A skill is said taught for one class from its own row on Curriculum (tests/u40), the topic from its row on What needs doing.
+    // The class is made not taught first, as a person's word once was (the page has no button to undo it).
+    await sql`select say_taught(t.tenant_id, ${CLASS}, 'MUL', null, false, 'U31 test') from topic t where t.code = 'MUL'`;
     const left = await sql<{ n: number }[]>`
       select count(*)::int as n from skill s
       where s.topic_code = 'MUL' and skill_taught_in(s.tenant_id, s.code, ${CLASS})`;
     expect(left[0].n, "not one multiplication skill is taught in the class now").toBe(0);
-    const again = page.locator("tr[data-topic=MUL]");
-    if (await again.getByLabel("Class to mark taught").count()) await again.getByLabel("Class to mark taught").selectOption(CLASS);
+    await page.goto(`/today?kind=taught&subject=NUM&class=${CLASS}`);
+    const again = page.locator('tr[data-kind=taught][data-shows="Multiplication"]');
+    if (await again.getByLabel("Class taught Multiplication").count()) await again.getByLabel("Class taught Multiplication").selectOption(CLASS);
     await again.getByRole("button", { name: "Mark as taught" }).click();
     await expect(page.getByRole("main")).toContainText(`Multiplication is taught in ${CLASS} now`);
     expect((await said("MUL.2D1D"))[0].t, "every skill of the topic, the columns too").toBe(true);

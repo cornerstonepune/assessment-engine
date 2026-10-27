@@ -134,7 +134,7 @@ test("an assessment opens in place to its copies in roll order, its spares on on
   await expect(copies).toBeVisible();
   const heads = (await copies.locator("thead th").allTextContents()).map((h) => h.trim());
   expect(heads.slice(0, 3)).toEqual(["Roll", "Child", "Level"]);
-  for (const h of ["Made", "Printed / given", "Uploaded", "Read", "Checked", "Signed off"]) expect(heads).toContain(h);
+  for (const h of ["Created", "Printed", "Uploaded", "Read", "Checked", "Results in"]) expect(heads).toContain(h);
   const rows = copies.locator("tbody tr");
   await expect(rows).toHaveCount(3);
   expect(await rows.evaluateAll((trs) => trs.map((t) => t.querySelectorAll("td")[1].textContent?.trim()))).toEqual(["Asha", "Bina", "Chetan"]);
