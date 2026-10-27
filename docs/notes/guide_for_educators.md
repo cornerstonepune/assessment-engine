@@ -25,7 +25,7 @@ table, migration or engine code; it reads rows that already exist.
   "75%", and puts it back.
 
 Commands: `cd packages/engine && uv run pytest -q tests/test_guide.py` (23 passed);
-`cd apps/web && npx playwright test tests/u67-guide.spec.ts` (8 passed, desktop and 390 px);
+`cd apps/web && npx playwright test tests/u67-guide.spec.ts` (8 passed, desktop and 360 px);
 `npx playwright test tests/u53-the-menu.spec.ts tests/u51-ux-rules.spec.ts` (12 passed); `bin/check` (32 passed);
 `bin/engine done guide_for_educators`: every promise PROVED and every criterion PASSED; verdict NOT DONE only because the live
 database did not answer from the build container (output in the PR).
@@ -44,4 +44,4 @@ database did not answer from the build container (output in the PR).
 - **Placeholders to fill**: "Report a problem or suggest something" (the feedback form had not merged); "Move a child"
   (PR #338 had not merged). Each says plainly that it is not on the site yet.
 - gstack's browser was not installed: the session's permission check refused the clone. The pages were looked at with the
-  pre-installed Playwright Chromium at 1440 px and 390 px instead.
+  pre-installed Playwright Chromium at 1440 px and 390 px instead; the phone test runs at 360 px, where CI's fonts first showed a long button label overflowing.

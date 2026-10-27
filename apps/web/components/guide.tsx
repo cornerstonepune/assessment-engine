@@ -16,7 +16,7 @@ export function Rich({ p, f }: { p: Para; f: Facts }) {
     <>
       {pieces(p, f).map((x, i) =>
         "button" in x ? (
-          <strong key={i} className="whitespace-nowrap border border-basalt/25 bg-chalk px-[5px] py-[1px] text-[0.92em] font-medium">
+          <strong key={i} className="border border-basalt/25 bg-chalk px-[5px] py-[1px] text-[0.92em] font-medium [box-decoration-break:clone] [overflow-wrap:anywhere]">
             {x.button}
           </strong>
         ) : "link" in x ? (

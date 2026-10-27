@@ -136,7 +136,7 @@ test("the help mark on a page's header opens that page's guide, and the menu has
 });
 
 test("every guide page reads at phone width with no sideways scroll", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize({ width: 360, height: 780 });
   for (const href of GUIDE) {
     await page.goto(href);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
