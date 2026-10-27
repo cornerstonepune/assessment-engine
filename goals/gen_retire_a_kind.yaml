@@ -1,0 +1,43 @@
+name: gen_retire_a_kind
+goal: >
+  An educator who may change a skill stops a kind of question it asks, at one level or across the whole skill, from its
+  own page. Before anything changes, the page says how many questions in the bank and how many past papers the kind
+  touches, and which papers are approved but not yet given. Once confirmed, no new paper draws a question of that kind
+  there; every past paper and every answer already given to one keeps working and keeps its meaning (rule 4: nothing is
+  deleted); an approved paper not yet given that holds one is withdrawn for approval again, and the educator is told
+  which; that level's approval, and no other, is withdrawn. Each stop and each restart is a new row that supersedes the
+  last, never an update, and the educator can switch the kind back on.
+# Written 2026-10-26, before the code. W1, step N1 (skill sets, approved by a person) and N2 (the bank). One additive
+# migration (a ledger, a view, `drawable_item` reading it), an engine module and its routes, the skill page.
+says:
+  - words: "When we have the capability to edit, the educator also, today, does not want certain types of questions. They should be able to delete those kinds of questions from the bank itself."
+    proved_by: "packages/engine/tests/test_retire_kind.py::test_a_stopped_kind_is_drawn_by_no_new_paper_and_past_papers_keep_their_questions"
+  - words: "When we have the capability to edit, the educator also, today, does not want certain types of questions. They should be able to delete those kinds of questions from the bank itself."
+    proved_by: "packages/engine/tests/test_retire_kind.py::test_stopping_says_what_it_touches_and_changes_nothing"
+  - words: "When we have the capability to edit, the educator also, today, does not want certain types of questions. They should be able to delete those kinds of questions from the bank itself."
+    proved_by: "packages/engine/tests/test_retire_kind.py::test_an_approved_paper_not_yet_given_is_withdrawn_and_named"
+  - words: "When we have the capability to edit, the educator also, today, does not want certain types of questions. They should be able to delete those kinds of questions from the bank itself."
+    proved_by: "packages/engine/tests/test_retire_kind.py::test_a_stop_is_a_new_row_and_a_restart_switches_it_back"
+  - words: "When we have the capability to edit, the educator also, today, does not want certain types of questions. They should be able to delete those kinds of questions from the bank itself."
+    proved_by: "packages/engine/tests/test_retire_kind.py::test_stopping_withdraws_that_levels_approval_and_no_other"
+  - words: "When we have the capability to edit, the educator also, today, does not want certain types of questions. They should be able to delete those kinds of questions from the bank itself."
+    proved_by: "packages/engine/tests/test_retire_kind.py::test_stopping_across_the_skill_stops_it_at_every_level"
+  - words: "When we have the capability to edit, the educator also, today, does not want certain types of questions. They should be able to delete those kinds of questions from the bank itself."
+    proved_by: "apps/web/tests/u64-stop-a-kind.spec.ts::an educator stops a kind at a level, is told what it touches first, and switches it back on"
+manual:
+  - "Before the migration meets live: run the rehearsal on a copy of live (GitHub, Actions, rehearse update-live, Run workflow on this branch); it must pass."
+  - "On live, after the merge and deploy: open a Maths skill, press \"Stop using this kind\" beside one kind at one level, read the counts, confirm; the level says the kind is stopped and waits for approval; press \"Use it again\"."
+scenarios: []
+criteria:
+  - name: stopping and restarting a kind, the edits beside it, the roles (row security on every table), the paper-makers that draw from the bank
+    run: cd packages/engine && .venv/bin/python -m pytest -q -p no:cacheprovider -o addopts= tests/test_retire_kind.py tests/test_english_edit.py tests/test_roles.py tests/test_rules.py tests/test_migration_order.py tests/test_contract.py tests/test_layout.py tests/test_question_types.py
+    expect: "passed"
+  - name: the skill page, its samples and kinds, the approve list
+    run: cd apps/web && npx playwright test tests/u64-stop-a-kind.spec.ts tests/u55-edit-samples-and-kinds.spec.ts tests/u54-skill-shows-its-samples.spec.ts tests/u23-approve-filtered.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the website type-checks
+    run: cd apps/web && npx tsc --noEmit && echo passed
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

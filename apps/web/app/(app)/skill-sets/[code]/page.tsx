@@ -23,6 +23,7 @@ import { mayDecide } from "@/lib/decides";
 import { LevelApproval } from "./level-approval";
 import { GradesPanel } from "./grades-panel";
 import { Watched, WaysPanel } from "./ways";
+import { KindStops } from "./kind-stops";
 import { Changed, editingOf, EnglishLevel, MadeByCode, SentenceLink } from "./editing";
 import { dateWords } from "@/lib/week";
 
@@ -112,10 +113,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
       <Body>
         <Changed q={q} />
         {q.saved ? (
-          <Notice tone="neem">
-            Saved. The new words wait for approval before they are the
-            skill&rsquo;s words.
-          </Notice>
+          <Notice tone="neem">Saved. The new words wait for approval before they are the skill&rsquo;s words.</Notice>
         ) : null}
         {q.approved === "0" ? (
           <Notice tone="terracotta">Nothing was approved: it changed since this page was opened. Read it again, then approve.</Notice>
@@ -265,7 +263,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
             </div>
           </Panel>
           )}
-
+          <KindStops code={s.code} ways={ways} levels={levelsOf(s)} q={q} mayChange={mayChange} />
           <Panel
             id="mistakes"
             title="Mistakes it watches for"
