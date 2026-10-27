@@ -49,17 +49,35 @@ export type Scan = {
   owners: { id: string; who: string; short: boolean }[];
   /** each page a person has given to a child, and to whom */
   given: { page: number; who: string }[];
+  /** the file's other readings, newest first: a file read again is one line, its attempts inside it (Nimish,
+   *  2026-10-26: five "reading stopped" lines for one file) */
+  attempts: { when: string; status: Scan["status"]; error: string | null }[];
 };
 
 const pagesSaid = (ps: number[]) => (ps.length === 1 ? `page ${ps[0]}` : `pages ${ps.join(", ")}`);
 
-/** The `n` files read last — those with a copy of the person's classes, or with none of any class's — newest first. */
+type Run = { id: string; file: string | null; when: string; status: Scan["status"]; error: string | null; copies: Copy[]; pages: number | null; given: { page: number; child_id: string }[] };
+
+/** A file's runs, newest first, as one: the reading that stands — the one going on, else the newest that finished,
+ *  else the newest — and the others as its attempts. */
+function byFile(runs: Run[]): { run: Run; others: Run[] }[] {
+  const files = new Map<string, Run[]>();
+  for (const r of runs) files.set(r.file ?? r.id, [...(files.get(r.file ?? r.id) ?? []), r]);
+  return [...files.values()].map((all) => {
+    const run = all.find((r) => r.status === "running") ?? all.find((r) => r.status === "ok") ?? all[0];
+    return { run, others: all.filter((r) => r !== run) };
+  });
+}
+
+/** The `n` files read last — those with a copy of the person's classes, or with none of any class's — newest first,
+ *  each file once however many times it was read (`byFile`). */
 export async function lastScans(scope: Scope = EVERY_CLASS, n = 5): Promise<Scan[]> {
-  const runs = await sql<{ id: string; trigger: string | null; when: string; status: Scan["status"]; error: string | null; copies: Copy[]; pages: number | null; given: { page: number; child_id: string }[] }[]>`
-    select id, trigger, to_char(started_at at time zone 'Asia/Kolkata', 'DD-Mon-YYYY HH24:MI') as when, status, error,
+  const runs = await sql<Run[]>`
+    select id, coalesce(result ->> 'file', substr(trigger, strpos(trigger, ': ') + 2)) as file,
+           to_char(started_at at time zone 'Asia/Kolkata', 'DD-Mon-YYYY HH24:MI') as when, status, error,
            coalesce(result -> 'copies', '[]'::jsonb) as copies, (result ->> 'pages')::int as pages,
            coalesce(result -> 'given', '[]'::jsonb) as given
-    from flow_run where flow = 'read-scan' order by started_at desc limit ${scope.classes ? 4 * n : n}`;
+    from flow_run where flow = 'read-scan' order by started_at desc limit ${(scope.classes ? 4 : 1) * 5 * n}`;
   const ids = [...new Set(runs.flatMap((r) => [...r.copies.flatMap((c) => (c.child_id ? [c.child_id] : [])), ...r.given.map((g) => g.child_id)]))];
   const kids = new Map(
     (ids.length ? await sql<{ id: string; section: string; roll_no: string }[]>`
@@ -75,10 +93,10 @@ export async function lastScans(scope: Scope = EVERY_CLASS, n = 5): Promise<Scan
       from answer_standing a join item_result r on r.id = a.item_result_id
       where r.capture_id = any(${captures}::uuid[]) group by r.capture_id` : [])
     standing.set(s.capture_id, s);
-  return runs
-    .filter((r) => !scope.classes || r.copies.every((c) => !classOf(c)) || r.copies.some((c) => isMine(scope, classOf(c))))
+  return byFile(runs)
+    .filter(({ run: r }) => !scope.classes || r.copies.every((c) => !classOf(c)) || r.copies.some((c) => isMine(scope, classOf(c))))
     .slice(0, n)
-    .map((r) => {
+    .map(({ run: r, others }) => {
       const read = r.copies.filter((c) => !c.skipped);
       const seen = r.copies.filter((c) => !classOf(c) || isMine(scope, classOf(c)));
       const counted = seen.flatMap((c) => (c.capture_id ? [standing.get(c.capture_id) ?? { engine: 0, person: 0, waiting: 0 }] : []));
@@ -106,7 +124,7 @@ export async function lastScans(scope: Scope = EVERY_CLASS, n = 5): Promise<Scan
       });
       return {
         id: r.id,
-        file: (r.trigger ?? "").split(": ").slice(1).join(": ") || "a scan",
+        file: r.file || "a scan",
         when: r.when,
         status: r.status,
         error: r.error,
@@ -122,6 +140,7 @@ export async function lastScans(scope: Scope = EVERY_CLASS, n = 5): Promise<Scan
         noCode,
         owners,
         given: [...given].filter(([, id]) => isMine(scope, kids.get(id)?.section ?? null)).map(([page, id]) => ({ page, who: rollOf(id) })),
+        attempts: others.map((o) => ({ when: o.when, status: o.status, error: o.error })),
       };
     });
 }

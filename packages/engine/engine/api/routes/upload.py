@@ -39,6 +39,9 @@ async def read_upload(
         await form.close()
     with pymupdf.open(path) as doc:
         pages = len(doc)
-    run_id = inbox.start(await run_in_threadpool(deps.tenant_now), path, actor, pages=pages)
+    try:
+        run_id = inbox.start(await run_in_threadpool(deps.tenant_now), path, actor, pages=pages)
+    except inbox.Refused as no:
+        raise HTTPException(status_code=no.status, detail=str(no)) from no
     background.add_task(inbox.read, run_id, path, actor)
     return {"run_id": run_id, "pages": pages, "file": path.name}
