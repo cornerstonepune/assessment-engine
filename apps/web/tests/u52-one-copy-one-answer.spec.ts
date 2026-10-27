@@ -214,7 +214,13 @@ test("a child's page lists each answer once, and every count on it is the answer
 
 test("the two readings are told apart by header and by words: what the reader saw, what the child wrote you confirmed", async ({ browser }) => {
   const page = await asEducator(browser);
-  await page.goto(`/growth/${kids.Asha}`);
+  // the topic of the skill every one of the three questions tests, opened (a row per topic, goals/res_results_by_topic.yaml)
+  const [{ topic }] = await sql<{ topic: string }[]>`
+    select ss.topic_code as topic from evidence_placed e join item_result r on r.id = e.item_result_id
+    join capture c on c.id = r.capture_id join skill ss on ss.rung_code = e.placed_rung
+    where e.child_id = ${kids.Asha} and e.confirmed_by is not null and c.superseded_by is null
+    group by ss.topic_code, e.skill_code having count(distinct e.item_result_id) = 3 order by 1 limit 1`;
+  await page.goto(`/growth/${kids.Asha}?topic=${topic}`);
   await page.locator("details").evaluateAll((ds) => ds.forEach((d) => d.setAttribute("open", "")));
   // the skill every one of the three questions tests
   const lines = await page.locator("[data-skill][data-of]").evaluateAll((els) => els.map((e) => e.getAttribute("data-of")!));

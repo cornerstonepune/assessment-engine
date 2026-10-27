@@ -139,7 +139,7 @@ function TopicOpen({ name, row, answers, names, states, papers }: { name: string
             ))}
           </ul>
         ) : null}
-        {notYet.length ? <p className="note mt-2">Not assessed yet: {notYet.map((s) => s.name).join(" · ")}</p> : null}
+        {notYet.length ? <p className="note mt-2" data-testid="not-yet">Not assessed yet: {notYet.map((s) => s.name).join(" · ")}</p> : null}
       </section>
       <section aria-label={`${row.name}: papers`}>
         <h3 className="label mb-2">Papers</h3>
