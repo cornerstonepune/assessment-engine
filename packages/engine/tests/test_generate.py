@@ -158,10 +158,9 @@ def test_how_many_is_at_most_the_row_and_no_prompt_is_used_until_it_is_active(co
     got = generate.english(conn, s["skill_code"], s["difficulty"], s["question_type"], s["ord"], most + 1, BY)
     assert not got["made"] and "at most 20" in got["why"]
     assert not generate.maths(conn, "ADD.2D2D", "Medium", "47 + 38", "columns", most + 1, BY)["made"]
-    # the prompt is a row, inactive until its eval is recorded (rule 7): the real adapter refuses, nothing is stored
-    assert not one(
-        conn, "select coalesce(bool_or(active), false) from prompt where purpose = %s", generate.PURPOSE
-    )
+    # a prompt is a row, off until its eval is recorded (rule 7): with it off, the real adapter refuses and nothing is
+    # stored. v2 is on in the seed since its score (DECISIONS-LOG.md, 2026-10-27), so this puts the rule's case back
+    conn.execute("update prompt set active = false where purpose = %s", (generate.PURPOSE,))
     assert (
         one(
             conn,
@@ -202,7 +201,8 @@ def test_a_reply_not_in_the_prompts_form_adds_nothing_and_the_educator_is_told_s
     """Run 40469097359 (2026-10-27): the model returned a `rubric_code` the schema does not allow, and the request
     died with the adapter's own words. The reply is refused as a whole, and the educator is told plainly."""
     s = a_sample(conn)
-    conn.execute("update prompt set active = (version = 1) where purpose = %s", (generate.PURPOSE,))
+    conn.execute("update prompt set active = false where purpose = %s", (generate.PURPOSE,))
+    conn.execute("update prompt set active = true where purpose = %s and version = 1", (generate.PURPOSE,))
     q = asked(s, s["text"].replace(".", " today.", 1)) | {"rubric_code": "R_ENG_ANSWER"}
     monkeypatch.setattr(generate.llm, "_dispatch", writer(q))
     got = generate.english(conn, s["skill_code"], s["difficulty"], s["question_type"], s["ord"], 1, BY)
@@ -247,15 +247,16 @@ def test_the_writer_is_never_asked_for_a_rubric_and_a_question_read_by_a_person_
     assert new["rubric_code"] == s["rubric_code"]
 
 
-def test_the_second_version_names_only_the_fields_its_schema_takes_and_waits_for_its_score(conn):
-    """Rule 2: the fix is a new version row, the first kept as it was; rule 7: inactive until it is scored."""
+def test_the_second_version_names_only_the_fields_its_schema_takes_and_is_on_after_its_score(conn):
+    """Rule 2: the fix is a new version row, the first kept as it was; rule 7: on only after it was scored (62 of 75,
+    0.827 against 0.8, run 40499077378, DECISIONS-LOG.md 2026-10-27)."""
     rows = {
         r["version"]: r
         for r in conn.execute(
             "select version, text, active, json_schema from prompt where purpose = %s", (generate.PURPOSE,)
         ).fetchall()
     }
-    assert set(rows) == {1, 2} and not rows[1]["active"] and not rows[2]["active"]
+    assert set(rows) == {1, 2} and not rows[1]["active"] and rows[2]["active"]
     fields = rows[2]["json_schema"]["properties"]["questions"]["items"]["required"]
     assert all(f"- {f}:" in rows[2]["text"] for f in fields)
     assert "rubric" not in fields and "same fields as the sample" not in rows[2]["text"]

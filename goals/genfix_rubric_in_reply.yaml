@@ -16,11 +16,10 @@ says:
   - words: "The ability for the system to generate a certain number of questions of that pattern."
     proved_by: "packages/engine/tests/test_generate.py::test_the_eval_counts_a_reply_not_in_its_form_as_thrown_away_and_still_gives_a_score"
   - words: "The ability for the system to generate a certain number of questions of that pattern."
-    proved_by: "packages/engine/tests/test_generate.py::test_the_second_version_names_only_the_fields_its_schema_takes_and_waits_for_its_score"
+    proved_by: "packages/engine/tests/test_generate.py::test_the_second_version_names_only_the_fields_its_schema_takes_and_is_on_after_its_score"
   - words: "The ability for the system to generate a certain number of questions of that pattern."
     proved_by: "packages/engine/tests/test_eval_command.py::test_every_version_the_seed_holds_can_be_scored_and_none_is_typed_in_the_workflow"
-manual:
-  - "After the merge and deploy: GitHub, Actions, engine eval, Run workflow on main, purpose english_generate, version 2, review_version and jev_version empty. Record its score in DECISIONS-LOG.md; only if it meets eval.english_generate.kept (0.8) is v2 made active."
+manual: []  # the score was run on 27 Oct (62 of 75, 0.827, run 40499077378) and v2 made active in the same change (DECISIONS-LOG.md)
 scenarios: []
 criteria:
   - name: making from a sample, its eval, the workflow's command, the bars, the map
