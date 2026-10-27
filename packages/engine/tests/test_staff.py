@@ -12,7 +12,7 @@ import pathlib
 
 import pytest
 
-from engine.core import db
+from engine.core import db, settings
 from engine.core.staff import staff_hash
 from tests.test_cli import run
 
@@ -56,8 +56,14 @@ def test_a_person_is_put_on_the_staff_list_with_a_password_the_sign_in_accepts(m
     assert after[: len(before)] == before, "no one already on the list is changed"
     [me] = [s for s in after if s["email"] == EMAIL]
     assert (me["name"], me["role"]) == ("Test Educator", "educator")
-    scheme, salt, _ = me["password"].split("$")
-    assert scheme == "scrypt" and me["password"] == staff_hash(PASSWORD, salt), "the hash the website checks"
+    scheme, cost, salt, _ = me["password"].split("$")
+    assert scheme == "scrypt" and me["password"] == staff_hash(PASSWORD, salt, int(cost)), (
+        "the hash the website checks"
+    )
+    # hashed as hard as the `password.scrypt_n` row says, and the cost written beside it so it can be raised later
+    # without locking anyone out (goals/auth-email-password.yaml)
+    with db.connect() as conn:
+        assert int(cost) == int(settings.threshold(conn, "password.scrypt_n", 16384))
 
 
 @needs_db

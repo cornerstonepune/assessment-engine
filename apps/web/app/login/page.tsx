@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "@/components/link";
 import { currentStaff } from "@/lib/auth";
 import { signIn } from "@/lib/auth-actions";
 import { Logo } from "@/components/logo";
@@ -17,7 +18,7 @@ export default async function LoginPage({ searchParams }: Props) {
         <span className="label ml-1">assessment</span>
       </div>
       <h1 className="text-[26px] leading-tight">Sign in</h1>
-      <p className="mt-2 text-[13.5px] text-basalt/62">Staff only. Ask Nimish for a password.</p>
+      <p className="mt-2 text-[13.5px] text-basalt/62">Staff only.</p>
       <div className="chalkline" />
 
       {q.error === "denied" ? (
@@ -44,6 +45,12 @@ export default async function LoginPage({ searchParams }: Props) {
           Sign in
         </button>
       </form>
+
+      <p className="mt-6 text-[13.5px]">
+        <Link href="/login/forgot" className="underline-offset-2 hover:underline">
+          Forgot your password?
+        </Link>
+      </p>
     </main>
   );
 }

@@ -57,6 +57,11 @@ function Account({ me, grades }: { me: Session; grades: string }) {
         {me.devBypass ? (
           <span className="pill pill-terracotta">dev bypass</span>
         ) : (
+          <Link href="/account/password" className="inline-flex min-h-11 items-center">
+            Change password
+          </Link>
+        )}
+        {me.devBypass ? null : (
           <form action={signOut}>
             <button className="min-h-11 cursor-pointer underline-offset-2 hover:underline" type="submit">
               Sign out
