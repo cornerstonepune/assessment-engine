@@ -10,7 +10,7 @@ export type Standing = Rag | "none";
 /** Needs the educator first, and nothing checked last. */
 export const ORDER: Standing[] = ["red", "amber", "green", "grey", "none"];
 export const NOT_ASSESSED = "not assessed yet";
-const CHIP: Record<Standing, State> = { red: "needsHelp", amber: "practising", green: "secure", grey: "tooFew", none: "notAssessed" };
+const CHIP: Record<Standing, State> = { red: "needsHelp", amber: "standingAmber", green: "standingGreen", grey: "standingGrey", none: "notAssessed" };
 const BAR: Record<Standing, string> = { red: "bg-terracotta", amber: "bg-bamboo", green: "bg-neem", grey: "bg-monsoon/45", none: "bg-basalt/10" };
 
 export const standingWords = (states: States, s: Standing) => (s === "none" ? NOT_ASSESSED : states.colours[s].count_words);
