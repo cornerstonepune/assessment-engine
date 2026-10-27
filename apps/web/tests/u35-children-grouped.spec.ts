@@ -120,7 +120,9 @@ test("the coordinator sees every class in one table, says what waits in each, an
   await expect(row.locator("[data-status=needsHelp]")).toBeVisible();
   // a class's name opens its children, in place
   await page.goto("/growth?view=children");
-  await expect(page.getByRole("link", { name: OTHER })).toHaveCount(0);
+  // across the classes the children listed are those who need the educator, and none of the other class does: its name is
+  // in the classes table (on its first page or a later one, as many classes as the copy holds), never among them
+  await expect(page.getByRole("region", { name: "Children who need you" }).getByRole("link", { name: OTHER })).toHaveCount(0);
   await page.goto(`/growth?view=children&class=${OTHER}`);
   await expect(page.getByRole("table", { name: "Classes" }).locator("tbody tr")).toHaveCount(1);
   await page.goto("/growth?view=children");
