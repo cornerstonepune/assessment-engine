@@ -23,7 +23,7 @@ Outputs from this session, on a fresh `bin/testdb fresh` copy (Postgres 16).
 
 ## Handoff
 
-- **Live:** nothing until merged; the migration `20261220090000_a_paper_edit_is_kept.sql` needs the rehearsal
+- **Live:** nothing until merged; the migration `20261221090000_a_paper_edit_is_kept.sql` needs the rehearsal
   (`rehearse-update-live.yml`) on the branch first, and `engine load` for the two threshold rows.
 - **Where a paper's questions live:** `sheet_template.item_ids` (order), `sheet_instance.key` (the rendered key and boxes),
   the PDF at `sheet_instance.pdf_path`, `item_exposure` (what the child was given). An edit writes all four anew for a new
