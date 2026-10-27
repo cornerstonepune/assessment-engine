@@ -12,6 +12,11 @@ way to change where a child is, from the child's own page. One additive migratio
 - Tables that carry a child's class or grade as copied text: 2, `sheet_instance.section` and `sheet_template.band` — both say where a paper was
   printed, and stay (`test_two_tables_carry_a_childs_class_or_grade_as_text_and_both_are_a_printed_paper` fails if a third appears).
 
+- CI on the first push found three things my local run could not: `rules.json` (the watcher's list of the migrations' rules) lacked the new table's
+  8 rules (rewritten with `engine live rules --write --url <a database built from the migrations alone>`); u36 and u49 each held a promise this
+  section deliberately breaks, so each now sets the `#grade-class` section apart (u36: a child with no answers still has one action about their
+  work; u49: "don't differentiate" has this one exception, Nimish 27 Oct). u20 (the parent report is last) is kept by placing the section before it.
+
 ## Handoff
 
 - Live: nothing. Needs `rehearse-update-live.yml` run on this branch before merge. Migration `20261218090000` (main's newest was `...216090000`; open PR #337 takes `...217090000`).
