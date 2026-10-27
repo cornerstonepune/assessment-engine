@@ -267,7 +267,7 @@ def read_run_again(
         path, tenant = inbox.again(conn, run_id)
         with pymupdf.open(path) as doc:
             pages = len(doc)
-        new = inbox.start(tenant, path, body.by, pages=pages)
+        new = inbox.start(tenant, path, body.by, pages=pages, of_run=run_id)
     except inbox.Refused as no:
         raise HTTPException(status_code=no.status, detail=str(no)) from no
     background.add_task(inbox.read, new, path, body.by, True)

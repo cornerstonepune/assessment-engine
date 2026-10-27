@@ -89,16 +89,17 @@ test("an educator approves a skill, in their own name", async ({ browser }) => {
   }
 });
 
-test("an educator approves another class's pack, as the coordinator can", async ({ browser }) => {
+test("an educator's approval of another class's pack is refused in words, and nothing is approved", async ({ browser }) => {
+  // since 27 Oct 2026 a class's papers are its own educators' and the coordinator's (goals/own_who_sees_answers.yaml)
   const page = await signedIn(browser);
   try {
     await page.goto(`/papers/approve?section=${OTHER}&week=${WEEK}&kind=practice`);
-    await expect(page.getByRole("main")).not.toContainText("not one of your classes");
-    await page.getByRole("button", { name: /^Approve \d+ papers?\b/ }).click();
-    await expect(page).not.toHaveURL(/\/refused/);
-    await expect
-      .poll(async () => (await sql`select 1 from sheet_instance where child_id = any(${Object.values(other)}::uuid[]) and approved_by = ${EDUCATOR.email}`).length)
-      .toBe(Object.values(other).length);
+    await expect(page.getByRole("main")).toContainText("not one of your classes");
+    // what the page shows instead is the educator's own class: nothing of the other class is offered
+    await expect(page.locator(`form input[value="${OTHER}"]`)).toHaveCount(0);
+    const [{ n }] = await sql<{ n: number }[]>`
+      select count(*)::int as n from sheet_instance where child_id = any(${Object.values(other)}::uuid[]) and approved_by = ${EDUCATOR.email}`;
+    expect(n).toBe(0);
   } finally {
     await page.context().close();
     await sql`update sheet_instance set print_status = 'new', printed_at = null, approved_by = null, approved_at = null

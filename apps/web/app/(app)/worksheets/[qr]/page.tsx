@@ -12,7 +12,7 @@ import { deadline } from "@/lib/deadline";
 import { LIBRARY_CODE, LibraryWorksheetPage, sheetWords } from "./library-sheet";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
-import { isMine, paperSection, reachOf } from "@/lib/scope";
+import { sees } from "@/lib/reach";
 import { weekWords } from "@/lib/week";
 
 type Props = { params: Promise<{ qr: string }> };
@@ -32,7 +32,12 @@ export default async function PaperPage({ params }: Props) {
     if (found) redirect(`/capture/${found.id}`);
     notFound();
   }
-  if (!isMine(reachOf(me), await deadline(paperSection({ qr })))) return <NotYours what="This paper's class" />;
+  if (!(await deadline(sees(me, [{ qr }])))) {
+    // a code no paper has is not found; a paper the person does not see is refused in words
+    const [there] = await deadline(sql<{ id: string }[]>`select id from sheet_instance where qr_code = ${qr}`);
+    if (!there) notFound();
+    return <NotYours what="This paper's class" paper />;
+  }
   const [p, questions, book, { words }] = await deadline(
     Promise.all([printedPaper(qr), paperItems(qr), mistakeBook(), questionKinds()]),
   );

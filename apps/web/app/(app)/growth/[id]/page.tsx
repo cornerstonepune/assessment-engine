@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { Body, Notice, PageHeader, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
-import { childSection, isMine, reachOf } from "@/lib/scope";
+import { childSection, isMine } from "@/lib/scope";
+import { reachOf } from "@/lib/reach";
 import { childEvidence, childHeader, childPapers, grades, misconceptionNames, pendingResults, staffList } from "@/lib/queries";
 import { childSheets, childSkills, classLatest, firstStep, repeatedMistakes, summary } from "@/lib/queries-children";
 import { ColourKeyLine } from "@/components/colour-key";
@@ -29,17 +30,17 @@ export default async function ChildPage({ params, searchParams }: Props) {
   const me = await requireStaff();
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
-  if (!isMine(reachOf(me), await deadline(childSection(id)))) return <NotYours what="This child's class" />;
+  if (!isMine(await reachOf(me), await deadline(childSection(id)))) return <NotYours what="This child's class" />;
   const q = await searchParams;
   const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff, rules, report, g, states] = await deadline(Promise.all([
     childHeader(id, me.email),
     childSkills(id),
     childEvidence(id),
-    pendingResults(id),
-    childPapers(id),
+    pendingResults(id, me),
+    childPapers(id, me),
     misconceptionNames(),
     repeatedMistakes(id),
-    childSheets(id),
+    childSheets(id, me),
     staffList(),
     colourRules(),
     reportOf(id),

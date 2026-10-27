@@ -7,10 +7,11 @@ import { PageShell } from "@/components/page-shell";
 import { TaughtNotice } from "@/components/taught-notice";
 import { StatusChip } from "@/components/status-chip";
 import { requireStaff } from "@/lib/auth";
+import { workScope } from "@/lib/reach";
 import { choices } from "@/lib/choices";
 import { deadline } from "@/lib/deadline";
 import { tasksFor } from "@/lib/queries-todo";
-import { isMine, scopeOf } from "@/lib/scope";
+import { isMine } from "@/lib/scope";
 import { count, filterTasks, KINDS, sectionsOf, TODO_GROUPS, type Kind, type Section, type Task, waitingCount } from "@/lib/todo";
 import type { Column } from "@/lib/ux-rules";
 import { subjectsFor } from "@/lib/viewing";
@@ -84,7 +85,7 @@ export default async function WhatNeedsDoing({ searchParams }: { searchParams: P
   const narrowed = section ? tasks.map((t) => (t.kind === "taught" ? { ...t, sections: [section], where: t.where.replace(/ · [^·]*$/, ` · ${section}`), many: count(1, "class", "classes") } : t)) : tasks;
   const sections = sectionsOf(narrowed);
   // the note under the list is read for the class chosen in the page's own filter, else for all the person's classes
-  const scope = scopeOf(me);
+  const scope = await workScope(me);
   const known = await deadline(weekNote(q.class && isMine(scope, q.class) ? { classes: [q.class], note: null } : scope, subject ?? mine[0]?.code ?? ""));
   const waiting = waitingCount(here);
   const first = here.find((t) => t.state === "doNow") ?? here[0];

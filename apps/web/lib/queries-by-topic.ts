@@ -11,7 +11,7 @@ import {
   sigSql,
   type PaperFilter,
 } from "./queries-papers";
-import { EVERY_CLASS, type Scope } from "./scope";
+import type { Who } from "./reach";
 
 /** What waits on the educator herself: an approval, answers to check, papers to sign off. */
 const NEEDS_YOU = new Set(["approve", "check", "signoff"]);
@@ -31,14 +31,14 @@ export type TopicGroup = {
  *  curriculum's own order. An assessment on two topics is counted under each. */
 export async function topicGroups(
   f: PaperFilter,
-  scope: Scope = EVERY_CLASS,
+  me: Who,
 ): Promise<TopicGroup[]> {
   const [counts, topics] = await Promise.all([
     sql<{ topic: string | null; sig: string; n: number }[]>`
       with ${papersCte()},
       g as (
         select ${sigSql()} as sig, jsonb_agg(topics) as topics
-        from papers where ${narrowed({ ...f, topic: undefined }, scope)}
+        from papers where ${narrowed({ ...f, topic: undefined }, me)}
         group by kind, section, week, set_key
       ),
       x as (

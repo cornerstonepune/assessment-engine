@@ -5,6 +5,8 @@ import { StatusChip } from "@/components/status-chip";
 import { PageShell } from "@/components/page-shell";
 import { Notice, Panel } from "@/components/shell";
 import { requireStaff } from "@/lib/auth";
+import { sees } from "@/lib/reach";
+import { NotYours } from "@/components/not-yours";
 import { deadline } from "@/lib/deadline";
 import { classWords } from "@/lib/needs-you";
 import { grades } from "@/lib/queries";
@@ -20,13 +22,16 @@ type Props = { searchParams: Promise<Record<string, string | undefined>> };
 
 // One assessment as one card (goals/s2-the-assessment-card.yaml), from the scope Nimish locked on 2026-10-22: Made →
 // approved for print → Given → Papers in → Read → Checked → Signed off → Results, always showing its next step. The
-// upload box is at the top: a page goes where its printed code says, whichever card it is put in from. Every member of
-// staff sees every card (goals/ux9c-one-role.yaml).
+// upload box is at the top: a page goes where its printed code says, whichever card it is put in from. A person sees the
+// copies they may (`staff_sees`, goals/own_who_sees_answers.yaml).
 export default async function CardPage({ searchParams }: Props) {
   const me = await requireStaff();
   const q = await searchParams;
   const key: CardKey = { class: q.class ?? "", week: q.week ?? "", kind: q.kind ?? "", set: q.set || undefined };
-  const [card, g] = await deadline(Promise.all([assessmentCard(key, me.email), grades()]));
+  const [card, g] = await deadline(Promise.all([assessmentCard(key, me.email, me), grades()]));
+  // an assessment of a class the person does not see, none of whose papers they put in: refused in words
+  if (card.copies.length + card.spares.length === 0 && key.class && !(await deadline(sees(me, [{ section: key.class }]))))
+    return <NotYours what="This paper's class" paper />;
   const title = card.copies[0]?.title ?? card.spares[0]?.title ?? "No such assessment";
   const band = card.copies[0]?.band ?? card.spares[0]?.band;
   const s = standing(card);

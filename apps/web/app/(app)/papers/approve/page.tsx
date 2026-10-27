@@ -8,8 +8,9 @@ import { spareSheets, unplanned, weekPlan, weeks, type WeekRow } from "@/lib/que
 import { approvePack } from "./actions";
 import { byNeed, PackTable, reasonOf, type PackRow } from "./pack-table";
 import { deadline } from "@/lib/deadline";
+import { reachOf, workScope } from "@/lib/reach";
 import { requireStaff } from "@/lib/auth";
-import { isMine, reachOf, scopeOf } from "@/lib/scope";
+import { isMine } from "@/lib/scope";
 import { weekWords } from "@/lib/week";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -21,19 +22,19 @@ type Props = { searchParams: Promise<Record<string, string | undefined>> };
 // Curriculum tab.
 export default async function ApprovePage({ searchParams }: Props) {
   const me = await requireStaff();
-  const scope = scopeOf(me);
+  const scope = await workScope(me);
   const q = await searchParams;
   // Papers to approve is no page of its own now: it is Assessments, filtered to what waits for approval
   if (!q.section) redirect("/papers?status=approve");
-  // a class asked for by name is listed whoever asks: every class is every member of staff's (goals/ux9c-one-role.yaml)
-  const all = await deadline(weeks(q.section ? reachOf(me) : scope));
+  // a class asked for by name is listed when the person sees it (`staff_sees`, goals/own_who_sees_answers.yaml)
+  const all = await deadline(weeks(q.section ? await reachOf(me) : scope));
   // a link to a class's week that is not on the list (another educator's class, or a week with nothing made) says so,
   // rather than opening another class's week unannounced (goals/ux8a-numbers-true.yaml)
   const asked = q.section && q.week && q.kind ? { section: q.section, week: q.week, kind: q.kind } : null;
   const notListed =
     asked && !all.some((w) => w.section === asked.section && w.week === asked.week && w.kind === asked.kind)
       ? `${asked.section} · ${weekWords(asked.week)} · ${asked.kind}: ${
-          isMine(reachOf(me), asked.section) ? "no papers have been made for it" : "not one of your classes"
+          isMine(await reachOf(me), asked.section) ? "no papers have been made for it" : "not one of your classes"
         }.`
       : null;
 

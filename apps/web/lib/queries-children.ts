@@ -1,5 +1,6 @@
 import { sql } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
+import { seesSheet, type Who } from "./reach";
 import type { Rag } from "./rag";
 import type { States } from "./states";
 import { reportState, type ReportState } from "./queries-reports";
@@ -305,7 +306,7 @@ export type ChildSheet = {
 };
 
 /** Every paper made for the child or read from them, newest first: its purpose, who approved it, what was read. */
-export async function childSheets(id: string): Promise<ChildSheet[]> {
+export async function childSheets(id: string, me: Who): Promise<ChildSheet[]> {
   return sql<ChildSheet[]>`
     select si.id, si.qr_code, si.kind, coalesce(si.week, st.week) as week, ${paperName("st")} as title,
            st.key ->> 'date' as date, si.print_status, si.approved_by, si.approved_at,
@@ -315,7 +316,7 @@ export async function childSheets(id: string): Promise<ChildSheet[]> {
              where c.sheet_instance_id = si.id and c.superseded_by is null and r.state = 'confirmed') as n_confirmed
     from sheet_instance si
     join sheet_template st on st.id = si.sheet_template_id
-    where si.child_id = ${id}::uuid and si.print_status <> 'void'
+    where si.child_id = ${id}::uuid and si.print_status <> 'void' and ${seesSheet(me, sql`si.id`)}
     order by coalesce(st.key ->> 'date', si.created_at::date::text) desc, si.created_at desc`;
 }
 

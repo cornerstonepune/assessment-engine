@@ -21,7 +21,7 @@ export async function makePapers(formData: FormData): Promise<void> {
   // a home assessment is the home papers' decision; a class practice or assessment, the class papers'
   const kind = batch.kind === "focus" ? "home_papers" : "class_papers";
   const me = await deciding(kind);
-  mustBeMine(me, kind, [batch.section, ...(await childrenSections(batch.children))]);
+  await mustBeMine(me, kind, [batch.section, ...(await childrenSections(batch.children))]);
   const out = await makeBatch(batch, me.email, once, seen);
   if ("why" in out) {
     const q = batchQuery(batch);

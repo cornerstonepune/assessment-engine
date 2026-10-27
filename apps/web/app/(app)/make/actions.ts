@@ -21,7 +21,7 @@ export async function approveHome(formData: FormData): Promise<void> {
   const seen = formData.getAll("seen").map(String);
   const back = `/make/${encodeURIComponent(section)}`;
   if (!WEEK.test(week) || !ids.every((id) => UUID.test(id)) || seen.length !== ids.length || seen.some((s) => !s)) redirect(back);
-  mustBeMine(me, "home_papers", [section, ...(await childrenSections(ids))]);
+  await mustBeMine(me, "home_papers", [section, ...(await childrenSections(ids))]);
   const q = new URLSearchParams();
   let made = 0;
   let changed = 0;
@@ -49,7 +49,7 @@ export async function approveCustom(formData: FormData): Promise<void> {
   const draw = readDraw(String(formData.get("draw") ?? ""));
   const seen = String(formData.get("seen") ?? "");
   if (!UUID.test(child) || !WEEK.test(week) || !areas.length || !seen) redirect("/make");
-  mustBeMine(me, "home_papers", [await childSection(child)]);
+  await mustBeMine(me, "home_papers", [await childSection(child)]);
   const { qr, changed } = await makePaper(child, week, me.email, { draw, seen }, areas);
   revalidatePath("/make");
   if (changed) redirect(`${customHref(child, areas, draw)}&changed=1`);

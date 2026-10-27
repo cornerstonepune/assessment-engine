@@ -22,7 +22,7 @@ export async function overrideChild(formData: FormData): Promise<void> {
   const reason = String(formData.get("reason") ?? "").trim().slice(0, 300);
   const back = BACK(formData);
   if (!/^[0-9a-f-]{36}$/.test(id)) redirect(back);
-  mustBeMine(me, "class_papers", [await prescriptionSection(id)]);
+  await mustBeMine(me, "class_papers", [await prescriptionSection(id)]);
   if (!(await levels()).order.includes(difficulty) || !reason) redirect(`${back}&error=override`);
 
   await sql`
@@ -41,7 +41,7 @@ export async function approvePack(formData: FormData): Promise<void> {
   const section = String(formData.get("section") ?? "");
   const week = String(formData.get("week") ?? "");
   const kind = String(formData.get("kind") ?? "practice");
-  mustBeMine(me, "class_papers", [section]);
+  await mustBeMine(me, "class_papers", [section]);
   const back = BACK(formData);
   const res = await engineSend("/week/approve", { section, week, kind, by: me.email });
   if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}). Nothing was approved.`);

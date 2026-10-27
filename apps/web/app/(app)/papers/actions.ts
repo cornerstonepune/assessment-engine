@@ -44,7 +44,7 @@ export async function approveRow(f: FormData): Promise<void> {
   const section = String(f.get("section") ?? "");
   const week = String(f.get("week") ?? "");
   if (!section || !WEEK.test(week)) redirect(back(f));
-  mustBeMine(me, "home_papers", [section]);
+  await mustBeMine(me, "home_papers", [section]);
   let said: string | undefined;
   try {
     const res = await engineSend("/week/approve", { section, week, kind: "focus", by: me.email });

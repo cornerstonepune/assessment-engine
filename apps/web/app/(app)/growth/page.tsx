@@ -2,7 +2,7 @@ import Link from "@/components/link";
 import { FilterBar } from "@/components/filter-bar";
 import { PageShell } from "@/components/page-shell";
 import { requireStaff } from "@/lib/auth";
-import { scopeOf } from "@/lib/scope";
+import { workScope } from "@/lib/reach";
 import { childTable } from "@/lib/queries-children";
 import { grades as schoolGrades } from "@/lib/queries";
 import { deadline } from "@/lib/deadline";
@@ -41,7 +41,7 @@ const STATUS = [
 // Finding a child is the bar at the top's (goals/s1-subject-class-and-today.yaml).
 export default async function ChildrenPage({ searchParams }: Props) {
   const me = await requireStaff();
-  const scope = scopeOf(me);
+  const scope = await workScope(me);
   const q = await searchParams;
   const [rows, rules, school, states] = await deadline(Promise.all([childTable(me.email, null, scope), colourRules(), schoolGrades(), childStates()]));
   const sortKey = q.sort && q.sort in SORTS ? q.sort : "help";

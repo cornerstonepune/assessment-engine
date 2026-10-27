@@ -5,7 +5,8 @@ import { Body, PageHeader } from "@/components/shell";
 import { ColourKeyLine, Swatch } from "@/components/colour-key";
 import { requireStaff } from "@/lib/auth";
 import { NotYours } from "@/components/not-yours";
-import { isMine, reachOf } from "@/lib/scope";
+import { isMine } from "@/lib/scope";
+import { reachOf } from "@/lib/reach";
 import { checkHref, checkLevel, colourRules } from "@/lib/colours";
 import { classGrid, stepKey, type GridChild, type Step } from "@/lib/queries-children";
 import { grades } from "@/lib/queries";
@@ -24,7 +25,7 @@ type Props = { params: Promise<{ section: string }>; searchParams: Promise<Recor
 export default async function ClassPage({ params, searchParams }: Props) {
   const me = await requireStaff();
   const section = decodeURIComponent((await params).section);
-  if (!isMine(reachOf(me), section)) return <NotYours what={section} />;
+  if (!isMine(await reachOf(me), section)) return <NotYours what={section} />;
   const [{ steps: every, children, notYet: unanswered, band }, rules, g, states] = await deadline(
     Promise.all([classGrid(section, me.email), colourRules(), grades(), childStates()]),
   );

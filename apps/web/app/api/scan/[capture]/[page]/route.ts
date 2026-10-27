@@ -1,5 +1,6 @@
 import { currentStaff } from "@/lib/auth";
-import { captureSection, isMine, notYoursResponse, reachOf } from "@/lib/scope";
+import { notYoursResponse } from "@/lib/scope";
+import { sees } from "@/lib/reach";
 import { engineImage } from "@/lib/engine";
 
 const UUID = /^[0-9a-f-]{36}$/;
@@ -21,9 +22,8 @@ export async function GET(
   if (!UUID.test(capture) || !Number.isInteger(n) || n < 1 || n > 99) {
     return new Response("no such page", { status: 400 });
   }
-  // a scan not yet sorted onto any paper has no class, and stays open to whoever is reading the pile
-  const section = await captureSection(capture);
-  if (section !== null && !isMine(reachOf(me), section)) return notYoursResponse();
+  // a scan is seen by whoever sees its paper; one not yet sorted onto any paper, by whoever put it in (`staff_sees`)
+  if (!(await sees(me, [{ capture }]))) return notYoursResponse();
   const box = new URL(request.url).searchParams.get("box") ?? "";
   const q: "" | `?box=${string}` = BOX.test(box) ? `?box=${box}` : "";
   return engineImage(`/capture/${capture}/page/${n}.jpg${q}`);

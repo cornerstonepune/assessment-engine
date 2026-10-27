@@ -8,7 +8,7 @@ import { homeByClass } from "@/lib/queries-make";
 import { classPacksWaiting } from "@/lib/queries-today";
 import { isoWeek, weekWords } from "@/lib/week";
 import { requireStaff } from "@/lib/auth";
-import { scopeOf } from "@/lib/scope";
+import { workScope } from "@/lib/reach";
 import { classState, ClassesTable, PacksTable, type ClassLine } from "./classes-table";
 
 type Props = { searchParams: Promise<Record<string, string | undefined>> };
@@ -20,7 +20,7 @@ const STAGES: Record<string, string> = { toApprove: "To approve", done: "Approve
 // are approved, and where a paper is chosen for any one child. An educator who teaches one class opens on it
 // (goals/ux5b-make-and-marking.yaml).
 export default async function MakePapers({ searchParams }: Props) {
-  const scope = scopeOf(await requireStaff());
+  const scope = await workScope(await requireStaff());
   const q = await searchParams;
   if (scope.classes?.length === 1) redirect(`/make/${encodeURIComponent(scope.classes[0])}`);
   const [classes, allPacks, g] = await deadline(Promise.all([homeByClass(undefined, scope), classPacksWaiting(scope), grades()]));

@@ -7,7 +7,8 @@ import { asksWaiting, topics } from "./queries-people";
 import { homeByClass } from "./queries-make";
 import { checkQueue } from "./queries-read";
 import { classPacksWaiting, reportsWaiting } from "./queries-today";
-import { inScope, scopeOf } from "./scope";
+import { inScope } from "./scope";
+import { reachOf, seesSheet } from "./reach";
 import { buildTasks, type Sources, type Task } from "./todo";
 import { isoWeek, weekWords } from "./week";
 import { mayUse } from "./access";
@@ -29,10 +30,12 @@ const paperRefs = (ids: string[]) =>
         where si.id = any(${ids}::uuid[])`
     : Promise.resolve([] as PaperRef[]);
 
-/** Every task waiting on this person, each with its own item to open: in the classes they see (a skill is the school's: it is
- *  seen in the subjects they teach, of every grade), and only the decisions that are theirs (lib/decides.ts). Once per request, whoever asks (the menu's count, the page). */
+/** Every task waiting on this person, each with its own item to open: of the classes and papers they see (`staff_sees`,
+ *  lib/reach.ts, goals/own_who_sees_answers.yaml; a skill is the school's: it is seen in the subjects they teach, of every
+ *  grade), and only the decisions that are theirs (lib/decides.ts). Once per request, whoever asks (the menu's count, the
+ *  page), so a count and the list behind it are one reading. */
 export const tasksFor = cache(async (me: Session): Promise<Task[]> => {
-  const scope = scopeOf(me);
+  const scope = await reachOf(me);
   const [g, may, offered] = await Promise.all([grades(), decidable(me), choices()]);
   const [skills, home, queue, signoff, packs, reports, tps, generate, asks, empty] = await Promise.all([
     may("skills")
@@ -44,14 +47,14 @@ export const tasksFor = cache(async (me: Session): Promise<Task[]> => {
           order by t.ord, s.ladder_order, s.code`
       : Promise.resolve([]),
     may("home_papers") ? homeByClass(isoWeek(), scope) : Promise.resolve([]),
-    may("answers") ? checkQueue(scope) : Promise.resolve([]),
+    may("answers") ? checkQueue(me) : Promise.resolve([]),
     may("papers")
       ? sql<{ id: string; n: number }[]>`
           select si.id::text, count(*) filter (where r.state = 'candidate')::int as n
           from sheet_instance si left join child ch on ch.id = si.child_id
           join capture c on c.sheet_instance_id = si.id and c.superseded_by is null
           join item_result r on r.capture_id = c.id
-          where ${inScope(scope, sql`coalesce(si.section, ch.section)`)}
+          where ${seesSheet(me, sql`si.id`)}
           group by si.id having count(*) filter (where r.state = 'candidate') > 0`
       : Promise.resolve([]),
     may("class_papers") ? classPacksWaiting(scope) : Promise.resolve([]),
@@ -71,8 +74,8 @@ export const tasksFor = cache(async (me: Session): Promise<Task[]> => {
       order by t.ord, k.section`,
     asksWaiting(),
     sql<{ n: number }[]>`
-      select count(*)::int as n from sheet_instance si left join child ch on ch.id = si.child_id
-      where ${inScope(scope, sql`coalesce(si.section, ch.section)`)}
+      select count(*)::int as n from sheet_instance si
+      where ${seesSheet(me, sql`si.id`)}
         and exists (select 1 from capture c where c.sheet_instance_id = si.id and c.superseded_by is null)
         and not exists (select 1 from capture c join item_result r on r.capture_id = c.id
                         where c.sheet_instance_id = si.id and c.superseded_by is null)`,

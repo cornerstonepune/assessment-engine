@@ -1,0 +1,37 @@
+name: own_who_sees_answers
+goal: >
+  Curriculum, skills, the question bank and the skill pages stay open to every educator; a child's answers, papers, scans and
+  the counts of them are each educator's own: a coordinator sees everything, an educator sees what belongs to a class on
+  their staff entry (in a subject on it, if it names any) or what they put in themselves. The rule is one database function
+  (`staff_sees`, migration 20261220090000) and every page, count, link and action asks it on the server; a count and the
+  list behind it always agree; a paper outside the rule is refused in words and nothing changes; each new upload records
+  who put it in, by the staff entry's id.
+# Written 2026-10-27, before the build (rule 14), from Nimish's words of 27 Oct. The orchestrator chose the combination of his
+# two sentences ("restricted to their grade", "only the papers he has uploaded"): class OR uploader, narrowed by subject on the
+# class arm, and asked the owner to confirm. W3 (the educator's site over W2/W3's data); no gate moved.
+says:
+  - words: "The skill and the curriculum is something at a subject level that is open to all teachers."
+    proved_by: "apps/web/tests/u67-who-sees-answers.spec.ts::curriculum, skills and the question bank stay open to an educator of another class"
+  - words: "In Maths, if Achal and Neha Sharma are mapped to a certain grade, they should still be able to see curriculum and skills across; but their assessments, answers to be checked etc. should be restricted to their grade."
+    proved_by: "apps/web/tests/u67-who-sees-answers.spec.ts::an educator of another class sees none of the paper, and its link and its sign-off are refused in words"
+  - words: "Right now 147 answers to check comes to everyone."
+    proved_by: "apps/web/tests/u67-who-sees-answers.spec.ts::for each person the counts in the menu, What needs doing and Assessments agree with the lists behind them"
+  - words: "But Achal should only see the papers he has uploaded."
+    proved_by: "apps/web/tests/u67-who-sees-answers.spec.ts::the educator who uploaded a paper of another class sees it, and the coordinator sees both"
+manual:
+  - "A migration: the rehearsal (rehearse-update-live.yml) must run on the branch before merge; update-live applies it."
+  - "Uploads before this migration have no uploader; for them only the class rule applies (never a guessed uploader)."
+scenarios: []
+criteria:
+  - name: the one rule, its uploader on every new upload, and no two migrations with one version
+    run: cd packages/engine && uv run pytest -q tests/test_who_sees.py tests/test_migration_order.py tests/test_roles.py
+    expect: "passed"
+  - name: two educators and a coordinator in the browser
+    run: cd apps/web && npx playwright test tests/u67-who-sees-answers.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

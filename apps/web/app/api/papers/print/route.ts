@@ -1,7 +1,8 @@
 // Papers made together, printed together: the engine merges each paper exactly as it was rendered, in class and
 // roll order, into one PDF (`w2_print/maker.py`). Nothing is drawn again and nothing is written.
 import { currentStaff } from "@/lib/auth";
-import { isMine, notYoursResponse, paperSection, reachOf } from "@/lib/scope";
+import { notYoursResponse } from "@/lib/scope";
+import { sees } from "@/lib/reach";
 import { EngineDown, engineGet } from "@/lib/engine";
 
 const QR = /^CS[0-9A-F]{6}$/;
@@ -11,8 +12,7 @@ export async function GET(request: Request) {
   if (!me) return new Response("sign in first", { status: 401 });
   const qrs = new URL(request.url).searchParams.getAll("qr").filter((q) => QR.test(q));
   if (!qrs.length) return new Response("no such paper", { status: 404 });
-  const scope = reachOf(me);
-  for (const qr of qrs) if (!isMine(scope, await paperSection({ qr }))) return notYoursResponse();
+  if (!(await sees(me, qrs.map((qr) => ({ qr }))))) return notYoursResponse();
   try {
     const res = await engineGet(`/papers/pack.pdf?${qrs.map((q) => `qr=${q}`).join("&")}`);
     if (!res.ok) {

@@ -9,7 +9,7 @@ import { EngineDown, engineSend } from "@/lib/engine";
 export async function confirmWeek(formData: FormData): Promise<void> {
   const me = await deciding("week");
   const section = String(formData.get("section") ?? "");
-  mustBeMine(me, "week", [section]);
+  await mustBeMine(me, "week", [section]);
   const week = String(formData.get("week") ?? "");
   const note = String(formData.get("note") ?? "").slice(0, 2000);
   const skillSets = formData.getAll("skill_set").map(String);

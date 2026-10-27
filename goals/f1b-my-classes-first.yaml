@@ -10,15 +10,18 @@ goal: >
 # everyone". F1a put each person's classes on the staff list.
 # Superseded in part on 2026-10-22: Nimish, "Just keep all the features available for both educators and coordinators
 # for now" (goals/ux9c-one-role.yaml). What his 2026-10-14 sentence still holds is where a page opens: his grades first.
+# Superseded in part on 2026-10-27: Nimish, "their assessments, answers to be checked etc. should be restricted to their
+# grade" (goals/own_who_sees_answers.yaml): a class's children, papers and answers are its own educators' and the
+# coordinator's. The tests below that said every class is open now say the reverse, each in its own words.
 says:
   - words: "Then the teachers only see, when Achal logs in, things that are relevant to his grades."
     proved_by: "apps/web/tests/u42-curriculum-for-the-educator.spec.ts::Curriculum opens on the educator's grade, every other grade closed"
-  - words: "Just keep all the features available for both educators and coordinators for now."
-    proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::an educator's pages open on their own class, every class one tap away and every class's page theirs to open"
+  - words: "but their assessments, answers to be checked etc. should be restricted to their grade."
+    proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::an educator's pages open on their own class, and another class's pages, children and papers are refused in words"
   - words: "Just keep all the features available for both educators and coordinators for now."
     proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::the coordinator sees every class"
-  - words: "Just keep all the features available for both educators and coordinators for now."
-    proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::an educator linked to no class sees every class"
+  - words: "but their assessments, answers to be checked etc. should be restricted to their grade."
+    proved_by: "apps/web/tests/u26-my-classes-first.spec.ts::an educator linked to no class sees no class's children until the coordinator links them"
 manual:
   - "Nimish links each educator to their classes (`~/cornerstone/assessment-engine/bin/engine staff classes <email> <class> …`): their grade is where their pages open."
 scenarios: []

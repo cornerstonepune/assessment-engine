@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { sql, TENANT_SLUG } from "./db";
 import { EVERY_CLASS, inScope, type Scope } from "./scope";
+import { seesSheet, type Who } from "./reach";
 import { skillTaughtFor, skillTaughtIn } from "./taught";
 import { paperName } from "./queries-papers";
 import { ownBox } from "./own-box";
@@ -182,7 +183,7 @@ export const RULE_WORDS: Record<string, string> = {
 // `subjects`: the subject codes they teach (nav_teacher_scope_and_todo): none named is every subject.
 // `password_set_at`: when that password was set, as the person themselves set it (goals/auth-email-password.yaml); a
 // session cookie signed before it is no longer good. None means a password nobody has set since that rule (or none at all).
-export type Staff = { email: string; name: string; role: string; password?: string; password_set_at?: string; classes?: string[]; subjects?: string[] };
+export type Staff = { id?: string; email: string; name: string; role: string; password?: string; password_set_at?: string; classes?: string[]; subjects?: string[] };
 
 export async function staffList(): Promise<Staff[]> {
   const row = await sql<{ value: Staff[] }[]>`select value from config where key = 'app.staff'`;
@@ -266,7 +267,8 @@ export type PendingResult = {
   box: number[] | null;
 };
 
-export async function pendingResults(id: string): Promise<PendingResult[]> {
+/** The child's answers still waiting, of the papers this person sees (`staff_sees`, goals/own_who_sees_answers.yaml). */
+export async function pendingResults(id: string, me: Who): Promise<PendingResult[]> {
   return sql<PendingResult[]>`
     select r.id, ${paperName("t")} as paper, coalesce(t.key ->> 'date', c.created_at::date::text) as date,
            i.item_key, result_slot(i.item_key, r.raw_read::jsonb) as slot, coalesce(i.spec ->> 'question', i.stem) as question, result_response(i.responses, r.rid) ->> 'answer' as answer,
@@ -284,7 +286,7 @@ export async function pendingResults(id: string): Promise<PendingResult[]> {
     join capture c on c.id = r.capture_id
     join sheet_instance si on si.id = c.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
-    where si.child_id = ${id}::uuid and r.state = 'candidate' and c.superseded_by is null
+    where si.child_id = ${id}::uuid and r.state = 'candidate' and c.superseded_by is null and ${seesSheet(me, sql`si.id`)}
     order by t.key ->> 'date', si.id, page, i.item_key`;
 }
 
@@ -340,7 +342,7 @@ export async function childEvidence(id: string): Promise<Evidence[]> {
 
 export type Paper = { id: string; sheet: string; title: string; date: string | null; pages: number; status: string; narrative: string | null; n_results: number; n_confirmed: number };
 
-export async function childPapers(id: string): Promise<Paper[]> {
+export async function childPapers(id: string, me: Who): Promise<Paper[]> {
   return sql<Paper[]>`
     select c.id, si.id as sheet, coalesce(t.key ->> 'title', t.code) as title, t.key ->> 'date' as date, c.pages, c.status,
            (select text from narrative_observation n where n.capture_id = c.id order by n.created_at desc limit 1) as narrative,
@@ -349,6 +351,6 @@ export async function childPapers(id: string): Promise<Paper[]> {
     from capture c
     join sheet_instance si on si.id = c.sheet_instance_id
     join sheet_template t on t.id = si.sheet_template_id
-    where si.child_id = ${id}::uuid and c.superseded_by is null
+    where si.child_id = ${id}::uuid and c.superseded_by is null and ${seesSheet(me, sql`si.id`)}
     order by t.key ->> 'date', c.created_at`;
 }

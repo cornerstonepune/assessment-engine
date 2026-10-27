@@ -1,5 +1,5 @@
 import { sql } from "./db";
-import { EVERY_CLASS, inScope, type Scope } from "./scope";
+import { seesSheet, type Who } from "./reach";
 
 // Papers (goals/u9-papers.yaml): every paper, made to signed off, in one list. Nimish, 2026-09-30: "one list of papers
 // with the right filtration and all, and a good view". Where each answer stands is the engine's (item_result, and the
@@ -193,9 +193,9 @@ export const papersCte = () => sql`
     from papers_raw r
   )`;
 
-/** Every filter but the stage: the stage counts are counted across stages. Only the classes a person sees. */
-export const narrowed = (f: PaperFilter, scope: Scope) => sql`
-  ${inScope(scope, sql`section`)}
+/** Every filter but the stage: the stage counts are counted across stages. Only the papers a person sees (`staff_sees`). */
+export const narrowed = (f: PaperFilter, me: Who) => sql`
+  ${seesSheet(me, sql`id`)}
   and (${f.class ?? null}::text is null or section = ${f.class ?? null})
   and (${f.child ?? null}::uuid is null or child_id = ${f.child ?? null}::uuid)
   and (${f.kind ?? null}::text is null or kind = ${f.kind ?? null})
@@ -210,7 +210,7 @@ export const narrowed = (f: PaperFilter, scope: Scope) => sql`
 export async function paperList(
   f: PaperFilter,
   actor: string,
-  scope: Scope = EVERY_CLASS,
+  me: Who,
   order: "newest" | "roll" = "newest",
 ): Promise<{ rows: PaperListRow[]; more: boolean }> {
   const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
@@ -219,7 +219,7 @@ export async function paperList(
   const rows = await sql<(PaperListRow & { name: string | null })[]>`
     with ${papersCte()},
     shown as (
-      select * from papers where ${narrowed(f, scope)} and (${stage}::text is null or stage = ${stage})
+      select * from papers where ${narrowed(f, me)} and (${stage}::text is null or stage = ${stage})
       order by ${by}
       limit ${LIMIT + 1}
     ),
@@ -234,14 +234,14 @@ export async function paperList(
   return { rows: rows.slice(0, LIMIT), more: rows.length > LIMIT };
 }
 
-/** Every class and week a filter can take, among the classes a person sees. */
-export async function paperFilters(scope: Scope = EVERY_CLASS): Promise<{ options: { classes: string[]; weeks: string[] } }> {
+/** Every class and week a filter can take, among the papers a person sees. */
+export async function paperFilters(me: Who): Promise<{ options: { classes: string[]; weeks: string[] } }> {
   const [classes, weeks] = await Promise.all([
     sql<{ section: string }[]>`
       select distinct coalesce(si.section, c.section) as section from sheet_instance si
       left join child c on c.id = si.child_id
       where si.print_status <> 'void' and coalesce(si.section, c.section) is not null
-        and ${inScope(scope, sql`coalesce(si.section, c.section)`)} order by 1`,
+        and ${seesSheet(me, sql`si.id`)} order by 1`,
     sql<{ week: string }[]>`
       select week from (select distinct coalesce(si.week, t.week) as week from sheet_instance si
                         join sheet_template t on t.id = si.sheet_template_id where si.print_status <> 'void') w
@@ -299,7 +299,7 @@ export type AssessmentRow = {
  *  score across the copies that are checked. */
 export async function assessmentList(
   f: PaperFilter,
-  scope: Scope = EVERY_CLASS,
+  me: Who,
   /** One page of them, the way a topic's assessments are read: `sigs`, the next steps (`sigsFor`) the rows may stand at. */
   page?: { limit: number; offset: number; sigs?: string[] },
 ): Promise<{ rows: AssessmentRow[]; more: boolean; total: number }> {
@@ -333,7 +333,7 @@ export async function assessmentList(
            jsonb_agg(topics) as topics, jsonb_agg(skill_names) as skills,
            array_agg(roll_no) filter (where not spare and not extra and child_id is not null) as rolls,
            count(*) over ()::int as total
-    from papers where ${narrowed(f, scope)} and (${stage}::text is null or stage = ${stage})
+    from papers where ${narrowed(f, me)} and (${stage}::text is null or stage = ${stage})
     group by kind, section, week, set_key
     ${page?.sigs ? sql`having ${sigSql()} = any(${page.sigs}::text[])` : sql``}
     -- the newest week first, a paper with no week last; within a week the newest made

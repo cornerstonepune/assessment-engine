@@ -20,7 +20,7 @@ import { dateWords, weekWords } from "@/lib/week";
 // elsewhere, since it is the page across them.
 export default async function AcrossPage() {
   const me = await requireStaff();
-  const [a, g] = await deadline(Promise.all([across(me.email), grades()]));
+  const [a, g] = await deadline(Promise.all([across(me.email, me), grades()]));
   const cls = (band: string, section: string) => classWords(g, band, section);
   return (
     <PageShell

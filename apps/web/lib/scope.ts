@@ -1,5 +1,4 @@
 import { sql } from "./db";
-import { mayUse } from "./access";
 import type { Session } from "./auth";
 
 // Which classes a page shows the signed-in person (goals/f1b-my-classes-first.yaml, ADR 0073). Nimish, 2026-10-14:
@@ -13,14 +12,8 @@ export type Scope = { classes: string[] | null; note: string | null };
 export const EVERY_CLASS: Scope = { classes: null, note: null };
 
 /** The classes a page shows the person: their own (`ownClasses`), or every class for a person with none. A default each page
- *  narrows with its own filters, never what they may reach: that is `reachOf` (goals/ux9c-one-role.yaml). */
+ *  narrows with its own filters, never what they may reach: that is `reachOf` (lib/reach.ts). */
 export const scopeOf = (me: Pick<Session, "role" | "classes">): Scope => ownClasses(me);
-
-/** The classes whose pages, papers and decisions a person may open and take: every class, for every member of staff for
- *  now (`mayUse`, goals/ux9c-one-role.yaml); their own once the roles split again. */
-export function reachOf(me: Pick<Session, "role" | "classes">): Scope {
-  return mayUse(me, "every_class") ? EVERY_CLASS : ownClasses(me);
-}
 
 /** The classes a person teaches: what a page opens on first, its grade (`gradesOf`), never what it hides. A person
  *  linked to no class (the coordinator, so far) opens on every class. */

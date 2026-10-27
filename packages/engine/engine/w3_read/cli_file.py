@@ -118,7 +118,7 @@ def file_again(
         except inbox.Refused as no:
             raise typer.BadParameter(str(no)) from no
     try:
-        new = inbox.start(tenant, path, actor)
+        new = inbox.start(tenant, path, actor, of_run=str(run["id"]))
     except inbox.Refused as no:
         raise typer.BadParameter(str(no)) from no
     for c in inbox.read(new, path, actor, again=True):

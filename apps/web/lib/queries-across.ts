@@ -1,5 +1,6 @@
 import { sql } from "./db";
 import { papersCte, STAGES, type Stage } from "./queries-papers";
+import { seesClass, seesSheet, type Who } from "./reach";
 
 // The page across every class (goals/s7-across-classes.yaml), slice S7 of the scope Nimish locked on 2026-10-22: "the
 // coordinator's page across classes: each class and subject's stage, overdue checks, papers missing over 3 days,
@@ -15,7 +16,8 @@ export type Missing = { section: string; band: string; roll_no: string | null; q
 export type Struggling = { child_id: string; section: string; band: string; roll_no: string; name: string; subjects: string[] };
 export type Across = { stages: ClassStage[]; overdue: Overdue[]; missing: Missing[]; struggling: Struggling[]; days: number; hours: number; subjects: number };
 
-export async function across(actor: string): Promise<Across> {
+/** Every number of the page, of the papers and children the person sees (`staff_sees`): everything for a coordinator. */
+export async function across(actor: string, me: Who): Promise<Across> {
   const [[limits], stages, overdue, missing, struggling, [{ subjects }]] = await Promise.all([
     sql<{ days: number; hours: number }[]>`
       select (select value from threshold where key = 'across.papers_missing_days')::int as days,
@@ -29,7 +31,7 @@ export async function across(actor: string): Promise<Across> {
         from papers p cross join lateral unnest(p.topics) tc(code)
         join topic t on t.tenant_id = p.tenant_id and t.code = tc.code
         join subject su on su.tenant_id = t.tenant_id and su.code = t.subject_code
-        where p.section is not null and not p.spare and not p.extra and p.stage <> 'replaced'
+        where p.section is not null and not p.spare and not p.extra and p.stage <> 'replaced' and ${seesSheet(me, sql`p.id`)}
       ),
       one as (
         select distinct tenant_id, section, class_band, subject, kind, week, set_key, set_name, id, stage, created_at from placed
@@ -55,6 +57,7 @@ export async function across(actor: string): Promise<Across> {
       from item_result r join capture k on k.id = r.capture_id and k.superseded_by is null
       join sheet_instance si on si.id = k.sheet_instance_id left join child ch on ch.id = si.child_id
       where r.status in ('unreadable', 'needs_teacher') and coalesce(si.section, ch.section) is not null
+        and ${seesSheet(me, sql`si.id`)}
         and k.created_at < now() - make_interval(hours => (select value from threshold where key = 'across.check_overdue_hours')::int)
       group by 1, 2 order by min(k.created_at)`,
     // a child's paper given (or printed, where no one said the day) longer ago than the threshold and not back; a child
@@ -69,7 +72,7 @@ export async function across(actor: string): Promise<Across> {
         from sheet_instance si join child ch on ch.id = si.child_id and ch.active
         join sheet_template t on t.id = si.sheet_template_id
         left join skill ss on ss.tenant_id = t.tenant_id and ss.code = t.skill_set_code
-        where si.print_status in ('printed', 'with_teacher')
+        where si.print_status in ('printed', 'with_teacher') and ${seesSheet(me, sql`si.id`)}
           and not exists (select 1 from capture k where k.sheet_instance_id = si.id and k.superseded_by is null)
           and coalesce((select (a.request ->> 'away')::boolean from flow_run a where a.flow = 'absent'
                         and a.request ->> 'qr' = si.qr_code order by a.started_at desc, a.id desc limit 1), false) = false
@@ -92,7 +95,7 @@ export async function across(actor: string): Promise<Across> {
       many as (select child_id, array_agg(subject_code order by subject_code) as codes from red group by 1 having count(*) >= 2)
       select c.id as child_id, c.section, class_band(c.tenant_id, c.section) as band, c.roll_no, n.first_name as name,
              array(select coalesce(su.label, su.name) from subject su where su.tenant_id = c.tenant_id and su.code = any(m.codes) order by su.code) as subjects
-      from many m join child c on c.id = m.child_id and c.active, lateral pii.read_child(c.id, ${actor}) n
+      from many m join child c on c.id = m.child_id and c.active and ${seesClass(me, sql`c.section`)}, lateral pii.read_child(c.id, ${actor}) n
       order by grade_ord(c.tenant_id, class_band(c.tenant_id, c.section)), c.section, roll_order(c.roll_no), c.roll_no`,
     sql<{ subjects: number }[]>`
       select count(distinct t.subject_code)::int as subjects from child_skill_state s
