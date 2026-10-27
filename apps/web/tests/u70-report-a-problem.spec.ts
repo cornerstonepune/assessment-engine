@@ -112,12 +112,14 @@ test("your reports say received, taken up and done from the issue", async ({ pag
 test("past the hourly limit a note is refused in words", async ({ page }) => {
   const m = mark();
   await page.goto("/feedback");
-  // the limit at the notes this person has already sent in the hour, so the next is one too many
+  await write(page, `The first one ${m}`);
+  await expect(page.getByRole("status")).toHaveText("Thanks, we have your note.");
+  // one note an hour, and this person has just sent one, so the next is one too many
   await sql`update threshold set value = 1 where key = ${LIMIT}`;
   try {
     await write(page, `One more ${m}`);
     await expect(page.getByRole("status")).toHaveText(/You have sent 1 notes in the last hour/);
-    expect(await noteOf(m)).toBeUndefined();
+    expect(await sql`select 1 from staff_note where happened = ${`One more ${m}`}`).toHaveLength(0);
   } finally {
     await sql`update threshold set value = 1000 where key = ${LIMIT}`;
   }
