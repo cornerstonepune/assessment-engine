@@ -19,6 +19,8 @@ def week_roster(path: str) -> None:
         typer.echo(f"  {k:<14}{counts[k]:>4}")
     for c in counts["grade changed"]:
         typer.echo(f"  grade changed  {c}")
+    for c in counts["kept as changed on the site"]:
+        typer.echo(f"  left as changed here  {c}")
 
 
 @week_app.command("prescribe")
