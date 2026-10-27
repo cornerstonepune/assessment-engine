@@ -59,10 +59,14 @@ test("an educator asks for more questions like a Maths sample and is told what w
   await expect(page.getByText("Your sample is kept as a sample. It is not a kind of sum Medium makes")).toBeVisible();
   expect(await count()).toBe(before + 5);
 
-  // English: written by a model, which is not switched on until its prompt is scored
+  // English: written by a model, which stays off until its prompt is scored (rule 7). The seed switched v2 on after its
+  // score (DECISIONS-LOG.md, 27 Oct 2026), so this puts the rule's case back for the length of this check
+  const was = await sql<{ version: number; active: boolean }[]>`select version, active from prompt where purpose = 'english_generate'`;
+  await sql`update prompt set active = false where purpose = 'english_generate'`;
   await page.goto(`/skill-sets/${english.code}`);
   const card = page.locator(`#level-${english.level} section[data-kind="${english.kind}"] li[data-sample="${english.ord}"]`);
   await card.getByText("Make more like this").click();
   await card.getByRole("button", { name: `Make questions like sample ${english.ord}` }).click();
   await expect(page.getByText("Making questions is not switched on yet")).toBeVisible();
+  for (const r of was.filter((w) => w.active)) await sql`update prompt set active = true where purpose = 'english_generate' and version = ${r.version}`;
 });
