@@ -88,7 +88,7 @@ test("each class is a table of its children, each row their standing and next st
   const [{ n: before }] = await sql<{ n: number }[]>`
     select count(*)::int as n from access_log where child_id = ${ids.Asha} and actor = ${TEST_STAFF.email}`;
   // a class chosen in the filter row is a table of its children (goals/uxn9-class-results.yaml)
-  await page.goto(`/growth?class=${SECTION}`);
+  await page.goto(`/growth?view=children&class=${SECTION}`);
   const grade = page.getByRole("main");
   const table = grade.getByRole("table", { name: `${SECTION}: its children` });
   await expect(table.locator("thead th")).toHaveText([
@@ -117,7 +117,7 @@ test("each class is a table of its children, each row their standing and next st
 });
 
 test("a click anywhere on a child's row opens the child, and any column sorts the table", async ({ page }) => {
-  await page.goto(`/growth?class=${SECTION}`);
+  await page.goto(`/growth?view=children&class=${SECTION}`);
   const mine = async () =>
     (await page.locator(`tbody tr[data-section="${SECTION}"]`).evaluateAll((trs) => trs.map((t) => t.getAttribute("data-child"))));
   expect(await mine()).toEqual([ids.Asha, ids.Bina, ids.Chetan]); // who needs help first, then by roll, 2 before 10

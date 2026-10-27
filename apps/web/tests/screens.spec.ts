@@ -106,10 +106,11 @@ test("a child's page is in words, with the answers behind each skill", async ({ 
   await expect(shown).toBeVisible();
   await expect(shown).not.toContainText(/\b(R\d{1,2}|X[12]|M_[A-Z0-9_]+|[A-Z]{3}\.[A-Z0-9]+\.[A-Z]+)\b/);
   // The page reads confirmed evidence and nothing else (rule 4): Kavya's four signed-off answers on 2-digit + 2-digit.
-  // a topic with no skill that needs help is folded to its line (goals/ux4-class-and-child.yaml): opened, its skills show
-  const topic = shown.locator("details[data-topic]:has(li[data-skill])").first();
-  if ((await topic.getAttribute("open")) === null) await topic.locator("> summary").click();
-  const line = topic.locator("li[data-skill]").first();
+  // a topic with no skill that needs help is folded to its row (goals/ux4-class-and-child.yaml, res_results_by_topic.yaml):
+  // opened, its skills show
+  const opener = shown.locator("tr[data-topic]").first().getByRole("link").first();
+  if ((await opener.getAttribute("aria-expanded")) !== "true") await opener.click();
+  const line = shown.locator("li[data-skill]").first();
   await expect(line).toBeVisible();
   await line.locator("summary").click();
   await expect(line.locator("details")).toHaveAttribute("open", "");

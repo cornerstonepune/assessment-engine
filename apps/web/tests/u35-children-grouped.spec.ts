@@ -94,7 +94,7 @@ const rows = (t: Locator) => t.locator("tbody tr");
 
 test("an educator sees their own class as a table of its children, and no other", async ({ browser }) => {
   const page = await asEducator(browser);
-  await page.goto("/growth");
+  await page.goto("/growth?view=children");
   const mine = table(page, MINE);
   await expect(rows(mine)).toHaveCount(3);
   // one class is theirs: the classes table has the one row, and the filter row offers no other
@@ -106,7 +106,7 @@ test("an educator sees their own class as a table of its children, and no other"
 });
 
 test("the coordinator sees every class in one table, says what waits in each, and opens it with a click", async ({ page }) => {
-  await page.goto(`/growth?class=${MINE}`);
+  await page.goto(`/growth?view=children&class=${MINE}`);
   const classes = page.getByRole("table", { name: "Classes" });
   const row = classes.locator("tbody tr").filter({ hasText: MINE });
   await expect(row).toHaveCount(1);
@@ -119,11 +119,13 @@ test("the coordinator sees every class in one table, says what waits in each, an
   await expect(cell("Parent reports waiting")).toHaveText("1");
   await expect(row.locator("[data-status=needsHelp]")).toBeVisible();
   // a class's name opens its children, in place
-  await page.goto("/growth");
-  await expect(page.getByRole("link", { name: OTHER })).toHaveCount(0);
-  await page.goto(`/growth?class=${OTHER}`);
+  await page.goto("/growth?view=children");
+  // across the classes the children listed are those who need the educator, and none of the other class does: its name is
+  // in the classes table (on its first page or a later one, as many classes as the copy holds), never among them
+  await expect(page.getByRole("region", { name: "Children who need you" }).getByRole("link", { name: OTHER })).toHaveCount(0);
+  await page.goto(`/growth?view=children&class=${OTHER}`);
   await expect(page.getByRole("table", { name: "Classes" }).locator("tbody tr")).toHaveCount(1);
-  await page.goto("/growth");
+  await page.goto("/growth?view=children");
   await page.locator("[data-filterbar] select[name=class]").selectOption(MINE);
   await expect(page).toHaveURL(new RegExp(`class=${MINE}`));
   await expect(rows(table(page, MINE))).toHaveCount(3);
@@ -131,7 +133,7 @@ test("the coordinator sees every class in one table, says what waits in each, an
 
 test("a class's table has the columns that matter, children who need help first", async ({ browser }) => {
   const page = await asEducator(browser);
-  await page.goto("/growth");
+  await page.goto("/growth?view=children");
   const mine = table(page, MINE);
   // the sorted column carries its marker
   await expect(mine.locator("thead th")).toHaveText([...COLUMNS, "Status"].map((c) => new RegExp(`^${c}( ▾)?$`)));
@@ -153,7 +155,7 @@ test("a class's table has the columns that matter, children who need help first"
 test("the colour key is one line, and at 400 px nothing scrolls sideways", async ({ browser }) => {
   const page = await asEducator(browser);
   await page.setViewportSize({ width: 400, height: 860 });
-  await page.goto("/growth");
+  await page.goto("/growth?view=children");
   // the key is put away behind "Details" (goals/ux10-declutter.yaml); read once the page has streamed in
   await page.getByText("Details", { exact: true }).click();
   const key = page.locator("details[data-colour-key]");

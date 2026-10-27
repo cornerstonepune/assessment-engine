@@ -15,6 +15,8 @@ export type Filter = {
   /** The words for "no filter": "Every class". */
   all: string;
   options: readonly (readonly [string, string])[];
+  /** Always one of the options (a page of one class at a time): no "all" choice, and nothing to take off. */
+  required?: boolean;
 };
 
 export function FilterBar({
@@ -32,7 +34,7 @@ export function FilterBar({
 }) {
   const form = useRef<HTMLFormElement>(null);
   const on = [
-    ...filters.flatMap((f) => (f.value ? [{ name: f.name, label: `${f.label}: ${f.options.find(([v]) => v === f.value)?.[1] ?? f.value}` }] : [])),
+    ...filters.flatMap((f) => (f.value && !f.required ? [{ name: f.name, label: `${f.label}: ${f.options.find(([v]) => v === f.value)?.[1] ?? f.value}` }] : [])),
     ...(search?.value ? [{ name: search.name, label: `Search: “${search.value}”` }] : []),
   ];
   const href = (without: string[]) => {
@@ -52,7 +54,7 @@ export function FilterBar({
           <label key={f.name} className="flex items-center gap-2 text-[13px] text-basalt/70">
             <span>{f.label}</span>
             <select name={f.name} defaultValue={f.value ?? ""} onChange={() => form.current?.requestSubmit()} className={`select ${control} !w-auto`}>
-              <option value="">{f.all}</option>
+              {f.required ? null : <option value="">{f.all}</option>}
               {f.options.map(([v, words]) => (
                 <option key={v} value={v}>
                   {words}

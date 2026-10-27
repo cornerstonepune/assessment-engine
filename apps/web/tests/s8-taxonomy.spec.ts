@@ -8,9 +8,15 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { aTaughtClass } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
+// the bank shows the questions of skills taught in a class with children: a fresh copy has none, and this spec makes its
+// own rather than lean on one that ran before it (CI splits the specs across runners)
+test.beforeAll(async () => {
+  await aTaughtClass(sql);
+});
 test.afterAll(async () => sql.end());
 
 // the kind as a teacher reads it (components/question.tsx), and words the child's question itself carries

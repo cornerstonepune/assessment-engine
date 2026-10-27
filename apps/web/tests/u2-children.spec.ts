@@ -115,8 +115,9 @@ test.afterAll(async () => {
 test("each grade opens on its classes, and a class is its children against every step in red, amber, green or grey", async ({
   page,
 }) => {
-  await page.goto(`/growth?class=${SECTION}`);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Class results");
+  // the classes side by side and a class's children: Results' children view (goals/res_results_by_topic.yaml)
+  await page.goto(`/growth?view=children&class=${SECTION}`);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Children, one by one");
   // each class a row of the classes table, with its link (goals/uxn9-class-results.yaml)
   await page.getByRole("table", { name: "Classes" }).getByRole("link", { name: "Against every skill →" }).click();
   await expect(page).toHaveURL(`/growth/class/${SECTION}`);
@@ -212,7 +213,7 @@ test("a child's page never draws a wall of grey, only skills with answers get a 
 test("a child's page shows what their answers show and every mistake that repeats, and how often", async ({ page }) => {
   await page.goto(`/growth/${ids.Asha}`);
   const shown = page.getByRole("region", { name: "What their answers show" });
-  await expect(shown.getByRole("heading", { name: "Addition & subtraction" })).toBeVisible();
+  await expect(shown.locator(`tr[data-topic="ADDSUB"]`)).toContainText("Addition & subtraction");
   const [{ name: skill }] = await sql<{ name: string }[]>`select name from skill where code = 'SUB.2D2D'`;
   await expect(shown.locator('li[data-skill="SUB.2D2D"]')).toContainText(skill);
 

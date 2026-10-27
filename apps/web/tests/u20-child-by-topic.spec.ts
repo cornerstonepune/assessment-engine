@@ -60,10 +60,10 @@ test.afterAll(async () => {
 
 test("a child's page opens on their profile topic by topic", async ({ page }) => {
   await page.goto(`/growth/${kids.Ishaan}`);
-  // each topic is a group whose line counts its skills by where they stand: the profile, said once
-  // (goals/ux4-class-and-child.yaml)
+  // a row per topic, counting its skills by where they stand: the profile, said once (goals/ux4-class-and-child.yaml,
+  // goals/res_results_by_topic.yaml)
   const shown = page.getByRole("region", { name: "What their answers show" });
-  const line = (code: string) => shown.locator(`details[data-topic="${code}"] > summary`);
+  const line = (code: string) => shown.locator(`tr[data-topic="${code}"]`);
   // the rest of the grade's addition and subtraction taught in the class (reasoning's among them, Grade 2's since
   // ADR 0085) is counted as not assessed yet, not drawn as a wall of grey
   const [{ notYet }] = await sql<{ notYet: number }[]>`
@@ -72,15 +72,16 @@ test("a child's page opens on their profile topic by topic", async ({ page }) =>
       and skill_taught_in(s.tenant_id, s.code, (select section from child where id = ${kids.Ishaan}))`;
   await expect(line("ADDSUB")).toContainText(`Addition & subtraction`);
   await expect(line("ADDSUB")).toContainText(`1 needs help · 1 practising · 1 secure · ${notYet} not assessed yet`);
-  await expect(line("DATA")).toContainText(/^\W*Data handling\s*1 needs help\b/);
+  await expect(line("DATA")).toContainText("Data handling");
+  await expect(line("DATA").locator("td[data-label='Skills']")).toHaveText(/^1 needs help\b/);
   // a topic not switched on is no part of a child's profile
   await expect(shown).not.toContainText("Multiplication in columns");
 });
 
 test("a topic opens to its skills, the ones that need help first", async ({ page }) => {
   await page.goto(`/growth/${kids.Ishaan}`);
-  // a topic with a skill that needs help is open already: its skills show (the page streams in hidden, then is shown)
-  await expect(page.locator('details[data-topic="ADDSUB"]')).toHaveAttribute("open", "");
+  // a topic with a skill that needs help is open already: its skills show
+  await expect(page.locator('tr[data-topic="ADDSUB"]').getByRole("link").first()).toHaveAttribute("aria-expanded", "true");
   const list = page.getByRole("list", { name: "Addition & subtraction" });
   await expect(list).toBeVisible();
   const skills = list.locator(":scope > li");

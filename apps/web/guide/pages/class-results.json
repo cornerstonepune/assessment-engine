@@ -1,47 +1,75 @@
 {
   "menu": "/growth",
   "forWhat": [
-    "Your classes, and the children who need you first. Open a child to see each skill, their papers and their home assessment.",
+    "One class, topic by topic: how many children are {colour:green}, {colour:amber} or {colour:red} in each. Open a topic for its skills, and a skill for its children.",
     "Everything here comes from checked answers only."
   ],
   "layout": [
     {
       "area": "Title and main button",
-      "shows": "[[Check … answers]] when answers wait, or [[Make an assessment]]."
+      "shows": "[[Make an assessment]]."
     },
     {
       "area": "Filter row",
-      "shows": "Grade, Class and Status."
+      "shows": "Class, opening on your own class. Subject too, when the class has more than one."
     },
     {
-      "area": "Children",
-      "shows": "One row per child: what they need help on, counts of skills by colour, their last paper, and what waits on you. A row opens the child."
+      "area": "Topics",
+      "shows": "A row per topic, grouped by subject. Each row counts the children by where they stand, in words, with a thin bar, and says when the topic was last assessed. A topic is folded until you open it."
     },
     {
-      "area": "Classes",
-      "shows": "One row per class, and [[Against every skill]] to see the class skill by skill."
+      "area": "An opened topic",
+      "shows": "Its papers by kind: the class assessment, home assessments and for how many children, practice. Then its skills, each with how many children are at each level."
+    },
+    {
+      "area": "An opened skill",
+      "shows": "Its children, those who need you first: level, state, answers and when last assessed. A child with answers still waiting says so, with a link."
+    },
+    {
+      "area": "Under the topics",
+      "shows": "[[Each child against each topic]] and [[Every child, one by one]] open the class in the older views."
     },
     {
       "area": "Details",
-      "shows": "What each colour means, folded away."
+      "shows": "How a child is counted in a topic, and what each colour means, folded away."
     }
   ],
   "jobs": [
     {
+      "id": "a-topic",
+      "title": "See how the class is doing in a topic",
+      "steps": [
+        "Open Class results. It opens on your class; choose another in the filter row.",
+        "Each topic row counts the children: {colour:green}, {colour:amber}, {colour:red}, {colour:grey}, and not assessed yet. A child is counted once, by the skill of the topic they are weakest on.",
+        "Press the topic's name to open it. Press a skill's name to see its children.",
+        "Press the name again to fold it."
+      ]
+    },
+    {
       "id": "a-child",
       "title": "See how a child is doing",
       "steps": [
-        "Open Class results and press the child's row.",
-        "[[What their answers show]] lists their skills by topic, each in its colour.",
-        "[[Repeated mistakes]] shows a mistake they make more than once.",
-        "[[Their papers]] lists their newest papers. [[Report card]] and [[Parent report]] open their reports."
+        "Open a skill and press the child's name, or open a child from anywhere their name shows.",
+        "[[What their answers show]] is a row per topic: the level of the newest question they answered, their last paper's answers in it, their state, and their strongest or weakest skill in plain words.",
+        "Press a topic to open it: its skills, each opening to the answers behind it, and its papers.",
+        "On a paper, press [[See the child’s page]] to see what the child wrote, here on the page.",
+        "[[Repeated mistakes]] shows a mistake they make more than once. [[Report card]] and [[Parent report]] open their reports."
+      ]
+    },
+    {
+      "id": "answers-count",
+      "title": "How the answers are counted",
+      "steps": [
+        "Right of attempted: right answers out of those the child wrote something for.",
+        "Wrong, wrong with working, and blank are said apart. A blank is never counted as wrong.",
+        "When answers still wait to be checked, the row says so: results may change once they are checked."
       ]
     },
     {
       "id": "home-assessment",
       "title": "Make a home assessment",
       "steps": [
-        "Open the child from Class results.",
+        "Open the child.",
         "The panel [[Home assessment]] shows the paper the engine proposes, from the child's own answers.",
         "Press [[See it as it will print]] to look at it. Press [[Different questions]] for others; it makes nothing.",
         "To choose the skills and levels yourself, press [[Choose a different home assessment]].",
@@ -67,6 +95,11 @@
     }
   ],
   "buttons": [
+    {
+      "label": "See the child’s page",
+      "does": "Shows the pages the child wrote for that paper, here on the page.",
+      "doesNot": "It changes nothing."
+    },
     {
       "label": "Approve this home assessment",
       "does": "Makes and prints the home assessment you saw, in your name."

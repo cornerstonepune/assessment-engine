@@ -160,8 +160,9 @@ test("a skill has one check, though its rung tests two skills, and a skill no ch
   const href = await none.getByRole("link").getAttribute("href");
   expect(new URL(href!, "http://x").searchParams.getAll("c").sort()).toEqual(Object.values(ids).sort());
 
-  // the child's own page: one check, and a line for each skill, saying which
-  await page.goto(`/growth/${ids.Dev}`);
+  // the child's own page: one check, and a line for each skill, saying which (its topic opened: goals/res_results_by_topic.yaml)
+  const [{ topic }] = await sql<{ topic: string }[]>`select topic_code as topic from skill where code = 'WORD.1_2STEP'`;
+  await page.goto(`/growth/${ids.Dev}?topic=${topic}`);
   const his = page.getByRole("region", { name: "Checks that would place Dev" });
   await expect(his.locator('[data-check="WORD.1_2STEP"]')).toHaveCount(1);
   const lines = page.getByRole("region", { name: "What their answers show" }).locator('li[data-skill="WORD.1_2STEP"]');

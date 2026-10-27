@@ -74,7 +74,7 @@ async function asEducator(browser: Browser): Promise<Page> {
 
 test("Children leads with the children who need the educator, as a short list", async ({ browser }) => {
   const page = await asEducator(browser);
-  await page.goto("/growth");
+  await page.goto("/growth?view=children");
   const lead = page.getByRole("region", { name: "Children who need you" });
   await expect(lead).toBeVisible();
   // the child who needs help and has answers waiting is on it, and links to the child; a child with nothing is not
@@ -91,12 +91,12 @@ test("Children leads with the children who need the educator, as a short list", 
 test("a class's table holds only the columns that have something in them", async ({ browser }) => {
   const page = await asEducator(browser);
   // a class with nothing to show: the child, and the roll number, and a status (the filter row chooses the class)
-  await page.goto(`/growth?class=${QUIET}`);
+  await page.goto(`/growth?view=children&class=${QUIET}`);
   const quiet = page.getByRole("table", { name: `${QUIET}: its children` });
   await expect(quiet).toBeVisible();
   expect((await quiet.getByRole("columnheader").allTextContents()).map((h) => h.trim())).toEqual(["Roll", "Child", "Status"]);
   // a class with something: every column it shows has a number, a name or a pill in some row, and no cell is a dash or a nought
-  await page.goto(`/growth?class=${BUSY}`);
+  await page.goto(`/growth?view=children&class=${BUSY}`);
   const busy = page.getByRole("table", { name: `${BUSY}: its children` });
   await expect(busy).toBeVisible();
   const heads = (await busy.getByRole("columnheader").allTextContents()).map((h) => h.trim());
@@ -112,10 +112,10 @@ test("a class's table holds only the columns that have something in them", async
 
 test("Children has no topic chips and no second box to find a child; all skills is a quiet link", async ({ browser }) => {
   const page = await asEducator(browser);
-  await page.goto("/growth");
+  await page.goto("/growth?view=children");
   await expect(page.getByRole("navigation", { name: "Topic" })).toHaveCount(0);
   await expect(page.getByRole("main").getByRole("textbox")).toHaveCount(0);
-  await page.goto(`/growth?class=${BUSY}`);
+  await page.goto(`/growth?view=children&class=${BUSY}`);
   const all = page.getByRole("link", { name: "Against every skill →" });
   await expect(all).toBeVisible();
   // quiet: small type, never a button or a chip

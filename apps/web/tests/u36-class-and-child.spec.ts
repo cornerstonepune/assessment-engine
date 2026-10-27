@@ -148,20 +148,22 @@ test("a child's page says their standing once, topic by topic, the ones that nee
   await expect(page.getByRole("table", { name: "By topic" })).toHaveCount(0);
   await expect(page.getByRole("main").getByText("too few answers yet", { exact: true })).toHaveCount(0);
 
-  const topic = (code: string) => shown.locator(`details[data-topic="${code}"]`);
-  // Addition & subtraction holds a skill that needs help: open, its line counting its skills
-  await expect(topic("ADDSUB")).toHaveAttribute("open", "");
-  await expect(topic("ADDSUB").locator("> summary")).toContainText(/1 needs help\b.*1 secure\b.*\d+ not assessed yet/);
+  // a row per topic (goals/res_results_by_topic.yaml); the topics with a skill that needs help open
+  const topic = (code: string) => shown.locator(`tr[data-topic="${code}"]`);
+  const opener = (code: string) => topic(code).getByRole("link").first();
+  // Addition & subtraction holds a skill that needs help: open, its row counting its skills
+  await expect(opener("ADDSUB")).toHaveAttribute("aria-expanded", "true");
+  await expect(topic("ADDSUB")).toContainText(/1 needs help\b.*1 secure\b.*\d+ not assessed yet/);
   const list = shown.getByRole("list", { name: "Addition & subtraction" });
   await expect(list).toBeVisible();
   const lines = list.locator(":scope > li");
   expect(await lines.evaluateAll((els) => els.map((e) => e.getAttribute("data-rag")))).toEqual(["red", "green"]);
   // Data handling is all secure: closed, and one click opens it
-  await expect(topic("DATA")).not.toHaveAttribute("open", "");
-  await expect(topic("DATA").locator("> summary")).toContainText("1 secure");
-  await expect(topic("DATA").locator("li[data-skill]")).toBeHidden();
-  await topic("DATA").locator("> summary").click();
-  await expect(topic("DATA").locator("li[data-skill]")).toBeVisible();
+  await expect(opener("DATA")).toHaveAttribute("aria-expanded", "false");
+  await expect(topic("DATA")).toContainText("1 secure");
+  await expect(shown.getByRole("list", { name: "Data handling" })).toHaveCount(0);
+  await opener("DATA").click();
+  await expect(shown.getByRole("list", { name: "Data handling" }).locator("li[data-skill]")).toBeVisible();
   // the key, one line
   await expect(page.locator("details[data-colour-key]")).toHaveCount(1);
   // nothing runs past its panel's edge: the parent report's state was a pill, which does not wrap

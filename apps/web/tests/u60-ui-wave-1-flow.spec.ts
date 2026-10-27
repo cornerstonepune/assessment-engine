@@ -243,8 +243,14 @@ test("Upload papers, Check answers, Marking", async ({ page }) => {
 });
 
 test("Class results, its class and a child", async ({ page }) => {
-  await wholePage(page, "/growth", /Class results/, { chips: true });
-  await page.goto(`/growth?class=${SECTION}`);
+  // a class's topics, a topic opened (goals/res_results_by_topic.yaml); this class has nothing signed off yet, so its
+  // skills are named once as not assessed. Its children, one by one, each in a status chip, and a child opened.
+  await wholePage(page, `/growth?class=${SECTION}`, /Class results/, { chips: false });
+  await page.locator("tr[data-topic]").first().getByRole("link").first().click();
+  await expect(page.getByText("This page could not load")).toHaveCount(0);
+  await page.getByRole("link", { name: "Every child, one by one →" }).click();
+  await expect(page.locator("[data-status]:visible").first()).toBeVisible();
+  await statusesSaid(page, "/growth?view=children");
   const child = page.getByRole("link", { name: /Bina/ }).first();
   await expect(child).toBeVisible();
   await child.click();

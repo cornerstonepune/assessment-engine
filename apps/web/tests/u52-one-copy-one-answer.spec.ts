@@ -183,29 +183,44 @@ test("a child's page lists each answer once, and every count on it is the answer
   const state = await sql<{ skill: string; n_events: number; n_correct: number }[]>`
     select skill_code as skill, n_events, n_correct from child_skill_state where child_id = ${kids.Asha}`;
   for (const s of skills) expect(state.find((x) => x.skill === s.skill)).toMatchObject({ n_events: s.events, n_correct: s.right });
-  // every table of answers on the page names a question once
-  await page.locator("details").evaluateAll((ds) => ds.forEach((d) => d.setAttribute("open", "")));
-  const tables = page.locator("[data-skill] table");
-  expect(await tables.count()).toBeGreaterThan(0);
-  for (const t of await tables.all()) {
-    const slots = await t.locator("tbody tr td:nth-child(2)").allTextContents();
-    expect(slots.length).toBe(new Set(slots).size);
+  // every table of answers on the page names a question once: each topic the answers reached, opened (a row per topic,
+  // goals/res_results_by_topic.yaml)
+  const topics = await sql<{ topic: string }[]>`
+    select distinct ss.topic_code as topic from child_skill_state s join skill ss on ss.rung_code = s.rung_code
+    where s.child_id = ${kids.Asha} and s.n_events > 0`;
+  let lines = 0;
+  for (const { topic } of topics) {
+    await page.goto(`/growth/${kids.Asha}?topic=${topic}`);
+    await page.locator("details").evaluateAll((ds) => ds.forEach((d) => d.setAttribute("open", "")));
+    const tables = page.locator("[data-skill] table");
+    expect(await tables.count()).toBeGreaterThan(0);
+    for (const t of await tables.all()) {
+      const slots = await t.locator("tbody tr td:nth-child(2)").allTextContents();
+      expect(slots.length).toBe(new Set(slots).size);
+    }
+    // a skill's line counts what its own table lists
+    const of_ = await page.locator("[data-skill][data-of]").evaluateAll((els) => els.map((e) => e.getAttribute("data-of")!));
+    lines += of_.length;
+    for (const of of of_) {
+      const s = skills.find((x) => x.skill === of)!;
+      const line = page.locator(`[data-skill][data-of="${of}"]`).first();
+      await expect(line).toContainText(`${s.right} of ${s.events} right`);
+      await expect(line.locator("tbody tr")).toHaveCount(s.events);
+    }
   }
-  // a skill's line counts what its own table lists
-  const lines = await page.locator("[data-skill][data-of]").evaluateAll((els) => els.map((e) => e.getAttribute("data-of")!));
-  expect(lines.length).toBeGreaterThan(0);
-  for (const of of lines) {
-    const s = skills.find((x) => x.skill === of)!;
-    const line = page.locator(`[data-skill][data-of="${of}"]`).first();
-    await expect(line).toContainText(`${s.right} of ${s.events} right`);
-    await expect(line.locator("tbody tr")).toHaveCount(s.events);
-  }
+  expect(lines).toBeGreaterThan(0);
   await page.context().close();
 });
 
 test("the two readings are told apart by header and by words: what the reader saw, what the child wrote you confirmed", async ({ browser }) => {
   const page = await asEducator(browser);
-  await page.goto(`/growth/${kids.Asha}`);
+  // the topic of the skill every one of the three questions tests, opened (a row per topic, goals/res_results_by_topic.yaml)
+  const [{ topic }] = await sql<{ topic: string }[]>`
+    select ss.topic_code as topic from evidence_placed e join item_result r on r.id = e.item_result_id
+    join capture c on c.id = r.capture_id join skill ss on ss.rung_code = e.placed_rung
+    where e.child_id = ${kids.Asha} and e.confirmed_by is not null and c.superseded_by is null
+    group by ss.topic_code, e.skill_code having count(distinct e.item_result_id) = 3 order by 1 limit 1`;
+  await page.goto(`/growth/${kids.Asha}?topic=${topic}`);
   await page.locator("details").evaluateAll((ds) => ds.forEach((d) => d.setAttribute("open", "")));
   // the skill every one of the three questions tests
   const lines = await page.locator("[data-skill][data-of]").evaluateAll((els) => els.map((e) => e.getAttribute("data-of")!));

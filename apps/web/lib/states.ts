@@ -14,6 +14,8 @@ export type ChildState = {
   enough: boolean;
   move_up: boolean;
   nearly: boolean;
+  /** How severe it is when a group of skills takes its worst (1 most severe): what a topic or a skill set shows. */
+  severity: number;
 };
 
 /** A colour's own words. A page says a colour with `count_words` alone, in a key as in a count ("3 secure"), so one
@@ -31,7 +33,7 @@ export type States = {
 
 export async function childStates(): Promise<States> {
   const [list, colours] = await Promise.all([
-    sql<ChildState[]>`select code, words, colour, needs_work, enough, move_up, nearly from child_state order by ord`,
+    sql<ChildState[]>`select code, words, colour, needs_work, enough, move_up, nearly, severity from child_state order by ord`,
     sql<(ColourWords & { code: Rag })[]>`select code, words, count_words from state_colour order by ord`,
   ]);
   const by = new Map(list.map((s) => [s.code, s]));

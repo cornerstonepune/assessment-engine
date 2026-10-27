@@ -19,6 +19,12 @@ export const STATES = {
   toCheck: { tone: "act", words: "to check" },
   toSignOff: { tone: "wait", words: "to sign off" },
   needsHelp: { tone: "act", words: "needs help" },
+  // a child's standing on a topic or a skill, by its colour: always shown in its colour's row's words
+  // (`state_colour.count_words`, passed as `words`); these are only the colours' names
+  standingGreen: { tone: "ok", words: "green" },
+  standingAmber: { tone: "wait", words: "amber" },
+  standingGrey: { tone: "quiet", words: "grey" },
+  notAssessed: { tone: "quiet", words: "not assessed yet" },
   fine: { tone: "ok", words: "doing well" },
   up: { tone: "ok", words: "better" },
   down: { tone: "act", words: "worse" },
