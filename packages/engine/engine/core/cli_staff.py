@@ -10,19 +10,20 @@ import secrets
 
 import typer
 
-from engine.core import db
-from engine.core.staff import add, classes, save, set_classes, staff, staff_hash
+from engine.core import db, settings
+from engine.core.staff import NODE_DEFAULT_N, add, classes, save, set_classes, staff, staff_hash
 
 staff_app = typer.Typer(help="Who signs in to the website", no_args_is_help=True)
 
 
-def _password() -> str:
+def _password(n: int) -> str:
+    """Hashed at the cost the `password.scrypt_n` row asks for, as the website hashes one a person sets themselves."""
     first = getpass.getpass("  New password (10+ characters, not shown): ")
     if len(first) < 10:
         raise typer.BadParameter("at least 10 characters")
     if getpass.getpass("  Once more: ") != first:
         raise typer.BadParameter("the two did not match — nothing changed")
-    return staff_hash(first, secrets.token_hex(16))
+    return staff_hash(first, secrets.token_hex(16), n)
 
 
 def _said(teaches: list[str], role: str) -> str:
@@ -46,7 +47,8 @@ def add_(
             classes(conn, teaches)
         except ValueError as e:
             raise typer.BadParameter(str(e)) from e
-    password = _password()
+        cost = int(settings.threshold(conn, "password.scrypt_n", NODE_DEFAULT_N))
+    password = _password(cost)
     with db.connect() as conn:
         try:
             person = add(conn, email, name, role, password, teaches)
@@ -108,7 +110,7 @@ def register(app: typer.Typer) -> None:
                 raise typer.BadParameter(
                     f"{email} is not on the staff list — nothing changed (engine staff add puts them on)"
                 )
-            me["password"] = _password()
+            me["password"] = _password(int(settings.threshold(conn, "password.scrypt_n", NODE_DEFAULT_N)))
             save(conn, people)
             conn.commit()
         typer.echo(f"  password set for {me['name']} ({me['role']}) — sign in with {me['email']}")

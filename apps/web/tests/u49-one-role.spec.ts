@@ -103,7 +103,7 @@ test("an educator takes a decision once the coordinator's alone: approving a ski
   const educator = await asEducator(browser);
   try {
     await educator.goto("/today");
-    await expect(educator.getByRole("main")).toContainText("Approve a skill");
+    await expect(educator.getByRole("main")).toContainText("Skills to approve");
     await educator.getByRole("button", { name: "Menu" }).click();
     await expect(educator.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "How it works" }), "the engineering map is theirs too").toBeVisible();
     await educator.goto(`/skill-sets/${waiting.code}`);

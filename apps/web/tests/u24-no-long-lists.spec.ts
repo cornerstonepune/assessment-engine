@@ -72,9 +72,9 @@ test("Today names the first five classes waiting and opens the rest", async ({ p
   await page.goto("/today?kind=classpaper");
   const rows = page.locator("tr[data-kind=classpaper]");
   expect(await rows.count()).toBeLessThanOrEqual(10);
-  const all = Number((await page.locator("details[data-topic] > summary .fact").first().innerText()).replace(/\D/g, ""));
+  const all = Number((await page.locator("details[data-group=classpapers] [data-group-count]").innerText()).replace(/\D/g, ""));
   expect(all).toBeGreaterThanOrEqual(PACKS.length);
-  if (all > 10) await expect(page.getByRole("link", { name: "Show all →" })).toBeVisible();
+  if (all > 10) await expect(page.locator("details[data-group=classpapers]").getByRole("link", { name: "Later →" })).toBeVisible();
 });
 
 test("the questions answered are folded under one line until opened", async ({ page }) => {

@@ -7,7 +7,8 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
-import { isoWeek, weekWords } from "../lib/week";
+import { isoWeek } from "../lib/week";
+import { queueByWeek, trustNow } from "../lib/queries-today";
 import { aClass, aReadPaper, aWorksheet } from "./rows";
 
 test.describe.configure({ mode: "serial" });
@@ -33,7 +34,9 @@ test.beforeAll(async () => {
   });
 });
 
-test("Today shows, week by week, how many answers needed a person", async ({ page }) => {
+// The trend left What needs doing on 26 Oct 2026 (goals/nav3_what_needs_doing.yaml) and waits for a Results or Setup page
+// (docs/notes/nav3-what-needs-doing.md, "Parked"): what is held here is its data, the two functions that page will call.
+test("the queue's trend, week by week, says how many answers needed a person", async () => {
   const week = isoWeek();
   const [want] = await sql<{ read: number; alone: number; person: number; waiting: number }[]>`
     select count(*)::int as read,
@@ -43,21 +46,11 @@ test("Today shows, week by week, how many answers needed a person", async ({ pag
     from answer_standing s join item_result r on r.id = s.item_result_id join capture c on c.id = r.capture_id
     where to_char(c.created_at, 'IYYY-"W"IW') = ${week}`;
   expect(want.read, "the test's own paper was read this week").toBeGreaterThanOrEqual(3);
-  await page.goto("/today");
-  const queue = page.getByRole("region", { name: "Is the queue shrinking?", exact: true });
-  const needed = Math.round((100 * (want.person + want.waiting)) / want.read);
-  // the week as a person says it (goals/ui1-menu-and-today.yaml): "week of 5 Oct", not "2026-W41"
-  await expect(queue.getByRole("row").filter({ hasText: weekWords(week) }).getByRole("cell")).toHaveText([
-    weekWords(week),
-    String(want.read),
-    String(want.alone),
-    String(want.person),
-    String(want.waiting),
-    `${needed}%`,
-  ]);
+  const now = (await queueByWeek()).find((w) => w.week === week);
+  expect(now).toEqual({ week, read: want.read, alone: want.alone, person: want.person, waiting: want.waiting });
   // how near the reader is to trust, as the one rule says
   const kinds = await sql<{ trusted: boolean }[]>`select trusted from kind_trust`;
-  await expect(queue).toContainText(`trusted on ${kinds.filter((k) => k.trusted).length} of ${kinds.length}`);
+  expect(await trustNow()).toMatchObject({ kinds: kinds.length, trusted: kinds.filter((k) => k.trusted).length });
 });
 
 test("each kind of question says how many more checks before the reader is trusted on it", async ({ page }) => {

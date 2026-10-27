@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from engine.api.deps import get_conn, require_engine_key
-from engine.w1_bank import english_edit, english_form
+from engine.w1_bank import english_edit, english_form, retire
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 Text = Field(default="", max_length=4000)
@@ -66,6 +66,14 @@ class KindRemoveRequest(Where):
     pass
 
 
+class KindStopRequest(BaseModel):
+    """A kind stopped, or used again, at one level, or at every level that asks it (no level)."""
+
+    level: str | None = Field(default=None, min_length=1, max_length=20)
+    kind: str = Field(min_length=1, max_length=40)
+    by: str = Field(min_length=1, max_length=200)
+
+
 def _form(f: SampleForm) -> dict[str, Any]:
     return {**f.model_dump(include={"passage_code", "passage_title", "passage_text", "rubric_code"}),
             "fields": f.fields.model_dump(), "wrong": [w.model_dump() for w in f.wrong]}  # fmt: skip
@@ -105,3 +113,21 @@ def add_kind(code: str, body: KindAddRequest, conn=Depends(get_conn, scope="func
 @router.post("/skill/{code}/kind/remove")
 def remove_kind(code: str, body: KindRemoveRequest, conn=Depends(get_conn, scope="function")):
     return english_edit.remove_kind(conn, code, body.level, body.kind, body.by)
+
+
+@router.get("/skill/{code}/kind/touches")
+def kind_touches(code: str, kind: str, level: str | None = None, conn=Depends(get_conn, scope="function")):
+    """What stopping a kind would touch, writing nothing: {levels, questions, papers, withdraw}."""
+    return retire.touches(conn, code, kind, level)
+
+
+@router.post("/skill/{code}/kind/stop")
+def stop_kind(code: str, body: KindStopRequest, conn=Depends(get_conn, scope="function")):
+    """A kind stopped: {stopped, why, levels, questions, papers, withdrawn}."""
+    return retire.stop(conn, code, body.kind, body.by, body.level)
+
+
+@router.post("/skill/{code}/kind/start")
+def start_kind(code: str, body: KindStopRequest, conn=Depends(get_conn, scope="function")):
+    """A stopped kind used again: {started, why, levels}."""
+    return retire.start(conn, code, body.kind, body.by, body.level)

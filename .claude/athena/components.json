@@ -1,0 +1,447 @@
+{
+ "components": [
+  {
+   "name": "archify",
+   "kind": "skill",
+   "purpose": "draws architecture, workflow and data-flow diagrams from the code as standalone HTML",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "athena-build",
+   "kind": "skill",
+   "purpose": "Use to build a scoped change end to end, for example \"build UNC-12\"",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 14
+  },
+  {
+   "name": "athena-learn",
+   "kind": "skill",
+   "purpose": "Use at the end of every shipped or blocked change, and in the monthly harness review",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 14
+  },
+  {
+   "name": "athena-scope",
+   "kind": "skill",
+   "purpose": "Use when Nimish gives a GitHub issue (a number, a link or a spec ID like ATL-9), a scope file or a rough idea to build",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 14
+  },
+  {
+   "name": "athena-ship",
+   "kind": "skill",
+   "purpose": "Use when a scoped change is built and verified (athena finish succeeded)",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 14
+  },
+  {
+   "name": "athena-verify",
+   "kind": "skill",
+   "purpose": "Use after a scoped change's proofs pass and before shipping",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 14
+  },
+  {
+   "name": "constitution",
+   "kind": "skill",
+   "purpose": "Creates or updates the project's constitution: the principles every change must respect",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "constraint-driven-development",
+   "kind": "skill",
+   "purpose": "Establishes a project's quality bar as a written contract and stops agents quietly lowering it",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "converge",
+   "kind": "skill",
+   "purpose": "Checks finished work against its spec and labels each requirement met, partial, missing or unrequested, with severity",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "definition-of-done",
+   "kind": "skill",
+   "purpose": "The checklist every change clears before it is called done",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "dispatching-parallel-agents",
+   "kind": "skill",
+   "purpose": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "documentation-and-adrs",
+   "kind": "skill",
+   "purpose": "Records decisions and documentation",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "executing-plans",
+   "kind": "skill",
+   "purpose": "carries out a written implementation plan in the current session",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "finishing-a-development-branch",
+   "kind": "skill",
+   "purpose": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "first-reader",
+   "kind": "skill",
+   "purpose": "Beta readers for any draft, run by simulating how a real reader experiences it, moment by moment",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "pentest",
+   "kind": "skill",
+   "purpose": "attacks a code folder or staging app like a real attacker, using the open-source Strix tester",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "receiving-code-review",
+   "kind": "skill",
+   "purpose": "handles review feedback with technical checking, not blind agreement",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "requesting-code-review",
+   "kind": "skill",
+   "purpose": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "scope-creep-detector",
+   "kind": "skill",
+   "purpose": "checks a diff against its stated intent for unrelated files, broad changes and added dependencies",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "security-and-hardening",
+   "kind": "skill",
+   "purpose": "Hardens code against vulnerabilities",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "strategic-compact",
+   "kind": "skill",
+   "purpose": "Suggests manual context compaction at logical intervals to preserve context through task phases rather than arbitrary auto-compaction",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "subagent-driven-development",
+   "kind": "skill",
+   "purpose": "Use when executing implementation plans with independent tasks in the current session",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "systematic-debugging",
+   "kind": "skill",
+   "purpose": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "test-driven-development",
+   "kind": "skill",
+   "purpose": "Use when implementing any feature or bugfix, before writing implementation code",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 14
+  },
+  {
+   "name": "thinking-out-loud",
+   "kind": "skill",
+   "purpose": "holds all action on a long spoken ramble until an echo brief of it is approved",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "using-git-worktrees",
+   "kind": "skill",
+   "purpose": "gives feature work an isolated workspace via native tools or a git worktree",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 60
+  },
+  {
+   "name": "verification-before-completion",
+   "kind": "skill",
+   "purpose": "requires running the verification and confirming its output before claiming work is done",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 14
+  },
+  {
+   "name": "writing-plans",
+   "kind": "skill",
+   "purpose": "Use when you have a spec or requirements for a multi-step task, before touching code",
+   "trigger": "Claude loads it with the Skill tool when the task matches",
+   "metric": "times fired; sessions; tokens of the messages that fired it",
+   "idle_days": 14
+  },
+  {
+   "name": "appsec-engineer",
+   "kind": "agent",
+   "purpose": "independent read-only reviewer persona",
+   "trigger": "dispatched with the Agent tool by subagent_type",
+   "metric": "times dispatched; sessions; tokens",
+   "idle_days": 90
+  },
+  {
+   "name": "athena-proof-writer",
+   "kind": "agent",
+   "purpose": "writes the failing acceptance proofs before any product code",
+   "trigger": "dispatched with the Agent tool by subagent_type",
+   "metric": "times dispatched; sessions; tokens",
+   "idle_days": 14
+  },
+  {
+   "name": "athena-verifier",
+   "kind": "agent",
+   "purpose": "independent read-only check of a change against its locked scope",
+   "trigger": "dispatched with the Agent tool by subagent_type",
+   "metric": "times dispatched; sessions; tokens",
+   "idle_days": 14
+  },
+  {
+   "name": "reality-checker",
+   "kind": "agent",
+   "purpose": "independent read-only reviewer persona",
+   "trigger": "dispatched with the Agent tool by subagent_type",
+   "metric": "times dispatched; sessions; tokens",
+   "idle_days": 90
+  },
+  {
+   "name": "software-architect",
+   "kind": "agent",
+   "purpose": "independent read-only reviewer persona",
+   "trigger": "dispatched with the Agent tool by subagent_type",
+   "metric": "times dispatched; sessions; tokens",
+   "idle_days": 90
+  },
+  {
+   "name": "athena-mods",
+   "kind": "plugin",
+   "purpose": "the band, token ledger and Jhaveri guard",
+   "trigger": "every session (hooks)",
+   "metric": "times fired (hooks, tools, skills carrying its name); sessions",
+   "idle_days": 14
+  },
+  {
+   "name": "autoharness",
+   "kind": "plugin",
+   "purpose": "learns project skills from sessions",
+   "trigger": "session hooks",
+   "metric": "times fired (hooks, tools, skills carrying its name); sessions",
+   "idle_days": 14
+  },
+  {
+   "name": "spending-effort-with-jev",
+   "kind": "plugin",
+   "purpose": "Jev effort advice before a prompt",
+   "trigger": "UserPromptSubmit",
+   "metric": "times fired (hooks, tools, skills carrying its name); sessions",
+   "idle_days": 14
+  },
+  {
+   "name": "toolgate",
+   "kind": "plugin",
+   "purpose": "Jev seven risk questions before a tool call",
+   "trigger": "PreToolUse",
+   "metric": "times fired (hooks, tools, skills carrying its name); sessions",
+   "idle_days": 14
+  },
+  {
+   "name": "winnow",
+   "kind": "plugin",
+   "purpose": "Jev output filter after a file read or search",
+   "trigger": "PostToolUse on Read and Grep",
+   "metric": "times fired (hooks, tools, skills carrying its name); sessions",
+   "idle_days": 14
+  },
+  {
+   "name": "fast-jev-compaction",
+   "kind": "plugin",
+   "purpose": "drops stale tool results at compaction",
+   "trigger": "context compaction",
+   "metric": "times fired (hooks, tools, skills carrying its name); sessions",
+   "idle_days": 45
+  },
+  {
+   "name": "jev",
+   "kind": "plugin",
+   "purpose": "Jev checks claims against the diff at done",
+   "trigger": "Stop and jevwire tools",
+   "metric": "times fired (hooks, tools, skills carrying its name); sessions",
+   "idle_days": 14
+  },
+  {
+   "name": "ponytail",
+   "kind": "plugin",
+   "purpose": "always-on simplest-thing-that-works mode",
+   "trigger": "SessionStart",
+   "metric": "times fired (hooks, tools, skills carrying its name); sessions",
+   "idle_days": 14
+  },
+  {
+   "name": "athena-hook-session-start",
+   "kind": "hook",
+   "purpose": "shows the repo's HANDOFF and learnings at session start",
+   "trigger": "SessionStart",
+   "metric": "times it ran (hook records in sessions)",
+   "match": [
+    "hook session-start"
+   ],
+   "idle_days": 14
+  },
+  {
+   "name": "athena-hook-prompt",
+   "kind": "hook",
+   "purpose": "reminds the session of the active spec on each prompt",
+   "trigger": "UserPromptSubmit",
+   "metric": "times it ran (hook records in sessions)",
+   "match": [
+    "hook prompt"
+   ],
+   "idle_days": 14
+  },
+  {
+   "name": "athena-hook-guard",
+   "kind": "hook",
+   "purpose": "blocks edits to locked proofs and pushes to main",
+   "trigger": "PreToolUse on Edit, Write, Bash",
+   "metric": "times it ran (hook records in sessions)",
+   "match": [
+    "hook guard"
+   ],
+   "idle_days": 14
+  },
+  {
+   "name": "athena-hook-stop",
+   "kind": "hook",
+   "purpose": "the stop gate: re-runs the proofs before a session may end",
+   "trigger": "Stop",
+   "metric": "times it ran (hook records in sessions)",
+   "match": [
+    "hook stop"
+   ],
+   "idle_days": 14
+  },
+  {
+   "name": "canny-done-gate",
+   "kind": "hook",
+   "purpose": "Canny done-gate on edits and at Stop",
+   "trigger": "Pre/PostToolUse and Stop",
+   "metric": "times it ran (hook records in sessions)",
+   "match": [
+    "canny"
+   ],
+   "idle_days": 14
+  },
+  {
+   "name": "suggest-compact-hook",
+   "kind": "hook",
+   "purpose": "suggests a manual compaction at a natural point",
+   "trigger": "PreToolUse on Edit, Write",
+   "metric": "times it ran (hook records in sessions)",
+   "match": [
+    "suggest-compact"
+   ],
+   "idle_days": 14
+  },
+  {
+   "name": "athena-health",
+   "kind": "gate",
+   "purpose": "nightly, no AI: runs athena health and athena scorecard and keeps one issue open",
+   "trigger": "nightly schedule",
+   "metric": "last GitHub Actions run"
+  },
+  {
+   "name": "athena",
+   "kind": "gate",
+   "purpose": "CI re-runs every locked proof on the pull request and nightly",
+   "trigger": "pull request and nightly schedule",
+   "metric": "last GitHub Actions run"
+  },
+  {
+   "name": "athena-builder",
+   "kind": "task",
+   "purpose": "builds scoped issues unattended",
+   "trigger": "scheduled routine",
+   "metric": "last_run and status in usage/review-status.json"
+  },
+  {
+   "name": "brain-router",
+   "kind": "task",
+   "purpose": "files recordings and documents into the brain repos",
+   "trigger": "scheduled routine",
+   "metric": "last_run and status in usage/review-status.json"
+  },
+  {
+   "name": "fortnightly-scorecard-review",
+   "kind": "task",
+   "purpose": "keep, fix or remove each component using the scorecard",
+   "trigger": "scheduled routine",
+   "metric": "last_run and status in usage/review-status.json"
+  },
+  {
+   "name": "monthly-harness-review",
+   "kind": "task",
+   "purpose": "monthly review: prune, adopt, retire",
+   "trigger": "scheduled routine",
+   "metric": "last_run and status in usage/review-status.json"
+  },
+  {
+   "name": "weekly-cto-review",
+   "kind": "task",
+   "purpose": "weekly review of the repos and the harness",
+   "trigger": "scheduled routine",
+   "metric": "last_run and status in usage/review-status.json"
+  }
+ ]
+}

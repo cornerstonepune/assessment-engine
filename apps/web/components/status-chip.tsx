@@ -38,6 +38,8 @@ export const STATES = {
   noResult: { tone: "quiet", words: "no result yet" },
   next: { tone: "wait", words: "next" },
   notYet: { tone: "quiet", words: "not yet" },
+  inUse: { tone: "ok", words: "in use" },
+  stopped: { tone: "quiet", words: "stopped" },
 } as const;
 export type State = keyof typeof STATES;
 export type Tone = (typeof STATES)[State]["tone"];

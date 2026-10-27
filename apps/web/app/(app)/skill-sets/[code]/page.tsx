@@ -23,6 +23,7 @@ import { mayDecide } from "@/lib/decides";
 import { LevelApproval } from "./level-approval";
 import { GradesPanel } from "./grades-panel";
 import { Watched, WaysPanel } from "./ways";
+import { KindStops } from "./kind-stops";
 import { Changed, editingOf, EnglishLevel, MadeByCode, SentenceLink } from "./editing";
 import { dateWords } from "@/lib/week";
 
@@ -112,10 +113,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
       <Body>
         <Changed q={q} />
         {q.saved ? (
-          <Notice tone="neem">
-            Saved. The new words wait for approval before they are the
-            skill&rsquo;s words.
-          </Notice>
+          <Notice tone="neem">Saved. The new words wait for approval before they are the skill&rsquo;s words.</Notice>
         ) : null}
         {q.approved === "0" ? (
           <Notice tone="terracotta">Nothing was approved: it changed since this page was opened. Read it again, then approve.</Notice>
@@ -130,7 +128,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
         {s.taught ? null : (
           <Notice tone="terracotta">
             Not taught yet: no class you see has been taught {s.topic_name ?? "its topic"}, so this skill is on none of
-            their pages or papers. Read and approve it now; <Link href="/taught#not-taught">say a class has been taught it</Link>{" "}
+            their pages or papers. Read and approve it now; <Link href="/today?open=taught">say a class has been taught it</Link>{" "}
             when one has.
           </Notice>
         )}
@@ -265,7 +263,7 @@ export default async function SkillPage({ params, searchParams }: Props) {
             </div>
           </Panel>
           )}
-
+          <KindStops code={s.code} ways={ways} levels={levelsOf(s)} q={q} mayChange={mayChange} />
           <Panel
             id="mistakes"
             title="Mistakes it watches for"

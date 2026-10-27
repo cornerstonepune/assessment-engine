@@ -12,13 +12,9 @@ export type Scope = { classes: string[] | null; note: string | null };
 
 export const EVERY_CLASS: Scope = { classes: null, note: null };
 
-/** The classes a page shows the person: their own first (`ownClasses`), every class, or one class, as chosen in the bar
- *  at the top (`choose`, goals/s1-subject-class-and-today.yaml). A default, never what they may reach: that is `reachOf`
- *  (goals/ux9c-one-role.yaml). */
-export function scopeOf(me: Pick<Session, "role" | "classes"> & { everyClass?: boolean; oneClass?: string | null }): Scope {
-  if (me.oneClass) return { classes: [me.oneClass], note: null };
-  return me.everyClass ? EVERY_CLASS : ownClasses(me);
-}
+/** The classes a page shows the person: their own (`ownClasses`), or every class for a person with none. A default each page
+ *  narrows with its own filters, never what they may reach: that is `reachOf` (goals/ux9c-one-role.yaml). */
+export const scopeOf = (me: Pick<Session, "role" | "classes">): Scope => ownClasses(me);
 
 /** The classes whose pages, papers and decisions a person may open and take: every class, for every member of staff for
  *  now (`mayUse`, goals/ux9c-one-role.yaml); their own once the roles split again. */

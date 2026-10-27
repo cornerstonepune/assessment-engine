@@ -67,6 +67,11 @@ export function Changed({ q }: { q: Record<string, string | undefined> }) {
           it first; what it replaced is kept.
         </Notice>
       ) : null}
+      {q.withdrawn ? (
+        <Notice tone="terracotta">
+          These papers were approved but not yet given, and go back for approval, unchanged: {q.withdrawn.split(",").join(", ")}.
+        </Notice>
+      ) : null}
       {q.refused ? <Notice tone="terracotta">{q.refused} Nothing was changed.</Notice> : null}
     </>
   );
@@ -78,6 +83,8 @@ const CHANGED_WORDS: Record<string, string> = {
   removed: "The sample is taken off.",
   kind_added: "The kind is added with its samples.",
   kind_removed: "The kind is taken off.",
+  kind_stopped: "The kind is stopped: no new paper draws it, and past papers keep theirs.",
+  kind_started: "The kind is in use again.",
 };
 
 /** The sample form or kind form a link opened (`?edit=<level>~<kind>~<number or new>`, `?addkind=<level>~<kind>`), the

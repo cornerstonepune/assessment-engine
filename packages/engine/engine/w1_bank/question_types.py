@@ -70,8 +70,8 @@ def waiting(conn: db.Conn, skill: str, level: str) -> list[str]:
 
 
 def why_not(conn: db.Conn, skill: str, level: str) -> str:
-    """Why a level gives a paper fewer questions than its bank holds, in words: its level is not confirmed, or a type
-    it uses waits for the coordinator. Empty when neither."""
+    """Why a level gives a paper fewer questions than its bank holds, in words: its level is not confirmed, a type it
+    uses waits for the coordinator, or an educator stopped one (retire.py). Empty when none."""
     out = []
     confirmed = conn.execute(
         "select confirmed_at from skill_level where tenant_id = %s and skill_code = %s and difficulty = %s",
@@ -80,6 +80,14 @@ def why_not(conn: db.Conn, skill: str, level: str) -> str:
     if confirmed and not confirmed["confirmed_at"]:
         out.append(f"{skill} at {level} is not confirmed yet")
     out += [f"{words(conn, t)} ({t}) waits for the coordinator" for t in waiting(conn, skill, level)]
+    out += [
+        f"{words(conn, r['question_type'])} ({r['question_type']}) was stopped by an educator"
+        for r in conn.execute(
+            "select question_type from kind_stopped where tenant_id = %s and skill_code = %s and difficulty = %s"
+            " order by 1",
+            (_tenant(conn), skill, level),
+        )
+    ]
     return "; ".join(out)
 
 

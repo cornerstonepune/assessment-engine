@@ -39,6 +39,9 @@ export const KIND_WORDS: Record<string, string> = {
   earlier: "Earlier paper",
 };
 
+/** The group of papers whose questions are on no topic: `PaperFilter.topic` takes it like any topic's code. */
+export const NO_TOPIC = "~none";
+
 /** `topic`: papers on a taught topic's skills; `set`: one assessment's copies (`AssessmentRow.set`). */
 export type PaperFilter = {
   class?: string;
@@ -88,6 +91,26 @@ export type PaperListRow = {
 
 const LIMIT = 300;
 
+/** Which assessment a paper is one of, apart from its kind, class and week (goals/ui5-assessments-readable.yaml): a skill set
+ *  or worksheet; none for a class's home assessments and chosen papers, which its class, week and kind already name. One
+ *  definition, for the list of assessments and for the queue of answers to check. `si` and `t` are the query's aliases. */
+export const setKeySql = (si: string, t: string) => sql`
+  case when coalesce(${sql(si)}.kind, 'earlier') in ('focus', 'custom') then null
+       when ${sql(t)}.skill_set_code is null and ${sql(si)}.key ? 'areas' then 'areas:' || (${sql(si)}.key -> 'areas')::text
+       else coalesce(${sql(t)}.skill_set_code, ${sql(t)}.id::text) end`;
+
+/** A group of papers' signature, as `sigOf` (lib/assessment-steps.ts) writes it: the eight facts its next step is read from,
+ *  so a stage can be chosen in the database. Used inside the grouped query over `papers`. */
+export const sigSql = () => sql`
+  concat((count(*) filter (where stage = 'made' and not spare and not extra) > 0)::int,
+         (count(*) filter (where stage = 'printed' and not spare and not extra) > 0)::int,
+         (count(*) filter (where stage = 'scanned') > 0)::int,
+         (count(*) filter (where stage = 'checked') > 0)::int,
+         (count(*) filter (where stage = 'signed off') > 0)::int,
+         (count(*) filter (where stage = 'scanned' and answers = 0) > 0)::int,
+         (coalesce(sum(waiting), 0) > 0)::int,
+         (kind = 'focus')::int)`;
+
 /** The papers themselves, each with its stage and counts, before any filter. Void papers are left out. A function, not
  *  a constant: `sql` is touched only when data is asked for (lib/db.ts), never when the page is imported to build. */
 export const papersCte = () => sql`
@@ -114,19 +137,14 @@ export const papersCte = () => sql`
            -- assessments and chosen papers for a week are one assessment, each child's drawn for them
            -- a class paper made in the maker is drawn for each child on a worksheet of its own: it is one assessment by
            -- its skills and levels, which every child's copy names (goals/ux5-papers-grouped.yaml) — it was a row a child
-           case when coalesce(si.kind, 'earlier') in ('focus', 'custom') then null
-                when t.skill_set_code is null and si.key ? 'areas' then 'areas:' || (si.key -> 'areas')::text
-                else coalesce(t.skill_set_code, t.id::text) end as set_key,
+           ${setKeySql("si", "t")} as set_key,
            coalesce(ss.name, t.key ->> 'title', drawn.title, t.code, t.batch_id, si.qr_code) as set_name,
            -- the subject of its questions' topics (one of them, by code, where a paper spans two)
            (select min(tp.subject_code) from skill s join topic tp on tp.tenant_id = s.tenant_id and tp.code = s.topic_code
              where s.tenant_id = t.tenant_id
                and (s.code = t.skill_set_code or s.code in (select i.skill_set_code from item i where i.id = any(t.item_ids)))) as subject_code,
-           -- the topics its questions are on: its skill set's, or each of its questions' own
-           array(select distinct s.topic_code from skill s
-                 where s.tenant_id = t.tenant_id and s.topic_code is not null
-                   and (s.code = t.skill_set_code
-                        or s.code in (select i.skill_set_code from item i where i.id = any(t.item_ids)))) as topics
+           -- the topics its questions are on, and the skills' names: its skill set's, or each of its questions' own
+           coalesce(tk.topics, '{}'::text[]) as topics, coalesce(tk.skill_names, '{}'::text[]) as skill_names
     from sheet_instance si
     join sheet_template t on t.id = si.sheet_template_id
     left join child ch on ch.id = si.child_id
@@ -155,6 +173,12 @@ export const papersCte = () => sql`
       from capture k join item_result r on r.capture_id = k.id
       where k.sheet_instance_id = si.id and k.superseded_by is null
     ) a
+    cross join lateral (
+      select array_agg(distinct s.topic_code) filter (where s.topic_code is not null) as topics, array_agg(distinct s.name) as skill_names
+      from skill s
+      where s.tenant_id = t.tenant_id
+        and (s.code = t.skill_set_code or s.code in (select i.skill_set_code from item i where i.id = any(t.item_ids)))
+    ) tk
     where si.print_status <> 'void'
   ),
   -- an extra copy: a child's copy of an assessment never handed back, beside another copy of the same assessment that is
@@ -170,13 +194,13 @@ export const papersCte = () => sql`
   )`;
 
 /** Every filter but the stage: the stage counts are counted across stages. Only the classes a person sees. */
-const narrowed = (f: PaperFilter, scope: Scope) => sql`
+export const narrowed = (f: PaperFilter, scope: Scope) => sql`
   ${inScope(scope, sql`section`)}
   and (${f.class ?? null}::text is null or section = ${f.class ?? null})
   and (${f.child ?? null}::uuid is null or child_id = ${f.child ?? null}::uuid)
   and (${f.kind ?? null}::text is null or kind = ${f.kind ?? null})
   and (${f.week ?? null}::text is null or week = ${f.week ?? null})
-  and (${f.topic ?? null}::text is null or ${f.topic ?? null} = any(topics))
+  and (${f.topic ?? null}::text is null or ${f.topic ?? null} = any(topics) or (${f.topic ?? null} = ${NO_TOPIC} and cardinality(topics) = 0))
   and (${f.set ?? null}::text is null or set_key = ${f.set ?? null})
   and (${f.subject ?? null}::text is null or subject_code = ${f.subject ?? null})
   and (${f.q ?? null}::text is null or position(lower(${f.q ?? ""}) in lower(set_name)) > 0)`;
@@ -190,7 +214,8 @@ export async function paperList(
   order: "newest" | "roll" = "newest",
 ): Promise<{ rows: PaperListRow[]; more: boolean }> {
   const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
-  const by = order === "roll" ? sql`roll_no is null, roll_order(roll_no), roll_no, qr` : sql`day desc nulls last, created_at desc, section, qr`;
+  const by =
+    order === "roll" ? sql`roll_no is null, roll_order(roll_no), roll_no, qr` : sql`day desc nulls last, created_at desc, section, qr`;
   const rows = await sql<(PaperListRow & { name: string | null })[]>`
     with ${papersCte()},
     shown as (
@@ -222,7 +247,12 @@ export async function paperFilters(scope: Scope = EVERY_CLASS): Promise<{ option
                         join sheet_template t on t.id = si.sheet_template_id where si.print_status <> 'void') w
       where week is not null order by week desc`,
   ]);
-  return { options: { classes: classes.map((c) => c.section), weeks: weeks.map((w) => w.week) } };
+  return {
+    options: {
+      classes: classes.map((c) => c.section),
+      weeks: weeks.map((w) => w.week),
+    },
+  };
 }
 
 export type AssessmentRow = {
@@ -256,15 +286,32 @@ export type AssessmentRow = {
   levels: string[];
   /** The first of its copies waiting to be signed off, where its row's action opens. */
   signId: string | null;
+  /** The codes of the topics its questions are on, and the names of their skills. */
+  topics: string[];
+  skills: string[];
+  /** The roll number of its one child, where it is one child's alone. */
+  roll: string | null;
 };
 
 /** The assessments a filter leaves (goals/ui5-assessments-readable.yaml), newest first, at most 300: each a kind of
  *  paper given to a class in a week on one skill set or worksheet, or a class's home assessments for a week, with its
  *  copies counted by stage — a stage chosen keeps the copies at that stage — the answers waiting for a person, and its
  *  score across the copies that are checked. */
-export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS): Promise<{ rows: AssessmentRow[]; more: boolean }> {
+export async function assessmentList(
+  f: PaperFilter,
+  scope: Scope = EVERY_CLASS,
+  /** One page of them, the way a topic's assessments are read: `sigs`, the next steps (`sigsFor`) the rows may stand at. */
+  page?: { limit: number; offset: number; sigs?: string[] },
+): Promise<{ rows: AssessmentRow[]; more: boolean; total: number }> {
   const stage = f.stage && (STAGES as readonly string[]).includes(f.stage) ? f.stage : null;
-  const rows = await sql<AssessmentRow[]>`
+  const rows = await sql<
+    (Omit<AssessmentRow, "topics" | "skills" | "roll"> & {
+      topics: string[][];
+      skills: string[][];
+      rolls: string[];
+      total: number;
+    })[]
+  >`
     with ${papersCte()}
     -- the lowest grade of its copies, by the grades' order (grade_ord), never as text
     select kind, section, coalesce((array_agg(class_band order by grade_ord(tenant_id, class_band)) filter (where class_band is not null))[1],
@@ -282,19 +329,39 @@ export async function assessmentList(f: PaperFilter, scope: Scope = EVERY_CLASS)
            coalesce(array_agg(distinct level) filter (where level is not null and not spare), '{}') as levels,
            (array_agg(id order by roll_order(roll_no), qr) filter (where stage = 'checked'))[1] as "signId",
            coalesce(sum("right") filter (where stage in ('checked', 'signed off')), 0)::int as "right",
-           coalesce(sum(scored) filter (where stage in ('checked', 'signed off')), 0)::int as scored
+           coalesce(sum(scored) filter (where stage in ('checked', 'signed off')), 0)::int as scored,
+           jsonb_agg(topics) as topics, jsonb_agg(skill_names) as skills,
+           array_agg(roll_no) filter (where not spare and not extra and child_id is not null) as rolls,
+           count(*) over ()::int as total
     from papers where ${narrowed(f, scope)} and (${stage}::text is null or stage = ${stage})
     group by kind, section, week, set_key
-    order by max(day) desc nulls last, max(created_at) desc, section, min(set_name)
-    limit ${LIMIT + 1}`;
-  return { rows: rows.slice(0, LIMIT), more: rows.length > LIMIT };
+    ${page?.sigs ? sql`having ${sigSql()} = any(${page.sigs}::text[])` : sql``}
+    -- the newest week first, a paper with no week last; within a week the newest made
+    order by week desc nulls last, max(day) desc nulls last, max(created_at) desc, section, min(set_name), kind, set_key
+    limit ${page ? page.limit : LIMIT + 1} offset ${page ? page.offset : 0}`;
+  const once = (lists: string[][]) => [...new Set(lists.flat())];
+  const out: AssessmentRow[] = rows.map(({ topics, skills, rolls, ...a }) => ({
+    ...a,
+    topics: once(topics),
+    skills: once(skills),
+    roll: a.copies === 1 && rolls?.length === 1 ? rolls[0] : null,
+  }));
+  const total = rows[0]?.total ?? 0;
+  return page ? { rows: out, more: false, total } : { rows: out.slice(0, LIMIT), more: out.length > LIMIT, total };
 }
-
 
 /** The assessment a paper is one of, and how many of its children's papers are not yet signed off: when none are, the
  *  card's Results are complete (goals/chk_whose_paper.yaml). A spare, or a paper replaced by a newer one, is not waited for. */
 export async function assessmentOf(id: string) {
-  const [row] = await sql<{ kind: string; section: string | null; week: string | null; set: string | null; left: number }[]>`
+  const [row] = await sql<
+    {
+      kind: string;
+      section: string | null;
+      week: string | null;
+      set: string | null;
+      left: number;
+    }[]
+  >`
     with ${papersCte()}
     select p.kind, p.section, p.week, p.set_key as set,
            (select count(*)::int from papers q

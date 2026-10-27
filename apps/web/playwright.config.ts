@@ -25,6 +25,8 @@ process.env.DATABASE_URL = COPY;
 
 export const WEB_PORT = 3100;
 export const ENGINE_PORT = 8932;
+// The run's own sender (tests/mail-server.ts): the forgotten-password flow is tested on the email it really sends.
+export const MAIL_PORT = 8933;
 // Made fresh for each run, in the runner, and inherited by its workers and servers: the servers
 // exist for one run on this machine, and no value here is ever a real secret.
 process.env.E2E_AUTH_SECRET ??= randomBytes(24).toString("hex");
@@ -44,6 +46,8 @@ export default defineConfig({
     { name: "screens", testMatch: /screens\.spec\.ts/, use: { storageState: SIGNED_IN } },
     { name: "e2e", testMatch: /e2e\.spec\.ts/, use: { storageState: SIGNED_IN } },
     { name: "gate", testMatch: /gate\.spec\.ts/ },
+    // signed out, like the gate: a person who has forgotten their password has no session
+    { name: "password", testMatch: /gate-password\.spec\.ts/ },
     { name: "steps", testMatch: /[sumpe]\d+-[\w-]+\.spec\.ts/, use: { storageState: SIGNED_IN } },
     { name: "map", testMatch: /workflows\.spec\.ts/, use: { storageState: SIGNED_IN } },
   ],
@@ -68,6 +72,11 @@ export default defineConfig({
         ENGINE_KEY: process.env.E2E_ENGINE_KEY,
         AUTH_SECRET: process.env.E2E_AUTH_SECRET,
         AUTH_DEV_BYPASS: "0",
+        SMTP_HOST: "127.0.0.1",
+        SMTP_PORT: String(MAIL_PORT),
+        SMTP_USER: "tests",
+        SMTP_PASSWORD: "no secret of anyone's",
+        SMTP_FROM: "assessment@cornerstone.test",
       },
     },
   ],
