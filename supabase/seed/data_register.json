@@ -15,7 +15,7 @@
       "why": "So your child's papers reach them, and their work is shown with their class.",
       "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
       "who_sees": "Your child's educators and the school's coordinator.",
-      "tables": ["public.child"]
+      "tables": ["public.child", "public.child_move"]
     },
     {
       "code": "papers",

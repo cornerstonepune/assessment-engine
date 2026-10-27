@@ -27,6 +27,32 @@ def out_of_order(on_main: list[str], here: list[str]) -> list[str]:
     return sorted(f for f in set(here) - set(on_main) if f[:14] <= newest)
 
 
+def shared_versions(names: list[str]) -> dict[str, list[str]]:
+    """{version: the files that carry it} for every version more than one migration has."""
+    by_version: dict[str, list[str]] = {}
+    for n in sorted(names):
+        by_version.setdefault(n.split("_", 1)[0], []).append(n)
+    return {v: files for v, files in by_version.items() if len(files) > 1}
+
+
+def test_the_check_names_two_migrations_that_share_a_version():
+    """Several branches took the same version number and the live update stopped: `supabase db push` records a migration
+    by its version alone, so the second of two files with one version is never applied (or fails the insert)."""
+    a, b = "20261217090000_one.sql", "20261217090000_another.sql"
+    assert shared_versions([a, b, "20261218090000_c.sql"]) == {"20261217090000": [b, a]}
+    assert shared_versions([a, "20261218090000_c.sql"]) == {}
+
+
+def test_no_two_migrations_share_a_version():
+    here = [p.name for p in (db.REPO_ROOT / MIGRATIONS).glob("*.sql")]
+    assert here, "no migrations found: the folder moved"
+    shared = shared_versions(here)
+    assert not shared, "\n".join(
+        f"version {v} is on {len(files)} migrations ({', '.join(files)}): give each a version of its own, after main's newest"
+        for v, files in shared.items()
+    )
+
+
 def _on_main() -> list[str] | None:
     run = subprocess.run(
         ["git", "ls-tree", "--name-only", "origin/main", f"{MIGRATIONS}/"],

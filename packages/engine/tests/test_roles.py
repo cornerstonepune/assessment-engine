@@ -62,6 +62,7 @@ WEB_CALLS = {
     "class_band",  # a class's grade, the one rule every page asks (goals/ux2-one-count-one-thing.yaml)
     "grade_ord",  # a grade's place among the grades, to order and compare by (goals/b0b-grades-from-the-table.yaml)
     "skill_taught_in",  # whether a class has been taught a skill: the one rule (goals/t1-topics-are-operations.yaml)
+    "move_child",  # a coordinator's change of a child's grade or class, and its history row (goals/mov_move_a_child.yaml)
     "say_taught",  # a person's word that a class has (or has not) been taught a topic or one skill of it
     "checks_to_trust",
     "skill_levels",  # a skill's levels as one object, built from their rows (goals/b1-levels-are-rows.yaml)
