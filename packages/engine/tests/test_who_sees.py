@@ -23,39 +23,33 @@ ME = str(uuid.uuid4())
 SOMEONE = str(uuid.uuid4())
 
 
-@pytest.mark.parametrize(
-    ("role", "classes", "subjects", "section", "subject", "uploaded_by", "sees"),
-    [
-        ("coordinator", [], [], "2A", "MATH", None, True),  # a coordinator sees everything
-        ("coordinator", [], [], None, None, None, True),  # ... every class, even one it was not asked about
-        ("educator", ["2A"], [], "2A", "MATH", None, True),  # a class on their entry
-        ("educator", ["2A"], [], "2B", "MATH", None, False),  # another class
-        ("educator", ["2A"], [], "2B", "MATH", ME, True),  # another class, but they put it in
-        ("educator", ["2A"], [], "2B", "MATH", SOMEONE, False),  # another class, put in by someone else
-        ("educator", ["2A"], ["MATH"], "2A", "ENG", None, False),  # their class, a subject not theirs
-        ("educator", ["2A"], ["MATH"], "2A", "MATH", None, True),
-        ("educator", ["2A"], ["MATH"], "2A", None, None, True),  # a thing with no subject: the class decides
-        (
-            "educator",
-            ["2A"],
-            ["MATH"],
-            "2B",
-            "ENG",
-            ME,
-            True,
-        ),  # what they put in is theirs, whatever its subject
-        ("educator", [], [], "2A", "MATH", None, False),  # linked to no class: only what they put in
-        ("educator", [], [], None, None, None, False),  # ... and so not every class
-        ("educator", [], [], None, None, ME, True),  # a scan not yet sorted onto a paper, theirs
-    ],
-)
-def test_the_one_rule(role, classes, subjects, section, subject, uploaded_by, sees):
+# (role, classes, subjects, section, subject, uploaded_by, sees): one line a case of the rule. One test, not one per case:
+# a case's id would carry a random staff id, and CI's shards select a test by the id it was listed under (bin/ci-shard).
+CASES = [
+    ("coordinator", [], [], "2A", "MATH", None, True),  # a coordinator sees everything
+    ("coordinator", [], [], None, None, None, True),  # ... every class, even one it was not asked about
+    ("educator", ["2A"], [], "2A", "MATH", None, True),  # a class on their entry
+    ("educator", ["2A"], [], "2B", "MATH", None, False),  # another class
+    ("educator", ["2A"], [], "2B", "MATH", ME, True),  # another class, but they put it in
+    ("educator", ["2A"], [], "2B", "MATH", SOMEONE, False),  # another class, put in by someone else
+    ("educator", ["2A"], ["MATH"], "2A", "ENG", None, False),  # their class, a subject not theirs
+    ("educator", ["2A"], ["MATH"], "2A", "MATH", None, True),
+    ("educator", ["2A"], ["MATH"], "2A", None, None, True),  # a thing with no subject: the class decides
+    ("educator", ["2A"], ["MATH"], "2B", "ENG", ME, True),  # theirs, whatever its subject
+    ("educator", [], [], "2A", "MATH", None, False),  # linked to no class: only what they put in
+    ("educator", [], [], None, None, None, False),  # ... and so not every class
+    ("educator", [], [], None, None, ME, True),  # a scan not yet sorted onto a paper, theirs
+]
+
+
+def test_the_one_rule():
     with db.connect() as conn:
-        got = conn.execute(
-            "select staff_sees(%s, %s::text[], %s::text[], %s::uuid, %s, %s, %s::uuid) as s",
-            (role, classes, subjects, ME, section, subject, uploaded_by),
-        ).fetchone()["s"]
-    assert got is sees
+        for role, classes, subjects, section, subject, uploaded_by, sees in CASES:
+            got = conn.execute(
+                "select staff_sees(%s, %s::text[], %s::text[], %s::uuid, %s, %s, %s::uuid) as s",
+                (role, classes, subjects, ME, section, subject, uploaded_by),
+            ).fetchone()["s"]
+            assert got is sees, (role, classes, subjects, section, subject, uploaded_by)
 
 
 @pytest.fixture
