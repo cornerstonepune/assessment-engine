@@ -1,0 +1,81 @@
+{
+  "menu": "/",
+  "forWhat": [
+    "Every skill of every grade, with its levels and where it stands. Open a skill to read what each level asks."
+  ],
+  "layout": [
+    {
+      "area": "Title and main button",
+      "shows": "[[Skills to approve]] when skills wait, else [[Open the question bank]]."
+    },
+    {
+      "area": "Filter row",
+      "shows": "Grade, Subject, Topic and Status, and [[Find a skill]]."
+    },
+    {
+      "area": "Skills table",
+      "shows": "Grade, Subject, Topic, Skill, Levels and Status. A skill's name opens it."
+    },
+    {
+      "area": "On a skill's page",
+      "shows": "Which grade each level belongs to, each level with a real question, the kinds of question, the mistakes it watches for, and its worksheets."
+    },
+    {
+      "area": "Next step",
+      "shows": "A link on to What needs doing."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "taught",
+      "title": "Say a skill was taught",
+      "steps": [
+        "Find the skill. On a row not taught yet, press [[Say it is taught]] and choose the class.",
+        "It is taught for that class alone. No other class changes."
+      ]
+    },
+    {
+      "id": "change-level",
+      "title": "Change a level",
+      "steps": [
+        "To change a level's words, open the skill and press [[Change this level's sentence]].",
+        "Change the words and press [[Save the words]]. That level then waits for approval again.",
+        "Changing the description or the short name sends every level back for approval.",
+        "The rule each question is checked against stays as it is. Questions are not edited here.",
+        "To move a level to another grade, use [[Which grade each level belongs to]] and press [[Save the grades]]. The skill keeps its approval.",
+        "To change one child's level on a class paper, see [Papers to approve](/guide/papers-to-approve#change-level)."
+      ]
+    },
+    {
+      "id": "review",
+      "title": "See which levels may be too easy",
+      "steps": [
+        "Open [Levels to review](/skill-sets/levels). No menu item opens it yet.",
+        "Each suggestion says how many children were counted. Press [[I've looked at this]] when you have read it.",
+        "It only suggests. How it counts is on [How it is worked out](/guide/worked-out#levels-to-review)."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Say it is taught",
+      "does": "Records the skill or topic as taught for one class, in your name. Its skills can then go on that class's papers.",
+      "doesNot": "No other class changes."
+    },
+    {
+      "label": "Save the words",
+      "does": "Saves new words for the skill. They wait for approval before they are the skill's words.",
+      "doesNot": "The rule questions are checked against is kept exactly as it was."
+    },
+    {
+      "label": "Save the grades",
+      "does": "Moves a level to another grade.",
+      "doesNot": "The level's words do not change, so the skill keeps its approval."
+    },
+    {
+      "label": "I've looked at this",
+      "does": "Hides a suggestion until its counts move.",
+      "doesNot": "Nothing about the level changes."
+    }
+  ]
+}

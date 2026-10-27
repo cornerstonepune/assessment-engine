@@ -1,0 +1,65 @@
+{
+  "menu": "/library",
+  "forWhat": [
+    "Every question the engine has made, ready to print. Every one sits on a numbered worksheet.",
+    "Any member of staff can reword a question or remove it."
+  ],
+  "layout": [
+    {
+      "area": "What the bank is",
+      "shows": "A short note on where the questions come from."
+    },
+    {
+      "area": "What children's answers propose",
+      "shows": "Questions that may be too easy or too hard, and new mistakes children make, each with a decision."
+    },
+    {
+      "area": "What is in the bank",
+      "shows": "How many questions each skill has, at each level."
+    },
+    {
+      "area": "Questions",
+      "shows": "Search, choices of grade, level and kind, and the list. [[Open]] opens one question."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "correct",
+      "title": "Correct a question's wording",
+      "steps": [
+        "Find the question and press [[Open]].",
+        "Under [[Correct the wording]], change the words and say what was wrong. Keep the numbers as they are, so the answer cannot change.",
+        "Press [[Save correction]]. The new wording is saved and the old wording will not print again."
+      ]
+    },
+    {
+      "id": "remove",
+      "title": "Remove a question",
+      "steps": [
+        "Open the question. Under [[Remove]], say why.",
+        "Press [[Remove this question]]. It will not print again. The worksheets it was on are replaced with new ones."
+      ]
+    },
+    {
+      "id": "proposals",
+      "title": "Decide what answers propose",
+      "steps": [
+        "Under [[What children's answers propose]], read each question and how children found it.",
+        "Press [[Remove from the bank]] or [[Keep it]].",
+        "For a new mistake, give it a name and press [[Adopt it as a mistake]], or press [[Reject]]."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Save correction",
+      "does": "Saves the new wording as a new question and retires the old one.",
+      "doesNot": "Do not change the numbers: the answer must stay the same."
+    },
+    {
+      "label": "Remove this question",
+      "does": "Retires the question and the worksheets it was on, and deals new worksheets.",
+      "doesNot": "If the engine cannot be reached, nothing is changed."
+    }
+  ]
+}

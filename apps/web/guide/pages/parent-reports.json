@@ -1,0 +1,48 @@
+{
+  "menu": "/growth/reports",
+  "forWhat": [
+    "Every child whose parent report is not up to date. Out of date first, then written and waiting for approval, then not written yet.",
+    "A report is written from the answers an educator signed off, and an educator approves it before a parent reads it."
+  ],
+  "layout": [
+    {
+      "area": "Class choice",
+      "shows": "[[Every class]], then one choice per class."
+    },
+    {
+      "area": "Not up to date",
+      "shows": "How many are out of date, to approve and to write."
+    },
+    {
+      "area": "Table",
+      "shows": "Child, Class, Roll, Report and Written. A name opens the report."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "write",
+      "title": "Write and approve a parent report",
+      "steps": [
+        "Press the child's name.",
+        "Press [[Write the report]], or [[Write it again]] if it is out of date.",
+        "Read it. To change it, press [[Edit the words]], then [[Save my version]].",
+        "Press [[Approve for …'s parents]]."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Write the report",
+      "does": "Writes a draft from the child's signed off answers."
+    },
+    {
+      "label": "Save my version",
+      "does": "Saves your words after they are checked against the child's answers.",
+      "doesNot": "The earlier draft is kept."
+    },
+    {
+      "label": "Approve for …'s parents",
+      "does": "Approves the report so a parent can read it."
+    }
+  ]
+}

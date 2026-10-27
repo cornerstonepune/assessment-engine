@@ -1,0 +1,15 @@
+{
+  "slug": "report-a-problem",
+  "title": "Report a problem or suggest something",
+  "purpose": "How to tell the school's team that something is wrong, or could be better.",
+  "sections": [
+    {
+      "id": "report",
+      "title": "Report a problem or suggest something",
+      "paras": [
+        "A form to report a problem or suggest something on the site is being built. It is not on the site yet.",
+        "Until it is, tell the coordinator what you were doing, which page you were on, and what you saw."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "menu": "/papers",
+  "forWhat": [
+    "Make an assessment, read one that came back, and follow each one from made to results in.",
+    "Each assessment is one row. The row's button is always the next thing to do."
+  ],
+  "layout": [
+    {
+      "area": "Tabs",
+      "shows": "[[Assessments]], [[Needs checking]] and [[Reading status]]."
+    },
+    {
+      "area": "Make an assessment",
+      "shows": "Four tiles: [[For a class]], [[For each child]], [[For one child]] and [[A ready-made worksheet]]."
+    },
+    {
+      "area": "Read an assessment",
+      "shows": "A box to drop scans or photos, and a field for a Google Drive link with the button [[Read it]]."
+    },
+    {
+      "area": "Filter row",
+      "shows": "Class, Topic, Subject, Kind, Week and Stage, and a search box."
+    },
+    {
+      "area": "Assessments table",
+      "shows": "One row per assessment. Its steps run from [[Created]] to [[Results in]], then the score and the next button."
+    },
+    {
+      "area": "Folded notes",
+      "shows": "Files read lately and what each one lacks, and a short note on how it works."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "make",
+      "title": "Make an assessment for a class",
+      "steps": [
+        "Press [[Make an assessment]], or the tile [[For a class]].",
+        "Choose the class, what it is, how it is made, and the children.",
+        "Press [[See the papers]]. Every child's paper shows on screen before anything is made.",
+        "Not happy with a child's questions? Press [[Different questions]]. It draws others and makes nothing.",
+        "Press [[Make and approve …]]. The papers are made exactly as you saw them, in your name.",
+        "Press [[Print them all]]."
+      ]
+    },
+    {
+      "id": "follow",
+      "title": "Follow an assessment",
+      "steps": [
+        "Find its row. The filter row and search help when the list is long.",
+        "Press the row's next button: [[Approve]], [[Print]], [[Upload]], [[Check]] or [[See results]].",
+        "Press the assessment's name to see each child's copy and where it stands."
+      ]
+    },
+    {
+      "id": "rename",
+      "title": "Rename an assessment",
+      "steps": [
+        "Press [[Rename]] on its row, type the new name and press [[Save]].",
+        "The old names are kept. An empty name changes nothing."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Make an assessment",
+      "does": "Opens the page that makes papers."
+    },
+    {
+      "label": "Different questions",
+      "does": "Draws other questions for you to look at.",
+      "doesNot": "It makes and prints nothing."
+    },
+    {
+      "label": "Make and approve …",
+      "does": "Makes the papers you saw and approves them in your name.",
+      "doesNot": "If you change a choice, it waits until you see the papers again. Pressing it twice makes the papers once."
+    },
+    {
+      "label": "Approve",
+      "does": "On a home assessment's row, approves that one row and marks its papers printed.",
+      "doesNot": "No other row is approved."
+    },
+    {
+      "label": "Read it",
+      "does": "Reads the scan at a Google Drive link.",
+      "doesNot": "It takes only Google Drive links."
+    },
+    {
+      "label": "Rename",
+      "does": "Gives the assessment a new name.",
+      "doesNot": "The older names are kept, not deleted."
+    }
+  ]
+}

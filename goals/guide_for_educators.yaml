@@ -1,0 +1,76 @@
+name: guide_for_educators
+goal: >
+  A Guide inside the site, for signed-in staff, that answers an educator's or coordinator's question so they do not have
+  to ask Nimish. It starts with what the tool is for, one drawing of the school's whole flow and "I want to..." buttons
+  that jump to the answer. It has one page per menu item, in the menu's order, each with a labelled drawing of the page,
+  the usual jobs as steps, and what each button does and does not do. A page "How it is worked out" says in plain words
+  how every calculated thing an educator sees is decided, with every number read from the school's threshold rows, never
+  typed, so the guide changes itself when a row changes; levels, grades and a child's states are read from their rows
+  too. The school's twelve steps are drawn from the map the code is held to. A glossary and "Why did it say that?" close
+  it, and a small "?" on every page's header opens that page's guide. The guide's text lives in files in the repository,
+  and tests fail when a menu item has no page, a route or a button it names stops existing, or a step is missing.
+# Written 2026-10-27, before the guide's code, from Nimish's words of the same day. A cross-cutting help page: it moves no
+# gate of BUILD-ORDER.md and adds no table, migration or engine code; it reads rows that already exist.
+says:
+  - words: "Can we create a guide page where everything is well explained through right visuals and menu navigation etc."
+    proved_by: "apps/web/tests/u67-guide.spec.ts::start here draws the whole flow from the map and the menu from the real menu"
+  - words: "Can we create a guide page where everything is well explained through right visuals and menu navigation etc."
+    proved_by: "apps/web/tests/u67-guide.spec.ts::the help mark on a page's header opens that page's guide, and the menu has the Guide"
+  - words: "Can we create a guide page where everything is well explained through right visuals and menu navigation etc."
+    proved_by: "apps/web/tests/u67-guide.spec.ts::every guide page reads at phone width with no sideways scroll"
+  - words: "so that people don't come to me"
+    proved_by: "apps/web/tests/u67-guide.spec.ts::each I want to button lands on its answer"
+  - words: "so that people don't come to me"
+    proved_by: "packages/engine/tests/test_guide.py::test_every_i_want_to_lands_on_a_section_that_exists"
+  - words: "the core capabilities around each module, what to see where"
+    proved_by: "packages/engine/tests/test_guide.py::test_every_menu_item_has_a_guide_page"
+  - words: "the core capabilities around each module, what to see where"
+    proved_by: "packages/engine/tests/test_guide.py::test_every_guide_page_says_what_to_see_where_and_the_usual_jobs"
+  - words: "the core capabilities around each module, what to see where"
+    proved_by: "apps/web/tests/u67-guide.spec.ts::every menu item's guide page opens, in the menu's order, with its labelled drawing"
+  - words: "how something is defined or calculated"
+    proved_by: "packages/engine/tests/test_guide.py::test_no_number_is_typed_into_the_guide"
+  - words: "how something is defined or calculated"
+    proved_by: "packages/engine/tests/test_guide.py::test_every_number_in_the_guide_is_a_threshold_row"
+  - words: "how something is defined or calculated"
+    proved_by: "packages/engine/tests/test_guide.py::test_no_level_grade_or_state_is_typed_into_the_guide"
+  - words: "how something is defined or calculated"
+    proved_by: "apps/web/tests/u67-guide.spec.ts::a number in the guide is the row in force: change the row and the guide changes"
+  - words: "the workflows inside"
+    proved_by: "packages/engine/tests/test_guide.py::test_every_step_of_the_map_is_in_the_guide"
+  - words: "the workflows inside"
+    proved_by: "apps/web/tests/u67-guide.spec.ts::the workflows page shows every step of the map in its four stages, with who does it"
+  - words: "all explained in ELI5 terms for educators"
+    proved_by: "packages/engine/tests/test_guide.py::test_the_guide_uses_the_schools_words_and_short_sentences"
+  - words: "all explained in ELI5 terms for educators"
+    proved_by: "apps/web/tests/u67-guide.spec.ts::the glossary and why did it say that"
+  - words: "so that it's a transparent system"
+    proved_by: "packages/engine/tests/test_guide.py::test_every_route_the_guide_names_exists"
+  - words: "so that it's a transparent system"
+    proved_by: "packages/engine/tests/test_guide.py::test_every_button_the_guide_quotes_exists_in_the_app"
+  - words: "so that it's a transparent system"
+    proved_by: "packages/engine/tests/test_guide.py::test_the_scans_see_what_they_should"
+manual:
+  - "Each sentence about what a page does was checked against its code on 27 Oct 2026; the pull request lists what could not be confirmed and was left out."
+  - "Report a problem or suggest something: the feedback form was not merged when this was built; the section says so and is filled in once it lands."
+  - "Moving a child to another class is pull request #338, not merged; the guide says it is not on the site yet."
+scenarios: []
+criteria:
+  - name: the guide's text against the menu, the map, the routes, the buttons and the threshold rows
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_guide.py
+    expect: "passed"
+  - name: the guide's pages in a browser, at desktop and phone width
+    run: cd apps/web && npx playwright test tests/u67-guide.spec.ts
+    expect: "passed"
+  - name: the shared header and the menu still hold their rules
+    run: cd apps/web && npx playwright test tests/u53-the-menu.spec.ts tests/u51-ux-rules.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the pages keep the UX rules
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_ux_rules.py tests/test_states_and_subject.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -49,6 +49,9 @@ function Account({ me, grades }: { me: Session; grades: string }) {
           How it works
         </Link>
       ) : null}
+      <Link href="/guide" className="inline-flex min-h-11 items-center">
+        Guide
+      </Link>
       <span className="label">{grades}</span>
       <div role="group" aria-label="Signed in" className="ml-auto flex items-center gap-4">
         <span className="truncate" title={me.email}>

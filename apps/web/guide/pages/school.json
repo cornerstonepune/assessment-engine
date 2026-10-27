@@ -1,0 +1,45 @@
+{
+  "menu": "/school",
+  "forWhat": [
+    "The school's classes: each one's grade, the children in it and who teaches it. This page only shows; nothing is changed here."
+  ],
+  "layout": [
+    {
+      "area": "Title and main button",
+      "shows": "[[Change who teaches which class]], which opens Staff."
+    },
+    {
+      "area": "Filter row",
+      "shows": "Grade, and a search for a class or an educator."
+    },
+    {
+      "area": "Table",
+      "shows": "Class, Grade, Children and Taught by."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "who-teaches",
+      "title": "See who teaches a class",
+      "steps": [
+        "Find the class in the table. [[Taught by]] names its educators.",
+        "To change them, press [[Change who teaches which class]]."
+      ]
+    },
+    {
+      "id": "move-a-child",
+      "title": "Move a child to another class",
+      "steps": [
+        "This is not on the site yet. No page moves a child or changes a child's grade today.",
+        "Ask the coordinator. It is being built."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Change who teaches which class",
+      "does": "Opens Staff.",
+      "doesNot": "It does not move children."
+    }
+  ]
+}

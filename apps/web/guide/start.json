@@ -1,0 +1,42 @@
+{
+  "purpose": "What this tool is for, the school's whole week in one picture, and a quick way to the answer you need.",
+  "forWhat": [
+    "This tool makes each child's papers, reads what they wrote, and shows what each child can do, skill by skill.",
+    "Educators say what was taught and approve every paper before it prints. The engine marks by the answer key, and sends any answer it is not sure of to a person.",
+    "Every colour and every number you see comes from children's checked answers, worked out by rules the school can read on [How it is worked out](/guide/worked-out)."
+  ],
+  "wants": [
+    {
+      "label": "Make a home assessment",
+      "href": "/guide/class-results#home-assessment"
+    },
+    {
+      "label": "Upload and read papers",
+      "href": "/guide/upload-papers#upload"
+    },
+    {
+      "label": "Check answers",
+      "href": "/guide/check-answers#check"
+    },
+    {
+      "label": "Approve a skill",
+      "href": "/guide/skills-to-approve#approve"
+    },
+    {
+      "label": "See how a child is doing",
+      "href": "/guide/class-results#a-child"
+    },
+    {
+      "label": "Change a level",
+      "href": "/guide/curriculum#change-level"
+    },
+    {
+      "label": "Move a child",
+      "href": "/guide/school#move-a-child"
+    },
+    {
+      "label": "Report a problem",
+      "href": "/guide/report-a-problem#report"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "menu": "/capture",
+  "forWhat": [
+    "Papers come in here, and you see where every answer on them stands: settled by the engine, checked by a person, or still waiting."
+  ],
+  "layout": [
+    {
+      "area": "Title and main button",
+      "shows": "[[Check answers]], with how many wait."
+    },
+    {
+      "area": "Read a scan",
+      "shows": "A box to drop a PDF or photos, a field for a Google Drive link, and the files read lately with [[Read again]]."
+    },
+    {
+      "area": "Summary",
+      "shows": "Papers in, answers settled by the engine, answers checked by a person, answers waiting, papers to sign off."
+    },
+    {
+      "area": "Filter row",
+      "shows": "Show by child, class or worksheet; Class; Status."
+    },
+    {
+      "area": "Table",
+      "shows": "Class, Roll, Child, Paper, Waiting, Status, and the next step for each paper."
+    },
+    {
+      "area": "Next step",
+      "shows": "A link on to Class results."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "upload",
+      "title": "Upload and read papers",
+      "steps": [
+        "Photograph or scan the papers, in page order.",
+        "Drop the files in [[Choose scans or drop them here]], or paste a Google Drive link and press [[Read it]].",
+        "Each PDF is read on its own. Photos chosen together are read as one paper.",
+        "Every page is matched to its child by the code printed on it.",
+        "When reading is done, press [[Check answers]] for what the engine was not sure of."
+      ]
+    },
+    {
+      "id": "whose-page",
+      "title": "A page with no code that can be read",
+      "steps": [
+        "The file's row says which page had no code it could read.",
+        "Press the button with the child's name to say whose page it is. The page is then read as theirs.",
+        "The engine never guesses whose page it is."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Read it",
+      "does": "Reads the scan at the Google Drive link you pasted."
+    },
+    {
+      "label": "Read again",
+      "does": "Reads a file again.",
+      "doesNot": "Answers a person has checked stay as they were left."
+    }
+  ]
+}
