@@ -7,7 +7,7 @@ ability for the system to then generate a certain number of questions of that pa
 
 ## What changed
 
-- **One additive migration**, `20261215090000_a_question_made_from_a_sample.sql`: `english_sample_edit` gains
+- **One additive migration**, `20261217090000_a_question_made_from_a_sample.sql`: `english_sample_edit` gains
   `made_from` (the sample a question was made from) and `flow_run_id` (the model's run); `english_sample_now` shows
   `made_from`; `maths_sample` (a typed Maths sum, its layout, the level's case code measured it as, the questions code
   made of it; never changed).
