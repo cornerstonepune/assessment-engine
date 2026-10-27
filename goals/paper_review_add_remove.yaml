@@ -1,0 +1,44 @@
+name: paper_review_add_remove
+goal: >
+  When an educator makes an assessment, they land on a page that shows its actual questions in order, each as it will
+  print, under its skill, topic, level and kind, with the paper's state. Each question can be removed, and a question can
+  be added from the bank through dropdowns that narrow topic, skill, level, kind and question, all read from rows; a
+  retired kind is never offered, and a question the child was given lately is flagged with its days but may be chosen.
+  An edit never changes a paper in place: it makes the paper again from the existing code, with a new code, its own key
+  and layout, so a copy already in a child's hands reads as what was printed on it. Editing an approved paper withdraws
+  its approval; a printed paper (its print opened, given, or any copy uploaded) cannot be edited. Every edit is a row
+  that is never changed. The fewest and most questions a paper may hold are rows.
+# Written 2026-10-27, before the code. Nimish, 27 Oct. W2, gate N7 (the teacher approves) — see the branch note.
+# Not here: an English question cannot be on a paper yet — English questions are drafts in `english_sample`, never in
+# the bank a paper draws from (`drawable_item`), so "add the passage with it" has nothing to act on until they are.
+says:
+  - words: "When a teacher generates an assessment, they should see a page where they can look at the actual questions"
+    proved_by: apps/web/tests/p5-review-a-paper.spec.ts::an educator makes a home assessment, removes a question, adds one through the dropdowns and approves it
+  - words: "that should have an add/remove button: one can remove a specific question"
+    proved_by: packages/engine/tests/test_edit_paper.py::test_removing_a_question_makes_the_paper_one_shorter_and_says_what_it_no_longer_covers
+  - words: "and then can add another question from the bank"
+    proved_by: packages/engine/tests/test_edit_paper.py::test_a_question_added_from_the_bank_goes_where_the_educator_puts_it
+  - words: "This is done through proper dropdowns."
+    proved_by: packages/engine/tests/test_edit_paper.py::test_the_dropdowns_narrow_topic_skill_level_kind_question_from_rows_and_never_offer_a_retired_kind
+  - words: "and then can add another question from the bank"
+    proved_by: packages/engine/tests/test_edit_paper.py::test_a_question_given_lately_is_offered_with_its_days
+  - words: "one can remove a specific question and then can add another question from the bank"
+    proved_by: packages/engine/tests/test_edit_paper.py::test_editing_an_approved_paper_withdraws_its_approval_and_every_edit_is_a_row_never_changed
+  - words: "one can remove a specific question and then can add another question from the bank"
+    proved_by: packages/engine/tests/test_edit_paper.py::test_a_printed_paper_or_one_with_answers_uploaded_cannot_be_edited
+  - words: "one can remove a specific question and then can add another question from the bank"
+    proved_by: packages/engine/tests/test_edit_paper.py::test_the_fewest_and_most_questions_are_rows_and_a_full_paper_takes_no_more
+  - words: "one can remove a specific question and then can add another question from the bank"
+    proved_by: packages/engine/tests/test_edit_paper.py::test_an_edited_paper_is_read_and_marked_against_its_new_questions_and_the_old_copy_as_itself
+  - words: "When a teacher generates an assessment, they should see a page where they can look at the actual questions"
+    proved_by: apps/web/tests/p5-review-a-paper.spec.ts::an approved paper edited goes back to waiting, a printed one is read-only, a retired kind is not offered
+manual:
+  - "On live, once merged and the rehearsal has run: approve a child's home assessment, land on its review page, remove one question and add one from the dropdowns, then approve it again and print it."
+scenarios: []
+criteria:
+  - name: the edit rules
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_edit_paper.py tests/test_focus_paper.py tests/test_seen.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

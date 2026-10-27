@@ -99,8 +99,8 @@ test("the child's page shows the home assessment's questions before it prints, a
 
   // printing after a preview prints exactly the questions previewed, never a fresh draw
   await panel.getByRole("button", { name: "Approve this home assessment" }).click();
-  await expect(page).toHaveURL(/\?paper=CS[0-9A-F]{6}$/);
-  expect(await printed(qrIn(page, "paper"))).toEqual(other);
+  await expect(page).toHaveURL(/\/papers\/review\/CS[0-9A-F]{6}$/);
+  expect(await printed(page.url().split("/").pop()!)).toEqual(other);
 });
 
 test("a class's home assessments show each child's questions before approval, and different questions make no paper", async ({ page }) => {
@@ -141,7 +141,7 @@ test("a paper chosen for one child and Make papers show different questions with
   expect(await written(child)).toEqual(nothing);
   await paper.screenshot({ path: `${SHOTS}/3-a-paper-for-one-child.png` });
   await paper.getByRole("button", { name: "Approve and print" }).click();
-  await expect(page).toHaveURL(/\/worksheets\/CS[0-9A-F]{6}$/);
+  await expect(page).toHaveURL(/\/papers\/review\/CS[0-9A-F]{6}$/);
   expect(await printed(page.url().split("/").pop()!)).toEqual(other);
 
   // one paper for the whole class, in Make papers: its questions once, then different ones, then made as shown

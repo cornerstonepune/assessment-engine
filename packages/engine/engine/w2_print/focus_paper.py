@@ -30,7 +30,7 @@ from engine.w1_bank import question_types
 from engine.w1_bank.inventory import item_from_row
 from engine.w2_print import seen as shown
 from engine.w2_print.assemble import _qr
-from engine.w2_print.shelf import _levels, _once, catalog, home_length, rule
+from engine.w2_print.shelf import _levels, _once, catalog, home_length, rule, seen_by
 
 ASKED = "chosen by a teacher"  # an area an educator asked for has no state behind it
 NUMBER = ("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")
@@ -289,7 +289,9 @@ def approved(conn, child_id: str, week: str) -> dict | None:
     an earlier paper is kept and still reads as itself."""
     rows = conn.execute(
         "select qr_code as qr, approved_by, approved_at from sheet_instance"
-        " where child_id = %s and week = %s and kind = 'focus' order by created_at desc, id desc",
+        # an edit's earlier copy is void (`edit_paper`): the edit replaced it, not a new paper
+        " where child_id = %s and week = %s and kind = 'focus' and print_status <> 'void'"
+        " order by created_at desc, id desc",
         (child_id, week),
     ).fetchall()
     return {**rows[0], "replaced": [r["qr"] for r in rows[1:]]} if rows else None
@@ -321,10 +323,11 @@ def make(
     return {**print_paper(conn, child_id, week, actor, kind, p, HOW[kind]), "areas": p["areas"]}
 
 
-def print_paper(conn, child_id: str, week: str, actor: str, kind: str, p: dict, how: str, pw=None) -> dict:
+def print_paper(conn, child_id, week, actor, kind, p, how, pw=None, ids=None, waiting=False) -> dict:
     """One child's drawn paper `p`, approved by `actor`: a template of its own, the child's copy with its code, its
-    kind, class and week, its questions recorded as seen, and the page rendered, saying `how` it was chosen."""
-    ids = [q["id"] for a in p["areas"] for q in a["questions"]]
+    kind, class and week, its questions recorded as seen, and the page rendered, saying `how` it was chosen. An edited
+    paper (`edit_paper`) passes its questions in order (`ids`) and `waiting`: made by `actor`, approved by no one yet."""
+    ids = ids or [q["id"] for a in p["areas"] for q in a["questions"]]
     child = conn.execute("select tenant_id, band, section from child where id = %s", (child_id,)).fetchone()
     template = conn.execute(
         "insert into sheet_template (tenant_id, band, week, item_ids, source, child_id)"
@@ -339,11 +342,12 @@ def print_paper(conn, child_id: str, week: str, actor: str, kind: str, p: dict, 
         " values (%s,%s,%s,%s,%s,%s,%s,'printed',now(),%s,now(),clock_timestamp()) returning id",
         (child["tenant_id"], qr, template, child_id, week, child["section"], kind, actor),
     ).fetchone()["id"]
-    conn.execute(
-        "insert into item_exposure (tenant_id, child_id, item_id, week)"
-        " select %s, %s, id, %s from unnest(%s::uuid[]) as id order by id on conflict do nothing",
-        (child["tenant_id"], child_id, week, ids),
-    )
+    if waiting:  # made again by an edit (`edit_paper`): approved by no one yet, given to no one yet
+        conn.execute(
+            "update sheet_instance set print_status = 'new', approved_by = null where id = %s", (instance,)
+        )
+    else:
+        seen_by(conn, child["tenant_id"], child_id, week, ids)
     outdir = db.REPO_ROOT / "data" / "focus" / week
     key = _render(conn, child_id, week, actor, kind, p, ids, qr, outdir, how, pw)
     # its own page says how it was chosen and what it works on: a maker's class paper is not a home paper (2026-09-30)

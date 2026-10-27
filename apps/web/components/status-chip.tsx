@@ -27,6 +27,7 @@ export const STATES = {
   noPaper: { tone: "act", words: "no paper" },
   replaced: { tone: "quiet", words: "replaced by a newer one" },
   approved: { tone: "ok", words: "approved" },
+  printed: { tone: "ok", words: "printed" },
   taught: { tone: "ok", words: "taught" },
   notTaught: { tone: "quiet", words: "not taught yet" },
   doNow: { tone: "act", words: "do now" },
