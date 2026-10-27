@@ -7,10 +7,11 @@ database and nowhere else.
 
 import getpass
 import secrets
+from pathlib import Path
 
 import typer
 
-from engine.core import db, settings
+from engine.core import db, settings, staff_load
 from engine.core.staff import NODE_DEFAULT_N, add, classes, save, set_classes, staff, staff_hash
 
 staff_app = typer.Typer(help="Who signs in to the website", no_args_is_help=True)
@@ -91,6 +92,109 @@ def list_() -> None:
             f"{_said(s.get('classes', []), s['role'])}"
         )
     typer.echo(f"  {len(people)} on the staff list")
+
+
+@staff_app.command("load")
+def load_(
+    path: Path = typer.Argument(
+        ..., help="The table: a CSV, or a table copied from a spreadsheet; keep it outside the repository"
+    ),
+    apply_: bool = typer.Option(
+        False, "--apply", help="Write it. Without this nothing changes and the table is only shown"
+    ),
+    skip_refused: bool = typer.Option(
+        False, "--skip-refused", help="With --apply: do the rows that are fine, leave the refused ones"
+    ),
+    passwords_to: Path | None = typer.Option(
+        None,
+        "--passwords-to",
+        help="With --apply: also write the new passwords to this new file (mode 600, outside the repository)",
+    ),
+) -> None:
+    """Put a table of staff on the list: each person's classes and subjects, and a one-time password for the new ones.
+
+    The file has a header row and the columns name, email, role, subjects, classes. Subjects and classes hold several
+    values in one cell, separated by commas, semicolons or spaces; a subject is its code or its name (Maths), a class is
+    written as the site writes it (G3). Example row: Example Teacher, teacher@example.test, educator, Maths, G3
+
+    Without --apply this changes nothing and says what each row would do. People not in the file are never changed.
+    """
+    keep, rows = _read_the_table(path, passwords_to, apply_)
+    given: dict[str, str] = {}
+    with db.connect() as conn:
+        if (
+            apply_
+        ):  # the list is held while it is read and written, so the website cannot be overwritten between
+            conn.execute("select 1 from config where key = 'app.staff' for update")
+        lines = staff_load.plan(conn, rows)
+        refused = _show(lines, sum(s["email"].lower() not in {ln.email for ln in lines} for s in staff(conn)))
+        if not apply_:
+            typer.echo(
+                "  This was a dry run: nothing changed, and no password was made. Add --apply to do it."
+            )
+            return
+        if refused and not skip_refused:
+            typer.echo(
+                "  Some rows are refused, so nothing was applied. Fix the file, or add --skip-refused to do the rest."
+            )
+            raise typer.Exit(1)
+        given = staff_load.apply(
+            conn, lines, int(settings.threshold(conn, "password.scrypt_n", NODE_DEFAULT_N))
+        )
+        if keep and given:
+            try:
+                staff_load.write_private(keep, "".join(f"{e}  {p}\n" for e, p in given.items()))
+            except ValueError as e:
+                raise typer.BadParameter(str(e)) from e
+        conn.commit()
+    typer.echo("  Applied.")
+    _hand_over(given, keep)
+
+
+def _read_the_table(
+    path: Path, passwords_to: Path | None, apply_: bool
+) -> tuple[Path | None, list[dict[str, str]]]:
+    """The table and the passwords file checked before anything else happens: both outside the repository, the second
+    new and wanted only with --apply. Notes about ignored columns are said as they are found."""
+    try:
+        table = staff_load.outside_repository(path, "the table")
+        keep = staff_load.outside_repository(passwords_to, "the passwords file") if passwords_to else None
+        if keep and not apply_:
+            raise ValueError("--passwords-to goes with --apply")
+        if keep and keep.exists():
+            raise ValueError(f"{keep} already exists — it is never overwritten; name a new file")
+        rows, notes = staff_load.read_table(table)
+    except (ValueError, OSError) as e:
+        raise typer.BadParameter(str(e)) from e
+    for note in notes:
+        typer.echo(f"  {note}")
+    return keep, rows
+
+
+def _show(lines: list[staff_load.Line], outside: int) -> int:
+    """Say what each row does and the totals → how many rows are refused."""
+    for ln in lines:
+        typer.echo(f"  row {ln.row:<3}{ln.email:<36}{ln.said}" + "".join(f"  [{r}]" for r in ln.reads))
+    count = {a: sum(ln.action == a for ln in lines) for a in ("add", "update", "same", "refused")}
+    typer.echo(
+        f"  {count['add']} to add, {count['update']} to update, {count['same']} no change, {count['refused']} refused."
+        f" {outside} others on the list are not in the file and are left as they are (this tool removes no one)."
+    )
+    return count["refused"]
+
+
+def _hand_over(given: dict[str, str], keep: Path | None) -> None:
+    """The one-time passwords, in the terminal and nowhere else but the private file asked for."""
+    if not given:
+        return
+    typer.echo(
+        "\n  Give each person theirs in person or by phone, not in a group chat."
+        " They should change it from Change password after the first sign-in.\n"
+    )
+    typer.echo(f"  {'email':<36}password")
+    for email, password in given.items():
+        typer.echo(f"  {email:<36}{password}")
+    typer.echo("\n  These are shown once and kept nowhere" + (f" except {keep}." if keep else "."))
 
 
 def register(app: typer.Typer) -> None:
