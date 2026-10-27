@@ -345,6 +345,8 @@ def test_a_passwords_file_is_private_and_outside_the_repository(tmp_path, school
 def test_the_help_says_what_the_columns_are_with_one_made_up_row():
     r = run("staff", "load", "--help")
     assert r.exit_code == 0
+    # rich wraps the help in a box at the width of the terminal (80 in CI): read it as a person does, without the box
+    said = " ".join(r.output_plain.replace("│", " ").split())
     for fragment in (
         "name, email, role, subjects, classes",
         "Example Teacher, teacher@example.test, educator, Maths, G3",
@@ -352,4 +354,4 @@ def test_the_help_says_what_the_columns_are_with_one_made_up_row():
         "--skip-refused",
         "--passwords-to",
     ):
-        assert fragment in r.output_plain, fragment
+        assert fragment in said, fragment
