@@ -18,6 +18,8 @@ const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 type Kind = { code: string; level: string; kind: string; words: string; n: number };
 let k: Kind;
 let kept: unknown;
+// the papers other specs approved this week that the stop sends back for approval, as they were: put back after
+let papers: { qr_code: string; print_status: string; printed_at: Date | null; approved_by: string | null; approved_at: Date | null }[] = [];
 
 const drawable = async () =>
   (await sql<{ n: number }[]>`select count(*)::int as n from drawable_item
@@ -38,6 +40,9 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
   await sql`update skill set level_approved = ${sql.json(kept as never)} where code = ${k.code}`;
+  for (const p of papers)
+    await sql`update sheet_instance set print_status = ${p.print_status}, printed_at = ${p.printed_at}, approved_by = ${p.approved_by},
+                approved_at = ${p.approved_at} where qr_code = ${p.qr_code}`;
   await sql.end();
 });
 
@@ -55,6 +60,10 @@ test("an educator stops a kind at a level, is told what it touches first, and sw
   await expect(confirm).toContainText("Nothing is deleted");
   await expect(confirm).toContainText(`Until ${k.level} is approved again, no new paper is drawn from it`);
   expect(await drawable()).toBe(k.n);
+  const listed = confirm.locator("[data-withdraw]");
+  const withdraw = (await listed.count()) ? ((await listed.getAttribute("data-withdraw")) ?? "").split(" ").filter(Boolean) : [];
+  if (withdraw.length)
+    papers = await sql`select qr_code, print_status, printed_at, approved_by, approved_at from sheet_instance where qr_code = any(${withdraw})`;
 
   await confirm.getByRole("button", { name: "Stop using this kind of question" }).click();
   await expect(page.getByText("The kind is stopped: no new paper draws it")).toBeVisible();
