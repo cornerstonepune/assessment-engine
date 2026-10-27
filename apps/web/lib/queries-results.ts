@@ -31,7 +31,7 @@ const classSkills = (section: string) => sql`
                       and s.skill_code = any(ss.registry_codes) and s.n_events > 0))`;
 
 /** A severity's colour: the states of one severity share it (as `childTable` reads it). */
-const severityColour = sql`select distinct on (severity) severity, colour from child_state order by severity, ord`;
+const severityColour = () => sql`select distinct on (severity) severity, colour from child_state order by severity, ord`;
 
 /** Each signed-off answer once (`answer_placed`), on a reading not replaced, with the question it answered. */
 const answers = (child: Fragment) => sql`
@@ -44,7 +44,7 @@ const answers = (child: Fragment) => sql`
   where a.confirmed_by is not null and ${child}`;
 
 /** The three signals of the answers `a` (rule 5), as the report card counts them (`skillMap`). */
-const signals = sql`
+const signals = () => sql`
   count(*) filter (where a.correct)::int as right,
   count(*) filter (where a.correct = false and coalesce(a.working_shown, 'none') = 'none')::int as wrong,
   count(*) filter (where a.correct = false and coalesce(a.working_shown, 'none') <> 'none')::int as wrong_working,
@@ -73,7 +73,7 @@ export async function classTopics(section: string, me: Who): Promise<TopicLine[]
       join sk on sk.tenant_id = s.tenant_id and sk.rung_code = s.rung_code and s.skill_code = any(sk.registry_codes)
       join child_state cs on cs.tenant_id = s.tenant_id and cs.code = s.state
       where s.n_events > 0 group by 1, 2),
-    sv as (${severityColour}),
+    sv as (${severityColour()}),
     spread as (
       select per.topic_code, sv.colour, count(*)::int as n from per join sv on sv.severity = per.sev group by 1, 2),
     seen as (
@@ -119,7 +119,7 @@ export async function topicSkills(section: string, topic: string): Promise<Skill
       join sk on sk.tenant_id = s.tenant_id and sk.rung_code = s.rung_code and s.skill_code = any(sk.registry_codes)
       join child_state cs on cs.tenant_id = s.tenant_id and cs.code = s.state
       where s.n_events > 0 group by 1, 2),
-    sv as (${severityColour}),
+    sv as (${severityColour()}),
     spread as (select per.code, sv.colour, count(*)::int as n from per join sv on sv.severity = per.sev group by 1, 2),
     a as (select a.*, sk.code from (${answers(sql`a.child_id in (select id from kids)`)}) a join sk on sk.rung_code = a.placed_rung),
     lvl as (
@@ -161,7 +161,7 @@ export async function skillChildren(section: string, skill: string, me: Who & { 
       where s.n_events > 0 group by 1),
     a as (select a.* from (${answers(sql`a.child_id in (select id from child where active and section = ${section})`)}) a
           join ss on ss.rung_code = a.placed_rung),
-    sig as (select a.child_id, ${signals}, max(a.observed_at)::date::text as last,
+    sig as (select a.child_id, ${signals()}, max(a.observed_at)::date::text as last,
                    (array_agg(a.difficulty order by a.observed_at desc, a.level_ord desc nulls last)
                       filter (where a.difficulty is not null))[1] as level
             from a group by 1),
@@ -222,7 +222,7 @@ export async function childTopicPapers(id: string, me: Who): Promise<TopicPaper[
   return sql<TopicPaper[]>`
     with a as (${answers(sql`a.child_id = ${id}::uuid`)})
     select a.capture_id, si.qr_code, si.kind, ${paperName("t")} as title, max(a.observed_at)::date::text as date,
-           ss.topic_code, ${signals},
+           ss.topic_code, ${signals()},
            (select array_agg(distinct coalesce((r.raw_read::jsonb ->> 'file_page')::int, (r.raw_read::jsonb ->> 'page')::int, 1))
               from item_result r where r.capture_id = a.capture_id) as pages
     from a
