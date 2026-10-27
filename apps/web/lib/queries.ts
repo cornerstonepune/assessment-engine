@@ -145,10 +145,17 @@ export async function setSkills(): Promise<Skill[]> {
 }
 
 // Every mistake's name for each operation, for each operation's skill, and for neither, by the database's one rule
-// (`mistakeName` reads it).
-export async function misconceptionNames(): Promise<Record<string, string>> {
+// (`mistakeName` reads it). With `child`, only the mistakes that child's answers carry: a child's page names its own, and
+// every mistake of the school named on each of its loads took most of that page's time (goals/res_results_by_topic.yaml).
+export async function misconceptionNames(child?: string): Promise<Record<string, string>> {
+  const theirs = child
+    ? sql`where code in (select unnest(misconception_codes) from evidence_event where child_id = ${child}::uuid
+                         union
+                         select unnest(r.misconception_codes) from item_result r join capture c on c.id = r.capture_id
+                         join sheet_instance si on si.id = c.sheet_instance_id where si.child_id = ${child}::uuid)`
+    : sql``;
   const rows = await sql<{ key: string; name: string }[]>`
-    with codes as (select distinct code from misconception),
+    with codes as (select distinct code from misconception ${theirs}),
          ops as (select e.key as op, e.value as skill from config c, jsonb_each_text(c.value) e where c.key = 'skills.by_operation')
     select codes.code || '@' || ops.op as key, mistake_name(codes.code, null, ops.op) as name from codes, ops
     union all

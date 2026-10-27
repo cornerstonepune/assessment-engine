@@ -1,0 +1,45 @@
+name: res_results_by_topic
+goal: >
+  Results read by topic. Class results open on the educator's own class, chosen in the page's own filter row: its
+  topics as rows, grouped by subject, folded until opened, each with how many of the class's children are secure,
+  practising, need help, have too few answers, or are not assessed yet (in words and counts, never colour alone) and
+  the date of the last assessment; a topic opens to its skills, a skill to its children, each with their level and
+  state. A child's page is a row per topic: level, the score on the last assessment (right of attempted, with blank,
+  wrong and wrong-with-working as three things), the state, and a strength or weakness in plain words worked out by
+  code; a topic opens to its skills and its assessments, and each assessment opens the child's own written pages in
+  place. Every number comes from the graph's states and signed-off answers; too few to say is said, never guessed. Who
+  sees what is the one rule (`staff_sees`); a child with answers still waiting to be checked is told so, with a link.
+# Written 2026-10-27, before the build (rule 14), from Nimish's words of 24 Oct (the design discussion; he has not yet
+# seen a built version). W3 (the educator's site over the graph, N10); no gate moved. The heat map (children as rows)
+# comes later and is not part of this goal.
+says:
+  - words: "The unit of reference is the topic: Subject, then Topic, then Skill, then difficulty levels."
+    proved_by: "apps/web/tests/u71-results-by-topic.spec.ts::class results open on the educator's own class: subjects, then topics, folded, each topic counted in words"
+  - words: "Scorecard topic-forward. Class view: topics as rows, children inside."
+    proved_by: "apps/web/tests/u71-results-by-topic.spec.ts::a topic opens to its skills and a skill to its children, each with level and state"
+  - words: "Child page: a row per topic with level, score, strength or weakness."
+    proved_by: "apps/web/tests/u71-results-by-topic.spec.ts::a child's page is a row per topic: level, last score in three signals, state, strength or weakness"
+  - words: "Validation is embedded: the child's two or three page images are openable per assessment."
+    proved_by: "apps/web/tests/u71-results-by-topic.spec.ts::an assessment opens the child's written page in place"
+  - words: "The teacher's flow per topic: skills, then baseline assessment, then home assessments (some children get more), then practice on earlier topics."
+    proved_by: "apps/web/tests/u71-results-by-topic.spec.ts::an opened topic says its assessments by kind: the class assessment, home assessments and for how many children, practice"
+manual:
+  - "Nimish has not yet seen a built version: the page is his to judge on the live site."
+  - "The heat map (children as rows) is not built; the old children table stays reachable from the page until it is."
+scenarios: []
+criteria:
+  - name: the numbers, read back from the rows by the query functions themselves
+    run: cd apps/web && npx playwright test tests/u71-results-numbers.spec.ts
+    expect: "passed"
+  - name: class results, a child, the written page, who is refused, answers waiting, and the time budget, in the browser
+    run: cd apps/web && npx playwright test tests/u71-results-by-topic.spec.ts
+    expect: "passed"
+  - name: the pages that read the old Results still read it, and the Guide's Results page names real buttons
+    run: cd apps/web && npx playwright test tests/u8-children-table.spec.ts tests/u26-my-classes-first.spec.ts tests/u35-children-grouped.spec.ts tests/u67-guide.spec.ts
+    expect: "passed"
+  - name: the website's types and lint
+    run: cd apps/web && npx tsc --noEmit && npx eslint --max-warnings 0 && echo "types and lint clean"
+    expect: "types and lint clean"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

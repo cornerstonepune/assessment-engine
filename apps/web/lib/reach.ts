@@ -25,6 +25,11 @@ export const seesCapture = (me: Who, capture: ReturnType<typeof sql>) => sql`sta
 /** A where-clause piece: the person may see what is of the class in `section` (a child, a class's work). */
 export const seesClass = (me: Who, section: ReturnType<typeof sql>) => sql`staff_sees(${who(me)}, ${section}, null, null)`;
 
+/** A where-clause piece: the person may see what is of the class in `section` in the subject in `subject` (a topic's
+ *  results: an educator's staff entry may name the subjects they teach). */
+export const seesClassIn = (me: Who, section: ReturnType<typeof sql>, subject: ReturnType<typeof sql>) =>
+  sql`staff_sees(${who(me)}, ${section}, ${subject}, null)`;
+
 /** A where-clause piece: the person sees what was put in by `uploadedBy` (their own, or everything). */
 export const seesUploader = (me: Who, uploadedBy: ReturnType<typeof sql>) => sql`staff_sees(${who(me)}, null, null, ${uploadedBy})`;
 

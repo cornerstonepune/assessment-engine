@@ -20,7 +20,7 @@ export const needsFirst = (a: ChildRow, b: ChildRow) => NEED[childState(a).state
 
 export function ClassesTable({ rows, page, pageHref }: { rows: ClassLine[]; page: number; pageHref: (n: number) => string }) {
   const columns: Column<ClassLine>[] = [
-    { key: "class", label: "Class", width: "9rem", value: (c) => c.section, cell: (c) => <Link href={`/growth?class=${encodeURIComponent(c.section)}`}>{c.section}</Link> },
+    { key: "class", label: "Class", width: "9rem", value: (c) => c.section, cell: (c) => <Link href={`/growth?view=children&class=${encodeURIComponent(c.section)}`}>{c.section}</Link> },
     { key: "grade", label: "Grade", width: "8rem", value: (c) => c.grade },
     { key: "children", label: "Children", num: true, width: "6rem", value: (c) => c.kids.length },
     { key: "help", label: "Need help", num: true, width: "6rem", value: (c) => c.kids.filter((k) => k.needs_help > 0).length },

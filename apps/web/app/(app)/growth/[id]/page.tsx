@@ -18,7 +18,8 @@ import { CHANGED } from "@/components/questions";
 import { readDraw } from "@/lib/next-paper";
 import { AnswerTable, fmtDate } from "./answers";
 import { RepeatedMistakes, TheirPapers } from "./panels";
-import { SkillsPanel } from "./skills-panel";
+import { TopicsPanel } from "./topics-panel";
+import { childLevels, childTopicPapers } from "@/lib/queries-results";
 import { ParentReportPanel } from "./report-panel";
 import { GradeClassPanel } from "./grade-class";
 import { reportOf } from "@/lib/queries-reports";
@@ -33,13 +34,13 @@ export default async function ChildPage({ params, searchParams }: Props) {
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   if (!isMine(await reachOf(me), await deadline(childSection(id)))) return <NotYours what="This child's class" />;
   const q = await searchParams;
-  const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff, rules, report, g, states] = await deadline(Promise.all([
+  const [child, skills, evidence, pending, papers, names, mistakes, sheets, staff, rules, report, g, states, topicPapers, levels] = await deadline(Promise.all([
     childHeader(id, me.email),
     childSkills(id),
     childEvidence(id),
     pendingResults(id, me),
     childPapers(id, me),
-    misconceptionNames(),
+    misconceptionNames(id),
     repeatedMistakes(id),
     childSheets(id, me),
     staffList(),
@@ -47,6 +48,8 @@ export default async function ChildPage({ params, searchParams }: Props) {
     reportOf(id),
     grades(),
     childStates(),
+    childTopicPapers(id, me),
+    childLevels(id),
   ]));
   if (!child) notFound();
 
@@ -145,9 +148,11 @@ export default async function ChildPage({ params, searchParams }: Props) {
           {summary(child.first_name, shown, notYet, states)}
         </p>
         {waiting ? (
+          // answers still waiting: the results above may change once they are checked (they are listed below, as this
+          // person may check them)
           <p className="mb-4 text-[13.5px]">
             <a href="#needs-you" className="text-terracotta">
-              {[person.length && `${person.length} to check`, machine.length && `${machine.length} to sign off`].filter(Boolean).join(" · ")} ↓
+              {waiting} {waiting === 1 ? "answer" : "answers"} waiting to be checked: results may change
             </a>
           </p>
         ) : (
@@ -164,7 +169,7 @@ export default async function ChildPage({ params, searchParams }: Props) {
 
         <div className="grid gap-[18px] xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="grid content-start gap-[18px]">
-            <SkillsPanel skills={skills} answers={evidence} names={names} states={states} />
+            <TopicsPanel id={id} name={child.first_name} open={q.topic} skills={skills} answers={evidence} names={names} mistakes={mistakes} papers={topicPapers} levels={levels} states={states} />
 
             <ChecksPanel title={`Checks that would place ${child.first_name}`} unanswered="not assessed yet" checks={checks} />
 
