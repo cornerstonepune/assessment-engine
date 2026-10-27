@@ -40,6 +40,7 @@ class Line:
     action: str = "refused"
     said: str = ""
     reads: list[str] = field(default_factory=list[str])
+    change_role: bool = False
 
 
 def read_table(path: Path) -> tuple[list[dict[str, str]], list[str]]:
@@ -120,28 +121,34 @@ def _refusal(
         raise ValueError(f"no subject is called {', '.join(repr(u) for u in unknown)}")
 
 
-def _decide(line: Line, me: dict[str, Any] | None) -> None:
-    """Set what a fine row does against the person already on the list, if any."""
+def _decide(line: Line, me: dict[str, Any] | None, change_roles: bool = False) -> None:
+    """Set what a fine row does against the person already on the list, if any. A person's role is changed only when
+    the caller says so (`--change-roles`): who sees every class is not a thing a table should change by surprise."""
     if me is None:
         line.action, line.said = (
             "add",
             f"add — {line.name} ({line.role}), {_said(line.subjects, line.classes)}",
         )
-    elif str(me["role"]).lower() != line.role:
+        return
+    was = str(me["role"]).lower()
+    if was != line.role and not change_roles:
         line.said = (
             f"refused: already on the list as {me['role']}, and this tool changes only classes and subjects"
+            " (add --change-roles to change the role as well)"
         )
-    elif (me.get("classes", []), me.get("subjects", [])) == (line.classes, line.subjects):
+    elif was == line.role and (me.get("classes", []), me.get("subjects", [])) == (line.classes, line.subjects):
         line.action, line.said = "same", "no change"
     else:
         line.action = "update"
+        line.change_role = was != line.role
+        role = f"role {was} to {line.role}, " if line.change_role else ""
         line.said = (
-            f"update classes and subjects from {_said(me.get('subjects', []), me.get('classes', []))}"
+            f"update {role}classes and subjects from {_said(me.get('subjects', []), me.get('classes', []))}"
             f" to {_said(line.subjects, line.classes)}"
         )
 
 
-def plan(conn: db.Conn, rows: Sequence[dict[str, str]]) -> list[Line]:
+def plan(conn: db.Conn, rows: Sequence[dict[str, str]], change_roles: bool = False) -> list[Line]:
     """→ one Line per row. Writes nothing."""
     people = {s["email"].lower(): s for s in staff(conn)}
     known = conn.execute(
@@ -167,7 +174,7 @@ def plan(conn: db.Conn, rows: Sequence[dict[str, str]]) -> list[Line]:
         except ValueError as e:
             line.said = f"refused: {e}"
             continue
-        _decide(line, people.get(email))
+        _decide(line, people.get(email), change_roles)
     return lines
 
 
@@ -178,13 +185,18 @@ def new_password() -> str:
 
 def apply(conn: db.Conn, lines: Sequence[Line], cost: int) -> dict[str, str]:
     """Write the plan in the caller's transaction → `{email: one-time password}` for each person added. A person
-    already on the list keeps everything but their classes and subjects; a person not in the table is not read."""
+    already on the list keeps everything but their classes and subjects (and their role, where the plan says so); a person
+    not in the table is not read."""
     todo = {ln.email: ln for ln in lines if ln.action in ("add", "update")}
     given: dict[str, str] = {}
     out: list[dict[str, Any]] = []
     for s in staff(conn):
         ln = todo.pop(s["email"].lower(), None)
-        out.append({**s, "classes": ln.classes, "subjects": ln.subjects} if ln else s)
+        out.append(
+            {**s, "classes": ln.classes, "subjects": ln.subjects, **({"role": ln.role} if ln.change_role else {})}
+            if ln
+            else s
+        )
     for ln in todo.values():
         given[ln.email] = new_password()
         out.append(

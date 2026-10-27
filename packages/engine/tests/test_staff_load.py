@@ -180,6 +180,33 @@ def test_every_refusal_is_said_in_words_and_one_refused_row_stops_the_apply(tmp_
 
 
 @needs_db
+def test_a_role_is_changed_only_when_asked_and_the_person_keeps_their_password(tmp_path, school):
+    """Nimish, 27 Oct 2026: two people were on the list as educators and are coordinators. `staff load` changes a role
+    only with --change-roles; a dry run says it; the password, the name and the rest of the row stay."""
+    first = _load(_file(tmp_path, HEADER, "Dee Four,dee@example.test,educator,NUM,SL-ONE"), "--apply")
+    assert first.exit_code == 0, first.output_plain
+    mine = {s["email"]: s for s in _staff()}["dee@example.test"]
+    path = _file(tmp_path, HEADER, "Dee Four,dee@example.test,coordinator,,", name="role.csv")
+
+    refused = _load(path)
+    assert "refused: already on the list as educator" in refused.output_plain
+    assert "add --change-roles" in refused.output_plain
+    assert _load(path, "--apply").exit_code != 0 and {s["email"]: s for s in _staff()}["dee@example.test"] == mine
+
+    asked = _load(path, "--change-roles")
+    assert re.search(r"dee@example\.test\s+update role educator to coordinator", asked.output_plain), asked.output_plain
+    assert {s["email"]: s for s in _staff()}["dee@example.test"] == mine, "a dry run changes nothing"
+
+    done = _load(path, "--change-roles", "--apply")
+    assert done.exit_code == 0 and "Give each person" not in done.output_plain, done.output_plain
+    now = {s["email"]: s for s in _staff()}["dee@example.test"]
+    assert now["role"] == "coordinator" and now["classes"] == [] and now["subjects"] == []
+    assert now["password"] == mine["password"] and now["name"] == mine["name"]
+    again = _load(path, "--change-roles")
+    assert re.search(r"dee@example\.test\s+no change", again.output_plain)
+
+
+@needs_db
 def test_a_subject_is_read_by_its_code_or_its_name_and_the_dry_run_says_which_code(tmp_path, school):
     with db.connect() as conn:
         s = conn.execute("select code, name, label from subject limit 1").fetchone()

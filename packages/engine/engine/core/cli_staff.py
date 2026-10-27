@@ -105,6 +105,11 @@ def load_(
     skip_refused: bool = typer.Option(
         False, "--skip-refused", help="With --apply: do the rows that are fine, leave the refused ones"
     ),
+    change_roles: bool = typer.Option(
+        False,
+        "--change-roles",
+        help="Also change the role of a person already on the list to the one in the table (a coordinator sees every class)",
+    ),
     passwords_to: Path | None = typer.Option(
         None,
         "--passwords-to",
@@ -126,7 +131,7 @@ def load_(
             apply_
         ):  # the list is held while it is read and written, so the website cannot be overwritten between
             conn.execute("select 1 from config where key = 'app.staff' for update")
-        lines = staff_load.plan(conn, rows)
+        lines = staff_load.plan(conn, rows, change_roles)
         refused = _show(lines, sum(s["email"].lower() not in {ln.email for ln in lines} for s in staff(conn)))
         if not apply_:
             typer.echo(
