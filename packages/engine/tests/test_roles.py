@@ -30,6 +30,11 @@ WEB_WRITES = {
     "public.web_error": {"INSERT"},
     # a wrong password for an email, so too many make it wait (goals/p2-live-recovers.yaml)
     "public.sign_in_failure": {"INSERT"},
+    # a link a person sets their own password with, and each ask for one (goals/auth-email-password.yaml). The website
+    # also marks a link used, closed or sent — three columns, so it is no table-wide UPDATE and does not show here;
+    # which columns exactly is tests/test_password_rules.py.
+    "public.password_link": {"INSERT"},
+    "public.password_ask": {"INSERT"},
     # a person's approval of a way of asking, added once and never changed (goals/e0-english-in-the-system.yaml)
     "public.question_type_approval": {"INSERT"},
     # the name an educator gives an assessment, added and never changed (goals/asm_assessments_page.yaml)

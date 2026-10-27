@@ -1,5 +1,5 @@
 import { sql } from "./db";
-import { staffList } from "./queries";
+import { staffList, type Staff } from "./queries";
 
 // Who teaches which class, read for the Staff and School pages (goals/uxn2-staff-and-school.yaml). A person's password
 // hash lives in the same list and never leaves it: only the name, email, role and classes are read here.
@@ -41,4 +41,15 @@ export async function classLines(): Promise<ClassLine[]> {
       .filter((p) => p.classes.includes(r.section))
       .map((p) => p.name),
   }));
+}
+
+/** The roles a person may be given on the Staff page: those the school's decisions name (`people.decides`), and any
+ *  someone on the list already holds — the same rule as `engine staff add` (engine/core/staff.py `roles`). Rows,
+ *  never a list in code (rule 1). */
+export async function rolesHeld(): Promise<string[]> {
+  const [row] = await sql<{ value: Record<string, string[]> }[]>`
+    select value from config where key = 'people.decides'`;
+  const named = Object.values(row?.value ?? {}).flat();
+  const held = (await staffList()).map((p: Staff) => p.role);
+  return [...new Set([...named, ...held])].sort();
 }

@@ -180,7 +180,9 @@ export const RULE_WORDS: Record<string, string> = {
 
 // `classes`: the classes a person teaches, as `engine staff add --class` puts them (ADR 0073, D1); the coordinator's are every class.
 // `subjects`: the subject codes they teach (nav_teacher_scope_and_todo): none named is every subject.
-export type Staff = { email: string; name: string; role: string; password?: string; classes?: string[]; subjects?: string[] };
+// `password_set_at`: when that password was set, as the person themselves set it (goals/auth-email-password.yaml); a
+// session cookie signed before it is no longer good. None means a password nobody has set since that rule (or none at all).
+export type Staff = { email: string; name: string; role: string; password?: string; password_set_at?: string; classes?: string[]; subjects?: string[] };
 
 export async function staffList(): Promise<Staff[]> {
   const row = await sql<{ value: Staff[] }[]>`select value from config where key = 'app.staff'`;

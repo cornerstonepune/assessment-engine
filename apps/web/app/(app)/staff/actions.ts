@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import { sendFirstLink } from "@/lib/password-actions";
+import { rolesHeld } from "@/lib/queries-staff";
 import type { Staff } from "@/lib/queries";
 
 // A coordinator says which classes a member of staff teaches (goals/uxn2-staff-and-school.yaml): what
@@ -63,4 +65,26 @@ export async function setSubjects(formData: FormData): Promise<void> {
   await sql`update config set value = ${sql.json(next)} where key = 'app.staff'`;
   revalidatePath("/", "layout");
   redirect(`/staff?of=subjects&saved=${encodeURIComponent(person.name)}`);
+}
+
+// A coordinator adds a member of staff (goals/auth-email-password.yaml). Nobody types or sees anyone else's password:
+// the person is put on the list without one and emailed a link that lets them set their own, good for
+// `password_link.first_days` days. Their classes and subjects are chosen afterwards, on their row.
+export async function addPerson(formData: FormData): Promise<void> {
+  await requireStaff();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const name = String(formData.get("name") ?? "").trim();
+  const role = String(formData.get("role") ?? "").trim();
+  if (!name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) redirect("/staff?of=new&refused=email");
+  if (!(await rolesHeld()).includes(role)) redirect("/staff?of=new&refused=role");
+  // one statement, and it does nothing at all if that email is already on the list: two coordinators adding at once
+  // cannot write one person over the other (lib/db.ts: nothing may be stacked, so nothing is read and written back)
+  const person = { email, name, role, classes: [] as string[] };
+  const done = await sql`
+    update config set value = value || ${sql.json([person])}
+    where key = 'app.staff' and not value @> ${sql.json([{ email }])}`;
+  if (done.count === 0) redirect("/staff?of=new&refused=already");
+  await sendFirstLink(email);
+  revalidatePath("/", "layout");
+  redirect(`/staff?of=new&saved=${encodeURIComponent(name)}`);
 }

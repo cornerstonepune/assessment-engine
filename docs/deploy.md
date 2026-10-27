@@ -24,6 +24,7 @@ Their values are in the repository's `.env`, which is never committed.
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API, the publishable key | Sign-in only. Never the service-role key: that one bypasses every row-level policy and must never reach a browser. |
 | `NEXT_PUBLIC_SITE_URL` | the deployment's own URL | Where a magic link returns to |
 | `TENANT_SLUG` | `cornerstone-pune` | Which school's rows |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | the school's own sender | The one email this site sends: the link a member of staff sets their own password with (goals/auth-email-password.yaml). No provider is named in the repository. Until all five are set, "Forgot your password?" answers exactly as it always does and `engine live watch` says `mail is not configured`, so nobody waits for an email in silence |
 
 **`AUTH_DEV_BYPASS` must never be set on Vercel.** It is refused outside development, but an
 unset variable cannot be misread.
