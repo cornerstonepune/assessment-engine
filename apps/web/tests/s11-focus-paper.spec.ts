@@ -70,9 +70,10 @@ test("a child's page says which areas the home assessment works on and why, and 
   await expect(page.getByText("12 questions", { exact: true }).first()).toBeVisible();
 
   await page.getByRole("button", { name: "Approve this home assessment" }).click();
-  await expect(page).toHaveURL(/\?paper=CS[0-9A-F]{6}$/);
-  const qr = new URL(page.url()).searchParams.get("paper")!;
-  await page.getByRole("region", { name: "Home assessment" }).getByRole("link", { name: qr }).click();
+  // made, it opens on its review page (goals/paper_review_add_remove.yaml); its answer key is a link from there
+  await expect(page).toHaveURL(/\/papers\/review\/CS[0-9A-F]{6}$/);
+  const qr = page.url().split("/").pop()!;
+  await page.getByRole("link", { name: "Its answer key" }).click();
   // named by what it is, its printed code beneath (goals/ux8b-papers-named.yaml)
   await expect(page.getByRole("heading", { level: 1 })).not.toContainText(qr);
   await expect(page.getByText(`Printed code ${qr}`)).toBeVisible();
@@ -90,22 +91,25 @@ test("a home assessment is made again the same week and the newest is the week's
   await clearUp(child);
   await page.goto(`/growth/${child}`);
   await page.getByRole("button", { name: "Approve this home assessment" }).click();
-  await expect(page).toHaveURL(/\?paper=CS[0-9A-F]{6}$/);
-  const first = new URL(page.url()).searchParams.get("paper")!;
+  await expect(page).toHaveURL(/\/papers\/review\/CS[0-9A-F]{6}$/);
+  const first = page.url().split("/").pop()!;
+  await page.goto(`/growth/${child}`);
   const panel = page.getByRole("region", { name: "Home assessment" });
   await panel.getByRole("button", { name: "Make a new home assessment" }).click();
-  await expect(page).toHaveURL(/\?paper=CS[0-9A-F]{6}$/);
-  await expect(page).not.toHaveURL(new RegExp(`paper=${first}$`));
-  const second = new URL(page.url()).searchParams.get("paper")!;
+  await expect(page).toHaveURL(/\/papers\/review\/CS[0-9A-F]{6}$/);
+  const second = page.url().split("/").pop()!;
   expect(second).toMatch(/^CS[0-9A-F]{6}$/);
+  expect(second).not.toBe(first);
+  await page.goto(`/growth/${child}`);
   // the newest is the week's; the earlier, in one line, as replaced — never as waiting
   await expect(panel.getByText("this week’s home assessment")).toBeVisible();
   await expect(panel.getByRole("link", { name: second })).toBeVisible();
   await expect(panel.locator("[data-replaced]")).toContainText(`Replaced this week: ${first}`);
   await panel.getByRole("button", { name: "Make a new home assessment" }).click();
-  await expect(page).not.toHaveURL(new RegExp(`paper=${second}$`));
-  const third = new URL(page.url()).searchParams.get("paper")!;
+  await expect(page).toHaveURL(/\/papers\/review\/CS[0-9A-F]{6}$/);
+  const third = page.url().split("/").pop()!;
   expect(new Set([first, second, third]).size).toBe(3);
+  await page.goto(`/growth/${child}`);
   await expect(panel.locator("[data-replaced]")).toContainText(`${second}, ${first}`);
   // the earlier paper's own page says so, and it is kept, approved and readable by its code
   await page.goto(`/worksheets/${first}`);

@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.api.idempotency import derive_key, run_idempotent
 from engine.api.routes.focus import Area, Draw
-from engine.w2_print import maker, seen
+from engine.w2_print import edit_paper, maker, seen
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
 
@@ -80,10 +80,14 @@ def papers_make(
 
 
 @router.get("/papers/pack.pdf")
-def papers_pdf(qr: list[str] = Query(...), conn=Depends(get_conn, scope="function")) -> Response:
-    """The papers as one PDF, in class and roll order, exactly as each was rendered. Writes nothing."""
+def papers_pdf(
+    qr: list[str] = Query(...), by: str = "", conn=Depends(get_conn, scope="function")
+) -> Response:
+    """The papers as one PDF, in class and roll order, exactly as each was rendered. It records only that their print
+    was opened, by `by`: from then on a paper is printed and is not edited (`edit_paper`)."""
     try:
         pdf = maker.pdf(conn, qr)
+        edit_paper.print_opened(conn, qr, by)
     except LookupError as e:
         raise HTTPException(status_code=404, detail=str(e)) from None
     except (ValueError, FileNotFoundError) as e:

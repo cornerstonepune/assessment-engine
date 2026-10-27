@@ -1,5 +1,6 @@
 // Papers made together, printed together: the engine merges each paper exactly as it was rendered, in class and
-// roll order, into one PDF (`w2_print/maker.py`). Nothing is drawn again and nothing is written.
+// roll order, into one PDF (`w2_print/maker.py`). Nothing is drawn again; the engine notes the print was opened, after
+// which a paper is not edited (`w2_print/edit_paper.py`).
 import { currentStaff } from "@/lib/auth";
 import { isMine, notYoursResponse, paperSection, reachOf } from "@/lib/scope";
 import { EngineDown, engineGet } from "@/lib/engine";
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
   const scope = reachOf(me);
   for (const qr of qrs) if (!isMine(scope, await paperSection({ qr }))) return notYoursResponse();
   try {
-    const res = await engineGet(`/papers/pack.pdf?${qrs.map((q) => `qr=${q}`).join("&")}`);
+    const res = await engineGet(`/papers/pack.pdf?${qrs.map((q) => `qr=${q}`).join("&")}&by=${encodeURIComponent(me.email)}`);
     if (!res.ok) {
       const why = ((await res.json().catch(() => ({}))) as { detail?: string }).detail;
       return new Response(why ?? "the engine could not print the papers", { status: res.status });

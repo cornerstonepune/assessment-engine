@@ -469,6 +469,18 @@
    "value": 5,
    "unit": "notes",
    "description": "How many waiting notes one visit to the form tries to send to GitHub, oldest first (goals/feed_report_from_the_tool.yaml)"
+  },
+  {
+   "key": "assessment.min_questions",
+   "value": 1,
+   "unit": "count",
+   "description": "The fewest questions a child's paper may hold: an edit that would leave fewer is refused. One, because a paper with none has nothing to read or mark"
+  },
+  {
+   "key": "assessment.max_questions",
+   "value": 40,
+   "unit": "count",
+   "description": "The most questions a child's paper may hold: an edit that would add more is refused. Forty, the most a teacher may ask of one area (focus_paper.MOST_ASKED); the page flows over as many sides as it needs, a code on each"
   }
  ]
 }

@@ -16,6 +16,8 @@ export type EngineRoutes = {
   "GET /child/{child_id}/focus/paper.pdf": null;
   "GET /child/{child_id}/parent-report": null;
   "GET /health": null;
+  "GET /paper/{qr}/bank": null;
+  "GET /paper/{qr}/review": null;
   "GET /papers/pack.pdf": null;
   "GET /read/run/{run_id}/page/{page_no}.jpg": null;
   "GET /read/scan/{name}/copies": null;
@@ -52,6 +54,9 @@ export type EngineRoutes = {
   "POST /mark": { child_id: string };
   "POST /paper/key": { result_id: string; answer: string; by: string };
   "POST /paper/page-choice": { capture_id: string; file_page: number; choice: string; by: string };
+  "POST /paper/{qr}/add": { by: string; item_id: string; at?: number | null };
+  "POST /paper/{qr}/approve": { by: string };
+  "POST /paper/{qr}/remove": { by: string; item_id: string; at?: number | null };
   "POST /papers/absent": { qr: string; away: boolean; by: string };
   "POST /papers/given": { qrs: string[]; on: string; by: string };
   "POST /papers/make": { section: string; week: string; kind: string; way: string; children: string[]; areas?: { skill_set: string; level: string; n: number }[]; changed?: Record<string, { skill_set: string; level: string; n?: number | null }[]>; draw?: number; by: string; once: string; seen: string };
