@@ -27,7 +27,7 @@ Commands: `cd packages/engine && uv run pytest -q tests/test_calibration.py` (11
 
 ## Handoff
 
-- **Migration** `20261214090000_levels_to_review.sql` needs the rehearsal workflow (`rehearse-update-live.yml`) before merge: it
+- **Migration** `20261216090000_levels_to_review.sql` needs the rehearsal workflow (`rehearse-update-live.yml`) before merge: it
   replaces `rebuild_child_skill_state` (same results, case moved), adds a function, two views, a table and three threshold rows.
 - **Not wired in** (other sessions own those files): the top menu and What needs doing. The line to add there: "Levels to review:
   N suggestions", from `levelsToReviewCount(scope)` in `apps/web/lib/queries-calibration.ts`; the page is `/skill-sets/levels`.

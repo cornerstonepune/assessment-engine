@@ -321,7 +321,7 @@ def test_no_python_or_web_file_holds_the_numbers():
 
 
 def _the_case_before_cal(n, share, observers, repeating, min_events=3, min_obs=2, promote=0.8, demote=0.5):
-    """`rebuild_child_skill_state`'s case as it was written until 20261214090000 (20261023090000), in Python."""
+    """`rebuild_child_skill_state`'s case as it was written until 20261216090000 (20261023090000), in Python."""
     if n < min_events:
         return "not_enough_yet"
     if repeating is not None:
