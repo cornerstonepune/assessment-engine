@@ -40,7 +40,8 @@ export async function approveHome(formData: FormData): Promise<void> {
   redirect(`${back}?${q}`);
 }
 
-/** The paper a teacher chose for one child, printed in their name exactly as they saw it; it opens as printed. */
+/** The paper a teacher chose for one child, approved in their name exactly as they saw it; it opens on its review page,
+ *  its questions to remove or add (goals/paper_review_add_remove.yaml). */
 export async function approveCustom(formData: FormData): Promise<void> {
   const me = await deciding("home_papers");
   const child = String(formData.get("child") ?? "");
@@ -53,5 +54,5 @@ export async function approveCustom(formData: FormData): Promise<void> {
   const { qr, changed } = await makePaper(child, week, me.email, { draw, seen }, areas);
   revalidatePath("/make");
   if (changed) redirect(`${customHref(child, areas, draw)}&changed=1`);
-  redirect(`/worksheets/${qr}`);
+  redirect(`/papers/review/${qr}`);
 }

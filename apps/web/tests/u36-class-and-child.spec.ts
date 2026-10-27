@@ -177,9 +177,11 @@ test("a child with no answers gets one sentence and one action", async ({ page }
   const sentence = page.getByTestId("summary");
   await expect(sentence).toHaveText(/^Chetan has no checked answers yet: a first check of \d+ questions on each of .+ shows where Chetan stands\.$/);
   const main = page.getByRole("main");
-  // nothing else: no panel, and one action beside the way back
-  await expect(main.getByRole("region")).toHaveCount(0);
-  const actions = main.locator("a:not(nav a), button:not(nav button)");
+  // nothing else about the child: no panel, and one action beside the way back. The coordinator's "Grade and class" section
+  // (goals/mov_move_a_child.yaml) is the one thing on every child's page that is not about the child's work; it is set apart.
+  await expect(main.getByRole("region").filter({ hasNot: page.locator("#grade-class") })).toHaveCount(1);
+  await expect(main.locator("#grade-class")).toHaveCount(1);
+  const actions = main.locator("a:not(nav a):not(#grade-class a), button:not(nav button):not(#grade-class button)");
   await expect(actions).toHaveCount(1);
   const first = main.getByRole("link", { name: "Make Chetan’s first check →" });
   await expect(first).toBeVisible();
@@ -200,14 +202,14 @@ test("a child with no answers gets one sentence and one action", async ({ page }
   // a paper already made for the child, waiting to be read, is the one action: no second check
   await page.goto(`/growth/${kids.Dev}`);
   await expect(sentence).toHaveText(`Dev has no checked answers yet: class assessment ${DEVS} waits to be read.`);
-  await expect(main.getByRole("region")).toHaveCount(0);
+  await expect(main.getByRole("region").filter({ hasNot: page.locator("#grade-class") })).toHaveCount(1);
   await expect(actions).toHaveCount(1);
   await expect(main.getByRole("link", { name: `Open paper ${DEVS} →` })).toHaveAttribute("href", `/worksheets/${DEVS}`);
 
   // several waiting: the one action is every one of them, on Assessments
   await page.goto(`/growth/${kids.Ela}`);
   await expect(sentence).toHaveText(`Ela has no checked answers yet: 2 papers made for Ela wait to be approved or read.`);
-  await expect(main.getByRole("region")).toHaveCount(0);
+  await expect(main.getByRole("region").filter({ hasNot: page.locator("#grade-class") })).toHaveCount(1);
   await expect(actions).toHaveCount(1);
   await expect(main.getByRole("link", { name: "See Ela’s 2 papers →" })).toHaveAttribute("href", `/papers?child=${kids.Ela}`);
 });

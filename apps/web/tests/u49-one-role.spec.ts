@@ -71,10 +71,13 @@ async function offered(page: Page, at: string, name: string): Promise<{ refused:
     // an action said in the person's own name ("as U49 Educator") is the same action for each of them
     const words = (e: Element) => (e.getAttribute("aria-label") ?? e.textContent ?? "").replace(/\s+/g, " ").trim().replaceAll(name, "<person>").replace(/^[▸▾]/, "");
     const out = new Set<string>();
-    document.querySelectorAll("main button, main [role=button], main summary").forEach((e) => out.add(`button: ${words(e)}`));
-    document.querySelectorAll("a[href]").forEach((e) => out.add(`link: ${new URL((e as HTMLAnchorElement).href).pathname}`));
+    // the one exception to "don't differentiate": a child's "Grade and class" is the coordinator's alone (Nimish, 27 Oct 2026,
+    // goals/mov_move_a_child.yaml; its own spec, u70, proves what a teacher is and is not given there)
+    const counted = (e: Element) => !e.closest("#grade-class");
+    document.querySelectorAll("main button, main [role=button], main summary").forEach((e) => counted(e) && out.add(`button: ${words(e)}`));
+    document.querySelectorAll("a[href]").forEach((e) => counted(e) && out.add(`link: ${new URL((e as HTMLAnchorElement).href).pathname}`));
     document.querySelectorAll("main input:not([type=hidden]), main select, main textarea").forEach((e) =>
-      out.add(`field: ${e.getAttribute("name") ?? e.getAttribute("aria-label") ?? ""}`),
+      counted(e) && out.add(`field: ${e.getAttribute("name") ?? e.getAttribute("aria-label") ?? ""}`),
     );
     document.querySelectorAll("main th").forEach((e) => out.add(`column: ${words(e)}`));
     const text = document.querySelector("main")?.textContent ?? "";

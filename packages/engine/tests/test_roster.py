@@ -91,8 +91,14 @@ def test_loading_the_class_list_names_each_child_whose_grade_it_changes(conn, tm
         path.write_text(json.dumps({"children": kids}))
         return roster.load(path)
 
-    assert load("G3") == {"added": 2, "already known": 0, "grade changed": []}
-    assert load("G4") == {"added": 0, "already known": 2, "grade changed": [f"{section} roll 5: G3 → G4"]}
+    nothing = {"kept as changed on the site": []}
+    assert load("G3") == {"added": 2, "already known": 0, "grade changed": [], **nothing}
+    assert load("G4") == {
+        "added": 0,
+        "already known": 2,
+        "grade changed": [f"{section} roll 5: G3 → G4"],
+        **nothing,
+    }
     assert load("G4")["grade changed"] == [], "only a change is named"
 
 
@@ -114,3 +120,74 @@ def test_a_class_has_one_grade_and_the_database_says_it(conn):
     assert said() == roster.class_band(conn, section) == "G2", "a tie, G2 and G4: the lower"
     conn.execute("update child set active = false where tenant_id = %s", (tenant,))
     assert said() is None and roster.class_band(conn, section) is None, "a class with no child has no grade"
+
+
+def _loaded_from(conn, tmp_path, monkeypatch):
+    """`roster.load` on the test's own transaction → a function that loads a list of (section, roll, grade, first name)."""
+
+    class Shared:
+        def __getattr__(self, name):
+            return getattr(conn, name)
+
+        def commit(self):
+            pass
+
+    monkeypatch.setattr(roster.db, "connect", contextmanager(lambda *a, **k: (yield Shared())))
+
+    def load(kids):
+        path = tmp_path / "roster.json"
+        path.write_text(
+            json.dumps(
+                {
+                    "children": [
+                        {"section": s, "roll_no": r, "band": b, "first_name": n} for s, r, b, n in kids
+                    ]
+                }
+            )
+        )
+        return roster.load(path)
+
+    return load
+
+
+def test_a_list_that_would_undo_a_grade_changed_on_the_site_is_told_so_and_leaves_it(
+    conn, tmp_path, monkeypatch
+):
+    """goals/mov_move_a_child.yaml: the list sets a child's grade, so one loaded again after a coordinator changed a
+    grade on the site would put the old one back unseen (as G3 roll 5's slip once could). It says so, and leaves it."""
+    load = _loaded_from(conn, tmp_path, monkeypatch)
+    section = f"CLASS-{uuid.uuid4().hex[:8]}"
+    load([(section, "5", "G3", "Kid")])
+    child = conn.execute("select id from child where section = %s and roll_no = '5'", (section,)).fetchone()[
+        "id"
+    ]
+    assert conn.execute(
+        "select move_child(%s, 'G4', %s, '5', 'coordinator@cornerstone.test', '') as r", (child, section)
+    )
+    said = load([(section, "5", "G3", "Kid")])
+    assert conn.execute("select band from child where id = %s", (child,)).fetchone()["band"] == "G4", (
+        "left as set"
+    )
+    [line] = said["kept as changed on the site"]
+    assert line.startswith(f"{section} roll 5: set to G4 on ") and "the file says G3" in line
+    assert said["grade changed"] == []
+    # the list brought up to date says nothing
+    assert load([(section, "5", "G4", "Kid")])["kept as changed on the site"] == []
+
+
+def test_a_list_that_still_names_the_place_a_child_moved_from_makes_no_second_child(
+    conn, tmp_path, monkeypatch
+):
+    """Loading matches on class and roll, so the old list would make a new child where the moved one used to sit,
+    with the same name and none of their answers. It is told, and no row is made."""
+    load = _loaded_from(conn, tmp_path, monkeypatch)
+    old, new = (f"CLASS-{uuid.uuid4().hex[:8]}" for _ in range(2))
+    load([(old, "7", "G3", "Kid"), (new, "1", "G4", "Other")])
+    child = conn.execute("select id from child where section = %s and roll_no = '7'", (old,)).fetchone()["id"]
+    conn.execute("select move_child(%s, 'G4', %s, '12', 'coordinator@cornerstone.test', '')", (child, new))
+    before = conn.execute("select count(*) as n from child").fetchone()["n"]
+    said = load([(old, "7", "G3", "Kid"), (new, "1", "G4", "Other")])
+    assert conn.execute("select count(*) as n from child").fetchone()["n"] == before
+    [line] = said["kept as changed on the site"]
+    assert line.startswith(f"{old} roll 7: moved to {new} roll 12 (G4) on ")
+    assert said["added"] == 0

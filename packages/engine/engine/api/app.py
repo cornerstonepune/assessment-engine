@@ -21,6 +21,7 @@ from engine.api.routes import (
     graph,
     library,
     maker,
+    paper_edit,
     parent,
     runs,
     samples,
@@ -53,6 +54,7 @@ app.include_router(week.router)
 app.include_router(library.router)
 app.include_router(focus.router)
 app.include_router(maker.router)
+app.include_router(paper_edit.router)
 app.include_router(card.router)
 app.include_router(parent.router)
 app.include_router(upload.router)

@@ -45,10 +45,11 @@ export async function FocusPanel({ childId, name, staff, draw }: { childId: stri
       {typeof p === "string" ? null : p.approved ? (
         <div className="mb-4 text-[13.5px]">
           <p>
-            Approved by {staff[p.approved.approved_by ?? ""] ?? p.approved.approved_by}
-            {p.approved.approved_at ? ` on ${fmtDate(p.approved.approved_at)}` : ""}: this week&rsquo;s home assessment,{" "}
-            <Link href={`/worksheets/${p.approved.qr}`}>{p.approved.qr}</Link>. See it and print it from its page, or make a
-            new one below.
+            {p.approved.approved_by
+              ? `Approved by ${staff[p.approved.approved_by] ?? p.approved.approved_by}${p.approved.approved_at ? ` on ${fmtDate(p.approved.approved_at)}` : ""}`
+              : "Changed and waiting for approval"}
+            : this week&rsquo;s home assessment, <Link href={`/papers/review/${p.approved.qr}`}>{p.approved.qr}</Link>. Review,
+            change and print it from its page, or make a new one below.
           </p>
           {p.approved.replaced.length ? (
             <p className="note mt-1" data-replaced="">

@@ -235,8 +235,8 @@ test("the engine proposes the next paper and a teacher approves it, once, in the
   const next = page.getByRole("region", { name: "Home assessment" });
   await expect(next.getByRole("list", { name: "Areas the home assessment works on" }).getByRole("listitem").first()).toBeVisible();
   await next.getByRole("button", { name: "Approve this home assessment" }).click();
-  await expect(page).toHaveURL(/\?paper=CS[0-9A-F]{6}$/);
-  const qr = new URL(page.url()).searchParams.get("paper")!;
+  await expect(page).toHaveURL(/\/papers\/review\/CS[0-9A-F]{6}$/);
+  const qr = page.url().split("/").pop()!;
 
   const [made] = await sql<{ approved_by: string; print_status: string }[]>`
     select approved_by, print_status from sheet_instance where qr_code = ${qr}`;
@@ -245,7 +245,7 @@ test("the engine proposes the next paper and a teacher approves it, once, in the
   // once approved, the panel says who approved it and offers no second paper this week
   await page.goto(`/growth/${ids.Asha}`);
   await expect(next).toContainText(`Approved by ${TEST_STAFF.name}`);
-  await expect(next.getByRole("link", { name: qr })).toHaveAttribute("href", `/worksheets/${qr}`);
+  await expect(next.getByRole("link", { name: qr })).toHaveAttribute("href", `/papers/review/${qr}`);
   await expect(next.getByRole("button", { name: "Approve this home assessment" })).toHaveCount(0);
 
   // a child with nothing to work on — Bina has no checked answer yet — is offered no home assessment to approve: her

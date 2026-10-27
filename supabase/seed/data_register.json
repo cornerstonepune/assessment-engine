@@ -15,7 +15,7 @@
       "why": "So your child's papers reach them, and their work is shown with their class.",
       "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
       "who_sees": "Your child's educators and the school's coordinator.",
-      "tables": ["public.child"]
+      "tables": ["public.child", "public.child_move"]
     },
     {
       "code": "papers",
@@ -23,7 +23,7 @@
       "why": "So each answer can be read and checked, and the next paper fits what your child is ready for.",
       "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
       "who_sees": "Your child's educators and the school's coordinator. A computer service reads the handwriting on a scan; it is given the picture of the page, never your child's name.",
-      "tables": ["public.sheet_template", "public.sheet_instance", "public.capture", "public.prescription", "public.home_sheet", "public.item_exposure"]
+      "tables": ["public.sheet_template", "public.sheet_instance", "public.capture", "public.prescription", "public.home_sheet", "public.item_exposure", "public.paper_edit"]
     },
     {
       "code": "answers",

@@ -2,7 +2,7 @@
  * Who sees a child's answers and papers (goals/own_who_sees_answers.yaml). Nimish, 27 Oct 2026: "The skill and the curriculum
  * is something at a subject level that is open to all teachers ... but their assessments, answers to be checked etc. should be
  * restricted to their grade. Right now 147 answers to check comes to everyone. But Achal should only see the papers he has
- * uploaded." The rule is `staff_sees` (migration 20261220090000); this walks it as two educators and the coordinator.
+ * uploaded." The rule is `staff_sees` (migration 20261222090000); this walks it as two educators and the coordinator.
  *
  * Two classes of the test's own. Achal teaches U67-A and put in two papers: one of his class, one of U67-N's. Neha teaches
  * U67-N; a third paper of her class was put in by nobody known. Each paper has one answer waiting for a person.

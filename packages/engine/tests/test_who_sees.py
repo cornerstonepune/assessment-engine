@@ -1,7 +1,7 @@
 """Who sees a child's answers and papers (goals/own_who_sees_answers.yaml).
 
 Nimish, 27 Oct 2026: "their assessments, answers to be checked etc. should be restricted to their grade ... Achal should
-only see the papers he has uploaded." The rule is one database function, `staff_sees` (migration 20261220090000), that the
+only see the papers he has uploaded." The rule is one database function, `staff_sees` (migration 20261222090000), that the
 website asks of everything it shows; these hold the rule itself, the staff ids it is asked with, and the uploader every
 new upload records.
 """

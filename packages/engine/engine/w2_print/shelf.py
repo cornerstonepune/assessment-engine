@@ -154,3 +154,12 @@ def closing(conn) -> list[dict]:
                         }
                     )
     return out
+
+
+def seen_by(conn, tenant, child_id, week, ids) -> None:
+    """The child is given these questions: none is drawn for them again inside `exposure.days`."""
+    conn.execute(
+        "insert into item_exposure (tenant_id, child_id, item_id, week)"
+        " select %s, %s, id, %s from unnest(%s::uuid[]) as id order by id on conflict do nothing",
+        (tenant, child_id, week, ids),
+    )

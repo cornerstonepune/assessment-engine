@@ -6,7 +6,7 @@ import { EVERY_CLASS, ownClasses, type Scope } from "./scope";
 // Who may see and act on a child's answers, papers, scans and the counts of them (goals/own_who_sees_answers.yaml).
 // Nimish, 27 Oct 2026: "their assessments, answers to be checked etc. should be restricted to their grade ... Achal should
 // only see the papers he has uploaded." The rule is the database's one function, `staff_sees` (migration
-// 20261220090000): a coordinator sees everything; an educator, what they put in, or what is of a class on their staff
+// 20261222090000): a coordinator sees everything; an educator, what they put in, or what is of a class on their staff
 // entry in a subject on it. This file holds no rule: it hands the signed-in person to that function, for lists (a
 // where-clause piece), for one thing a link or a form names (`sees`), and for the classes it allows (`reachOf`).
 // Curriculum, skills, the question bank and the skill pages are not asked: they are every educator's.

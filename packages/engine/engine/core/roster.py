@@ -9,12 +9,20 @@ it — and is read by path.
 import json
 from collections.abc import Sequence
 from pathlib import Path
-from typing import TypedDict
+from typing import Any, TypedDict
 from uuid import UUID
 
 from engine.core import db
 
-Loaded = TypedDict("Loaded", {"added": int, "already known": int, "grade changed": list[str]})
+Loaded = TypedDict(
+    "Loaded",
+    {
+        "added": int,
+        "already known": int,
+        "grade changed": list[str],
+        "kept as changed on the site": list[str],
+    },
+)
 
 
 def load(path: Path) -> Loaded:
@@ -24,18 +32,24 @@ def load(path: Path) -> Loaded:
 
     The file is `{"children": [{"roll_no", "section", "band", "first_name", "last_name"?}]}`.
     Matching is on (section, roll_no), so re-running after a correction updates rather than
-    duplicating — a child who changes section is a new row, which is the honest reading.
+    duplicating. A child a coordinator moved on the site (`move_child`, goals/mov_move_a_child.yaml) keeps their id; an
+    older list still naming where they were would put the old grade back, or make a second child in the place they left.
+    Such a row is left out and named (`kept as changed on the site`), so the change is never undone unseen.
     """
     children = json.loads(Path(path).read_text())["children"]
     added = updated = 0
     changed: list[str] = []
+    kept: list[str] = []
     with db.connect() as conn:
         tenant = db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
         for c in children:
             key = (tenant, c["section"], str(c["roll_no"]))
             was = conn.execute(
-                "select band from child where tenant_id = %s and section = %s and roll_no = %s", key
+                "select id, band from child where tenant_id = %s and section = %s and roll_no = %s", key
             ).fetchone()
+            if told := _changed_on_the_site(conn, tenant, c, was):
+                kept.append(told)
+                continue
             row = db.one(
                 conn,
                 "insert into child (tenant_id, roll_no, section, band) values (%s,%s,%s,%s)"
@@ -55,7 +69,41 @@ def load(path: Path) -> Loaded:
                 (tenant, row["id"], c["first_name"], c.get("last_name", ""), c.get("home_languages", [])),
             )
         conn.commit()
-    return {"added": added, "already known": updated, "grade changed": changed}
+    return {
+        "added": added,
+        "already known": updated,
+        "grade changed": changed,
+        "kept as changed on the site": kept,
+    }
+
+
+def _changed_on_the_site(
+    conn: db.Conn, tenant: UUID, row: dict[str, Any], here: dict[str, Any] | None
+) -> str | None:
+    """Why a list's row must not be applied, if a coordinator's change on the site stands against it: it names the place a
+    child was moved away from (and nobody sits there now), or it names a grade other than the one set on the site."""
+    section, roll = row["section"], str(row["roll_no"])
+    if here is None:
+        m = conn.execute(
+            "select to_section, to_roll_no, to_band, moved_at from child_move where tenant_id = %s"
+            " and from_section = %s and from_roll_no = %s order by moved_at desc limit 1",
+            (tenant, section, roll),
+        ).fetchone()
+        if m:
+            return f"{section} roll {roll}: moved to {m['to_section']} roll {m['to_roll_no']} ({m['to_band']}) on {m['moved_at']:%Y-%m-%d}; the file still lists them here"
+        return None
+    m = conn.execute(
+        "select to_section, to_roll_no, to_band, moved_at from child_move where child_id = %s"
+        " order by moved_at desc limit 1",
+        (here["id"],),
+    ).fetchone()
+    if (
+        m
+        and (m["to_section"], m["to_roll_no"], m["to_band"]) == (section, roll, here["band"])
+        and row["band"] != here["band"]
+    ):
+        return f"{section} roll {roll}: set to {here['band']} on {m['moved_at']:%Y-%m-%d} on the site; the file says {row['band']}"
+    return None
 
 
 def class_band(conn: db.Conn, section: str) -> str | None:

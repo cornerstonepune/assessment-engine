@@ -1,7 +1,7 @@
 # own_who_sees_answers: each educator sees their own answers and papers; curriculum stays open
 
 Nimish, 27 Oct 2026 (his words are in `goals/own_who_sees_answers.yaml`). Goal: `bin/engine done own_who_sees_answers`.
-W3 (the educator's site over W2/W3's data); no gate moved. One migration: `20261220090000_who_sees_a_paper.sql`.
+W3 (the educator's site over W2/W3's data); no gate moved. One migration: `20261222090000_who_sees_a_paper.sql`.
 
 ## The rule, in one place
 

@@ -61,8 +61,9 @@ export async function approveNextPaper(formData: FormData): Promise<void> {
   revalidatePath(`/growth/${id}`);
   // the questions shown are no longer what would print: nothing printed, and the page shows them as they are now
   if (changed) redirect(`/growth/${id}?draw=${draw}&changed=1`);
+  // made: the educator lands on its review page, its questions to remove or add (goals/paper_review_add_remove.yaml);
   // a colleague's click made a newer one first (or this one was clicked twice): the page shows who approved it
-  redirect(qr ? `/growth/${id}?paper=${qr}` : `/growth/${id}`);
+  redirect(qr ? `/papers/review/${qr}` : `/growth/${id}`);
 }
 
 /** An educator asks for the parent report to be written from the child's signed-off answers (goals/w4c-parent-report.yaml).

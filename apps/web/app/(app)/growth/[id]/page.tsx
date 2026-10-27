@@ -20,6 +20,7 @@ import { AnswerTable, fmtDate } from "./answers";
 import { RepeatedMistakes, TheirPapers } from "./panels";
 import { SkillsPanel } from "./skills-panel";
 import { ParentReportPanel } from "./report-panel";
+import { GradeClassPanel } from "./grade-class";
 import { reportOf } from "@/lib/queries-reports";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | undefined>> };
@@ -114,6 +115,9 @@ export default async function ChildPage({ params, searchParams }: Props) {
               {step.action.words}
             </Link>
           ) : null}
+          <div className="mt-6 max-w-[760px]">
+            <GradeClassPanel me={me} child={child} q={q} staff={staffNames} />
+          </div>
         </Body>
       </>
     );
@@ -234,6 +238,8 @@ export default async function ChildPage({ params, searchParams }: Props) {
             <FocusPanel childId={id} name={child.first_name} staff={staffNames} draw={readDraw(q.draw)} />
 
             <TheirPapers childId={id} sheets={sheets} read={read} failed={papers.length - read.length} staff={staffNames} />
+
+            <GradeClassPanel me={me} child={child} q={q} staff={staffNames} />
 
             <ParentReportPanel childId={id} report={report} approver={report.note?.approved_by ? (staffNames[report.note.approved_by] ?? report.note.approved_by) : null} />
           </div>

@@ -127,7 +127,8 @@ test("a teacher chooses skills, a level each and how many, sees the questions, a
   await expect(preview.getByRole("list", { name: "2-digit − 2-digit · Medium" }).getByRole("listitem")).toHaveCount(5);
   await expect(preview.getByRole("list", { name: "2-digit + 1-digit · Easy" }).getByRole("listitem")).toHaveCount(3);
   await page.getByRole("button", { name: "Approve and print" }).click();
-  await expect(page).toHaveURL(/\/worksheets\/CS[0-9A-F]{6}$/);
+  // made, it opens on its review page (goals/paper_review_add_remove.yaml)
+  await expect(page).toHaveURL(/\/papers\/review\/CS[0-9A-F]{6}$/);
   const [paper] = await sql<{ kind: string; approved_by: string; n: number }[]>`
     select si.kind, si.approved_by, array_length(st.item_ids, 1) as n from sheet_instance si
     join sheet_template st on st.id = si.sheet_template_id where si.child_id = ${ids.Chetan}::uuid`;
