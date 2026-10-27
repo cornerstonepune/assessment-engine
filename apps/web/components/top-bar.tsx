@@ -67,6 +67,7 @@ export function ReportLink() {
   return (
     <Link
       href={`/feedback?from=${encodeURIComponent(from)}`}
+      prefetch={false}
       aria-label="Report a problem or suggest something"
       title="Report a problem or suggest something"
       className="inline-flex min-h-10 shrink-0 items-center px-1 text-[13px] whitespace-nowrap text-bamboo no-underline hover:text-chalk"
