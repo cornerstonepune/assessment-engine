@@ -1,0 +1,69 @@
+{
+  "menu": "/today",
+  "forWhat": [
+    "The first page you see. It lists the kinds of work waiting on you, in the order the week runs.",
+    "Each kind of work is one line with its count and the next thing to do. Open a line to see its rows. Each row has its own button."
+  ],
+  "layout": [
+    {
+      "area": "Title and main button",
+      "shows": "The button [[Start with:]] takes you to the first job waiting. With nothing waiting it opens Assessments."
+    },
+    {
+      "area": "Count line",
+      "shows": "How many jobs wait on you, and how many will be ready later."
+    },
+    {
+      "area": "Filter row",
+      "shows": "Subject, Class and What. They narrow the list below. The count line stays the same."
+    },
+    {
+      "area": "Kinds of work",
+      "shows": "One folded line for each kind, such as [[Skills to approve]], [[Topics to mark as taught]], [[Answers to check]] and [[Parent reports to approve]]. Open one to see its rows."
+    },
+    {
+      "area": "What the system now knows",
+      "shows": "A folded note of what the school's answers say this week."
+    },
+    {
+      "area": "Next step",
+      "shows": "A link on to Assessments."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "start",
+      "title": "Start your day",
+      "steps": [
+        "Open What needs doing from the top bar.",
+        "Press [[Start with:]] to go to the first job, or open any line to see its rows.",
+        "Press the button on a row to do that one job. The line's count goes down as you work."
+      ]
+    },
+    {
+      "id": "taught",
+      "title": "Say a topic was taught",
+      "steps": [
+        "Open the line [[Topics to mark as taught]].",
+        "Press the row's button. If the topic is taught in more than one of your classes, choose the class first.",
+        "The topic is now taught for that class alone. Its skills can go on that class's papers."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Start with:",
+      "does": "Opens the first job waiting on you.",
+      "doesNot": "It does not do the job for you."
+    },
+    {
+      "label": "Next:",
+      "does": "On each line, opens the next job of that kind."
+    },
+    {
+      "label": "Topics to mark as taught",
+      "does": "A row's button records the topic as taught for that one class, in your name.",
+      "doesNot": "No other class changes."
+    }
+  ]
+}

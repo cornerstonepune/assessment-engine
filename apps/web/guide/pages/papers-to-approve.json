@@ -1,0 +1,65 @@
+{
+  "menu": "/papers/approve",
+  "forWhat": [
+    "From the menu, this opens Assessments showing only what waits for approval.",
+    "A class's week opens its own page: each child's paper, the level it is set at and why. Change any child, then approve the pack."
+  ],
+  "layout": [
+    {
+      "area": "Title and main button",
+      "shows": "[[Approve … papers and … spares]], or [[Nothing left to approve]]."
+    },
+    {
+      "area": "The pack in a sentence",
+      "shows": "What everyone is working on, and how many children are at each level."
+    },
+    {
+      "area": "Filter row",
+      "shows": "Class, Week, Kind and Status."
+    },
+    {
+      "area": "Each child's paper this week",
+      "shows": "Roll, Child, Level, Why, Paper with [[See the paper]], Status, and [[Change level]]."
+    },
+    {
+      "area": "Next step",
+      "shows": "A link on to Assessments, to print and give."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "approve",
+      "title": "Approve a class's papers",
+      "steps": [
+        "Open the class's week, for example from [[Approve class papers]] on Home assessments.",
+        "Read each child's level and why. Press [[See the paper]] to look at one.",
+        "Press [[Approve … papers and … spares]]. The pack is marked printed."
+      ]
+    },
+    {
+      "id": "change-level",
+      "title": "Change one child's level",
+      "steps": [
+        "Open [[Change level]] on the child's row.",
+        "Choose the new level and write why. A change with no reason is refused.",
+        "Press [[Change this child]]. The child keeps this level until you change it again."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Approve … papers and … spares",
+      "does": "Approves the class's papers and spares not yet approved, in your name, and marks the pack printed.",
+      "doesNot": "It counts only papers not approved before."
+    },
+    {
+      "label": "Change level",
+      "does": "Opens the choice of a new level and a reason for one child."
+    },
+    {
+      "label": "Change this child",
+      "does": "Sets that child's level and records who changed it and why.",
+      "doesNot": "Other children keep their levels."
+    }
+  ]
+}

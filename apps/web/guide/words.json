@@ -1,0 +1,126 @@
+{
+  "slug": "words",
+  "title": "Words and surprises",
+  "purpose": "The school's words as the site uses them, and why the site says what it says when it surprises you.",
+  "sections": [
+    {
+      "id": "skill",
+      "title": "Skill",
+      "paras": [
+        "What a child can do, in one sentence. Each skill belongs to a topic and has levels."
+      ]
+    },
+    {
+      "id": "topic",
+      "title": "Topic",
+      "paras": [
+        "A group of skills, such as addition. A topic is marked taught for one class at a time."
+      ]
+    },
+    {
+      "id": "level",
+      "title": "Level",
+      "paras": [
+        "How hard a skill's questions are. The school's levels, easiest first, are {levels}. Each level has its own sentence and rule."
+      ]
+    },
+    {
+      "id": "home-assessment",
+      "title": "Home assessment",
+      "paras": [
+        "A child's own paper, on the one skill they most need, approved by an educator. See [how it is chosen](/guide/worked-out#home-assessment)."
+      ]
+    },
+    {
+      "id": "check-that-places",
+      "title": "A check that places a child",
+      "paras": [
+        "A short paper on a skill showing {colour:grey}, so the site can say where the child stands."
+      ]
+    },
+    {
+      "id": "check-answers",
+      "title": "Check answers",
+      "paras": [
+        "Looking at an answer the engine was not sure of and saying what the child wrote."
+      ]
+    },
+    {
+      "id": "sign-off",
+      "title": "Sign off",
+      "paras": [
+        "Saying, in your name, that the answers on a paper are settled. Only signed off answers count."
+      ]
+    },
+    {
+      "id": "spot-check",
+      "title": "Spot check",
+      "paras": [
+        "An answer the engine was sure of, still shown to a person now and then to keep the reader honest."
+      ]
+    },
+    {
+      "id": "printed-code",
+      "title": "Printed code",
+      "paras": [
+        "The code on every printed page. It says which paper and which child the page is, so the engine never guesses."
+      ]
+    },
+    {
+      "id": "spare",
+      "title": "Spare",
+      "paras": [
+        "An extra paper with no name, for a spoilt page or a child who arrives late."
+      ]
+    },
+    {
+      "id": "colours",
+      "title": "{colour:green}, {colour:amber}, {colour:red}, {colour:grey}",
+      "paras": [
+        "The four colours a skill can show. Each has a word and a mark, never colour alone. See [what each colour means](/guide/worked-out#states)."
+      ]
+    },
+    {
+      "id": "why-checked",
+      "title": "Why was an answer left for a person to check?",
+      "paras": [
+        "Every wrong answer and every blank is checked by a person before it counts.",
+        "A right answer is checked too until the reader is trusted on that kind of question, and some are spot checked after.",
+        "The card on Check answers says the reason in one sentence. The rules are on [How it is worked out](/guide/worked-out#trust)."
+      ]
+    },
+    {
+      "id": "why-too-few",
+      "title": "Why does a skill show {colour:grey} when the child did the paper?",
+      "paras": [
+        "Only signed off answers count. Answers still waiting for a person do not count yet.",
+        "Blanks are left out of the count. A skill needs at least {t:state.min_events} answers that are right or wrong.",
+        "Answers on a paper that was replaced do not count."
+      ]
+    },
+    {
+      "id": "why-practising",
+      "title": "Why is a skill {state:practising} when most answers were right?",
+      "paras": [
+        "A skill is {state:secure} only when it is seen on at least {t:state.min_observers} papers, with {t:next_sheet.promote_at|pct} or more right.",
+        "A mistake made more than once shows as {state:patterned_error}, whatever the share right."
+      ]
+    },
+    {
+      "id": "why-grade",
+      "title": "Why does a child's grade differ from the class's?",
+      "paras": [
+        "A child has their own grade on the class list. A class shows the grade most of its children are in.",
+        "A child's papers are drawn from their own grade's levels, so a child in another grade from the class gets their own grade's work."
+      ]
+    },
+    {
+      "id": "why-other-skill",
+      "title": "Why did a wrong answer count against another skill?",
+      "paras": [
+        "A wrong answer with a known mistake counts against the skill that mistake belongs to, which may not be the question's own skill.",
+        "A right answer counts for every skill the question used."
+      ]
+    }
+  ]
+}

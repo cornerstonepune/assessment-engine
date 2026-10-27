@@ -1,0 +1,108 @@
+{
+  "slug": "worked-out",
+  "title": "How it is worked out",
+  "purpose": "What each word and colour on the site means, and the rule behind it, with the numbers the school has set today.",
+  "sections": [
+    {
+      "id": "signals",
+      "title": "Right, wrong and blank: never merged",
+      "paras": [
+        "Every answer is right, wrong or blank. A wrong answer with working shown is kept apart from a wrong answer with none.",
+        "Nothing on the site turns a blank into a wrong answer. A blank is left out when the share right is counted.",
+        "Showing working does not change a skill's colour. It is kept for the parent report."
+      ]
+    },
+    {
+      "id": "counted",
+      "title": "Which answers count",
+      "paras": [
+        "Only answers a person has signed off count. An answer still waiting for a person counts for nothing yet.",
+        "Answers on a paper that was replaced do not count.",
+        "A signed off answer is never edited. A correction is added as a new answer, and the newest one counts.",
+        "A right answer counts for every skill the question used. A wrong answer with a known mistake counts against the skill that mistake belongs to."
+      ]
+    },
+    {
+      "id": "states",
+      "title": "What each colour means",
+      "paras": [
+        "Each skill gets one colour for each child, worked out from that child's signed off answers on it. The rules are tried in this order, and the first that fits decides:",
+        "Fewer than {t:state.min_events} answers that are right or wrong: {colour:grey}. There is not enough to say.",
+        "The same mistake on more than one answer: {state:patterned_error}, whatever the share right.",
+        "Under {t:next_sheet.demote_below|pct} right: {state:emerging}.",
+        "Under {t:next_sheet.promote_at|pct} right, or seen on fewer than {t:state.min_observers} papers: {state:practising}.",
+        "At least twice {t:state.min_events} answers: {state:stretch_ready}.",
+        "Anything else: {state:secure}.",
+        "On the site, {state:patterned_error} and {state:emerging} show as {colour:red}, and {state:secure} and {state:stretch_ready} show as {colour:green}."
+      ]
+    },
+    {
+      "id": "rebuilt",
+      "title": "How a child's skills are worked out again",
+      "paras": [
+        "Each time answers are signed off or checked, the child's skills are worked out again from every answer that counts.",
+        "Nothing is kept from before. The same answers always give the same colours."
+      ]
+    },
+    {
+      "id": "level",
+      "title": "How the level of a class paper is chosen",
+      "paras": [
+        "The school's levels, easiest first, are {levels}.",
+        "With fewer than {t:state.min_events} answers on the skill, a child starts at their grade's usual level.",
+        "At {t:next_sheet.promote_at|pct} right or more, the child moves one level up.",
+        "Under {t:next_sheet.demote_below|pct} right, the child moves one level down, and the paper aims at their repeated mistakes.",
+        "Otherwise the child stays at the same level.",
+        "A level an educator chose for a child is never changed by the engine."
+      ]
+    },
+    {
+      "id": "home-assessment",
+      "title": "How a home assessment is chosen",
+      "paras": [
+        "A home assessment works on one skill: the child's weakest, among the skills their class was taught.",
+        "Weakest means {state:patterned_error} first, then {state:emerging}, then {state:practising}, then the lowest share right.",
+        "Under {t:next_sheet.demote_below|pct} right, the paper is at {level:0}. Otherwise it is at the school's usual level, and never harder than the child's grade has.",
+        "If the child repeats a mistake, the paper moves to a level whose questions can show that mistake.",
+        "If nothing needs work, the child gets a stretch paper at a harder level on their strongest skill.",
+        "Questions not given to the child in the last {t:exposure.days} days come first, then those given longest ago.",
+        "You see every question before anything prints. [[Different questions]] draws others, and nothing prints until you approve."
+      ]
+    },
+    {
+      "id": "levels-to-review",
+      "title": "What Levels to review counts",
+      "paras": [
+        "For each skill and level, it counts the children assessed at that level, and how many of them are {colour:green} on that level's answers alone.",
+        "It counts each grade and each class separately.",
+        "With fewer than {t:calibration.min_children} children assessed, it says not enough children yet, and suggests nothing.",
+        "When {t:calibration.too_easy_share|pct} or more of them are {colour:green}, it suggests making the level harder or adding a harder one.",
+        "It only suggests. It never changes a level. A change is made on the skill's own page.",
+        "[[I've looked at this]] hides a suggestion until the counts move by {t:calibration.review_again_children} children.",
+        "See it on [Levels to review](/skill-sets/levels)."
+      ]
+    },
+    {
+      "id": "checking",
+      "title": "A person's check and the engine's marking",
+      "paras": [
+        "The engine reads what the child wrote and looks up the answer key. The key decides right or wrong, every time.",
+        "When you check an answer, you say what the child wrote. The engine then marks it by the same key.",
+        "Only an answer the key cannot mark asks you for [[Right]], [[Wrong]] or [[Blank]].",
+        "The engine's first reading is kept beside yours. That is how the school can see how well the reader reads."
+      ]
+    },
+    {
+      "id": "trust",
+      "title": "Which answers are sent to a person",
+      "paras": [
+        "Every wrong answer and every blank waits for a person before it counts.",
+        "A right answer waits too, until the reader is trusted on that kind of question.",
+        "A kind is trusted when, over its newest {t:marking.agreement_window} checks, the reader matched the person at least {t:marking.agreement_gate|pct} of the time.",
+        "Once a kind is trusted, {t:marking.spot_check_rate|pct} of its right answers are still checked by a person. These are the spot checks.",
+        "A reading the engine is not sure of waits for a person. So does an answer from a child whose answers of that kind were often read wrong.",
+        "A new kind of question has no checks yet, so every answer of it goes to a person."
+      ]
+    }
+  ]
+}

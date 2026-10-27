@@ -1,0 +1,95 @@
+{
+  "N1": {
+    "name": "Skills and their levels",
+    "who": [
+      "the engine",
+      "coordinator"
+    ],
+    "sees": "The engine drafts each skill as what a child can do, with {levels}. A person reads and approves it once, on [Skills to approve](/guide/skills-to-approve)."
+  },
+  "N2": {
+    "name": "The question bank",
+    "who": [
+      "the engine",
+      "educator"
+    ],
+    "sees": "The engine makes every question from its level's rule and works out its answer. Any member of staff can reword or remove one in the [Question bank](/guide/question-bank)."
+  },
+  "N3": {
+    "name": "Old papers read in",
+    "who": [
+      "the engine",
+      "educator"
+    ],
+    "sees": "Papers children sat before the printed codes were read in, so every child started with answers. There is no page of its own."
+  },
+  "N4": {
+    "name": "Say what was taught",
+    "who": [
+      "educator",
+      "the engine"
+    ],
+    "sees": "You say what the class was taught. The engine proposes which skills that covered, and you confirm. See [What needs doing](/guide/what-needs-doing#taught)."
+  },
+  "N5": {
+    "name": "Each child's next paper",
+    "who": [
+      "the engine",
+      "educator"
+    ],
+    "sees": "The engine proposes each child's next paper from their answers. You see every question first and may change it. See [Assessments](/guide/assessments#make)."
+  },
+  "N6": {
+    "name": "Worksheets and packs",
+    "who": [
+      "the engine"
+    ],
+    "sees": "Every question sits on a numbered worksheet with a printed code. The pack prints in handout order, with spare copies."
+  },
+  "N7": {
+    "name": "The educator approves the pack",
+    "who": [
+      "educator"
+    ],
+    "sees": "You look over the pack and approve it before it prints. See [Papers to approve](/guide/papers-to-approve#approve)."
+  },
+  "N8": {
+    "name": "Papers come back",
+    "who": [
+      "educator",
+      "the engine"
+    ],
+    "sees": "You upload the scans or photos. The engine lines each page up with the page it was printed from. See [Upload papers](/guide/upload-papers#upload)."
+  },
+  "N9": {
+    "name": "Read, check and learn",
+    "who": [
+      "the engine",
+      "educator"
+    ],
+    "sees": "The engine reads each answer and marks it by the answer key. What it is not sure of goes to you on [Check answers](/guide/check-answers#check)."
+  },
+  "N10": {
+    "name": "Each child's skills worked out",
+    "who": [
+      "the engine"
+    ],
+    "sees": "A signed off answer counts for every skill it used, and each child's skills are worked out again. See [Class results](/guide/class-results#a-child)."
+  },
+  "N11": {
+    "name": "Home assessment",
+    "who": [
+      "the engine",
+      "educator"
+    ],
+    "sees": "A home assessment for each child, aimed at what they got wrong. You approve it on the child's page. See [Make a home assessment](/guide/class-results#home-assessment)."
+  },
+  "N12": {
+    "name": "Reports and planning",
+    "who": [
+      "the engine",
+      "coordinator"
+    ],
+    "sees": "Parent reports written from the child's answers, approved by a person before a parent reads them. See [Parent reports](/guide/parent-reports)."
+  }
+}
