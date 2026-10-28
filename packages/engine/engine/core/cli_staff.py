@@ -11,7 +11,7 @@ from pathlib import Path
 
 import typer
 
-from engine.core import db, settings, staff_load
+from engine.core import db, settings, staff_load, staff_remove
 from engine.core.staff import NODE_DEFAULT_N, add, classes, save, set_classes, staff, staff_hash
 
 staff_app = typer.Typer(help="Who signs in to the website", no_args_is_help=True)
@@ -92,6 +92,59 @@ def list_() -> None:
             f"{_said(s.get('classes', []), s['role'])}"
         )
     typer.echo(f"  {len(people)} on the staff list")
+
+
+@staff_app.command("remove")
+def remove_(
+    emails: list[str] = typer.Argument(..., help="Each email to take off the list (case does not matter)"),
+    apply_: bool = typer.Option(
+        False, "--apply", help="Do it. Without this nothing changes and what would happen is only shown"
+    ),
+) -> None:
+    """Take people off the staff list, so they can no longer sign in.
+
+    Without --apply this changes nothing and says, for each email, "would
+    remove NAME (ROLE)" or why it is refused. With --apply the named people
+    are removed together and no one else is touched. Example:
+
+    engine staff remove teacher@example.test
+
+    It refuses an email that is not on the list, the same email named twice,
+    and a removal that would leave no coordinator who can sign in. If any is
+    refused, nothing is removed. An email need not look like an address.
+
+    Removing a person signs them out at their next request. It never deletes
+    evidence or decisions: their past sign-offs stay as they were, and the
+    site then shows their email where it showed their name. It does not reset
+    a password or change anyone's classes.
+    """
+    with db.connect() as conn:
+        # --apply holds the list while it is read and written, so the website cannot be overwritten between
+        if apply_:
+            conn.execute("select 1 from config where key = 'app.staff' for update")
+        lines = staff_remove.plan(conn, emails)
+        refused = sum(ln.action == "refused" for ln in lines)
+        if refused or not apply_:  # an applied removal says what it did, not what it would do
+            for ln in lines:
+                typer.echo(f"  {ln.email:<36}{ln.said}")
+        if not apply_:
+            typer.echo(
+                f"  {len(lines) - refused} to remove, {refused} refused. This was a dry run: nothing changed."
+                " Add --apply to do it."
+            )
+            return
+        if refused:
+            typer.echo(
+                f"  {refused} refused, so nothing was applied. Fix the list of emails and run it again."
+            )
+            raise typer.Exit(1)
+        gone = staff_remove.apply(conn, lines)
+        conn.commit()
+    typer.echo(f"  Removed {len(gone)}: " + ", ".join(f"{s['name']} ({s['role']})" for s in gone) + ".")
+    typer.echo(
+        "  They are signed out at their next request. Their past sign-offs are kept as they were,"
+        " and the site shows their email where it showed their name."
+    )
 
 
 @staff_app.command("load")
