@@ -35,7 +35,6 @@ W3, gate N10 (the skill graph). Design note, step 1; no code or schema yet (wait
   only; another grade is an insert.
 - `observed_weight` (school, grade, kind, entry mode): `opens_secure`, `rechecks`, `lowers`. K2: individual
   true/true/true; group_as_expected false/true/false. The weight lives here, never on an evidence row.
-- Code: the SQL functions (as the written rule already is), one line in `graph.py`, tests, goal file.
 
 ## The migration (one, additive, after "go schema")
 
@@ -50,8 +49,7 @@ altered. Then `engine live rules --write --url <local>` and `engine past` before
 - A named lower mark on a later day after secure: does it re-open the skill? [yes, to practising: `lowers` on the
   individual row; group never]. The task's words fix "never lowers" only for group lines.
 - Group-only child: `not_enough_yet` row, or no row? [a row: D-008 says a "rest" line is an observation].
-- Is the 14-day re-check counted from the first named yes, even if the second named yes is itself ≥ 14 days later?
-  [yes: that second yes is the re-check].
+- 14 days from the first named yes, even when the second named yes is itself ≥ 14 days later? [yes, it re-checks].
 
 ## Verified
 
