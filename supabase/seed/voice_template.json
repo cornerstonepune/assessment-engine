@@ -1,5 +1,5 @@
 {
-  "about": "The words of the K2 spoken note (task M1-01), read by code in engine/w3_read/voice_note.py. Every word a reader listens for is here, never in code (rule 1). The section words follow the task's brief (activity number; above, below, not willing, absent; 'the rest did as expected'; one free sentence; incident) and are to be checked against teacher-os field/k2-shadow-capture.md, which this build could not read. Number words run 1 to 40: a K2 roll number; extend by adding rows.",
+  "about": "The words of the K2 spoken note (task M1-01), read by code in engine/w3_read/voice_note.py: every word a reader listens for is here, never in code (rule 1). The order is the school's spoken template: Activity; Above; Below; Not willing; Absent; 'the rest did as expected'; one optional sentence with no heading; an incident is a note of its own that starts with 'Incident'; the day's first note starts with the date. Number words run 1 to 40, a K2 roll number; extend by adding rows. The school's Google Form uses another vocabulary (form_levels); how it maps onto these outcomes is not checked, so no mapping is written.",
   "template": {
     "sections": [
       {
@@ -10,7 +10,8 @@
           "activity number",
           "activity no",
           "activity"
-        ]
+        ],
+        "outcome": null
       },
       {
         "code": "above",
@@ -19,7 +20,8 @@
         "words": [
           "above expected",
           "above"
-        ]
+        ],
+        "outcome": "above"
       },
       {
         "code": "below",
@@ -28,7 +30,8 @@
         "words": [
           "below expected",
           "below"
-        ]
+        ],
+        "outcome": "below"
       },
       {
         "code": "not_willing",
@@ -37,7 +40,8 @@
         "words": [
           "not willing",
           "unwilling"
-        ]
+        ],
+        "outcome": "not_willing"
       },
       {
         "code": "absent",
@@ -45,7 +49,8 @@
         "kind": "numbers",
         "words": [
           "absent"
-        ]
+        ],
+        "outcome": "absent"
       },
       {
         "code": "rest",
@@ -56,24 +61,24 @@
           "rest did as expected",
           "the rest as expected",
           "rest as expected"
-        ]
+        ],
+        "outcome": "as_expected"
       },
       {
-        "code": "note",
-        "name": "note",
-        "kind": "text",
-        "words": [
-          "note",
-          "comment"
-        ]
+        "code": "sentence",
+        "name": "what she saw",
+        "kind": "sentence",
+        "words": [],
+        "outcome": null
       },
       {
         "code": "incident",
         "name": "incident",
-        "kind": "text",
+        "kind": "incident",
         "words": [
           "incident"
-        ]
+        ],
+        "outcome": null
       }
     ],
     "filler": [
@@ -363,6 +368,84 @@
       "seven": 7,
       "eight": 8,
       "nine": 9
+    },
+    "days": {
+      "weekday": {
+        "monday": 0,
+        "somvar": 0,
+        "सोमवार": 0,
+        "tuesday": 1,
+        "mangalvar": 1,
+        "मंगलवार": 1,
+        "wednesday": 2,
+        "budhvar": 2,
+        "बुधवार": 2,
+        "thursday": 3,
+        "guruvar": 3,
+        "brihaspativar": 3,
+        "गुरुवार": 3,
+        "friday": 4,
+        "shukravar": 4,
+        "शुक्रवार": 4,
+        "saturday": 5,
+        "shanivar": 5,
+        "शनिवार": 5,
+        "sunday": 6,
+        "ravivar": 6,
+        "रविवार": 6
+      },
+      "month": {
+        "january": 1,
+        "jan": 1,
+        "february": 2,
+        "feb": 2,
+        "march": 3,
+        "mar": 3,
+        "april": 4,
+        "apr": 4,
+        "may": 5,
+        "june": 6,
+        "jun": 6,
+        "july": 7,
+        "jul": 7,
+        "august": 8,
+        "aug": 8,
+        "september": 9,
+        "sep": 9,
+        "sept": 9,
+        "october": 10,
+        "oct": 10,
+        "november": 11,
+        "nov": 11,
+        "december": 12,
+        "dec": 12
+      },
+      "today": [
+        "today",
+        "aaj"
+      ],
+      "yesterday": [
+        "yesterday"
+      ],
+      "filler": [
+        "date",
+        "day",
+        "on",
+        "it",
+        "is",
+        "the",
+        "of"
+      ]
+    },
+    "form_levels": {
+      "words": [
+        "Level 1",
+        "Level 2",
+        "Level 3",
+        "Not Attended"
+      ],
+      "mapping_to_outcomes": null,
+      "note": "The school's Google Form vocabulary, kept beside the spoken one. Its mapping onto above / below / as expected / not willing / absent is not checked: none is written."
     }
   }
 }

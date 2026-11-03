@@ -19,11 +19,20 @@ reads, each line beside its words, a person confirms.
   with numbers, a dangling correction, a child in two lists all block; an incident and the free sentence keep their
   own words; every number word in the rows reads as its number and none means two; a new heading is a row.
 
+- Reworked to the school's spoken template (relayed by the orchestrator, 3 Nov): the one sentence has no heading and
+  follows the last list after a full stop (without one it is "could not read"); a note starting "Incident" is an
+  incident and is never read for lists; the day's first note may start with a date or weekday (English or Hindi),
+  read against the day it reached us and never later; the Google Form's levels are rows with no mapping written.
+  `tests/test_voice_note.py` → 68 passed.
+- `cd packages/engine && uv run pytest -q tests/test_speech.py` → 6 passed: the Sarvam adapter against a
+  recorded-response stub. Only the file, model, language and the template's own headings are sent; the key is in the
+  header; a refusal names its code and never what was said; no key is an error that says so.
+
 ## Not verified / open
 
-- The design documents in cornerstonepune/teacher-os could not be read from this container (the clone asks for a
-  login; attaching it was refused). Asked the orchestrator for them. The spoken template and the table design are not
-  guessed; the parser and the tables wait on them.
+- The live Sarvam call has not been run: no key here and no fixtures.
+- The spoken activity numbers (up to 634, with gaps) matching the ACT-K2-nnnn codes through `activity.sheet_no` is
+  unchecked: it needs the live database.
 - Speech to text is Sarvam (Nimish, 3 Nov). Read its current docs (research/2026-11-03-k2-voice-transcription-spike.md): its default keeps data indefinitely until the workspace Owner sets "No retention"; whether that covers speech-to-text, and whether audio is used for training, are unverified. Nothing measured: no fixtures yet, no key here.
 
 ## Handoff

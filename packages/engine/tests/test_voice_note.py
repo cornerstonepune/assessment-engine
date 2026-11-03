@@ -12,7 +12,7 @@ from engine.w3_read import voice_note as vn
 
 PLAIN = (
     "Activity number 12. Above: 3, 7 and 19. Below: none. Not willing: 4. Absent: twenty one. "
-    "The rest did as expected. Note: they loved the sand tray."
+    "The rest did as expected. 4 shared the sand tray with everyone."
 )
 
 
@@ -31,7 +31,7 @@ def test_the_template_is_read_into_one_line_per_section_each_beside_its_own_word
         "not_willing",
         "absent",
         "rest",
-        "note",
+        "sentence",
     ]
     assert numbers(d, "activity") == (12,)
     assert numbers(d, "above") == (3, 7, 19)
@@ -39,7 +39,7 @@ def test_the_template_is_read_into_one_line_per_section_each_beside_its_own_word
     assert numbers(d, "not_willing") == (4,)
     assert numbers(d, "absent") == (21,)
     assert d.line("rest").said
-    assert d.line("note").text == "they loved the sand tray"
+    assert d.line("sentence").text == "4 shared the sand tray with everyone"
     assert d.line("above").words == "Above: 3, 7 and 19"
     assert d.line("absent").words == "Absent: twenty one"
     for line in d.lines:  # each line's words are the transcript's own, in place
@@ -129,24 +129,71 @@ def test_a_heading_said_twice_is_read_together():
     assert "'above' said twice: read together" in d.line("above").notes
 
 
-def test_an_incident_is_its_own_line_and_its_words_are_not_read_as_lists():
-    d = vn.read("Activity 1. Above 3. Incident: number 5 fell and climbed above the bench.")
-    assert d.line("incident").text == "number 5 fell and climbed above the bench"
-    assert numbers(d, "above") == (3,)  # "above the bench" is the incident's words, not a list
+def test_a_note_that_starts_with_incident_is_an_incident_and_is_never_read_for_lists():
+    d = vn.read("Incident. 10:30, number 5 fell near the slide, above the knee; the coordinator was told.")
+    assert d.kind == "incident"
+    assert [x.section for x in d.lines] == ["incident"]
+    assert d.line("incident").text.startswith("10:30, number 5 fell")
     assert not d.blocked
 
 
-def test_the_free_sentence_keeps_its_words_and_an_incident_after_it_is_still_its_own():
-    d = vn.read("Activity 1. Note: below the window they built a tower. Incident: 4 cried.")
-    assert d.line("note").text == "below the window they built a tower"
+def test_an_incident_said_inside_a_note_is_kept_apart_and_its_words_are_not_lists():
+    d = vn.read("Activity 1. Above 3. Incident, 4 fell below the window.")
+    assert d.kind == "observation"
+    assert numbers(d, "above") == (3,)
     assert d.line("below") is None
-    assert d.line("incident").text == "4 cried"
+    assert d.line("incident").text == "4 fell below the window"
+    assert d.line("incident").notes
 
 
-def test_the_rest_did_as_expected_is_read_and_an_unknown_word_after_it_blocks():
+def test_the_one_sentence_she_saw_has_no_heading_and_follows_the_last_list_after_a_full_stop():
+    d = vn.read("Activity 6. Below 2. Not willing 9. He sang the whole song to 4.")
+    assert numbers(d, "not_willing") == (9,)
+    assert d.line("sentence").text == "He sang the whole song to 4"
+    assert not d.blocked
+
+
+def test_a_list_carried_into_a_second_sentence_stays_a_list():
+    d = vn.read("Activity 6. Absent 2. 8 and 11.")
+    assert numbers(d, "absent") == (2, 8, 11)
+    assert d.line("sentence") is None
+
+
+def test_a_sentence_run_into_a_list_with_no_full_stop_is_could_not_read_never_guessed():
+    d = vn.read("Activity 6. Absent 2 she was kind to 4")
+    assert d.blocked
+    assert "could not read 'kind'" in d.line("absent").problems
+
+
+def test_after_the_rest_did_as_expected_every_word_is_the_sentence():
+    d = vn.read("Activity 1. Above 3. The rest did as expected. They were unafraid of the paint")
+    assert d.line("rest").said and not d.line("rest").problems
+    assert d.line("sentence").text == "They were unafraid of the paint"
+
+
+def test_the_date_at_the_start_of_the_days_first_note_is_read_and_never_lands_in_the_future():
+    import datetime as dt
+
+    thursday = dt.date(2026, 11, 5)
+    assert vn.read("Wednesday. Activity 7. Above 3.").day == ("weekday", 2)
+    assert vn.taught_on(("weekday", 2), thursday) == dt.date(2026, 11, 4)
+    assert vn.taught_on(("weekday", 3), thursday) == thursday
+    assert vn.read("3rd November. Activity 7. Above 3.").day == ("date", 3, 11)
+    assert vn.taught_on(("date", 3, 11), thursday) == dt.date(2026, 11, 3)
+    assert vn.taught_on(("date", 30, 12), thursday) == dt.date(2025, 12, 30)  # said in Nov: last December
+    assert vn.read("Budhvar. Activity 7. Above 3.").day == ("weekday", 2)
+    assert vn.taught_on(None, thursday) == thursday  # no day said: the day it reached us
+    assert vn.taught_on(("date", 31, 2), thursday) is None
+
+
+def test_a_date_half_said_is_could_not_read():
+    d = vn.read("November. Activity 7. Above 3.")
+    assert "could not read the date: a day and a month are both needed" in d.problems
+
+
+def test_the_rest_did_as_expected_is_read_and_it_gives_its_children_as_expected():
     assert vn.read("Activity 1. The rest did as expected.").line("rest").said
-    d = vn.read("Activity 1. The rest did as expected mostly.")
-    assert d.line("rest").problems == ("could not read 'mostly'",)
+    assert vn.template().outcomes["rest"] == "as_expected"
 
 
 def test_nothing_is_ticked_a_draft_holds_no_confirmation():
@@ -170,6 +217,11 @@ def test_no_number_word_means_two_numbers_and_no_heading_is_a_number():
             assert seen.setdefault(w, n) == n, f"'{w}' is both {seen[w]} and {n}"
     headings = {w for s in SEED["sections"] for w in s["words"]}
     assert not headings & set(seen)
+
+
+def test_the_forms_levels_are_kept_as_rows_with_no_mapping_written():
+    assert SEED["form_levels"]["words"] == ["Level 1", "Level 2", "Level 3", "Not Attended"]
+    assert SEED["form_levels"]["mapping_to_outcomes"] is None
 
 
 def test_the_template_is_rows_a_new_heading_is_an_insert():
