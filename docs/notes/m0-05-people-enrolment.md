@@ -11,6 +11,7 @@ Goal: `goals/m0-05-people-enrolment.yaml`. Nimish's words on record: "All parts 
   (the tests leave the database as they found it). Placeholder people only ("Placeholder Ann", ann@example.test,
   "Placeholder Child 07"), test database only.
 - `bin/check` → 34 passed (layout against `workflows.json`, promises, ratchet, strict types, migration order, ruff).
+- `engine/checks/rules.json` regenerated with `engine live rules --write --url <a database built from the migrations>`: exactly 40 rules added, all on the new tables, nothing else changed (CI's `test_rules` named the same 40).
 - The migration applied twice in a row on a database built from every migration: no error, no row changed the second time.
 
 ## What the migration does (additive only) — `20261225090000_people_and_enrolment.sql`
