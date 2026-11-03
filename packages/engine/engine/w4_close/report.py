@@ -45,6 +45,14 @@ def _example(row):
     }
 
 
+def _hint(hint_of, code, op, skill):
+    """What the school does about a mistake: the hint for the question's own operation, else for the operation of the skill
+    the mistake was charged to — the skill its description is already read by. A division question can carry a mistake the
+    vocabulary holds for + and − (a slip counting in tens inside the take-away): it has no row for ÷, and the lookup by
+    that alone called the two hints ambiguous, so a parent read the mistake's name and nothing to do about it (M0-04)."""
+    return hint_of(code, op=op, skill=skill) or hint_of(code, skill=skill)
+
+
 def build(conn, child_id, since=None):
     """→ {"child_id", "strong", "faulty", "unexplained", "next"} for one child, over evidence from `since` on."""
     skills = {r["code"]: r["name"] for r in conn.execute("select code, name from registry_skill")}
@@ -89,7 +97,7 @@ def build(conn, child_id, since=None):
                 {
                     "mistake": code,
                     "name": name_of(code, op=op, skill=row["skill_code"]),
-                    "hint": hint_of(code, op=op, skill=row["skill_code"]),
+                    "hint": _hint(hint_of, code, op, row["skill_code"]),
                     "skill_code": row["skill_code"],
                     "skill": skills.get(row["skill_code"], row["skill_code"]),
                     "times": 0,
