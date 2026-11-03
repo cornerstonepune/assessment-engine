@@ -80,6 +80,21 @@ reads, each line beside its words, a person confirms.
   tests/test_voice_tables.py tests/test_cli_voice.py` → 33 passed; neighbouring suites 212 passed (three runs; one
   earlier run, right after re-applying the migration locally, had one failure not seen again and not identified).
 
+## Step 4a, observed evidence and the rung rule (3 Nov, found by the 4b worker)
+
+- Found: `tests/test_rung_folded.py::test_every_rung_code_on_record_is_a_skills_second_code` failed on any database
+  holding a confirmed voice note (`('evidence_event', [{'rung_code': None}])`). CI's clean database never held one.
+- Cause: the test (22 Oct) is older than C2's rule (`20261205100000`, 23 Oct), which lets every kind but a written answer
+  carry no rung (`evidence_event_written_has_rung`); nothing wrote another kind until voice notes. A rung cannot be set:
+  an activity's skills are registry skills, and none of the 3711 `activity_skill` rows is a school skill with a second
+  code (local database, `select count(*) ... from activity_skill a where exists (select 1 from skill s where s.code =
+  a.skill_code)` → 0).
+- Fix: the test confirms a voice note first, so it fails before the fix, and then excuses only an unrunged record that is
+  not written, in `evidence_event` alone; every other table and every non-null rung is held as before. A written answer
+  with no rung stays refused by the database (`tests/test_evidence_every_kind.py`, line 141).
+- `pytest tests/test_rung_folded.py -k every_rung_code` before the fix → `1 failed` (the row above); after →
+  with the evidence, voice, roles, privileges, register and past suites `136 passed`; `bin/check` → 34 passed.
+
 ## To set up on the engine box, after Nimish approves the pilot (not built: no scheduler here)
 
 - **What:** `bin/engine read voice expire`. It leaves every note older than `voice.confirm_within_hours` (48)
