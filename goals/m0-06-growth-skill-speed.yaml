@@ -1,0 +1,32 @@
+name: m0-06-growth-skill-speed
+goal: >
+  A class's skill page (/growth?class=U71-BIG&topic=ADDSUB&skill=ADD.2D2D, a class of 40) opens under its one-second
+  budget with real headroom, and so do the class page and the topic page that read the same answers. The answers of a
+  class are read from the class's own children, not by grouping every answer in the school first, so the page costs
+  what the class has and not what the school has. The budget is not touched and no test is skipped.
+# Written 2026-11-03, before the fix (task M0-06). CI (PR #353, run 41684713465, browser shard 3) measured the skill page at
+# 1207, 1104 and 1088 ms against its 1000 ms budget, the class page at ~460 and the topic page at ~500; the Postgres log of
+# that job shows `with ss as (select tenant_id, code, rung_code, registry_codes from skill …` taking 1.07-1.13 s each time.
+# The cause (docs/notes/m0-06-growth-skill-speed.md): `answer_placed` groups evidence by child, and `child_id in (select …)`
+# cannot reach below that grouping, so every answer in the school (28,536 on the measuring copy) was grouped before the
+# class's 40 children were kept. The words below are the ones M0-03 recorded as Nimish's, 2026-11-03; none is new.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/u71-results-by-topic.spec.ts::class results, an open topic, an open skill and a child's page each open within a second on a class of 40"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_db_plans.py::test_a_classs_answers_are_read_from_its_own_children_not_from_every_answer_in_the_school"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_db_plans.py::test_the_websites_class_loaders_ask_for_answers_by_equality"
+manual:
+  - "The u71 timing test (unchanged, budget 1000 ms) is green in three CI runs in a row on main after this merges."
+scenarios: []
+criteria:
+  - name: a class's answers are read from its own children, in the plan and in the website's loaders
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_db_plans.py
+    expect: "passed"
+  - name: the class, topic, skill and child pages open within the budget on a class of 40
+    run: cd apps/web && npx playwright test tests/u71-results-by-topic.spec.ts -g "within a second"
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
