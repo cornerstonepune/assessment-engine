@@ -1,0 +1,40 @@
+name: m0-02-k2-curriculum-upload
+goal: >
+  Every K2 activity, with its learning outcomes, materials and four levels, is in the database exactly as the K2 team
+  wrote it in their sheet. The sheet's activity rows are each loaded or listed as skipped with the reason; the K2
+  activities that had no levels are filled from the sheet where it has them and listed where it has none; each learning
+  outcome is a K2 learning objective linked to its activity; every edit, by the upload or by a person, is kept with who
+  and when. There is no signing step. Running the upload twice changes nothing the second time, a word a person edited
+  on the site is never written over, and nothing already in the database is deleted.
+# Written 2026-11-03, before the code: task M0-02 (cornerstonepune/teacher-os blueprint/roadmap.toml; decisions D-009,
+# D-047, D-050). The 590 K2 activities in the database came from this same sheet's earlier version through the seed
+# (supabase/seed/registry.json); the seed load used to write them back on every deploy, which would undo this upload and
+# every later edit, so it now only adds an activity it does not have (engine/core/loaders.py).
+says:
+  - words: "We just need activities to learning objectives. We'll consider that as an upload. People can actually go and edit if they have to."
+    proved_by: "packages/engine/tests/test_k2_upload.py::test_every_outcome_becomes_a_k2_learning_objective_linked_to_its_activity"
+  - words: "We'll consider that as an upload."
+    proved_by: "packages/engine/tests/test_k2_upload.py::test_a_row_is_read_as_the_sheet_wrote_it_and_every_other_row_says_why_it_is_skipped"
+  - words: "We'll consider that as an upload."
+    proved_by: "packages/engine/tests/test_k2_upload.py::test_a_dry_run_writes_nothing_and_an_upload_twice_changes_nothing_the_second_time"
+  - words: "We'll consider that as an upload."
+    proved_by: "packages/engine/tests/test_loaders.py::test_a_seed_edit_does_not_overwrite_an_activity_the_database_has_and_an_activity_it_lacks_is_added"
+  - words: "People can actually go and edit if they have to."
+    proved_by: "packages/engine/tests/test_k2_upload.py::test_every_change_is_kept_with_who_and_when_and_the_history_cannot_be_changed"
+  - words: "People can actually go and edit if they have to."
+    proved_by: "packages/engine/tests/test_k2_upload.py::test_a_word_a_person_edited_on_the_site_is_not_written_over_by_the_sheet"
+manual:
+  - "The dry run on the real tab: export the tab 'Activity list_Lesson Plans' as CSV (File, Download, Comma-separated values, with that tab open), keep it outside the repository, and run `bin/engine curriculum k2 <that file>`. Read the counts and the skipped rows; nothing is written without --apply."
+  - "The load on live, only after the dry run's report is approved: `bin/engine curriculum k2 <that file> --apply --by <your name>`, then the same command again prints 'would change an existing activity: 0'."
+  - "Actions, rehearse update-live, on this branch: the migration runs on a copy of live; `engine past` prints the same evidence, states, scored answers, questions and levels before and after."
+scenarios: []
+criteria:
+  - name: S-M0-02-sheet — the sheet's rows, read, compared and uploaded as the K2 team wrote them
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_upload.py
+    expect: "passed"
+  - name: S-M0-02-live-intact — the seed load and the whole suite hold; nothing already there moved
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_loaders.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
