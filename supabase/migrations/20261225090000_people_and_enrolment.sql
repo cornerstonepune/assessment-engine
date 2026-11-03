@@ -300,7 +300,8 @@ end $$;
 
 revoke execute on function internal.staff_of_email(text) from public;
 
--- The engine writes; the website reads what is not a person's contact details, and writes none of it yet.
+-- The engine writes; the website reads what is not a person's contact details, and writes none of it yet. Nothing on
+-- the website reads a staff member's contact details, so only the engine may call `pii.read_staff`.
 do $$ begin
   if exists (select from pg_roles where rolname = 'app_engine') then
     revoke all on pii.staff from app_engine;
@@ -313,7 +314,6 @@ do $$ begin
   if exists (select from pg_roles where rolname = 'app_web') then
     revoke all on pii.staff from app_web;
     grant select on campus, academic_year, school_class, enrolment, staff, role, staff_role_grant to app_web;
-    grant execute on function pii.read_staff(uuid, text) to app_web;
     grant execute on function internal.staff_of_email(text) to app_web;
   end if;
 end $$;
