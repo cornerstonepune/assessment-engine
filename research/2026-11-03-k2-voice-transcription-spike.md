@@ -60,7 +60,12 @@ From [data retention](https://docs.sarvam.ai/api/platform/data-retention.md):
   `packages/engine/engine/adapters/speech.py` calls Sarvam (rule 10).
 - `.gitignore` refuses audio files, and a test holds it.
 
-## Recording instructions for Nimish (the fixtures)
+## Recording instructions (the fixtures)
+
+Nimish will not record these for now (orchestrator, 3 Nov). Synthetic recordings of an adult voice with placeholder
+numbers are allowed for this spike only, never as proof (D-056). None could be made from the build container, which has
+no voice and no Sarvam key, so the live check is manual and not run. The adapter is tested against a recorded-response
+stub (`tests/test_speech.py`).
 
 1. Use any phone's voice recorder. One adult, in a normal room. A little background noise is good. **No children,
    no real class, no real child's number.** Use numbers 1 to 30 as placeholders.

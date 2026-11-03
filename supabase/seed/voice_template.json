@@ -1,0 +1,470 @@
+{
+  "about": "The words of the K2 spoken note (task M1-01), read by code in engine/w3_read/voice_note.py: every word a reader listens for is here, never in code (rule 1). The order is the school's spoken template: Activity; Above; Below; Not willing; Absent; 'the rest did as expected'; one optional sentence with no heading; an incident is a note of its own that starts with 'Incident'; the day's first note starts with the date. Number words run 1 to 40, a K2 roll number; extend by adding rows. The school's Google Form uses another vocabulary (form_levels); how it maps onto these outcomes is not checked, so no mapping is written.",
+  "template": {
+    "sections": [
+      {
+        "code": "activity",
+        "name": "activity",
+        "kind": "number",
+        "words": [
+          "activity number",
+          "activity no",
+          "activity"
+        ],
+        "outcome": null
+      },
+      {
+        "code": "level",
+        "name": "level",
+        "kind": "number",
+        "words": [
+          "level"
+        ],
+        "outcome": null
+      },
+      {
+        "code": "above",
+        "name": "above",
+        "kind": "numbers",
+        "words": [
+          "above expected",
+          "above"
+        ],
+        "outcome": "above"
+      },
+      {
+        "code": "below",
+        "name": "below",
+        "kind": "numbers",
+        "words": [
+          "below expected",
+          "below"
+        ],
+        "outcome": "below"
+      },
+      {
+        "code": "not_willing",
+        "name": "not willing",
+        "kind": "numbers",
+        "words": [
+          "not willing",
+          "unwilling"
+        ],
+        "outcome": "not_willing"
+      },
+      {
+        "code": "absent",
+        "name": "absent",
+        "kind": "numbers",
+        "words": [
+          "absent"
+        ],
+        "outcome": "absent"
+      },
+      {
+        "code": "rest",
+        "name": "the rest",
+        "kind": "flag",
+        "words": [
+          "the rest did as expected",
+          "rest did as expected",
+          "the rest as expected",
+          "rest as expected"
+        ],
+        "outcome": "as_expected"
+      },
+      {
+        "code": "sentence",
+        "name": "what she saw",
+        "kind": "sentence",
+        "words": [],
+        "outcome": null
+      },
+      {
+        "code": "incident",
+        "name": "incident",
+        "kind": "incident",
+        "words": [
+          "incident"
+        ],
+        "outcome": null
+      }
+    ],
+    "filler": [
+      "umm",
+      "um",
+      "uh",
+      "hmm",
+      "er",
+      "and",
+      "aur",
+      "number",
+      "numbers",
+      "roll",
+      "child",
+      "children",
+      "is",
+      "are",
+      "were",
+      "was",
+      "the",
+      "of",
+      "also",
+      "bhi",
+      "then",
+      "okay",
+      "ok",
+      "so"
+    ],
+    "none": [
+      "none",
+      "nobody",
+      "no one",
+      "nil",
+      "koi nahi",
+      "koi nahin"
+    ],
+    "correction": [
+      "no sorry",
+      "sorry",
+      "i mean",
+      "no",
+      "nahi",
+      "nahin"
+    ],
+    "number_words": {
+      "1": [
+        "one",
+        "ek",
+        "एक"
+      ],
+      "2": [
+        "two",
+        "do",
+        "दो"
+      ],
+      "3": [
+        "three",
+        "teen",
+        "तीन"
+      ],
+      "4": [
+        "four",
+        "char",
+        "chaar",
+        "चार"
+      ],
+      "5": [
+        "five",
+        "paanch",
+        "panch",
+        "पाँच",
+        "पांच"
+      ],
+      "6": [
+        "six",
+        "chhah",
+        "chhe",
+        "chah",
+        "che",
+        "छह",
+        "छः"
+      ],
+      "7": [
+        "seven",
+        "saat",
+        "sat",
+        "सात"
+      ],
+      "8": [
+        "eight",
+        "aath",
+        "ath",
+        "आठ"
+      ],
+      "9": [
+        "nine",
+        "nau",
+        "नौ"
+      ],
+      "10": [
+        "ten",
+        "das",
+        "दस"
+      ],
+      "11": [
+        "eleven",
+        "gyarah",
+        "gyaarah",
+        "ग्यारह"
+      ],
+      "12": [
+        "twelve",
+        "barah",
+        "baarah",
+        "बारह"
+      ],
+      "13": [
+        "thirteen",
+        "terah",
+        "तेरह"
+      ],
+      "14": [
+        "fourteen",
+        "chaudah",
+        "chodah",
+        "चौदह"
+      ],
+      "15": [
+        "fifteen",
+        "pandrah",
+        "pandra",
+        "पंद्रह",
+        "पन्द्रह"
+      ],
+      "16": [
+        "sixteen",
+        "solah",
+        "sola",
+        "सोलह"
+      ],
+      "17": [
+        "seventeen",
+        "satrah",
+        "satra",
+        "सत्रह"
+      ],
+      "18": [
+        "eighteen",
+        "atharah",
+        "athara",
+        "अठारह"
+      ],
+      "19": [
+        "nineteen",
+        "unnees",
+        "unnis",
+        "उन्नीस"
+      ],
+      "20": [
+        "twenty",
+        "bees",
+        "bis",
+        "बीस"
+      ],
+      "21": [
+        "ikkees",
+        "ikkis",
+        "इक्कीस"
+      ],
+      "22": [
+        "baees",
+        "bais",
+        "बाईस",
+        "बाइस"
+      ],
+      "23": [
+        "teyees",
+        "teis",
+        "तेईस",
+        "तेइस"
+      ],
+      "24": [
+        "chaubees",
+        "chaubis",
+        "चौबीस"
+      ],
+      "25": [
+        "pachchees",
+        "pachees",
+        "pachis",
+        "पच्चीस"
+      ],
+      "26": [
+        "chhabbees",
+        "chhabbis",
+        "छब्बीस"
+      ],
+      "27": [
+        "sattaees",
+        "sattais",
+        "सत्ताईस",
+        "सत्ताइस"
+      ],
+      "28": [
+        "atthaees",
+        "atthais",
+        "अट्ठाईस",
+        "अट्ठाइस"
+      ],
+      "29": [
+        "untees",
+        "untis",
+        "उनतीस"
+      ],
+      "30": [
+        "thirty",
+        "tees",
+        "tis",
+        "तीस"
+      ],
+      "31": [
+        "iktees",
+        "iktis",
+        "इकतीस"
+      ],
+      "32": [
+        "battees",
+        "battis",
+        "बत्तीस"
+      ],
+      "33": [
+        "taintees",
+        "taintis",
+        "तैंतीस",
+        "तेंतीस"
+      ],
+      "34": [
+        "chauntees",
+        "chauntis",
+        "चौंतीस"
+      ],
+      "35": [
+        "paintees",
+        "paintis",
+        "पैंतीस"
+      ],
+      "36": [
+        "chhattees",
+        "chhattis",
+        "छत्तीस"
+      ],
+      "37": [
+        "saintees",
+        "saintis",
+        "सैंतीस"
+      ],
+      "38": [
+        "artees",
+        "artis",
+        "adtees",
+        "अड़तीस"
+      ],
+      "39": [
+        "untalees",
+        "untalis",
+        "उनतालीस"
+      ],
+      "40": [
+        "forty",
+        "chalees",
+        "chalis",
+        "चालीस"
+      ]
+    },
+    "english_tens": {
+      "twenty": 20,
+      "thirty": 30,
+      "forty": 40
+    },
+    "english_units": {
+      "one": 1,
+      "two": 2,
+      "three": 3,
+      "four": 4,
+      "five": 5,
+      "six": 6,
+      "seven": 7,
+      "eight": 8,
+      "nine": 9
+    },
+    "days": {
+      "weekday": {
+        "monday": 0,
+        "somvar": 0,
+        "सोमवार": 0,
+        "tuesday": 1,
+        "mangalvar": 1,
+        "मंगलवार": 1,
+        "wednesday": 2,
+        "budhvar": 2,
+        "बुधवार": 2,
+        "thursday": 3,
+        "guruvar": 3,
+        "brihaspativar": 3,
+        "गुरुवार": 3,
+        "friday": 4,
+        "shukravar": 4,
+        "शुक्रवार": 4,
+        "saturday": 5,
+        "shanivar": 5,
+        "शनिवार": 5,
+        "sunday": 6,
+        "ravivar": 6,
+        "रविवार": 6
+      },
+      "month": {
+        "january": 1,
+        "jan": 1,
+        "february": 2,
+        "feb": 2,
+        "march": 3,
+        "mar": 3,
+        "april": 4,
+        "apr": 4,
+        "may": 5,
+        "june": 6,
+        "jun": 6,
+        "july": 7,
+        "jul": 7,
+        "august": 8,
+        "aug": 8,
+        "september": 9,
+        "sep": 9,
+        "sept": 9,
+        "october": 10,
+        "oct": 10,
+        "november": 11,
+        "nov": 11,
+        "december": 12,
+        "dec": 12
+      },
+      "today": [
+        "today",
+        "aaj"
+      ],
+      "yesterday": [
+        "yesterday"
+      ],
+      "filler": [
+        "date",
+        "day",
+        "on",
+        "it",
+        "is",
+        "the",
+        "of"
+      ]
+    },
+    "form_levels": {
+      "words": [
+        "Level 1",
+        "Level 2",
+        "Level 3",
+        "Not Attended"
+      ],
+      "mapping_to_outcomes": null,
+      "note": "The school's Google Form vocabulary, kept beside the spoken one. Its mapping onto above / below / as expected / not willing / absent is not checked: none is written."
+    },
+    "levels": {
+      "said": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "default_expected": 2,
+      "note": "The activity level she expected, said after the activity ('Activity 2, level 2'). When she says none, the default is level 2: an unverified guess (orchestrator, 3 Nov), kept as this row."
+    }
+  }
+}
