@@ -62,7 +62,7 @@ Not built (P-08 designs it). The seam: gap kind is a row-level word, the ledger 
 proposer/validator/eval/apply loop does not know which kind it serves. A new kind is a new prompt row, a new code
 check and a new bar.
 
-## Build order (after "go schema")
+## Build order (after the blueprint is accepted)
 1. pure-code validator checks (tests first) · 2. eval harness scoring a recorded gold run · 3. migration
 (additive, `internal.apply_conventions()`, DELETE revoked on the ledger, rules.json regenerated on a local db,
 data_register entry) · 4. `engine curriculum propose | review | apply` (dry-run default, `--apply --by`) ·
@@ -77,4 +77,5 @@ goal `goals/m1-05-mapping-agents.yaml` with Nimish's words as `says:`.
 Nothing built yet. Design only.
 
 ## Handoff
-Waiting for "go schema" (PRs #362/#363 own the schema).
+Design only, by order (Nimish via orchestrator, 2026-11-03): the whole blueprint is finished and accepted before any
+new build slice. This note is input to blueprint chapter P-08. Build starts later on the orchestrator's word.
