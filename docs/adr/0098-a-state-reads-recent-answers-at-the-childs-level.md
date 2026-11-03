@@ -31,8 +31,9 @@ paper's level had five defects, confirmed by reading the SQL:
 - **Observers** are school days for every kind of evidence. Distinct adults (`seen_by`, `state.min_adults` 2) apply
   only to evidence that names who saw it, which no written answer does.
 - **A paper made before levels** (the historical papers, N3) has answers at no level. They count in the graph as a
-  bucket of their own. They never set the next level, so a child with only those papers gets the grade's start
-  (`band_default`).
+  bucket of their own. They never set the next level: a child with only those papers stays at their current level.
+  The first draft gave them the grade's start (`band_default`). The rehearsal on a copy of live (run 119) showed that
+  would reset 60 levels the school had already set, for 12 children.
 
 ## Rejected
 
@@ -47,6 +48,7 @@ paper's level had five defects, confirmed by reading the SQL:
 - *Counting the adult who signed off a written answer as its observer.* That person did not watch the child. Requiring
   two would have taken secure from almost every child on live.
 - *Treating a historical paper's answers as `level.usual`.* That would be a guess at a level nobody set.
+- *The grade's start for a child whose answers name no level.* It throws away the level last prescribed (run 119).
 
 ## Not decided here
 

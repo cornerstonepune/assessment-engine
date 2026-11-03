@@ -328,7 +328,7 @@ where th.share is not null and th.min_children is not null and th.again is not n
 
 -- The next paper's level: up one when the last next_sheet.papers papers at the child's current level reach
 -- promote_at, down one under demote_below, kept between. The current level is the last one prescribed, else the
--- level of the latest answers on the skill, else `level.usual`. Too few answers at any known level: the grade's
+-- level of the latest answers on the skill, else `level.usual`. Too few answers on the skill at all: the grade's
 -- starting level. Too few at the current level (moved up, not yet sat): stays there. The mistakes it targets are
 -- those repeating in the same papers.
 create or replace function public.next_difficulty(p_child_id uuid, p_skill_set text)
@@ -345,12 +345,14 @@ declare
   usual      text    := (select c.value #>> '{}' from config c where c.tenant_id = tenant_ and c.key = 'level.usual');
   total integer; answered integer; right_ integer; share numeric; at_ text; i integer; tg text[];
 begin
-  -- every answer on the skill's rung at a known level, right or wrong, one row each. A paper made before levels (the
-  -- historical papers, N3) names none: nothing it says is at the current level, so alone it gives the grade's start. (an answer counts once for each registry skill it
-  -- used; here it is one answer)
+  -- every answer on the skill's rung, right or wrong, one row each (an answer counts once however many registry skills
+  -- it used), at any level or none: too few, and nothing says where the child is. A paper made before levels (the
+  -- historical papers, N3) names none, so it never sets the next level, but it is answers: such a child stays at their
+  -- current level, as a child just moved up does (rehearsal run 119: the grade's start instead reset 60 levels the
+  -- school had already set).
   select count(distinct g.answer) into total
   from graph_answer g join skill s on s.tenant_id = g.tenant_id and s.rung_code = g.rung_code
-  where g.child_id = p_child_id and s.code = p_skill_set and g.correct is not null and g.difficulty is not null;
+  where g.child_id = p_child_id and s.code = p_skill_set and g.correct is not null;
   if total < min_events then
     return query select null::text, 'band_default'::text, '{}'::text[];
     return;
