@@ -1,0 +1,26 @@
+name: m0-03-today-speed
+goal: >
+  What needs doing (/today) opens in the same time as the pages around it: no more than 1.25 times the slowest of
+  Assessments, Results, Skills, Check answers and Approve skill sets, on a copy that other specs have filled with classes.
+  Its note under the list ("What the system now knows") is read at the same time as the list, never after it, so the page
+  costs the list and not the list plus the note. No other page is touched and no test is loosened.
+
+# Written 2026-11-03 (the words are Nimish's, 2026-11-03, as the orchestrator gave them), before the fix (task M0-03, scenario S-M0-03-today). CI measured /today at 450-510 ms while its
+# neighbours took 160-300 ms (medians: main run 1159 /today 452; PR #353 attempts 1 and 2 /today 498 and 507).
+# The cause (docs/notes/m0-03-today-speed.md): the page read the list, then the person's classes, then the note's three
+# queries, one after the other, where every other page stops at the list the menu already asked for.
+# Not in this file, because no command here can run it: "within 1.25 times in three CI runs in a row" is the CI history of
+# tests/u65-what-needs-doing-walk.spec.ts, unchanged; it is under `manual`.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/u65-what-needs-doing-walk.spec.ts::What needs doing opens in under a second, as the other pages do"
+manual:
+  - "The u65 timing test (unchanged) is green in three CI runs in a row on main after this merges."
+scenarios: []
+criteria:
+  - name: What needs doing opens within 1.25 times the slowest other page, and under a second on a seeded copy
+    run: cd apps/web && npx playwright test tests/u65-what-needs-doing-walk.spec.ts
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

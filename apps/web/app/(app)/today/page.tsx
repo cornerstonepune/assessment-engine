@@ -69,13 +69,20 @@ const SECTION_ORDER = (a: string, b: string) => a.localeCompare(b, "en", { numer
 export default async function WhatNeedsDoing({ searchParams }: { searchParams: Promise<Q> }) {
   const q = await searchParams;
   const me = await requireStaff();
-  const [all, offered] = await deadline(Promise.all([tasksFor(me), choices()]));
+  // The list (the layout asks for it too, once per request) and the note under it are read together, never the note after the
+  // list: they depend on each other for nothing, and read in turn the page was its list plus its note (goals/m0-03-today-speed.yaml).
+  const listed = tasksFor(me);
+  const offered = await deadline(choices());
   const mine = subjectsFor(me, offered.subjects);
   const mySubjects = mine.map((s) => s.code);
+  const subject = mine.find((s) => s.code === q.subject)?.code;
+  // the note under the list is read for the class chosen in the page's own filter, else for all the person's classes
+  const noted = workScope(me).then((scope) => deadline(weekNote(q.class && isMine(scope, q.class) ? { classes: [q.class], note: null } : scope, subject ?? mine[0]?.code ?? "")));
+  noted.catch(() => {}); // if the list fails first the page errors; this one is then never awaited
+  const all = await deadline(listed);
   // what waits on this person, and the one count the menu carries; the page's filters narrow what is listed, never that figure
   const here = filterTasks(all, {}, mySubjects);
   const classes = [...new Set(here.flatMap((t) => t.sections))].sort(SECTION_ORDER);
-  const subject = mine.find((s) => s.code === q.subject)?.code;
   const section = classes.find((c) => c === q.class);
   const group = TODO_GROUPS.find((g) => g.key === q.group)?.key;
   // `kind` is the address the page had before it had groups (a bookmark, a link in a message): one kind of task, so one group
@@ -84,9 +91,7 @@ export default async function WhatNeedsDoing({ searchParams }: { searchParams: P
   // with a class chosen, a topic is marked taught for that class alone
   const narrowed = section ? tasks.map((t) => (t.kind === "taught" ? { ...t, sections: [section], where: t.where.replace(/ · [^·]*$/, ` · ${section}`), many: count(1, "class", "classes") } : t)) : tasks;
   const sections = sectionsOf(narrowed);
-  // the note under the list is read for the class chosen in the page's own filter, else for all the person's classes
-  const scope = await workScope(me);
-  const known = await deadline(weekNote(q.class && isMine(scope, q.class) ? { classes: [q.class], note: null } : scope, subject ?? mine[0]?.code ?? ""));
+  const known = await noted;
   const waiting = waitingCount(here);
   const first = here.find((t) => t.state === "doNow") ?? here[0];
   // one group left (a kind asked for, a filter) is the open one, and the page number is its own
