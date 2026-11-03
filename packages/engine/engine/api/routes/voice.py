@@ -5,6 +5,7 @@ and her email as `actor`, whose staff id the engine finds (`public.staff_of_emai
 `voice.screens_enabled` is off."""
 
 import datetime as dt
+import mimetypes
 import os
 from typing import Literal
 
@@ -15,7 +16,7 @@ from pydantic import BaseModel, Field
 from engine.adapters import speech
 from engine.api.deps import get_conn, require_engine_key, require_upload_token
 from engine.core import db
-from engine.w3_read import voice_confirm, voice_intake, voice_store
+from engine.w3_read import voice_confirm, voice_intake, voice_note, voice_store
 
 Section = Literal["above", "below", "not_willing", "absent"]
 
@@ -105,7 +106,10 @@ def queue(body: Who, conn=Depends(get_conn, scope="function")):
         staff = voice_intake.staff_of(conn, body.actor)
     except voice_store.Refused as no:
         raise _refused(no) from no
-    return {"notes": [{k: str(v) for k, v in n.items()} for n in voice_intake.queue(conn, str(staff))]}
+    return {
+        "notes": [{k: str(v) for k, v in n.items()} for n in voice_intake.queue(conn, str(staff))],
+        "classes": voice_intake.classes_of(conn, str(staff), dt.date.today()),
+    }
 
 
 def _mine(conn, body: NoteRef) -> dict:
@@ -137,6 +141,7 @@ def draft(body: NoteRef, conn=Depends(get_conn, scope="function")):
     return {
         "note_id": str(note["id"]), "status": note["status"], "received_at": note["received_at"].isoformat(),
         "kind": found.draft.kind, "taught_on": found.taught_on.isoformat(), "activity": found.activity,
+        "level": found.draft.expected_level(voice_note.template()), "day_problems": list(found.draft.day_problems),
         "lines": lines, "problems": [*found.draft.problems, *found.problems], "children": found.children,
         "enrolled": sorted(found.enrolled, key=lambda r: (len(r), r)), "count": found.count_line(),
         "blocked": found.blocked,
@@ -147,11 +152,12 @@ def draft(body: NoteRef, conn=Depends(get_conn, scope="function")):
 def audio(body: NoteRef, conn=Depends(get_conn, scope="function")):
     """Her own recording, to play beside her note; nobody else's."""
     _on(conn)
+    key = _mine(conn, body)["audio_key"]
     try:
-        data = voice_store.read(_mine(conn, body)["audio_key"])
+        data = voice_store.read(key)
     except voice_store.Refused as no:
         raise _refused(no) from no
-    return Response(content=data, media_type="application/octet-stream")
+    return Response(content=data, media_type=mimetypes.guess_type(key)[0] or "application/octet-stream")
 
 
 @keyed.post("/voice/class")

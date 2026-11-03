@@ -144,6 +144,18 @@ def resolve(conn: db.Conn, note: dict) -> Resolved:
     return out
 
 
+def classes_of(conn: db.Conn, staff_id: str, day: dt.date) -> list[dict]:
+    """The classes her role grants name that day, whose grade has activities: the classes she records a note for
+    (M0-05's grants, never a class she types)."""
+    return conn.execute(
+        "select distinct c.id::text as id, c.grade_code as grade, c.section from staff_role_grant g"
+        " join school_class c on c.id = g.school_class_id where g.staff_id = %s and g.valid_from <= %s"
+        " and (g.valid_to is null or g.valid_to >= %s) and exists (select 1 from activity a"
+        " where a.tenant_id = c.tenant_id and a.band = c.grade_code) order by c.grade_code, c.section",
+        (staff_id, day, day),
+    ).fetchall()
+
+
 def queue(conn: db.Conn, staff_id: str) -> list[dict]:
     """Her notes still waiting: being read, or drafted and within the hours a note waits."""
     hours = settings.config(conn, "voice.confirm_within_hours", 48)

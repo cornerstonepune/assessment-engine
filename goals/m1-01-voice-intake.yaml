@@ -40,6 +40,10 @@ says:
     proved_by: "packages/engine/tests/test_voice_intake.py::test_the_activity_and_every_number_are_found_in_the_class_and_a_stranger_is_a_problem"
   - words: "All parts should just function like a well-oiled machine, right?"
     proved_by: "packages/engine/tests/api/test_voice_routes.py::test_every_route_refuses_while_voice_notes_are_switched_off"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/api/test_voice_routes.py::test_her_classes_come_from_her_grant_today_and_a_draft_carries_the_level_she_expected"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_day.py::test_the_problems_about_the_date_are_named_apart_so_picking_the_date_fixes_them"
 manual:
   - "The live call, not run: no Sarvam key in the build container. With SARVAM_API_KEY set on the server, each fixture through engine/adapters/speech.py and the parser; every template word and number counted."
   - "S-M1-01-fixtures: 8 recordings of an adult reading the spoken template with placeholder numbers, made by Nimish per research/2026-11-03-k2-voice-transcription-spike.md (no children, no real numbers); each sent to Sarvam (Nimish's choice, 3 Nov) and every template word and number counted from the parser's reading of its transcript. Fixtures are never proof (D-056)."

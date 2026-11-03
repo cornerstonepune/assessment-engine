@@ -50,6 +50,8 @@ class Draft:
     day: tuple | None = (
         None  # the day she said: ("today",), ("yesterday",), ("weekday", 0-6), ("date", day, month)
     )
+    # those of `problems` about the date she said: fixed by picking the date
+    day_problems: tuple[str, ...] = ()
 
     def expected_level(self, tpl: "Template") -> int:
         """The level she said she expected, or the template's default when she said none."""
@@ -305,7 +307,12 @@ def read(transcript: str, tpl: Template | None = None) -> Draft:
     day, problems = voice_day.read_day([(t.word, transcript[t.start : t.end]) for t in before], tpl.days)
     if segs and tpl.sections[segs[0][0]] == "incident":
         return Draft(
-            transcript, (_line(segs[0], "incident", transcript, tpl),), tuple(problems), "incident", day
+            transcript,
+            (_line(segs[0], "incident", transcript, tpl),),
+            tuple(problems),
+            "incident",
+            day,
+            tuple(problems),
         )
     sentence: list[Token] = []
     if segs and tpl.sections[segs[-1][0]] != "incident":
@@ -326,7 +333,13 @@ def read(transcript: str, tpl: Template | None = None) -> Draft:
             problems=inc.problems,
             notes=("an incident is a note of its own: these words are kept apart, never evidence",),
         )
+    day_problems = tuple(problems)
     problems += _cross_checks(lines, tpl)
     return Draft(
-        transcript, tuple(lines[c] for c in tpl.order if c in lines), tuple(problems), "observation", day
+        transcript,
+        tuple(lines[c] for c in tpl.order if c in lines),
+        tuple(problems),
+        "observation",
+        day,
+        day_problems,
     )
