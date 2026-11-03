@@ -160,12 +160,14 @@ def test_a_corrected_observation_no_longer_counts(conn, k2):
 
 
 def test_a_named_lower_mark_after_secure_reopens_the_skill(conn, k2):
-    """The orchestrator's default (a), pending its answer: named evidence may move a state down, the group never."""
+    """The orchestrator's answer (a), under D-047: a later named lower mark re-opens it to practising; the group never."""
     child = a_child(conn)
     seen(conn, k2, child, 0, "above")
     seen(conn, k2, child, 14, "above")
     seen(conn, k2, child, 20, "below")  # named at level 1
-    assert state(conn, k2, child) == "emerging"
+    assert state(conn, k2, child) == "practising"
+    seen(conn, k2, child, 21, "above")  # named at level 3 again: its secure days and re-check still stand
+    assert state(conn, k2, child) == "secure"
 
 
 def test_written_evidence_is_read_exactly_as_before(conn, k2):
@@ -204,3 +206,22 @@ def test_the_rule_is_rows_per_grade_and_way_of_entry(conn, k2):
     assert weights == {"individual": (True, True, True), "group_as_expected": (False, True, False)}
     with pytest.raises(Exception), conn.transaction():
         conn.execute("set local role app_engine; delete from observed_weight")
+
+
+def test_notes_confirmed_by_the_educator_change_the_picture_through_the_confirm_step(conn):
+    """The same rule on rows the confirm step itself writes (#362's form Save), not rows written by this file."""
+    from engine.w3_read import voice_confirm as vc
+    from tests.voice_rows import a_k2_class
+
+    k = a_k2_class(conn)
+    for day in (dt.date(2026, 6, 1), dt.date(2026, 6, 15)):  # two school days, the second 14 days on
+        vc.save_form(
+            conn, k["email"], k["class"], vc.Confirmed(k["activity"], 2, {"above": ["3"]}, True, day)
+        )
+    named, rest = k["children"]["3"], k["children"]["5"]
+    assert {(r["skill_code"], r["state"]) for r in picture(conn, named)} == {
+        (s, "secure") for s in k["skills"]
+    }
+    assert {(r["skill_code"], r["state"]) for r in picture(conn, rest)} == {
+        (s, "not_enough_yet") for s in k["skills"]
+    }

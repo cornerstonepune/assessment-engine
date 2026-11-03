@@ -30,16 +30,22 @@ def refresh_item_usage(conn) -> int:
 
 
 def rebuild(conn, child_id: str | None = None) -> int:
-    """Ring B from Ring A: child_skill_state for one child, or for every child with evidence."""
+    """Ring B from Ring A: a child's states from written answers (child_skill_state) and from what an educator
+    confirmed seeing (child_observed_state, migration 20261228090000), for one child or every child with evidence."""
     refresh_item_usage(conn)
-    if child_id:
-        return conn.execute("select rebuild_child_skill_state(%s) as n", (child_id,)).fetchone()["n"]
-    ids = [
-        r["child_id"]
-        for r in conn.execute(
-            "select distinct child_id from evidence_event where confirmed_by is not null"
-        ).fetchall()
-    ]
+    ids = (
+        [child_id]
+        if child_id
+        else [
+            r["child_id"]
+            for r in conn.execute(
+                "select distinct child_id from evidence_event where confirmed_by is not null"
+            ).fetchall()
+        ]
+    )
     return sum(
-        conn.execute("select rebuild_child_skill_state(%s) as n", (cid,)).fetchone()["n"] for cid in ids
+        conn.execute(
+            "select rebuild_child_skill_state(%s) + rebuild_child_observed_state(%s) as n", (cid, cid)
+        ).fetchone()["n"]
+        for cid in ids
     )
