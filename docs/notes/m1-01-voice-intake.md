@@ -50,6 +50,36 @@ reads, each line beside its words, a person confirms.
 - `engine live rules --write --url <local>` → 35 rules added, every one on the new tables.
 - Data register: a new "observations" entry names the three tables, in a parent's words.
 
+## Step 4a, the engine — `20261227090000_k2_voice_evidence.sql` (additive) and `w3_read/voice_*`
+
+- A recording is kept on the engine box's disk under `data/voice/<year>/<note id>.<ext>` (gitignored, as scans are);
+  only its key is in the row. Retention is O-14: `bin/engine read voice retention` deletes nothing while
+  `voice.audio_retention_days` is null.
+- Transcribed through `adapters/speech.py` after the upload answers, only when `SARVAM_API_KEY` is set; otherwise the
+  note waits as received. Read by `voice_note.read`; the activity's spoken number found by `activity.sheet_no` in the
+  class's grade; every number in the class's enrolment open that day. A stranger or an unknown activity is a problem.
+- Confirm (or the form's Save) writes, in one transaction: an observation per child (named, or "the rest" as a group),
+  evidence on each activity skill for above / as expected / below with the mark from config rows
+  (`voice.outcome_moves_level`, `voice.level_mark`, unverified for every activity), none for not willing or absent,
+  her decision on each line (`pii.note_claim`), the note confirmed. An incident is never confirmed. `observed_at` is
+  the note's own time on its own day, else the start of the day she said, never later than now.
+- `bin/engine read voice expire`: notes older than `voice.confirm_within_hours` are left unconfirmed, never evidence.
+- Every route refuses while `voice.screens_enabled` (config, false) is off.
+- `uv run pytest -q tests/test_voice_intake.py tests/test_voice_confirm.py tests/test_cli_voice.py
+  tests/api/test_voice_routes.py` → 21 passed (after an independent review: a note past 48 hours is refused at confirm, not only by the job; only her own observation is corrected, and once; a refused upload keeps no recording; an id that is not one is refused in words); with every neighbouring database suite 241 passed locally.
+
+## To set up on the engine box, after Nimish approves the pilot (not built: no scheduler here)
+
+- **What:** `bin/engine read voice expire`. It leaves every note older than `voice.confirm_within_hours` (48)
+  unconfirmed; such a note never becomes evidence. Confirm already refuses a late note by itself, so the job only
+  keeps the queue and the coordinator's count honest.
+- **How often:** hourly. A note then leaves her queue at most an hour after its 48 hours. It is safe to run at any
+  time and changes nothing the second time.
+- **How:** one line in the box's crontab, or a systemd timer beside the engine's own service (`deploy/`):
+  `17 * * * * /path/to/repo/bin/engine read voice expire`.
+- **Not to schedule yet:** `bin/engine read voice retention`. It deletes nothing while `voice.audio_retention_days`
+  is null (O-14, open). Schedule it daily only once Nimish sets a number.
+
 ## What step 3 (the tables) needed from M0-05 (#358)
 
 - The class a note is about: `school_class.id` (one campus, year, grade, section).

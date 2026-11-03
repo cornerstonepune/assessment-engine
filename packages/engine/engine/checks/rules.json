@@ -209,6 +209,7 @@
  "evidence_event.evidence_event_channel_check": "CHECK ((channel = ANY (ARRAY['item'::text, 'teacher_override'::text, 'educator'::text])))",
  "evidence_event.evidence_event_child_id_fkey": "FOREIGN KEY (child_id) REFERENCES child(id) ON DELETE CASCADE",
  "evidence_event.evidence_event_item_result_id_fkey": "FOREIGN KEY (item_result_id) REFERENCES item_result(id)",
+ "evidence_event.evidence_event_observation_id_fkey": "FOREIGN KEY (observation_id) REFERENCES activity_observation(id)",
  "evidence_event.evidence_event_pkey": "PRIMARY KEY (id)",
  "evidence_event.evidence_event_place_check": "CHECK ((btrim(place) <> ''::text))",
  "evidence_event.evidence_event_seen_by_check": "CHECK ((btrim(seen_by) <> ''::text))",
