@@ -39,6 +39,12 @@ says:
     proved_by: "packages/engine/tests/test_people.py::test_a_grant_is_never_deleted_it_ends"
   - words: "All parts should just function like a well-oiled machine, right?"
     proved_by: "packages/engine/tests/test_people.py::test_the_staff_id_of_a_signed_in_email_is_found_in_any_case_and_never_a_name"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_a_grant_is_never_edited_only_ended"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_each_service_can_call_what_it_may_and_neither_can_delete_history"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_d039_fails_closed_when_the_rules_grade_is_not_a_grade"
 manual:
   - "The class list: Nimish sends the Children List (columns number, name, birthday) on 2026-11-04. Keep it outside the repository. Dry run first: `~/cornerstone/assessment-engine/bin/engine enrol k2 <that file>`; read the counts and every refused row; nothing is written."
   - "The load on live, only after that report is approved: `~/cornerstone/assessment-engine/bin/engine staff import --apply --by <your name>`, then `~/cornerstone/assessment-engine/bin/engine enrol k2 <that file> --apply --by <your name> --teacher <the K2 educator's email>`; the same two commands again must add nothing: every row says already there."

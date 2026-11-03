@@ -516,7 +516,7 @@ def test_the_staff_id_of_a_signed_in_email_is_found_in_any_case_and_never_a_name
         ]
 
         def of(email):
-            return conn.execute("select internal.staff_of_email(%s) as id", (email,)).fetchone()["id"]
+            return conn.execute("select public.staff_of_email(%s) as id", (email,)).fetchone()["id"]
 
         before = conn.execute(
             "select count(*) n from access_log where action = 'lookup_staff_by_email'"
@@ -530,10 +530,125 @@ def test_the_staff_id_of_a_signed_in_email_is_found_in_any_case_and_never_a_name
             ).fetchone()["n"]
             == before + 2
         )
-        row = conn.execute("select internal.staff_of_email('ann@example.test') as r").fetchone()
+        row = conn.execute("select public.staff_of_email('ann@example.test') as r").fetchone()
         assert set(row) == {"r"} and "Placeholder" not in str(row)  # an id, not a name
         conn.rollback()
-    for role in ("app_web", "app_engine"):
-        assert rows("select has_function_privilege(%s, 'internal.staff_of_email(text)', 'execute') p", role)[
-            0
-        ]["p"]
+    # reachable by the engine and by nothing else: neither app role has USAGE on schema `internal`, which is why it is in `public`
+    assert rows("select has_function_privilege('app_engine', 'public.staff_of_email(text)', 'execute') p")[0][
+        "p"
+    ]
+    assert not rows("select has_function_privilege('app_web', 'public.staff_of_email(text)', 'execute') p")[
+        0
+    ]["p"]
+
+
+@needs_db
+def test_a_grant_is_never_edited_only_ended(tmp_path, school):
+    assert load_everything(tmp_path, "--teacher", "ann@example.test").exit_code == 0
+    with db.connect() as conn:
+        grant = conn.execute("select id from staff_role_grant where role_code = 'class_teacher'").fetchone()[
+            "id"
+        ]
+        k2 = conn.execute("select tenant_id, campus_id, academic_year_id from school_class").fetchone()
+        other = conn.execute(
+            "insert into school_class (tenant_id, campus_id, academic_year_id, grade_code, section)"
+            " values (%s,%s,%s,'G3','A') returning id",
+            (k2["tenant_id"], k2["campus_id"], k2["academic_year_id"]),
+        ).fetchone()["id"]
+
+        def refused(sql, *args):
+            with (
+                pytest.raises(psycopg.errors.RaiseException, match="grant_is_not_edited"),
+                conn.transaction(),
+            ):
+                conn.execute(sql, args)
+
+        refused("update staff_role_grant set role_code = 'assistant' where id = %s", grant)
+        refused("update staff_role_grant set override_reason = 'no one will ask' where id = %s", grant)
+        refused("update staff_role_grant set school_class_id = %s where id = %s", other, grant)
+        refused("update staff_role_grant set valid_from = '2020-01-01' where id = %s", grant)
+        # it can end, only once earlier than it was, and never be reopened or lengthened
+        conn.execute("update staff_role_grant set valid_to = '2027-03-31' where id = %s", (grant,))
+        conn.execute("update staff_role_grant set valid_to = '2027-02-01' where id = %s", (grant,))
+        refused("update staff_role_grant set valid_to = '2027-03-31' where id = %s", grant)
+        refused("update staff_role_grant set valid_to = null where id = %s", grant)
+        conn.rollback()
+
+
+@needs_db
+def test_each_service_can_call_what_it_may_and_neither_can_delete_history(tmp_path, school):
+    assert load_everything(tmp_path, "--teacher", "ann@example.test").exit_code == 0
+    with db.connect() as conn:
+        sid = conn.execute("select staff_id from pii.staff where email = 'ann@example.test'").fetchone()[
+            "staff_id"
+        ]
+        enrol = conn.execute("select id from enrolment limit 1").fetchone()["id"]
+        # as the engine: the lookup and the logged read both work
+        conn.execute("set local role app_engine")
+        assert conn.execute("select public.staff_of_email('ann@example.test') as id").fetchone()["id"] == sid
+        assert (
+            conn.execute("select name from pii.read_staff(%s, 'tester')", (sid,)).fetchone()["name"]
+            == "Placeholder Ann"
+        )
+        for table in (
+            "enrolment",
+            "staff_role_grant",
+            "school_class",
+            "staff",
+            "campus",
+            "academic_year",
+            "role",
+        ):
+            with pytest.raises(psycopg.errors.InsufficientPrivilege), conn.transaction():
+                conn.execute(f"delete from {table}")
+        with pytest.raises(psycopg.errors.InsufficientPrivilege), conn.transaction():
+            conn.execute("select name from pii.staff")
+        # an enrolment ends; it is not removed
+        conn.execute("update enrolment set to_date = from_date where id = %s", (enrol,))
+        conn.rollback()
+        # as the website: it reads the school's structure, and calls neither lookup
+        conn.execute("set local role app_web")
+        assert conn.execute("select count(*) n from enrolment").fetchone()["n"] == 22
+        for call in (
+            "select public.staff_of_email('ann@example.test')",
+            f"select * from pii.read_staff('{sid}', 'web')",
+        ):
+            with pytest.raises(psycopg.errors.InsufficientPrivilege), conn.transaction():
+                conn.execute(call)
+        with pytest.raises(psycopg.errors.InsufficientPrivilege), conn.transaction():
+            conn.execute("update enrolment set to_date = from_date")
+        conn.rollback()
+
+
+@needs_db
+def test_d039_fails_closed_when_the_rules_grade_is_not_a_grade(tmp_path, school):
+    assert load_everything(tmp_path).exit_code == 0
+    grant = (
+        "insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, valid_from, granted_by,"
+        " override_reason) values (%s,%s,'class_teacher',%s,'2026-12-01','t',%s)"
+    )
+    with db.connect() as conn:
+        t = conn.execute("select id from tenant").fetchone()["id"]
+        k2 = conn.execute("select id from school_class").fetchone()["id"]
+        bea = conn.execute("select staff_id from pii.staff where email = 'bea@example.test'").fetchone()[
+            "staff_id"
+        ]
+        conn.execute(
+            "update config set value = jsonb_set(value, '{from_grade}', '\"NO-SUCH-GRADE\"')"
+            " where key = 'people.class_teacher_rule'"
+        )
+        # the rule cannot say who it applies to, so it does not quietly let everyone through
+        with (
+            pytest.raises(psycopg.errors.RaiseException, match="core_teacher: the rule starts from"),
+            conn.transaction(),
+        ):
+            conn.execute(grant, (t, bea, k2, None))
+        conn.execute(
+            grant, (t, bea, k2, "the rule is being corrected")
+        )  # with a reason it stands, and the reason is kept
+        kept = conn.execute(
+            "select override_reason from staff_role_grant where staff_id = %s and role_code = 'class_teacher'",
+            (bea,),
+        ).fetchone()
+        assert kept["override_reason"] == "the rule is being corrected"
+        conn.rollback()

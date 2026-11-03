@@ -18,7 +18,7 @@
 --     stays on the grant.
 --   * `pii.child.birthday`: the class list carries one; it is a child's personal data, so it is beside the name.
 --   * `pii.read_staff()`: a staff member's name, email and phone, only through this, which writes who asked to `access_log`.
---   * `internal.staff_of_email()`: the staff id of a signed-in email (never a name), logged the same way; for M1-01.
+--   * `public.staff_of_email()`: the staff id of a signed-in email (never a name), logged the same way; for M1-01. Engine only.
 --
 -- Not here: who may see which class (per-person access rules need a proven way to carry the signed-in staff id on one
 -- database login first, ADR 0024; `internal.apply_conventions()` still gives both app roles `using (true)`), enforcing
@@ -214,9 +214,16 @@ begin
   select value into rule from config where tenant_id = new.tenant_id and key = 'people.class_teacher_rule';
   if rule is not null and new.role_code in ('class_teacher', 'subject_educator') then
     select ord into from_ord from grade where tenant_id = new.tenant_id and code = rule ->> 'from_grade';
+    -- fail closed: a rule whose grade is not a grade cannot say who it applies to, so it refuses until a reason is given
+    if from_ord is null then
+      raise exception 'core_teacher: the rule starts from %, which is not a grade of the school; give a reason to allow it', rule ->> 'from_grade';
+    end if;
     if new.role_code = 'class_teacher' then
       select g.ord into grade_ord from school_class c join grade g on g.tenant_id = c.tenant_id and g.code = c.grade_code
         where c.id = new.school_class_id;
+      if grade_ord is null then
+        raise exception 'core_teacher: the class''s grade could not be read, so the rule cannot be checked; give a reason to allow it';
+      end if;
       if grade_ord >= from_ord and exists (
         select 1 from staff_role_grant g where g.tenant_id = new.tenant_id and g.staff_id = new.staff_id
           and g.role_code = 'subject_educator' and g.subject_code in (select jsonb_array_elements_text(rule -> 'core_subjects'))
@@ -235,6 +242,29 @@ begin
   end if;
   return new;
 end $$;
+
+-- A grant is never edited: it ends. Only `valid_to` may change, only from open to a date, or to an earlier date; every
+-- other column, and reopening an ended grant, would skip the checks above, so they are refused whoever asks.
+create or replace function internal.refuse_grant_edit() returns trigger
+language plpgsql as $$
+begin
+  if (new.tenant_id, new.staff_id, new.role_code, new.school_class_id, new.subject_code, new.child_id, new.valid_from,
+      new.granted_by, new.override_reason, new.created_at)
+     is distinct from
+     (old.tenant_id, old.staff_id, old.role_code, old.school_class_id, old.subject_code, old.child_id, old.valid_from,
+      old.granted_by, old.override_reason, old.created_at) then
+    raise exception 'grant_is_not_edited: a grant ends with valid_to; give the person a new grant instead';
+  end if;
+  if new.valid_to is null and old.valid_to is not null
+     or new.valid_to > old.valid_to then
+    raise exception 'grant_is_not_edited: an ended grant is not reopened or lengthened; give the person a new grant instead';
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists staff_role_grant_not_edited on staff_role_grant;
+create trigger staff_role_grant_not_edited before update on staff_role_grant
+  for each row execute function internal.refuse_grant_edit();
 
 drop trigger if exists staff_role_grant_check on staff_role_grant;
 create trigger staff_role_grant_check before insert on staff_role_grant
@@ -283,38 +313,41 @@ revoke execute on function pii.read_staff(uuid, text) from public;
 
 -- The id of the member of staff a signed-in email belongs to, and nothing else: never a name. The email is matched in
 -- lower case against `pii.staff`; null for an email nobody has (or, in a school with two of them, for either). Each
--- lookup is written to `access_log`, as a read of `pii.staff` is.
-create or replace function internal.staff_of_email(p_email text) returns uuid
+-- lookup is written to `access_log`, as a read of `pii.staff` is. It lives in `public` because neither app role has
+-- USAGE on schema `internal`; only the engine may call it (nothing on the website does yet).
+create or replace function public.staff_of_email(p_email text) returns uuid
 language plpgsql security definer set search_path = pii, public as $$
 declare
-  found uuid[];
+  ids uuid[];
   school uuid;
 begin
-  select array_agg(s.staff_id order by s.id), (array_agg(s.tenant_id order by s.id))[1] into found, school
+  select array_agg(s.staff_id order by s.id), (array_agg(s.tenant_id order by s.id))[1] into ids, school
   from pii.staff s where s.email = lower(btrim(p_email));
-  if found is null then return null; end if;
+  if ids is null then return null; end if;
   insert into public.access_log (tenant_id, actor, action) values (school, 'staff_of_email', 'lookup_staff_by_email');
-  if array_length(found, 1) <> 1 then return null; end if;
-  return found[1];
+  if array_length(ids, 1) <> 1 then return null; end if;
+  return ids[1];
 end $$;
 
-revoke execute on function internal.staff_of_email(text) from public;
+revoke execute on function public.staff_of_email(text) from public;
 
 -- The engine writes; the website reads what is not a person's contact details, and writes none of it yet. Nothing on
 -- the website reads a staff member's contact details, so only the engine may call `pii.read_staff`.
 do $$ begin
   if exists (select from pg_roles where rolname = 'app_engine') then
     revoke all on pii.staff from app_engine;
-    grant select, insert, update, delete on campus, academic_year, school_class, enrolment, staff, role to app_engine;
+    -- no DELETE anywhere: history is kept. A class's children leave it by an enrolment ending, a person by `active`.
+    grant select, insert, update on campus, academic_year, school_class, enrolment, staff, role to app_engine;
     grant select, insert, update on staff_role_grant to app_engine;
+    -- the default privileges of 20261021090000 give the engine DELETE on every new table; history is kept, so it is taken back
+    revoke delete on campus, academic_year, school_class, enrolment, staff, role, staff_role_grant from app_engine;
     grant execute on function public.enrol_child(uuid, uuid, text, date, text) to app_engine;
     grant execute on function pii.read_staff(uuid, text) to app_engine;
-    grant execute on function internal.staff_of_email(text) to app_engine;
+    grant execute on function public.staff_of_email(text) to app_engine;
   end if;
   if exists (select from pg_roles where rolname = 'app_web') then
     revoke all on pii.staff from app_web;
     grant select on campus, academic_year, school_class, enrolment, staff, role, staff_role_grant to app_web;
-    grant execute on function internal.staff_of_email(text) to app_web;
   end if;
 end $$;
 
