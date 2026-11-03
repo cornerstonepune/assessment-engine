@@ -1,0 +1,30 @@
+name: m1-01-voice-intake
+goal: >
+  A K2 educator records a short spoken note after an activity, saying children only by their roll numbers; the words of
+  the note are read by code into a draft (the activity, who did above, below, not willing or absent, "the rest did as
+  expected", one free sentence, and any incident routed away from learning), each number matched by code to a child on
+  that day's enrolment roll; the educator sees each draft line beside the words it came from, nothing ticked for them,
+  and confirms or corrects it; only a confirmed note becomes observations and evidence, written by code, and a note
+  not confirmed within 48 hours never does. The recording stays on the school's private side and is never in git or a
+  log. Where the code cannot read a line it says "could not read", never a guess.
+# Written 2026-11-03, before the code: task M1-01 (cornerstonepune/teacher-os blueprint/roadmap.toml; scenarios
+# S-M1-01-fixtures, S-M1-01-notes; decisions D-040, D-045, D-051, D-052, D-053, D-055, D-056). W3, a new step for voice
+# notes proposed to workflows.json with the parser. Built in five pull requests: (1) this goal and the transcription
+# spike (research/2026-11-03-k2-voice-transcription-spike.md), (2) the parser, (3) the tables, (4) Record and Confirm,
+# (5) confirming writes the rows. Each step adds its sentences and tests here. Open and not resolved here: O-13 (children
+# as numbers), O-14 (how long pilot audio is kept). Real-note acceptance (the first 20 real K2 notes) comes later.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_intake.py::test_git_refuses_every_kind_of_voice_recording_and_holds_none"
+manual:
+  - "S-M1-01-fixtures: 8 recordings of an adult reading the spoken template with placeholder numbers, made by Nimish per research/2026-11-03-k2-voice-transcription-spike.md (no children, no real numbers); each transcribed by both candidate tools and the numbers counted. Fixtures are never proof (D-056)."
+  - "The transcription tool chosen by the rule written in that file, before the numbers: own server if it reads every number on every fixture, else the hosted service once its data terms are read, else typed notes."
+  - "Real-note acceptance: the first 20 real K2 notes confirmed by the educator. Not claimed by this goal."
+scenarios: []
+criteria:
+  - name: a voice recording never reaches git
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_intake.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
