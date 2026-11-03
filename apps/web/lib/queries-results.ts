@@ -33,7 +33,10 @@ const classSkills = (section: string) => sql`
 /** A severity's colour: the states of one severity share it (as `childTable` reads it). */
 const severityColour = () => sql`select distinct on (severity) severity, colour from child_state order by severity, ord`;
 
-/** Each signed-off answer once (`answer_placed`), on a reading not replaced, with the question it answered. */
+/** Each signed-off answer once (`answer_placed`), on a reading not replaced, with the question it answered.
+ *  `child` must be `a.child_id = <one id>` or `a.child_id = any(array(<their ids>))`, never `a.child_id in (select …)`: the
+ *  view groups answers by child, and only an equality reaches below the grouping. An `in (select …)` made it group every
+ *  answer in the school before keeping the class's (the skill page, 1.1 s in CI, 0.4–0.8 s alone; now 2 ms). */
 const answers = (child: Fragment) => sql`
   select a.child_id, a.placed_rung, a.correct, a.observed_at, r.capture_id, r.working_shown, i.difficulty, d.ord as level_ord
   from answer_placed a
@@ -78,7 +81,7 @@ export async function classTopics(section: string, me: Who): Promise<TopicLine[]
       select per.topic_code, sv.colour, count(*)::int as n from per join sv on sv.severity = per.sev group by 1, 2),
     seen as (
       select sk.topic_code, max(a.observed_at)::date::text as last
-      from (${answers(sql`a.child_id in (select id from kids)`)}) a join sk on sk.rung_code = a.placed_rung group by 1)
+      from (${answers(sql`a.child_id = any(array(select id from kids))`)}) a join sk on sk.rung_code = a.placed_rung group by 1)
     select t.subject_code, coalesce(sb.label, sb.name) as subject, t.code, t.name,
            (select count(*)::int from kids) as children,
            coalesce((select jsonb_object_agg(colour, n) from spread where spread.topic_code = t.code), '{}'::jsonb) as spread,
@@ -121,7 +124,7 @@ export async function topicSkills(section: string, topic: string): Promise<Skill
       where s.n_events > 0 group by 1, 2),
     sv as (${severityColour()}),
     spread as (select per.code, sv.colour, count(*)::int as n from per join sv on sv.severity = per.sev group by 1, 2),
-    a as (select a.*, sk.code from (${answers(sql`a.child_id in (select id from kids)`)}) a join sk on sk.rung_code = a.placed_rung),
+    a as (select a.*, sk.code from (${answers(sql`a.child_id = any(array(select id from kids))`)}) a join sk on sk.rung_code = a.placed_rung),
     lvl as (
       select distinct on (child_id, code) child_id, code, difficulty, level_ord from a
       where difficulty is not null order by child_id, code, observed_at desc, level_ord desc nulls last),
@@ -159,7 +162,7 @@ export async function skillChildren(section: string, skill: string, me: Who & { 
       join child_state cs on cs.tenant_id = s.tenant_id and cs.code = s.state
       join child c on c.id = s.child_id and c.section = ${section} and c.active
       where s.n_events > 0 group by 1),
-    a as (select a.* from (${answers(sql`a.child_id in (select id from child where active and section = ${section})`)}) a
+    a as (select a.* from (${answers(sql`a.child_id = any(array(select id from child where active and section = ${section}))`)}) a
           join ss on ss.rung_code = a.placed_rung),
     sig as (select a.child_id, ${signals()}, max(a.observed_at)::date::text as last,
                    (array_agg(a.difficulty order by a.observed_at desc, a.level_ord desc nulls last)
@@ -193,7 +196,7 @@ export async function topicPapers(section: string, topic: string, me: Who): Prom
     with sk as (select * from (${classSkills(section)}) x where x.topic_code = ${topic}),
     p as (
       select distinct si.id, si.kind, si.sheet_template_id, si.child_id, a.observed_at
-      from (${answers(sql`a.child_id in (select id from child where active and section = ${section})`)}) a
+      from (${answers(sql`a.child_id = any(array(select id from child where active and section = ${section}))`)}) a
       join sk on sk.rung_code = a.placed_rung
       join capture c on c.id = a.capture_id join sheet_instance si on si.id = c.sheet_instance_id
       where ${seesSheet(me, sql`si.id`)}),
