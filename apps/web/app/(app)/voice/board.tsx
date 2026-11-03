@@ -143,7 +143,7 @@ function ProblemRow({ p, w, setW, fixing, setFixing }: { p: Problem; w: Work; se
   return (
     <li className="flex flex-wrap items-center gap-3 border border-terracotta/35 bg-terracotta/8 px-3 py-2" data-problem={p.kind}>
       <StatusChip state="fixThis" round />
-      <span className="min-w-0 flex-1 text-[15px]">{p.text}</span>
+      <span className="min-w-[12rem] flex-1 text-[15px]">{p.text}</span>
       {p.kind === "stranger" ? (
         <>
           <button type="button" className="btn secondary" aria-pressed={fixing === p.roll} onClick={() => setFixing(fixing === p.roll ? null : p.roll)}>
