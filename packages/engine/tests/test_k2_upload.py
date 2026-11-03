@@ -6,8 +6,11 @@ file are the kinds of row the tab holds around them (a heading, another year, a 
 import csv
 from pathlib import Path
 
+import psycopg
 import pytest
+from typer.testing import CliRunner
 
+from engine import cli
 from engine.core import db
 from engine.w1_bank import k2_upload as up
 
@@ -210,8 +213,80 @@ def test_an_activity_the_database_lacks_is_added_with_the_next_code_and_its_outc
     )
 
 
-def test_the_seed_load_does_not_write_the_upload_back(conn):
-    conn.execute("update activity set level_1 = 'edited' where code = 'ACT-K2-0001'")
-    from engine.core import loaders
+def _an_activity_with(conn, has_levels: bool) -> dict:
+    return conn.execute(
+        "select code, strand, name, level_1, level_2, level_3 from activity where band = 'K2'"
+        " and ((level_1 <> '' or level_2 <> '' or level_3 <> '') = %s) order by code limit 1",
+        (has_levels,),
+    ).fetchone()
 
-    assert "do nothing" in Path(loaders.__file__).read_text().split("insert into activity (")[1].split("[")[0]
+
+def _row_for(a: dict, **cells: str) -> dict[str, str]:
+    return {"B": "1", "C": a["strand"], "D": "Critical Thinking", "F": "SR KG", "G": a["name"], **cells}
+
+
+def test_levels_are_filled_where_the_sheet_has_them_listed_where_it_has_none_and_kept_where_the_database_has_them(
+    tmp_path, conn
+):
+    """The K2 activities that had no levels: filled from the sheet where it has them, listed where it has none; an
+    activity that has its levels keeps them when the sheet's cells are empty."""
+    bare = _an_activity_with(conn, False)
+    bare_too = conn.execute(
+        "select code, strand, name from activity where band = 'K2' and level_1 = '' and level_2 = '' and level_3 = ''"
+        " and code <> %s order by code limit 1",
+        (bare["code"],),
+    ).fetchone()
+    held = _an_activity_with(conn, True)
+    rows, _ = up.read_csv(
+        sheet(
+            tmp_path,
+            _row_for(bare, Q="Sees the blocks", R="Names the blocks", S="Builds with the blocks"),
+            _row_for(bare_too),  # the sheet has no levels for this one either
+            _row_for(held),  # empty cells over an activity that has its levels
+        )
+    )
+    p = _plan(conn, rows)
+    assert bare["code"] in p.levels_filled and bare["code"] not in p.levels_missing
+    assert bare_too["code"] in p.levels_missing and bare_too["code"] not in p.levels_filled
+    assert held["code"] not in p.levels_filled + p.levels_missing
+    text = up.report(p, [], len(rows), 590)
+    assert f"levels filled from the sheet: {bare['code']}" in text
+    assert bare_too["code"] in text.split("levels still missing")[1].splitlines()[0]
+    up.apply(conn, conn.info_tenant, p, "K2 upload — test")
+    now = conn.execute(
+        "select code, level_1, level_2, level_3 from activity where code in (%s, %s, %s)",
+        (bare["code"], bare_too["code"], held["code"]),
+    ).fetchall()
+    by_code = {r["code"]: r for r in now}
+    assert by_code[bare["code"]]["level_2"] == "Names the blocks"
+    assert by_code[bare_too["code"]]["level_1"] == ""
+    assert (held["level_1"], held["level_2"], held["level_3"]) == tuple(
+        by_code[held["code"]][f"level_{i}"] for i in (1, 2, 3)
+    )
+
+
+def test_a_dry_run_runs_in_a_read_only_transaction_so_it_cannot_write_even_if_apply_code_is_reached(
+    tmp_path, monkeypatch
+):
+    seen = up.snapshot
+
+    def snapshot_then_try_to_write(conn, tenant):
+        got = seen(conn, tenant)
+        conn.execute("update activity set note = note where false")  # what an apply would do first
+        return got
+
+    monkeypatch.setattr(up, "snapshot", snapshot_then_try_to_write)
+    result = CliRunner().invoke(cli.app, ["curriculum", "k2", str(sheet(tmp_path, BLOCK))])
+    assert isinstance(result.exception, psycopg.errors.ReadOnlySqlTransaction)
+    with db.connect() as conn:
+        assert conn.execute("select count(*) as n from curriculum_edit").fetchone()["n"] == 0
+
+
+def test_apply_without_by_is_refused_before_the_sheet_is_read_or_the_database_opened(tmp_path, monkeypatch):
+    def never(*_a, **_k):
+        raise AssertionError("the database was opened")
+
+    monkeypatch.setattr(db, "connect", never)
+    result = CliRunner().invoke(cli.app, ["curriculum", "k2", str(sheet(tmp_path, BLOCK)), "--apply"])
+    assert result.exit_code != 0 and "--by" in result.output
+    assert not isinstance(result.exception, AssertionError)

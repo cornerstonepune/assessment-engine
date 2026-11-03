@@ -196,6 +196,10 @@ def report(p: Plan, skipped: list[tuple[int, str]], n_rows: int, n_db: int) -> s
     for _, _, diff in p.changes:
         for f in diff:
             counts[f] += 1
+    out.append("levels filled from the sheet: " + (", ".join(sorted(p.levels_filled)) or "none"))
+    out.append(
+        "levels still missing (the sheet has none either): " + (", ".join(sorted(p.levels_missing)) or "none")
+    )
     out.append(
         "fields that would change: " + (", ".join(f"{f} {n}" for f, n in sorted(counts.items())) or "none")
     )
@@ -313,6 +317,8 @@ def k2(
     do_apply: bool = typer.Option(False, "--apply", help="Write it. Without this, nothing is written"),
     by: str = typer.Option("", "--by", help="Who is uploading, kept on every change"),
 ) -> None:
+    if do_apply and not by.strip():  # before anything is read or opened: every change keeps who made it
+        raise typer.BadParameter("--by is required with --apply: every change keeps who made it")
     cfg = config()
     rows, skipped = read_csv(csv_path, cfg)
     with db.connect() as conn:
@@ -322,8 +328,6 @@ def k2(
         p = plan(rows, dbrows, edited)
         typer.echo(report(p, skipped, len(rows), len(dbrows)))
         if do_apply:
-            if not by.strip():
-                raise typer.BadParameter("--by is required with --apply: every change keeps who made it")
             typer.echo(f"applied: {apply(conn, tenant, p, f'{cfg["upload_label"]} — {by.strip()}')}")
         else:
             typer.echo("dry run: nothing was written (add --apply to write it)")

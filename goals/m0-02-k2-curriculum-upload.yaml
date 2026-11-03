@@ -18,7 +18,7 @@ says:
   - words: "We'll consider that as an upload."
     proved_by: "packages/engine/tests/test_k2_upload.py::test_a_dry_run_writes_nothing_and_an_upload_twice_changes_nothing_the_second_time"
   - words: "We'll consider that as an upload."
-    proved_by: "packages/engine/tests/test_k2_upload.py::test_the_seed_load_does_not_write_the_upload_back"
+    proved_by: "packages/engine/tests/test_loaders.py::test_a_seed_edit_does_not_overwrite_an_activity_the_database_has_and_an_activity_it_lacks_is_added"
   - words: "People can actually go and edit if they have to."
     proved_by: "packages/engine/tests/test_k2_upload.py::test_every_change_is_kept_with_who_and_when_and_the_history_cannot_be_changed"
   - words: "People can actually go and edit if they have to."
