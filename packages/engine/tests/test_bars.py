@@ -14,6 +14,7 @@ from typer.testing import CliRunner
 from engine import cli
 from engine.checks import bars
 from engine.core import db
+from engine.w1_bank import story_eval
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -63,10 +64,10 @@ def test_a_score_below_its_bar_fails_and_says_by_how_much(monkeypatch):
         "left": 0,
         "unanswered": 0,
     }
-    monkeypatch.setattr(cli.story_eval, "evaluate", lambda conn, **_: {**result, "right": 140})
+    monkeypatch.setattr(story_eval, "evaluate", lambda conn, **_: {**result, "right": 140})
     r = _eval(monkeypatch, "story_shape")
     assert r.exit_code == 1 and "below its bar of 0.9729" in r.output, r.output
-    monkeypatch.setattr(cli.story_eval, "evaluate", lambda conn, **_: {**result, "right": 144})
+    monkeypatch.setattr(story_eval, "evaluate", lambda conn, **_: {**result, "right": 144})
     r = _eval(monkeypatch, "story_shape")
     assert r.exit_code == 0 and "every bar met" in r.output, r.output
     monkeypatch.setattr(cli.review, "evaluate", lambda conn, purpose, gold: {
