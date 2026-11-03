@@ -1,6 +1,6 @@
 @.claude/athena/CLAUDE.md
 
-# assessment-engine — how this repository is built
+# cornerstone-platform — how this repository is built
 
 Read `BUILD-ORDER.md` first — it says which of the four workflows we are on, what "done" means
 for it, and forbids touching the next one before then. Say "W_, gate _" before doing anything.

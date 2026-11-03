@@ -17,7 +17,7 @@ Goal: `goals/l14-migrations-wait-for-locks.yaml` (L14, its second slice).
 **Why.** PGOPTIONS travels as the connection's startup `options`. Live is reached through Supabase's pooler, not the
 database directly:
 - the repository records `DATABASE_URL`, which `LIVE_DATABASE_URL` copies (`migrate.yml`'s header), as
-  `aws-0-ap-south-1.pooler.supabase.com:5432`, the session pooler (`docs/superpowers/plans/2026-09-17-phase-0-foundations.md`);
+  `<pooler-host>:5432`, the session pooler (`docs/superpowers/plans/2026-09-17-phase-0-foundations.md`);
 - ADR 0024 measured the pooler dropping `options=-c statement_timeout=…` (`show statement_timeout` → `2min`).
 
 I could not read the secret itself (GitHub does not return secret values), so its host and port are as recorded, not

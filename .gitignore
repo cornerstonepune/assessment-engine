@@ -54,3 +54,13 @@ apps/web/.design-approved.json
 docs/spine/index.html
 .athena/
 strix_runs/
+
+# audio: voice notes and spike fixtures never go in git (M1-01)
+*.m4a
+*.mp3
+*.wav
+*.ogg
+*.opus
+*.webm
+*.aac
+*.flac

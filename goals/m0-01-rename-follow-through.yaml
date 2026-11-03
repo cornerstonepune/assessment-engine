@@ -1,0 +1,41 @@
+name: m0-01-rename-follow-through
+goal: >
+  The repository was renamed from assessment-engine to cornerstone-platform on 2026-11-03. A merge to main goes live on
+  the website again, and nothing the school uses today changes. The site's "report a problem" button files its issue in
+  the renamed repository. Nothing in the repository holds the real address of the live database's pooler. The server and
+  Mac folder paths that still say assessment-engine are left alone: changing one side of a path breaks the engine's deploy.
+# Written 2026-11-03, before the change (rule 12), for task M0-01 of cornerstonepune/teacher-os blueprint/roadmap.toml.
+# Measured first (the orchestrator's diagnosis, 2026-11-03): Vercel waits for the commit status `live database`
+# (ADR 0074, .github/workflows/migrate.yml). For merge 7a6d902 that status turned green at 12:37:55Z and Vercel never
+# promoted the build, though on the merge before the rename it did within a second. Vercel's deployment metadata still
+# names githubRepo "assessment-engine", so its link to the renamed repository is probably stale (unconfirmed).
+# Vercel's settings are Nimish's click; nothing in the repository can reconnect them.
+#
+# Scenario S-M0-01-counts: `engine past` (read only: a count and a checksum for the evidence, every child's states and
+# every scored answer) is the same before and after, run on the local test database only. Nothing here touches data, so
+# the proof is that the two prints are equal; the prints are pasted in docs/notes/m0-01-rename-follow-through.md.
+# Scenario S-M0-01-live-site: the next merge to main is promoted by Vercel. It can only be proved by that merge.
+says:
+  - words: "nothing will change for any of the past assessments, scoring etc. right?"
+    proved_by: "packages/engine/tests/test_curriculum_versions.py::test_past_results_are_the_same_before_and_after"
+manual:
+  - "S-M0-01-live-site, Nimish's click: Vercel, the website's project, Settings > Git: disconnect, then connect cornerstonepune/cornerstone-platform. Then Settings > Deployment Checks: the required check is named `live database`. Then merge the next pull request and watch that merge go live (the build is promoted within a minute of the `live database` status turning green)."
+  - "S-M0-01-live-site is not met until that merge has been seen to go live. Until then this goal is met in the repository, not on the website."
+  - "The project reference of the live database still appears in STATE.md, DECISIONS-LOG.md and the Phase 0 plan (not a password, and not a way in without one). It was left, as asked; only the pooler address was replaced."
+scenarios: []
+criteria:
+  - name: S-M0-01-counts, the engine's past-results print runs on the local test database and shows all three parts
+    run: engine past
+    expect: "scored"
+  - name: the suite still refuses a database that is not on this machine, now with a placeholder address
+    run: cd packages/engine && uv run pytest -q tests/test_test_database.py
+    expect: "passed"
+  - name: the real pooler address is in no file of the repository
+    run: "! git grep -n 'pooler.supabase.com' -- . ':!goals/m0-01-rename-follow-through.yaml' ':!supabase/' ':!*.lock'"
+    expect: ""
+  - name: the feedback link and its test name the renamed repository
+    run: "grep -c 'cornerstonepune/cornerstone-platform' apps/web/lib/github.ts apps/web/tests/github-server.ts"
+    expect: "github.ts:1"
+  - name: the engine's server paths are as they were
+    run: "git diff --quiet origin/main -- deploy bin/update-live .github/workflows/deploy-engine.yml .github/workflows/engine-logs.yml supabase"
+    expect: ""
