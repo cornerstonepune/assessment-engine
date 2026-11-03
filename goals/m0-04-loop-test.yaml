@@ -1,0 +1,37 @@
+name: m0-04-loop-test
+goal: >
+  The engine's whole-loop test and the calibration tests pass or fail on what the code does, never on chance. A mistake
+  planted on a skill set's paper is chosen among the ones the graph can see repeating, whatever questions a build of the
+  bank happened to draw for that skill; a sheet code a test makes is unique among every row of the shared test database.
+  The cause of "graph []" is named, it is removed in the test's setup and not by loosening what the test asks, and the
+  same tests pass five CI runs in a row with no re-run.
+# Written 2026-11-03, before the code: task M0-04 (cornerstonepune/teacher-os blueprint/roadmap.toml; scenario
+# S-M0-04-loop; D-047). Measured: `test_the_loop` failed with "graph []" for MD.MULTIPLES and MD.EQUALITY at Easy on PR 354
+# attempt 1 (engine shards 7 and 12) and on PR 355 (shard 7), each passing on one re-run; `test_calibration` once collided
+# on a sheet code made from six random hex digits.
+# The cause, by evidence (docs/notes/m0-04-loop-test.md): each CI shard builds its own database, and the question bank in it
+# is drawn from an unseeded random generator (w1_bank/refill.py), so no two builds hold the same papers. The graph reads a
+# skill's latest `state.window_answers` (10) answers at a level, and a mistake repeats there on `state.repeat_min` (2) of
+# them (migration 20261223090000). The test planted the mistake with most places on the paper, which are the early boxes;
+# a build that put more answers on that skill than the window holds pushed them out, and the graph correctly said nothing
+# was repeating. Not a fault of the graph: the test asked a paper to show what the rule cannot see.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_the_loop.py::test_the_loop_holds_when_the_graph_reads_fewer_answers_than_a_paper_has"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_the_loop.py::test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_calibration.py::test_two_papers_whose_random_ids_start_alike_are_both_stored"
+manual:
+  - "Five full CI runs in a row on this branch pass with no re-run (the orchestrator re-runs the workflow and counts)."
+scenarios: []
+criteria:
+  - name: S-M0-04-loop — every new skill set round the loop, and the two papers that failed in CI held under a short window
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_the_loop.py
+    expect: "passed"
+  - name: S-M0-04-loop — a sheet code made by a test cannot collide
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_calibration.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

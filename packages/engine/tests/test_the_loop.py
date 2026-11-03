@@ -83,6 +83,66 @@ def _planted(slots):
     return m, [(i, rid) for i, rid, key, wrong in slots if wrong.get(m, key) != key]
 
 
+def _in_the_window(rows, window):
+    """How many planted answers a skill's window holds. `rows` = [(the question's place on the paper, planted)], in the
+    paper's order; the window is the paper's last questions of the skill, whole, while they fit: one that ends inside a
+    question is not counted on, since which of its boxes are kept is the graph's chance order."""
+    kept = []
+    for place in sorted({p for p, _ in rows}, reverse=True):
+        asked = [planted for p, planted in rows if p == place]
+        if len(kept) + len(asked) > window:
+            break
+        kept += asked
+    return sum(kept)
+
+
+def _skills_of(item, planted):
+    """The skills an answer is evidence for — the rules of confirm_results(): a right answer, every skill the question
+    was made for; a planted wrong one, the skill that mistake belongs to."""
+    if planted is not None:
+        return [(item["mistake_skills"] or {}).get(planted) or item["own"]]
+    return item["skill_codes"] if item["source"] == "generated" and item["skill_codes"] else [item["own"]]
+
+
+def _planted_to_repeat(conn, ids, slots):
+    """`_planted`, but of the mistakes the paper can show, the one the graph can SEE repeating (M0-04).
+
+    The graph reads only a skill's latest `state.window_answers` answers at a level, and a mistake repeats there only
+    on `state.repeat_min` of them. A paper that puts more answers on one skill than the window holds pushes the early
+    answers out of it, so a mistake planted on those is real evidence yet not "repeating". How many answers a skill gets
+    on its paper depends on which questions a build of the bank happened to draw, so choosing the mistake by raw count
+    failed on some builds ("graph []", 2026-11-03) and passed on the next. This takes the mistake with most answers
+    inside one skill's window. → (mistake, the slots it goes on), or (None, []) when none shows `repeat_min` times."""
+    value = {
+        r["key"]: int(r["value"])
+        for r in conn.execute(
+            "select key, value from threshold where key in ('state.window_answers', 'state.repeat_min')"
+        )
+    }
+    window, repeat_min = value.get("state.window_answers", 10), value.get("state.repeat_min", 2)
+    items = {
+        r["id"]: r
+        for r in conn.execute(
+            "select id, source, skill_codes, mistake_skills, coalesce(spec ->> 'skill', skill_codes[1]) as own"
+            " from item where id = any(%s)",
+            (ids,),
+        )
+    }
+    best = (0, None)
+    for m in sorted({m for _, _, key, wrong in slots for m, v in wrong.items() if v and v != key}):
+        on = {(i, rid) for i, rid, key, wrong in slots if wrong.get(m, key) != key}
+        by_skill: dict[str, list[tuple[int, bool]]] = {}
+        for i, rid, _key, _wrong in slots:
+            for u in _skills_of(items[i], m if (i, rid) in on else None):
+                by_skill.setdefault(u, []).append((ids.index(i), (i, rid) in on))
+        seen = max(_in_the_window(rows, window) for rows in by_skill.values())
+        if seen > best[0]:
+            best = (seen, m)
+    if best[0] < repeat_min:
+        return None, []
+    return best[1], [(i, rid) for i, rid, key, wrong in slots if wrong.get(best[1], key) != key]
+
+
 def _a_child(conn, section, band):
     """A child of the grade the level is for: a child's next paper is drawn from the levels of their own grade."""
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
@@ -175,6 +235,22 @@ def _counted(conn, child, mistake, rung=None):
 def test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage(
     conn, tmp_path, monkeypatch, every_kind_trusted, code, level
 ):
+    _round_the_loop(conn, tmp_path, monkeypatch, code, level)
+
+
+@pytest.mark.parametrize("code,level", [("MD.EQUALITY", "Easy"), ("MD.MULTIPLES", "Easy")])
+def test_the_loop_holds_when_the_graph_reads_fewer_answers_than_a_paper_has(
+    conn, tmp_path, monkeypatch, every_kind_trusted, code, level
+):
+    """M0-04, the CI failure of 2026-11-03 made certain: these two papers put 12 and 20 answers on the skill their
+    planted mistake lands on, so a build that drew a few more questions, or a graph that reads a few fewer answers,
+    pushed the mistake planted on the early boxes out of the window ("graph []"). A window of 6 is that case here, on
+    any build: the mistake planted must be one the graph can still see, and every later stage must follow."""
+    conn.execute("update threshold set value = 6 where key = 'state.window_answers'")
+    _round_the_loop(conn, tmp_path, monkeypatch, code, level)
+
+
+def _round_the_loop(conn, tmp_path, monkeypatch, code, level):
     sheet = _sheet(conn, code, level)
     if sheet is None and level not in [
         lv
@@ -188,9 +264,9 @@ def test_a_mistake_planted_on_a_new_skills_paper_comes_back_through_every_stage(
         "update skill set taught = true, taught_by = %s, taught_at = now() where code = %s",
         (PERSON, code),
     )
-    mistake, on = _planted(_slots(conn, sheet["item_ids"]))
+    mistake, on = _planted_to_repeat(conn, sheet["item_ids"], _slots(conn, sheet["item_ids"]))
     assert mistake and len(on) >= 2, (
-        f"{code} {level}: no mistake its questions can show twice — {len(on)} places"
+        f"{code} {level}: no mistake its paper shows twice among the last answers of one skill"
     )
 
     # the first turn: the worksheet, printed for the child as an educator does on the site (Make papers, `handout`)
