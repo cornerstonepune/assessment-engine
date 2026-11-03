@@ -4,6 +4,7 @@ The three activities below are the first rows of the K2 team's own tab, as the s
 file are the kinds of row the tab holds around them (a heading, another year, a #REF! number, no name)."""
 
 import csv
+import re
 from pathlib import Path
 
 import psycopg
@@ -288,5 +289,8 @@ def test_apply_without_by_is_refused_before_the_sheet_is_read_or_the_database_op
 
     monkeypatch.setattr(db, "connect", never)
     result = CliRunner().invoke(cli.app, ["curriculum", "k2", str(sheet(tmp_path, BLOCK)), "--apply"])
-    assert result.exit_code != 0 and "--by" in result.output
+    plain = " ".join(
+        re.sub(r"[│╭╮╰╯─]", " ", re.sub(r"\x1b\[[0-9;]*m", "", result.output)).split()
+    )  # whatever colours or wraps it
+    assert result.exit_code != 0 and "--by is required with --apply" in plain
     assert not isinstance(result.exception, AssertionError)
