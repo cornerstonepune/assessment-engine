@@ -247,15 +247,18 @@ def test_a_child_who_lags_nowhere_is_stretched_on_their_strongest_skill(conn):
         "insert into child (tenant_id, roll_no, section, band) values (%s,'2','FOCUSTEST','G2') returning id",
         (tenant,),
     ).fetchone()["id"]
-    for _ in range(10):
+    # ten right, three days apart, the last today: secure and re-checked (goals/gr1-state-from-recent-evidence.yaml).
+    # Answers with no question name no level, so none is above them: secure, and the stretch for secure is Hard
+    for i in range(10):
         conn.execute(
             "insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes,"
-            " channel, observed_at, confirmed_by) values (%s,%s,'NUM.OPS.01','R22',true,'{}','item',now(),'test')",
-            (tenant, cid),
+            " channel, observed_at, confirmed_by) values (%s,%s,'NUM.OPS.01','R22',true,'{}','item',"
+            " now() - make_interval(days => %s),'test')",
+            (tenant, cid, 3 * (9 - i)),
         )
     graph.rebuild(conn, str(cid))
     p = focus_paper.plan(conn, str(cid), WEEK)
-    assert [(a["skill_set"], a["level"]) for a in p["areas"]] == [("ADD.2D2D", "Advance")]
+    assert [(a["skill_set"], a["level"]) for a in p["areas"]] == [("ADD.2D2D", "Hard")]
     assert "ready to move up" in p["areas"][0]["why"] or "a step up" in p["areas"][0]["why"]
 
 
