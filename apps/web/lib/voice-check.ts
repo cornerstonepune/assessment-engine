@@ -83,9 +83,9 @@ export function paint(w: Work, roll: string, mark: MarkKey | "clear"): Work {
 /** #31's mark moved onto the child she taps (a number heard that is not in the class). */
 export function moveTo(w: Work, from: string, to: string): Work {
   const marks = { ...w.marks };
-  const carried = marks[from] ?? [];
+  const moved = marks[from] ?? [];
   delete marks[from];
-  if (carried.length) marks[to] = [...carried];
+  if (moved.length) marks[to] = [...moved];
   return { ...w, marks };
 }
 
