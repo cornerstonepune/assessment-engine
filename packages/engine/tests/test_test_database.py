@@ -26,7 +26,7 @@ def test_every_test_connects_to_the_local_copy():
 
 
 def test_the_suite_refuses_to_start_when_the_test_database_is_not_on_this_machine():
-    remote = "postgresql://postgres.x:pw@aws-0-ap-south-1.pooler.supabase.com:6543/postgres"
+    remote = "postgresql://postgres.x:pw@db.example.invalid:6543/postgres"
     p = subprocess.run(
         [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/test_verify.py"],
         cwd=ENGINE,
