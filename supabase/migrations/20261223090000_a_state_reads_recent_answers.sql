@@ -94,12 +94,13 @@ alter table child_skill_state drop constraint if exists child_skill_state_tenant
 alter table child_skill_state add constraint child_skill_state_tenant_id_difficulty_fkey
   foreign key (tenant_id, difficulty) references difficulty (tenant_id, code);
 
--- Every signed-off answer the graph reads, with the level its question was made at and the school day it was sat.
--- A paper is its sheet; an answer on no sheet is a paper of its own day.
+-- Every signed-off answer the graph reads, with the level its question was made at, the school day it was sat and its
+-- place on its paper. A paper is its sheet; an answer on no sheet is a paper of its own day. The place decides which of a
+-- paper's answers a window keeps when it ends inside the paper: the last questions asked, never an id's chance order.
 create or replace view graph_answer with (security_invoker = true) as
 select e.id, e.tenant_id, e.child_id, e.skill_code, e.placed_rung as rung_code, i.skill_set_code, i.difficulty,
        d.ord as level_ord, e.correct, e.misconception_codes, e.observed_at, ev.seen_by,
-       coalesce(e.item_result_id, e.id) as answer,
+       coalesce(e.item_result_id, e.id) as answer, array_position(t.item_ids, r.item_id) as pos,
        (e.observed_at at time zone coalesce(z.value #>> '{}', 'UTC'))::date as day,
        coalesce(c.sheet_instance_id::text, c.id::text,
                 ((e.observed_at at time zone coalesce(z.value #>> '{}', 'UTC'))::date)::text) as paper
@@ -108,6 +109,8 @@ join evidence_event ev on ev.id = e.id  -- who saw it: C2's column, which eviden
 left join item_result r on r.id = e.item_result_id
 left join item i on i.id = r.item_id
 left join capture c on c.id = r.capture_id
+left join sheet_instance si on si.id = c.sheet_instance_id
+left join sheet_template t on t.id = si.sheet_template_id
 left join difficulty d on d.tenant_id = e.tenant_id and d.code = i.difficulty
 left join config z on z.tenant_id = e.tenant_id and z.key = 'school.time_zone'
 where e.confirmed_by is not null
@@ -134,13 +137,13 @@ language sql stable set search_path = public as $$
     from tenant t
   ), a as (
     select 'skill'::text as scope, g.tenant_id, g.child_id, g.skill_code as unit, g.rung_code, g.difficulty,
-           g.level_ord, g.correct, g.misconception_codes, g.observed_at, g.seen_by, g.day, g.id
+           g.level_ord, g.correct, g.misconception_codes, g.observed_at, g.seen_by, g.day, g.pos, g.id
     from graph_answer g
     where p_child is null or g.child_id = p_child
     union all
     select * from (
       select distinct on (g.answer) 'set'::text, g.tenant_id, g.child_id, g.skill_set_code, null::text, g.difficulty,
-             g.level_ord, g.correct, g.misconception_codes, g.observed_at, g.seen_by, g.day, g.id
+             g.level_ord, g.correct, g.misconception_codes, g.observed_at, g.seen_by, g.day, g.pos, g.id
       from graph_answer g
       where g.skill_set_code is not null and (p_child is null or g.child_id = p_child)
       order by g.answer, g.id
@@ -148,7 +151,7 @@ language sql stable set search_path = public as $$
   ), r as (
     select a.*, a.correct is not null and row_number() over (
              partition by a.scope, a.child_id, a.unit, a.rung_code, a.difficulty, a.correct is null
-             order by a.observed_at desc, a.id desc) <= th.win as w
+             order by a.observed_at desc, a.pos desc nulls last, a.id desc) <= th.win as w
     from a join th on th.tenant_id = a.tenant_id
   ), lv as (
     select r.scope, r.tenant_id, r.child_id, r.unit, r.rung_code, r.difficulty, r.level_ord,

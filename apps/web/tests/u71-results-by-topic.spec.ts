@@ -118,7 +118,9 @@ test("a child's page is a row per topic: level, last score in three signals, sta
   await expect(row).toContainText(`Weakest: ${skillName}, 2 of 4 right`);
   await page.goto(`/growth/${kids.Bina}`);
   const bina = page.getByRole("table", { name: "Topics" }).locator(`tr[data-topic="${TOPIC}"]`);
-  await expect(bina).toContainText(`Strongest: ${skillName}, 10 of 11 right`);
+  // her last 10 answers, the window her state is read from: the first question of her oldest paper falls out of it
+  // (goals/gr1-state-from-recent-evidence.yaml)
+  await expect(bina).toContainText(`Strongest: ${skillName}, 9 of 10 right`);
   await expect(page.getByRole("link", { name: "1 answer waiting to be checked: results may change" })).toBeVisible();
   // the move-a-child section still sits on the page
   await expect(page.getByRole("heading", { name: /Grade and class/ })).toBeVisible();

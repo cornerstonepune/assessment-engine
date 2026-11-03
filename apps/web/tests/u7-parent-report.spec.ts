@@ -51,12 +51,23 @@ async function tara(): Promise<string> {
                                     item_result_id, observed_at, confirmed_by)
         values (${tenant_id}, ${id}, 'NUM.OPS.02', 'R24', false, '{M_SMALL_FROM_LARGE}', 'item', ${result}, now(), 'e2e')`;
     }
-    // nine right three days apart, the last today: secure, re-checked (goals/gr1-state-from-recent-evidence.yaml)
-    for (let n = 0; n < 9; n++)
+    // nine right at Medium, three days apart, the last today: secure, re-checked, with Hard above it, so ready for the
+    // next step (goals/gr1-state-from-recent-evidence.yaml)
+    for (let n = 0; n < 9; n++) {
+      const [{ item }] = await sql<{ item: string }[]>`
+        insert into item (tenant_id, item_key, template, rung_code, skill_codes, difficulty, signal, fmt, spec, responses, source)
+        values (${tenant_id}, ${`u7-test/${id.slice(0, 8)}/r21/${n}`}, 'u7-test', 'R21', '{NUM.OPS.01}', 'Medium', 'Procedural',
+                'column', ${sql.json({ op: "+", a: 34, b: 5 })}, ${sql.json([{ rid: "a", answer: 39 }])}, 'legacy') returning id as item`;
+      const [{ result }] = await sql<{ result: string }[]>`
+        insert into item_result (tenant_id, capture_id, item_id, rid, raw_read, status, misconception_codes, working_shown, state)
+        values (${tenant_id}, ${capture}, ${item}, 'a', ${JSON.stringify({ child_answer: "39" })}, 'correct', '{}', 'none',
+                'confirmed') returning id as result`;
       await sql`
         insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes, channel,
-                                    observed_at, confirmed_by)
-        values (${tenant_id}, ${id}, 'NUM.OPS.01', 'R21', true, '{}', 'item', now() - make_interval(days => ${3 * (8 - n)}), 'e2e')`;
+                                    item_result_id, observed_at, confirmed_by)
+        values (${tenant_id}, ${id}, 'NUM.OPS.01', 'R21', true, '{}', 'item', ${result},
+                now() - make_interval(days => ${3 * (8 - n)}), 'e2e')`;
+    }
     await sql`select rebuild_child_skill_state(${id}::uuid)`;
     return id;
   })) as string;
