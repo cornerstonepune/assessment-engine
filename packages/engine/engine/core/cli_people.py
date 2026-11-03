@@ -80,7 +80,16 @@ def k2(
     with db.connect() as conn:
         try:
             out = people.enrol_k2(
-                conn, csv_path, who, apply, match_existing, day, teacher, override_reason, section.strip()
+                conn,
+                "k2",
+                csv_path,
+                who,
+                apply,
+                match_existing,
+                day,
+                teacher,
+                override_reason,
+                section.strip(),
             )
         except ValueError as e:
             raise typer.BadParameter(str(e)) from e

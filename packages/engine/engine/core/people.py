@@ -24,7 +24,6 @@ import psycopg
 from engine.core import db
 from engine.core.staff import staff as signin_list
 
-SECTION = "K2"  # the grade, and the string the existing pages read in `child.section`
 DEFAULT_LETTER = "A"  # the class's own section within the grade (K2-A)
 ROLL = re.compile(r"^[A-Za-z0-9-]{1,8}$")
 COLUMNS = ("number", "name", "birthday")
@@ -211,7 +210,19 @@ def read_list(path: Path, today: date, out: Report) -> list[Row]:
     return kept
 
 
-def _class_ids(conn: db.Conn, tenant: Any, year: str, letter: str, apply: bool, out: Report) -> Any:
+def _grade(conn: db.Conn, tenant: Any, name: str) -> str:
+    """The code of the grade the command is named for (`k2`), from the `grade` table: a grade is a row, not a string here."""
+    row = conn.execute(
+        "select code from grade where tenant_id = %s and lower(code) = lower(%s)", (tenant, name.strip())
+    ).fetchone()
+    if row is None:
+        raise ValueError(f"no grade called {name}")
+    return str(row["code"])
+
+
+def _class_ids(
+    conn: db.Conn, tenant: Any, grade: str, year: str, letter: str, apply: bool, out: Report
+) -> Any:
     """The K2 class of that year, made when it is not there. → its id, or None on a dry run that has no class yet."""
     campus = conn.execute("select id from campus where tenant_id = %s", (tenant,)).fetchall()
     if len(campus) != 1:
@@ -233,10 +244,10 @@ def _class_ids(conn: db.Conn, tenant: Any, year: str, letter: str, apply: bool, 
     c = conn.execute(
         "select id from school_class where tenant_id = %s and academic_year_id = %s and grade_code = %s"
         " and section = %s",
-        (tenant, y["id"], SECTION, letter),
+        (tenant, y["id"], grade, letter),
     ).fetchone()
     if c is None:
-        out.lines.append(f"  would add the class {SECTION}-{letter} for {year}")
+        out.lines.append(f"  would add the class {grade}-{letter} for {year}")
         out.count("classes added")
         if not apply:
             return None
@@ -244,7 +255,7 @@ def _class_ids(conn: db.Conn, tenant: Any, year: str, letter: str, apply: bool, 
             conn,
             "insert into school_class (tenant_id, campus_id, academic_year_id, grade_code, section)"
             " values (%s,%s,%s,%s,%s) returning id",
-            (tenant, campus[0]["id"], y["id"], SECTION, letter),
+            (tenant, campus[0]["id"], y["id"], grade, letter),
         )
     return c["id"]
 
@@ -262,6 +273,7 @@ def _same_person(conn: db.Conn, child_id: Any, row: Row, by: str) -> bool:
 
 def enrol_k2(
     conn: db.Conn,
+    grade_name: str,
     path: Path,
     by: str,
     apply: bool,
@@ -276,13 +288,14 @@ def enrol_k2(
     since = since or today
     rows = read_list(path, today, out)
     tenant = _tenant(conn)
-    class_id = _class_ids(conn, tenant, year_label(since), letter, apply and not out.refused, out)
+    grade = _grade(conn, tenant, grade_name)
+    class_id = _class_ids(conn, tenant, grade, year_label(since), letter, apply and not out.refused, out)
     actor = by if apply else "engine enrol k2 (dry run)"
     plan: list[tuple[Row, Any, str]] = []  # the row, its existing child (or None), what to do
     for r in rows:
         child = conn.execute(
             "select id from child where tenant_id = %s and section = %s and roll_no = %s",
-            (tenant, SECTION, r.roll),
+            (tenant, grade, r.roll),
         ).fetchone()
         if child is None:
             out.count("children added")
@@ -302,18 +315,18 @@ def enrol_k2(
             plan.append((r, child["id"], "existing"))
         else:
             out.refuse(
-                f"line {r.line}: roll {r.roll} is already a different child in {SECTION}"
+                f"line {r.line}: roll {r.roll} is already a different child in {grade}"
                 + ("" if match_existing else " (if it is the same child, run again with --match-existing)")
             )
     if teacher:
-        _plan_teacher(conn, tenant, teacher, class_id, since, out, reason)
+        _plan_teacher(conn, tenant, grade, teacher, class_id, since, out, reason)
     if apply and not out.refused:
         for r, child_id, what in plan:
             if what == "new":
                 child_id = db.one(
                     conn,
                     "insert into child (tenant_id, roll_no, band, section) values (%s,%s,%s,%s) returning id",
-                    (tenant, r.roll, SECTION, SECTION),
+                    (tenant, r.roll, grade, grade),
                 )["id"]
                 conn.execute(
                     "insert into pii.child (tenant_id, child_id, first_name, last_name, birthday) values (%s,%s,%s,%s,%s)",
@@ -337,7 +350,14 @@ def _teacher(conn: db.Conn, tenant: Any, email: str) -> Any:
 
 
 def _plan_teacher(
-    conn: db.Conn, tenant: Any, email: str, class_id: Any, since: date, out: Report, reason: str | None
+    conn: db.Conn,
+    tenant: Any,
+    grade: str,
+    email: str,
+    class_id: Any,
+    since: date,
+    out: Report,
+    reason: str | None,
 ) -> None:
     person = _teacher(conn, tenant, email)
     if person is None:
@@ -355,7 +375,7 @@ def _plan_teacher(
         out.count("class educator already set")
     elif holders and not reason:
         out.refuse(
-            f"warning: {SECTION} already has a class educator. To add this one as well, run again with"
+            f"warning: {grade} already has a class educator. To add this one as well, run again with"
             " --override-reason 'why' — the reason is kept"
         )
     else:

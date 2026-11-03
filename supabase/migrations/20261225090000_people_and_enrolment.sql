@@ -144,7 +144,7 @@ create index if not exists staff_role_grant_class_idx on staff_role_grant (schoo
 insert into config (tenant_id, key, value, description)
 select id, 'people.class_teacher_rule',
   '{"from_grade": "G1", "core_subjects": ["NUM", "ENG"]}'::jsonb,
-  'D-039: from this grade up, someone who teaches a core subject is not a class teacher, and the other way round, unless the grant carries a reason (people.staff_role_grant). Core subjects are subject codes; science and Hindi are added when they are subjects of the school. Before this grade (pre-primary) one educator is the class''s class teacher.'
+  'D-039: from this grade up, someone who teaches a core subject is not a class teacher, and the other way round, unless the grant gives a reason (people.staff_role_grant). Core subjects are subject codes; science and Hindi are added when they are subjects of the school. Before this grade (pre-primary) one educator is the class''s class teacher.'
 from tenant
 on conflict (tenant_id, key) do nothing;
 
