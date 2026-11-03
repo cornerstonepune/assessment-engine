@@ -32,7 +32,7 @@ says:
     proved_by: "packages/engine/tests/test_people.py::test_no_name_email_phone_or_birthday_is_outside_pii_and_no_report_prints_one"
 manual:
   - "The class list: Nimish sends the Children List (columns number, name, birthday) on 2026-11-04. Keep it outside the repository. Dry run first: `~/cornerstone/assessment-engine/bin/engine enrol k2 <that file>`; read the counts and every refused row; nothing is written."
-  - "The load on live, only after that report is approved: `~/cornerstone/assessment-engine/bin/engine staff import --apply --by <your name>`, then `~/cornerstone/assessment-engine/bin/engine enrol k2 <that file> --apply --by <your name> --teacher <the K2 educator's email>`; the same two commands again must add nothing: every row says "already there"."
+  - "The load on live, only after that report is approved: `~/cornerstone/assessment-engine/bin/engine staff import --apply --by <your name>`, then `~/cornerstone/assessment-engine/bin/engine enrol k2 <that file> --apply --by <your name> --teacher <the K2 educator's email>`; the same two commands again must add nothing: every row says already there."
   - "Actions, rehearse update-live, on this branch: the migration runs on a copy of live; `engine past` prints the same evidence, states, scored answers, questions and levels before and after."
 scenarios: []
 criteria:
