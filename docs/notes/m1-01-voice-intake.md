@@ -106,6 +106,13 @@ reads, each line beside its words, a person confirms.
   its words, and whether she accepted, changed or removed it). Each child-data table gets its `data_register` row;
   GRANTs for app_engine and app_web; `internal.apply_conventions()` last. No table M0-05 owns is touched.
 
+## Lesson (3 Nov, #363)
+
+- A ledger table's guard trigger must not refuse TRUNCATE, because the rehearsal's copy of live empties every table
+  before loading live's rows (`engine live copy`). Follow `evidence_event`: the trigger refuses update and delete only,
+  and emptying is refused to both services by grant (`internal.apply_conventions()`). #361's triggers refused TRUNCATE
+  too, and every rehearsal failed once they were on live; `20261226100000_voice_ledgers_like_evidence.sql` fixes them.
+
 ## Not verified / open
 
 - The live Sarvam call has not been run: no key here and no fixtures.
