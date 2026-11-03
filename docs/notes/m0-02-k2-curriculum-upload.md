@@ -22,6 +22,12 @@ table `activity_objective`, and a ledger `curriculum_edit` written by a trigger 
 learning objective (who from `app.changed_by`, else the database role). No drop, no delete, no existing row touched.
 GRANTs for `app_engine` and `app_web`; RLS by `internal.apply_conventions()`.
 
+**Consequence, plainly: from this merge, editing `supabase/seed/registry.json` no longer changes any activity the
+database already has.** The database is the master of the curriculum (D-050); change an activity on the site or by the
+upload. The seed still adds an activity the database lacks. Proved by
+`tests/test_loaders.py::test_a_seed_edit_does_not_overwrite_an_activity_the_database_has_and_an_activity_it_lacks_is_added`.
+The seed-count test treats `activity` and `learning_objective` as floors now, since the upload grows them.
+
 One change to existing behaviour, deliberately: `engine load` used to write all 2,216 activities back from
 `registry.json` on every deploy. It now only adds an activity it does not have. Left as it was, the next deploy would
 undo the upload and every edit a person made.
@@ -33,8 +39,9 @@ undo the upload and every edit a person made.
 - The migration has not yet run on a copy of live (Actions, rehearse update-live, on this branch).
 - Two column sets are read for the report only and not stored: the numbered levels (W:AB, with "is not willing" and
   "absent") and the Revised columns (AD:AI). Which of them is the school's final set of levels is Nimish's call.
-- Learning objectives made from K2 outcomes carry an empty `signal` (the five-word scale is G1–G4's); pages that list
-  objectives by signal will show K2's without one until the team classifies them.
+- Learning objectives made from K2 outcomes carry an empty `signal`. Checked: no page and no engine code reads the
+  `learning_objective` table at all (`grep` for `from|join learning_objective` finds only the seed loader and this
+  upload); the `signal` the pages show is an item's, a different column. So nothing breaks, and nothing shows them yet.
 
 ## Handoff
 
