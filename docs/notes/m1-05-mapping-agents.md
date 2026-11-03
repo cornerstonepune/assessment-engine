@@ -72,9 +72,8 @@ goal `goals/m1-05-mapping-agents.yaml` with Nimish's words as `says:`.
 - Are 0.90 / 0.85 / 60 % the bars, or does Nimish set them?
 - Should a new objective's text ever auto-apply in this version? I say no (nothing to score it against).
 - `lo_skill` by code co-occurrence: is "≥ 2 shared activities" acceptable as the starting rule?
-
 ## Verified
-Nothing built yet. Design only.
+Nothing built. Design only; no claim to prove.
 
 ## Handoff
 Design only, by order (Nimish via orchestrator, 2026-11-03): the whole blueprint is finished and accepted before any
