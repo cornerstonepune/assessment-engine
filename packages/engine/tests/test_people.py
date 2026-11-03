@@ -31,6 +31,13 @@ SIGN_IN = [  # placeholders; the password field is a stand-in for a hash and mus
         "classes": [],
     },
     {
+        "email": "dee@example.test",
+        "name": "Placeholder Dee",
+        "role": "specialist",
+        "password": "scrypt$X$fake",
+        "classes": [],
+    },
+    {
         "email": "cy@example.test",
         "name": "Placeholder Cy",
         "role": "coordinator",
@@ -56,10 +63,14 @@ def listing(tmp_path, lines=None, name="list.csv"):
 
 def wipe(conn):
     """Everything this slice makes, in the test database only (db.local_copy refuses any other)."""
+    conn.execute(
+        "set local session_replication_role = replica"
+    )  # a grant is never deleted, except here, in the copy
     conn.execute("delete from staff_role_grant")
     conn.execute("delete from enrolment")
     conn.execute("delete from school_class")
     conn.execute("delete from academic_year")
+    conn.execute("delete from pii.staff")
     conn.execute("delete from staff")
     # a child is never deleted (their evidence cannot be); a test's children are moved off the class and set aside
     conn.execute(
@@ -98,18 +109,18 @@ def test_the_k2_educator_her_class_and_its_children_with_roll_numbers_are_all_in
     done = load_everything(tmp_path, "--teacher", "ann@example.test")
     assert done.exit_code == 0, done.output_plain
     teacher = rows(
-        "select p.name, c.section, c.grade_code, y.label, g.from_date, g.granted_by"
+        "select p.name, c.section, c.grade_code, y.label, g.valid_from, g.granted_by"
         " from staff_role_grant g join pii.staff p on p.staff_id = g.staff_id"
-        " join school_class c on c.id = g.class_id join academic_year y on y.id = c.academic_year_id"
-        " where g.role_code = 'class_teacher' and g.to_date is null"
+        " join school_class c on c.id = g.school_class_id join academic_year y on y.id = c.academic_year_id"
+        " where g.role_code = 'class_teacher' and g.valid_to is null"
     )
-    assert [(t["name"], t["section"], t["grade_code"], t["label"], str(t["from_date"])) for t in teacher] == [
-        ("Placeholder Ann", "K2", "K2", "2026-27", FROM)
-    ]
+    assert [
+        (t["name"], t["section"], t["grade_code"], t["label"], str(t["valid_from"])) for t in teacher
+    ] == [("Placeholder Ann", "A", "K2", "2026-27", FROM)]
     kids = rows(
         "select e.roll_no, p.first_name, p.last_name from enrolment e join school_class c on c.id = e.class_id"
         " join child k on k.id = e.child_id join pii.child p on p.child_id = k.id"
-        " where c.section = 'K2' and e.to_date is null"
+        " where c.grade_code = 'K2' and c.section = 'A' and e.to_date is null"
     )
     assert sorted(int(k["roll_no"]) for k in kids) == list(range(1, 23))
     assert all(k["first_name"] == "Placeholder" for k in kids)
@@ -131,11 +142,11 @@ def test_a_child_is_in_a_class_only_through_an_enrolment_and_a_move_closes_one_a
         child = conn.execute("select id from child where section = 'K2' and roll_no = '3'").fetchone()["id"]
         t = conn.execute("select id from tenant").fetchone()["id"]
         k2 = conn.execute(
-            "select id, campus_id, academic_year_id from school_class where section = 'K2'"
+            "select id, campus_id, academic_year_id from school_class where grade_code = 'K2'"
         ).fetchone()
         g3 = conn.execute(
             "insert into school_class (tenant_id, campus_id, academic_year_id, grade_code, section)"
-            " values (%s,%s,%s,'G3','SL-THREE') returning id",
+            " values (%s,%s,%s,'G3','A') returning id",
             (t, k2["campus_id"], k2["academic_year_id"]),
         ).fetchone()["id"]
         assert conn.execute(
@@ -194,14 +205,14 @@ def test_a_second_class_teacher_warns_and_is_allowed_only_with_a_recorded_reason
         cy = conn.execute("select staff_id from pii.staff where email = 'cy@example.test'").fetchone()[
             "staff_id"
         ]
-        sql = "insert into staff_role_grant (tenant_id, staff_id, role_code, class_id, from_date, granted_by) values (%s,%s,%s,%s,'2026-12-01','t')"
+        sql = "insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, valid_from, granted_by) values (%s,%s,%s,%s,'2026-12-01','t')"
         with pytest.raises(psycopg.errors.RaiseException, match="one_per_class"):
             conn.execute(sql, (t, cy, "class_teacher", k2))
         conn.rollback()
         with pytest.raises(psycopg.errors.RaiseException, match="needs_class"):
             conn.execute(sql, (t, cy, "class_teacher", None))
         conn.rollback()
-        with pytest.raises(psycopg.errors.RaiseException, match="not_for_a_class"):
+        with pytest.raises(psycopg.errors.RaiseException, match="wrong_scope"):
             conn.execute(sql, (t, cy, "educator", k2))
         conn.rollback()
 
@@ -215,13 +226,13 @@ def test_staff_import_copies_the_staff_list_leaves_the_config_and_changes_nothin
 
     before = config()
     dry = run("staff", "import")
-    assert dry.exit_code == 0 and "staff added: 3" in dry.output_plain and "dry run" in dry.output_plain
+    assert dry.exit_code == 0 and "staff added: 4" in dry.output_plain and "dry run" in dry.output_plain
     assert rows("select count(*) n from staff")[0]["n"] == 0
     refused = run("staff", "import", "--apply")
     assert refused.exit_code != 0 and "--by" in refused.output_plain
     done = run("staff", "import", "--apply", "--by", "tester")
     assert done.exit_code == 0, done.output_plain
-    assert rows("select count(*) n from staff")[0]["n"] == 3
+    assert rows("select count(*) n from staff")[0]["n"] == 4
     got = rows(
         "select p.email, g.role_code from pii.staff p join staff_role_grant g on g.staff_id = p.staff_id order by p.email"
     )
@@ -237,7 +248,7 @@ def test_staff_import_copies_the_staff_list_leaves_the_config_and_changes_nothin
     again = run("staff", "import", "--apply", "--by", "tester")
     assert (
         again.exit_code == 0
-        and "already there: 3" in again.output_plain
+        and "already there: 4" in again.output_plain
         and "added" not in again.output_plain
     )
     assert rows("select count(*) n from staff_role_grant")[0]["n"] == 3
@@ -257,7 +268,7 @@ def test_staff_import_copies_the_staff_list_leaves_the_config_and_changes_nothin
         conn.commit()
     refused = run("staff", "import", "--apply", "--by", "tester")
     assert refused.exit_code == 1 and "'wizard' is not a role" in refused.output_plain
-    assert rows("select count(*) n from staff")[0]["n"] == 3
+    assert rows("select count(*) n from staff")[0]["n"] == 4
 
 
 @needs_db
@@ -394,3 +405,103 @@ def test_no_name_email_phone_or_birthday_is_outside_pii_and_no_report_prints_one
     assert (
         people.year_label(date(2027, 3, 31)) == "2026-27" and people.year_label(date(2027, 4, 1)) == "2027-28"
     )
+
+
+@needs_db
+def test_the_twelve_roles_of_d026_are_rows_with_their_scope_and_the_rule_is_a_config_row(school):
+    got = {r["code"]: r["scope"] for r in rows("select code, scope from role")}
+    assert {c for c in got if c != "educator"} == {
+        "subject_educator",
+        "class_teacher",
+        "mentor",
+        "assistant",
+        "coordinator",
+        "deputy_coordinator",
+        "curriculum_team",
+        "head",
+        "ops",
+        "cover_educator",
+        "special_educator",
+        "specialist",
+    }
+    assert got["subject_educator"] == "class_subject" and got["mentor"] == "child" and got["head"] == "campus"
+    assert got["class_teacher"] == "class" and got["specialist"] == "class"
+    assert all(r["may_grant"] == ["head", "coordinator"] for r in rows("select may_grant from role"))
+    rule = rows("select value from config where key = 'people.class_teacher_rule'")[0]["value"]
+    assert rule["from_grade"] == "G1" and set(rule["core_subjects"]) == {"NUM", "ENG"}
+    # a role the sign-in list holds for a class (specialist) is not granted at import; the person is added
+    out = run("staff", "import", "--apply", "--by", "tester")
+    assert out.exit_code == 0 and "roles left to set: 1" in out.output_plain, out.output_plain
+    assert (
+        rows(
+            "select count(*) n from staff_role_grant g join role r on r.code = g.role_code where r.scope <> 'campus'"
+        )[0]["n"]
+        == 0
+    )
+
+
+@needs_db
+def test_d039_from_grade_one_a_core_teacher_is_not_a_class_teacher_unless_a_reason_is_kept(tmp_path, school):
+    assert load_everything(tmp_path, "--teacher", "ann@example.test").exit_code == 0
+    grant = (
+        "insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, subject_code, valid_from,"
+        " granted_by, override_reason) values (%s,%s,%s,%s,%s,'2026-12-01','t',%s)"
+    )
+    with db.connect() as conn:
+        t = conn.execute("select id from tenant").fetchone()["id"]
+        k2 = conn.execute(
+            "select id, campus_id, academic_year_id from school_class where grade_code = 'K2'"
+        ).fetchone()
+        g3 = conn.execute(
+            "insert into school_class (tenant_id, campus_id, academic_year_id, grade_code, section)"
+            " values (%s,%s,%s,'G3','A') returning id",
+            (t, k2["campus_id"], k2["academic_year_id"]),
+        ).fetchone()["id"]
+        who = {
+            e: conn.execute("select staff_id from pii.staff where email = %s", (e,)).fetchone()["staff_id"]
+            for e in ("bea@example.test", "cy@example.test")
+        }
+        bea, cy = who["bea@example.test"], who["cy@example.test"]
+
+        def refused(*args):
+            with pytest.raises(psycopg.errors.RaiseException, match="core_teacher"), conn.transaction():
+                conn.execute(grant, args)
+
+        # pre-primary (K2): Ann is the class's class teacher and may teach a core subject there
+        ann = conn.execute("select staff_id from pii.staff where email = 'ann@example.test'").fetchone()[
+            "staff_id"
+        ]
+        conn.execute(grant, (t, ann, "subject_educator", k2["id"], "NUM", None))
+        # Grade 3: a teacher of a core subject made class teacher is refused; so is the other way round
+        conn.execute(grant, (t, cy, "subject_educator", g3, "NUM", None))
+        refused(t, cy, "class_teacher", g3, None, None)
+        conn.execute(
+            grant, (t, bea, "class_teacher", g3, None, "Bea takes G3 as well")
+        )  # a reason: it stands
+        refused(t, bea, "subject_educator", g3, "ENG", None)
+        # with a reason it stands, and the reason is kept on the grant
+        conn.execute(grant, (t, cy, "class_teacher", g3, None, "no one else is free in G3"))
+        kept = conn.execute(
+            "select staff_id, override_reason from staff_role_grant where role_code = 'class_teacher' and school_class_id = %s",
+            (g3,),
+        ).fetchall()
+        assert {(k["staff_id"], k["override_reason"]) for k in kept} == {
+            (bea, "Bea takes G3 as well"),
+            (cy, "no one else is free in G3"),
+        }
+        conn.rollback()
+
+
+@needs_db
+def test_a_grant_is_never_deleted_it_ends(tmp_path, school):
+    assert run("staff", "import", "--apply", "--by", "tester").exit_code == 0
+    with db.connect() as conn:
+        with pytest.raises(psycopg.errors.RaiseException, match="never deleted"):
+            conn.execute("delete from staff_role_grant")
+        conn.rollback()
+        conn.execute("update staff_role_grant set valid_to = valid_from where role_code = 'coordinator'")
+        assert (
+            conn.execute("select count(*) n from staff_role_grant where valid_to is not null").fetchone()["n"]
+            == 1
+        )
+        conn.rollback()

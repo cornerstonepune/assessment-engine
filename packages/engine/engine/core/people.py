@@ -24,7 +24,8 @@ import psycopg
 from engine.core import db
 from engine.core.staff import staff as signin_list
 
-SECTION = "K2"
+SECTION = "K2"  # the grade, and the string the existing pages read in `child.section`
+DEFAULT_LETTER = "A"  # the class's own section within the grade (K2-A)
 ROLL = re.compile(r"^[A-Za-z0-9-]{1,8}$")
 COLUMNS = ("number", "name", "birthday")
 DATE_FORMATS = ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y", "%d %b %Y", "%d %B %Y")
@@ -76,49 +77,58 @@ def parse_birthday(text: str, today: date) -> date:
 
 
 def import_staff(conn: db.Conn, by: str, apply: bool) -> Report:
-    """Copy each entry of the sign-in list into the staff tables. An entry already there (same email) is left; a role it
-    does not yet hold is granted from today. `config` is read, never written."""
+    """Copy each entry of the sign-in list into the staff tables. An entry already there (same email) is left. A role
+    held for the whole campus is granted from today; a role held for a class or a child (the list's `specialist`) needs
+    that class or child, so the person is added and the role is left to be set there. `config` is read, never written."""
     out = Report()
     tenant = _tenant(conn)
-    known = {
-        r["code"] for r in conn.execute("select code from role where tenant_id = %s", (tenant,)).fetchall()
+    scope = {
+        r["code"]: r["scope"]
+        for r in conn.execute("select code, scope from role where tenant_id = %s", (tenant,)).fetchall()
     }
+    campus = db.one(conn, "select id from campus where tenant_id = %s", (tenant,))["id"]
     for n, entry in enumerate(signin_list(conn), start=1):
         email, role = str(entry["email"]).strip().lower(), str(entry["role"])
-        if role not in known:
-            out.refuse(f"entry {n}: the role {role!r} is not a role (roles: {', '.join(sorted(known))})")
+        if role not in scope:
+            out.refuse(f"entry {n}: the role {role!r} is not a role (roles: {', '.join(sorted(scope))})")
             continue
         here = conn.execute(
             "select staff_id from pii.staff where tenant_id = %s and email = %s", (tenant, email)
         ).fetchone()
         staff_id = here["staff_id"] if here else None
+        campus_wide = scope[role] == "campus"
         if staff_id is None:
             out.count("staff added")
-            out.lines.append(f"  entry {n}: would add a member of staff and grant {role}")
+            how = (
+                f"grant {role}" if campus_wide else f"{role} is held for a {scope[role]}: set it there later"
+            )
+            out.lines.append(f"  entry {n}: would add a member of staff; {how}")
+            if not campus_wide:
+                out.count("roles left to set")
         holds = (
             staff_id is not None
             and conn.execute(
-                "select 1 from staff_role_grant where staff_id = %s and role_code = %s and class_id is null"
-                " and to_date is null",
+                "select 1 from staff_role_grant where staff_id = %s and role_code = %s and valid_to is null",
                 (staff_id, role),
             ).fetchone()
         )
-        if staff_id is not None and not holds:
+        if staff_id is not None and campus_wide and not holds:
             out.count("roles granted")
             out.lines.append(f"  entry {n}: already on the list; would grant {role}")
         elif staff_id is not None:
             out.count("already there")
         if apply and not out.refused:
             if staff_id is None:
-                staff_id = _new_staff(conn, tenant, str(entry["name"]), email)
-                _grant(conn, tenant, staff_id, role, None, date.today(), by, None)
-            elif not holds:
-                _grant(conn, tenant, staff_id, role, None, date.today(), by, None)
+                staff_id = _new_staff(conn, tenant, campus, str(entry["name"]), email)
+            if campus_wide and not holds:
+                _grant(conn, tenant, staff_id, role, date.today(), by)
     return out
 
 
-def _new_staff(conn: db.Conn, tenant: Any, name: str, email: str) -> Any:
-    sid = db.one(conn, "insert into staff (tenant_id) values (%s) returning id", (tenant,))["id"]
+def _new_staff(conn: db.Conn, tenant: Any, campus: Any, name: str, email: str) -> Any:
+    sid = db.one(
+        conn, "insert into staff (tenant_id, campus_id) values (%s,%s) returning id", (tenant, campus)
+    )["id"]
     conn.execute(
         "insert into pii.staff (tenant_id, staff_id, name, email) values (%s,%s,%s,%s)",
         (tenant, sid, name.strip(), email),
@@ -131,14 +141,14 @@ def _grant(
     tenant: Any,
     staff_id: Any,
     role: str,
-    class_id: Any,
     since: date,
     by: str,
-    reason: str | None,
+    class_id: Any = None,
+    reason: str | None = None,
 ) -> None:
     conn.execute(
-        "insert into staff_role_grant (tenant_id, staff_id, role_code, class_id, from_date, granted_by, override_reason)"
-        " values (%s,%s,%s,%s,%s,%s,%s)",
+        "insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, valid_from, granted_by,"
+        " override_reason) values (%s,%s,%s,%s,%s,%s,%s)",
         (tenant, staff_id, role, class_id, since, by, reason),
     )
 
@@ -201,7 +211,7 @@ def read_list(path: Path, today: date, out: Report) -> list[Row]:
     return kept
 
 
-def _class_ids(conn: db.Conn, tenant: Any, year: str, apply: bool, out: Report) -> Any:
+def _class_ids(conn: db.Conn, tenant: Any, year: str, letter: str, apply: bool, out: Report) -> Any:
     """The K2 class of that year, made when it is not there. → its id, or None on a dry run that has no class yet."""
     campus = conn.execute("select id from campus where tenant_id = %s", (tenant,)).fetchall()
     if len(campus) != 1:
@@ -221,11 +231,12 @@ def _class_ids(conn: db.Conn, tenant: Any, year: str, apply: bool, out: Report) 
             (tenant, year, date(start, 4, 1), date(start + 1, 3, 31)),
         )
     c = conn.execute(
-        "select id from school_class where tenant_id = %s and academic_year_id = %s and section = %s",
-        (tenant, y["id"], SECTION),
+        "select id from school_class where tenant_id = %s and academic_year_id = %s and grade_code = %s"
+        " and section = %s",
+        (tenant, y["id"], SECTION, letter),
     ).fetchone()
     if c is None:
-        out.lines.append(f"  would add the class {SECTION} for {year}")
+        out.lines.append(f"  would add the class {SECTION}-{letter} for {year}")
         out.count("classes added")
         if not apply:
             return None
@@ -233,7 +244,7 @@ def _class_ids(conn: db.Conn, tenant: Any, year: str, apply: bool, out: Report) 
             conn,
             "insert into school_class (tenant_id, campus_id, academic_year_id, grade_code, section)"
             " values (%s,%s,%s,%s,%s) returning id",
-            (tenant, campus[0]["id"], y["id"], SECTION, SECTION),
+            (tenant, campus[0]["id"], y["id"], SECTION, letter),
         )
     return c["id"]
 
@@ -258,13 +269,14 @@ def enrol_k2(
     since: date | None = None,
     teacher: str | None = None,
     reason: str | None = None,
+    letter: str = DEFAULT_LETTER,
 ) -> Report:
     out = Report()
     today = date.today()
     since = since or today
     rows = read_list(path, today, out)
     tenant = _tenant(conn)
-    class_id = _class_ids(conn, tenant, year_label(since), apply and not out.refused, out)
+    class_id = _class_ids(conn, tenant, year_label(since), letter, apply and not out.refused, out)
     actor = by if apply else "engine enrol k2 (dry run)"
     plan: list[tuple[Row, Any, str]] = []  # the row, its existing child (or None), what to do
     for r in rows:
@@ -335,8 +347,8 @@ def _plan_teacher(
         out.count("class educators set")
         return
     holders = conn.execute(
-        "select staff_id from staff_role_grant where class_id = %s and role_code = 'class_teacher'"
-        " and (to_date is null or to_date > %s)",
+        "select staff_id from staff_role_grant where school_class_id = %s and role_code = 'class_teacher'"
+        " and (valid_to is null or valid_to > %s)",
         (class_id, since),
     ).fetchall()
     if any(h["staff_id"] == person["staff_id"] for h in holders):
@@ -355,12 +367,12 @@ def _grant_teacher(
 ) -> None:
     person = _teacher(conn, tenant, email)
     held = conn.execute(
-        "select 1 from staff_role_grant where staff_id = %s and class_id = %s and role_code = 'class_teacher'"
-        " and to_date is null",
+        "select 1 from staff_role_grant where staff_id = %s and school_class_id = %s and role_code = 'class_teacher'"
+        " and valid_to is null",
         (person["staff_id"], class_id),
     ).fetchone()
     if not held:
         try:
-            _grant(conn, tenant, person["staff_id"], "class_teacher", class_id, since, by, reason)
+            _grant(conn, tenant, person["staff_id"], "class_teacher", since, by, class_id, reason)
         except psycopg.errors.RaiseException as e:
             raise ValueError(str(e.diag.message_primary)) from e

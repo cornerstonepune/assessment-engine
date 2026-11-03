@@ -69,6 +69,7 @@ def k2(
     override_reason: str = typer.Option(
         None, "--override-reason", help="Why a second class educator is right; kept"
     ),
+    section: str = typer.Option("A", "--section", help="The class's own section in the grade (K2-A)"),
 ) -> None:
     """Load the K2 class and its children from the Children List, with their roll numbers."""
     who = need_by(apply, by)
@@ -78,7 +79,9 @@ def k2(
         raise typer.BadParameter("--from is a day like 2026-11-05") from e
     with db.connect() as conn:
         try:
-            out = people.enrol_k2(conn, csv_path, who, apply, match_existing, day, teacher, override_reason)
+            out = people.enrol_k2(
+                conn, csv_path, who, apply, match_existing, day, teacher, override_reason, section.strip()
+            )
         except ValueError as e:
             raise typer.BadParameter(str(e)) from e
         finish(conn, out, apply)

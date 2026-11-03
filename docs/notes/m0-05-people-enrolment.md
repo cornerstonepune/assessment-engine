@@ -16,48 +16,57 @@ Goal: `goals/m0-05-people-enrolment.yaml`. Nimish's words on record: "All parts 
 ## What the migration does (additive only) — `20261225090000_people_and_enrolment.sql`
 
 New: `campus`, `academic_year`, `school_class`, `enrolment`, `staff`, `pii.staff`, `role`, `staff_role_grant`; functions
-`enrol_child()`, `pii.read_staff()`, `internal.check_role_grant()`, `internal.people_vocabulary()`; one nullable column
-`pii.child.birthday`. Nothing dropped, deleted or rewritten; no existing table read differently. RLS by
-`internal.apply_conventions()`; the engine may read and write the new public tables, the website may only read them, and
-neither may touch `pii.staff` (only `pii.read_staff()`, which writes who asked to `access_log`).
-On live it adds 4 `role` rows and 1 `campus` row (named for the school) — the only rows it writes.
+`enrol_child()`, `pii.read_staff()`, `internal.check_role_grant()`, `internal.forbid_delete()`, `internal.people_vocabulary()`;
+one nullable column `pii.child.birthday`; one `config` row `people.class_teacher_rule`. Nothing dropped, deleted or
+rewritten; no existing table read differently. RLS by `internal.apply_conventions()`; the engine may read and write the new
+public tables, the website may only read them, and neither may touch `pii.staff` (only `pii.read_staff()`, which writes who
+asked to `access_log`). On live it writes 13 `role` rows, 1 `campus` row and 1 `config` row, nothing else.
+`enrolment` and `staff_role_grant` are listed in the data register's "class" entry (a test requires it).
+
+Reconciled with the orchestrator's extract of people-and-access (done = in this PR; left out = said so):
+
+| Item | State |
+|---|---|
+| 12 roles of D-026 as rows with scope (campus / class / class and subject / child) and `may_grant` | **done** (plus `educator`, the sign-in list's own role, so the import can run: 13 rows) |
+| `staff_role_grant` dated (`valid_from`/`valid_to`), `granted_by`, `override_reason`, never deleted | **done**; delete is refused by a trigger, a grant ends by `valid_to` |
+| `granted_by` is a staff id | **left out**: it is the typed `--by` name; every "who" column becomes a staff id in a later slice |
+| One class teacher per class at a time | **done** as a trigger that warns and stands only with a reason (a partial unique index could not allow the override). **btree_gist is not needed and is not installed** |
+| D-039 (from Grade 1 a core-subject teacher is not a class teacher, both ways round) as a config row plus a check needing `override_reason` | **done**; core subjects today are NUM and ENG (the only subjects that exist; science and Hindi are added to the row when they are subjects) |
+| `may_grant` enforced (only head / coordinator give a role) | **left out**: stored on each role; enforcing needs `granted_by` as a staff id |
+| `internal.grants_now(staff_id)` | **left out** (not in the card as I was given it) |
+| Per-person access rules | **left out**, as P-05 says; `apply_conventions()` still gives both app roles `using (true)` |
+| `staff.campus_id`, `school_class` unique on (campus, year, grade, section) | **done** |
+| Child keeps only id/active; class and roll move out of `child` | **left out**: `child.section`/`roll_no` stay because every page reads them; K2 children get both |
 
 - A child is in a class only through `enrolment`; one open row per child and one open roll number per class (partial
-  unique indexes). `enrol_child()` closes the open row and opens the new one; a second call with the same class and roll
-  changes nothing.
-- The class-teacher rule (D-039) is a trigger on `staff_role_grant`: a second holder is refused with a message that
-  says why, unless `override_reason` is given, and the reason stays on the grant. A direct insert meets it too.
-- **btree_gist is not needed**: "one at a time" is a partial unique index and a trigger, not a range-overlap constraint.
+  unique indexes). `enrol_child()` closes the open row and opens the new one; a second call changes nothing.
+- The K2 class is grade K2, section `A` by default (`--section` changes it); the children's legacy `child.section` is `K2`.
 
 ## Commands
 
 - `engine staff import [--apply --by NAME]` — copies the 8 entries of `config` `app.staff` into the staff tables and
-  grants each person the role they hold there. The config is read, never changed; password hashes are not copied.
+  grants each person the role they hold there if it is a campus-wide role (coordinator, educator); a role held for a class
+  (the list's `specialist`) adds the person and says the role is left to set there. The config is read, never changed;
+  password hashes are not copied.
 - `engine enrol k2 CSV [--apply --by NAME] [--teacher EMAIL] [--override-reason WHY] [--match-existing] [--from DAY]`.
   Reads number, name, birthday. Any refused row (a number twice, the same child twice, a roll number that is not one,
   a birthday that is not a date or not a K2 child's age, no name) stops the whole apply and says which line.
 
 ## Not verified / open — for the orchestrator
 
-1. **The blueprint was not read.** `git clone` of cornerstonepune/teacher-os asked for credentials (it is not public from
-   the build container) and attaching it was denied. The shapes below were chosen from the task text and this repo and
-   should be checked against `data-architecture.md`, `people-and-access.md`, `modules.md`:
-   - `school_class` has `grade_code` and `section`, where `section` is the string `child.section` already carries
-     ("K2"). If the blueprint wants A/B sections beside a grade, that is one more column.
-   - Roles: `coordinator`, `educator`, `specialist` (the ones `people.decides` names) and `class_teacher`, labelled
-     "Class educator". They are rows made by the migration and by a trigger on new schools, as the evidence kinds
-     are, not yet in a `supabase/seed` file (rule 1 prefers one).
-   - The academic year runs April to March (label `2026-27`), named from the `--from` day; my assumption, India's school year.
-2. **No class list was used.** The CSV comes on 2026-11-04. Its date format is read day-first (25/12/2020 or 2020-12-25);
-   anything else is refused, not guessed. A name is split at the first space (first / rest).
-3. **`move_child` does not write enrolment.** Moving a child with the existing route still changes `child.section`
-   only. Only K2 children have enrolments, so nothing disagrees today, but the two must be joined before another
-   class is enrolled. Not done here: it changes a live path.
+1. **The blueprint was read only through the orchestrator's extracts** (data-architecture core keys, people-and-access
+   section 1 and 2); the repo `teacher-os` itself is private and was never cloned.
+2. **No class list was used.** The CSV comes on 2026-11-04. Birthdays are read day-first (25/12/2020 or 2020-12-25);
+   anything else is refused, not guessed. A name is split at the first space. The school year runs April to March.
+3. **`move_child` does not write enrolment.** Only K2 children have enrolments, so nothing disagrees today, but the two
+   must be joined before another class is enrolled. Not done here: it changes a live path.
 4. **A dry run is not completely silent**: to compare names it reads children through `pii.read_child`, which writes to
-   `access_log` (who asked). That is kept on purpose; every other table is untouched.
-5. **Per-person access rules** (who may see which class) are left out, as P-05 says.
-6. The class educator for K2 is whoever Nimish names with `--teacher`; the staff list carries `classes` per person but
-   does not say who is the class educator, so it is not inferred.
+   `access_log` (who asked). Every other table is untouched.
+5. The K2 class educator is whoever Nimish names with `--teacher`; the sign-in list's `classes` does not say who is the
+   class educator, so it is not inferred. A core-subject conflict (D-039) is caught at apply, not in the dry run (K2 is
+   pre-primary, so it does not arise for this command).
+6. Local runs used a database built from every migration plus the seed, without the question bank: the neighbouring
+   suites pass except `test_vocabulary::test_every_link_is_a_key_the_database_checks`, which needs items. CI has them.
 7. The rehearsal on a copy of live and the load into live have not been run from here (see the pull request).
 
 ## Handoff

@@ -3,8 +3,9 @@ goal: >
   The system knows who the K2 educator is, which class she teaches, and which children are in that class, with their
   roll numbers. People, campus, academic year, class and enrolment are tables of their own: a child belongs to a class
   only through an enrolment (a move closes one row and opens another, so the history is kept); an educator holds a
-  role only through a dated grant; a class has one class teacher at a time, and giving it a second warns and is allowed
-  only with a reason that is recorded. Names, emails and phone numbers of staff, and a child's name and birthday, live
+  role only through a dated grant that is never deleted; the twelve roles of D-026 are rows; a class has one class
+  teacher at a time, and from Grade 1 a core-subject teacher is not a class teacher (D-039, a config row): giving a
+  second, or breaking that, warns and is allowed only with a reason that is recorded. Names, emails and phone numbers of staff, and a child's name and birthday, live
   only in the `pii` schema. `engine staff import` copies the staff list the website signs in from into the staff
   tables; `engine enrol k2 <csv>` loads the K2 class and its children from the school's Children List. Both show what
   they would do and write nothing until `--apply --by <name>`; both can run twice and the second run changes nothing.
@@ -30,6 +31,12 @@ says:
     proved_by: "packages/engine/tests/test_people.py::test_a_list_with_a_duplicate_or_a_bad_row_is_refused_in_words_and_writes_nothing"
   - words: "All parts should just function like a well-oiled machine, right?"
     proved_by: "packages/engine/tests/test_people.py::test_no_name_email_phone_or_birthday_is_outside_pii_and_no_report_prints_one"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_the_twelve_roles_of_d026_are_rows_with_their_scope_and_the_rule_is_a_config_row"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_d039_from_grade_one_a_core_teacher_is_not_a_class_teacher_unless_a_reason_is_kept"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_a_grant_is_never_deleted_it_ends"
 manual:
   - "The class list: Nimish sends the Children List (columns number, name, birthday) on 2026-11-04. Keep it outside the repository. Dry run first: `~/cornerstone/assessment-engine/bin/engine enrol k2 <that file>`; read the counts and every refused row; nothing is written."
   - "The load on live, only after that report is approved: `~/cornerstone/assessment-engine/bin/engine staff import --apply --by <your name>`, then `~/cornerstone/assessment-engine/bin/engine enrol k2 <that file> --apply --by <your name> --teacher <the K2 educator's email>`; the same two commands again must add nothing: every row says already there."

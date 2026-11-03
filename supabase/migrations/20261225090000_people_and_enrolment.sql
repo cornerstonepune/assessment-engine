@@ -1,23 +1,29 @@
--- People and enrolment, first slice (goals/m0-05-people-enrolment.yaml; task M0-05; decisions D-039, D-046, D-047, D-055).
+-- People and enrolment, first slice (goals/m0-05-people-enrolment.yaml; task M0-05; decisions D-026, D-039, D-046, D-047, D-055).
 -- The system knows who a member of staff is, which class they teach, and which children are in that class.
 --
---   * `campus`, `academic_year`, `school_class`: where and when a class is. A class is a campus, a year and the class's
---     own name, which is the string `child.section` already carries ("K2", "G2"), so the new table and the old column
---     say the same thing; its grade is a row of `grade`.
+--   * `campus`, `academic_year`, `school_class`: where and when a class is: one campus, one school year, one grade, one
+--     section (K2-A in 2026-27 and in 2027-28 are two rows). The grade is a row of `grade`.
 --   * `enrolment`: the only link between a child and a class. A move closes one row (`to_date`) and opens another, so a
 --     child's history of classes is kept. At most one open row per child, and one open row per roll number in a class.
---     `enrol_child()` is the one place that does the closing and opening.
---   * `staff`, `pii.staff`: a person is an id; their name, email and phone are in `pii` and nowhere else (rule 6). The
---     website's sign-in list (`config` key app.staff) is untouched and stays the master of passwords.
---   * `role`, `staff_role_grant`: roles are rows; holding one is a dated grant. A role that belongs to one class at a time
---     (`class_teacher`) warns when a second person is given it and allows it only with a reason, which is kept on the
---     grant (D-039). The check is a trigger, so no path around `enrol`/`import` can skip it.
+--     `enrol_child()` is the one place that does the closing and opening. `child.section`/`roll_no` are untouched: the
+--     existing pages still read them (moving them into enrolment is a later slice).
+--   * `staff`, `pii.staff`: a person is an id and a campus; their name, email and phone are in `pii` and nowhere else
+--     (rule 6). The website's sign-in list (`config` key app.staff) is untouched and stays the master of passwords.
+--   * `role`: a kind of job (D-026) as a row: its words, its scope (campus, class, class and subject, or child) and which
+--     roles may give it. A new role is an insert. `staff_role_grant`: one person holding one role for one scope from a date
+--     to a date; it is never deleted, it ends (`valid_to`).
+--   * The checks on a grant are one trigger: the scope fits the role; the same person does not hold the same thing twice;
+--     a class has one class teacher at a time; and D-039, from Grade 1 a core-subject teacher is not a class teacher
+--     (config row `people.class_teacher_rule`). The last two warn: the grant stands only with an `override_reason`, which
+--     stays on the grant.
 --   * `pii.child.birthday`: the class list carries one; it is a child's personal data, so it is beside the name.
 --   * `pii.read_staff()`: a staff member's name, email and phone, only through this, which writes who asked to `access_log`.
 --
--- Not here: who may see which class (per-person access rules need a proven route first, P-05), and `move_child` writing
--- an enrolment (it still changes `child.section` only; a class-change by that route does not yet close an enrolment).
--- btree_gist is not needed: "one open row" is a partial unique index, and closing is done by `enrol_child()`.
+-- Not here: who may see which class (per-person access rules need a proven way to carry the signed-in staff id on one
+-- database login first, ADR 0024; `internal.apply_conventions()` still gives both app roles `using (true)`), enforcing
+-- `may_grant` (the grant's `granted_by` is still the typed name, not a staff id), `internal.grants_now()`, and
+-- `move_child` writing an enrolment.
+-- btree_gist is not needed: "one open row" is a partial unique index, and one class teacher at a time is the trigger.
 --
 -- ADDITIVE ONLY: no existing table is read or written differently, nothing is dropped, deleted or rewritten. Written to
 -- run twice.
@@ -55,9 +61,8 @@ create table if not exists school_class (
   created_at       timestamptz not null default now(),
   updated_at       timestamptz not null default now(),
   foreign key (tenant_id, grade_code) references grade (tenant_id, code),
-  unique (tenant_id, campus_id, academic_year_id, section)
+  unique (tenant_id, campus_id, academic_year_id, grade_code, section)
 );
-create index if not exists school_class_section_idx on school_class (tenant_id, section);
 
 create table if not exists enrolment (
   id          uuid primary key default gen_random_uuid(),
@@ -79,6 +84,7 @@ create index if not exists enrolment_class_idx on enrolment (class_id) where to_
 create table if not exists staff (
   id         uuid primary key default gen_random_uuid(),
   tenant_id  uuid not null references tenant(id) on delete cascade,
+  campus_id  uuid not null references campus(id),
   active     boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -101,65 +107,129 @@ create table if not exists role (
   tenant_id     uuid not null references tenant(id) on delete cascade,
   code          text not null,
   label         text not null,
-  per_class     boolean not null default false,  -- held for one class (class_id on the grant), not for the school
+  scope         text not null check (scope in ('campus', 'class', 'class_subject', 'child')),
+  may_grant     text[] not null default '{}',  -- the roles that may give this one (kept; not yet enforced)
   one_per_class boolean not null default false,  -- one holder at a time in a class (D-039): a second warns
   ord           integer not null default 0,
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now(),
   primary key (tenant_id, code),
-  check (not one_per_class or per_class)
+  check (not one_per_class or scope = 'class')
 );
+
 create table if not exists staff_role_grant (
   id              uuid primary key default gen_random_uuid(),
   tenant_id       uuid not null references tenant(id) on delete cascade,
   staff_id        uuid not null references staff(id),
   role_code       text not null,
-  class_id        uuid references school_class(id),
-  from_date       date not null,
-  to_date         date,
+  school_class_id uuid references school_class(id),
+  subject_code    text,
+  child_id        uuid references child(id),
+  valid_from      date not null,
+  valid_to        date,
   granted_by      text not null check (btrim(granted_by) <> ''),
   override_reason text check (override_reason is null or btrim(override_reason) <> ''),
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
   foreign key (tenant_id, role_code) references role (tenant_id, code),
-  check (to_date is null or to_date >= from_date)
+  foreign key (tenant_id, subject_code) references subject (tenant_id, code),
+  check (valid_to is null or valid_to >= valid_from)
 );
 create index if not exists staff_role_grant_staff_idx on staff_role_grant (staff_id);
-create index if not exists staff_role_grant_class_idx on staff_role_grant (class_id) where class_id is not null;
+create index if not exists staff_role_grant_class_idx on staff_role_grant (school_class_id) where school_class_id is not null;
+
+-- D-039 as a row, not code: from this grade up, a teacher of a core subject is not a class teacher. "Core" is the
+-- mastery subjects; science and Hindi join the list when they are subjects of the school (only these two are today).
+insert into config (tenant_id, key, value, description)
+select id, 'people.class_teacher_rule',
+  '{"from_grade": "G1", "core_subjects": ["NUM", "ENG"]}'::jsonb,
+  'D-039: from this grade up, someone who teaches a core subject is not a class teacher, and the other way round, unless the grant carries a reason (people.staff_role_grant). Core subjects are subject codes; science and Hindi are added when they are subjects of the school. Before this grade (pre-primary) one educator is the class''s class teacher.'
+from tenant
+on conflict (tenant_id, key) do nothing;
+
+-- A grant is never deleted: it ends (valid_to).
+create or replace function internal.forbid_delete() returns trigger
+language plpgsql as $$
+begin
+  raise exception '% is never deleted: end it with valid_to', tg_table_name;
+end $$;
+
+drop trigger if exists staff_role_grant_never_deleted on staff_role_grant;
+create trigger staff_role_grant_never_deleted before delete on staff_role_grant
+  for each statement execute function internal.forbid_delete();
 
 -- The checks on a grant. The messages are plain words the engine shows as they are; the first word says which check.
---   needs_class / not_for_a_class: a class role names its class, a school role does not.
---   already_holds: the same person already holds the same role (for the same class) on that date. Never overridable.
---   one_per_class: another person holds a role that has one holder at a time. A warning (D-039): the grant goes through
---   only when `override_reason` says why, and the reason stays on the grant.
+--   needs_class / needs_subject / needs_child / wrong_scope: the grant names what the role's scope needs, and nothing else.
+--   already_holds: the same person already holds the same thing on that date. Never overridable.
+--   one_per_class: another person is the class's class teacher. core_teacher: D-039. Both warn: they stand only with
+--   `override_reason`, which stays on the grant.
 create or replace function internal.check_role_grant() returns trigger
 language plpgsql set search_path = public as $$
 declare
   r role%rowtype;
+  rule jsonb;
+  from_ord integer;
+  grade_ord integer;
   other uuid;
 begin
   select * into r from role where tenant_id = new.tenant_id and code = new.role_code;
-  if r.per_class and new.class_id is null then
+  if r.scope in ('class', 'class_subject') and new.school_class_id is null then
     raise exception 'needs_class: % is held for one class; name the class', r.label;
   end if;
-  if not r.per_class and new.class_id is not null then
-    raise exception 'not_for_a_class: % is held for the whole school, not for a class', r.label;
+  if r.scope = 'class_subject' and new.subject_code is null then
+    raise exception 'needs_subject: % is held for a subject in a class; name the subject', r.label;
+  end if;
+  if r.scope = 'child' and new.child_id is null then
+    raise exception 'needs_child: % is held for one child; name the child', r.label;
+  end if;
+  if (r.scope in ('campus', 'child') and new.school_class_id is not null)
+     or (r.scope in ('campus', 'class', 'child') and new.subject_code is not null)
+     or (r.scope <> 'child' and new.child_id is not null) then
+    raise exception 'wrong_scope: % is held for %, and nothing else', r.label, replace(r.scope, '_', ' and ');
   end if;
   if exists (
     select 1 from staff_role_grant g
     where g.tenant_id = new.tenant_id and g.staff_id = new.staff_id and g.role_code = new.role_code
-      and g.class_id is not distinct from new.class_id
-      and (g.to_date is null or g.to_date > new.from_date)
+      and g.school_class_id is not distinct from new.school_class_id
+      and g.subject_code is not distinct from new.subject_code
+      and g.child_id is not distinct from new.child_id
+      and (g.valid_to is null or g.valid_to > new.valid_from)
   ) then
     raise exception 'already_holds: this person already holds % there from an earlier date', r.label;
   end if;
-  if r.one_per_class and new.override_reason is null then
+  if new.override_reason is not null then
+    return new;
+  end if;
+  if r.one_per_class then
     select g.staff_id into other from staff_role_grant g
-    where g.tenant_id = new.tenant_id and g.role_code = new.role_code and g.class_id = new.class_id
-      and (g.to_date is null or g.to_date > new.from_date)
+    where g.tenant_id = new.tenant_id and g.role_code = new.role_code and g.school_class_id = new.school_class_id
+      and (g.valid_to is null or g.valid_to > new.valid_from)
     limit 1;
     if other is not null then
-      raise exception 'one_per_class: the class already has a % (staff %); give a reason to add another', r.label, other;
+      raise exception 'one_per_class: the class already has a %; give a reason to add another', r.label;
+    end if;
+  end if;
+  -- D-039, both ways round: a class teacher given a core subject, and a core-subject teacher made a class teacher
+  select value into rule from config where tenant_id = new.tenant_id and key = 'people.class_teacher_rule';
+  if rule is not null and new.role_code in ('class_teacher', 'subject_educator') then
+    select ord into from_ord from grade where tenant_id = new.tenant_id and code = rule ->> 'from_grade';
+    if new.role_code = 'class_teacher' then
+      select g.ord into grade_ord from school_class c join grade g on g.tenant_id = c.tenant_id and g.code = c.grade_code
+        where c.id = new.school_class_id;
+      if grade_ord >= from_ord and exists (
+        select 1 from staff_role_grant g where g.tenant_id = new.tenant_id and g.staff_id = new.staff_id
+          and g.role_code = 'subject_educator' and g.subject_code in (select jsonb_array_elements_text(rule -> 'core_subjects'))
+          and (g.valid_to is null or g.valid_to > new.valid_from)
+      ) then
+        raise exception 'core_teacher: from % up, a teacher of a core subject is not a class teacher; give a reason to allow it', rule ->> 'from_grade';
+      end if;
+    elsif new.subject_code in (select jsonb_array_elements_text(rule -> 'core_subjects')) and exists (
+      select 1 from staff_role_grant g join school_class c on c.id = g.school_class_id
+        join grade gr on gr.tenant_id = c.tenant_id and gr.code = c.grade_code
+      where g.tenant_id = new.tenant_id and g.staff_id = new.staff_id and g.role_code = 'class_teacher'
+        and gr.ord >= from_ord and (g.valid_to is null or g.valid_to > new.valid_from)
+    ) then
+      raise exception 'core_teacher: from % up, a class teacher does not teach a core subject; give a reason to allow it', rule ->> 'from_grade';
     end if;
   end if;
   return new;
@@ -214,8 +284,8 @@ revoke execute on function pii.read_staff(uuid, text) from public;
 do $$ begin
   if exists (select from pg_roles where rolname = 'app_engine') then
     revoke all on pii.staff from app_engine;
-    grant select, insert, update, delete on campus, academic_year, school_class, enrolment, staff, role,
-      staff_role_grant to app_engine;
+    grant select, insert, update, delete on campus, academic_year, school_class, enrolment, staff, role to app_engine;
+    grant select, insert, update on staff_role_grant to app_engine;
     grant execute on function public.enrol_child(uuid, uuid, text, date, text) to app_engine;
     grant execute on function pii.read_staff(uuid, text) to app_engine;
   end if;
@@ -226,20 +296,29 @@ do $$ begin
   end if;
 end $$;
 
--- The rows every school starts with: the roles the school's decisions already name (config `people.decides`) and the class
--- educator, and the one campus (D-046 says one school), named for the school as the tenant is. Given to every school there
+-- The rows every school starts with: the twelve roles of D-026 and the sign-in list's `educator`, and the one campus (D-046 says one school), named for the school as the tenant is. Given to every school there
 -- now and to any added later, as the vocabulary tables are, so a database built from these files alone has them too.
 create or replace function internal.people_vocabulary(p_tenant uuid) returns void
 language plpgsql security definer set search_path = public as $$
 begin
-  insert into role (tenant_id, code, label, per_class, one_per_class, ord)
-  select p_tenant, v.code, v.label, v.per_class, v.one_per_class, v.ord
+  insert into role (tenant_id, code, label, scope, may_grant, one_per_class, ord)
+  select p_tenant, v.code, v.label, v.scope, array['head', 'coordinator'], v.one_per_class, v.ord
   from (values
-    ('coordinator',   'Coordinator',    false, false, 0),
-    ('educator',      'Educator',       false, false, 1),
-    ('specialist',    'Specialist',     false, false, 2),
-    ('class_teacher', 'Class educator', true,  true,  3)
-  ) v (code, label, per_class, one_per_class, ord)
+    ('subject_educator',  'Subject educator',                 'class_subject', false, 0),
+    ('class_teacher',     'Class teacher',                    'class',         true,  1),
+    ('mentor',            'Mentor',                           'child',         false, 2),
+    ('assistant',         'Assistant',                        'class',         false, 3),
+    ('coordinator',       'Coordinator',                      'campus',        false, 4),
+    ('deputy_coordinator','Deputy coordinator',               'campus',        false, 5),
+    ('curriculum_team',   'Curriculum team',                  'campus',        false, 6),
+    ('head',              'Head',                             'campus',        false, 7),
+    ('ops',               'Ops',                              'campus',        false, 8),
+    ('cover_educator',    'Cover educator',                   'class',         false, 9),
+    ('special_educator',  'Special educator or counsellor',   'child',         false, 10),
+    ('specialist',        'Specialist (PE, music, art)',      'class',         false, 11),
+    -- the one role on the sign-in list (config app.staff) that D-026 does not name
+    ('educator',          'Educator (as on the sign-in list)','campus',        false, 12)
+  ) v (code, label, scope, one_per_class, ord)
   on conflict (tenant_id, code) do nothing;
   insert into campus (tenant_id, name) select p_tenant, t.name from tenant t where t.id = p_tenant
   on conflict (tenant_id, name) do nothing;
