@@ -37,7 +37,10 @@ def _a_paper(c, child, skill, level, marks, section, confirmed=True, day=0):
     """One paper of `child`'s, sat `day` days after 2026-09-01: a capture, and one signed-off answer at `level` for each
     of `marks` ('right', 'wrong', 'blank') — the evidence the graph reads."""
     t = tenant(c)
-    tag = uuid.uuid4().hex[:8].upper()
+    tag = (
+        uuid.uuid4().hex.upper()
+    )  # all of it: the sheet code is unique across every row of the shared test database,
+    # and six hex digits of it collided with one already there (CI engine shard, 2026-11-03)
     tpl = c.execute(
         "insert into sheet_template (tenant_id, band, child_id, week, key, batch_id) values (%s, %s, %s, %s, %s, %s)"
         " returning id",
@@ -46,7 +49,7 @@ def _a_paper(c, child, skill, level, marks, section, confirmed=True, day=0):
     inst = c.execute(
         "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status)"
         " values (%s, %s, %s, %s, 'returned') returning id",
-        (t, f"CS{tag[:6]}", tpl, child),
+        (t, f"CS{tag}", tpl, child),
     ).fetchone()["id"]
     cap = c.execute(
         "insert into capture (tenant_id, path, pages, sheet_instance_id, status) values (%s, 'cal.pdf', 1, %s, 'processed')"
@@ -365,4 +368,22 @@ def test_the_shared_rule_is_the_goals_rule_case_by_case():
                     )["state"]
                     want = _the_rule(n, share, days, adults, repeating, latest, rechecked, harder)
                     assert got == want, (n, right, days, adults, repeating, latest, rechecked, harder)
+        c.rollback()
+
+
+def test_two_papers_whose_random_ids_start_alike_are_both_stored(monkeypatch):
+    """M0-04: a sheet's code is unique across the whole shared test database, so a paper built from only the first six
+    hex digits of a random id collided with a row already there and failed a CI shard by chance (2026-11-03). Two
+    papers whose random ids agree on their first eight digits are both stored, each with a sheet code of its own."""
+    ids = iter(uuid.UUID(f"deadbeef-0000-4000-8000-{n:012x}") for n in range(1, 99))
+    monkeypatch.setattr(uuid, "uuid4", lambda: next(ids))
+    with db.connect() as c:
+        skill, child = _a_skill(c), _a_child_in(c, "CAL-ALIKE")
+        for n in range(2):
+            _a_paper(c, child, skill, LEVEL, ["right"], "CAL-ALIKE", day=n)
+        codes = [
+            r["qr_code"]
+            for r in c.execute("select qr_code from sheet_instance where child_id = %s", (child,))
+        ]
+        assert len(codes) == 2 and len(set(codes)) == 2, codes
         c.rollback()
