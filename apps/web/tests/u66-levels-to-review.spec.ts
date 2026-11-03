@@ -25,16 +25,19 @@ let tenant: string;
 let registry: string;
 
 type Mark = "right" | "wrong";
-const SECURE: Mark[][] = [["right", "right"], ["right", "right"]]; // two papers, four right: the graph's "secure"
+// three papers ten days apart, nine right: enough answers on enough days, re-checked 20 days on — the graph's "secure"
+// at the hardest level (goals/gr1-state-from-recent-evidence.yaml)
+const SECURE: Mark[][] = [["right", "right", "right"], ["right", "right", "right"], ["right", "right", "right"]];
 const HALF: Mark[][] = [["right", "wrong"], ["right", "wrong"]];
 
-/** A class of children, each with the papers given: a capture and a signed-off answer per mark, as the graph reads them. */
+/** A class of children, each with the papers given, ten days apart and the last today: a capture and a signed-off answer
+ *  per mark, as the graph reads them. */
 async function seed(section: string, kids: Mark[][][]) {
   const names = kids.map((_, i) => `Kid${i + 1}`);
   const ids = await aClass(sql, section, GRADE, names);
   for (const [i, papers] of kids.entries()) {
     const child = ids[names[i]];
-    for (const marks of papers) {
+    for (const [p, marks] of papers.entries()) {
       const tag = `${RUN}${Math.random().toString(16).slice(2, 8)}`.toUpperCase();
       const [tpl] = await sql<{ id: string }[]>`
         insert into sheet_template (tenant_id, band, child_id, week, key, batch_id)
@@ -54,7 +57,8 @@ async function seed(section: string, kids: Mark[][][]) {
           values (${tenant}, ${cap.id}, ${item.id}, 'a', ${mark === "right" ? "correct" : "wrong"}, 'confirmed', 'cal@cornerstone.test', now()) returning id`;
         await sql`
           insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, channel, item_result_id, observed_at, confirmed_by)
-          values (${tenant}, ${child}, ${registry}, ${skill.rung}, ${mark === "right"}, 'item', ${res.id}, now(), 'cal@cornerstone.test')`;
+          values (${tenant}, ${child}, ${registry}, ${skill.rung}, ${mark === "right"}, 'item', ${res.id},
+                  now() - make_interval(days => ${10 * (papers.length - 1 - p)}), 'cal@cornerstone.test')`;
       }
     }
   }

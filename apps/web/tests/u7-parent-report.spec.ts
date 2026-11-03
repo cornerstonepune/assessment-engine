@@ -51,11 +51,12 @@ async function tara(): Promise<string> {
                                     item_result_id, observed_at, confirmed_by)
         values (${tenant_id}, ${id}, 'NUM.OPS.02', 'R24', false, '{M_SMALL_FROM_LARGE}', 'item', ${result}, now(), 'e2e')`;
     }
+    // nine right three days apart, the last today: secure, re-checked (goals/gr1-state-from-recent-evidence.yaml)
     for (let n = 0; n < 9; n++)
       await sql`
         insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes, channel,
                                     observed_at, confirmed_by)
-        values (${tenant_id}, ${id}, 'NUM.OPS.01', 'R21', true, '{}', 'item', now(), 'e2e')`;
+        values (${tenant_id}, ${id}, 'NUM.OPS.01', 'R21', true, '{}', 'item', now() - make_interval(days => ${3 * (8 - n)}), 'e2e')`;
     await sql`select rebuild_child_skill_state(${id}::uuid)`;
     return id;
   })) as string;

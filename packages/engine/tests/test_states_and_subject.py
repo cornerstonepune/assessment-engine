@@ -96,7 +96,7 @@ CARD_ORDER = ("move_up", "secure", "practising", "emerging", "reteach", "not_eno
 WHY = {  # engine/w2_print/focus_paper.py WHY, with next_sheet.promote_at 0.8 and demote_below 0.5
     "patterned_error": "the same mistake more than once",
     "emerging": "fewer than half right",
-    "practising": "not yet four in five right",
+    "practising": "not yet four in five right on enough answers and days",  # gr1: not the share alone
     "secure_to_recheck": "four in five right — to check again on a later paper",  # gr1
     "secure": "four in five right — a step up",
     "stretch_ready": "ready to move up",

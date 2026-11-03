@@ -48,6 +48,8 @@ update threshold set description = 'At-level share right over the last next_shee
 where key = 'next_sheet.promote_at';
 
 -- The new state, between practising and secure, and the school's states for every school there now or added later.
+-- Practising's reason now covers too few answers or days, not the share alone: "Right 10 of 10 — not yet four in five
+-- right" was what a paper said of a child right on every answer of one day.
 create or replace function internal.school_states(p_tenant uuid) returns void
 language plpgsql as $$
 begin
@@ -71,7 +73,7 @@ begin
     ('emerging', 1, 'under half right', 'red', true, true, 2, false, false, 'emerging',
      'fewer than {next_sheet.demote_below} right'),
     ('practising', 2, 'practising', 'amber', true, true, 3, false, true, 'practising',
-     'not yet {next_sheet.promote_at} right'),
+     'not yet {next_sheet.promote_at} right on enough answers and days'),
     ('secure_to_recheck', 3, 'secure, to re-check', 'amber', true, true, 4, false, true, 'practising',
      '{next_sheet.promote_at} right — to check again on a later paper'),
     ('secure', 4, 'secure', 'green', false, true, 5, false, false, 'secure',

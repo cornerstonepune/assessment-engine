@@ -12,6 +12,7 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { daysAgo } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -51,11 +52,13 @@ test.beforeAll(async () => {
     const [{ id }] = await sql<{ id: string }[]>`
       insert into child (tenant_id, roll_no, section, band) values (${tenant}, ${c.roll}, ${SECTION}, 'G2') returning id`;
     await sql`insert into pii.child (tenant_id, child_id, first_name) values (${tenant}, ${id}, ${c.name})`;
-    for (const [skill, rung, right, mistakes] of c.answers) {
+    const of = c.answers.map(([skill, rung]) => `${skill}|${rung}`);
+    for (const [i, [skill, rung, right, mistakes]] of c.answers.entries()) {
       await sql`
         insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes, channel,
                                     observed_at, confirmed_by)
-        values (${tenant}, ${id}, ${skill}, ${rung}, ${right}, ${mistakes}, 'item', now(), 'e2e')`;
+        values (${tenant}, ${id}, ${skill}, ${rung}, ${right}, ${mistakes}, 'item',
+                now() - make_interval(days => ${daysAgo(of, i)}), 'e2e')`;
     }
     await sql`select rebuild_child_skill_state(${id}::uuid)`;
     ids[c.name] = id;
