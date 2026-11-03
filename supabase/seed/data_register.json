@@ -42,6 +42,14 @@
       "tables": ["public.evidence_event", "public.child_skill_state"]
     },
     {
+      "code": "observations",
+      "what": "What your child's educator saw during class activities in kindergarten, and the short voice notes she records after them. In a note, children are named only by their class number, never by name.",
+      "why": "So the educator can see how each child is getting on with each activity and plan what comes next. A recording is turned into words by a speech-to-text service, which receives the recording only, never your child's name.",
+      "how_long": "While your child is at the school. How long a recording is kept is for the school to decide; until it does, recordings are kept and not deleted.",
+      "who_sees": "Your child's educators and the school's coordinator. The recordings themselves are kept private.",
+      "tables": ["public.activity_observation", "pii.educator_note", "pii.note_claim"]
+    },
+    {
       "code": "reports",
       "what": "The reports written for you about your child, and who approved them.",
       "why": "So what reaches you has been read and approved by two people at the school.",

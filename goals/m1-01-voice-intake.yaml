@@ -28,10 +28,15 @@ says:
     proved_by: "packages/engine/tests/test_voice_day.py::test_the_date_at_the_start_of_the_days_first_note_is_read_and_never_lands_in_the_future"
   - words: "All parts should just function like a well-oiled machine, right?"
     proved_by: "packages/engine/tests/test_speech.py::test_only_the_recording_and_the_templates_own_words_leave_us"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_tables.py::test_an_observation_is_never_edited_or_deleted_and_a_correction_names_what_it_replaces"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_tables.py::test_the_engine_writes_and_never_deletes_and_the_website_never_sees_a_note"
 manual:
   - "The live call, not run: no Sarvam key in the build container. With SARVAM_API_KEY set on the server, each fixture through engine/adapters/speech.py and the parser; every template word and number counted."
   - "S-M1-01-fixtures: 8 recordings of an adult reading the spoken template with placeholder numbers, made by Nimish per research/2026-11-03-k2-voice-transcription-spike.md (no children, no real numbers); each sent to Sarvam (Nimish's choice, 3 Nov) and every template word and number counted from the parser's reading of its transcript. Fixtures are never proof (D-056)."
   - "Before the first real note: the school's Sarvam workspace Owner sets Settings, Workspace, Data retention to 'No retention' for Model APIs (Sarvam's default keeps data indefinitely), and Sarvam confirms in writing that this covers speech-to-text and that audio is not used for training."
+  - "Actions, rehearse update-live, on the step 3 branch: the migration 20261226090000 runs on a copy of live; `engine past` prints the same evidence, states, scored answers, questions and levels before and after."
   - "Real-note acceptance: the first 20 real K2 notes confirmed by the educator. Not claimed by this goal."
 scenarios: []
 criteria:
@@ -43,6 +48,9 @@ criteria:
     expect: "passed"
   - name: speech to text against a recorded-response stub (the live call on fixtures is manual, not run)
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_speech.py
+    expect: "passed"
+  - name: the tables keep every observation, never edit one, and keep a note off the website (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_tables.py
     expect: "passed"
   - name: a voice recording never reaches git
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_intake.py
