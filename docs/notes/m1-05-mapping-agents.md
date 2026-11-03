@@ -61,10 +61,11 @@ Not built. A new kind is a prompt row, a code check and a bar; propose, check, d
 change.
 
 ## Verified
-- `uv run pytest -q tests/test_map_check.py tests/test_map_eval.py tests/test_map_ledger.py` → `22 passed`
-- `bin/check` → `34 passed`; ruff clean
-- the migration run twice on a local db built by `bin/testdb fresh` → no error
-- `engine live rules --url <local>` → `0 rules held otherwise than the migrations make them`
+- `bin/engine done m1-05-mapping-agents` → every sentence PROVED, every criterion PASSED
+  (test_map_check 10 passed · test_map_eval 5 passed · test_map_ledger 10 passed · test_bars 3 passed · bin/check 34 passed),
+  then `NOT DONE`: the real eval is manual (no model key here) and the work is not live (not merged; live db not reachable).
+- the migration on a database rebuilt by `bin/testdb fresh` (117 migrations) → `engine live rules` 0 differences
+- the full engine suite: run by CI's 12 shards (one machine here timed out at 30 min)
 
 ## Handoff
 - In flight: draft PR #365. Schema queue: #363 → #362 → M1-02 → this. After they merge: merge main, then regenerate
