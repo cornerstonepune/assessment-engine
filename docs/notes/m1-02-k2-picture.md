@@ -36,25 +36,27 @@ W3, gate N10 (the skill graph). Design note, step 1; no code or schema yet (wait
 - `observed_weight` (school, grade, kind, entry mode): `opens_secure`, `rechecks`, `lowers`. K2: individual
   true/true/true; group_as_expected false/true/false. The weight lives here, never on an evidence row.
 
-## The migration (one, additive, after "go schema")
+## The migration — `20261228090000_k2_picture.sql` (additive only)
 
-`2026122809…_k2_picture.sql`: the three tables above; K2 rows for every school + trigger for a new school; the
-functions; grants to `app_engine`/`app_web` (select), **DELETE revoked explicitly** on the two rule tables and on
-the state table for both services (the rebuild is `security definer`); no ledger trigger (nothing here refuses
-TRUNCATE); `data_register` entry for `child_observed_state`; `internal.apply_conventions()` last. Nothing existing is
-altered. Then `engine live rules --write --url <local>` and `engine past` before/after on a local db.
+The three tables above; K2 rows for every school, and a trigger named to fire after the vocabularies it names; the
+functions; select only for both services, DELETE (and insert, update, truncate) revoked on all three; no trigger
+refuses TRUNCATE; `child_observed_state` in the data register's "learning" entry; `apply_conventions()` last.
+Orchestrator's answers (D-047, his call; Nimish may overturn): a later named lower mark re-opens to practising;
+group-only is a `not_enough_yet` row; a second named yes ≥ 14 days on is its own re-check.
 
-## Questions for the orchestrator (my defaults in brackets)
+## Verified (a local database only; never live)
 
-- A named lower mark on a later day after secure: does it re-open the skill? [yes, to practising: `lowers` on the
-  individual row; group never]. The task's words fix "never lowers" only for group lines.
-- Group-only child: `not_enough_yet` row, or no row? [a row: D-008 says a "rest" line is an observation].
-- 14 days from the first named yes, even when the second named yes is itself ≥ 14 days later? [yes, it re-checks].
-
-## Verified
-
-- Nothing yet.
+- `tests/test_k2_picture.py` → 11 passed, incl. one through #362's own confirm step; with the graph, voice, register,
+  privileges, rules, roles, vocabulary and loader suites → 84 passed.
+- Migration applied twice in a row: no error. `engine live rules --write --url <local>` → only the new tables' rules.
+- `engine past` on a fresh db (every migration but this one, seed, the 11 GR1 ledgers as written evidence), then this
+  migration and `engine graph`: before = after, evidence 154 / states 11 / scored 154, same checksums; no state or
+  next level moved.
+- Independent read (athena-verifier): no blocking finding; its tie-break and tenant-join points fixed and tested.
+- `bin/check` → 34 passed. `bin/engine done m1-02-k2-picture` → every sentence PROVED, every criterion PASSED,
+  "NOT DONE": not on main, live unreachable from here, two steps manual.
 
 ## Handoff
 
-- In flight: this note. Next: goal file + failing tests (no schema), then the migration on "go schema".
+- In flight: PR #364, based on #362's branch; retarget to main once #362 lands. Rehearsal (`rehearse update-live`)
+  only on a head containing #363 on main (orchestrator). Next: the real proof by hand on the first K2 notes.

@@ -111,7 +111,7 @@ language sql stable set search_path = public as $$
            (e.observed_at at time zone coalesce(z.value #>> '{}', 'UTC'))::date as day,
            w.opens_secure, w.rechecks, w.lowers, r.secure_mark, r.secure_days, r.recheck_days, r.min_adults
     from evidence_event e
-    join activity_observation o on o.id = e.observation_id
+    join activity_observation o on o.id = e.observation_id and o.tenant_id = e.tenant_id
     join school_class k on k.id = o.class_id
     join observed_weight w on w.tenant_id = e.tenant_id and w.grade_code = k.grade_code and w.kind = e.kind
                           and w.entry_mode = o.entry_mode
@@ -127,7 +127,8 @@ language sql stable set search_path = public as $$
            (count(distinct ev.seen_by) filter (where ev.opens_secure and ev.mark = ev.secure_mark))::int as adults,
            min(ev.day) filter (where ev.opens_secure and ev.mark = ev.secure_mark) as first_named_yes,
            bool_or(ev.lowers) as named,
-           (array_agg(ev.mark order by ev.observed_at desc) filter (where ev.lowers))[1] as latest_named,
+           (array_agg(ev.mark order by ev.observed_at desc, ev.mark = ev.secure_mark) filter (where ev.lowers))[1]
+             as latest_named,  -- two named marks at one moment: the lower decides, so a rebuild never flips
            max(ev.observed_at) as last_seen
     from ev group by 1, 2, 3, 4
   ), judged as (

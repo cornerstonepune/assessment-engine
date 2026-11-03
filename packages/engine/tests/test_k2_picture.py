@@ -225,3 +225,12 @@ def test_notes_confirmed_by_the_educator_change_the_picture_through_the_confirm_
     assert {(r["skill_code"], r["state"]) for r in picture(conn, rest)} == {
         (s, "not_enough_yet") for s in k["skills"]
     }
+
+
+def test_two_named_marks_at_one_moment_give_the_lower_every_time(conn, k2):
+    child = a_child(conn)
+    seen(conn, k2, child, 0, "above")
+    seen(conn, k2, child, 14, "above")
+    seen(conn, k2, child, 20, "above")
+    seen(conn, k2, child, 20, "below")  # the same moment, a lower mark
+    assert {state(conn, k2, child) for _ in range(3)} == {"practising"}
