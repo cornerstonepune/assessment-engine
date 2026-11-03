@@ -16,12 +16,23 @@ goal: >
 says:
   - words: "All parts should just function like a well-oiled machine, right?"
     proved_by: "packages/engine/tests/test_voice_intake.py::test_git_refuses_every_kind_of_voice_recording_and_holds_none"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_note.py::test_the_template_is_read_into_one_line_per_section_each_beside_its_own_words"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_note.py::test_an_unclear_or_misheard_word_is_could_not_read_and_blocks_confirm"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_note.py::test_hindi_number_words_are_read_in_latin_letters_and_in_devanagari_and_devanagari_digits_too"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_note.py::test_an_incident_is_its_own_line_and_its_words_are_not_read_as_lists"
 manual:
   - "S-M1-01-fixtures: 8 recordings of an adult reading the spoken template with placeholder numbers, made by Nimish per research/2026-11-03-k2-voice-transcription-spike.md (no children, no real numbers); each sent to Sarvam (Nimish's choice, 3 Nov) and every template word and number counted from the parser's reading of its transcript. Fixtures are never proof (D-056)."
   - "Before the first real note: the school's Sarvam workspace Owner sets Settings, Workspace, Data retention to 'No retention' for Model APIs (Sarvam's default keeps data indefinitely), and Sarvam confirms in writing that this covers speech-to-text and that audio is not used for training."
   - "Real-note acceptance: the first 20 real K2 notes confirmed by the educator. Not claimed by this goal."
 scenarios: []
 criteria:
+  - name: S-M1-01-notes (typed) — the template read by code from typed transcripts, problems blocking Confirm
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_note.py
+    expect: "passed"
   - name: a voice recording never reaches git
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_intake.py
     expect: "passed"

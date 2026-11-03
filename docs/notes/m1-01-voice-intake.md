@@ -1,6 +1,8 @@
 # M1-01 — K2 voice-note intake
 
-W3 (read and graph). A new step for voice notes is proposed to `workflows.json` with the parser (step 2), not before.
+W3 (read and graph), step N9 (Read, check and learn). Not a new step: the map holds the twelve steps agreed with the
+school and `test_layout` refuses a thirteenth, so `engine/w3_read/voice_note.py` joins N9, whose loop is the same: code
+reads, each line beside its words, a person confirms.
 
 ## Verified
 
@@ -9,6 +11,13 @@ W3 (read and graph). A new step for voice notes is proposed to `workflows.json` 
 - `bin/check` → 34 passed.
 - `bin/engine done m1-01-voice-intake` → the sentence PROVED, every criterion PASSED, "NOT DONE": not on main, the
   live database does not answer from the build container, three steps manual.
+
+- `cd packages/engine && uv run pytest -q tests/test_voice_note.py` → 61 passed (typed transcripts, placeholder
+  numbers): one line per section beside its own words; Hindi number words in Latin letters and Devanagari, and
+  Devanagari digits; a repeat is one child and said so; "twelve, no, thirteen" replaced and shown; "one seven" is two
+  numbers; an unknown word is "could not read" and blocks Confirm; no activity, two activities, an empty heading, none
+  with numbers, a dangling correction, a child in two lists all block; an incident and the free sentence keep their
+  own words; every number word in the rows reads as its number and none means two; a new heading is a row.
 
 ## Not verified / open
 
@@ -19,5 +28,6 @@ W3 (read and graph). A new step for voice notes is proposed to `workflows.json` 
 
 ## Handoff
 
-- Live: nothing changed. In flight: step 1 (this goal, the spike, audio kept out of git). Next: the parser, once the
-  template text arrives. Blocked: the teacher-os documents; Nimish's 8 recordings.
+- Live: nothing changed. In flight: step 1 (#357) and step 2, the parser (its words in
+  `supabase/seed/voice_template.json`, to be checked against teacher-os field/k2-shadow-capture.md). Next: the tables,
+  after M0-05's people and enrolment land. Blocked: the teacher-os documents; Nimish's 8 recordings.
