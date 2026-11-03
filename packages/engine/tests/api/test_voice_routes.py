@@ -124,7 +124,9 @@ class _held:
         return False
 
 
-def test_her_classes_come_from_her_grant_today_and_a_draft_carries_the_level_she_expected(engine):
+def test_her_classes_come_from_her_grant_today_and_a_draft_carries_the_level_she_expected_and_whether_anything_was_heard(
+    engine,
+):
     """The Record row lists the classes her role grant names today, whose grade has activities; never one she typed,
     never one whose grant has ended. The draft says the level she expected, or the template's default."""
     client, conn = engine
@@ -146,9 +148,10 @@ def test_her_classes_come_from_her_grant_today_and_a_draft_carries_the_level_she
     said = a_note(conn, k, "Activity 12, level 3. Above 3.")
     plain = a_note(conn, k, "Activity 12. Above 3.")
 
-    def level(note) -> int:
+    def draft(note) -> dict:
         me = {"actor": k["email"], "note_id": str(note["id"])}
-        return _post(client, "/voice/notes/draft", me).json()["level"]
+        return _post(client, "/voice/notes/draft", me).json()
 
-    assert level(said) == 3
-    assert level(plain) == voice_note.template().default_level
+    assert draft(said)["level"] == 3
+    assert draft(plain)["level"] == voice_note.template().default_level
+    assert draft(plain)["heard"] is True and draft(a_note(conn, k, ""))["heard"] is False

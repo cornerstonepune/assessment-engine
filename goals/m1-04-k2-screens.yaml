@@ -1,0 +1,50 @@
+name: m1-04-k2-screens
+goal: >
+  A K2 educator, on a desktop or a phone, records a spoken note after an activity or puts the same in by tapping, and
+  confirms it: What needs doing carries "Record a note" for each class her role grant names and "Notes to confirm" with
+  the one count; Record sends her recording straight to the engine; Confirm shows what she said line by line beside the
+  class's children already marked from it, the red problems pinned first, each with its fix, and its one button off
+  while one remains; the form is paint mode (pick a mark, tap the children; nothing ticked, the rest off) and its Save,
+  under the count line, is her confirmation; a note that could not be read sends her to the form. All of it behind the
+  switch voice.screens_enabled: while it is off, no K2 group shows and every K2 address is not found.
+# Written 2026-11-03, before the screens (task M1-04, step 4b of M1-01; the design agreed that day: desktop first,
+# colour first, a child a square cell and never red, work a round chip, icons behind apps/web/lib/icons.tsx, words in
+# apps/web/lib/voice-words.ts). No timetable yet, so no session rows: Record takes an optional activity for later.
+# Not now: the class picture and the child page (M1-03 Part B). No migration.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-04-k2-voice-notes.spec.ts::while voice notes are switched off no K2 group shows and every K2 address is not found"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-04-k2-voice-notes.spec.ts::What needs doing carries Record a note and Notes to confirm, and a row opens its note"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-04-k2-voice-notes.spec.ts::the board's rules: a stranger, a child in two lists, no activity, a future date, each red until fixed, and the count line adds up"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-04-k2-voice-notes.spec.ts::Confirm shows what she said beside the class already marked, red problems first, the button off until each is fixed, then writes her observations"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-04-k2-voice-notes.spec.ts::the form is paint mode: nothing ticked, the rest off, and Save under the count line writes the observations"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-04-k2-voice-notes.spec.ts::Record sends her recording and opens the note being read; a refused microphone points to the form"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-04-k2-voice-notes.spec.ts::a note that could not be read, or where nothing was heard, sends her to the form"
+  - words: "Do not wait for my approvals... build in parallel... every session has a very specific, clear goal post in test cases."
+    proved_by: "apps/web/tests/m1-04-k2-voice-notes.spec.ts::each K2 screen is shot at 1280 and 390 pixels with placeholder children"
+manual:
+  - "On a real phone (Android Chrome and iPhone Safari), with voice.screens_enabled switched on for a test class only: record a note, hear it played back on Confirm, confirm it. The browser test fakes the microphone."
+  - "Nimish reads the screenshots (apps/web/test-results/k2-screens/) and the words in apps/web/lib/voice-words.ts; the copy may change after."
+scenarios: []
+criteria:
+  - name: the K2 screens, each with its screenshots at 1280 and 390 pixels (a database built from the migrations)
+    run: cd apps/web && npx playwright test tests/m1-04-k2-voice-notes.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the site's rules, the menu, What needs doing and the speed test still hold
+    run: cd apps/web && npx playwright test tests/u51-ux-rules.spec.ts tests/u62-scope-and-todo-logic.spec.ts tests/u62-assessment-steps.spec.ts tests/u64-what-needs-doing-groups.spec.ts tests/u64-a-file-read-again-is-one-line.spec.ts tests/u64-stop-a-kind.spec.ts tests/u53-the-menu.spec.ts tests/u53-staff-and-school.spec.ts tests/u53-skill-name-opens-the-skill.spec.ts tests/u71-results-by-topic.spec.ts tests/u71-results-numbers.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the engine's voice routes the screens call (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/api/test_voice_routes.py tests/test_voice_day.py
+    expect: "passed"
+  - name: the website type-checks
+    run: cd apps/web && npx next typegen >/dev/null && npx tsc --noEmit && echo passed
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

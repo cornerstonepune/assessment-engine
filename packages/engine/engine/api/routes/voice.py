@@ -142,6 +142,7 @@ def draft(body: NoteRef, conn=Depends(get_conn, scope="function")):
         "note_id": str(note["id"]), "status": note["status"], "received_at": note["received_at"].isoformat(),
         "kind": found.draft.kind, "taught_on": found.taught_on.isoformat(), "activity": found.activity,
         "level": found.draft.expected_level(voice_note.template()), "day_problems": list(found.draft.day_problems),
+        "heard": bool((note["transcript"] or "").strip()),
         "lines": lines, "problems": [*found.draft.problems, *found.problems], "children": found.children,
         "enrolled": sorted(found.enrolled, key=lambda r: (len(r), r)), "count": found.count_line(),
         "blocked": found.blocked,

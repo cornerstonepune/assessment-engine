@@ -1,4 +1,6 @@
 import type { State } from "@/components/status-chip";
+import { classWords, type MyVoice, SCHOOL_ZONE } from "./voice-types";
+import { W } from "./voice-words";
 
 // What needs doing, as one list of tasks (goals/nav_teacher_scope_and_todo.yaml). Nimish, 24 Oct 2026: "Key things that need
 // to happen should be in a simple table with some red, amber, green notation ... Everything has to have its own set of
@@ -6,7 +8,7 @@ import type { State } from "@/components/status-chip";
 // the sources are read in lib/queries-todo.ts, and this turns them into rows, so the rows can be tested without a database.
 
 export type Ref = { subject: string | null; topic: string | null; topicName: string | null };
-export type Kind = "check" | "signoff" | "classpaper" | "home" | "skill" | "report" | "ask" | "empty" | "taught" | "generate";
+export type Kind = "check" | "signoff" | "classpaper" | "home" | "skill" | "report" | "ask" | "empty" | "taught" | "generate" | "record" | "note";
 
 /** What a kind of task is called, how urgent it is, and the chip that says so (red: do now; amber: this week; green: when ready). */
 export const KINDS: Record<Kind, { what: string; state: State; rank: number }> = {
@@ -20,6 +22,9 @@ export const KINDS: Record<Kind, { what: string; state: State; rank: number }> =
   ask: { what: "Answer a question", state: "doSoon", rank: 1 },
   taught: { what: "Mark a topic taught", state: "whenReady", rank: 2 },
   generate: { what: "Generate an assessment", state: "whenReady", rank: 2 },
+  // K2 voice notes (task M1-04): a note waits for her to confirm it; recording one is there when she needs it, never counted
+  note: { what: W.kinds.note, state: "toConfirm", rank: 1 },
+  record: { what: W.kinds.record, state: "toDo", rank: 2 },
 };
 
 export type Task = {
@@ -53,6 +58,8 @@ export type Sources = {
   reports: { section: string; gradeWords: string; n: number }[];
   asks: number;
   empty: number;
+  /** her K2 classes and her notes waiting (lib/voice.ts), none while voice notes are switched off */
+  voice?: MyVoice | null;
 };
 
 export const count = (n: number, one: string, more = `${one}s`) => `${n.toLocaleString("en-IN")} ${n === 1 ? one : more}`;
@@ -87,11 +94,26 @@ export function buildTasks(src: Sources, subjectLabel: (code: string | null) => 
     add("taught", t.topic, { subject: t.subject, topic: t.topic, topicName: t.topicName }, [t.sections.length > 3 ? `${t.sections.length} classes` : t.sections.join(", ")], count(t.sections.length, "class", "classes"), `/?topic=${encodeURIComponent(t.topic)}`, "Mark as taught", t.topicName, t.sections);
   for (const g of src.generate)
     add("generate", `${g.topic}|${g.section}`, { subject: g.subject, topic: g.topic, topicName: g.topicName }, [g.section], "none yet", `/papers/make?topic=${encodeURIComponent(g.topic)}&section=${encodeURIComponent(g.section)}`, "Make one", g.section, [g.section]);
+  const klass = new Map((src.voice?.classes ?? []).map((c) => [c.id, classWords(c)]));
+  for (const c of src.voice?.classes ?? []) add("record", c.id, none, [klass.get(c.id)!], "", `/voice/record?class=${c.id}`, W.record.start, klass.get(c.id)!, [klass.get(c.id)!]);
+  for (const n of src.voice?.notes ?? []) {
+    const where = klass.get(n.class_id) ?? "";
+    add("note", n.id, none, [where, heardAt(n.received_at)], "1 note", `/voice/notes/${n.id}`, n.status === "received" ? W.confirm.reading : W.confirm.button, where, where ? [where] : []);
+    if (n.status === "received") out[out.length - 1].state = "reading";
+  }
   if (src.asks) add("ask", "drafted", none, [], count(src.asks, "question"), "/asks", "Open the questions", "Questions to answer");
   if (src.empty) add("empty", "scans", none, [], count(src.empty, "scan"), "/capture#nothing-came-back", "Look at the scans", "Upload papers");
   return out.sort((a, b) => KINDS[a.kind].rank - KINDS[b.kind].rank || (a.subject ?? "~").localeCompare(b.subject ?? "~") || (a.topicName ?? "").localeCompare(b.topicName ?? "") || a.where.localeCompare(b.where, "en", { numeric: true }));
 }
 const none: Ref = { subject: null, topic: null, topicName: null };
+
+/** When a note reached us, as she reads it: "10:42" today, else "3 Nov 10:42" (the school's clock). */
+function heardAt(iso: string): string {
+  const at = new Date(iso);
+  const day = (d: Date) => d.toLocaleDateString("en-IN", { timeZone: SCHOOL_ZONE, day: "numeric", month: "short" });
+  const time = at.toLocaleTimeString("en-IN", { timeZone: SCHOOL_ZONE, hour: "2-digit", minute: "2-digit", hour12: false });
+  return day(at) === day(new Date()) ? time : `${day(at)} ${time}`;
+}
 
 /** The topic filter that means "the tasks of no topic" (a class's papers, the questions). */
 export const NO_TOPIC = "none";
@@ -112,10 +134,13 @@ export function filterTasks(tasks: readonly Task[], f: Filters, mySubjects: read
  *  things that you need to do ... skills to be checked or topics to be marked ... Everything is very well sequenced." In the order
  *  the work happens (docs/sources/assessment-workflow-v1.md): the skills (N1), what was taught (N4), the papers made and approved
  *  (N5-N7), the scans read (N8), the answers checked (N9), the home papers (N11), the reports (N12). */
-export type GroupKey = "skills" | "asks" | "taught" | "generate" | "classpapers" | "scans" | "answers" | "home" | "reports";
+export type GroupKey = "record" | "notes" | "skills" | "asks" | "taught" | "generate" | "classpapers" | "scans" | "answers" | "home" | "reports";
 /** `of`: what one row is, for the count on the group's line ("3 papers"). */
 export type Group = { key: GroupKey; title: string; of: readonly [string, string]; kinds: readonly Kind[]; home: string };
 export const TODO_GROUPS: readonly Group[] = [
+  // K2 first: a note is recorded after the activity and confirmed the same day (shown only while voice notes are on)
+  { key: "record", title: W.groups.record, of: ["class", "classes"], kinds: ["record"], home: "/today?open=record" },
+  { key: "notes", title: W.groups.notes, of: ["to confirm", "to confirm"], kinds: ["note"], home: "/today?open=notes" },
   { key: "skills", title: "Skills to approve", of: ["skill", "skills"], kinds: ["skill"], home: "/skill-sets/approve" },
   { key: "asks", title: "Questions to answer", of: ["question", "questions"], kinds: ["ask"], home: "/asks" },
   { key: "taught", title: "Topics to mark as taught", of: ["topic", "topics"], kinds: ["taught"], home: "/" },

@@ -20,13 +20,15 @@ const SRC: Sources = {
   reports: [{ section: "2B", gradeWords: "Grade 2", n: 7 }],
   asks: 2,
   empty: 1,
+  // K2 voice notes (task M1-04): a class she records for and a note waiting (placeholder ids)
+  voice: { classes: [{ id: "c1", grade: "K2", section: "A" }], notes: [{ id: "n1", class_id: "c1", status: "drafted", received_at: "2026-11-03T05:00:00Z" }] },
 };
 const tasks = buildTasks(SRC, (c) => c ?? "");
 
 test("every kind of task is in exactly one group, and the groups follow the order the work happens", () => {
   const kinds = Object.keys(KINDS) as Kind[];
   for (const k of kinds) expect(TODO_GROUPS.filter((g) => g.kinds.includes(k)).map((g) => g.key), k).toHaveLength(1);
-  expect(TODO_GROUPS.map((g) => g.key)).toEqual(["skills", "asks", "taught", "generate", "classpapers", "scans", "answers", "home", "reports"]);
+  expect(TODO_GROUPS.map((g) => g.key)).toEqual(["record", "notes", "skills", "asks", "taught", "generate", "classpapers", "scans", "answers", "home", "reports"]);
   expect(sectionsOf(tasks).map((s) => s.group.key)).toEqual(TODO_GROUPS.map((g) => g.key));
 });
 

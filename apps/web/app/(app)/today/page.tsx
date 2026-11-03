@@ -27,7 +27,7 @@ import { switchTopic } from "../topic-actions";
 // (lib/todo.ts `TODO_GROUPS`). A row has its own action and there is no button over every row. Each group's heading opens the page
 // that does that kind of work. In the person's subjects and classes (lib/viewing.ts, lib/scope.ts); the page's own filters narrow it.
 const COLUMNS = (mixed: boolean): Column<Task>[] => [
-  { key: "priority", label: "Priority", status: true, width: "9rem", keep: true, value: (t) => t.state, cell: (t) => <StatusChip state={t.state} /> },
+  { key: "priority", label: "Priority", status: true, width: "9rem", keep: true, value: (t) => t.state, cell: (t) => <StatusChip state={t.state} round={t.kind === "note" || t.kind === "record"} /> },
   ...(mixed ? [{ key: "what", label: "What", width: "13rem", value: (t: Task) => t.what }] : []),
   { key: "where", label: "Where", value: (t) => t.where },
   { key: "many", label: "How many", width: "8rem", value: (t) => t.many },

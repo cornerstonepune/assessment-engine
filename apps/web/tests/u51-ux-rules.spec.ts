@@ -18,6 +18,7 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { aClass, aReadPaper } from "./rows";
+import { aK2Note, k2Class, voiceSwitch } from "./k2-rows";
 import { SIGNED_IN } from "../playwright.config";
 import { FILTER_FROM_ROWS, PURPOSE_MAX, SEARCH_PX, TABLE_ROW_LIMIT, TOP_BAR_MIN_PX, groupRows, isEmptyCell, pageOf, visibleColumns } from "../lib/ux-rules";
 
@@ -160,6 +161,33 @@ test("every page keeps the rules, or is named as still breaking them, and only t
   test.info().annotations.push({ type: "still breaking, by hand", description: measured.join("\n") });
   expect(wrong, "a page off workflows.json ux.frozen breaks a rule").toEqual([]);
   await page.context().close();
+});
+
+// The K2 voice-note pages (task M1-04) are shown only while voice.screens_enabled is on: switched on for this test alone,
+// with the placeholder K2 class of tests/k2-rows.ts, and off again whatever happens. Each keeps every rule.
+test("the K2 voice-note pages keep every rule while voice notes are switched on", async ({ browser }) => {
+  const k = await k2Class(sql);
+  const note = await aK2Note(sql, k, "Activity 904, level 2. Above 3. Below 5. The rest did as expected.");
+  await voiceSwitch(sql, true);
+  const page = await (await browser.newContext({ storageState: SIGNED_IN })).newPage();
+  try {
+    const wrong: string[] = [];
+    for (const [route, url] of [
+      ["/today", "/today?open=notes"],
+      ["/voice/record", `/voice/record?class=${k.klass}`],
+      ["/voice/form", `/voice/form?class=${k.klass}`],
+      ["/voice/notes/[id]", `/voice/notes/${note}`],
+    ]) {
+      await open(page, url);
+      const found = await breaks(page);
+      expect(FROZEN[route], `${route} is a new page: never on ux.frozen`).toBeUndefined();
+      if (found.length) wrong.push(`${route}: ${found.join(", ")}`);
+    }
+    expect(wrong).toEqual([]);
+  } finally {
+    await voiceSwitch(sql, false);
+    await page.context().close();
+  }
 });
 
 test("Check answers is built on the blocks: one main action, its next step, one count", async ({ browser }) => {

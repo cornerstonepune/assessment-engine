@@ -41,7 +41,7 @@ says:
   - words: "All parts should just function like a well-oiled machine, right?"
     proved_by: "packages/engine/tests/api/test_voice_routes.py::test_every_route_refuses_while_voice_notes_are_switched_off"
   - words: "All parts should just function like a well-oiled machine, right?"
-    proved_by: "packages/engine/tests/api/test_voice_routes.py::test_her_classes_come_from_her_grant_today_and_a_draft_carries_the_level_she_expected"
+    proved_by: "packages/engine/tests/api/test_voice_routes.py::test_her_classes_come_from_her_grant_today_and_a_draft_carries_the_level_she_expected_and_whether_anything_was_heard"
   - words: "All parts should just function like a well-oiled machine, right?"
     proved_by: "packages/engine/tests/test_voice_day.py::test_the_problems_about_the_date_are_named_apart_so_picking_the_date_fixes_them"
 manual:

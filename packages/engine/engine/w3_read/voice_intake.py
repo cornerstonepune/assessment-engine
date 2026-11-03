@@ -10,6 +10,7 @@ with no child, an activity not on the list, is a problem shown to her, never gue
 import datetime as dt
 import uuid
 from dataclasses import dataclass, field
+from zoneinfo import ZoneInfo
 
 from engine.adapters import speech
 from engine.core import db, settings
@@ -120,9 +121,16 @@ def activity_of(conn: db.Conn, class_id: str, number: int) -> list[str]:
     ]
 
 
+def school_day(conn: db.Conn, at: dt.datetime) -> dt.date:
+    """The day a moment falls on by the school's clock (config `school.time_zone`), never the server's: a note heard at
+    03:54 in Pune is about that morning, though it is still the night before in UTC."""
+    return at.astimezone(ZoneInfo(settings.config(conn, "school.time_zone", "Asia/Kolkata"))).date()
+
+
 def resolve(conn: db.Conn, note: dict) -> Resolved:
     draft = voice_note.read(note["transcript"] or "")
-    day = voice_day.taught_on(draft.day, note["received_at"].date()) or note["received_at"].date()
+    heard = school_day(conn, note["received_at"])
+    day = voice_day.taught_on(draft.day, heard) or heard
     out = Resolved(draft, day, None, enrolled=enrolled(conn, note["class_id"], day))
     act = draft.line("activity")
     if act and act.numbers:
