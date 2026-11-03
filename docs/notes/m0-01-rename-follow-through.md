@@ -6,7 +6,7 @@ No workflow or gate moved: this is plumbing after the repository's rename to cor
 - The report button files issues in `cornerstonepune/cornerstone-platform` (`apps/web/lib/github.ts`, and the fake GitHub
   in `apps/web/tests/github-server.ts`). The website's test (`u70-report-a-problem.spec.ts`) was NOT run here: the
   website's packages and the full local stack are not installed in this session. Run it in CI.
-- The real pooler address is gone from the repository (`git grep pooler.supabase.com` finds nothing). The Phase 0 plan's
+- The real pooler address is gone from the repository (a search of every file for the pooler's host name finds nothing). The Phase 0 plan's
   example now reads `postgres.<project-ref>:<password>@<pooler-host>:5432`. No password was touched; live was not connected to.
 - `engine past`, on a local database built from the repository alone (`bin/testdb fresh`; Docker is not available here),
   before (main 7a6d902) and after this branch, identical:
