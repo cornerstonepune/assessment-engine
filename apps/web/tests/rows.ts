@@ -140,3 +140,11 @@ export async function aLine(form: Locator, i: number, topic: string, skill: stri
   await form.getByLabel(`Level ${i}`).selectOption(level);
   await form.getByLabel(`Questions ${i}`).fill(n);
 }
+
+/** How many days before now the `i`th of a child's answers was signed off: each skill's answers three days apart, the
+ *  first oldest, so a run of right answers spans the days and the re-check the graph asks of a secure skill, and a
+ *  mistake keeps its place among them (goals/gr1-state-from-recent-evidence.yaml). `of` is each answer's skill and rung. */
+export function daysAgo(of: string[], i: number): number {
+  const later = of.slice(i + 1).filter((k) => k === of[i]).length;
+  return 3 * later;
+}

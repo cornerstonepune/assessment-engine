@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from engine.checks import scenarios_graph
 from engine.core import db, loaders, settings, vocabulary
 from engine.w2_print import library, prescribe, shelf
 
@@ -111,30 +112,17 @@ SET = "ADD.2D2D"
 
 
 def _child(conn, prior: str | None, right: int, answered: int) -> str:
-    """A child of a section of their own with `right` of `answered` confirmed answers on SET's rung, last prescribed
-    at `prior`."""
-    tenant = loaders._tenant(conn)
-    rung = conn.execute("select rung_code from skill where code = %s", (SET,)).fetchone()["rung_code"]
-    child = conn.execute(
-        "insert into child (tenant_id, roll_no, section, band) values (%s, '1', 'B0C-TEST', 'G2') returning id",
-        (tenant,),
-    ).fetchone()["id"]
-    for i in range(answered):
-        conn.execute(
-            "insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, channel, observed_at,"
-            " confirmed_by) values (%s, %s, 'NUM.OPS.01', %s, %s, 'item', now(), 'test')",
-            (tenant, child, rung, i < right),
-        )
-    if prior:
-        conn.execute(
-            "insert into prescription (tenant_id, child_id, week, kind, skill_set_code, difficulty, rule_fired)"
-            " values (%s, %s, '2026-W43', 'practice', %s, %s, 'test')",
-            (tenant, child, SET, prior),
-        )
-    return child
+    """A child of a section of their own with `right` of `answered` signed-off answers on one paper of SET at `prior`
+    (the school's usual level when none was prescribed), last prescribed at `prior`. The next level reads only the
+    child's papers at their current level (goals/gr1-state-from-recent-evidence.yaml), so the answers are made at it."""
+    usual = conn.execute("select value #>> '{}' as v from config where key = 'level.usual'").fetchone()["v"]
+    marks = " ".join(["R"] * right + ["W"] * (answered - right))
+    sc = {"skill": SET, "prescribed": prior, "ledger": [{"day": 0, "level": prior or usual, "marks": marks}]}
+    return scenarios_graph.ledger(conn, sc)[0]
 
 
-# (last prescribed, right, answered) -> (the level next, the rule): the rule as it was before B0c, written out
+# (last prescribed, right, answered) -> (the level next, the rule): the rule as it was before B0c, written out; one paper
+# at the current level gives the same answers under gr1's rule
 BEFORE = {
     (None, 1, 2): (None, "band_default"),
     (None, 9, 10): ("Hard", "from_state"),

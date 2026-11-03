@@ -465,8 +465,10 @@ def test_paper_scan_confirm_graph(conn, child, tmp_path, monkeypatch, every_kind
     )
     assert (states["R22"]["n_events"], states["R22"]["n_correct"]) == (3, 1)
 
-    # 1 of 3 on R22 is under demote_below: the next ADD.2D2D sheet steps down and names the mistake
-    assert graph.next_difficulty(conn, child, "ADD.2D2D") == ("Easy", "from_state", ["M_NOCARRY"])
+    # A paper from before the levels names no level, so none of its answers is at the level the next paper steps from
+    # (goals/gr1-state-from-recent-evidence.yaml): the child stays at their current level, the school's usual one when
+    # nothing was prescribed. The graph above still shows the repeating mistake.
+    assert graph.next_difficulty(conn, child, "ADD.2D2D") == ("Medium", "from_state", [])
 
     # a person settles the row the machine could not; the map is rebuilt from it
     rid = conn.execute(

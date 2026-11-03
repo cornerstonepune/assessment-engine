@@ -9,8 +9,14 @@ import { levels } from "./levels";
 export type ColourRules = {
   /** Answers a skill needs before it has a colour at all (`state.min_events`). */
   minAnswers: number;
-  /** Papers a skill must be seen on before it is green (`state.min_observers`). */
-  minPapers: number;
+  /** School days a level's latest answers must span before it is green (`state.min_days`). */
+  minDays: number;
+  /** The latest answers at a level its colour is read from (`state.window_answers`). */
+  window: number;
+  /** Times a mistake shows in them to be red (`state.repeat_min`). */
+  repeatMin: number;
+  /** Days after which a later paper must hold again for green (`state.recheck_days`). */
+  recheckDays: number;
   /** The share right from which a skill is green (`next_sheet.promote_at`), and under which it is red. */
   promote: number;
   demote: number;
@@ -24,9 +30,12 @@ export type ColourRules = {
 };
 
 export async function colourRules(): Promise<ColourRules> {
-  const [[r], { order }] = await Promise.all([sql<{ min_events: number; min_obs: number; promote: number; demote: number; levels: Record<string, string> }[]>`
+  const [[r], { order }] = await Promise.all([sql<{ min_events: number; min_days: number; window: number; repeat_min: number; recheck: number; promote: number; demote: number; levels: Record<string, string> }[]>`
     select (select value from threshold where key = 'state.min_events')::float as min_events,
-           (select value from threshold where key = 'state.min_observers')::float as min_obs,
+           (select value from threshold where key = 'state.min_days')::float as min_days,
+           (select value from threshold where key = 'state.window_answers')::float as window,
+           (select value from threshold where key = 'state.repeat_min')::float as repeat_min,
+           (select value from threshold where key = 'state.recheck_days')::float as recheck,
            (select value from threshold where key = 'next_sheet.promote_at')::float as promote,
            (select value from threshold where key = 'next_sheet.demote_below')::float as demote,
            coalesce((select value from config where key = 'prescribe.band_default'), '{}'::jsonb) as levels`, levels()]);
@@ -35,7 +44,10 @@ export async function colourRules(): Promise<ColourRules> {
   const forShare = Math.ceil(Number((1 / (1 - r.promote)).toFixed(6)));
   return {
     minAnswers: r.min_events,
-    minPapers: r.min_obs,
+    minDays: r.min_days,
+    window: r.window,
+    repeatMin: r.repeat_min,
+    recheckDays: r.recheck,
     promote: r.promote,
     demote: r.demote,
     levels: r.levels,

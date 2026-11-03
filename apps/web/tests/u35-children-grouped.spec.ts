@@ -13,7 +13,7 @@
 import { scryptSync } from "node:crypto";
 import { expect, test, type Browser, type Locator, type Page } from "@playwright/test";
 import postgres from "postgres";
-import { aClass, aReadPaper } from "./rows";
+import { aClass, aReadPaper, daysAgo } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -41,12 +41,15 @@ test.beforeAll(async () => {
       ...Array<[string, boolean, string[]]>(2).fill([kids.Asha, true, []]),
       ...Array<[string, boolean, string[]]>(6).fill([kids.Chetan, true, []]),
     ];
-    for (const [child, right, mistakes] of answers) {
+    // Chetan's six three days apart, the last today, so they are secure (goals/gr1-state-from-recent-evidence.yaml);
+    // Asha's all today, after her report
+    const of = answers.map(([child]) => child);
+    for (const [i, [child, right, mistakes]] of answers.entries()) {
       await sql`
         insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes, channel,
                                     observed_at, confirmed_by)
         values (${tenant}, ${child}, 'NUM.OPS.02', ${child === kids.Asha ? "R24" : "R23"}, ${right}, ${mistakes}, 'item',
-                now(), 'u35')`;
+                now() - make_interval(days => ${child === kids.Chetan ? daysAgo(of, i) : 0}), 'u35')`;
     }
     for (const child of [kids.Asha, kids.Chetan]) await sql`select rebuild_child_skill_state(${child}::uuid)`;
     await sql`insert into parent_note (tenant_id, child_id, week, body, approved_by, created_at)

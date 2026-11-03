@@ -11,7 +11,13 @@
 #
 # Needs the repository secret LIVE_DATABASE_URL (the one `migrate live` uses).
 name: rehearse update-live
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      states_may_change:
+        description: "The branch changes the graph's rule (goals/gr1): list each child's state that moves, and why, instead of failing"
+        type: boolean
+        default: false
 
 concurrency: { group: rehearse-update-live, cancel-in-progress: false }
 
@@ -79,7 +85,11 @@ jobs:
       # scored answer, as counts and checksums, compared after the migrations and after update-live. No row is printed.
       - name: past results, before
         env: { DATABASE_URL: "${{ env.COPY }}" }
-        run: bin/engine past | tee /tmp/past.before && bin/engine past --curriculum | tee /tmp/curriculum.before
+        run: |
+          bin/engine past | tee /tmp/past.before && bin/engine past --curriculum | tee /tmp/curriculum.before
+          # every child's states and next levels, kept to list after the graph is rebuilt which moved, and why (child
+          # ids and codes, never a name)
+          bin/engine past --save-states /tmp/states.before
       # The migrations `bin/update-live` pushes, run on live's rows as they will be on live. Until 2026-10-20 they ran on
       # the empty copy before its rows arrived, and the rows were restored with their triggers off, so a new key (ADR
       # 0084) was never checked against a live row. Each recorded as `supabase db push` records it, so the copy's own
@@ -166,7 +176,17 @@ jobs:
       - name: past results, after update-live (graph rebuilt, marking re-run)
         if: always()
         env: { DATABASE_URL: "${{ env.COPY }}" }
-        run: bin/engine past | tee /tmp/past.after && diff /tmp/past.before /tmp/past.after
+        run: |
+          # which children's states and next levels moved, from what to what and why; a move fails unless the run says
+          # the branch changes the graph's rule
+          bin/engine past --states-since /tmp/states.before ${{ inputs.states_may_change && '--may-change' || '' }}
+          bin/engine past | tee /tmp/past.after
+          if [ "${{ inputs.states_may_change }}" = true ]; then
+            # the evidence and the scored answers never move (rule 4); the states may, and are listed above
+            diff <(grep -v '^states' /tmp/past.before) <(grep -v '^states' /tmp/past.after)
+          else
+            diff /tmp/past.before /tmp/past.after
+          fi
       - name: the copy after — must be clean
         env: { DATABASE_URL: "${{ env.COPY }}" }
         run: |

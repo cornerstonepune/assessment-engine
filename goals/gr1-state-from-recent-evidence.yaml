@@ -1,0 +1,233 @@
+name: gr1-state-from-recent-evidence
+goal: >
+  A child's state on a skill says what their recent answers at the level they are working on show, and the next paper's
+  level follows the child's last two papers at that level alone. Easy answers right never carry a child past Medium
+  answers wrong. Each level's state reads only the last answers at that level (state.window_answers). A mistake is
+  "repeating" only while it shows in at least state.repeat_min of those answers. It clears after
+  state.repeat_clears_after right answers on later papers. Secure needs at least state.secure_min_answers answers at
+  the level, sat on at least state.min_days different school days, with the latest day at or over
+  next_sheet.promote_at. Until a paper at least state.recheck_days later (at that level or a harder one) also reaches
+  next_sheet.promote_at, it is "secure, to re-check" (secure_to_recheck), which is not counted as secure. Re-checked,
+  a level with a harder one above it is "ready to move up" (stretch_ready). At the hardest level it is "secure".
+  Observers are school days and, for evidence that names who saw it, distinct adults (state.min_adults). Every number
+  is a row of `threshold`.
+# Written 2026-11-03, before the code (rule 12), from Nimish's request of that day, which carries the learning-science
+# review (cornerstonepune/teacher-os research/council-2026-11-03/learning-scientist.md §1). W3, gate N10 (the graph).
+# His four answers that day: one state per skill shows the level of the child's latest answers; a provisional secure is
+# a new state row; stretch_ready is re-checked secure with a harder level above; observers are days for every kind and
+# adults only for evidence that names who saw it.
+#
+# Every scenario below is a ledger worked out by hand, line by line, against the rule above. The runner writes the
+# ledger as real papers (sheet, capture, item at its level, signed-off answer, evidence) for a child of its own, reads
+# the states the database computes, and rolls everything back. Day 0 is 2026-09-01; every paper is sat at 10:00 in the
+# school's time zone. Marks: R right, W wrong, B blank, W:CODE wrong with a named mistake.
+says:
+  - words: "next_difficulty counts every confirmed answer on the skill set, at every difficulty, all time. A child with 20 Easy items right and 4 Medium wrong scores 0.83 and is promoted. Next-paper difficulty reads the last 2 papers at the current difficulty only."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_easy_answers_right_never_carry_a_child_past_medium_answers_wrong"
+  - words: "Next-paper difficulty reads the last 2 papers at the current difficulty only."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_the_next_level_reads_the_last_two_papers_at_the_current_level"
+  - words: "Next-paper difficulty reads the last 2 papers at the current difficulty only."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_a_child_moved_up_and_not_yet_tested_stays_at_the_new_level"
+  - words: "Repeating mistake never clears. A repeating mistake counts only if at least 2 of the last N answers show the code, and it clears after M later right answers."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_two_september_mistakes_then_twenty_right_is_not_a_repeating_mistake"
+  - words: "A repeating mistake counts only if at least 2 of the last N answers show the code, and it clears after M later right answers."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_a_repeating_mistake_clears_after_later_right_answers"
+  - words: "State uses a recency window: the last N confirmed answers per skill and difficulty, N about 8-10."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_a_level_reads_only_its_last_answers"
+  - words: "Secure needs all of: at least 6 answers at that difficulty; from at least 2 sittings on different days; the latest sitting at or above promote_at."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_two_papers_on_one_day_are_not_secure"
+  - words: "Secure needs all of: at least 6 answers at that difficulty; from at least 2 sittings on different days; the latest sitting at or above promote_at."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_a_latest_paper_under_the_bar_is_not_secure"
+  - words: "It is provisional until a delayed check 14-21 days later passes."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_secure_is_provisional_until_a_paper_two_weeks_later"
+  - words: "It is provisional until a delayed check 14-21 days later passes."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_a_harder_paper_two_weeks_later_rechecks_the_easier_level"
+  - words: "stretch_ready means share at least 0.8 and at least 6 events, which is volume, not performance at a harder level."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_ready_to_move_up_is_rechecked_secure_with_a_harder_level"
+  - words: "Observers counts papers, not adults. Observers count distinct adults (seen_by) and distinct days."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_observers_are_days_and_adults_who_saw_it"
+  - words: "Proposed rules, all as threshold rows (CLAUDE.md rule 1)."
+    proved_by: "packages/engine/tests/test_graph_rule.py::test_every_number_of_the_rule_is_a_row"
+  - words: "Rehearse on a copy of live. engine past must show which children's states change, and why."
+    proved_by: "packages/engine/tests/test_past.py::test_past_lists_each_state_that_changed_and_why"
+manual:
+  - "Actions → rehearse update-live on this branch with states_may_change ticked: the step 'past results, after update-live' lists every child whose state moved, from what to what and why, and the counts by change. Nimish is told how many children's states change before he merges."
+  - "state.min_adults is applied only to evidence that names who saw it (seen_by). Every row the graph reads today is a written answer, which never names one, so on live nothing is held back by it until observations reach the graph (C2's next build)."
+  - "The delayed re-check is accepted whenever it comes (14 days or more). The paper-maker does not yet schedule one 14-21 days after a provisional secure; until it does, a child re-checks only when a later paper on that skill comes their way."
+  - "A repeating mistake does not stop the next paper moving up when the last two papers are at 0.8 or more. That is the rule as it was, unchanged here."
+  - "The review's further rule, 'no demote-level result at any easier level' before secure, was not in Nimish's list and is not built."
+scenarios:
+  - name: Easy answers right never carry a child past Medium answers wrong (the review's own example)
+    kind: graph
+    skill: ADD.2D2D
+    prescribed: Medium
+    ledger:
+      - {day: 0, level: Easy, marks: "R R R R R"}
+      - {day: 2, level: Easy, marks: "R R R R R"}
+      - {day: 4, level: Easy, marks: "R R R R R"}
+      - {day: 6, level: Easy, marks: "R R R R R"}
+      - {day: 8, level: Medium, marks: "W W W W"}
+    # Easy: last 10 = days 6 and 4, 10 of 10, two days, latest day 5 of 5. No Easy-or-harder paper 14 days after day 4
+    #   or 6 reaches 0.8 (day 8 Medium is 0 of 4): secure, to re-check.
+    # Medium: 4 answers, 0 right, no named mistake: under 0.5, emerging.
+    # The skill shows Medium, its latest level. Next: the last 2 Medium papers are one paper, 0 of 4, under 0.5: down
+    #   to Easy. (The old rule pooled 20 of 24 = 0.83 and sent her to Hard.)
+    expect:
+      levels: {Easy: secure_to_recheck, Medium: emerging}
+      skill: emerging
+      next: Easy
+  - name: Two September mistakes then twenty right is not a repeating mistake
+    kind: graph
+    skill: ADD.2D2D
+    prescribed: Medium
+    ledger:
+      - {day: 0, level: Medium, marks: "W:M_ALIGN_LEFT W:M_ALIGN_LEFT R R R"}
+      - {day: 3, level: Medium, marks: "R R R R R"}
+      - {day: 6, level: Medium, marks: "R R R R R"}
+      - {day: 9, level: Medium, marks: "R R R R R"}
+      - {day: 12, level: Medium, marks: "R R R R R"}
+    # Medium: last 10 = days 12 and 9, 10 of 10. M_ALIGN_LEFT is in none of them. Two days, latest 5 of 5, 10 answers:
+    #   secure's conditions met. No paper 14 days after day 9 or 12: secure, to re-check. (Old rule: patterned_error,
+    #   forever.)
+    # Next: the last 2 Medium papers, days 12 and 9, are 10 of 10: up to Hard.
+    expect:
+      levels: {Medium: secure_to_recheck}
+      skill: secure_to_recheck
+      next: Hard
+  - name: A repeating mistake is current and named
+    kind: graph
+    skill: ADD.2D2D
+    ledger:
+      - {day: 0, level: Medium, marks: "R R R R R"}
+      - {day: 2, level: Medium, marks: "W:M_ALIGN_LEFT R R W:M_ALIGN_LEFT R"}
+    # Medium: 10 answers, 8 right (0.8). M_ALIGN_LEFT shows in 2 of the last 10 and no right answer comes on a later
+    #   paper (answers on the same paper are not later): repeating mistake.
+    # Next: nothing prescribed, so the current level is Medium, the latest answered. The last 2 papers are 8 of 10 =
+    #   0.8: up to Hard (as before: a repeating mistake never stopped a move up).
+    expect:
+      levels: {Medium: patterned_error}
+      skill: patterned_error
+      repeating: M_ALIGN_LEFT
+      next: Hard
+  - name: A repeating mistake clears after three right answers on a later paper
+    kind: graph
+    skill: ADD.2D2D
+    ledger:
+      - {day: 0, level: Medium, marks: "R R R R R"}
+      - {day: 2, level: Medium, marks: "W:M_ALIGN_LEFT R R W:M_ALIGN_LEFT R"}
+      - {day: 5, level: Medium, marks: "R R R"}
+    # Medium: last 10 = day 5 (3), day 2 (5), and 2 of day 0's 5, all right. 8 of 10 = 0.8. M_ALIGN_LEFT shows twice, but
+    #   3 right answers come after it on day 5: cleared. Three days, latest 3 of 3, 10 answers: secure's conditions met.
+    #   Passing days are 0 (5 of 5) and 5 (3 of 3); day 2 (3 of 5 = 0.6) fails. Nothing 14 days after: secure, to
+    #   re-check.
+    # Next: the last 2 papers are days 5 and 2: 6 of 8 = 0.75, between 0.5 and 0.8: stays Medium.
+    expect:
+      levels: {Medium: secure_to_recheck}
+      skill: secure_to_recheck
+      repeating: null
+      next: Medium
+  - name: Two papers on one day are not secure, however many answers they hold
+    kind: graph
+    skill: ADD.2D2D
+    ledger:
+      - {day: 0, level: Medium, marks: "R R R R"}
+      - {day: 0, level: Medium, marks: "R R R R"}
+    # Medium: 8 of 8 but on one school day: practising. (Old rule: two papers, 8 answers: ready to move up.)
+    # Next: the last 2 papers, 8 of 8: up to Hard.
+    expect:
+      levels: {Medium: practising}
+      skill: practising
+      next: Hard
+  - name: A latest paper under the bar takes secure away
+    kind: graph
+    skill: ADD.2D2D
+    ledger:
+      - {day: 0, level: Medium, marks: "R R R R R"}
+      - {day: 3, level: Medium, marks: "R R R R R"}
+      - {day: 21, level: Medium, marks: "R W W W R"}
+    # Medium: last 10 = days 21 and 3, 7 of 10 = 0.7, under 0.8: practising (the latest day is 2 of 5 too).
+    # Next: the last 2 papers, 7 of 10: stays Medium.
+    expect:
+      levels: {Medium: practising}
+      skill: practising
+      next: Medium
+  - name: A paper two weeks later re-checks a level, and it is then ready to move up
+    kind: graph
+    skill: ADD.2D2D
+    ledger:
+      - {day: 0, level: Medium, marks: "R R R R R"}
+      - {day: 3, level: Medium, marks: "R R R R R"}
+      - {day: 21, level: Medium, marks: "R R R R R"}
+    # Medium: last 10 = days 21 and 3, 10 of 10, two days, latest 5 of 5. Day 21 passes 18 days after day 3 (at least
+    #   14): re-checked. Hard is above Medium: ready to move up.
+    # Next: the last 2 papers, 10 of 10: up to Hard.
+    expect:
+      levels: {Medium: stretch_ready}
+      skill: stretch_ready
+      next: Hard
+  - name: A child moved up and not yet tested at the new level stays there
+    kind: graph
+    skill: ADD.2D2D
+    prescribed: Hard
+    ledger:
+      - {day: 0, level: Medium, marks: "R R R R R"}
+      - {day: 3, level: Medium, marks: "R R R R R"}
+    # Medium: 10 of 10 on two days, nothing 14 days later: secure, to re-check. The skill shows Medium, the latest level
+    #   answered.
+    # Next: the current level is Hard (prescribed). No Hard answer yet, fewer than state.min_events at Hard: stays Hard.
+    #   (Old rule: 10 of 10 pooled, up to Advance without a single Hard answer.)
+    expect:
+      levels: {Medium: secure_to_recheck}
+      skill: secure_to_recheck
+      next: Hard
+  - name: A harder paper two weeks later re-checks the easier level
+    kind: graph
+    skill: ADD.2D2D
+    ledger:
+      - {day: 0, level: Medium, marks: "R R R R R"}
+      - {day: 3, level: Medium, marks: "R R R R R"}
+      - {day: 20, level: Hard, marks: "R R R R R"}
+    # Medium: 10 of 10, two days; Hard on day 20 is 5 of 5, 17 days after day 3: re-checked, Hard above: ready to move
+    #   up.
+    # Hard: 5 answers, under state.secure_min_answers (6): practising.
+    # The skill shows Hard, its latest level. Next: the current level is Hard (the latest answered, nothing
+    #   prescribed); the last 2 Hard papers are one, 5 of 5: up to Advance.
+    expect:
+      levels: {Medium: stretch_ready, Hard: practising}
+      skill: practising
+      next: Advance
+  - name: Re-checked at the hardest level is secure
+    kind: graph
+    skill: ADD.2D2D
+    ledger:
+      - {day: 0, level: Advance, marks: "R R R R R"}
+      - {day: 3, level: Advance, marks: "R R R R R"}
+      - {day: 20, level: Advance, marks: "R R R R R"}
+    # Advance: last 10 = days 20 and 3, 10 of 10; day 20 is 17 days after day 3: re-checked. No harder level: secure.
+    # Next: 10 of 10, already at the hardest: stays Advance.
+    expect:
+      levels: {Advance: secure}
+      skill: secure
+      next: Advance
+  - name: Blanks are answers given, not right or wrong, and too few say not enough yet
+    kind: graph
+    skill: ADD.2D2D
+    ledger:
+      - {day: 0, level: Medium, marks: "R R B B"}
+    # Medium: 2 answers right or wrong, under state.min_events (3): not enough yet.
+    # Next: 2 answers on the skill in all, under state.min_events: the grade's starting level (band_default).
+    expect:
+      levels: {Medium: not_enough_yet}
+      skill: not_enough_yet
+      next: null
+      rule: band_default
+criteria:
+  - name: the rule, the next level, the new state and the rows
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_graph_rule.py tests/test_past.py
+    expect: "passed"
+  - name: the graph, the levels, levels to review, the states as rows, the parent report and the class card still hold
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_graph.py tests/test_levels.py tests/test_calibration.py tests/test_states_and_subject.py tests/test_parent_report.py tests/test_class_card.py tests/test_focus.py tests/test_loaders.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

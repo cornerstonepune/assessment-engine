@@ -4,7 +4,8 @@
  * answers are evidence, which is append-only.
  *
  * U71-A, Grade 2. On one class assessment of 2-digit + 2-digit (Medium): Asha has 2 right, 1 wrong, 1 wrong with working
- * and 1 blank; Bina 4 right and 1 wrong, and two home assessments on it besides; Chetan has no paper. Bina has one answer
+ * and 1 blank; Bina 4 right and 1 wrong, 20 days ago, and two home assessments on it since, 10 days ago and today, so her
+ * Medium is secure and re-checked: ready to move up (goals/gr1-state-from-recent-evidence.yaml); Chetan has no paper. Bina has one answer
  * still waiting for a person. U71-B is another class, with its own educator.
  */
 import { execFileSync } from "node:child_process";
@@ -46,7 +47,7 @@ export async function aResultsClass(sql: postgres.Sql) {
   const [ws, home] = await sql<{ id: string; item_ids: string[] }[]>`
     select id, item_ids from sheet_template
     where source = 'library' and retired_at is null and skill_set_code = ${SKILL} and difficulty = 'Medium' order by code limit 2`;
-  const paper = async (qr: string, child: string, kind: string, reads: Read[], working?: number) => {
+  const paper = async (qr: string, child: string, kind: string, reads: Read[], working?: number, daysAgo = 0) => {
     const [done] = await sql`select 1 from sheet_instance si join capture c on c.sheet_instance_id = si.id and c.superseded_by is null
                              join item_result r on r.capture_id = c.id and r.state = 'confirmed' where si.qr_code = ${qr} limit 1`;
     if (done) return;
@@ -54,11 +55,13 @@ export async function aResultsClass(sql: postgres.Sql) {
     const p = await aReadPaper(sql, { qr, child, template: w.id, items: w.item_ids.slice(0, reads.length), reads, file: SCAN });
     await sql`update sheet_instance set kind = ${kind} where id = ${p.sheet}`;
     if (working != null) await sql`update item_result set working_shown = 'full' where id = ${p.results[working]}`;
+    // the day the paper was sat: an answer is observed when its copy was taken (`answer_evidence`)
+    await sql`update capture set created_at = now() - make_interval(days => ${daysAgo}) where id = ${p.capture}`;
     await sql`select confirm_results(${child}::uuid, 'e2e@cornerstone.test', ${p.capture}::uuid)`;
   };
   await paper("CSU71A01", kids.Asha, "assessment", [R("correct", "1"), R("correct", "1"), R("wrong", "7"), R("wrong", "9"), R("blank", "")], 3);
-  await paper("CSU71B01", kids.Bina, "assessment", [R("correct", "1"), R("correct", "1"), R("correct", "1"), R("correct", "1"), R("wrong", "5")]);
-  await paper("CSU71B02", kids.Bina, "focus", [R("correct", "1"), R("correct", "1"), R("correct", "1")]);
+  await paper("CSU71B01", kids.Bina, "assessment", [R("correct", "1"), R("correct", "1"), R("correct", "1"), R("correct", "1"), R("wrong", "5")], undefined, 20);
+  await paper("CSU71B02", kids.Bina, "focus", [R("correct", "1"), R("correct", "1"), R("correct", "1")], undefined, 10);
   await paper("CSU71B03", kids.Bina, "focus", [R("correct", "1"), R("correct", "1"), R("correct", "1")]);
   // one answer of Bina's still waiting for a person: a paper read, nothing of it signed off
   const [waits] = await sql`select 1 from sheet_instance where qr_code = 'CSU71B04'`;

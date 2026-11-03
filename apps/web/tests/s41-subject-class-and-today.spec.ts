@@ -33,20 +33,22 @@ test.beforeAll(async () => {
     where ss.grade = 'G2' and cardinality(ss.registry_codes) > 0 order by ss.ladder_order, ss.code limit 2`;
   const [m] = await sql<{ code: string; name: string }[]>`select code, name from misconception order by code limit 1`;
   mistake = m.name;
-  const evidence = async (child: string, skill: { code: string; rung: string }, right: boolean, n: number) => {
+  // `apart`: each answer that many days after the one before, the last today (a secure skill spans days and its re-check,
+  // goals/gr1-state-from-recent-evidence.yaml)
+  const evidence = async (child: string, skill: { code: string; rung: string }, right: boolean, n: number, apart = 0) => {
     for (let i = 0; i < n; i++) {
       await sql`
         insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes, channel,
                                     observed_at, confirmed_by)
         values (${tenant}, ${child}, ${skill.code}, ${skill.rung}, ${right}, ${right ? sql`'{}'` : sql`array[${m.code}]`},
-                'item', now(), 'e2e')`;
+                'item', now() - make_interval(days => ${apart * (n - 1 - i)}), 'e2e')`;
     }
   };
   // this week's evidence, once a week: last week's rows stay, append-only, and this week's are written afresh
   const [{ n }] = await sql<{ n: number }[]>`
     select count(*)::int as n from evidence_event where child_id = ${kids.Bina} and observed_at >= date_trunc('week', now())`;
   if (!n) {
-    await evidence(kids.Asha, skills[0], true, 4);
+    await evidence(kids.Asha, skills[0], true, 6, 3);
     await evidence(kids.Bina, skills[0], false, 3);
     await evidence(kids.Bina, skills[1], false, 3);
   }

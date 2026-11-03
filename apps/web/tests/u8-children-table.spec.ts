@@ -14,6 +14,7 @@
 import { expect, type Page, test } from "@playwright/test";
 import postgres from "postgres";
 import { TEST_STAFF } from "./global-setup";
+import { daysAgo } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -52,11 +53,13 @@ async function testClass(): Promise<Record<string, string>> {
     if (c.roll === "1")
       await sql`insert into parent_note (tenant_id, child_id, week, body, created_at)
                 values (${tenant_id}, ${id}, 'U8', '{"facts": {}, "draft": {}}', now() - interval '2 days')`;
-    for (const [skill, rung, right, mistakes] of c.answers) {
+    const of = c.answers.map(([skill, rung]) => `${skill}|${rung}`);
+    for (const [i, [skill, rung, right, mistakes]] of c.answers.entries()) {
       await sql`
         insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes, channel,
                                     observed_at, confirmed_by)
-        values (${tenant_id}, ${id}, ${skill}, ${rung}, ${right}, ${mistakes}, 'item', now(), 'e2e')`;
+        values (${tenant_id}, ${id}, ${skill}, ${rung}, ${right}, ${mistakes}, 'item',
+                now() - make_interval(days => ${daysAgo(of, i)}), 'e2e')`;
     }
     await sql`select rebuild_child_skill_state(${id}::uuid)`;
     if (c.roll === "10")

@@ -8,22 +8,64 @@
    "description": "Below this an estimate stays 'not enough yet'"
   },
   {
-   "key": "state.min_observers",
+   "key": "state.window_answers",
+   "value": 10,
+   "unit": "answers",
+   "description": "A level's state reads only this many of its latest answers that are right or wrong (goals/gr1-state-from-recent-evidence.yaml)"
+  },
+  {
+   "key": "state.secure_min_answers",
+   "value": 6,
+   "unit": "answers",
+   "description": "Fewest answers at a level, in its window, before it can be secure (goals/gr1-state-from-recent-evidence.yaml)"
+  },
+  {
+   "key": "state.min_days",
    "value": 2,
-   "unit": "observers",
-   "description": "Distinct adults or contexts before a level is claimed"
+   "unit": "days",
+   "description": "Different school days a level's window must span before it can be secure: two papers on one day are one sitting (goals/gr1-state-from-recent-evidence.yaml)"
+  },
+  {
+   "key": "state.min_adults",
+   "value": 2,
+   "unit": "adults",
+   "description": "Different adults who saw it, for evidence that names them (observed, voice, project), before it can be secure. A written answer names none, so this does not apply to it (goals/gr1-state-from-recent-evidence.yaml)"
+  },
+  {
+   "key": "state.repeat_min",
+   "value": 2,
+   "unit": "answers",
+   "description": "A mistake repeats while it shows in at least this many of a level's window; the next paper targets it then (goals/gr1-state-from-recent-evidence.yaml)"
+  },
+  {
+   "key": "state.repeat_clears_after",
+   "value": 3,
+   "unit": "answers",
+   "description": "Right answers on papers after a mistake's last showing that clear it (goals/gr1-state-from-recent-evidence.yaml)"
+  },
+  {
+   "key": "state.recheck_days",
+   "value": 14,
+   "unit": "days",
+   "description": "A secure level is re-checked by a paper at least this many days later, at it or harder, that reaches next_sheet.promote_at; until then it is 'secure, to re-check' (goals/gr1-state-from-recent-evidence.yaml)"
   },
   {
    "key": "next_sheet.promote_at",
    "value": 0.8,
    "unit": "proportion",
-   "description": "At-band correct over the last two sheets to move to L+"
+   "description": "At-level share right over the last next_sheet.papers papers to move up a level; also what a level's window and its latest day must reach to be secure (goals/gr1-state-from-recent-evidence.yaml)"
   },
   {
    "key": "next_sheet.demote_below",
    "value": 0.5,
    "unit": "proportion",
    "description": "Below this, the next sheet drops to L-"
+  },
+  {
+   "key": "next_sheet.papers",
+   "value": 2,
+   "unit": "papers",
+   "description": "The latest papers at the current level the next paper's level is read from (goals/gr1-state-from-recent-evidence.yaml)"
   },
   {
    "key": "exposure.days",

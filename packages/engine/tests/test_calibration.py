@@ -7,6 +7,7 @@ the minimum is 8 children. Every test builds its own children in classes of its 
 same on a database built from the repository as on a copy of live.
 """
 
+import itertools
 import json
 import re
 import uuid
@@ -32,9 +33,9 @@ def _a_skill(c) -> dict:
     )
 
 
-def _a_paper(c, child, skill, level, marks, section, confirmed=True):
-    """One paper of `child`'s: a capture, and one signed-off answer at `level` for each of `marks` ('right', 'wrong',
-    'blank') — the evidence the graph reads."""
+def _a_paper(c, child, skill, level, marks, section, confirmed=True, day=0):
+    """One paper of `child`'s, sat `day` days after 2026-09-01: a capture, and one signed-off answer at `level` for each
+    of `marks` ('right', 'wrong', 'blank') — the evidence the graph reads."""
     t = tenant(c)
     tag = uuid.uuid4().hex[:8].upper()
     tpl = c.execute(
@@ -76,7 +77,8 @@ def _a_paper(c, child, skill, level, marks, section, confirmed=True):
         ).fetchone()["id"]
         c.execute(
             "insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, channel, item_result_id,"
-            " observed_at, confirmed_by) values (%s, %s, %s, %s, %s, 'item', %s, now(), %s)",
+            " observed_at, confirmed_by) values (%s, %s, %s, %s, %s, 'item', %s,"
+            " timestamptz '2026-09-01 10:00+05:30' + make_interval(days => %s), %s)",
             (
                 t,
                 child,
@@ -84,6 +86,7 @@ def _a_paper(c, child, skill, level, marks, section, confirmed=True):
                 skill["rung_code"],
                 {"right": True, "wrong": False, "blank": None}[mark],
                 res,
+                day,
                 "tester@example.org" if confirmed else None,
             ),
         )
@@ -107,14 +110,16 @@ def _a_child_in(c, section):
 
 
 def _a_child_at(c, section, skill, level, papers, confirmed=True):
-    """A child of `section` (grade GRADE) with `papers`, each a list of marks, at `level`."""
+    """A child of `section` (grade GRADE) with `papers`, each a list of marks, at `level`, ten days apart."""
     child = _a_child_in(c, section)
-    for marks in papers:
-        _a_paper(c, child, skill, level, marks, section, confirmed)
+    for i, marks in enumerate(papers):
+        _a_paper(c, child, skill, level, marks, section, confirmed, day=10 * i)
     return child
 
 
-SECURE = [["right", "right"], ["right", "right"]]  # two papers, four right: the graph's "secure"
+# three papers ten days apart, nine right: enough answers on enough days, re-checked 20 days on — the graph's "secure"
+# at the hardest level (goals/gr1-state-from-recent-evidence.yaml)
+SECURE = [["right"] * 3, ["right"] * 3, ["right"] * 3]
 PRACTISING = [["right", "wrong"], ["right", "wrong"]]  # half right: practising
 BLANK = [["blank", "blank"], ["blank", "blank"]]  # on two papers, nothing written
 
@@ -152,26 +157,33 @@ def test_secure_at_a_level_is_the_graphs_own_rule_applied_to_that_levels_answers
     with db.connect() as c:
         skill = _a_skill(c)
         section = f"CAL-{uuid.uuid4().hex[:6].upper()}"
-        # secure at Medium, half right at Advance: a skill-wide state would blend the two; a level's state does not
+        # re-checked secure at Medium (ready to move up), half right at Advance: a skill-wide state would blend the two; a
+        # level's state does not
         child = _a_child_at(c, section, skill, "Medium", SECURE)
-        for marks in PRACTISING:
-            _a_paper(c, child, skill, "Advance", marks, section)
+        for i, marks in enumerate(PRACTISING):
+            _a_paper(c, child, skill, "Advance", marks, section, day=10 * i)
         states = {
             r["difficulty"]: r["state"]
             for r in c.execute(
                 "select difficulty, state from child_level_state where child_id = %s", (child,)
             )
         }
-        assert states == {"Medium": "secure", "Advance": "practising"}
+        assert states == {"Medium": "stretch_ready", "Advance": "practising"}
         # the graph's own rule gives the same state on the answers at one level
         only_advance = _a_child_at(c, section, skill, "Advance", SECURE)
         c.execute("select rebuild_child_skill_state(%s)", (only_advance,))
         graph = db.one(c, "select state from child_skill_state where child_id = %s", (only_advance,))["state"]
         level = db.one(c, "select state from child_level_state where child_id = %s", (only_advance,))["state"]
         assert graph == level
-        # and it is one rule, not a copy: the graph and the level both call it
+        # and it is one rule, not a copy: the graph (what its rebuild writes) and the level both call it
+        assert (
+            "graph_skill_states"
+            in db.one(c, "select pg_get_functiondef('rebuild_child_skill_state(uuid)'::regprocedure) as d")[
+                "d"
+            ]
+        )
         for definition in (
-            "select pg_get_functiondef('rebuild_child_skill_state(uuid)'::regprocedure) as d",
+            "select pg_get_functiondef('graph_skill_states(uuid)'::regprocedure) as d",
             "select pg_get_viewdef('child_level_state'::regclass) as d",
         ):
             assert "graph_state_of" in db.one(c, definition)["d"]
@@ -320,33 +332,37 @@ def test_no_python_or_web_file_holds_the_numbers():
         assert not re.search(r"too_easy_share\s*[=:]\s*0?\.8|min_children\s*[=:]\s*8", text), path
 
 
-def _the_case_before_cal(n, share, observers, repeating, min_events=3, min_obs=2, promote=0.8, demote=0.5):
-    """`rebuild_child_skill_state`'s case as it was written until 20261216090000 (20261023090000), in Python."""
-    if n < min_events:
+def _the_rule(n, share, days, adults, repeating, latest, rechecked, harder):
+    """The graph's rule as goals/gr1-state-from-recent-evidence.yaml writes it, in Python, at the seed's numbers."""
+    if n < 3:
         return "not_enough_yet"
     if repeating is not None:
         return "patterned_error"
-    if share < demote:
+    if share < 0.5:
         return "emerging"
-    if share < promote or observers < min_obs:
+    if share < 0.8 or n < 6 or days < 2 or latest < 0.8 or 0 < adults < 2:
         return "practising"
-    return "stretch_ready" if n >= 2 * min_events else "secure"
+    if not rechecked:
+        return "secure_to_recheck"
+    return "stretch_ready" if harder else "secure"
 
 
-def test_the_shared_rule_gives_the_state_the_graph_always_gave():
-    """Moving the case into one function must change no child's state: every combination, against the old case."""
+def test_the_shared_rule_is_the_goals_rule_case_by_case():
+    """The one function the graph and Levels to review call gives, on every combination, what the goal file says."""
     with db.connect() as c:
         t = tenant(c)
-        for n in range(0, 10):
+        for n in range(1, 11):
             for right in range(0, n + 1):
-                share = None if n == 0 else right / n
-                for observers in (1, 2, 3):
-                    for repeating in (None, "M_X"):
-                        got = db.one(
-                            c,
-                            "select public.graph_state_of(%s, %s::numeric, %s::numeric, %s::numeric, %s::text) as state",
-                            (t, n, share, observers, repeating),
-                        )["state"]
-                        want = _the_case_before_cal(n, share, observers, repeating)
-                        assert got == want, (n, right, observers, repeating)
+                share = right / n
+                for days, adults, repeating, latest, rechecked, harder in itertools.product(
+                    (1, 2), (0, 1, 2), (None, "M_X"), (0.6, 1.0), (False, True), (False, True)
+                ):
+                    got = db.one(
+                        c,
+                        "select public.graph_state_of(%s, %s::numeric, %s::numeric, %s::numeric, %s::numeric,"
+                        " %s::text, %s::numeric, %s, %s) as state",
+                        (t, n, share, days, adults, repeating, latest, rechecked, harder),
+                    )["state"]
+                    want = _the_rule(n, share, days, adults, repeating, latest, rechecked, harder)
+                    assert got == want, (n, right, days, adults, repeating, latest, rechecked, harder)
         c.rollback()

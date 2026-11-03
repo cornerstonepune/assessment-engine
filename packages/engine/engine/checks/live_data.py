@@ -65,18 +65,14 @@ def hidden(conn):
 
 
 def _stale_graph(conn):
+    """The graph as its rule now gives it (`graph_skill_states`), against the table: a skill missing, one the answers no
+    longer give, or one whose state or counts moved, says `engine graph` has not run since."""
     r = conn.execute(
-        "with fresh as ("
-        "  select e.child_id, e.skill_code, e.placed_rung as rung_code,"
-        "         count(*) filter (where e.correct is not null) as n_events,"
-        "         count(*) filter (where e.correct) as n_correct"
-        "  from evidence_placed e"
-        "  left join item_result r on r.id = e.item_result_id left join capture c on c.id = r.capture_id"
-        "  where e.confirmed_by is not null and (c.id is null or c.superseded_by is null)"
-        "  group by 1, 2, 3)"
+        "with fresh as (select child_id, skill_code, rung_code, state, n_events, n_correct from graph_skill_states())"
         " select count(*) filter (where s.child_id is null) as missing,"
         "        count(*) filter (where f.child_id is null) as stale,"
-        "        count(*) filter (where f.n_events <> s.n_events or f.n_correct <> s.n_correct) as differ"
+        "        count(*) filter (where f.state <> s.state or f.n_events <> s.n_events or f.n_correct <> s.n_correct)"
+        "          as differ"
         " from fresh f full join child_skill_state s using (child_id, skill_code, rung_code)"
     ).fetchone()
     if not any(r.values()):

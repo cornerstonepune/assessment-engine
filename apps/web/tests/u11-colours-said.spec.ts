@@ -12,6 +12,7 @@
  */
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
+import { daysAgo } from "./rows";
 
 test.describe.configure({ mode: "serial" });
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -51,11 +52,13 @@ test.beforeAll(async () => {
     const [{ id }] = await sql<{ id: string }[]>`
       insert into child (tenant_id, roll_no, section, band) values (${tenant}, ${c.roll}, ${SECTION}, 'G2') returning id`;
     await sql`insert into pii.child (tenant_id, child_id, first_name) values (${tenant}, ${id}, ${c.name})`;
-    for (const [skill, rung, right, mistakes] of c.answers) {
+    const of = c.answers.map(([skill, rung]) => `${skill}|${rung}`);
+    for (const [i, [skill, rung, right, mistakes]] of c.answers.entries()) {
       await sql`
         insert into evidence_event (tenant_id, child_id, skill_code, rung_code, correct, misconception_codes, channel,
                                     observed_at, confirmed_by)
-        values (${tenant}, ${id}, ${skill}, ${rung}, ${right}, ${mistakes}, 'item', now(), 'e2e')`;
+        values (${tenant}, ${id}, ${skill}, ${rung}, ${right}, ${mistakes}, 'item',
+                now() - make_interval(days => ${daysAgo(of, i)}), 'e2e')`;
     }
     await sql`select rebuild_child_skill_state(${id}::uuid)`;
     ids[c.name] = id;
@@ -65,9 +68,12 @@ test.afterAll(async () => sql.end());
 
 /** The rows the graph decides a colour by, and the check size the pages derive from them. */
 async function rules() {
-  const [r] = await sql<{ min_events: number; min_obs: number; promote: number; demote: number; g2: string }[]>`
+  const [r] = await sql<{ min_events: number; min_days: number; window: number; repeat_min: number; recheck: number; promote: number; demote: number; g2: string }[]>`
     select (select value from threshold where key = 'state.min_events')::float as min_events,
-           (select value from threshold where key = 'state.min_observers')::float as min_obs,
+           (select value from threshold where key = 'state.min_days')::float as min_days,
+           (select value from threshold where key = 'state.window_answers')::float as window,
+           (select value from threshold where key = 'state.repeat_min')::float as repeat_min,
+           (select value from threshold where key = 'state.recheck_days')::float as recheck,
            (select value from threshold where key = 'next_sheet.promote_at')::float as promote,
            (select value from threshold where key = 'next_sheet.demote_below')::float as demote,
            (select value ->> 'G2' from config where key = 'prescribe.band_default') as g2`;
@@ -86,10 +92,10 @@ test("each colour is said in the rule's own numbers, wherever colours show", asy
     await page.locator("details[data-colour-key] summary").click();
     const key = page.getByRole("region", { name: "What the colours mean" });
     await expect(key.locator("tbody tr")).toHaveCount(4);
-    await expect(key.locator('tr[data-rag="red"]')).toContainText(`The same mistake twice or more, or under ${pc(r.demote)} right.`);
+    await expect(key.locator('tr[data-rag="red"]')).toContainText(`The same mistake in ${r.repeat_min} or more of the latest ${r.window} answers, or under ${pc(r.demote)} right.`);
     await expect(key.locator('tr[data-rag="amber"]')).toContainText(`${pc(r.demote)} up to ${pc(r.promote)} right`);
-    await expect(key.locator('tr[data-rag="amber"]')).toContainText(`on fewer than ${r.min_obs} papers so far`);
-    await expect(key.locator('tr[data-rag="green"]')).toContainText(`${pc(r.promote)} or more right, across ${r.min_obs} papers or more`);
+    await expect(key.locator('tr[data-rag="amber"]')).toContainText(`on fewer than ${r.min_days} days so far, or not yet held again ${r.recheck} days later`);
+    await expect(key.locator('tr[data-rag="green"]')).toContainText(`across ${r.min_days} days or more, and held again on a paper ${r.recheck} days or more later`);
     await expect(key.locator('tr[data-rag="grey"]')).toContainText(`Fewer than ${r.min_events} checked answers`);
     await expect(key.locator('tr[data-rag="grey"]')).toContainText(`A ${r.check}-question check places the child.`);
   }

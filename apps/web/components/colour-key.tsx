@@ -23,23 +23,23 @@ export function Swatch({ colour, label }: { colour: Rag; label?: string }) {
 }
 
 // What each colour means (goals/u11-colours-said.yaml): when a skill is that colour, in the rule's own numbers, and what
-// the engine does about it. The order is the rule's (`rebuild_child_skill_state`): too few answers is grey before
-// anything else; a mistake that repeats is red whatever the share right.
+// the engine does about it. The order is the rule's (`graph_state_of`, goals/gr1-state-from-recent-evidence.yaml): too
+// few answers is grey before anything else; a mistake that repeats is red whatever the share right.
 export function ColourKey({ rules, states }: { rules: ColourRules; states: States }) {
   const rows: [Rag, string, string][] = [
     [
       "red",
-      `The same mistake twice or more, or under ${pc(rules.demote)} right.`,
+      `The same mistake in ${rules.repeatMin} or more of the latest ${rules.window} answers, or under ${pc(rules.demote)} right.`,
       "Home assessments work on it first, at a level where the mistake can show.",
     ],
     [
       "amber",
-      `${pc(rules.demote)} up to ${pc(rules.promote)} right, or ${pc(rules.promote)} and more but on fewer than ${rules.minPapers} papers so far.`,
+      `${pc(rules.demote)} up to ${pc(rules.promote)} right, or ${pc(rules.promote)} and more but on fewer than ${rules.minDays} days so far, or not yet held again ${rules.recheckDays} days later.`,
       "Worked on once nothing is red, at its level.",
     ],
     [
       "green",
-      `${pc(rules.promote)} or more right, across ${rules.minPapers} papers or more; ready to move up from ${2 * rules.minAnswers} answers.`,
+      `${pc(rules.promote)} or more right on the latest ${rules.window} answers and the latest day, across ${rules.minDays} days or more, and held again on a paper ${rules.recheckDays} days or more later.`,
       "When nothing is red or amber, a stretch paper one level up.",
     ],
     ["grey", `Fewer than ${rules.minAnswers} checked answers: not enough to say.`, `A ${rules.checkSize}-question check places the child.`],

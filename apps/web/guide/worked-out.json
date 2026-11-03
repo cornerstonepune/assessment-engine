@@ -26,14 +26,14 @@
       "id": "states",
       "title": "What each colour means",
       "paras": [
-        "Each skill gets one colour for each child, worked out from that child's signed off answers on it. The rules are tried in this order, and the first that fits decides:",
+        "Each skill gets one colour for each child, worked out from that child's signed off answers at the level of their latest paper on it. Only the latest {t:state.window_answers} answers at that level count. The rules are tried in this order, and the first that fits decides:",
         "Fewer than {t:state.min_events} answers that are right or wrong: {colour:grey}. There is not enough to say.",
-        "The same mistake on more than one answer: {state:patterned_error}, whatever the share right.",
+        "The same mistake in at least {t:state.repeat_min} of those answers: {state:patterned_error}, whatever the share right. {t:state.repeat_clears_after} right answers on later papers clear it.",
         "Under {t:next_sheet.demote_below|pct} right: {state:emerging}.",
-        "Under {t:next_sheet.promote_at|pct} right, or seen on fewer than {t:state.min_observers} papers: {state:practising}.",
-        "At least twice {t:state.min_events} answers: {state:stretch_ready}.",
-        "Anything else: {state:secure}.",
-        "On the site, {state:patterned_error} and {state:emerging} show as {colour:red}, and {state:secure} and {state:stretch_ready} show as {colour:green}."
+        "Under {t:next_sheet.promote_at|pct} right, fewer than {t:state.secure_min_answers} answers, answers on fewer than {t:state.min_days} different days, or the latest day under {t:next_sheet.promote_at|pct}: {state:practising}.",
+        "Otherwise, until a paper at least {t:state.recheck_days} days later, at that level or a harder one, also reaches {t:next_sheet.promote_at|pct}: {state:secure_to_recheck}.",
+        "Held again, with a harder level to go to: {state:stretch_ready}. At the hardest level: {state:secure}.",
+        "On the site, {state:patterned_error} and {state:emerging} show as {colour:red}, {state:practising} and {state:secure_to_recheck} as {colour:amber}, and {state:secure} and {state:stretch_ready} as {colour:green}."
       ]
     },
     {
