@@ -417,6 +417,11 @@
       "seed_once": true
     },
     {
+      "key": "k2.reads",
+      "description": "What the K2 screens' read calls (engine/w3_read/k2_reads.py) take from the school: which roles may ask for the coordinator's list, which grades the voice notes are for, how many days back a list shows a note, and where a week starts (0 is Monday).",
+      "value": {"coordinator_roles": ["coordinator", "deputy_coordinator", "head"], "grades": ["K2"], "row_days": 14, "week_starts_on": 0}
+    },
+    {
       "key": "voice.audio_retention_days",
       "description": "How many days a voice note's audio is kept. Not decided (O-14): null keeps it. Nothing deletes audio until this is a number and a deletion is built.",
       "value": null,

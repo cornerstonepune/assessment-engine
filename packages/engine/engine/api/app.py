@@ -19,6 +19,7 @@ from engine.api.routes import (
     children,
     focus,
     graph,
+    k2,
     library,
     maker,
     paper_edit,
@@ -60,6 +61,7 @@ app.include_router(card.router)
 app.include_router(parent.router)
 app.include_router(upload.router)
 app.include_router(samples.router)
+app.include_router(k2.router)
 app.include_router(voice.router)
 app.include_router(voice.keyed)
 

@@ -120,13 +120,18 @@ def activity_of(conn: db.Conn, class_id: str, number: int) -> list[str]:
     ]
 
 
-def resolve(conn: db.Conn, note: dict) -> Resolved:
+def resolve(conn: db.Conn, note: dict, enrolled_on=None, activities_of=None) -> Resolved:
+    """A note's draft with its numbers found. A page reading many notes passes `enrolled_on(class_id, day)` and
+    `activities_of(class_id, number)` answered from rows it fetched at once, so the rule is this one and no query is
+    asked per note (engine/w3_read/k2_reads.py)."""
+    enrolled_on = enrolled_on or (lambda class_id, day: enrolled(conn, class_id, day))
+    activities_of = activities_of or (lambda class_id, number: activity_of(conn, class_id, number))
     draft = voice_note.read(note["transcript"] or "")
     day = voice_day.taught_on(draft.day, note["received_at"].date()) or note["received_at"].date()
-    out = Resolved(draft, day, None, enrolled=enrolled(conn, note["class_id"], day))
+    out = Resolved(draft, day, None, enrolled=enrolled_on(note["class_id"], day))
     act = draft.line("activity")
     if act and act.numbers:
-        found = activity_of(conn, note["class_id"], act.numbers[0])
+        found = activities_of(note["class_id"], act.numbers[0])
         if len(found) == 1:
             out.activity = found[0]
         else:
