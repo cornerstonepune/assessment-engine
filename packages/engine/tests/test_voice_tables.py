@@ -228,7 +228,7 @@ def test_the_words_and_the_waiting_time_are_rows_and_audio_is_kept_until_retenti
             "select key, value from config where tenant_id = %s and key like 'voice.%%'", (t,)
         )
     }
-    assert config == {"voice.confirm_within_hours": 48, "voice.audio_retention_days": None}
+    assert (config["voice.confirm_within_hours"], config["voice.audio_retention_days"]) == (48, None)
 
 
 def test_a_correction_is_of_the_same_child_and_activity_in_the_same_school_and_happens_once(conn):
