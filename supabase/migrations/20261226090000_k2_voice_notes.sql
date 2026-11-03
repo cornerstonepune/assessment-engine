@@ -153,6 +153,18 @@ begin
     new.staff_id := old.staff_id;
     new.audio_key := old.audio_key;
   end if;
+  if tg_op = 'UPDATE' then
+    -- a confirmed note is what its claims were read from: its words and class never change after, and a confirmed or
+    -- left-unconfirmed note stays so; no note moves back to an earlier status
+    if old.status in ('confirmed', 'left_unconfirmed') and (new.status is distinct from old.status
+        or new.transcript is distinct from old.transcript or new.class_id is distinct from old.class_id) then
+      raise exception 'a % note is kept as it was', old.status using errcode = 'check_violation';
+    end if;
+    if (select ord from public.note_status where tenant_id = new.tenant_id and code = new.status)
+       < (select ord from public.note_status where tenant_id = old.tenant_id and code = old.status) then
+      raise exception 'a note does not go back from % to %', old.status, new.status using errcode = 'check_violation';
+    end if;
+  end if;
   if tg_op = 'INSERT' or new.status is distinct from old.status then
     new.status_at := now();
   end if;
@@ -182,11 +194,15 @@ create table if not exists activity_observation (
   stored_at          timestamptz not null default now(),     -- the database's clock, never the phone's
   observed_by        uuid not null references staff(id),
   confirmed_by       uuid not null references staff(id),
-  supersedes         uuid references activity_observation(id),
+  supersedes         uuid,           -- the row this one corrects: the same school, child and activity, corrected once
   reason             text check (btrim(reason) <> ''),
   created_at         timestamptz not null default now(),
   updated_at         timestamptz not null default now(),
   unique (confirmation_id, child_id),
+  unique (id, tenant_id, child_id, activity_code),
+  foreign key (supersedes, tenant_id, child_id, activity_code)
+    references activity_observation (id, tenant_id, child_id, activity_code),
+  check (supersedes <> id),
   check ((supersedes is null) = (reason is null)),
   check ((route = 'voice') = (note_id is not null)),
   check (entry_mode <> 'group_as_expected' or outcome = 'as_expected'),
@@ -197,6 +213,8 @@ create table if not exists activity_observation (
   foreign key (tenant_id, entry_mode) references observation_entry_mode (tenant_id, code),
   foreign key (tenant_id, route) references observation_route (tenant_id, code)
 );
+create unique index if not exists activity_observation_corrected_once on activity_observation (supersedes)
+  where supersedes is not null;
 create index if not exists activity_observation_child_idx on activity_observation (tenant_id, child_id, activity_code);
 create index if not exists activity_observation_note_idx on activity_observation (note_id) where note_id is not null;
 

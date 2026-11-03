@@ -229,3 +229,83 @@ def test_the_words_and_the_waiting_time_are_rows_and_audio_is_kept_until_retenti
         )
     }
     assert config == {"voice.confirm_within_hours": 48, "voice.audio_retention_days": None}
+
+
+def test_a_correction_is_of_the_same_child_and_activity_in_the_same_school_and_happens_once(conn):
+    s = _school(conn)
+    first = _observe(conn, s)
+    other = _school(conn)  # another child, the same school
+    fix = {"supersedes": first["id"], "reason": "misheard"}
+    other_school = _another_school(conn)
+    for wrong in (
+        other,  # another child
+        s | {"activity": _another_activity(conn, s)},  # another activity
+        s
+        | {
+            "tenant": other_school,
+            "activity": _activity_in(conn, other_school, s["activity"]),
+        },  # another school
+    ):
+        with pytest.raises(psycopg.errors.ForeignKeyViolation) as e, conn.transaction():
+            _observe(conn, wrong, **fix)
+        assert e.value.diag.constraint_name.startswith("activity_observation_supersedes"), (
+            e.value.diag.constraint_name
+        )
+    _observe(conn, s, outcome="below", **fix)
+    with pytest.raises(psycopg.errors.UniqueViolation), conn.transaction():
+        _observe(conn, s, outcome="as_expected", **fix)  # the same row corrected twice
+    mine = uuid.uuid4()
+    _refused(
+        conn,
+        psycopg.errors.CheckViolation,
+        "insert into activity_observation (id, tenant_id, confirmation_id, activity_code, child_id, class_id, outcome,"
+        " entry_mode, route, expected_level, observed_at, observed_by, confirmed_by, supersedes, reason)"
+        " values (%s,%s,%s,%s,%s,%s,'above','individual','form',2,now(),%s,%s,%s,'itself')",
+        mine, s["tenant"], uuid.uuid4(), s["activity"], s["child"], s["class"], s["staff"], s["staff"], mine,
+    )  # fmt: skip
+
+
+def test_a_confirmed_note_keeps_its_words_and_class_and_no_note_goes_back(conn):
+    s = _school(conn)
+    note = _note(conn, s)
+    conn.execute("update pii.educator_note set status = 'drafted' where id = %s", (note["id"],))
+    _refused(
+        conn,
+        psycopg.errors.CheckViolation,
+        "update pii.educator_note set status = 'received' where id = %s",
+        note["id"],
+    )
+    conn.execute(
+        "update pii.educator_note set transcript = 'Activity 3. Above 7.' where id = %s", (note["id"],)
+    )
+    conn.execute("update pii.educator_note set status = 'confirmed' where id = %s", (note["id"],))
+    other = _school(conn)["class"]
+    for sql, arg in (
+        ("update pii.educator_note set transcript = 'Activity 9.' where id = %s", None),
+        ("update pii.educator_note set class_id = %s where id = %s", other),
+        ("update pii.educator_note set status = 'left_unconfirmed' where id = %s", None),
+    ):
+        _refused(conn, psycopg.errors.CheckViolation, sql, *([arg] if arg else []), note["id"])
+
+
+def _another_activity(conn, s):
+    return conn.execute(
+        "select code from activity where tenant_id = %s and code <> %s limit 1", (s["tenant"], s["activity"])
+    ).fetchone()["code"]
+
+
+def _another_school(conn):
+    return conn.execute(
+        "insert into tenant (slug, name) values (%s, 'Placeholder school') returning id",
+        (f"t-{uuid.uuid4().hex[:8]}",),
+    ).fetchone()["id"]
+
+
+def _activity_in(conn, tenant, code):
+    """The same activity given to a placeholder school, so only the correction's own key can refuse."""
+    conn.execute(
+        "insert into activity (tenant_id, code, band, strand, name) select %s, code, band, strand, name"
+        " from activity where code = %s limit 1",
+        (tenant, code),
+    )
+    return code

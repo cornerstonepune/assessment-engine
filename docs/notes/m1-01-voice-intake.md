@@ -43,9 +43,9 @@ reads, each line beside its words, a person confirms.
   null, O-14), also in `supabase/seed/config.json`.
 - Not touched: `evidence_event`, `activity`, `enrolment`, `staff`, any M0-05 table, any existing row. No DELETE for
   either service on any new table; the website reads the observations and the words, and never a note or a claim.
-- `cd packages/engine && uv run pytest -q tests/test_voice_tables.py` → 7 passed; with `test_roles`,
+- `cd packages/engine && uv run pytest -q tests/test_voice_tables.py` → 9 passed (after the orchestrator's review: a correction is of the same school, child and activity, once, never itself; a confirmed note keeps its words and class and no note goes back); with `test_roles`,
   `test_db_privileges`, `test_data_register`, `test_people`, `test_rules`, `test_evidence_every_kind`,
-  `test_vocabulary`, `test_loaders` → 60 passed, on a local database built from every migration and the seed.
+  `test_vocabulary`, `test_loaders` → 62 passed, on a local database built from every migration and the seed.
 - The migration applied twice in a row locally: no error, nothing changed the second time.
 - `engine live rules --write --url <local>` → 35 rules added, every one on the new tables.
 - Data register: a new "observations" entry names the three tables, in a parent's words.
