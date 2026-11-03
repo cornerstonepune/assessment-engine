@@ -159,14 +159,24 @@ def test_a_corrected_observation_no_longer_counts(conn, k2):
     assert state(conn, k2, child) == "practising"  # one named yes day left, not two
 
 
-def test_a_named_lower_mark_after_secure_reopens_the_skill(conn, k2):
-    """The orchestrator's answer (a), under D-047: a later named lower mark re-opens it to practising; the group never."""
+def test_a_named_lower_mark_after_secure_resets_the_clock(conn, k2):
+    """The orchestrator's answer (D-047, unverified with the school): after a named lower mark, secure needs a fresh
+    cycle counted only from marks after it; the old days and the old re-check no longer count."""
     child = a_child(conn)
     seen(conn, k2, child, 0, "above")
     seen(conn, k2, child, 14, "above")
-    seen(conn, k2, child, 20, "below")  # named at level 1
+    assert state(conn, k2, child) == "secure"
+    seen(conn, k2, child, 20, "below")  # named at level 1: re-opened
     assert state(conn, k2, child) == "practising"
-    seen(conn, k2, child, 21, "above")  # named at level 3 again: its secure days and re-check still stand
+    seen(conn, k2, child, 21, "above")  # a single new yes
+    assert state(conn, k2, child) == "practising"
+    seen(conn, k2, child, 22, "above")  # a second day after the reset
+    assert state(conn, k2, child) == "secure_to_recheck"
+    seen(
+        conn, k2, child, 34, "as_expected", mode="group_as_expected", expected=3
+    )  # 13 days after day 21: too soon
+    assert state(conn, k2, child) == "secure_to_recheck"
+    seen(conn, k2, child, 35, "as_expected", mode="group_as_expected", expected=3)  # 14 days after day 21
     assert state(conn, k2, child) == "secure"
 
 

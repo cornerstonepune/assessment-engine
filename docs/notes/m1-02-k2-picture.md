@@ -41,12 +41,15 @@ W3, gate N10 (the skill graph). Design note, step 1; no code or schema yet (wait
 The three tables above; K2 rows for every school, and a trigger named to fire after the vocabularies it names; the
 functions; select only for both services, DELETE (and insert, update, truncate) revoked on all three; no trigger
 refuses TRUNCATE; `child_observed_state` in the data register's "learning" entry; `apply_conventions()` last.
-Orchestrator's answers (D-047, his call; Nimish may overturn): a later named lower mark re-opens to practising;
-group-only is a `not_enough_yet` row; a second named yes ≥ 14 days on is its own re-check.
+Orchestrator's answers (D-047; Nimish may overturn): group-only is a `not_enough_yet` row; a second named yes ≥ 14
+days on is its own re-check; **a later named lower mark resets the clock** (proposed by the orchestrator, unverified
+with the school): secure then counts only marks after it, so a re-opened skill is practising until a fresh cycle.
+The reset applies to any named lower mark, before secure too (a wobble at "secure, to re-check" restarts it).
+**Ties:** two named marks at the same moment, the lower decides (and resets), so a rebuild never flips.
 
 ## Verified (a local database only; never live)
 
-- `tests/test_k2_picture.py` → 11 passed, incl. one through #362's own confirm step; with the graph, voice, register,
+- `tests/test_k2_picture.py` → 11 passed (the reset and the tie each a test), incl. one through #362's confirm step; with the graph, voice, register,
   privileges, rules, roles, vocabulary and loader suites → 84 passed.
 - Migration applied twice in a row: no error. `engine live rules --write --url <local>` → only the new tables' rules.
 - `engine past` on a fresh db (every migration but this one, seed, the 11 GR1 ledgers as written evidence), then this

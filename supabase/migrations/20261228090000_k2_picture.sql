@@ -3,7 +3,9 @@
 --   * a skill is secure only after the child is named (individual entry) at level 3 (mark `yes`) on two different school
 --     days, and a yes comes at least 14 days after the first of those; "the rest did as expected" at level 3 may be
 --     that re-check, never opens secure on its own and never moves a state down;
---   * a later named lower mark re-opens a secure skill to practising;
+--   * a later named lower mark resets the clock: secure needs a fresh cycle (two named days at level 3 and a yes 14 days
+--     after the first), counting only marks after it; a skill it re-opens is practising (the orchestrator, D-047,
+--     unverified with the school);
 --   * a child seen only in "the rest" lines is observed with too little to go on (not_enough_yet); a child not
 --     mentioned has no row, never "not secure".
 -- The rule's numbers are rows per grade (`observed_rule`), and how much each way of entering a child counts is rows per
@@ -120,31 +122,41 @@ language sql stable set search_path = public as $$
     where e.confirmed_by is not null
       and (p_child is null or e.child_id = p_child)
       and not exists (select 1 from activity_observation c where c.supersedes = o.id)
+  ), reset as (  -- the latest named mark below the secure mark: secure counts only what came after it
+    select ev.child_id, ev.skill_code, ev.grade_code,
+           max(ev.observed_at) filter (where ev.lowers and ev.mark <> ev.secure_mark) as reset_at
+    from ev group by 1, 2, 3
+  ), cyc as (  -- each mark, and whether it is after the reset (a mark at the very moment of it is not)
+    select ev.*, x.reset_at, x.reset_at is null or ev.observed_at > x.reset_at as after
+    from ev join reset x using (child_id, skill_code, grade_code)
   ), unit as (
-    select ev.tenant_id, ev.child_id, ev.skill_code, ev.grade_code,
-           max(ev.secure_mark) as secure_mark, max(ev.secure_days) as secure_days, max(ev.recheck_days) as recheck_days, max(ev.min_adults) as min_adults,
-           (count(distinct ev.day) filter (where ev.opens_secure and ev.mark = ev.secure_mark))::int as named_days,
-           (count(distinct ev.seen_by) filter (where ev.opens_secure and ev.mark = ev.secure_mark))::int as adults,
-           min(ev.day) filter (where ev.opens_secure and ev.mark = ev.secure_mark) as first_named_yes,
-           bool_or(ev.lowers) as named,
-           (array_agg(ev.mark order by ev.observed_at desc, ev.mark = ev.secure_mark) filter (where ev.lowers))[1]
+    select c.tenant_id, c.child_id, c.skill_code, c.grade_code, max(c.secure_mark) as secure_mark,
+           max(c.secure_days) as secure_days, max(c.recheck_days) as recheck_days, max(c.min_adults) as min_adults,
+           (count(distinct c.day) filter (where c.after and c.opens_secure and c.mark = c.secure_mark))::int
+             as named_days,
+           (count(distinct c.seen_by) filter (where c.after and c.opens_secure and c.mark = c.secure_mark))::int
+             as adults,
+           min(c.day) filter (where c.after and c.opens_secure and c.mark = c.secure_mark) as first_named_yes,
+           (count(distinct c.day) filter (where not c.after and c.opens_secure and c.mark = c.secure_mark))::int
+             as named_days_before,  -- the reset re-opened a skill that had been named on enough days
+           bool_or(c.lowers) as named,
+           (array_agg(c.mark order by c.observed_at desc, c.mark = c.secure_mark) filter (where c.lowers))[1]
              as latest_named,  -- two named marks at one moment: the lower decides, so a rebuild never flips
-           max(ev.observed_at) as last_seen
-    from ev group by 1, 2, 3, 4
+           max(c.observed_at) as last_seen
+    from cyc c group by 1, 2, 3, 4
   ), judged as (
     select u.*,
-           (select min(ev.day) from ev
-             where ev.child_id = u.child_id and ev.skill_code = u.skill_code and ev.grade_code = u.grade_code
-               and ev.rechecks and ev.mark = ev.secure_mark
-               and ev.day >= u.first_named_yes + u.recheck_days) as rechecked_on
+           (select min(c.day) from cyc c
+             where c.child_id = u.child_id and c.skill_code = u.skill_code and c.grade_code = u.grade_code
+               and c.after and c.rechecks and c.mark = c.secure_mark
+               and c.day >= u.first_named_yes + u.recheck_days) as rechecked_on
     from unit u
   )
   select j.tenant_id, j.child_id, j.skill_code, j.grade_code,
          case when not coalesce(j.named, false)                                     then 'not_enough_yet'
-              when j.named_days >= j.secure_days and j.adults >= j.min_adults
-                   and j.latest_named = j.secure_mark                               then
+              when j.named_days >= j.secure_days and j.adults >= j.min_adults       then
                 case when j.rechecked_on is not null then 'secure' else 'secure_to_recheck' end
-              when j.named_days >= j.secure_days and j.adults >= j.min_adults       then 'practising'  -- re-opened
+              when j.named_days_before >= j.secure_days                             then 'practising'  -- re-opened
               when j.latest_named = 'not_yet'                                       then 'emerging'
               else 'practising' end,
          j.named_days, j.adults, j.first_named_yes, j.rechecked_on, j.last_seen
