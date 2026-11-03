@@ -15,8 +15,7 @@ W3 (read and graph). A new step for voice notes is proposed to `workflows.json` 
 - The design documents in cornerstonepune/teacher-os could not be read from this container (the clone asks for a
   login; attaching it was refused). Asked the orchestrator for them. The spoken template and the table design are not
   guessed; the parser and the tables wait on them.
-- No transcription tool is chosen: nothing measured, no fixtures exist yet (research/2026-11-03-k2-voice-transcription-spike.md).
-- The engine's server has 2 GB of RAM; an own-server speech model needs a bigger box, not yet priced.
+- Speech to text is Sarvam (Nimish, 3 Nov). Read its current docs (research/2026-11-03-k2-voice-transcription-spike.md): its default keeps data indefinitely until the workspace Owner sets "No retention"; whether that covers speech-to-text, and whether audio is used for training, are unverified. Nothing measured: no fixtures yet, no key here.
 
 ## Handoff
 
