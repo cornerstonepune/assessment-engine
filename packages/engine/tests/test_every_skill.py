@@ -340,11 +340,14 @@ def test_confirm_a_one_skill_question_counts_exactly_as_it_did_before(conn):
 
 def test_next_difficulty_counts_answers_not_evidence_rows(conn):
     """A right budget answer is four evidence rows; the level rule must still see one answer. Two right and
-    one wrong is 67 % — the level holds. Counted by rows it would be 8 of 9 and promote the child."""
+    one wrong is 67 % — the level holds. Counted by rows it would be 8 of 9 and promote the child. The three are at the
+    school's usual level, so the paper is the child's current level (goals/gr1-state-from-recent-evidence.yaml)."""
     labels.relabel(conn)
     three = conn.execute(
-        "select id from item where status = 'active' and skill_set_code = 'WORD.BUDGET' limit 3"
+        "select id from item where status = 'active' and skill_set_code = 'WORD.BUDGET'"
+        " and difficulty = (select value #>> '{}' from config where key = 'level.usual') limit 3"
     ).fetchall()
+    assert len(three) == 3
     child = _paper(
         conn,
         [

@@ -86,8 +86,12 @@ def child(conn):
             " channel, item_result_id, observed_at, confirmed_by) values (%s,%s,'NUM.OPS.02','R24',%s,%s,'item',%s,%s,'t')",
             (t, kid, right, codes, res, day2),
         )
+    # R21 nine right on three days, the last 20 days after the first: re-checked, secure (goals/gr1)
+    day0 = datetime.now(timezone.utc) - timedelta(days=20)
     direct = (
-        [("R21", True, day1)] * 9
+        [("R21", True, day0)] * 3
+        + [("R21", True, day1)] * 3
+        + [("R21", True, day2)] * 3
         + [("R22", False, day1)] * 3
         + [("R22", True, day1)]
         + [("R22", True, day2)] * 4
@@ -158,7 +162,9 @@ def test_the_facts_are_the_childs_signed_off_answers_and_never_their_name(conn, 
         "wrong_answers_with_working_shown": 1,
         "questions_the_child_left_blank": 0,
     }
-    assert f["days"] == 4, "the answers span four days, and the facts say so"
+    assert f["days"] == 21, (
+        "the answers span 21 days (the first R21 paper 20 days back), and the facts say so"
+    )
 
 
 def test_words_that_say_what_the_facts_do_not_are_caught(conn, child):
@@ -484,7 +490,8 @@ def test_what_the_v7_eval_found_a_skill_is_said_as_secure_only_on_its_own_line_a
     near = {x["id"]: x for x in f["nearly"]}
     assert near, f["nearly"]
     assert all(
-        x["not_yet"] == "answered on one paper so far: secure once it holds on another" for x in near.values()
+        x["not_yet"] == "answered on one day so far: secure once it holds on another day"
+        for x in near.values()
     )
 
     def said(**parts):

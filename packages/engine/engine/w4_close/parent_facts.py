@@ -93,31 +93,33 @@ def _per_set(rows):
     return out
 
 
-def _not_yet(conn, child_id, rows, nearly):
-    """{rung: why it is not secure yet}, as the graph decides it: a skill is secure only once it holds on
-    `state.min_observers` papers. v7 on live wrote "nearly secure ... got 14 of 14 right" with no reason, which reads to
-    a parent as a contradiction. Counted over the skills of the set still practising, as the nearly counts are."""
-    need = settings.threshold(conn, "state.min_observers", 2)
-    practising = {
-        (r["rung_code"], r["skill_code"])
-        for r in conn.execute(
-            "select rung_code, skill_code from child_skill_state where child_id = %s and state = any(%s)",
-            (child_id, list(nearly)),
+def _not_yet(conn, child_id, nearly):
+    """{rung: why it is not secure yet}, as the graph decides it, from its own window at the level the child works on
+    (goals/gr1-state-from-recent-evidence.yaml): answered on too few days, on too few questions, secure on the recent
+    papers and waiting on a later one to hold, or not yet right often enough. v7 on live wrote "nearly secure ... got 14
+    of 14 right" with no reason, which reads to a parent as a contradiction."""
+    days = settings.threshold(conn, "state.min_days", 2)
+    least = settings.threshold(conn, "state.secure_min_answers", 6)
+    promote = settings.threshold(conn, "next_sheet.promote_at", 0.8)
+    out = {}
+    for r in conn.execute(
+        "select rung_code, n_events, share, days, latest_share, rechecked from graph_skill_states(%s)"
+        " where state = any(%s) order by rung_code, skill_code",
+        (child_id, list(nearly)),
+    ):
+        out.setdefault(
+            r["rung_code"],
+            "answered on one day so far: secure once it holds on another day"
+            if r["days"] == 1
+            else "answered on fewer days than secure needs: secure once it holds on another"
+            if r["days"] < days
+            else "answered on too few questions so far: secure once it holds on more"
+            if r["n_events"] < least
+            else "right on its recent papers: secure once it holds again on a paper some weeks later"
+            if r["share"] >= promote and r["latest_share"] >= promote and not r["rechecked"]
+            else "not yet right often enough to be secure",
         )
-    }
-    papers = {}
-    for r in rows:
-        if any((r["rung"], k) in practising for k in r["skill_codes"]):
-            papers.setdefault(r["rung"], set()).add(r["paper"] or r["id"])
-    out = {rung: len(p) for rung, p in papers.items()}
-    return {
-        rung: "answered on one paper so far: secure once it holds on another"
-        if n == 1
-        else "answered on fewer papers than secure needs: secure once it holds on another"
-        if n < need
-        else "not yet right often enough to be secure"
-        for rung, n in out.items()
-    }
+    return out
 
 
 def _mistake(f, what):
@@ -150,7 +152,7 @@ def facts(conn, child_id):
     near = [s["code"] for s in st if s["nearly"]]
     lagging = [s["code"] for s in st if s["needs_work"] and not s["nearly"]]
     strong_in = report.strong_states(conn)
-    # four in five right and on enough answers to have a colour, waiting only on a second paper to be called secure
+    # four in five right and on enough answers to have a colour, waiting only on more days or a later paper to be secure
     promote = settings.threshold(conn, "next_sheet.promote_at", 0.8)
     least = settings.threshold(conn, "state.min_events", 3)
     stretch = {sets[r]["code"] for r in _every(conn, child_id, move_up) if r in sets}
@@ -171,7 +173,7 @@ def facts(conn, child_id):
         for code in strong
         for right, n in [per_set.get(by_code[code]["rung_code"], (0, 0))]
     ]
-    why = _not_yet(conn, child_id, rows, near)
+    why = _not_yet(conn, child_id, near)
     nearly = [
         _skill(sets[r], right=right, answered=n, not_yet=why.get(r, "not yet secure"))
         # "nearly ... secure once it holds on another paper" promises one more paper is all it needs: never of a set

@@ -24,6 +24,7 @@ RAG = {  # apps/web/lib/rag.ts RAG
     "patterned_error": "red",
     "emerging": "red",
     "practising": "amber",
+    "secure_to_recheck": "amber",  # goals/gr1-state-from-recent-evidence.yaml, 2026-11-03
     "secure": "green",
     "stretch_ready": "green",
     "not_enough_yet": "grey",
@@ -45,16 +46,30 @@ STATE_WORDS = {  # apps/web/lib/queries.ts STATE_WORDS
     "patterned_error": "repeating mistake",
     "emerging": "under half right",
     "practising": "practising",
+    "secure_to_recheck": "secure, to re-check",  # gr1
     "secure": "secure",
     "stretch_ready": "ready to move up",
 }
-LAGGING = ("patterned_error", "emerging", "practising")  # engine/assess/focus.py, weakest first
-PROPOSABLE = {"patterned_error", "emerging", "practising", "secure", "stretch_ready"}  # lib/queries-make.ts
+LAGGING = (
+    "patterned_error",
+    "emerging",
+    "practising",
+    "secure_to_recheck",
+)  # focus.py, weakest first; gr1 adds the last
+PROPOSABLE = {
+    "patterned_error",
+    "emerging",
+    "practising",
+    "secure_to_recheck",
+    "secure",
+    "stretch_ready",
+}  # lib/queries-make.ts
 STRONG = {"secure", "stretch_ready"}  # engine/w4_close/report.py
 WEAKEST_FIRST = (
     "patterned_error",
     "emerging",
     "practising",
+    "secure_to_recheck",  # gr1
     "secure",
     "stretch_ready",
     "not_enough_yet",
@@ -63,6 +78,7 @@ SEVERITY = {  # lib/queries-children.ts, the CASE a skill set takes its worst sk
     "patterned_error": 1,
     "emerging": 2,
     "practising": 3,
+    "secure_to_recheck": 4,  # gr1
     "not_enough_yet": 4,
     "secure": 5,
     "stretch_ready": 5,
@@ -71,6 +87,7 @@ GROUPS = {  # engine/w4_close/card.py GROUPS, and patterned_error grouped by its
     "stretch_ready": "move_up",
     "secure": "secure",
     "practising": "practising",
+    "secure_to_recheck": "practising",  # gr1: worked on with the practising
     "emerging": "emerging",
     "not_enough_yet": "not_enough_yet",
     "patterned_error": "reteach",
@@ -80,11 +97,15 @@ WHY = {  # engine/w2_print/focus_paper.py WHY, with next_sheet.promote_at 0.8 an
     "patterned_error": "the same mistake more than once",
     "emerging": "fewer than half right",
     "practising": "not yet four in five right",
+    "secure_to_recheck": "four in five right — to check again on a later paper",  # gr1
     "secure": "four in five right — a step up",
     "stretch_ready": "ready to move up",
 }
 MOVE_UP = {"stretch_ready"}  # parent_facts.py: a set ready to move up
-NEARLY = {"practising"}  # parent_facts.py and report/parts.tsx: a set that may be nearly secure
+NEARLY = {
+    "practising",
+    "secure_to_recheck",
+}  # parent_facts.py and report/parts.tsx: a set that may be nearly secure
 
 
 @pytest.fixture

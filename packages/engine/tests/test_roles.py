@@ -70,6 +70,7 @@ WEB_CALLS = {
     "checks_to_trust",
     "skill_levels",  # a skill's levels as one object, built from their rows (goals/b1-levels-are-rows.yaml)
     "graph_state_of",  # the graph's one rule for a state, which the `child_level_state` view calls as the website (goals/cal_levels_to_review.yaml)
+    "graph_level_window",  # a level's latest answers, which the same view reads (goals/gr1-state-from-recent-evidence.yaml)
     # who sees a child's answers and papers, the one rule, and what it is asked of (goals/own_who_sees_answers.yaml)
     "staff_sees",
     "staff_sees_sheet",

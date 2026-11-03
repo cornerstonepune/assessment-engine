@@ -102,8 +102,11 @@
       "id": "why-practising",
       "title": "Why is a skill {state:practising} when most answers were right?",
       "paras": [
-        "A skill is {state:secure} only when it is seen on at least {t:state.min_observers} papers, with {t:next_sheet.promote_at|pct} or more right.",
-        "A mistake made more than once shows as {state:patterned_error}, whatever the share right."
+        "Only the latest {t:state.window_answers} answers at the child's level count.",
+        "A skill is green only with at least {t:state.secure_min_answers} of them, on at least {t:state.min_days} different days.",
+        "And {t:next_sheet.promote_at|pct} or more must be right, on the latest day too.",
+        "Until a paper at least {t:state.recheck_days} days later, at that level or a harder one, holds too, it shows as {state:secure_to_recheck}.",
+        "A mistake in at least {t:state.repeat_min} of the latest {t:state.window_answers} answers shows as {state:patterned_error}, whatever the share right. {t:state.repeat_clears_after} right answers on later papers clear it."
       ]
     },
     {

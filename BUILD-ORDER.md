@@ -5,6 +5,18 @@ workflow and which gate it is on, and does not touch a later workflow until ever
 current one passes in `STATE.md`. Nimish set this on 2026-09-19 after three sessions drifted
 across the map and left every part incomplete. Nothing here is a suggestion.
 
+## Inserted now: the graph reads recent answers — Nimish, 2026-11-03
+
+W3, gate N10 (the skill graph), reopened by the learning-science review of 3 Nov
+(cornerstonepune/teacher-os research/council-2026-11-03/learning-scientist.md §1). The next paper's level read every
+answer at every level, all time; a repeating mistake never cleared; "observers" counted papers; ready to move up was
+volume. Nimish's rules and his four answers that day are ADR 0098. One slice, beside the C slices: it changes the graph's
+functions and ring B, never the evidence (rule 4).
+
+| Slice | Goal file | Green means |
+|---|---|---|
+| GR1 | `goals/gr1-state-from-recent-evidence.yaml` | eleven ledgers worked by hand give their states and next levels; every number of the rule is a row; on a copy of live, `engine past --states-since` lists every child whose state or next level moves, and why, and Nimish is told how many before he merges |
+
 ## Inserted now: the locked scope of 22 Oct — Nimish, 2026-10-22
 
 Nimish locked this scope on 2026-10-22 ("scope is locked"), from the flow map
