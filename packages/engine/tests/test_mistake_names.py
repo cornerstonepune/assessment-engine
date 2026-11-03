@@ -38,14 +38,23 @@ def test_what_the_school_does_about_a_mistake_is_the_one_for_its_operation():
     assert hint_of("M_SMALL_FROM_LARGE", op="-") == want and want
     assert hint_of("M_NOCARRY", skill="NUM.OPS.01").startswith("Place-value chart")
     assert hint_of("M_FACT_PM1") is None, "two operations, two hints: none is guessed"
-    # M0-04: a division question can carry a mistake the vocabulary holds for + and − (repeated subtraction: "Tens
-    # miscounted"). Its question's operation has no row, but the skill the mistake was placed on has: that row's hint,
-    # not "none" for a child whose parent report then names the mistake and says nothing to do about it.
+    with pytest.raises(ValueError):
+        mistake_names.names(conn, "description; drop table misconception")
+
+
+def test_a_division_questions_mistake_is_told_what_to_do_by_the_skill_it_was_charged_to():
+    """M0-04, CI engine shard 11, 2026-11-03: "Tens miscounted" has a hint for + and one for −, none for ÷. A division
+    question carrying it, charged to subtraction, got none: the report named the mistake and said nothing to do."""
+    from engine.w4_close.report import _hint
+
     with db.connect() as conn:
+        hint_of = mistake_names.names(conn, "repair_hint")
         want = conn.execute(
             "select repair_hint from misconception where code = 'M_FACT_PM10' and op = '-'"
         ).fetchone()["repair_hint"]
-    assert hint_of("M_FACT_PM10", op="/", skill="NUM.OPS.02") == want and want
-    assert hint_of("M_FACT_PM10", op="/") is None, "with no skill to tell which, still none is guessed"
-    with pytest.raises(ValueError):
-        mistake_names.names(conn, "description; drop table misconception")
+    assert hint_of("M_FACT_PM10", op="÷", skill="NUM.OPS.02") is None, "the lookup itself is the shared rule"
+    assert _hint(hint_of, "M_FACT_PM10", "÷", "NUM.OPS.02") == want and want
+    assert _hint(hint_of, "M_FACT_PM10", "÷", "NUM.OPS.04") is None, (
+        "charged to ÷, which has none: none is guessed"
+    )
+    assert _hint(hint_of, "M_SMALL_FROM_LARGE", "-", "NUM.OPS.02") == hint_of("M_SMALL_FROM_LARGE", op="-")

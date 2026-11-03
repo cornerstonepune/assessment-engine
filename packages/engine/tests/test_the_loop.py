@@ -26,6 +26,7 @@ from engine.core import db, mistake_names
 from engine.w2_print import focus_paper, handout
 from engine.w3_read import boxes, copies, marking, second_reader
 from engine.w4_close import card, parent_facts
+from engine.w4_close.report import _hint
 from tests.test_each_answer import _wrote
 from tests.test_sorting import _scanned as _scanned_file
 
@@ -135,7 +136,7 @@ def _planted_to_repeat(conn, ids, slots):
     for m in sorted({m for _, _, key, wrong in slots for m, v in wrong.items() if v and v != key}):
         on = {(i, rid) for i, rid, key, wrong in slots if wrong.get(m, key) != key}
         if not all(  # the parent report must be able to say what the school does about it, as report.py looks it up
-            hint_of(m, op=items[i]["op"], skill=_skills_of(items[i], m)[0]) for i in {i for i, _ in on}
+            _hint(hint_of, m, items[i]["op"], _skills_of(items[i], m)[0]) for i in {i for i, _ in on}
         ):
             continue  # the vocabulary holds no such hint for that operation yet: the school's wording, not the test's
         by_skill: dict[str, list[tuple[int, bool]]] = {}

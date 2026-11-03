@@ -40,11 +40,8 @@ def names(conn: db.Conn, field: Field = "name") -> HintOf:
     op_of_skill = {skill: op for op, skill in by_operation.items()}
 
     def name_of(code: str, op: str | None = None, skill: str | None = None) -> str | None:
-        of_skill = op_of_skill.get(skill) if skill else None
-        op = _op(op) or of_skill
-        # its question's operation, else its name in any operation, else the operation of the skill it was placed on
-        # (a division question can carry a mistake the vocabulary holds for + and −: its row is the skill's)
-        for key in ((code, op), (code, "any"), (code, of_skill)):
+        op = _op(op) or (op_of_skill.get(skill) if skill else None)
+        for key in ((code, op), (code, "any")):  # its operation's name, else its name in any operation
             if key in exact:
                 return exact[key]
         only = alone.get(code, set())
