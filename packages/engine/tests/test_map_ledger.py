@@ -54,6 +54,19 @@ def _activity(conn, t, code, strand, name, skills=(), los=()):
         )
 
 
+def _staff(conn, t, email="lead@school.invalid"):
+    """A member of staff with an email: a placeholder, never a real person."""
+    campus = conn.execute("select id from campus where tenant_id = %s limit 1", (t,)).fetchone()["id"]
+    sid = conn.execute(
+        "insert into staff (tenant_id, campus_id) values (%s, %s) returning id", (t, campus)
+    ).fetchone()["id"]
+    conn.execute(
+        "insert into pii.staff (tenant_id, staff_id, name, email) values (%s, %s, 'A placeholder', %s)",
+        (t, sid, email),
+    )
+    return sid
+
+
 def _band(conn):
     """Four activities people mapped (the gold), and three with gaps: one missing its skill, one missing everything,
     one in a subject people never mapped."""
@@ -156,17 +169,18 @@ def test_each_gap_is_proposed_checked_and_sent_where_it_belongs(conn, tmp_path):
 
 def test_the_ledger_is_never_edited_or_deleted_and_a_person_answers_with_a_new_row(conn, tmp_path):
     t = _band(conn)
-    map_ledger.record(conn, t, _made(conn, tmp_path, t), "machine for a test")
+    lead = _staff(conn, t)
+    map_ledger.record(conn, t, _made(conn, tmp_path, t), lead)
     waiting = map_ledger.standing(conn, t, "needs_person")
     assert {(r["kind"], r["subject_code"]) for r in waiting} == {
         ("objective", "ACT-KX-0102"),
         ("levels", "ACT-KX-0102"),
         ("objective", "ACT-KX-0103"),
     }
-    map_ledger.settle(conn, t, waiting[0]["id"], True, "A test educator", "reads well")
+    map_ledger.settle(conn, t, waiting[0]["id"], True, lead, "reads well")
     assert {r["id"] for r in map_ledger.standing(conn, t, "approved")} == {waiting[0]["id"]}
     with pytest.raises(ValueError, match="not waiting"):
-        map_ledger.settle(conn, t, waiting[0]["id"], False, "A test educator", "twice")
+        map_ledger.settle(conn, t, waiting[0]["id"], False, lead, "twice")
     conn.execute("savepoint s")
     with pytest.raises(psycopg.errors.RaiseException):
         conn.execute("update curriculum_proposal set status = 'rejected' where tenant_id = %s", (t,))
@@ -195,8 +209,9 @@ def test_applying_marks_every_link_as_the_machines_keeps_it_in_the_history_and_a
     conn, tmp_path
 ):
     t = _band(conn)
-    map_ledger.record(conn, t, _made(conn, tmp_path, t), "machine for a test")
-    done = map_ledger.apply(conn, t, "A test lead", write=True)
+    lead = _staff(conn, t)
+    map_ledger.record(conn, t, _made(conn, tmp_path, t), lead)
+    done = map_ledger.apply(conn, t, lead, write=True)
     assert "ACT-KX-0101 → NUM.CNT.01" in done
     link = conn.execute(
         "select source, proposal_id from activity_skill where tenant_id = %s and activity_code = 'ACT-KX-0101'",
@@ -216,10 +231,10 @@ def test_applying_marks_every_link_as_the_machines_keeps_it_in_the_history_and_a
         (t,),
     ).fetchall()
     assert [(k["before"], k["after"]) for k in kept] == [("", "NUM.CNT.01")]
-    assert kept[0]["changed_by"].startswith("machine:") and kept[0]["changed_by"].endswith("for A test lead")
-    assert map_ledger.apply(conn, t, "A test lead", write=True) == [], "applying twice changes nothing"
+    assert kept[0]["changed_by"].startswith("machine:") and kept[0]["changed_by"].endswith(f"staff:{lead}")
+    assert map_ledger.apply(conn, t, lead, write=True) == [], "applying twice changes nothing"
 
-    print(map_ledger.revert(conn, t, link["proposal_id"], "A test lead", "wrong skill"))
+    print(map_ledger.revert(conn, t, link["proposal_id"], lead, "wrong skill"))
     assert (
         conn.execute(
             "select count(*) as n from activity_skill where tenant_id = %s and activity_code = 'ACT-KX-0101'",
@@ -259,6 +274,9 @@ def test_a_recorded_gold_run_is_held_to_the_bars_before_anything_applies(conn, t
     """The held-out share of the activities people mapped, mapped blind: a run that names the people's own skills
     passes every bar; one that names the wrong skills fails, and the command says so."""
     t = _band(conn)
+    conn.execute(
+        "update threshold set value = 2 where key = 'map.dev_count'"
+    )  # 2 of the 4 for tuning, 2 held out
     b = read_band(conn, t, BAND)
     gold = {c: s for c, s in b.person_skills.items() if b.objectives.get(c)}
     monkeypatch.setattr(cli_map, "_tenant", lambda c: t)
@@ -331,3 +349,59 @@ def test_the_proposer_sees_the_skills_that_fit_and_the_nearest_activities_people
     }, "only activities people mapped themselves, never the one asked about"
     assert "count" in names[0].lower().split()
     assert "curriculum_map_validate:ACT-KX-0101" in seen, "the validator reads what code passed"
+
+
+def test_who_is_a_member_of_staffs_id_and_the_machines_code_never_a_typed_name(conn, tmp_path):
+    """D-046, rule 6: the ledger is read by the website, so a person is their staff id (an email given to --by is
+    looked up by the engine) and the machine a fixed code; an email no one has is refused."""
+    t = _band(conn)
+    lead = _staff(conn, t, "mapping-lead@school.invalid")
+    assert cli_map.staff_of(conn, "Mapping-Lead@school.invalid ") == lead
+    with pytest.raises(Exception, match="no one member of staff"):
+        cli_map.staff_of(conn, "nobody@school.invalid")
+    map_ledger.record(conn, t, _made(conn, tmp_path, t), lead)
+    rows = conn.execute(
+        "select staff_id, machine from curriculum_proposal where tenant_id = %s", (t,)
+    ).fetchall()
+    assert {r["staff_id"] for r in rows} == {lead}
+    assert {r["machine"] for r in rows} == {"proposer:curriculum_map_propose", "proposer:code"}
+    columns = {
+        r["column_name"]
+        for r in conn.execute(
+            "select column_name from information_schema.columns where table_name = 'curriculum_proposal'"
+        ).fetchall()
+    }
+    assert not columns & {"name", "made_by", "email", "by"}
+
+
+def test_a_held_out_activity_is_never_an_example_the_proposer_sees(conn, tmp_path, monkeypatch):
+    """The final score is kept clean (P-08): the activities scored are mapped blind, and the proposer's examples are
+    the dev set's only."""
+    t = _band(conn)
+    conn.execute("update threshold set value = 2 where key = 'map.dev_count'")
+    monkeypatch.setattr(cli_map, "_tenant", lambda c: t)
+    monkeypatch.setattr(
+        cli_map, "read_band", lambda c, tn, band, hide=frozenset(): read_band(c, tn, BAND, hide)
+    )
+    b = read_band(conn, t, BAND)
+    dev, held = cli_map.gold_split(conn, b)
+    names = {c: b.words[c]["name"] for c in dev | held}
+    seen: list[tuple[str, list[str]]] = []
+    reply = {
+        "skills": [],
+        "objective_code": "",
+        "objective_text": "",
+        "levels": {},
+        "confidence": 0.5,
+        "reason": "",
+    }
+
+    def ask(purpose, about, variables):
+        if purpose == "curriculum_map_propose":
+            seen.append((about, [e["name"] for e in variables["examples"]]))
+            return reply
+        return {"verdict": "agree", "why": ""}
+
+    cli_map.evaluate(conn, ask)
+    assert {a for a, _ in seen} == held
+    assert all(set(ex) <= {names[c] for c in dev} for _, ex in seen)

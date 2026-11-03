@@ -1,9 +1,10 @@
 """The gold-set eval of the curriculum mapping agents, and the links code can make on its own
 (goals/m1-05-mapping-agents.yaml).
 
-The activities people mapped are the gold set. A share of them, the same every run and drawn from every subject, is
-held out: their links are hidden from the agents and from the examples the proposer sees, the agents map them blind,
-and code scores what they did against what people did. The bars are threshold rows (`eval.curriculum_map.*`), set
+The activities people mapped are the gold set: 100 are the dev set, for tuning prompts, and the rest are held out for
+the final score only (blueprint chapter P-08). The split is the same every run and draws on every subject; a
+held-out activity is never an example the proposer sees, and its links are hidden when the agents map it blind; code
+scores what they did against what people did. A "none" on an activity people mapped counts as wrong. The bars are threshold rows (`eval.curriculum_map.*`), set
 before anything is applied. Pure: no database, no model.
 """
 
@@ -21,17 +22,20 @@ class Scored:
     status: str
 
 
-def held_out(strands: dict[str, str], share: float) -> set[str]:
-    """{activity code} of the held-out share: per subject, that share of its activities (at least one), chosen by a
-    hash of the code, so every run and every machine holds out the same ones."""
+def split(strands: dict[str, str], dev: int) -> tuple[set[str], set[str]]:
+    """(dev, held out) of the activities people mapped: `dev` of them for tuning the prompts, taken in turn from
+    every subject, and the rest held out for the final score only. Chosen by a hash of each code, so every run and
+    every machine splits them the same way."""
     by: dict[str, list[str]] = defaultdict(list)
     for code, strand in strands.items():
         by[strand].append(code)
-    out: set[str] = set()
-    for codes in by.values():
-        ranked = sorted(codes, key=lambda c: hashlib.sha256(c.encode()).hexdigest())
-        out.update(ranked[: max(1, round(share * len(codes)))])
-    return out
+    queues = [sorted(v, key=lambda c: hashlib.sha256(c.encode()).hexdigest()) for _, v in sorted(by.items())]
+    chosen: set[str] = set()
+    while len(chosen) < min(dev, len(strands)):
+        for q in queues:
+            if q and len(chosen) < dev:
+                chosen.add(q.pop(0))
+    return chosen, set(strands) - chosen
 
 
 def score(run: list[Scored], gold: dict[str, frozenset[str]]) -> dict[str, float]:
@@ -39,7 +43,7 @@ def score(run: list[Scored], gold: dict[str, frozenset[str]]) -> dict[str, float
     person also linked (skill_all_right), and the share of the people's links they found (skill_found); and the share
     of all proposals that passed on their own (auto_passed). Nothing passed scores 0, never a free pass."""
     passed = [r for r in run if r.status == "auto_passed"]
-    right = sum(1 for r in passed if r.skills <= gold.get(r.activity, frozenset()))
+    right = sum(1 for r in passed if r.skills and r.skills <= gold.get(r.activity, frozenset()))
     links = sum(len(gold.get(r.activity, frozenset())) for r in passed)
     found = sum(len(r.skills & gold.get(r.activity, frozenset())) for r in passed)
     return {

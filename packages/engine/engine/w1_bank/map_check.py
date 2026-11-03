@@ -39,8 +39,8 @@ class Gap:
 def _skills(proposal: dict[str, object], gap: Gap, known: Known) -> list[str]:
     raw = proposal.get("skills")
     codes = [str(c) for c in raw] if isinstance(raw, list) else []
-    if not codes:
-        return ["no skill proposed"]
+    if not codes:  # "none": an activity may be coverage only; a person confirms it (`decide`)
+        return []
     out: list[str] = []
     seen: set[str] = set()
     for code in codes:
@@ -108,15 +108,17 @@ def decide(
     min_confidence: float,
     sampled: bool,
     new_words: bool = False,
+    none: bool = False,
     kind_stopped: bool = False,
 ) -> str:
     """Where a checked proposal goes. Code's problems reject it; new words, a validator that disagrees, a confidence
-    under the bar, the audit sample and a kind whose audit failed all go to a person; the rest pass on their own."""
+    under the bar, a "none", the audit sample and a kind whose audit failed all go to a person; the rest pass on their own."""
     if found:
         return "rejected"
     if (
         kind in NEW_WORDS
         or new_words
+        or none
         or verdict != "agree"
         or confidence < min_confidence
         or sampled

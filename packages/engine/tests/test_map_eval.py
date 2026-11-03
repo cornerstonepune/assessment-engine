@@ -5,7 +5,7 @@ Pure code: a recorded run over placeholder activities, scored against what peopl
 
 import json
 
-from engine.w1_bank.map_eval import Scored, held_out, lo_skill_pairs, score
+from engine.w1_bank.map_eval import Scored, lo_skill_pairs, score, split
 
 RECORDED = json.loads(
     """
@@ -39,18 +39,17 @@ def test_nothing_auto_passed_scores_zero_never_a_free_pass():
     assert s["skill_all_right"] == 0.0 and s["skill_found"] == 0.0 and s["auto_passed"] == 0.0
 
 
-def test_the_held_out_share_is_the_same_every_run_and_drawn_from_every_subject():
-    acts = {f"ACT-K2-{i:04d}": ("Maths" if i % 3 else "Clay") for i in range(1, 101)}
-    one, two = held_out(acts, 0.2), held_out(acts, 0.2)
-    assert one == two
-    assert {acts[a] for a in one} == {"Maths", "Clay"}
-    assert len(one) == round(0.2 * 67) + round(0.2 * 33)
+def test_a_dev_set_of_a_fixed_size_is_drawn_from_every_subject_and_the_rest_is_held_out_the_same_every_run():
+    acts = {f"ACT-K2-{i:04d}": ("Maths" if i % 3 else "Clay") for i in range(1, 528)}
+    dev, held = split(acts, 100)
+    assert (dev, held) == split(acts, 100)
+    assert len(dev) == 100 and len(held) == 427 and not dev & held and dev | held == set(acts)
+    assert {acts[a] for a in dev} == {"Maths", "Clay"} == {acts[a] for a in held}
 
 
-def test_a_subject_with_one_activity_still_gives_one_to_the_held_out_share():
-    assert held_out({"A1": "Hindi", "A2": "Maths", "A3": "Maths"}, 0.2) == {"A1"} | (
-        held_out({"A2": "Maths", "A3": "Maths"}, 0.2)
-    )
+def test_a_none_on_an_activity_people_mapped_is_wrong_never_free():
+    s = score([Scored("A1", frozenset(), "auto_passed")], {"A1": frozenset({"NUM.CNT.01"})})
+    assert s["skill_all_right"] == 0.0
 
 
 def test_an_objective_takes_a_skill_by_code_only_where_its_activity_leaves_no_doubt():

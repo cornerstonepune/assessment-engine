@@ -4,7 +4,8 @@
 Append-only: a proposal is one row, decided when it is made; a person's yes or no, an apply and a revert are each a
 new row naming it (`about`), so where a proposal stands is its newest row. A link made from one is marked `machine` and
 the proposal's id, so every machine link can be listed and reverted; every link added or removed lands in the
-curriculum's edit history by the database's own trigger, with who did it.
+curriculum's edit history by the database's own trigger, with who did it. Who is always ids: a member of staff by
+their id (an email is looked up by the engine, `staff_of_email`), the machine by a fixed code; never a typed name.
 """
 
 import json
@@ -23,13 +24,15 @@ def rules(conn: db.Conn) -> dict[str, float]:
     return {r["key"].removeprefix("map."): float(r["value"]) for r in rows}
 
 
-def record(conn: db.Conn, tenant: db.Id, made: list[Proposal], by: str) -> uuid.UUID:
-    """Every proposal of one run as a row; the run's id back."""
+def record(conn: db.Conn, tenant: db.Id, made: list[Proposal], staff: db.Id) -> uuid.UUID:
+    """Every proposal of one run as a row, the member of staff who ran it by their id and the machine's part by its
+    code; the run's id back."""
     run = uuid.uuid4()
     for p in made:
         conn.execute(
             "insert into curriculum_proposal (tenant_id, run_id, kind, subject_code, proposal, confidence, proposer,"
-            " validator, problems, verdict, status, reason, made_by) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+            " validator, problems, verdict, status, reason, staff_id, machine)"
+            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
             (
                 tenant,
                 run,
@@ -43,7 +46,8 @@ def record(conn: db.Conn, tenant: db.Id, made: list[Proposal], by: str) -> uuid.
                 p.verdict,
                 p.status,
                 p.reason,
-                by,
+                staff,
+                f"proposer:{p.proposer}",
             ),
         )
     return run
@@ -83,22 +87,29 @@ def stopped(conn: db.Conn, tenant: db.Id, at_most: float, least: float) -> froze
 
 
 def _follow(
-    conn: db.Conn, tenant: db.Id, about: db.Id, status: str, by: str, reason: str, version: int | None = None
+    conn: db.Conn,
+    tenant: db.Id,
+    about: db.Id,
+    status: str,
+    staff: db.Id | None,
+    reason: str,
+    machine: str | None = None,
+    version: int | None = None,
 ) -> None:
     conn.execute(
-        "insert into curriculum_proposal (tenant_id, about, run_id, kind, subject_code, status, reason, made_by,"
-        " curriculum_version) select tenant_id, id, run_id, kind, subject_code, %s, %s, %s, %s"
+        "insert into curriculum_proposal (tenant_id, about, run_id, kind, subject_code, status, reason, staff_id,"
+        " machine, curriculum_version) select tenant_id, id, run_id, kind, subject_code, %s, %s, %s, %s, %s"
         " from curriculum_proposal where tenant_id = %s and id = %s",
-        (status, reason, by, version, tenant, about),
+        (status, reason, staff, machine, version, tenant, about),
     )
 
 
-def settle(conn: db.Conn, tenant: db.Id, about: db.Id, yes: bool, by: str, why: str) -> None:
+def settle(conn: db.Conn, tenant: db.Id, about: db.Id, yes: bool, staff: db.Id, why: str) -> None:
     """A person's yes or no to a proposal waiting for one."""
     now = {r["id"]: r["now"] for r in standing(conn, tenant, "needs_person")}
     if uuid.UUID(str(about)) not in now:
         raise ValueError(f"{about} is not waiting for a person")
-    _follow(conn, tenant, about, "approved" if yes else "rejected", by, why)
+    _follow(conn, tenant, about, "approved" if yes else "rejected", staff, why)
 
 
 def _changed_by(conn: db.Conn, who: str) -> None:
@@ -115,7 +126,7 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
                 " values (%s,%s,%s,'machine',%s) on conflict do nothing",
                 (tenant, code, sk, p["id"]),
             )
-        return f"{code} → {', '.join(body['skills'])}"
+        return f"{code} → {', '.join(body['skills']) or 'no skill (a person confirmed none)'}"
     if p["kind"] == "lo_skill":
         conn.execute(
             "insert into learning_objective_skill (tenant_id, lo_code, skill_code, source, proposal_id)"
@@ -161,9 +172,10 @@ def _new_objective(conn: db.Conn, tenant: db.Id, activity: str, title: str) -> s
     return lo
 
 
-def apply(conn: db.Conn, tenant: db.Id, by: str, write: bool) -> list[str]:
+def apply(conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool) -> list[str]:
     """Every proposal that passed on its own or that a person approved, each made, its link naming the proposal,
-    each change in the edit history as the machine's for `by`; written only when `write`."""
+    each change in the edit history as the machine's, run by that member of staff (ids, never a name); written only
+    when `write`."""
     version = conn.execute(
         "select max(number) as n from curriculum_version where tenant_id = %s", (tenant,)
     ).fetchone()
@@ -172,20 +184,20 @@ def apply(conn: db.Conn, tenant: db.Id, by: str, write: bool) -> list[str]:
         if not write:
             done.append(f"{p['kind']}: {p['subject_code']} {json.dumps(p['proposal'], ensure_ascii=False)}")
             continue
-        _changed_by(conn, f"machine:{p['id']} for {by}")
+        _changed_by(conn, f"machine:{p['id']} staff:{staff}")
         done.append(_link(conn, tenant, p))
-        _follow(conn, tenant, p["id"], "applied", by, "", version["n"] if version else None)
+        _follow(conn, tenant, p["id"], "applied", staff, "", "apply", version["n"] if version else None)
     return done
 
 
-def revert(conn: db.Conn, tenant: db.Id, about: db.Id, by: str, why: str) -> str:
+def revert(conn: db.Conn, tenant: db.Id, about: db.Id, staff: db.Id | None, why: str) -> str:
     """An applied proposal undone: the links it made removed, level words it wrote emptied where they are still
     its own, and a `reverted` row; the edit history keeps both sides."""
     rows = [r for r in standing(conn, tenant, "applied") if str(r["id"]) == str(about)]
     if not rows:
         raise ValueError(f"{about} is not applied")
     p = rows[0]
-    _changed_by(conn, f"revert of machine:{p['id']} by {by}")
+    _changed_by(conn, f"revert:{p['id']} staff:{staff}")
     for table in ("activity_skill", "activity_objective", "learning_objective_skill"):
         conn.execute(
             f"delete from {table} where tenant_id = %s and proposal_id = %s and source = 'machine'",  # noqa: S608
@@ -199,5 +211,5 @@ def revert(conn: db.Conn, tenant: db.Id, about: db.Id, by: str, why: str) -> str
                 f"update activity set {f} = '' where tenant_id = %s and code = %s and {f} = %s",  # noqa: S608
                 (tenant, p["subject_code"], text),
             )
-    _follow(conn, tenant, p["id"], "reverted", by, why)
+    _follow(conn, tenant, p["id"], "reverted", staff, why, "revert")
     return f"{p['kind']}: {p['subject_code']} reverted"

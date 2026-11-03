@@ -10,6 +10,7 @@
 --                          (auto_passed, needs_person, rejected), what made it (the prompt versions, or code), what the
 --                          checks found, the validator's verdict and the confidence. Never edited or deleted: a
 --                          person's yes or no, an apply and a revert are each a new row naming the proposal (`about`).
+--                          Who is a staff id and a fixed machine code, never a typed name (D-046).
 --   * activity_skill, activity_objective, learning_objective_skill gain `source` (person | machine) and
 --                          `proposal_id`: a machine-made link names the proposal that made it, so every one can be
 --                          listed and reverted, and whatever is built from the links is rebuilt from them.
@@ -35,10 +36,14 @@ create table if not exists curriculum_proposal (
                                                       'applied', 'reverted')),
   reason              text not null default '',                 -- why it went where it went, in words
   curriculum_version  int,                                      -- the version in force when it was applied
-  made_by             text not null check (btrim(made_by) <> ''),  -- a person's name, or machine:<what>
+  -- who, never by name (D-046, rule 6): the member of staff who ran the command or decided, and the machine's part
+  staff_id            uuid references staff(id),
+  machine             text check (btrim(machine) <> ''),  -- proposer:<prompt>, code:lo_skill, apply, revert
   created_at          timestamptz not null default clock_timestamp(),
   updated_at          timestamptz not null default now(),
   check (about is null or about <> id),
+  check (staff_id is not null or machine is not null),
+  check (status not in ('approved', 'rejected') or about is null or staff_id is not null),  -- a person's own answer
   -- a proposal is decided when it is made; what follows it is a person's yes or no, an apply or a revert
   check (case when about is null then status in ('auto_passed', 'needs_person', 'rejected')
               else status in ('approved', 'rejected', 'applied', 'reverted') end),

@@ -47,6 +47,9 @@ class Band:
     skills: dict[str, set[str]]
     lo_skills: set[tuple[str, str]]
     names: dict[str, str] = field(default_factory=lambda: {})
+    pool: frozenset[str] | None = (
+        None  # the activities the proposer may see as examples (the dev set); None: all
+    )
 
 
 @dataclass(frozen=True)
@@ -178,14 +181,16 @@ def _words(text: str) -> set[str]:
 
 
 def nearest(band: Band, code: str, n: int) -> list[str]:
-    """The n activities people mapped whose words are nearest this one's (shared words over all words), never itself."""
+    """The n activities people mapped whose words are nearest this one's (shared words over all words), from the
+    band's example pool only (never a held-out activity), never itself."""
     mine = _words(" ".join(band.words[code].values()))
 
     def near(other: str) -> float:
         theirs = _words(" ".join(band.words[other].values()))
         return len(mine & theirs) / len(mine | theirs) if mine | theirs else 0.0
 
-    return sorted((c for c in band.person_skills if c != code), key=lambda c: (-near(c), c))[:n]
+    pool = band.person_skills.keys() if band.pool is None else band.person_skills.keys() & band.pool
+    return sorted((c for c in pool if c != code), key=lambda c: (-near(c), c))[:n]
 
 
 def sampled(kind: str, code: str, share: float) -> bool:
@@ -270,6 +275,7 @@ def _checked(
         min_confidence=rules.min_confidence,
         sampled=audit,
         new_words=bool(part.get("objective_text")),
+        none=kind in ("skill", "lo_skill") and not part.get("skills"),
         kind_stopped=kind in rules.stopped,
     )
     reason = "; ".join(found) or ("audit sample" if audit and status == "needs_person" else why)

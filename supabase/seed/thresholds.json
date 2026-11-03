@@ -528,25 +528,25 @@
    "key": "eval.curriculum_map.skill_all_right",
    "value": 0.9,
    "unit": "proportion",
-   "description": "Of the held-out activities whose skills the agents linked on their own, the share whose every skill a person also linked. Proposed by M1-05 (goals/m1-05-mapping-agents.yaml), not yet confirmed by Nimish; no run on the real gold set yet, so nothing applies until a run meets it"
+   "description": "Of the held-out activities whose skills the agents linked on their own, the share whose every skill a person also linked. Set before any run by the orchestrator for Nimish, D-047, 2026-11-03 (goals/m1-05-mapping-agents.yaml); nothing applies until a run meets it"
   },
   {
    "key": "eval.curriculum_map.skill_found",
    "value": 0.85,
    "unit": "proportion",
-   "description": "Of the skills people linked to those same held-out activities, the share the agents found. Proposed by M1-05 (goals/m1-05-mapping-agents.yaml), not yet confirmed by Nimish"
+   "description": "Of the skills people linked to those same held-out activities, the share the agents found. Set by the orchestrator for Nimish, D-047, 2026-11-03 (goals/m1-05-mapping-agents.yaml)"
   },
   {
    "key": "eval.curriculum_map.auto_passed",
    "value": 0.6,
    "unit": "proportion",
-   "description": "The share of held-out activities whose skills passed on their own (the rest go to a person): below it the agents save nobody time. Proposed by M1-05 (goals/m1-05-mapping-agents.yaml), not yet confirmed by Nimish"
+   "description": "The share of held-out activities whose skills passed on their own (the rest go to a person): below it the agents save nobody time. Set by the orchestrator for Nimish, D-047, 2026-11-03 (goals/m1-05-mapping-agents.yaml)"
   },
   {
-   "key": "map.holdout_share",
-   "value": 0.2,
-   "unit": "proportion",
-   "description": "The share of the activities people mapped held out for the mapping agents' eval, per subject, at least one each (goals/m1-05-mapping-agents.yaml)"
+   "key": "map.dev_count",
+   "value": 100,
+   "unit": "count",
+   "description": "How many of the activities people mapped are the dev set, for tuning the mapping prompts and as the proposer's examples; the rest are held out for the final score only (blueprint chapter P-08, goals/m1-05-mapping-agents.yaml)"
   },
   {
    "key": "map.min_confidence",
@@ -556,9 +556,9 @@
   },
   {
    "key": "map.audit_share",
-   "value": 0.05,
+   "value": 0.1,
    "unit": "proportion",
-   "description": "The share of proposals that would pass on their own sent to a person instead, drawn by code, to keep the agents honest (goals/m1-05-mapping-agents.yaml)"
+   "description": "The share of proposals that would pass on their own sent to a person instead, drawn by code, to keep the agents honest; 10% to start (orchestrator for Nimish, D-047, 2026-11-03; goals/m1-05-mapping-agents.yaml)"
   },
   {
    "key": "map.audit_rejected_at_most",

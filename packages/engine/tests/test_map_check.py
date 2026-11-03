@@ -35,14 +35,19 @@ def test_a_subject_people_never_mapped_has_no_family_that_fits():
     assert out == ["NUM.CNT.01 is NUM, a family people never linked to a Yoga activity"]
 
 
-def test_a_duplicate_or_an_existing_link_or_nothing_at_all_is_a_problem():
+def test_a_duplicate_or_an_existing_link_is_a_problem():
     assert problems("skill", {"skills": ["NUM.CNT.01", "NUM.CNT.01"]}, gap(), KNOWN) == [
         "NUM.CNT.01 named twice"
     ]
     assert problems("skill", {"skills": ["NUM.CNT.01"]}, gap(skills=frozenset({"NUM.CNT.01"})), KNOWN) == [
         "NUM.CNT.01 is already linked"
     ]
-    assert problems("skill", {"skills": []}, gap(), KNOWN) == ["no skill proposed"]
+
+
+def test_no_skill_at_all_is_an_answer_and_a_person_confirms_it():
+    """Many activities are coverage only (art, clay, circle time): "none" may be right, but a person says so."""
+    assert problems("skill", {"skills": []}, gap(), KNOWN) == []
+    assert decide("skill", [], "agree", 0.99, min_confidence=0.8, sampled=False, none=True) == "needs_person"
 
 
 def test_an_objective_is_an_existing_code_or_new_words_never_both_and_a_code_must_exist():
