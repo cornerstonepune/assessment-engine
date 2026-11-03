@@ -48,7 +48,7 @@ export function startGithubServer(port: number): Server {
       if (readdirSync(GITHUB_DIR).includes("down")) return send(503, { message: "down" });
       if (req.headers.authorization !== `Bearer ${TEST_TOKEN}`) return send(401, { message: "Bad credentials" });
       const url = new URL(req.url ?? "/", "http://github.test");
-      if (url.pathname !== "/repos/cornerstonepune/assessment-engine/issues") return send(404, { message: "Not Found" });
+      if (url.pathname !== "/repos/cornerstonepune/cornerstone-platform/issues") return send(404, { message: "Not Found" });
       if (req.method === "POST") {
         const { title, body, labels } = JSON.parse(raw) as Issue;
         const number = issuesMade().length + 1;
