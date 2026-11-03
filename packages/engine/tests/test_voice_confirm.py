@@ -5,6 +5,7 @@ Placeholder class, educator and children (tests/voice_rows.py), inside a rolled-
 
 import os
 
+import psycopg
 import pytest
 
 from engine.core import db
@@ -187,3 +188,73 @@ def test_only_her_own_observation_is_corrected_and_only_once(conn):
         vc.correct(conn, str(old["id"]), k["email"], "as_expected", "again")
     with pytest.raises(voice_store.Refused, match="Not found"), conn.transaction():
         vc.correct(conn, "not-an-id", k["email"], "below", "x")
+
+
+def test_the_database_refuses_evidence_from_a_note_not_confirmed(conn):
+    """Not only the engine: a record written straight into the table for a drafted note is refused (D-051)."""
+    k = a_k2_class(conn)
+    note = a_note(conn, k, "Activity 12. Above 3.")
+    obs = conn.execute(
+        "insert into activity_observation (tenant_id, confirmation_id, note_id, activity_code, child_id, class_id,"
+        " outcome, entry_mode, route, expected_level, observed_at, observed_by, confirmed_by)"
+        " values (%s, gen_random_uuid(), %s, %s, %s, %s, 'above', 'individual', 'voice', 2, now(), %s, %s) returning id",
+        (k["tenant"], note["id"], k["activity"], k["children"]["3"], k["class"], k["staff"], k["staff"]),
+    ).fetchone()["id"]
+    with pytest.raises(psycopg.errors.CheckViolation, match="confirmed note"), conn.transaction():
+        conn.execute(
+            "insert into evidence_event (tenant_id, child_id, skill_code, channel, observed_at, confirmed_by, kind,"
+            " mark, seen_by, place, source, observation_id) values (%s, %s, %s, 'educator', now(), 'x', 'observed',"
+            " 'yes', 'x', 'class', 'test', %s)",
+            (k["tenant"], k["children"]["3"], k["skills"][0], obs),
+        )
+
+
+def test_only_an_educator_who_holds_the_class_records_confirms_or_corrects_for_it(conn):
+    k = a_k2_class(conn)
+    other = a_k2_class(conn)  # an educator of another class, with no grant on this one
+    note = a_note(
+        conn, k | {"staff": other["staff"]}, "Activity 12. Above 3."
+    )  # hers, about a class she does not hold
+    for call in (
+        lambda: vc.save_form(
+            conn, other["email"], k["class"], vc.Confirmed(k["activity"], 2, {"above": ["3"]})
+        ),
+        lambda: vc.confirm_note(
+            conn, str(note["id"]), other["email"], vc.Confirmed(k["activity"], 2, {"above": ["3"]})
+        ),
+    ):
+        with pytest.raises(voice_store.Refused, match="do not hold this class"), conn.transaction():
+            call()
+    conn.execute(
+        "update config set value = '[]'::jsonb where key = 'voice.roles_that_record'"
+    )  # no role records: even her own class is refused
+    with pytest.raises(voice_store.Refused, match="do not hold this class"), conn.transaction():
+        vc.save_form(conn, k["email"], k["class"], vc.Confirmed(k["activity"], 2, {"above": ["3"]}))
+
+
+def test_the_mark_and_the_level_reached_come_from_the_rows_and_the_level_is_kept(conn):
+    k = a_k2_class(conn)
+    rows = _rows(
+        conn,
+        vc.save_form(conn, k["email"], k["class"], vc.Confirmed(k["activity"], 2, {"above": ["3"]}, True)),
+    )
+    c = k["children"]
+    assert rows[c["3"]]["reached_level"] == 3 and rows[c["5"]]["reached_level"] == 2
+    assert {e["mark"] for e in _evidence(conn, c["3"])} == {"yes"}
+    conn.execute("""update config set value = '{"0": "not_yet", "1": "not_yet", "2": "not_yet", "3": "sometimes"}'::jsonb
+                    where key = 'voice.level_mark'""")
+    conn.execute("""update config set value = '{"above": 0, "as_expected": 0, "below": -2}'::jsonb
+                    where key = 'voice.outcome_moves_level'""")
+    again = _rows(
+        conn, vc.save_form(conn, k["email"], k["class"], vc.Confirmed(k["activity"], 2, {"below": ["4"]}))
+    )
+    assert again[c["4"]]["reached_level"] == 0
+    assert {e["mark"] for e in _evidence(conn, c["4"]) if e["observation_id"] == again[c["4"]]["id"]} == {
+        "not_yet"
+    }
+    third = _rows(
+        conn, vc.save_form(conn, k["email"], k["class"], vc.Confirmed(k["activity"], 3, {"above": ["2"]}))
+    )
+    assert {e["mark"] for e in _evidence(conn, c["2"]) if e["observation_id"] == third[c["2"]]["id"]} == {
+        "sometimes"
+    }

@@ -68,6 +68,18 @@ reads, each line beside its words, a person confirms.
 - `uv run pytest -q tests/test_voice_intake.py tests/test_voice_confirm.py tests/test_cli_voice.py
   tests/api/test_voice_routes.py` → 21 passed (after an independent review: a note past 48 hours is refused at confirm, not only by the job; only her own observation is corrected, and once; a refused upload keeps no recording; an id that is not one is refused in words); with every neighbouring database suite 241 passed locally.
 
+## Step 4a, after the architecture council (3 Nov)
+
+- The database refuses evidence of an observation from a voice note unless that note is confirmed
+  (`internal.evidence_of_a_confirmed_note`); confirm marks the note confirmed first, in the same transaction.
+- Only an educator with an open grant on the class, in a role `voice.roles_that_record` names (class teacher, cover
+  educator; a campus role does not record unless added), records, confirms or corrects for it.
+- The level each outcome showed is kept (`activity_observation.reached_level`), and its mark comes from the two config
+  rows; a test changes both rows and the result follows.
+- `uv run pytest -q tests/test_voice_confirm.py tests/test_voice_intake.py tests/api/test_voice_routes.py
+  tests/test_voice_tables.py tests/test_cli_voice.py` → 33 passed; neighbouring suites 212 passed (three runs; one
+  earlier run, right after re-applying the migration locally, had one failure not seen again and not identified).
+
 ## To set up on the engine box, after Nimish approves the pilot (not built: no scheduler here)
 
 - **What:** `bin/engine read voice expire`. It leaves every note older than `voice.confirm_within_hours` (48)
