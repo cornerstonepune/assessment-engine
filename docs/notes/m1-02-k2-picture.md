@@ -42,15 +42,16 @@ The three tables above; K2 rows for every school, and a trigger named to fire af
 functions; select only for both services, DELETE (and insert, update, truncate) revoked on all three; no trigger
 refuses TRUNCATE; `child_observed_state` in the data register's "learning" entry; `apply_conventions()` last.
 Orchestrator's answers (D-047; Nimish may overturn): group-only is a `not_enough_yet` row; a second named yes ≥ 14
-days on is its own re-check; **a later named lower mark resets the clock** (proposed by the orchestrator, unverified
-with the school): secure then counts only marks after it, so a re-opened skill is practising until a fresh cycle.
-The reset applies to any named lower mark, before secure too (a wobble at "secure, to re-check" restarts it).
+days on is its own re-check; **once secure (or secure, to re-check), a later named lower mark re-opens it and resets
+the clock** (proposed by the orchestrator, unverified with the school): a fresh cycle counting only marks after it;
+before that, a lower mark changes only what is shown (yes, sometimes, yes stays on course, D-052). Built as a small
+state machine over each child-skill's marks in time order (building → secure, to re-check → secure; re-opened).
 **Ties:** two named marks at the same moment, the lower decides (and resets), so a rebuild never flips.
 
 ## Verified (a local database only; never live)
 
-- `tests/test_k2_picture.py` → 11 passed (the reset and the tie each a test), incl. one through #362's confirm step; with the graph, voice, register,
-  privileges, rules, roles, vocabulary and loader suites → 84 passed.
+- `tests/test_k2_picture.py` → 13 passed (the reset, a sometimes between, the tie: a test each; one through #362's
+  confirm step); with the graph, voice, register, privileges, rules, roles, vocabulary, loader suites → 86 passed.
 - Migration applied twice in a row: no error. `engine live rules --write --url <local>` → only the new tables' rules.
 - `engine past` on a fresh db (every migration but this one, seed, the 11 GR1 ledgers as written evidence), then this
   migration and `engine graph`: before = after, evidence 154 / states 11 / scored 154, same checksums; no state or

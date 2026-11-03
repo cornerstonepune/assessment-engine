@@ -3,9 +3,9 @@
 --   * a skill is secure only after the child is named (individual entry) at level 3 (mark `yes`) on two different school
 --     days, and a yes comes at least 14 days after the first of those; "the rest did as expected" at level 3 may be
 --     that re-check, never opens secure on its own and never moves a state down;
---   * a later named lower mark resets the clock: secure needs a fresh cycle (two named days at level 3 and a yes 14 days
---     after the first), counting only marks after it; a skill it re-opens is practising (the orchestrator, D-047,
---     unverified with the school);
+--   * once a skill is secure (or secure, to re-check), a later named lower mark re-opens it and resets the clock: secure
+--     needs a fresh cycle counting only marks after it; before that, a lower mark changes only what is shown (the
+--     orchestrator, D-047, unverified with the school);
 --   * a child seen only in "the rest" lines is observed with too little to go on (not_enough_yet); a child not
 --     mentioned has no row, never "not secure".
 -- The rule's numbers are rows per grade (`observed_rule`), and how much each way of entering a child counts is rows per
@@ -104,14 +104,36 @@ select internal.observed_rules(id) from tenant;
 -- The rule, once: one child's (or, with none named, every child's) state per skill per grade, from confirmed evidence
 -- that names its observation, weighted by its grade's rows. Evidence of a corrected observation no longer counts; a
 -- school day is the date in `school.time_zone`; a grade with no rule rows gives no state.
+--
+-- A small state machine over each child-skill's marks in time order (at one moment, the secure mark first and a lower
+-- one after it, so the lower decides):
+--   building          -> secure_to_recheck  named at the secure mark on secure_days different days, by min_adults
+--   secure_to_recheck -> secure             a yes that may re-check, recheck_days or more after the cycle's first
+--   secure_to_recheck or secure -> re-opened (shown practising) on a named lower mark: the cycle starts again, its
+--                     first yes, its days and its re-check counting only marks after that lower mark
+--   building          a lower mark changes only what is shown: emerging if the latest named mark is not_yet
+-- A mark whose weight may not lower (the rest did as expected) never re-opens and never decides what is shown.
 create or replace function public.graph_observed_states(p_child uuid default null)
 returns table (tenant_id uuid, child_id uuid, skill_code text, grade_code text, state text, named_days int,
                adults int, first_named_yes date, rechecked_on date, last_seen timestamptz)
-language sql stable set search_path = public as $$
-  with ev as (
+language plpgsql stable set search_path = public as $$
+#variable_conflict use_column
+declare
+  m record;
+  unit text := null;
+  phase text;          -- building, to_recheck, secure
+  reopened boolean;
+  yes_days date[];
+  who text[];
+  latest text;
+  named boolean;
+  goal record;
+begin
+  for m in
     select e.tenant_id, e.child_id, e.skill_code, k.grade_code, e.mark, e.seen_by, e.observed_at,
            (e.observed_at at time zone coalesce(z.value #>> '{}', 'UTC'))::date as day,
-           w.opens_secure, w.rechecks, w.lowers, r.secure_mark, r.secure_days, r.recheck_days, r.min_adults
+           w.opens_secure, w.rechecks, w.lowers, r.secure_mark, r.secure_days, r.recheck_days, r.min_adults,
+           concat_ws('|', e.child_id, e.skill_code, k.grade_code) as unit
     from evidence_event e
     join activity_observation o on o.id = e.observation_id and o.tenant_id = e.tenant_id
     join school_class k on k.id = o.class_id
@@ -122,46 +144,53 @@ language sql stable set search_path = public as $$
     where e.confirmed_by is not null
       and (p_child is null or e.child_id = p_child)
       and not exists (select 1 from activity_observation c where c.supersedes = o.id)
-  ), reset as (  -- the latest named mark below the secure mark: secure counts only what came after it
-    select ev.child_id, ev.skill_code, ev.grade_code,
-           max(ev.observed_at) filter (where ev.lowers and ev.mark <> ev.secure_mark) as reset_at
-    from ev group by 1, 2, 3
-  ), cyc as (  -- each mark, and whether it is after the reset (a mark at the very moment of it is not)
-    select ev.*, x.reset_at, x.reset_at is null or ev.observed_at > x.reset_at as after
-    from ev join reset x using (child_id, skill_code, grade_code)
-  ), unit as (
-    select c.tenant_id, c.child_id, c.skill_code, c.grade_code, max(c.secure_mark) as secure_mark,
-           max(c.secure_days) as secure_days, max(c.recheck_days) as recheck_days, max(c.min_adults) as min_adults,
-           (count(distinct c.day) filter (where c.after and c.opens_secure and c.mark = c.secure_mark))::int
-             as named_days,
-           (count(distinct c.seen_by) filter (where c.after and c.opens_secure and c.mark = c.secure_mark))::int
-             as adults,
-           min(c.day) filter (where c.after and c.opens_secure and c.mark = c.secure_mark) as first_named_yes,
-           (count(distinct c.day) filter (where not c.after and c.opens_secure and c.mark = c.secure_mark))::int
-             as named_days_before,  -- the reset re-opened a skill that had been named on enough days
-           bool_or(c.lowers) as named,
-           (array_agg(c.mark order by c.observed_at desc, c.mark = c.secure_mark) filter (where c.lowers))[1]
-             as latest_named,  -- two named marks at one moment: the lower decides, so a rebuild never flips
-           max(c.observed_at) as last_seen
-    from cyc c group by 1, 2, 3, 4
-  ), judged as (
-    select u.*,
-           (select min(c.day) from cyc c
-             where c.child_id = u.child_id and c.skill_code = u.skill_code and c.grade_code = u.grade_code
-               and c.after and c.rechecks and c.mark = c.secure_mark
-               and c.day >= u.first_named_yes + u.recheck_days) as rechecked_on
-    from unit u
-  )
-  select j.tenant_id, j.child_id, j.skill_code, j.grade_code,
-         case when not coalesce(j.named, false)                                     then 'not_enough_yet'
-              when j.named_days >= j.secure_days and j.adults >= j.min_adults       then
-                case when j.rechecked_on is not null then 'secure' else 'secure_to_recheck' end
-              when j.named_days_before >= j.secure_days                             then 'practising'  -- re-opened
-              when j.latest_named = 'not_yet'                                       then 'emerging'
-              else 'practising' end,
-         j.named_days, j.adults, j.first_named_yes, j.rechecked_on, j.last_seen
-  from judged j
-$$;
+    order by e.child_id, e.skill_code, k.grade_code, e.observed_at, e.mark <> r.secure_mark, e.id
+  loop
+    if unit is distinct from m.unit then
+      if unit is not null then
+        return query select goal.tenant_id, goal.child_id, goal.skill_code, goal.grade_code,
+          case when not named then 'not_enough_yet' when phase = 'secure' then 'secure'
+               when phase = 'to_recheck' then 'secure_to_recheck' when reopened then 'practising'
+               when latest = 'not_yet' then 'emerging' else 'practising' end,
+          cardinality(yes_days), cardinality(who), goal.first_yes, goal.rechecked, goal.last_seen;
+      end if;
+      unit := m.unit; phase := 'building'; reopened := false; yes_days := '{}'; who := '{}'; latest := null;
+      named := false;
+      select m.tenant_id, m.child_id, m.skill_code, m.grade_code, null::date as first_yes, null::date as rechecked,
+             m.observed_at as last_seen into goal;
+    end if;
+    goal.last_seen := m.observed_at;
+    if m.lowers then
+      named := true;
+      latest := m.mark;
+      if m.mark <> m.secure_mark and phase in ('to_recheck', 'secure') then  -- re-opened: the clock starts again
+        phase := 'building'; reopened := true; yes_days := '{}'; who := '{}';
+        goal.first_yes := null; goal.rechecked := null;
+      end if;
+    end if;
+    if m.mark = m.secure_mark then
+      if m.rechecks and goal.first_yes is not null and m.day >= goal.first_yes + m.recheck_days then
+        goal.rechecked := coalesce(goal.rechecked, m.day);
+      end if;
+      if m.opens_secure then
+        goal.first_yes := coalesce(goal.first_yes, m.day);
+        if not m.day = any (yes_days) then yes_days := yes_days || m.day; end if;
+        if not m.seen_by = any (who) then who := who || m.seen_by; end if;
+      end if;
+    end if;
+    if phase <> 'secure' and cardinality(yes_days) >= m.secure_days and cardinality(who) >= m.min_adults then
+      phase := case when goal.rechecked is not null then 'secure' else 'to_recheck' end;
+      reopened := false;
+    end if;
+  end loop;
+  if unit is not null then
+    return query select goal.tenant_id, goal.child_id, goal.skill_code, goal.grade_code,
+      case when not named then 'not_enough_yet' when phase = 'secure' then 'secure'
+           when phase = 'to_recheck' then 'secure_to_recheck' when reopened then 'practising'
+           when latest = 'not_yet' then 'emerging' else 'practising' end,
+      cardinality(yes_days), cardinality(who), goal.first_yes, goal.rechecked, goal.last_seen;
+  end if;
+end $$;
 
 create or replace function public.rebuild_child_observed_state(p_child_id uuid)
 returns integer

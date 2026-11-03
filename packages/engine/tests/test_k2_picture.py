@@ -180,6 +180,26 @@ def test_a_named_lower_mark_after_secure_resets_the_clock(conn, k2):
     assert state(conn, k2, child) == "secure"
 
 
+def test_a_lower_mark_before_secure_does_not_reset_the_clock(conn, k2):
+    """D-052: secure is named yes on two days and a yes 14 days after the first; a "sometimes" in between leaves it."""
+    child = a_child(conn)
+    seen(conn, k2, child, 0, "above")
+    seen(conn, k2, child, 1, "as_expected")  # named at level 2: sometimes
+    assert state(conn, k2, child) == "practising"
+    seen(conn, k2, child, 2, "above")
+    assert state(conn, k2, child) == "secure_to_recheck"
+    seen(conn, k2, child, 14, "above")  # 14 days after day 0
+    assert state(conn, k2, child) == "secure"
+
+
+def test_secure_then_a_named_lower_mark_and_nothing_more_is_practising(conn, k2):
+    child = a_child(conn)
+    seen(conn, k2, child, 0, "above")
+    seen(conn, k2, child, 14, "above")
+    seen(conn, k2, child, 20, "below")  # level 1, not yet: re-opened, shown practising, not emerging
+    assert state(conn, k2, child) == "practising"
+
+
 def test_written_evidence_is_read_exactly_as_before(conn, k2):
     """An observation never reaches the written graph: its table, key and rows are what they were."""
     child = a_child(conn)
