@@ -154,13 +154,9 @@ def _registry(conn: db.Conn, t: db.Id) -> None:
         "insert into activity (tenant_id, code, band, strand, name, objective, level_1,"
         " level_2, level_3, confidence, requirement, printable, note, source_file, source_tab,"
         " source_row, source_url) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-        " on conflict (tenant_id, code) do update set band=excluded.band,"
-        " strand=excluded.strand, name=excluded.name, objective=excluded.objective,"
-        " level_1=excluded.level_1, level_2=excluded.level_2, level_3=excluded.level_3,"
-        " confidence=excluded.confidence, requirement=excluded.requirement,"
-        " printable=excluded.printable, note=excluded.note, source_file=excluded.source_file,"
-        " source_tab=excluded.source_tab, source_row=excluded.source_row,"
-        " source_url=excluded.source_url, updated_at=now()",
+        # the seed starts an activity; after that the K2 upload and the people who edit own its words, so a load
+        # never writes them back (M0-02: a load that did would undo the upload and every edit on the next deploy)
+        " on conflict (tenant_id, code) do nothing",
         [
             (
                 t,
