@@ -125,12 +125,17 @@ def loaded():
 # adds what a prompt found, and `engine bank unclassified` will add what children write. An exact
 # count here would fail every time the engine legitimately learned a mistake, so the seed's rows are
 # a floor and each one must be present.
-GROWS = {"misconception"}
+GROWS = {"misconception", "activity", "learning_objective"}  # the last two grow by the K2 upload (M0-02)
 
 
 def test_every_table_has_the_expected_number_of_rows(loaded):
     fixed = {k: v for k, v in EXPECTED.items() if k not in GROWS}
     assert {k: loaded[k] for k in fixed} == fixed
+    # the curriculum is the database's after the upload: the seed's rows are a floor, never an exact count (M0-02)
+    assert (
+        loaded["activity"] >= EXPECTED["activity"]
+        and loaded["learning_objective"] >= EXPECTED["learning_objective"]
+    )
 
 
 def test_the_vocabulary_holds_every_seeded_mistake_and_may_hold_more(loaded):
@@ -218,3 +223,26 @@ def test_a_prompt_row_keeps_the_effort_its_seed_names():
         got = {r["version"]: r["effort"] for r in rows}
         conn.rollback()
     assert got == {3: None, 4: "low", 5: "low"}
+
+
+def test_a_seed_edit_does_not_overwrite_an_activity_the_database_has_and_an_activity_it_lacks_is_added(
+    tmp_path, monkeypatch
+):
+    """M0-02 / D-050: the database is the master of the curriculum. An edit to registry.json no longer reaches an
+    activity that exists (the K2 upload and every person's edit would be undone on the next deploy), and an activity
+    the database does not have is still added."""
+    reg = json.loads((loaders.SEED / "registry.json").read_text())
+    first = next(a for a in reg["activities"] if a["code"] == "ACT-K2-0001")
+    first["level_1"] = "A level the seed now says"
+    reg["activities"].append({**first, "code": "ACT-K2-9999", "name": "An activity only the seed has"})
+    (tmp_path / "registry.json").write_text(json.dumps(reg))
+    monkeypatch.setattr(loaders, "SEED", tmp_path)
+    with db.connect() as conn:
+        t = db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
+        before = db.one(conn, "select level_1 from activity where code = 'ACT-K2-0001'")["level_1"]
+        loaders._registry(conn, t)
+        after = db.one(conn, "select level_1 from activity where code = 'ACT-K2-0001'")["level_1"]
+        added = conn.execute("select name from activity where code = 'ACT-K2-9999'").fetchone()
+        conn.rollback()
+    assert after == before != "A level the seed now says"
+    assert added is not None and added["name"] == "An activity only the seed has"

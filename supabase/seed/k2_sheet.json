@@ -1,0 +1,18 @@
+{
+  "about": "Where the K2 team's activity sheet keeps each thing (M0-02). Letters are the sheet's own columns; the loader reads a CSV exported from the tab, by these letters. Only this tab is ever read: the workbook's other tabs hold children's names.",
+  "sheet_id": "1M0KEpC3M-WiMt-YqOgYZmwlKtHEhJsH9_W7h32RGpd0",
+  "tab": "Activity list_Lesson Plans",
+  "band": "K2",
+  "year": "SR KG",
+  "upload_label": "K2 upload",
+  "columns": {
+    "sheet_no": "B", "strand": "C", "pillar": "D", "year": "F", "name": "G", "materials": "H",
+    "objective": "M", "level_0": "P", "level_1": "Q", "level_2": "R", "level_3": "S"
+  },
+  "report_only": {
+    "numbered_levels": ["W", "X", "Y", "Z", "AA", "AB"],
+    "revised": ["AD", "AE", "AF", "AG", "AH", "AI"]
+  },
+  "error_cells": ["#REF!", "#N/A", "#VALUE!", "#NAME?", "#DIV/0!"],
+  "section_headers": ["CLASS", "SUBJECT"]
+}
