@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "@/components/link";
 import { EmptyState } from "@/components/empty-state";
 import { PageShell } from "@/components/page-shell";
+import { requireStaff } from "@/lib/auth";
 import { StatusChip } from "@/components/status-chip";
 import { ICON_SIZE, Icon, type IconName, MARK_ICON } from "@/lib/icons";
 import { daysLate, fromDraft, type Draft } from "@/lib/voice-check";
@@ -20,7 +21,8 @@ const UUID = /^[0-9a-f-]{36}$/;
 export default async function ConfirmNote({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!UUID.test(id)) notFound();
-  const { me, my } = await herVoice();
+  const me = await requireStaff();
+  const my = await herVoice(me);
   const draft = await draftOf(me, id);
   if (!draft) notFound();
   const queued = my.notes.find((n) => n.id === id);

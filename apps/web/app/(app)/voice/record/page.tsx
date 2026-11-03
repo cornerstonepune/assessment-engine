@@ -1,5 +1,6 @@
 import Link from "@/components/link";
 import { PageShell } from "@/components/page-shell";
+import { requireStaff } from "@/lib/auth";
 import { Icon } from "@/lib/icons";
 import { chosenClass, herVoice } from "@/lib/voice-page";
 import { W } from "@/lib/voice-words";
@@ -10,7 +11,8 @@ import { Recorder } from "./recorder";
 // no timetable yet the page names no activity, but takes one (`activity`, the K2 team's number) for when a day's sessions
 // can open it. The recording goes from the phone straight to the engine; the form is always one tap away.
 export default async function RecordANote({ searchParams }: { searchParams: Promise<{ class?: string; activity?: string }> }) {
-  const { my } = await herVoice();
+  const me = await requireStaff();
+  const my = await herVoice(me);
   const q = await searchParams;
   const c = chosenClass(my, q.class);
   const activity = q.activity && /^[0-9]{1,4}$/.test(q.activity) ? q.activity : undefined;

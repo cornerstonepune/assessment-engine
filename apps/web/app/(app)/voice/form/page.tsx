@@ -1,5 +1,6 @@
 import Link from "@/components/link";
 import { PageShell } from "@/components/page-shell";
+import { requireStaff } from "@/lib/auth";
 import { Icon } from "@/lib/icons";
 import { blankWork } from "@/lib/voice-check";
 import { activitiesOf } from "@/lib/voice";
@@ -13,7 +14,8 @@ import { ClassChoice } from "../class-choice";
 // The form (task M1-04): what a voice note says, put in by tapping. Pick a mark, tap the children; nothing is ticked and
 // the rest starts off; Save, under the count line, is her confirmation. Her class is her role grant's, never typed.
 export default async function TheForm({ searchParams }: { searchParams: Promise<{ class?: string }> }) {
-  const { me, my } = await herVoice();
+  const me = await requireStaff();
+  const my = await herVoice(me);
   const q = await searchParams;
   const c = chosenClass(my, q.class);
   const today = schoolToday();

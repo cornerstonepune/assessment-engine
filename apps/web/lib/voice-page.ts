@@ -1,16 +1,16 @@
 import { notFound } from "next/navigation";
-import { requireStaff } from "./auth";
+import type { Session } from "./auth";
 import { myVoice, voiceOn } from "./voice";
 import { classWords, SCHOOL_ZONE, type MyVoice, type VoiceClass } from "./voice-types";
 
-// What every K2 page asks first (task M1-04): voice notes switched on, a person on the staff list with a K2 class, and,
-// when the address names a class, one of hers. Anything else is not found, a typed address as much as a link.
-export async function herVoice(): Promise<{ me: Awaited<ReturnType<typeof requireStaff>>; my: MyVoice }> {
+// What every K2 page asks after it has checked who is asking (`requireStaff`, in the page itself: test_web_gate.py):
+// voice notes switched on, and a K2 class or a note of hers. Anything else is not found, a typed address as much as a
+// link; when the address names a class, `chosenClass` holds it to one of hers.
+export async function herVoice(me: Session): Promise<MyVoice> {
   if (!(await voiceOn())) notFound();
-  const me = await requireStaff();
   const my = await myVoice(me);
   if (!my) notFound();
-  return { me, my };
+  return my;
 }
 
 /** The class the address names, else her only class; null when she has several and named none. */
