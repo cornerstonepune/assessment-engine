@@ -86,6 +86,7 @@
  "child_skill_state.child_skill_state_child_id_fkey": "FOREIGN KEY (child_id) REFERENCES child(id) ON DELETE CASCADE",
  "child_skill_state.child_skill_state_pkey": "PRIMARY KEY (id)",
  "child_skill_state.child_skill_state_tenant_id_child_id_skill_code_rung_code_key": "UNIQUE (tenant_id, child_id, skill_code, rung_code)",
+ "child_skill_state.child_skill_state_tenant_id_difficulty_fkey": "FOREIGN KEY (tenant_id, difficulty) REFERENCES difficulty(tenant_id, code)",
  "child_skill_state.child_skill_state_tenant_id_fkey": "FOREIGN KEY (tenant_id) REFERENCES tenant(id) ON DELETE CASCADE",
  "child_skill_state.child_skill_state_tenant_id_state_fkey": "FOREIGN KEY (tenant_id, state) REFERENCES child_state(tenant_id, code)",
  "child_state.child_state_pkey": "PRIMARY KEY (id)",
