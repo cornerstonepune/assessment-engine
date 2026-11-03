@@ -25,7 +25,7 @@ says:
   - words: "All parts should just function like a well-oiled machine, right?"
     proved_by: "packages/engine/tests/test_voice_note.py::test_a_note_that_starts_with_incident_is_an_incident_and_is_never_read_for_lists"
   - words: "All parts should just function like a well-oiled machine, right?"
-    proved_by: "packages/engine/tests/test_voice_note.py::test_the_date_at_the_start_of_the_days_first_note_is_read_and_never_lands_in_the_future"
+    proved_by: "packages/engine/tests/test_voice_day.py::test_the_date_at_the_start_of_the_days_first_note_is_read_and_never_lands_in_the_future"
   - words: "All parts should just function like a well-oiled machine, right?"
     proved_by: "packages/engine/tests/test_speech.py::test_only_the_recording_and_the_templates_own_words_leave_us"
 manual:
@@ -37,6 +37,9 @@ scenarios: []
 criteria:
   - name: S-M1-01-notes (typed) — the template read by code from typed transcripts, problems blocking Confirm
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_note.py
+    expect: "passed"
+  - name: the day a note is about, never later than the day it reached us
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_day.py
     expect: "passed"
   - name: speech to text against a recorded-response stub (the live call on fixtures is manual, not run)
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_speech.py

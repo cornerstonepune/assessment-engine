@@ -14,6 +14,15 @@
         "outcome": null
       },
       {
+        "code": "level",
+        "name": "level",
+        "kind": "number",
+        "words": [
+          "level"
+        ],
+        "outcome": null
+      },
+      {
         "code": "above",
         "name": "above",
         "kind": "numbers",
@@ -446,6 +455,16 @@
       ],
       "mapping_to_outcomes": null,
       "note": "The school's Google Form vocabulary, kept beside the spoken one. Its mapping onto above / below / as expected / not willing / absent is not checked: none is written."
+    },
+    "levels": {
+      "said": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "default_expected": 2,
+      "note": "The activity level she expected, said after the activity ('Activity 2, level 2'). When she says none, the default is level 2: an unverified guess (orchestrator, 3 Nov), kept as this row."
     }
   }
 }

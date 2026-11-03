@@ -28,6 +28,24 @@ reads, each line beside its words, a person confirms.
   recorded-response stub. Only the file, model, language and the template's own headings are sent; the key is in the
   header; a refusal names its code and never what was said; no key is an error that says so.
 
+- The level she expected ("Activity 2, level 3") is read after the activity; when she says none the default is a row
+  (level 2, unverified). A level outside 0–3 blocks Confirm. The day is read in its own file, `voice_day.py`
+  (`tests/test_voice_day.py`), which keeps the reader under its ceiling.
+
+## What step 3 (the tables) needs from M0-05 (#358), to line up before writing
+
+- The class a note is about: `school_class.id` (one campus, year, grade, section).
+- Number to child: the roll number she says (Children List Sr. No). Is it on `enrolment`, dated, unique per class
+  while open? Today `child.roll_no` exists on the old table. Asked M0-05 directly.
+- `enrolment (child_id, school_class_id, from, to)`: exact column names, and whether an open `to` is null.
+- `staff.id` for `observed_by` and `educator_note.staff_id`, and how a signed-in user is found as a staff id.
+- Step 3 adds, additive only: `activity_observation` (outcome above / below / as_expected / not_willing / absent,
+  entry_mode individual / group_as_expected, route voice / form, expected level, the two clocks, supersedes and reason,
+  the note it came from; one confirmation id per confirm); `pii.educator_note` (audio key in private storage, transcript,
+  received_at, status received / drafted / confirmed / left_unconfirmed, staff_id); `pii.note_claim` (each draft line,
+  its words, and whether she accepted, changed or removed it). Each child-data table gets its `data_register` row;
+  GRANTs for app_engine and app_web; `internal.apply_conventions()` last. No table M0-05 owns is touched.
+
 ## Not verified / open
 
 - The live Sarvam call has not been run: no key here and no fixtures.

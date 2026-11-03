@@ -171,26 +171,6 @@ def test_after_the_rest_did_as_expected_every_word_is_the_sentence():
     assert d.line("sentence").text == "They were unafraid of the paint"
 
 
-def test_the_date_at_the_start_of_the_days_first_note_is_read_and_never_lands_in_the_future():
-    import datetime as dt
-
-    thursday = dt.date(2026, 11, 5)
-    assert vn.read("Wednesday. Activity 7. Above 3.").day == ("weekday", 2)
-    assert vn.taught_on(("weekday", 2), thursday) == dt.date(2026, 11, 4)
-    assert vn.taught_on(("weekday", 3), thursday) == thursday
-    assert vn.read("3rd November. Activity 7. Above 3.").day == ("date", 3, 11)
-    assert vn.taught_on(("date", 3, 11), thursday) == dt.date(2026, 11, 3)
-    assert vn.taught_on(("date", 30, 12), thursday) == dt.date(2025, 12, 30)  # said in Nov: last December
-    assert vn.read("Budhvar. Activity 7. Above 3.").day == ("weekday", 2)
-    assert vn.taught_on(None, thursday) == thursday  # no day said: the day it reached us
-    assert vn.taught_on(("date", 31, 2), thursday) is None
-
-
-def test_a_date_half_said_is_could_not_read():
-    d = vn.read("November. Activity 7. Above 3.")
-    assert "could not read the date: a day and a month are both needed" in d.problems
-
-
 def test_the_rest_did_as_expected_is_read_and_it_gives_its_children_as_expected():
     assert vn.read("Activity 1. The rest did as expected.").line("rest").said
     assert vn.template().outcomes["rest"] == "as_expected"
@@ -226,6 +206,16 @@ def test_the_forms_levels_are_kept_as_rows_with_no_mapping_written():
 
 def test_the_template_is_rows_a_new_heading_is_an_insert():
     rows = json.loads(json.dumps(SEED))
-    rows["sections"][1]["words"].append("upar")  # a Hindi heading, if the school adds one: a row, no code
+    next(x for x in rows["sections"] if x["code"] == "above")["words"].append(
+        "upar"
+    )  # a Hindi heading, if the school adds one: a row, no code
     d = vn.read("Activity 1. Upar 3.", vn.template_from(rows))
     assert numbers(d, "above") == (3,)
+
+
+def test_the_level_she_expected_is_read_after_the_activity_and_defaults_to_its_row():
+    tpl = vn.template()
+    d = vn.read("Activity 2, level 3. Above 4.")
+    assert d.line("activity").numbers == (2,) and d.expected_level(tpl) == 3 and not d.blocked
+    assert vn.read("Activity 2. Above 4.").expected_level(tpl) == tpl.default_level == 2
+    assert "level 5 is not a level (0, 1, 2, 3)" in vn.read("Activity 2 level 5. Above 4.").problems

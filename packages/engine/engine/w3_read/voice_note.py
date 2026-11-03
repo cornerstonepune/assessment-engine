@@ -11,17 +11,16 @@ Confirm is blocked; a number is never guessed. Every word listened for is a row 
 rule 1). Numbers are matched to children elsewhere, against the day's enrolment.
 """
 
-import datetime as dt
 import re
 from dataclasses import dataclass, field
 from functools import cache
 
 from engine.core import settings
+from engine.w3_read import voice_day
 
 # A word is anything between spaces and punctuation, in any script; the danda (।) ends a Hindi sentence.
 WORD = re.compile(r"[^\s,.;:!?।|\-–—\"“”'‘’()\[\]/]+")
 SENTENCE_END = re.compile(r"[.!?।]")
-ORDINAL = re.compile(r"^(\d{1,2})(st|nd|rd|th)$")
 
 
 @dataclass(frozen=True)
@@ -52,6 +51,11 @@ class Draft:
         None  # the day she said: ("today",), ("yesterday",), ("weekday", 0-6), ("date", day, month)
     )
 
+    def expected_level(self, tpl: "Template") -> int:
+        """The level she said she expected, or the template's default when she said none."""
+        line = self.line("level")
+        return line.numbers[0] if line and len(line.numbers) == 1 else tpl.default_level
+
     @property
     def blocked(self) -> bool:
         return bool(self.problems) or any(line.problems for line in self.lines)
@@ -72,11 +76,9 @@ class Template:
     numbers: dict[str, int]
     tens: dict[str, int]
     units: dict[str, int]
-    weekdays: dict[str, int]
-    months: dict[str, int]
-    today: set[str]
-    yesterday: set[str]
-    day_filler: set[str]
+    days: voice_day.Days
+    levels: tuple[int, ...]  # the levels she may say
+    default_level: int  # the level expected when she says none (a row; unverified)
     order: list[str] = field(default_factory=list)
 
 
@@ -103,11 +105,9 @@ def template_from(rows: dict) -> Template:
         numbers={_split(w)[0]: int(n) for n, words in rows["number_words"].items() for w in words},
         tens=dict(rows["english_tens"]),
         units=dict(rows["english_units"]),
-        weekdays=dict(days["weekday"]),
-        months=dict(days["month"]),
-        today=set(days["today"]),
-        yesterday=set(days["yesterday"]),
-        day_filler=set(days["filler"]),
+        days=voice_day.Days.from_rows(days, set(rows["filler"])),
+        levels=tuple(rows["levels"]["said"]),
+        default_level=rows["levels"]["default_expected"],
         order=[s["code"] for s in rows["sections"]],
     )
 
@@ -286,6 +286,9 @@ def _merge(a: Line, b: Line, name: str) -> Line:
 
 def _cross_checks(lines: dict[str, Line], tpl: Template) -> list[str]:
     out = [] if "activity" in lines else ["could not read: no activity number"]
+    level = lines.get("level")
+    if level and level.numbers and level.numbers[0] not in tpl.levels:
+        out.append(f"level {level.numbers[0]} is not a level ({', '.join(map(str, tpl.levels))})")
     seen: dict[int, str] = {}
     for code in (c for c in tpl.order if tpl.sections[c] == "numbers"):
         for n in lines[code].numbers if code in lines else ():
@@ -295,62 +298,11 @@ def _cross_checks(lines: dict[str, Line], tpl: Template) -> list[str]:
     return out
 
 
-def _day_word(toks: list[Token], i: int, tpl: Template) -> tuple[str, int] | None:
-    w = toks[i].word
-    if w in tpl.today:
-        return "today", 0
-    if w in tpl.yesterday:
-        return "yesterday", 0
-    if w in tpl.weekdays:
-        return "weekday", tpl.weekdays[w]
-    if w in tpl.months:
-        return "month", tpl.months[w]
-    m = ORDINAL.match(w)
-    if w.isdecimal() or m:
-        return "number", int(m.group(1) if m else w)
-    return None
-
-
-def _day(before: list[Token], text: str, tpl: Template) -> tuple[tuple | None, list[str]]:
-    """The words before "Activity": the day she said, if any. Anything else there is "could not read"."""
-    said: dict[str, int] = {}
-    problems = []
-    for i, t in enumerate(before):
-        hit = _day_word(before, i, tpl)
-        if hit and hit[0] not in said:
-            said[hit[0]] = hit[1]
-        elif hit or (t.word not in tpl.filler and t.word not in tpl.day_filler):
-            problems.append(f"could not read '{text[t.start : t.end]}'")
-    if "month" in said and "number" in said:
-        return ("date", said["number"], said["month"]), problems
-    if "month" in said or "number" in said:
-        return None, [*problems, "could not read the date: a day and a month are both needed"]
-    for kind in ("today", "yesterday"):
-        if kind in said:
-            return (kind,), problems
-    return (("weekday", said["weekday"]) if "weekday" in said else None), problems
-
-
-def taught_on(day: tuple | None, received: dt.date) -> dt.date | None:
-    """The date she said, read against the day the note reached us; never later than that day."""
-    if day is None or day[0] == "today":
-        return received
-    if day[0] == "yesterday":
-        return received - dt.timedelta(days=1)
-    if day[0] == "weekday":
-        return received - dt.timedelta(days=(received.weekday() - day[1]) % 7)
-    try:
-        said = dt.date(received.year, day[2], day[1])
-    except ValueError:
-        return None
-    return said if said <= received else said.replace(year=received.year - 1)
-
-
 def read(transcript: str, tpl: Template | None = None) -> Draft:
     """The transcript read into a draft. Nothing in it is ticked: the educator confirms or corrects every line."""
     tpl = tpl or template()
     before, segs = _segments(tokens(transcript), tpl)
-    day, problems = _day(before, transcript, tpl)
+    day, problems = voice_day.read_day([(t.word, transcript[t.start : t.end]) for t in before], tpl.days)
     if segs and tpl.sections[segs[0][0]] == "incident":
         return Draft(
             transcript, (_line(segs[0], "incident", transcript, tpl),), tuple(problems), "incident", day
