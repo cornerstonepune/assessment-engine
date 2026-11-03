@@ -32,7 +32,25 @@ reads, each line beside its words, a person confirms.
   (level 2, unverified). A level outside 0–3 blocks Confirm. The day is read in its own file, `voice_day.py`
   (`tests/test_voice_day.py`), which keeps the reader under its ceiling.
 
-## What step 3 (the tables) needs from M0-05 (#358), to line up before writing
+## Step 3, the tables — `20261226090000_k2_voice_notes.sql` (additive only)
+
+- New: `activity_observation` (one row per child per activity per confirmation; append-only by trigger and by grant;
+  a correction is a new row with `supersedes` and `reason`; `stored_at` is the database's clock; `observed_at` never
+  later; the curriculum version named by the existing trigger), `pii.educator_note` (audio key, transcript,
+  `received_at` set by the server and never moved, status), `pii.note_claim` (each line, its words and her decision;
+  written once). Five vocabulary tables (`observation_outcome`, `observation_entry_mode`, `observation_route`,
+  `note_status`, `claim_decision`) and two config rows (`voice.confirm_within_hours` 48; `voice.audio_retention_days`
+  null, O-14), also in `supabase/seed/config.json`.
+- Not touched: `evidence_event`, `activity`, `enrolment`, `staff`, any M0-05 table, any existing row. No DELETE for
+  either service on any new table; the website reads the observations and the words, and never a note or a claim.
+- `cd packages/engine && uv run pytest -q tests/test_voice_tables.py` → 7 passed; with `test_roles`,
+  `test_db_privileges`, `test_data_register`, `test_people`, `test_rules`, `test_evidence_every_kind`,
+  `test_vocabulary`, `test_loaders` → 60 passed, on a local database built from every migration and the seed.
+- The migration applied twice in a row locally: no error, nothing changed the second time.
+- `engine live rules --write --url <local>` → 35 rules added, every one on the new tables.
+- Data register: a new "observations" entry names the three tables, in a parent's words.
+
+## What step 3 (the tables) needed from M0-05 (#358)
 
 - The class a note is about: `school_class.id` (one campus, year, grade, section).
 - Number to child: the roll number she says (Children List Sr. No). Is it on `enrolment`, dated, unique per class

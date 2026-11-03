@@ -409,6 +409,18 @@
         ]
       },
       "seed_once": true
+    },
+    {
+      "key": "voice.confirm_within_hours",
+      "description": "A K2 voice note not confirmed within this many hours leaves the educator's queue, is kept as unconfirmed, and never becomes evidence (observation model, section 4). The migration 20261226090000 writes the same for every school.",
+      "value": 48,
+      "seed_once": true
+    },
+    {
+      "key": "voice.audio_retention_days",
+      "description": "How many days a voice note's audio is kept. Not decided (O-14): null keeps it. Nothing deletes audio until this is a number and a deletion is built.",
+      "value": null,
+      "seed_once": true
     }
   ]
 }
