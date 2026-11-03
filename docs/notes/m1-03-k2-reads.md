@@ -20,14 +20,15 @@ W3, step N9 (the voice notes' reader). No migration: queries in code. Part A is 
 - **No notes this week** = two counts: children with no observation, and weekday class-days with no note received.
   School holidays are not known, so a holiday counts as a day with no note. Needs a calendar to be exact.
 - Who may ask for the coordinator's list, which grades, how far back rows reach, week start: one config row `k2.reads`
-  (seed only). It is added by `bin/engine load`, which must run on live before the routes are used.
+  (seed only). It reaches live by itself: `.github/workflows/deploy-engine.yml` runs `engine load --settings` on every
+  engine deploy, so nobody runs a command. Not yet seen on live (the deploy has not happened).
 - A note older than 48 hours is "left unconfirmed" by time, whether or not the hourly job has run yet.
 - `voice_intake.resolve` takes optional lookups so a list uses the Confirm page's one rule without a query per note.
 
 ## Not verified / open
 
 - Part B (class picture, child page): not started.
-- On live: nothing run; the `k2.reads` row is not there until the seed loads.
+- On live: nothing run; the `k2.reads` row arrives with the first engine deploy after merge.
 - Test fixtures: two K2 classes must have different activity numbers (a number names one activity on the school's list).
 
 ## Handoff
