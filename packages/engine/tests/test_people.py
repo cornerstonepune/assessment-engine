@@ -505,3 +505,35 @@ def test_a_grant_is_never_deleted_it_ends(tmp_path, school):
             == 1
         )
         conn.rollback()
+
+
+@needs_db
+def test_the_staff_id_of_a_signed_in_email_is_found_in_any_case_and_never_a_name(tmp_path, school):
+    assert run("staff", "import", "--apply", "--by", "tester").exit_code == 0
+    with db.connect() as conn:
+        want = conn.execute("select staff_id from pii.staff where email = 'ann@example.test'").fetchone()[
+            "staff_id"
+        ]
+
+        def of(email):
+            return conn.execute("select internal.staff_of_email(%s) as id", (email,)).fetchone()["id"]
+
+        before = conn.execute(
+            "select count(*) n from access_log where action = 'lookup_staff_by_email'"
+        ).fetchone()["n"]
+        assert of("ann@example.test") == want
+        assert of("  Ann@Example.TEST ") == want
+        assert of("nobody@example.test") is None
+        assert (
+            conn.execute(
+                "select count(*) n from access_log where action = 'lookup_staff_by_email'"
+            ).fetchone()["n"]
+            == before + 2
+        )
+        row = conn.execute("select internal.staff_of_email('ann@example.test') as r").fetchone()
+        assert set(row) == {"r"} and "Placeholder" not in str(row)  # an id, not a name
+        conn.rollback()
+    for role in ("app_web", "app_engine"):
+        assert rows("select has_function_privilege(%s, 'internal.staff_of_email(text)', 'execute') p", role)[
+            0
+        ]["p"]

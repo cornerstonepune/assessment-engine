@@ -16,7 +16,7 @@ Goal: `goals/m0-05-people-enrolment.yaml`. Nimish's words on record: "All parts 
 ## What the migration does (additive only) — `20261225090000_people_and_enrolment.sql`
 
 New: `campus`, `academic_year`, `school_class`, `enrolment`, `staff`, `pii.staff`, `role`, `staff_role_grant`; functions
-`enrol_child()`, `pii.read_staff()`, `internal.check_role_grant()`, `internal.forbid_delete()`, `internal.people_vocabulary()`;
+`enrol_child()`, `pii.read_staff()`, `internal.check_role_grant()`, `internal.forbid_delete()`, `internal.people_vocabulary()`, `internal.staff_of_email()`;
 one nullable column `pii.child.birthday`; one `config` row `people.class_teacher_rule`. Nothing dropped, deleted or
 rewritten; no existing table read differently. RLS by `internal.apply_conventions()`; the engine may read and write the new
 public tables, the website may only read them, and neither may touch `pii.staff` (only `pii.read_staff()`, which writes who
@@ -33,6 +33,7 @@ Reconciled with the orchestrator's extract of people-and-access (done = in this 
 | One class teacher per class at a time | **done** as a trigger that warns and stands only with a reason (a partial unique index could not allow the override). **btree_gist is not needed and is not installed** |
 | D-039 (from Grade 1 a core-subject teacher is not a class teacher, both ways round) as a config row plus a check needing `override_reason` | **done**; core subjects today are NUM and ENG (the only subjects that exist; science and Hindi are added to the row when they are subjects) |
 | `may_grant` enforced (only head / coordinator give a role) | **left out**: stored on each role; enforcing needs `granted_by` as a staff id |
+| `internal.staff_of_email(email)` → staff id (orchestrator's decision, for M1-01) | **done**: lower-case match on `pii.staff.email`, returns the id only (null if none or ambiguous), each lookup written to `access_log`; tested for a known email, an unknown one and a case difference |
 | `internal.grants_now(staff_id)` | **left out** (not in the card as I was given it) |
 | Per-person access rules | **left out**, as P-05 says; `apply_conventions()` still gives both app roles `using (true)` |
 | `staff.campus_id`, `school_class` unique on (campus, year, grade, section) | **done** |

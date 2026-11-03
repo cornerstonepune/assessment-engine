@@ -18,6 +18,7 @@
 --     stays on the grant.
 --   * `pii.child.birthday`: the class list carries one; it is a child's personal data, so it is beside the name.
 --   * `pii.read_staff()`: a staff member's name, email and phone, only through this, which writes who asked to `access_log`.
+--   * `internal.staff_of_email()`: the staff id of a signed-in email (never a name), logged the same way; for M1-01.
 --
 -- Not here: who may see which class (per-person access rules need a proven way to carry the signed-in staff id on one
 -- database login first, ADR 0024; `internal.apply_conventions()` still gives both app roles `using (true)`), enforcing
@@ -280,6 +281,25 @@ end $$;
 
 revoke execute on function pii.read_staff(uuid, text) from public;
 
+-- The id of the member of staff a signed-in email belongs to, and nothing else: never a name. The email is matched in
+-- lower case against `pii.staff`; null for an email nobody has (or, in a school with two of them, for either). Each
+-- lookup is written to `access_log`, as a read of `pii.staff` is.
+create or replace function internal.staff_of_email(p_email text) returns uuid
+language plpgsql security definer set search_path = pii, public as $$
+declare
+  found uuid[];
+  school uuid;
+begin
+  select array_agg(s.staff_id order by s.id), (array_agg(s.tenant_id order by s.id))[1] into found, school
+  from pii.staff s where s.email = lower(btrim(p_email));
+  if found is null then return null; end if;
+  insert into public.access_log (tenant_id, actor, action) values (school, 'staff_of_email', 'lookup_staff_by_email');
+  if array_length(found, 1) <> 1 then return null; end if;
+  return found[1];
+end $$;
+
+revoke execute on function internal.staff_of_email(text) from public;
+
 -- The engine writes; the website reads what is not a person's contact details, and writes none of it yet.
 do $$ begin
   if exists (select from pg_roles where rolname = 'app_engine') then
@@ -288,11 +308,13 @@ do $$ begin
     grant select, insert, update on staff_role_grant to app_engine;
     grant execute on function public.enrol_child(uuid, uuid, text, date, text) to app_engine;
     grant execute on function pii.read_staff(uuid, text) to app_engine;
+    grant execute on function internal.staff_of_email(text) to app_engine;
   end if;
   if exists (select from pg_roles where rolname = 'app_web') then
     revoke all on pii.staff from app_web;
     grant select on campus, academic_year, school_class, enrolment, staff, role, staff_role_grant to app_web;
     grant execute on function pii.read_staff(uuid, text) to app_web;
+    grant execute on function internal.staff_of_email(text) to app_web;
   end if;
 end $$;
 
