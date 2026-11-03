@@ -29,6 +29,7 @@
  "activity_observation.activity_observation_note_id_fkey": "FOREIGN KEY (note_id) REFERENCES pii.educator_note(id)",
  "activity_observation.activity_observation_observed_by_fkey": "FOREIGN KEY (observed_by) REFERENCES staff(id)",
  "activity_observation.activity_observation_pkey": "PRIMARY KEY (id)",
+ "activity_observation.activity_observation_reached_level_check": "CHECK (((reached_level >= 0) AND (reached_level <= 3)))",
  "activity_observation.activity_observation_reason_check": "CHECK ((btrim(reason) <> ''::text))",
  "activity_observation.activity_observation_supersedes_tenant_id_child_id_activit_fkey": "FOREIGN KEY (supersedes, tenant_id, child_id, activity_code) REFERENCES activity_observation(id, tenant_id, child_id, activity_code)",
  "activity_observation.activity_observation_tenant_id_activity_code_fkey": "FOREIGN KEY (tenant_id, activity_code) REFERENCES activity(tenant_id, code)",

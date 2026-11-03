@@ -38,9 +38,23 @@ def staff_of(conn: db.Conn, email: str) -> uuid.UUID:
     return sid
 
 
+def may_record(conn: db.Conn, staff: uuid.UUID, class_id: str) -> None:
+    """She records for a class only while she holds an open grant on it in a role that records
+    (`voice.roles_that_record`, a config row). Anyone else is refused, a campus-wide role too unless the row names it."""
+    roles = list(settings.config(conn, "voice.roles_that_record", []))
+    held = conn.execute(
+        "select 1 from staff_role_grant where staff_id = %s and school_class_id = %s and role_code = any(%s)"
+        " and valid_from <= current_date and (valid_to is null or valid_to >= current_date)",
+        (staff, valid_id(str(class_id)), roles),
+    ).fetchone()
+    if held is None:
+        raise voice_store.Refused("You do not hold this class.", 403)
+
+
 def receive(conn: db.Conn, email: str, class_id: str, filename: str, data: bytes) -> dict:
     """The recording kept and its row written; the words come after (`transcribe`)."""
     staff = staff_of(conn, email)
+    may_record(conn, staff, class_id)
     note_id = uuid.uuid4()
     key = voice_store.key_for(note_id, filename, dt.date.today().year)
     note = conn.execute(
@@ -153,14 +167,15 @@ def resolve(conn: db.Conn, note: dict) -> Resolved:
 
 
 def classes_of(conn: db.Conn, staff_id: str, day: dt.date) -> list[dict]:
-    """The classes her role grants name that day, whose grade has activities: the classes she records a note for
-    (M0-05's grants, never a class she types)."""
+    """The classes she records a note for that day: an open grant in a role that records (`voice.roles_that_record`,
+    the rule `may_record` holds her to), on a class whose grade has activities. M0-05's grants, never a class she types."""
+    roles = list(settings.config(conn, "voice.roles_that_record", []))
     return conn.execute(
         "select distinct c.id::text as id, c.grade_code as grade, c.section from staff_role_grant g"
-        " join school_class c on c.id = g.school_class_id where g.staff_id = %s and g.valid_from <= %s"
-        " and (g.valid_to is null or g.valid_to >= %s) and exists (select 1 from activity a"
+        " join school_class c on c.id = g.school_class_id where g.staff_id = %s and g.role_code = any(%s)"
+        " and g.valid_from <= %s and (g.valid_to is null or g.valid_to >= %s) and exists (select 1 from activity a"
         " where a.tenant_id = c.tenant_id and a.band = c.grade_code) order by c.grade_code, c.section",
-        (staff_id, day, day),
+        (staff_id, roles, day, day),
     ).fetchall()
 
 

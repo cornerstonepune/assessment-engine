@@ -22,7 +22,7 @@ export async function k2Class(sql: Sql): Promise<K2> {
   if (!had) await sql`insert into pii.staff (tenant_id, staff_id, name, email) values (${t}, ${staff}, 'Placeholder Educator', ${TEST_STAFF.email})`;
   await sql`
     insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, valid_from, granted_by)
-    select ${t}, ${staff}, 'assistant', ${klass}, current_date - 1, 'm1-04 test'
+    select ${t}, ${staff}, 'class_teacher', ${klass}, current_date - 1, 'm1-04 test'
     where not exists (select 1 from staff_role_grant where staff_id = ${staff} and school_class_id = ${klass})`;
   for (const roll of ROLLS) {
     const [on] = await sql`select 1 from enrolment where class_id = ${klass} and roll_no = ${roll} and to_date is null`;

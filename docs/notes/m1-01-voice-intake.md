@@ -68,6 +68,30 @@ reads, each line beside its words, a person confirms.
 - `uv run pytest -q tests/test_voice_intake.py tests/test_voice_confirm.py tests/test_cli_voice.py
   tests/api/test_voice_routes.py` → 21 passed (after an independent review: a note past 48 hours is refused at confirm, not only by the job; only her own observation is corrected, and once; a refused upload keeps no recording; an id that is not one is refused in words); with every neighbouring database suite 241 passed locally.
 
+## Step 4a, after the architecture council (3 Nov)
+
+- The database refuses evidence of an observation from a voice note unless that note is confirmed
+  (`internal.evidence_of_a_confirmed_note`); confirm marks the note confirmed first, in the same transaction.
+- Only an educator with an open grant on the class, in a role `voice.roles_that_record` names (class teacher, cover
+  educator; a campus role does not record unless added), records, confirms or corrects for it.
+- The level each outcome showed is kept (`activity_observation.reached_level`), and its mark comes from the two config
+  rows; a test changes both rows and the result follows.
+- `uv run pytest -q tests/test_voice_confirm.py tests/test_voice_intake.py tests/api/test_voice_routes.py
+  tests/test_voice_tables.py tests/test_cli_voice.py` → 33 passed; neighbouring suites 212 passed (three runs; one
+  earlier run, right after re-applying the migration locally, had one failure not seen again and not identified).
+
+## To set up on the engine box, after Nimish approves the pilot (not built: no scheduler here)
+
+- **What:** `bin/engine read voice expire`. It leaves every note older than `voice.confirm_within_hours` (48)
+  unconfirmed; such a note never becomes evidence. Confirm already refuses a late note by itself, so the job only
+  keeps the queue and the coordinator's count honest.
+- **How often:** hourly. A note then leaves her queue at most an hour after its 48 hours. It is safe to run at any
+  time and changes nothing the second time.
+- **How:** one line in the box's crontab, or a systemd timer beside the engine's own service (`deploy/`):
+  `17 * * * * /path/to/repo/bin/engine read voice expire`.
+- **Not to schedule yet:** `bin/engine read voice retention`. It deletes nothing while `voice.audio_retention_days`
+  is null (O-14, open). Schedule it daily only once Nimish sets a number.
+
 ## Step 4a extras, what any front end needs from the engine (branch m1-01-voice-engine-extras)
 
 - `/voice/queue` also returns `classes`: the classes her `staff_role_grant` names today whose grade has activities
@@ -93,6 +117,13 @@ reads, each line beside its words, a person confirms.
   received_at, status received / drafted / confirmed / left_unconfirmed, staff_id); `pii.note_claim` (each draft line,
   its words, and whether she accepted, changed or removed it). Each child-data table gets its `data_register` row;
   GRANTs for app_engine and app_web; `internal.apply_conventions()` last. No table M0-05 owns is touched.
+
+## Lesson (3 Nov, #363)
+
+- A ledger table's guard trigger must not refuse TRUNCATE, because the rehearsal's copy of live empties every table
+  before loading live's rows (`engine live copy`). Follow `evidence_event`: the trigger refuses update and delete only,
+  and emptying is refused to both services by grant (`internal.apply_conventions()`). #361's triggers refused TRUNCATE
+  too, and every rehearsal failed once they were on live; `20261226100000_voice_ledgers_like_evidence.sql` fixes them.
 
 ## Not verified / open
 

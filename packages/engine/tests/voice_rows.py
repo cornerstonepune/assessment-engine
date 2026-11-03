@@ -29,6 +29,11 @@ def a_k2_class(conn) -> dict:
         "insert into pii.staff (tenant_id, staff_id, name, email) values (%s, %s, 'Placeholder Educator', %s)",
         (t, staff, email),
     )
+    conn.execute(
+        "insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, valid_from, granted_by)"
+        " values (%s, %s, 'class_teacher', %s, '2026-01-01', 'test')",
+        (t, staff, klass),
+    )
     children = {}
     for roll in ("1", "2", "3", "4", "5"):
         child = a_child(conn)

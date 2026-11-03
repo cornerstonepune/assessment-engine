@@ -309,3 +309,17 @@ def _activity_in(conn, tenant, code):
         (tenant, code),
     )
     return code
+
+
+def test_the_ledgers_are_emptied_only_by_the_databases_owner_as_evidence_is(conn):
+    """The copy of live empties every table as the owner (`engine live copy`); neither service may (rule 4, by grant)."""
+    for table in ("activity_observation", "pii.note_claim"):
+        with conn.transaction():
+            conn.execute(f"truncate {table} cascade")  # the owner, as the rehearsal's copy does
+            raise_rollback = psycopg.Rollback
+            raise raise_rollback()
+    for role in ("app_engine", "app_web"):
+        for table in ("activity_observation", "pii.note_claim"):
+            with pytest.raises(psycopg.errors.InsufficientPrivilege), conn.transaction():
+                conn.execute(f"set local role {role}")
+                conn.execute(f"truncate {table}")
