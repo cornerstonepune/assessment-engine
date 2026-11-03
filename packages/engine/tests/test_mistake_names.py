@@ -38,5 +38,14 @@ def test_what_the_school_does_about_a_mistake_is_the_one_for_its_operation():
     assert hint_of("M_SMALL_FROM_LARGE", op="-") == want and want
     assert hint_of("M_NOCARRY", skill="NUM.OPS.01").startswith("Place-value chart")
     assert hint_of("M_FACT_PM1") is None, "two operations, two hints: none is guessed"
+    # M0-04: a division question can carry a mistake the vocabulary holds for + and − (repeated subtraction: "Tens
+    # miscounted"). Its question's operation has no row, but the skill the mistake was placed on has: that row's hint,
+    # not "none" for a child whose parent report then names the mistake and says nothing to do about it.
+    with db.connect() as conn:
+        want = conn.execute(
+            "select repair_hint from misconception where code = 'M_FACT_PM10' and op = '-'"
+        ).fetchone()["repair_hint"]
+    assert hint_of("M_FACT_PM10", op="/", skill="NUM.OPS.02") == want and want
+    assert hint_of("M_FACT_PM10", op="/") is None, "with no skill to tell which, still none is guessed"
     with pytest.raises(ValueError):
         mistake_names.names(conn, "description; drop table misconception")

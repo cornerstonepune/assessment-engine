@@ -112,7 +112,8 @@ def _planted_to_repeat(conn, ids, slots):
     answers out of it, so a mistake planted on those is real evidence yet not "repeating". How many answers a skill gets
     on its paper depends on which questions a build of the bank happened to draw, so choosing the mistake by raw count
     failed on some builds ("graph []", 2026-11-03) and passed on the next. This takes the mistake with most answers
-    inside one skill's window. → (mistake, the slots it goes on), or (None, []) when none shows `repeat_min` times."""
+    inside one skill's window, among those the parent report can say what to do about. → (mistake, the slots it goes on),
+    or (None, []) when none shows `repeat_min` times."""
     value = {
         r["key"]: int(r["value"])
         for r in conn.execute(
@@ -123,14 +124,20 @@ def _planted_to_repeat(conn, ids, slots):
     items = {
         r["id"]: r
         for r in conn.execute(
-            "select id, source, skill_codes, mistake_skills, coalesce(spec ->> 'skill', skill_codes[1]) as own"
+            "select id, source, skill_codes, mistake_skills, spec ->> 'op' as op,"
+            " coalesce(spec ->> 'skill', skill_codes[1]) as own"
             " from item where id = any(%s)",
             (ids,),
         )
     }
+    hint_of = mistake_names.names(conn, "repair_hint")
     best = (0, None)
     for m in sorted({m for _, _, key, wrong in slots for m, v in wrong.items() if v and v != key}):
         on = {(i, rid) for i, rid, key, wrong in slots if wrong.get(m, key) != key}
+        if not all(  # the parent report must be able to say what the school does about it, as report.py looks it up
+            hint_of(m, op=items[i]["op"], skill=_skills_of(items[i], m)[0]) for i in {i for i, _ in on}
+        ):
+            continue  # the vocabulary holds no such hint for that operation yet: the school's wording, not the test's
         by_skill: dict[str, list[tuple[int, bool]]] = {}
         for i, rid, _key, _wrong in slots:
             for u in _skills_of(items[i], m if (i, rid) in on else None):
