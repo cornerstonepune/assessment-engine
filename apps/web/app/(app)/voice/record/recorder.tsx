@@ -85,18 +85,18 @@ export function Recorder({ classId, say, form }: { classId: string; say: string;
       <div className="flex flex-wrap items-center gap-3">
         {stage === "recording" ? (
           <button type="button" className="btn min-h-14 gap-2 !px-6 text-[17px]" onClick={() => rec.current?.stop()} data-stop>
-            <Icon name="stop" size={16} />
+            <Icon name="stop" />
             {W.record.stop}
           </button>
         ) : stage === "idle" ? (
           <button type="button" className="btn min-h-14 gap-2 !px-6 text-[17px]" onClick={start} data-record>
-            <Icon name="mic" size={18} />
+            <Icon name="record" />
             {W.record.start}
           </button>
         ) : (
           <>
             <button type="button" className="btn min-h-14 gap-2 !px-6 text-[17px]" onClick={send} disabled={stage === "sending"} data-send>
-              <Icon name="send" size={16} />
+              <Icon name="send" />
               {stage === "sending" ? W.record.sending : W.record.send}
             </button>
             <button type="button" className="btn secondary" onClick={() => (setClip(null), setStage("idle"))} disabled={stage === "sending"}>

@@ -25,7 +25,9 @@ and never red; marks are icons first; nothing ticked for her; Confirm per note. 
   under the count line, is her confirmation.
 - A note that could not be read, or where nothing was heard, sends her to the form.
 
-Words: `apps/web/lib/voice-words.ts`. Icons: `apps/web/lib/icons.tsx` (the status chip's too). The rules: the pure
+Words: `apps/web/lib/voice-words.ts`. Icons: `apps/web/lib/icons.tsx`, the one lookup (the status chip's too): Lucide
+(`lucide-react` 1.59.0, pinned, ISC licence), the set chosen with the school's designer on 3 Nov. It is the site's first
+icon dependency; before it, every icon was drawn by hand. One icon per concept, under the concept names agreed that day. The rules: the pure
 `apps/web/lib/voice-check.ts`, the same for Confirm and the form; the engine checks them all again on confirm.
 
 ## Verified
@@ -38,7 +40,9 @@ Words: `apps/web/lib/voice-words.ts`. Icons: `apps/web/lib/icons.tsx` (the statu
   tests/u53-staff-and-school.spec.ts tests/u53-skill-name-opens-the-skill.spec.ts tests/u71-results-by-topic.spec.ts
   tests/u71-results-numbers.spec.ts tests/u65-what-needs-doing-walk.spec.ts tests/u1-today.spec.ts
   tests/u15-menu-and-today.spec.ts tests/u33-one-count.spec.ts tests/s41-subject-class-and-today.spec.ts` → 86
-  passed; u71's pages 565–792 ms. u51 now measures the four K2 pages with the switch on, and none is on `ux.frozen`.
+  passed; u71's pages 565–792 ms. Rerun on Lucide with the chip and board icons too (and asm2-by-topic, u60, u63, which
+  read every chip's icon) → 121 passed; u71 755–978 ms, and 807–898 ms with the old drawn icons put back on the same
+  machine, so the icons do not slow a page. Screenshots: `docs/screens/m1-04/` (16, with `index.html`, a contact sheet). u51 now measures the four K2 pages with the switch on, and none is on `ux.frozen`.
 - Engine: a note is about the day on the school's clock, not the server's (`voice_intake.school_day`; a note heard at
   03:54 in Pune was dated the day before). `tests/test_voice_intake.py::test_a_note_is_about_the_day_on_the_schools_clock_not_the_servers`
   failed before the fix and passes after; the draft also says whether anything was heard (`heard`). The voice suites →
@@ -47,9 +51,11 @@ Words: `apps/web/lib/voice-words.ts`. Icons: `apps/web/lib/icons.tsx` (the statu
 
 ## Not verified / open
 
-- On a real phone: the browser test fakes the microphone. Android Chrome records webm, iPhone Safari mp4; both are
+- On a real phone: the browser test fakes the microphone; a real phone is the educator's week-1 test (D-064). Android Chrome records webm, iPhone Safari mp4; both are
   kinds the engine keeps (`voice_store.KINDS`), but neither phone has been tried.
-- The form has no "one line" (the free sentence): the engine's form route takes none. Asked, not built.
+- The form has no "one line" (the free sentence). Keeping it needs a migration: nothing can hold a form's free text
+  today (`activity_observation` has no text; a note needs a recording, and a form entry cannot name one). Proposed to
+  the orchestrator: an additive `pii.form_note`. Not built until a go.
 - The class picture and the child page wait for M1-03 Part B.
 
 ## Handoff

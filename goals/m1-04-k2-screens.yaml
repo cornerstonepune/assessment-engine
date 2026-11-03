@@ -29,8 +29,9 @@ says:
   - words: "Do not wait for my approvals... build in parallel... every session has a very specific, clear goal post in test cases."
     proved_by: "apps/web/tests/m1-04-k2-voice-notes.spec.ts::each K2 screen is shot at 1280 and 390 pixels with placeholder children"
 manual:
-  - "On a real phone (Android Chrome and iPhone Safari), with voice.screens_enabled switched on for a test class only: record a note, hear it played back on Confirm, confirm it. The browser test fakes the microphone."
-  - "Nimish reads the screenshots (apps/web/test-results/k2-screens/) and the words in apps/web/lib/voice-words.ts; the copy may change after."
+  - "On a real phone (Android Chrome and iPhone Safari), with voice.screens_enabled switched on for a test class only: record a note, hear it played back on Confirm, confirm it: the educator's week-1 test (D-064). The browser test fakes the microphone."
+  - "Nimish reads the screenshots (docs/screens/m1-04/index.html, written by the spec) and the words in apps/web/lib/voice-words.ts; the copy may change after."
+  - "The form's optional one line: needs a migration (a place for a form's free text), proposed and waiting for a go; not claimed here."
 scenarios: []
 criteria:
   - name: the K2 screens, each with its screenshots at 1280 and 390 pixels (a database built from the migrations)

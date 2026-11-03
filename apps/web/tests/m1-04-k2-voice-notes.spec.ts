@@ -17,7 +17,9 @@ import { SIGNED_IN } from "../playwright.config";
 import { blankWork, countLine, daysLate, findActivities, listsOf, moveTo, paint, problemsOf, type Activity, type Work } from "../lib/voice-check";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
-const SHOTS = path.resolve(__dirname, "../test-results/k2-screens");
+// written beside the contact sheet Nimish reads (docs/screens/m1-04/index.html), never into test-results/, which each
+// run empties: the pictures in the pull request are the ones this spec last took
+const SHOTS = path.resolve(__dirname, "../../../docs/screens/m1-04");
 const DESKTOP = { width: 1280, height: 900 };
 const PHONE = { width: 390, height: 844 };
 let klass: string;
@@ -216,8 +218,14 @@ test("a note that could not be read, or where nothing was heard, sends her to th
 });
 
 test("each K2 screen is shot at 1280 and 390 pixels with placeholder children", async () => {
-  const { readdirSync } = await import("node:fs");
+  const { readdirSync, readFileSync, statSync } = await import("node:fs");
   const shots = readdirSync(SHOTS).filter((f) => f.endsWith(".png"));
+  const sheet = readFileSync(path.join(SHOTS, "index.html"), "utf8");
   for (const name of ["1-today", "2-record", "3-confirm-with-problems", "4-confirm-ready", "5-form-empty", "6-form-filled", "7-reading", "8-could-not-read"])
-    for (const size of ["1280", "390"]) expect(shots, `${name}-${size}`).toContain(`${name}-${size}.png`);
+    for (const size of ["1280", "390"]) {
+      const file = `${name}-${size}.png`;
+      expect(shots, file).toContain(file);
+      expect(sheet, `the contact sheet shows ${file}`).toContain(`src="${file}"`);
+      expect(statSync(path.join(SHOTS, file)).size, `${file} is small enough to send`).toBeLessThan(300_000);
+    }
 });

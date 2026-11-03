@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { StatusChip } from "@/components/status-chip";
-import { Icon, type IconName } from "@/lib/icons";
+import { ICON_SIZE, Icon, MARK_ICON } from "@/lib/icons";
 import { countLine, findActivities, listsOf, moveTo, paint, problemsOf, type Activity, type Draft, type Problem, type Work } from "@/lib/voice-check";
 import { MARKS, type MarkKey, W } from "@/lib/voice-words";
 
@@ -87,9 +87,11 @@ export function Board({
       <section className="panel grid gap-3 p-4" aria-label={W.confirm.children}>
         <div className="flex flex-wrap items-center gap-2" role="group" aria-label={W.pick}>
           {([...MARKS, "clear"] as const).map((m) => (
-            <button key={m} type="button" aria-pressed={mark === m} data-mark-pick={m} onClick={() => setMark(m)} className={`chip inline-flex items-center gap-1.5 ${mark === m ? "on" : ""}`}>
-              <Icon name={m as IconName} />
-              {W.marks[m]}
+            <button key={m} type="button" aria-pressed={mark === m} data-mark-pick={m} onClick={() => setMark(m)} className={`chip ${mark === m ? "on" : ""}`}>
+              <span className="inline-flex items-center gap-1.5">
+                <Icon name={MARK_ICON[m]} />
+                {W.marks[m]}
+              </span>
             </button>
           ))}
         </div>
@@ -100,9 +102,11 @@ export function Board({
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <button type="button" role="switch" aria-checked={w.rest} onClick={() => setW({ ...w, rest: !w.rest })} className={`chip inline-flex items-center gap-1.5 ${w.rest ? "on" : ""}`} data-rest={w.rest}>
-            <Icon name="as_expected" />
-            {W.rest.label}: {w.rest ? W.rest.on : W.rest.off}
+          <button type="button" role="switch" aria-checked={w.rest} onClick={() => setW({ ...w, rest: !w.rest })} className={`chip ${w.rest ? "on" : ""}`} data-rest={w.rest}>
+            <span className="inline-flex items-center gap-1.5">
+              <Icon name="as-expected" />
+              {W.rest.label}: {w.rest ? W.rest.on : W.rest.off}
+            </span>
           </button>
         </div>
       </section>
@@ -130,7 +134,7 @@ function Cell({ roll, marks, rest, onTap }: { roll: string; marks?: MarkKey[]; r
   return (
     <button type="button" onClick={onTap} data-roll={roll} data-cell-mark={m ?? "none"} aria-label={`#${roll}: ${words}`} className={`flex min-h-12 flex-col items-center justify-center gap-0.5 border-2 text-[15px] font-semibold tabular-nums ${tone}`}>
       #{roll}
-      {m ? <Icon name={m} size={12} /> : <span className="h-3" />}
+      {m ? <Icon name={MARK_ICON[m]} size={ICON_SIZE.table} /> : <span className="h-4" />}
     </button>
   );
 }
@@ -153,7 +157,7 @@ function ProblemRow({ p, w, setW, fixing, setFixing }: { p: Problem; w: Work; se
       {p.kind === "two"
         ? p.marks.map((m) => (
             <button key={m} type="button" className="btn secondary inline-flex items-center gap-1.5" onClick={() => setW({ ...w, marks: { ...w.marks, [p.roll]: [m] } })}>
-              <Icon name={m} />
+              <Icon name={MARK_ICON[m]} />
               {W.problems.keep(W.marks[m])}
             </button>
           ))
@@ -182,7 +186,7 @@ function ActivityPicker({ w, setW, activities }: { w: Work; setW: (w: Work) => v
         ) : null}
         <label className="relative">
           <span className="sr-only">{W.activity.placeholder}</span>
-          <Icon name="search" className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-basalt/50" />
+          <Icon name="search" size={ICON_SIZE.table} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-basalt/50" />
           <input className="input !w-56 !pl-9" inputMode="search" placeholder={W.activity.placeholder} value={q} onChange={(e) => setQ(e.target.value)} data-activity-search />
         </label>
       </div>

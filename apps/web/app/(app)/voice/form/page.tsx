@@ -25,7 +25,7 @@ export default async function TheForm({ searchParams }: { searchParams: Promise<
       purpose={W.form.purpose}
       action={
         <Link href={record.href} className="btn secondary inline-flex items-center gap-1.5">
-          <Icon name="mic" />
+          <Icon name="record" />
           {record.label}
         </Link>
       }

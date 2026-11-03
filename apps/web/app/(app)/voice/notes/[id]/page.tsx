@@ -3,7 +3,7 @@ import Link from "@/components/link";
 import { EmptyState } from "@/components/empty-state";
 import { PageShell } from "@/components/page-shell";
 import { StatusChip } from "@/components/status-chip";
-import { Icon, type IconName } from "@/lib/icons";
+import { ICON_SIZE, Icon, type IconName, MARK_ICON } from "@/lib/icons";
 import { daysLate, fromDraft, type Draft } from "@/lib/voice-check";
 import { activitiesOf, draftOf } from "@/lib/voice";
 import { herVoice, schoolToday } from "@/lib/voice-page";
@@ -63,7 +63,7 @@ async function Body({ draft, klass, grade, form }: { draft: Draft; klass: string
   if (draft.status === "left_unconfirmed") return <EmptyState next={{ href: "/today", label: W.back }}>{W.confirm.expired}</EmptyState>;
   if (draft.status === "received")
     return (
-      <section className="panel grid gap-2 p-4" data-reading>
+      <section className="panel grid justify-items-start gap-2 p-4" data-reading>
         <StatusChip state="reading" round words={W.confirm.reading} />
         <p className="text-[14px] text-basalt/70">{W.confirm.readingMore}</p>
         <Rereads />
@@ -71,7 +71,7 @@ async function Body({ draft, klass, grade, form }: { draft: Draft; klass: string
     );
   if (draft.kind === "incident")
     return (
-      <section className="panel grid gap-2 p-4" data-incident>
+      <section className="panel grid justify-items-start gap-2 p-4" data-incident>
         <StatusChip state="late" round words={W.confirm.incident} />
         <Heard draft={draft} />
       </section>
@@ -79,7 +79,7 @@ async function Body({ draft, klass, grade, form }: { draft: Draft; klass: string
   const said = draft.lines.some((l) => l.section !== "sentence");
   if (!said || !grade)
     return (
-      <section className="panel grid gap-3 p-4" data-could-not>
+      <section className="panel grid justify-items-start gap-3 p-4" data-could-not>
         <StatusChip state="fixThis" round words={draft.heard ? W.confirm.couldNot : W.record.nothing} />
         <Link href={form.href} className="btn w-fit gap-1.5" data-to-form>
           <Icon name="form" />
@@ -105,10 +105,10 @@ function Heard({ draft }: { draft: Draft }) {
   return (
     <ol className="grid gap-2" data-heard>
       {draft.lines.map((l) => {
-        const icon = (MARKS as readonly string[]).includes(l.section) ? (l.section as IconName) : l.section === "rest" ? "as_expected" : null;
+        const icon: IconName | null = (MARKS as readonly string[]).includes(l.section) ? MARK_ICON[l.section as (typeof MARKS)[number]] : l.section === "rest" ? "as-expected" : l.section === "activity" ? "activity" : l.section === "incident" ? "incident" : l.section === "sentence" ? "note" : null;
         return (
-          <li key={l.section} className="grid grid-cols-[1.25rem_7rem_minmax(0,1fr)] items-start gap-2 border-b border-basalt/8 pb-2 text-[15px]" data-line={l.section}>
-            <span className="pt-0.5">{icon ? <Icon name={icon} /> : null}</span>
+          <li key={l.section} className="grid grid-cols-[1.5rem_7rem_minmax(0,1fr)] items-start gap-2 border-b border-basalt/8 pb-2 text-[15px]" data-line={l.section}>
+            <span className="pt-0.5">{icon ? <Icon name={icon} size={ICON_SIZE.table} /> : null}</span>
             <span className="font-medium">{W.marks[l.section as keyof typeof W.marks] ?? W.sections[l.section] ?? l.section}</span>
             <span className="min-w-0">
               “{l.words}”{l.problems.length ? <StatusChip state="fixThis" round compact note={undefined} /> : null}

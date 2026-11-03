@@ -1,4 +1,4 @@
-import { Icon, type IconName } from "@/lib/icons";
+import { ICON_SIZE, Icon, type IconName } from "@/lib/icons";
 
 // The one chip a state is shown in (docs/ux-rules.md, rule 2 and 9): an icon, the word, and one of red, amber or green,
 // from this table alone — never colour by itself. Nimish, 2026-10-22: "use icons or red, amber, green in places that make
@@ -50,7 +50,7 @@ export const STATES = {
   // the K2 voice notes (task M1-04): a note to confirm, one with a problem, one about an earlier day, a child not named
   toConfirm: { tone: "wait", words: "to confirm" },
   fixThis: { tone: "act", words: "fix this" },
-  late: { tone: "quiet", words: "late" },
+  late: { tone: "quiet", words: "late", icon: "late" },
   notSeen: { tone: "quiet", words: "not seen" },
   toDo: { tone: "quiet", words: "to do" },
   reading: { tone: "wait", words: "reading" },
@@ -66,14 +66,14 @@ export const TONE_CLASS: Record<Tone, string> = { ok: GREEN, wait: AMBER, act: R
 
 // A different shape for each tone, so a chip reads without its colour: a tick, a clock, a triangle with a mark, a ring.
 // The drawings are in lib/icons.tsx, the one lookup of icons, so a new icon library is one file.
-const STATUS_ICONS: Record<Tone, IconName> = { ok: "ok", wait: "wait", act: "act", quiet: "quiet" };
+const STATUS_ICONS: Record<Tone, IconName> = { ok: "done", wait: "to-confirm", act: "fix-this", quiet: "to-do" };
 
 /** `round`: a piece of work on the K2 screens (the agreed design: work is a round chip, a child a square cell). */
 export function StatusChip({ state, note, words, compact, round }: { state: State; note?: string; words?: string; compact?: boolean; round?: boolean }) {
   const s = STATES[state];
   return (
     <span data-status={state} data-tone={s.tone} className={`inline-flex items-center border py-[3px] whitespace-nowrap ${round ? "rounded-full" : ""} ${compact ? "gap-[4px] px-[6px] text-[11.5px]" : "gap-[5px] px-[9px] text-[12px]"} ${TONE_CLASS[s.tone]}`}>
-      <Icon name={STATUS_ICONS[s.tone]} size={13} />
+      <Icon name={"icon" in s ? s.icon : STATUS_ICONS[s.tone]} size={ICON_SIZE.table} />
       {words ?? s.words}
       {note ? ` · ${note}` : ""}
     </span>
