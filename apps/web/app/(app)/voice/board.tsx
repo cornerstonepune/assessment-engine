@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { StatusChip } from "@/components/status-chip";
 import { ICON_SIZE, Icon, MARK_ICON } from "@/lib/icons";
-import { countLine, findActivities, listsOf, moveTo, paint, problemsOf, type Activity, type Draft, type Problem, type Work } from "@/lib/voice-check";
+import { activityWords, countLine, findActivities, listsOf, moveTo, paint, problemsOf, type Activity, type Draft, type Problem, type Work } from "@/lib/voice-check";
 import { MARKS, type MarkKey, W } from "@/lib/voice-words";
 
 // The K2 board (task M1-04): pick a mark, then tap the children; the activity by its number; the level; the day; "the
@@ -181,7 +181,7 @@ function ActivityPicker({ w, setW, activities }: { w: Work; setW: (w: Work) => v
         <span className="text-[13px] text-basalt/70">{W.activity.label}</span>
         {chosen ? (
           <span className="text-[16px] font-medium" data-activity={chosen.code}>
-            {chosen.no} · {chosen.name}
+            {activityWords(chosen)}
           </span>
         ) : null}
         <label className="relative">
@@ -203,7 +203,7 @@ function ActivityPicker({ w, setW, activities }: { w: Work; setW: (w: Work) => v
                   setQ("");
                 }}
               >
-                {a.no} · {a.name}
+                {activityWords(a)}
               </button>
             ))}
           </div>
