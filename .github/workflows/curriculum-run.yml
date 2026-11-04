@@ -1,0 +1,63 @@
+# Run the K2 drafting commands on the server, where the model's key is. By hand only, and only the FIXED runs in
+# .github/curriculum/command.py: the choice below is that list, no free text reaches a shell, the person who runs it is
+# looked up in the repository variable CURRICULUM_STAFF (login to staff email, outside git), and the money, the stages
+# and their order are the engine's (config row llm.campaigns). Dispatching a run that spends IS the go for that spend;
+# `key`, `forecast` and `review` spend nothing. Order: key, forecast, map_dev, draft_dev, map_held_out, draft_all,
+# materials_all. Needs the secrets LIGHTSAIL_SSH_KEY and LIGHTSAIL_HOST (the ones engine eval uses).
+name: curriculum run
+
+on:
+  workflow_dispatch:
+    inputs:
+      run:
+        description: "key (is the model key on the server), forecast (what a run would cost, no call), map_dev, draft_dev, map_held_out, draft_all, materials_all (each spends), review (what waits for a person)"
+        type: choice
+        options: [key, forecast, map_dev, draft_dev, map_held_out, draft_all, materials_all, review]
+
+permissions:
+  contents: read
+
+# two runs never overlap: a second would read a total the first had not finished adding to
+concurrency:
+  group: curriculum-run
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: who and what, before anything runs
+        env:
+          RUN: "${{ inputs.run }}"
+          ACTOR: "${{ github.actor }}"
+          STAFF: "${{ vars.CURRICULUM_STAFF }}"
+        run: |
+          # refuses an unknown run or a person not on the list here, with nothing yet reached
+          EMAIL=$(python3 .github/curriculum/command.py --email)
+          if [ -n "$EMAIL" ]; then echo "::add-mask::$EMAIL"; fi
+          python3 .github/curriculum/command.py > "$RUNNER_TEMP/commands.txt"
+          echo "$(wc -l < "$RUNNER_TEMP/commands.txt") command(s) in this run: $RUN"
+      - name: a way in
+        env:
+          KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/server
+          chmod 600 ~/.ssh/server
+          ssh -i ~/.ssh/server -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "ubuntu@$HOST" true
+      - name: the run
+        env:
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+        run: |
+          # minutes of model calls print little: without a keepalive the connection was dropped mid-eval (21 Oct)
+          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 -o ServerAliveInterval=30 ubuntu@$HOST"
+          n=0
+          while IFS= read -r line; do
+            n=$((n + 1))
+            echo "::group::command $n"
+            $S "sudo docker exec deploy-engine-1 $line"
+            echo "::endgroup::"
+          done < "$RUNNER_TEMP/commands.txt"

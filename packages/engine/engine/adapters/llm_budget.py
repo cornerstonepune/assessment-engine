@@ -43,6 +43,7 @@ def _check_stage(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None
         raise Refused(
             f"campaign {name} has no stage called {stage} (its stages: {', '.join(stages) or 'none'})"
         )
+    _check_order(conn, tenant_slug, name, c, stage)
     if stages[stage] is None:
         return  # no cap of its own: the campaign's holds
     spent = _spent(conn, tenant_slug, c["purposes"], trigger_for(stage))
@@ -51,6 +52,24 @@ def _check_stage(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None
         raise Refused(
             f"campaign {name} stage {stage} stopped: ${spent_usd:.2f} spent, at its limit of ${limit_usd:.2f}"
             f" (stage cap ${stages[stage]})"
+        )
+
+
+def _check_order(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None:
+    """The campaign's stages go in the order its `order` row says: a stage may not start until the one before it has
+    made a call that was answered. (Whether that stage met its bars is a person's reading, not this check's.)"""
+    order = c.get("order") or []
+    if stage not in order or order.index(stage) == 0:
+        return
+    before = order[order.index(stage) - 1]
+    ran = conn.execute(
+        "select count(*) as n from flow_run f join tenant t on t.id = f.tenant_id"
+        " where t.slug = %s and f.flow = any(%s) and f.trigger = %s and f.status = 'ok'",
+        (tenant_slug, c["purposes"], trigger_for(before)),
+    ).fetchone()["n"]
+    if not ran:
+        raise Refused(
+            f"campaign {name} stage {stage} comes after {before}, and nothing has run in {before} yet"
         )
 
 

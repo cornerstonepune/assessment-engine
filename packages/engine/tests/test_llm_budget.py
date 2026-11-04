@@ -301,3 +301,49 @@ def test_the_writer_and_the_readers_of_a_stage_share_one_form_of_the_trigger():
     assert (
         llm_budget.trigger_for(None) == "engine" and llm_budget.trigger_for("dev_eval") == "engine:dev_eval"
     )
+
+
+ORDERED = {**STAGED, "order": ["dev_eval", "held_out", "draft"]}
+
+
+def ordered(conn):
+    conn.execute(
+        "update config set value = %s where tenant_id = %s and key = 'llm.campaigns'",
+        (json.dumps({"m1-11": ORDERED}), conn.tenant),
+    )
+
+
+def test_a_stage_may_not_start_until_the_stage_before_it_has_made_a_call(conn, monkeypatch):
+    """The order of the run is the engine's, not the workflow's: the dev eval, then the held-out score, then the drafting."""
+    ordered(conn)
+    answering(monkeypatch, [])
+    with pytest.raises(llm.LLMBudgetError, match=r"stage held_out comes after dev_eval"):
+        llm.generate(conn, DRAFT, VARS, version=1, stage="held_out")
+    with pytest.raises(llm.LLMBudgetError, match=r"stage draft comes after held_out"):
+        llm.generate(conn, DRAFT, VARS, version=1, stage="draft")
+    assert llm.generate(conn, DRAFT, VARS, version=1, stage="dev_eval") == DRAFTED, (
+        "the first stage has no one before it"
+    )
+    assert llm.generate(conn, DRAFT, VARS, version=1, stage="held_out") == DRAFTED
+    assert llm.generate(conn, DRAFT, VARS, version=1, stage="draft") == DRAFTED, "held_out has run now"
+
+
+def test_a_failed_or_refused_call_does_not_count_as_a_stage_having_run(conn, monkeypatch):
+    ordered(conn)
+    answering(monkeypatch, [])
+    conn.execute(
+        "insert into flow_run (tenant_id, flow, trigger, status, cost_inr) values (%s,%s,'engine:dev_eval','error',NULL)",
+        (conn.tenant, DRAFT),
+    )
+    with pytest.raises(llm.LLMBudgetError, match="comes after dev_eval"):
+        llm.generate(conn, DRAFT, VARS, version=1, stage="held_out")
+
+
+def test_the_seeded_campaign_names_the_order_of_its_stages():
+    seeded = next(
+        c
+        for c in json.loads((db.REPO_ROOT / "supabase" / "seed" / "config.json").read_text())["config"]
+        if c["key"] == "llm.campaigns"
+    )["value"]["m1-11"]
+    assert seeded["order"] == ["dev_eval", "held_out", "draft"]
+    assert set(seeded["order"]) == set(seeded["stages"])
