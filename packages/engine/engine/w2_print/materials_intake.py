@@ -36,8 +36,14 @@ def _person(reading: dict[str, Any], reason: str) -> Checked:
     return Checked("needs_person", reason, str(reading.get("text") or ""))
 
 
-def check_reading(reading: dict[str, Any], catalogue: list[dict[str, Any]], source_text: str) -> Checked:
-    """One model reading against the catalogue and the words it was read from. Pure."""
+def check_reading(
+    reading: dict[str, Any],
+    catalogue: list[dict[str, Any]],
+    source_text: str,
+    conversions: dict[tuple[str, str], float] | None = None,
+) -> Checked:
+    """One model reading against the catalogue and the words it was read from. Pure. A unit that is not the item's own
+    is converted only by a conversion a person approved (`conversions`: (item, unit) -> how many of the item's unit)."""
     item = {c["code"]: c for c in catalogue}.get(str(reading.get("item_code")))
     if item is None:
         return _person(reading, "the item is not in the catalogue")
@@ -55,8 +61,14 @@ def check_reading(reading: dict[str, Any], catalogue: list[dict[str, Any]], sour
         )
     if float(quantity) not in {float(n) for n in NUMBER.findall(words)}:
         return _person(reading, "the number is not in the item's own words (code does not convert)")
-    if reading.get("unit") != item["unit"]:
-        return _person(reading, f"the unit is not the catalogue's ({item['unit']}); code does not convert")
+    unit = reading.get("unit")
+    if unit != item["unit"]:
+        factor = (conversions or {}).get((item["code"], " ".join(str(unit or "").lower().split())))
+        if factor is None:
+            return _person(
+                reading, f"the unit is not the catalogue's ({item['unit']}) and none is approved to convert"
+            )
+        quantity = float(quantity) * factor
     return Checked("confirmed", "", str(reading.get("text") or ""), item["code"], quantity, item["unit"])
 
 
@@ -71,12 +83,26 @@ def prepare_photo(data: bytes, max_side: int) -> bytes:
 
 
 def catalogue(conn: db.Conn, tenant: UUID) -> list[dict[str, Any]]:
+    """Each item with the words a person approved for it: what the model is shown beside the name."""
     return [
         dict(r)
         for r in conn.execute(
-            "select code, name, unit from material_item where tenant_id = %s order by code", (tenant,)
+            "select i.code, i.name, i.unit, coalesce((select array_agg(a.alias order by a.alias) from material_alias a"
+            " where a.tenant_id = i.tenant_id and a.material_code = i.code), '{}') as aliases"
+            " from material_item i where i.tenant_id = %s order by i.code",
+            (tenant,),
         )
     ]
+
+
+def conversions(conn: db.Conn, tenant: UUID) -> dict[tuple[str, str], float]:
+    return {
+        (r["material_code"], r["from_unit"]): float(r["factor"])
+        for r in conn.execute(
+            "select material_code, from_unit, factor from material_unit_conversion where tenant_id = %s",
+            (tenant,),
+        )
+    }
 
 
 def _review(conn: db.Conn, tenant: UUID, list_id: UUID, who: UUID, got: Checked) -> None:
@@ -114,6 +140,7 @@ def read_note(
     the rest wait for a person."""
     tenant = db.one(conn, "select tenant_id from materials_list where id = %s", (list_id,))["tenant_id"]
     items = catalogue(conn, tenant)
+    converts = conversions(conn, tenant)
     answer = ask_model(conn, note, items, image)
     if image is not None and answer.get("people_visible") is not False:
         sent = Checked(
@@ -124,7 +151,7 @@ def read_note(
     out: list[Checked] = []
     for reading in answer.get("readings") or []:
         # only the staff's own typed words can confirm a number; a photograph alone never can
-        got = check_reading(reading, items, note)
+        got = check_reading(reading, items, note, converts)
         if got.status == "confirmed" and got.item_code is not None:
             try:
                 materials_list.add(

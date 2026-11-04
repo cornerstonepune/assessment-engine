@@ -115,7 +115,7 @@ def test_the_model_is_given_the_note_and_the_catalogue_and_never_a_name(conn, mo
     assert seen["purpose"] == "materials_read"
     assert set(seen["variables"]) == {"note", "catalogue"}
     assert list(seen["images"]) == [b"\x89PNG-bytes"]
-    assert all(set(c) == {"code", "name", "unit"} for c in seen["variables"]["catalogue"])
+    assert all(set(c) == {"code", "name", "unit", "aliases"} for c in seen["variables"]["catalogue"])
 
 
 @pytestmark_db
