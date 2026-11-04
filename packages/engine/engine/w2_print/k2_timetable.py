@@ -27,6 +27,7 @@ class Vocabulary:
     header_keys: tuple[str, ...]
     glue_words: frozenset[str]
     planner_row: str
+    planner_block: str
     fortnight_label: str
     other_grade_marks: tuple[str, ...]
     plan_heading_prefixes: dict[str, str]
@@ -46,6 +47,7 @@ class Vocabulary:
             tuple(v["header_keys"]),
             frozenset(v["glue_words"]),
             v["planner_row"],
+            v["planner_block"],
             v["fortnight_label"],
             tuple(v["other_grade_marks"]),
             dict(v["plan_heading_prefixes"]),

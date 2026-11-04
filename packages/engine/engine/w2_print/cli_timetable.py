@@ -109,11 +109,13 @@ def load(
                 alone = ld.build(
                     frame_in, ld.read_planner_csv(texts["planner"], vocab, {n: k}), cal_in, vocab, n, n, held
                 )
-                where = replace(target, source=f"{target.source} row {k} of {len(rows)} of Fortnight {n}")
+                block = plan_in.blocks[n][k - 1]
+                said = f"row {k} of {len(rows)} of Fortnight {n}" + (f" (the {block} block)" if block else "")
+                where = replace(target, source=f"{target.source} {said}")
                 out = sql.with_name(f"{sql.stem}_fn{n}_row{k}{sql.suffix}")
                 out.write_text(sq.sql_file(alone, where, digests))
                 typer.echo(
-                    f"  wrote {out}: Fortnight {n} as its row {k} of {len(rows)} says; apply at most one, once the school has said which"
+                    f"  wrote {out}: Fortnight {n} as its {said} says; apply at most one, once the school has said which"
                 )
         typer.echo(
             f"  wrote {sql} ({len(plan.sessions)} sessions); run it in one transaction, it prints counts before and after"

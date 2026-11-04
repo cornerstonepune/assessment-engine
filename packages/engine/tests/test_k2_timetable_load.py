@@ -69,6 +69,7 @@ def test_fortnight_ten_is_listed_twice_and_the_rows_differ_so_neither_is_loaded_
     p = ld.read_planner_csv(PLANNER_CSV, VOCAB)
     assert 10 not in p.plans and [n for n, _ in p.conflicts] == [10] and len(p.candidates[10]) == 2
     assert p.candidates[10][0] != p.candidates[10][1]
+    assert p.blocks[10] == ["November", "December"]  # the planner's own block headings above each row
     told = ld.read_planner_csv(PLANNER_CSV, VOCAB, {10: 1})
     assert (
         told.plans[10] == told.candidates[10][0]
@@ -328,7 +329,7 @@ def test_a_fortnight_listed_twice_gets_one_candidate_file_a_row_and_the_main_fil
     main, one, two = ((tmp_path / n).read_text() for n in names)
     assert (
         "Fortnight 10" not in main
-        and "row 1 of 2 of Fortnight 10" in one
-        and "row 2 of 2 of Fortnight 10" in two
+        and "row 1 of 2 of Fortnight 10 (the November block)" in one
+        and "row 2 of 2 of Fortnight 10 (the December block)" in two
     )
     assert one != two and "insert into session" in one and "insert into session" in main

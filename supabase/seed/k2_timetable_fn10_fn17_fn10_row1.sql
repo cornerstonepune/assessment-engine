@@ -208,7 +208,7 @@ select x.tenant, x.klass, p.id, v.w, v.wd::int, v.k, v.s, v.t, '2026-11-23'::dat
 join period p on p.tenant_id = x.tenant and p.grade_code = 'K2' and p.starts_at = v.st::time
 on conflict do nothing;
 insert into plan_entry (tenant_id, school_class_id, fortnight_id, plan_key, ord, text, activity_id, source)
-select x.tenant, x.klass, f.id, v.k, v.o::int, v.t, act.id, 'planner.csv sha256:d1bc52a5193c row 1 of 2 of Fortnight 10' from k2_ctx x cross join (values
+select x.tenant, x.klass, f.id, v.k, v.o::int, v.t, act.id, 'planner.csv sha256:d1bc52a5193c row 1 of 2 of Fortnight 10 (the November block)' from k2_ctx x cross join (values
   (10, 'english', 1, 'Phonics - Long vowel sounds'),
   (10, 'english', 2, 'a - ai'),
   (10, 'english', 3, 'Sight words - Revision'),

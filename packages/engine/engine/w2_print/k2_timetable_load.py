@@ -38,6 +38,9 @@ class Planner:
         default_factory=dict
     )  # every row of a fortnight listed twice
     chosen: list[tuple[int, str]] = field(default_factory=list)  # which row a person said to use
+    blocks: dict[int, list[str]] = field(
+        default_factory=dict
+    )  # the planner's heading above each row of a fortnight
 
 
 @dataclass(frozen=True)
@@ -135,11 +138,16 @@ def read_planner_csv(text: str, vocab: tt.Vocabulary, use_row: dict[int, int] | 
     not used stay as `candidates`."""
     chosen = use_row or {}
     seen: dict[int, list[list[str]]] = {}
+    blocks: dict[int, list[str]] = {}
     headers: dict[int, str] = {}
+    block = ""
     for r in _rows(text):
-        if _cell(r, 1).lower() == vocab.planner_header_cell:
+        if m := re.match(vocab.planner_block, r[0].strip()):
+            block = m.group(1)
+        elif _cell(r, 1).lower() == vocab.planner_header_cell:
             headers = {i: _cell(r, i).lower() for i in range(1, len(r))}
         elif m := re.match(vocab.planner_row, r[0].strip()):
+            blocks.setdefault(int(m.group(1)), []).append(block)
             seen.setdefault(int(m.group(1)), []).append(
                 [_headed(headers.get(i, ""), _cell(r, i), vocab) for i in range(1, 11)]
             )
@@ -158,7 +166,7 @@ def read_planner_csv(text: str, vocab: tt.Vocabulary, use_row: dict[int, int] | 
             conflicts.append(
                 (n, f"listed {len(rows)} times in the Monthly Planner and the rows differ: none is loaded")
             )
-    return Planner(plans, conflicts, candidates, used)
+    return Planner(plans, conflicts, candidates, used, blocks)
 
 
 def _cell(row: list[str], i: int) -> str:

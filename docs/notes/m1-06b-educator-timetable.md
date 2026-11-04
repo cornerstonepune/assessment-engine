@@ -18,11 +18,16 @@ W2 step N4, files only (no thirteenth step). Goal: `goals/m1-06b-educator-timeta
   `educator.timetable_roles`; 403 while `educator.timetable_enabled` is off (seeded off); no child, no name.
 
 ## Fortnight 10 is in the Monthly Planner twice — a question for the school
-The tab has two rows labelled "Fortnight 10" (the November block and the December block). They differ in Hindi, Music, Circle
-Time and PE. I did not choose. The main SQL loads **neither** plan (302 plan lines, 920 sessions, Fortnight 10's periods have
-no planner lines). `k2_timetable_fn10_fn17_fn10_row1.sql` and `…_row2.sql` each add one candidate (row 2 → 336 plan lines,
-1,049 sessions); apply at most one, after the school says which. The row that sits in the local copy used for the screens'
-fixtures is **row 2**, only because the screens needed some data; it is not a claim.
+The tab has two rows labelled "Fortnight 10": one under the sheet's own heading `K2_November _ Planner 2026`, one under
+`K2_December _ Planner 2026`. They differ in Hindi, Music, Circle Time and PE. Nimish said "the Fortnight 10 row is right"; both
+carry that label. **Working reading, UNVERIFIED (to confirm with the K2 educator):** the November block's row holds the November
+days of Fortnight 10 (23–30 Nov) and the December block's row the December days (1–4 Dec). I did not merge them and did not choose.
+- The main SQL loads **neither** row (302 plan lines, 920 sessions; Fortnight 10's periods have no planner lines).
+- `k2_timetable_fn10_fn17_fn10_row1.sql` (the November block) and `…_row2.sql` (the December block) each add one candidate,
+  tagged with its block in `plan_entry.source`. Apply at most one, after the school answers (row 2 → 336 lines, 1,049 sessions).
+- The local copy behind the screens' fixtures has the December row loaded, only because the screens needed data; not a claim.
+- Splitting by date (November row for 23–30 Nov, December row for 1–4 Dec) would need a per-day plan, which the tables do not
+  have; it is a decision for the school and the rules brick (M1-14), not something to pick here.
 
 ## Proofs (commands)
 - `pytest tests/test_k2_timetable.py tests/test_k2_timetable_load.py tests/test_k2_day.py` — every planner line of Fortnights 10–17

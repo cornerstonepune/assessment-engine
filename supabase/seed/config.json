@@ -605,6 +605,7 @@
           "phonics"
         ],
         "planner_row": "^Fortnight\\s+(\\d+)$",
+        "planner_block": "^K2_\\s*(\\w+?)\\s*_\\s*Planner",
         "fortnight_label": "^F\\.N\\s*(\\d+)",
         "other_grade_marks": [
           "(PG - N)",
