@@ -16,7 +16,9 @@ FIX = Path(__file__).parent / "fixtures"
 FRAME_ROWS = json.loads((FIX / "k2_frame_fn_2026_27.json").read_text())["rows"]
 PLAN_ROW = json.loads((FIX / "k2_planner_fn10_2026_27.json").read_text())
 
-FN10_DAYS = [date(2026, 11, 23) + timedelta(d) for d in range(14) if (date(2026, 11, 23) + timedelta(d)).weekday() < 5]
+FN10_DAYS = [
+    date(2026, 11, 23) + timedelta(d) for d in range(14) if (date(2026, 11, 23) + timedelta(d)).weekday() < 5
+]
 
 
 def frame():
@@ -24,7 +26,7 @@ def frame():
 
 
 def plan():
-    return tt.read_plan_row(PLAN_ROW["cells"])
+    return tt.read_plan_row(PLAN_ROW["cells"], PLAN_ROW["fortnight"])
 
 
 def test_the_frame_is_fifteen_rows_by_two_weeks_of_five_days():
@@ -48,7 +50,13 @@ def test_the_empty_cells_are_kept_empty_for_a_person_eight_in_week_a_and_three_i
 def test_week_b_periods_per_subject_are_counted_from_the_timetable_itself():
     n = Counter(c.subject for c in frame().cells if c.week == "B" and c.kind in ("subject", "specialist"))
     assert (n["math"], n["english"], n["reading"], n["story"], n["phonics"], n["hindi"]) == (5, 4, 4, 3, 2, 2)
-    assert (n["general_awareness"], n["me_time"], n["rhymes"], n["music"], n["music_guest"]) == (2, 2, 2, 1, 1)
+    assert (n["general_awareness"], n["me_time"], n["rhymes"], n["music"], n["music_guest"]) == (
+        2,
+        2,
+        2,
+        1,
+        1,
+    )
 
 
 def test_physical_education_and_guest_music_are_marked_as_led_by_a_specialist():
@@ -102,7 +110,7 @@ def test_an_unchanged_week_regenerates_identically_and_one_changed_line_changes_
     assert tt.changed(a, b) == []
     cells = list(PLAN_ROW["cells"])
     cells[1] = cells[1].replace("Addition - orally", "Addition - with beads")
-    c = tt.generate(frame(), tt.read_plan_row(cells), FN10_DAYS)
+    c = tt.generate(frame(), tt.read_plan_row(cells, 10), FN10_DAYS)
     diff = tt.changed(a, c)
     assert diff and all(x.subject.startswith("math") for x in diff)
 
