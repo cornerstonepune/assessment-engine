@@ -47,7 +47,7 @@ def _answered(conn, tenant, key, statuses, state="confirmed"):
     for status in statuses:
         si = conn.execute(
             "insert into sheet_instance (tenant_id, qr_code, sheet_template_id) values (%s,%s,%s) returning id",
-            (tenant, f"CS{uuid.uuid4().hex[:6]}", t),
+            (tenant, f"CS{uuid.uuid4().hex}", t),
         ).fetchone()["id"]
         cap = conn.execute(
             "insert into capture (tenant_id, path, sheet_instance_id) values (%s,'~/x.pdf',%s) returning id",

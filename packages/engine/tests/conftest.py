@@ -49,3 +49,69 @@ def every_kind_trusted(monkeypatch):
         lambda conn: {f: {"n": 50, "right": 50, "trusted": True, "to_trust": 0} for f in profiles.KIND_WORDS},
     )
     monkeypatch.setattr(marking, "spot_rate", lambda conn: 0.0)
+
+
+def _row_counts() -> dict | None:
+    """{table: its row count} for every table of the test database, or None when no test database is in use."""
+    if not os.environ.get("DATABASE_URL"):
+        return None
+    with db.connect(db.dsn()) as c:
+        tables = [
+            f"{r['schemaname']}.{r['tablename']}"
+            for r in c.execute(
+                "select schemaname, tablename from pg_tables where schemaname in ('public', 'pii')"
+                " order by 1, 2"
+            )
+        ]
+        sql = " union all ".join(f"select '{t}' as t, count(*) as n from {t}" for t in tables)
+        return {r["t"]: r["n"] for r in c.execute(sql)}
+
+
+@pytest.fixture(scope="module")
+def forgets_what_it_commits():
+    """For a module whose tests run commands, or open connections of their own, that commit rows (M0-04c): at the end
+    of the module every row made since it began is deleted, in every table that stamps `created_at`, with the
+    append-only triggers and foreign keys off for that transaction (`session_replication_role`; the tests' role may).
+    Names the work it undoes, so that a module opts in and the check below still fails for one that does not. A table
+    that does not stamp `created_at` is not reached, and the check says so."""
+    with db.connect(db.dsn()) as c:
+        since = c.execute("select clock_timestamp() as t").fetchone()["t"]
+    yield
+    with db.connect(db.dsn()) as c:
+        c.execute("set local session_replication_role = replica")
+        for r in c.execute(
+            "select col.table_schema as s, col.table_name as t from information_schema.columns col"
+            " join information_schema.tables x on x.table_schema = col.table_schema and x.table_name = col.table_name"
+            " where col.column_name = 'created_at' and col.table_schema in ('public', 'pii')"
+            " and x.table_type = 'BASE TABLE'"
+        ).fetchall():
+            c.execute(f'delete from {r["s"]}."{r["t"]}" where created_at >= %s', (since,))
+        c.commit()
+
+
+@pytest.fixture(autouse=True, scope="module")
+def a_module_leaves_no_committed_row(request):
+    """A test runs in a transaction it rolls back, so it leaves the database as it found it (M0-04c). A module that
+    commits a row, whether the test or a command it starts does it, leaves it for every module that runs after it on
+    that database: on 2026-11-04 an item with no skill set, left by an earlier shard, failed seven tests of another.
+    The row counts of every table are taken before the module and after it, and any difference fails the module's
+    last test. `ISOLATION_REPORT=<file>` appends what each module left to that file instead, to measure."""
+    before = _row_counts()
+    yield
+    after = _row_counts()
+    if before is None or after is None:
+        return
+    left = {t: after[t] - before.get(t, 0) for t in after if after[t] != before.get(t, 0)}
+    if not left:
+        return
+    if report := os.environ.get("ISOLATION_REPORT"):
+        import json
+
+        with open(report, "a") as f:
+            f.write(json.dumps({"module": request.module.__name__, "left": left}) + "\n")
+        return
+    pytest.fail(
+        f"{request.module.__name__} left committed rows (table: rows added): {left}. A test must roll back "
+        "what it writes (`conn.rollback()` in its fixture), or clean up what a command it starts commits.",
+        pytrace=False,
+    )

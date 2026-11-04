@@ -16,6 +16,8 @@ from engine.core import db, settings
 from engine.core.staff import staff_hash
 from tests.test_cli import run
 
+pytestmark = pytest.mark.usefixtures("forgets_what_it_commits")
+
 SEED = pathlib.Path(__file__).resolve().parents[3] / "supabase" / "seed" / "config.json"
 EMAIL = "new-educator@cornerstone.test"
 PASSWORD = "a-long-test-password"

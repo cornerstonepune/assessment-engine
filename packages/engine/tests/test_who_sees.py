@@ -15,7 +15,7 @@ import pytest
 
 from engine.core import db
 from engine.w3_read import inbox
-from tests.rows import a_read_paper, tenant
+from tests.rows import a_read_paper, forget_paper, tenant
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -148,4 +148,5 @@ def test_an_upload_records_who_put_it_in_and_a_reading_again_keeps_it(person, mo
     finally:
         with db.connect() as conn:
             conn.execute("delete from flow_run where id = any(%s::uuid[])", (runs,))
+            forget_paper(conn, paper)  # it was committed above so that a second connection could read it
             conn.commit()

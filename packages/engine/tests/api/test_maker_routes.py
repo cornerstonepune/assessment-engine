@@ -10,7 +10,10 @@ from engine.api import deps
 from engine.api.app import app
 from engine.core import db
 
-pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
+pytestmark = [
+    pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)"),
+    pytest.mark.usefixtures("forgets_what_it_commits"),
+]
 
 KEY = "test-engine-key"
 HEADERS = {"X-Engine-Key": KEY}

@@ -19,6 +19,7 @@ from engine.core.staff import staff_hash
 from tests.test_cli import run
 
 needs_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
+pytestmark = pytest.mark.usefixtures("forgets_what_it_commits")
 SECTIONS = ("SL-ONE", "SL-TWO")
 HEADER = "name,email,role,subjects,classes"
 

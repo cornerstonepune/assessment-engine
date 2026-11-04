@@ -10,7 +10,10 @@ import pytest
 from engine.core import db
 from tests.rows import a_child, tenant
 
-pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
+pytestmark = [
+    pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)"),
+    pytest.mark.usefixtures("forgets_what_it_commits"),
+]
 
 REBUILD = "select rebuild_child_skill_state(%s)"
 
