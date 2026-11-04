@@ -8,6 +8,8 @@ call is not a total, so a call that answered with no cost recorded, or one left 
 (a config row), stops the campaign too, until a person has looked.
 """
 
+from engine.core import settings
+
 
 class Refused(Exception):
     """The campaign's money is spent, or cannot be counted."""
@@ -31,12 +33,13 @@ def trigger_for(stage: str | None) -> str:
 def check(conn, tenant_slug: str, purpose: str, stage: str | None = None, camps: dict | None = None) -> None:
     for name, c in (campaigns(conn) if camps is None else camps).items():
         if purpose in c["purposes"]:
-            _check_one(conn, tenant_slug, name, c)
+            start = _since(conn, c)
+            _check_one(conn, tenant_slug, name, c, start)
             if stage:
-                _check_stage(conn, tenant_slug, name, c, stage)
+                _check_stage(conn, tenant_slug, name, c, stage, start)
 
 
-def _check_stage(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None:
+def _check_stage(conn, tenant_slug: str, name: str, c: dict, stage: str, start: str) -> None:
     """A stage (dev eval, held-out score, the drafting) is one share of the campaign's money, tagged on each flow_run."""
     stages = c.get("stages") or {}
     if stage not in stages:
@@ -46,7 +49,7 @@ def _check_stage(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None
     _check_order(conn, tenant_slug, name, c, stage)
     if stages[stage] is None:
         return  # no cap of its own: the campaign's holds
-    spent = _spent(conn, tenant_slug, c["purposes"], trigger_for(stage))
+    spent = _spent(conn, tenant_slug, c["purposes"], trigger_for(stage), start)
     spent_usd, limit_usd = float(spent) / c["inr_per_usd"], stages[stage] - c.get("stage_margin_usd", 0)
     if spent_usd >= limit_usd:
         raise Refused(
@@ -73,14 +76,26 @@ def _check_order(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None
         )
 
 
-def _check_one(conn, tenant_slug: str, name: str, c: dict) -> None:
+def _since(conn, c: dict) -> str:
+    """The moment a campaign starts counting. Most count from the beginning; one that names `"window": "month"` counts
+    the school's current calendar month (`school.time_zone`) and starts again at the next (M1-16's monthly cap)."""
+    if c.get("window") != "month":
+        return "-infinity"
+    zone = settings.config(conn, "school.time_zone", "Asia/Kolkata")
+    return conn.execute(
+        "select (date_trunc('month', now() at time zone %s) at time zone %s)::text as t", (zone, zone)
+    ).fetchone()["t"]
+
+
+def _check_one(conn, tenant_slug: str, name: str, c: dict, start: str) -> None:
     got = conn.execute(
         "select coalesce(sum(f.cost_inr), 0) as spent,"
         " count(*) filter (where f.status = 'ok' and f.cost_inr is null) as no_cost,"
         " count(*) filter (where f.status = 'running'"
         " and f.started_at < now() - make_interval(mins => %s)) as stuck"
-        " from flow_run f join tenant t on t.id = f.tenant_id where t.slug = %s and f.flow = any(%s)",
-        (c["stale_minutes"], tenant_slug, c["purposes"]),
+        " from flow_run f join tenant t on t.id = f.tenant_id where t.slug = %s and f.flow = any(%s)"
+        " and f.started_at >= %s::timestamptz",
+        (c["stale_minutes"], tenant_slug, c["purposes"], start),
     ).fetchone()
     if got["no_cost"]:
         raise Refused(
@@ -105,17 +120,19 @@ def status(conn, tenant_slug: str, purpose: str, stage: str | None) -> dict | No
     for name, c in campaigns(conn).items():
         if purpose not in c["purposes"]:
             continue
-        rate, caps = c["inr_per_usd"], c.get("stages") or {}
+        rate, caps, start = c["inr_per_usd"], c.get("stages") or {}, _since(conn, c)
         out = {
             "campaign": name,
-            "spent_usd": _spent(conn, tenant_slug, c["purposes"]) / rate,
+            "spent_usd": _spent(conn, tenant_slug, c["purposes"], None, start) / rate,
             "limit_usd": c["cap_usd"] - c["margin_usd"],
             "stage": stage,
             "stage_spent_usd": None,
             "stage_limit_usd": None,
         }
         if stage:
-            out["stage_spent_usd"] = _spent(conn, tenant_slug, c["purposes"], trigger_for(stage)) / rate
+            out["stage_spent_usd"] = (
+                _spent(conn, tenant_slug, c["purposes"], trigger_for(stage), start) / rate
+            )
             if caps.get(stage) is not None:
                 out["stage_limit_usd"] = caps[stage] - c.get("stage_margin_usd", 0)
         return out
@@ -137,10 +154,13 @@ def line(got: dict | None) -> str:
     return text
 
 
-def _spent(conn, tenant_slug: str, purposes: list[str], trigger: str | None = None) -> float:
+def _spent(
+    conn, tenant_slug: str, purposes: list[str], trigger: str | None = None, from_: str = "-infinity"
+) -> float:
     row = conn.execute(
         "select coalesce(sum(f.cost_inr), 0) as spent from flow_run f join tenant t on t.id = f.tenant_id"
-        " where t.slug = %s and f.flow = any(%s) and (%s::text is null or f.trigger = %s)",
-        (tenant_slug, purposes, trigger, trigger),
+        " where t.slug = %s and f.flow = any(%s) and (%s::text is null or f.trigger = %s)"
+        " and f.started_at >= %s::timestamptz",
+        (tenant_slug, purposes, trigger, trigger, from_),
     ).fetchone()
     return float(row["spent"])

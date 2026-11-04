@@ -1,0 +1,38 @@
+name: m1-16-materials-consolidated
+goal: >
+  The inventory person gets one correct consolidated list for the month, made by the system from all the educators'
+  plans and changes, with no one retyping paper notes: the requirements of every class for the period are added up per
+  catalogue item and unit, each line showing which classes and activities it comes from; a free-text request such as
+  'pens' or a photographed handwritten note is turned into catalogue items and quantities by a low-cost model and then
+  checked by code against the catalogue, and anything code cannot confirm goes to a person and never into the list;
+  every change an educator makes after the list was built is carried into it and shown as a change; the list goes to the
+  one inventory person by WhatsApp as a structured checklist and what was sent and when is recorded; and what the
+  model calls cost is recorded and held under a monthly cap that is a setting.
+# Written 2026-11-04, before any code: task M1-16 (card M1-16, depends on M1-10 and M1-11; decisions D-071, D-072, D-074
+# as the orchestrator relayed them: teacher-os could not be attached in this session, so the quotations below are the
+# relayed ones, not re-read). Design and cost: docs/notes/m1-16-materials-consolidated.md. Attached to W2 step N4 as
+# files, no thirteenth step (as M1-10). No model call and no spend until the orchestrator says go; every model call is
+# a prompt row (`materials_read`), inactive until `engine eval materials_read` meets a bar (rules 2 and 7).
+says:
+  - words: "the system collates requirements from all the teachers"
+    proved_by: "packages/engine/tests/test_materials_consolidate.py::test_two_classes_needing_one_item_make_one_line_with_the_total_and_where_it_comes_from"
+  - words: "some simple, low-cost model, so that if someone has written pens, it classifies that"
+    proved_by: "packages/engine/tests/test_materials_intake.py::test_pens_with_a_number_the_text_gives_is_confirmed_against_the_catalogue"
+  - words: "the inventory person gets a proper final list"
+    proved_by: "packages/engine/tests/test_materials_inventory.py::test_the_inventory_person_gets_one_checklist_and_what_was_sent_is_recorded"
+  - words: "it should be system-led only"
+    proved_by: "packages/engine/tests/test_materials_consolidate.py::test_a_change_an_educator_makes_after_the_build_is_shown_as_a_change"
+manual:
+  - "Scenario S-M1-16-consolidated: the materials requests of two or more real classes for one month, including one handwritten note, against the inventory person's own list for the same month; each item once with the right total and unit, the note's items read correctly or sent to a person; the inventory person corrects fewer than one line in ten. Needs real data (D-028) from people; nothing is invented."
+  - "`engine eval materials_read` on a gold set a person has marked, before the prompt is made active; the bar is set before the first run."
+  - "A person decides the monthly cap (a setting; the design note proposes a figure and shows the cost range with its assumptions)."
+  - "A person confirms the photograph is read in memory and never stored (the design note's proposal): a failed read means she sends it again."
+  - "Actions, rehearse update-live, on the pushed branch, before the migration is merged: states_may_change=false."
+scenarios: []
+criteria:
+  - name: the consolidation, the reading checked by code, the monthly cap and the send
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_materials_consolidate.py tests/test_materials_intake.py tests/test_materials_inventory.py tests/test_llm_budget_monthly.py tests/test_materials_read_eval.py tests/api/test_materials_school_routes.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

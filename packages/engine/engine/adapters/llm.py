@@ -9,6 +9,7 @@ model id, an HTTP code, or an unvalidated reply.
 
 import base64
 import json
+import re
 import ssl
 import time
 import urllib.error
@@ -284,11 +285,16 @@ def _quota(body):
 
 
 def _fill(text, variables):
-    for k, v in variables.items():
-        text = text.replace(
-            "{{" + k + "}}", v if isinstance(v, str) else json.dumps(v, ensure_ascii=False, indent=2)
-        )
-    return text
+    """Each {{name}} in the prompt's own text becomes its variable, in one pass: a value that itself contains
+    {{another}} is left as typed, never filled in a second time."""
+
+    def one(m):
+        v = variables.get(m.group(1))
+        if v is None:
+            return m.group(0)
+        return v if isinstance(v, str) else json.dumps(v, ensure_ascii=False, indent=2)
+
+    return re.sub(r"\{\{(\w+)\}\}", one, text)
 
 
 def _call(models, body, key):
