@@ -8,7 +8,9 @@ kept by id (D-046), on the part's mark and in the curriculum's edit history.
 from typing import LiteralString
 
 from engine.core import db
+from engine.w1_bank import map_ledger
 from engine.w1_bank.k2_gaps import column
+from engine.w1_bank.map_agents import sampled
 from engine.w1_bank.map_ledger import changed_by
 
 
@@ -63,3 +65,19 @@ def reject(conn: db.Conn, tenant: db.Id, staff: db.Id, code: str, part: str) -> 
         "delete from activity_part_source where tenant_id = %s and activity_code = %s and part = %s",
         (tenant, code, part),
     )
+
+
+def review_list(conn: db.Conn, tenant: db.Id) -> list[dict]:
+    """The drafted pages a person reads, in order: those tagged check_me first, then the audit share (`map.audit_share`,
+    D-063) of the rest, drawn by code (the same draw every time). Each: the page's code, check_me, the proposal's reason."""
+    share = map_ledger.rules(conn)["audit_share"]
+    rows = conn.execute(
+        "select p.subject_code as code, p.reason, bool_or(s.check_me) as check_me from curriculum_proposal p"
+        " join activity_part_source s on s.tenant_id = p.tenant_id and s.proposal_id = p.id and s.source = 'drafted'"
+        " where p.tenant_id = %s and p.kind = 'page_part' and p.about is null group by p.id, p.subject_code, p.reason"
+        " order by p.subject_code",
+        (tenant,),
+    ).fetchall()
+    doubtful = [dict(r) for r in rows if r["check_me"]]
+    rest = [dict(r) for r in rows if not r["check_me"] and sampled("page_part", r["code"], share)]
+    return [*doubtful, *rest]

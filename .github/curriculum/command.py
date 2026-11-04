@@ -21,7 +21,7 @@ RUNS = {
     "forecast": {
         "spends": False,
         "commands": [
-            ["engine", "curriculum", "draft", "--stage", "dev_eval", "--limit", "100", "--dry-run"],
+            ["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--dry-run"],
             ["engine", "curriculum", "draft", "--stage", "draft", "--dry-run"],
             ["engine", "curriculum", "materials", "--stage", "draft", "--dry-run"],
         ],
@@ -34,7 +34,7 @@ RUNS = {
     },
     "draft_dev": {
         "spends": True,
-        "commands": [["engine", "curriculum", "draft", "--stage", "dev_eval", "--limit", "100", "--by", BY]],
+        "commands": [["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--by", BY]],
     },
     "map_held_out": {
         "spends": True,
@@ -66,21 +66,23 @@ def person(actor: str, staff: str) -> str:
     return email
 
 
-def commands(run: str, actor: str, staff: str) -> list[str]:
-    """The run's commands, each as one shell line with its words quoted."""
+def email(run: str, actor: str, staff: str) -> str:
+    """The dispatcher's staff email for a run that spends (nothing for one that does not); refuses an unknown run."""
     if run not in RUNS:
         sys.exit(f"no run called {run!r}: one of {', '.join(RUNS)}")
-    email = person(actor, staff) if RUNS[run]["spends"] else ""
-    return [shlex.join(email if word == BY else word for word in c) for c in RUNS[run]["commands"]]
+    return person(actor, staff) if RUNS[run]["spends"] else ""
+
+
+def commands(run: str, actor: str, staff: str) -> list[str]:
+    """The run's commands, each as one shell line with its words quoted."""
+    who = email(run, actor, staff)
+    return [shlex.join(who if word == BY else word for word in c) for c in RUNS[run]["commands"]]
 
 
 if __name__ == "__main__":
     e = os.environ
+    args = (e.get("RUN", ""), e.get("ACTOR", ""), e.get("STAFF", ""))
     if "--email" in sys.argv:  # for the workflow to mask it in the log before anything runs
-        print(
-            person(e.get("ACTOR", ""), e.get("STAFF", ""))
-            if RUNS.get(e.get("RUN", ""), {}).get("spends")
-            else ""
-        )
+        print(email(*args))
     else:
-        print("\n".join(commands(e["RUN"], e.get("ACTOR", ""), e.get("STAFF", ""))))
+        print("\n".join(commands(*args)))

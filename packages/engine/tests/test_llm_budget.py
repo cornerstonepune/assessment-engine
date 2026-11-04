@@ -199,10 +199,10 @@ def test_the_campaigns_money_does_not_use_up_the_days_budget_of_every_other_prom
 STAGED = {**CAMPAIGN, "stages": {"dev_eval": 4, "held_out": 7, "draft": None}, "stage_margin_usd": 0.25}
 
 
-def staged(conn):
+def staged(conn, camp=None):
     conn.execute(
         "update config set value = %s where tenant_id = %s and key = 'llm.campaigns'",
-        (json.dumps({"m1-11": STAGED}), conn.tenant),
+        (json.dumps({"m1-11": camp or STAGED}), conn.tenant),
     )
 
 
@@ -306,16 +306,9 @@ def test_the_writer_and_the_readers_of_a_stage_share_one_form_of_the_trigger():
 ORDERED = {**STAGED, "order": ["dev_eval", "held_out", "draft"]}
 
 
-def ordered(conn):
-    conn.execute(
-        "update config set value = %s where tenant_id = %s and key = 'llm.campaigns'",
-        (json.dumps({"m1-11": ORDERED}), conn.tenant),
-    )
-
-
 def test_a_stage_may_not_start_until_the_stage_before_it_has_made_a_call(conn, monkeypatch):
     """The order of the run is the engine's, not the workflow's: the dev eval, then the held-out score, then the drafting."""
-    ordered(conn)
+    staged(conn, ORDERED)
     answering(monkeypatch, [])
     with pytest.raises(llm.LLMBudgetError, match=r"stage held_out comes after dev_eval"):
         llm.generate(conn, DRAFT, VARS, version=1, stage="held_out")
@@ -329,7 +322,7 @@ def test_a_stage_may_not_start_until_the_stage_before_it_has_made_a_call(conn, m
 
 
 def test_a_failed_or_refused_call_does_not_count_as_a_stage_having_run(conn, monkeypatch):
-    ordered(conn)
+    staged(conn, ORDERED)
     answering(monkeypatch, [])
     conn.execute(
         "insert into flow_run (tenant_id, flow, trigger, status, cost_inr) values (%s,%s,'engine:dev_eval','error',NULL)",

@@ -6,7 +6,7 @@ W1, gate N1. Goal `goals/m1-11b-curriculum-run.yaml`. Nobody could run the K2 dr
 
 ## What it does
 - **Runs** (`.github/curriculum/command.py`): `key` (is ANTHROPIC_API_KEY in the engine container: prints True or False, never the
-  key), `forecast` (three `--dry-run`s, no call), `map_dev`, `draft_dev`, `map_held_out`, `draft_all`, `materials_all` (each spends),
+  key), `forecast` (three `--dry-run`s, no call; the page dev stage reads `dev_pages` from the `k2.drafting` row through `--dev`, so no number is typed in the workflow), `map_dev`, `draft_dev`, `map_held_out`, `draft_all`, `materials_all` (each spends),
   `review` (what waits for a person). The choice and the allowlist are one list (a test holds them together).
 - **No free text reaches a shell.** The run is a choice; the person is looked up in the repository variable `CURRICULUM_STAFF`
   (`{"github login": "staff email"}`, outside git; the public repository holds no email); the email is checked and quoted, and
@@ -23,6 +23,10 @@ Evidence, not proof: `deploy/compose.yml` feeds the container every variable of 
 school's server, run 40499077378" through the existing eval workflow, so an Anthropic call has been made there. **Not known:** that
 the key's account can use Sonnet 5.5 and Opus 5.5 (v1 mapping rows), and that it still works today. The `key` run answers the first
 part with no spend; a first real call answers the rest.
+
+## Reviews (D-073)
+`/code-review` medium: 7 findings; fixed with tests: `ssh` swallowed the rest of the commands (now `ssh -n`; shown 1 of 3 lines run vs 3 of 3), the person is `github.triggering_actor` (a re-run by someone else is that someone), an email cannot start with `-`, `exists` not `count`, and a flag allowlist test. Known, documented: GitHub keeps one waiting run (dispatch one at a time); the stage order is satisfied by one answered call, not by bars met (a person reads the bars).
+`/simplify` (4 agents): applied one `email()` for both paths, one `-n`, shared test helpers, `--dev` instead of a typed 100. Skipped: a per-run cache of the order check (rows could be rolled back in tests), one ssh for all commands, composite action for the ssh step shared with other workflows (out of scope), deriving `spends`.
 
 ## Verified
 - `pytest tests/test_curriculum_run_command.py tests/test_llm_budget.py` on a database built by `bin/testdb fresh` → 43 passed

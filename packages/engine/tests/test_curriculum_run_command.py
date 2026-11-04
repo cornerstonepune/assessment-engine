@@ -59,7 +59,7 @@ def test_the_map_evals_are_the_two_stages_of_the_mapping_agents():
 
 def test_the_page_runs_are_the_dev_stage_with_a_limit_and_the_draft_stage_without():
     dev, full = lines("draft_dev")[0], lines("draft_all")[0]
-    assert "--stage dev_eval" in dev and "--limit 100" in dev
+    assert "--stage dev_eval" in dev and "--dev" in dev and "--limit" not in dev
     assert "--stage draft" in full and "--limit" not in full
     assert lines("materials_all")[0].startswith("engine curriculum materials --stage draft")
 
@@ -108,7 +108,14 @@ def test_every_stage_a_run_names_is_a_stage_of_the_campaign_whose_cap_and_order_
 
 def test_no_run_can_carry_a_flag_that_changes_a_limit_only_the_known_ones_with_their_known_values():
     """The cap, margin, stage caps and order are config the engine reads; a run is only ever these flags."""
-    allowed = {"--stage", "--limit", "--dry-run", "--by", "--dev", "--version", "--validate-version"}
+    allowed = {
+        "--stage",
+        "--dry-run",
+        "--by",
+        "--dev",
+        "--version",
+        "--validate-version",
+    }  # no --limit: the size is a row
     for run in cmd.RUNS:
         for c in lines(run, staff=STAFF):
             words = c.split()
@@ -116,8 +123,6 @@ def test_no_run_can_carry_a_flag_that_changes_a_limit_only_the_known_ones_with_t
                 continue
             flags = [w for w in words if w.startswith("--")]
             assert set(flags) <= allowed, (run, flags)
-            if "--limit" in words:
-                assert words[words.index("--limit") + 1] == "100", c
     assert re.search(r"\bcap\b", SCRIPT.read_text().lower()) is None, "no limit is named, let alone set, here"
 
 
@@ -163,6 +168,4 @@ def test_the_loop_over_the_commands_does_not_let_ssh_swallow_the_commands_still_
         for st in job["steps"]
         if "while IFS= read" in st.get("run", "")
     )
-    assert re.search(r"ssh [^\n]*-n\b", script) or "ssh -n" in script, (
-        "ssh reads the loop's stdin unless it is given -n"
-    )
+    assert "ssh -n" in script, "ssh reads the loop's stdin unless it is given -n"

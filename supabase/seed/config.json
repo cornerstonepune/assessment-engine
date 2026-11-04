@@ -165,12 +165,13 @@
     },
     {
       "key": "k2.drafting",
-      "description": "How the K2 drafting run is cut and forecast (M1-11): pages per drafting or checking call, materials texts per call, how many more times a page still bad is asked for, how many replies in a row may break their schema before the run stops, and the tokens per page ASSUMED for the forecast (not measured; replace with the measured mean after the dev eval). Operational tuning, so a config row, not a threshold (a threshold is a rule the school reads about itself).",
+      "description": "How the K2 drafting run is cut and forecast (M1-11): pages per drafting or checking call, materials texts per call, how many more times a page still bad is asked for, how many replies in a row may break their schema before the run stops, how many pages the dev stage reads (`--dev`), and the tokens per page ASSUMED for the forecast (not measured; replace with the measured mean after the dev eval). Operational tuning, so a config row, not a threshold (a threshold is a rule the school reads about itself).",
       "value": {
         "batch_pages": 4,
         "batch_materials": 10,
         "batch_rounds": 2,
         "stop_after_bad_replies": 3,
+        "dev_pages": 100,
         "est_draft_in": 1000,
         "est_draft_out": 700,
         "est_check_in": 1200,

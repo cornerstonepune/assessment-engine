@@ -61,7 +61,6 @@ jobs:
           while IFS= read -r line; do
             n=$((n + 1))
             echo "::group::command $n"
-            # -n: ssh would otherwise read the rest of the commands file from the loop's stdin and the run would stop at its first
-            $S -n "sudo docker exec deploy-engine-1 $line"
+            $S "sudo docker exec deploy-engine-1 $line"
             echo "::endgroup::"
           done < "$RUNNER_TEMP/commands.txt"
