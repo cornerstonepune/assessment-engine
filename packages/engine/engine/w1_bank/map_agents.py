@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import cast
 
 from engine.adapters import llm
-from engine.core import db
+from engine.core import db, settings
 from engine.w1_bank.map_check import LEVELS, Gap, Known, decide, problems
 from engine.w1_bank.map_eval import lo_skill_pairs
 
@@ -70,9 +70,12 @@ class Proposal:
 
 def _bad_replies_allowed(conn: db.Conn) -> int:
     """How many replies in a row may break their schema before the run stops (config row k2.drafting)."""
-    return int(
-        db.one(conn, "select value from config where key = 'k2.drafting'")["value"]["stop_after_bad_replies"]
-    )
+    row = settings.config(conn, "k2.drafting") or {}
+    if "stop_after_bad_replies" not in row:
+        raise llm.LLMError(
+            "the config row k2.drafting is missing: load the settings (engine load --settings)"
+        )
+    return int(row["stop_after_bad_replies"])
 
 
 def model_ask(
@@ -83,25 +86,24 @@ def model_ask(
 ) -> Ask:
     """The adapter: each question to the prompt row of its purpose (the active one, or the version named), spending
     from `stage` of the campaign that covers these prompts (llm.campaigns). A reply that breaks its schema is one
-    activity's loss (`propose` leaves it for a person); replies that keep breaking in a row end the run, since the same
-    failure is then being paid for again and again (config row k2.drafting, stop_after_bad_replies)."""
+    activity's loss (`propose` leaves it for a person); replies that keep breaking in a row, counted for each prompt,
+    end the run, since the same failure is then being paid for again and again."""
     versions = {PROPOSE: propose_version, VALIDATE: validate_version}
-    bad = 0
+    bad = {PROPOSE: 0, VALIDATE: 0}
 
     def ask(purpose: str, about: str, variables: dict[str, object]) -> Reply:
-        nonlocal bad
         try:
             reply = cast(
                 Reply, llm.generate(conn, purpose, variables, version=versions[purpose], stage=stage)
             )
         except llm.LLMSchemaError as e:
-            bad += 1
-            if bad >= _bad_replies_allowed(conn):
+            bad[purpose] += 1
+            if bad[purpose] >= _bad_replies_allowed(conn):
                 raise llm.LLMError(
-                    f"{bad} replies in a row broke their schema; stopped, the prompt needs a person"
+                    f"{bad[purpose]} {purpose} replies in a row broke their schema; stopped, the prompt needs a person"
                 ) from e
             raise
-        bad = 0
+        bad[purpose] = 0
         return reply
 
     return ask
@@ -297,7 +299,7 @@ def _checked(
             )
             verdict, why = str(v.get("verdict", "")), str(v.get("why", ""))
         except llm.LLMSchemaError:
-            found = ["the checker's reply broke its schema, so this proposal is not checked"]
+            why = "the checker's reply broke its schema, so this proposal is not checked"
     audit = sampled(kind, code, rules.audit_share)
     status = decide(
         kind,

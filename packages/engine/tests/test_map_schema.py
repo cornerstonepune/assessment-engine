@@ -96,13 +96,14 @@ def test_a_reply_that_breaks_its_schema_is_that_activity_left_for_a_person_and_t
 
     made = {(p.kind, p.subject_code): p for p in propose(b, sorted(b.gaps), ask, RULES)}
     bad = made[("skill", "ACT-KX-0101")]
-    assert bad.status == "rejected" and bad.confidence == 0.0
+    assert bad.status == "rejected" and bad.confidence == 0.0 and bad.proposal == {}
+    # rejected, not needs_person: a person approving an EMPTY skill proposal would confirm "no skill" for the activity
     assert bad.problems == ["the proposer's reply broke its schema, so nothing is proposed for this activity"]
     assert ("skill", "ACT-KX-0102") in made, "the next activity was still asked"
 
 
 @needs_db
-def test_a_checker_reply_that_breaks_its_schema_rejects_that_one_proposal_and_says_why(conn_band):
+def test_a_checker_reply_that_breaks_its_schema_leaves_that_one_proposal_for_a_person_and_says_why(conn_band):
     conn, t = conn_band
     b = read_band(conn, t, "KX")
 
@@ -113,7 +114,10 @@ def test_a_checker_reply_that_breaks_its_schema_rejects_that_one_proposal_and_sa
 
     made = propose(b, ["ACT-KX-0101"], ask, RULES)
     skill = next(p for p in made if p.kind == "skill")
-    assert skill.status == "rejected" and "the checker's reply broke its schema" in skill.problems[0]
+    assert skill.status == "needs_person", (
+        "nothing was found wrong with it: it is not checked, so a person looks"
+    )
+    assert skill.problems == [] and "the checker's reply broke its schema" in skill.reason
 
 
 @needs_db
@@ -158,3 +162,46 @@ def conn_band():
         t = _band(c)
         yield c, t
         c.rollback()
+
+
+@needs_db
+def test_the_count_of_broken_replies_is_kept_for_each_prompt_so_alternating_prompts_cannot_hide_a_broken_one(
+    conn_band, monkeypatch
+):
+    conn, _ = conn_band
+    outcomes = iter(["bad", "good", "bad", "good", "bad"])  # proposer: bad; checker: good; proposer: bad; ...
+
+    def alternate(conn_, purpose, *a, **k):
+        if next(outcomes) == "bad":
+            raise llm.LLMSchemaError("x")
+        return {"ok": 1}
+
+    monkeypatch.setattr(llm, "generate", alternate)
+    ask = model_ask(conn, 2, 2)
+    for purpose in (PROPOSE, VALIDATE, PROPOSE, VALIDATE):
+        try:
+            ask(purpose, "A", {})
+        except llm.LLMSchemaError:
+            pass
+    with pytest.raises(llm.LLMError, match="in a row"):
+        # the proposer's third broken reply in a row, though the checker answered well in between
+        monkeypatch.setattr(llm, "generate", lambda *a, **k: (_ for _ in ()).throw(llm.LLMSchemaError("x")))
+        ask(PROPOSE, "A", {})
+        ask(PROPOSE, "A", {})
+        ask(PROPOSE, "A", {})
+
+
+def test_a_reply_the_batched_schema_lets_through_is_still_judged_bad_by_code_and_never_crashes_the_run():
+    """v3 asks the schema for the list and each key; types and completeness are k2_batch's to judge, item by item."""
+    from engine.w1_bank import k2_batch as batch
+
+    assert batch.judge_verdicts([{"key": "A", "verdict": 5, "why": "w"}], ["A"]) == (
+        {},
+        {"A": "verdict is not agree or disagree"},
+    )
+    assert batch.judge_materials("x", "2 cubes") == ([], []), "items that are not a list are no items"
+    assert batch.judge_materials([{"name": 7, "quantity": "ten", "unit": None}], "2 cubes")[0] == []
+    good, bad = batch.judge_pages(
+        [{"key": "A", "objective": 3, "steps": ["a"], "level_0": None}], {"A": ["objective"]}
+    )
+    assert good == {} and bad == {"A": "objective is empty"}
