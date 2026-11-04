@@ -245,7 +245,7 @@ def replay_report(conn: db.Conn, gap_minutes: float) -> list[str]:
     got = map_replay_mod.explain(made, gold, rules.min_confidence)
     scores = score([Scored(p.subject_code, frozenset(skills(p)), p.status) for p in made], gold)
     head = {"score": scores, "left_unread": {k: len(v) for k, v in left.items()}}
-    summary = {k: v for k, v in got.items() if k != "rows"}
+    summary = {**{k: v for k, v in got.items() if k != "rows"}, **map_replay_mod.sweep(made, gold)}
     return [json.dumps(x, ensure_ascii=False, default=str) for x in (head, summary, *got["rows"])]
 
 

@@ -121,3 +121,40 @@ def stored(conn: db.Conn) -> list[Call]:
     return [
         (r["started_at"], r["flow"], r["about"], r["outcome"], r["reply"] or {}, r["reason"]) for r in rows
     ]
+
+
+def sweep(made: Sequence[Proposal], gold: dict[str, frozenset[str]]) -> dict:
+    """Precision against what people linked, for every proposal by its confidence and by the checker's verdict, and for
+    each confidence bar that could be set. A proposal could pass on its own when code found nothing wrong, it names a
+    skill and the checker agreed; the audit sample (a share of those, taken whatever they say) is left out."""
+
+    def right(p: Proposal) -> bool:
+        raw = p.proposal.get("skills")
+        proposed = frozenset(str(s) for s in raw) if isinstance(raw, list) else frozenset()
+        return bool(proposed) and proposed <= gold.get(p.subject_code, frozenset())
+
+    def tally(key) -> dict[str, list[int]]:
+        out: dict[str, list[int]] = {}
+        for p in made:
+            n = out.setdefault(str(key(p)), [0, 0])
+            n[0] += 1
+            n[1] += right(p)
+        return dict(sorted(out.items()))
+
+    eligible = [p for p in made if not p.problems and p.proposal.get("skills") and p.verdict == "agree"]
+    bars = sorted({0.0, *(round(p.confidence, 3) for p in eligible)})
+    table = {}
+    for bar in bars:
+        passing = [p for p in eligible if p.confidence >= bar]
+        ok = sum(right(p) for p in passing)
+        table[str(bar)] = {
+            "passes": len(passing),
+            "right": ok,
+            "precision": round(ok / len(passing), 3) if passing else 0.0,
+            "share": round(len(passing) / len(made), 3) if made else 0.0,
+        }
+    return {
+        "by_confidence": tally(lambda p: round(p.confidence, 3)),
+        "by_verdict": tally(lambda p: p.verdict or "none"),
+        "if_confidence_at_least": table,
+    }

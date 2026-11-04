@@ -12,6 +12,8 @@ says:
     proved_by: "packages/engine/tests/test_map_replay.py::test_each_proposal_is_set_against_what_people_linked_and_the_held_back_are_counted_by_cause"
   - words: "classify every wrong skill (activity code, proposed vs gold, why)"
     proved_by: "packages/engine/tests/test_map_replay.py::test_a_wrong_proposal_says_how_it_is_wrong"
+  - words: "use replay to compute precision against the gold set BY confidence bucket and BY validator verdict ... whether a lower threshold, or dropping self-confidence in favour of code checks + validator agreement, keeps precision >= 0.90 while lifting auto-pass to >= 0.60"
+    proved_by: "packages/engine/tests/test_map_replay.py::test_precision_is_tabled_by_confidence_and_by_verdict_and_for_each_threshold_that_could_be_set"
   - words: "do NOT run any eval (no spend)"
     proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_the_forecast_makes_no_call_and_needs_nobody_to_have_run_it"
   - words: "from the stored flow_run replies of this run"

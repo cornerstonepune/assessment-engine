@@ -103,6 +103,31 @@ def test_each_proposal_is_set_against_what_people_linked_and_the_held_back_are_c
     assert [r["cause"] for r in got["rows"]][:2] == ["right", "adds a skill people did not link"]
 
 
+def test_precision_is_tabled_by_confidence_and_by_verdict_and_for_each_threshold_that_could_be_set():
+    gold = {c: frozenset({"NUM.CNT.01"}) for c in "ABCDEF"}
+    made = [
+        prop("A", ["NUM.CNT.01"], "auto_passed", confidence=0.9),
+        prop("B", ["NUM.CNT.01"], "needs_person", confidence=0.6),
+        prop("C", ["GEO.SHP.01"], "needs_person", confidence=0.6),
+        prop("D", ["NUM.CNT.01"], "needs_person", confidence=0.7, verdict="disagree"),
+        prop("E", ["NUM.CNT.01"], "rejected", confidence=0.9, problems=["unknown skill"]),
+        prop("F", [], "needs_person", confidence=0.9),
+    ]
+    got = mr.sweep(made, gold)
+    assert got["by_confidence"] == {
+        "0.6": [2, 1],
+        "0.7": [1, 1],
+        "0.9": [3, 2],
+    }  # [proposals, right]; E is right though code flagged it
+    assert got["by_verdict"] == {"agree": [5, 3], "disagree": [1, 1]}
+    # eligible = no code problem, a skill, the checker agrees: A (0.9, right), B (0.6, right), C (0.6, wrong)
+    assert got["if_confidence_at_least"] == {
+        "0.0": {"passes": 3, "right": 2, "precision": 0.667, "share": 0.5},
+        "0.6": {"passes": 3, "right": 2, "precision": 0.667, "share": 0.5},
+        "0.9": {"passes": 1, "right": 1, "precision": 1.0, "share": 0.167},
+    }
+
+
 needs_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
 
