@@ -40,6 +40,8 @@ coordinator: sheet columns W–Z ("L0..L3") and AD–AI "Revised" are other leve
   flagged or was unsure of also gets `check_me` (a second tag) and heads `k2_draft.review_list` (check_me first, then `map.audit_share` of
   the rest by code). Nothing the school wrote is touched; `revert` works per proposal. `engine eval curriculum_map [--dev]
   [--version N] [--validate-version N]` now spends from stage held_out / dev_eval.
+- Edit path (D-073): `k2_review.keep | change | reject` act only on a part marked drafted (the school's words and a person's own are
+  refused); each ends with the mark `person` (keep, change) or none (reject), the doubt cleared, who by id in the history.
 - Not built: the eval harness and bars for these prompts (`engine eval` for them), the "drafted" chip and keep/change/reject screens,
   planner lines with no activity (the planner tab is not read). Each needs a go; model runs need Nimish's cost approval.
 

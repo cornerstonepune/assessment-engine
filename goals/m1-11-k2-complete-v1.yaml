@@ -73,6 +73,14 @@ says:
     proved_by: "packages/engine/tests/test_map_stage.py::test_the_dev_set_is_the_dev_eval_stage"
   - words: "pass stage= from the mapping eval (engine eval curriculum_map) so the dev/held-out stage caps govern it"
     proved_by: "packages/engine/tests/test_map_stage.py::test_the_held_out_score_is_the_held_out_stage_and_asks_for_the_versions_it_is_given"
+  - words: "every drafted field shown on screen must be tested for the 'drafted' mark and the edit path"
+    proved_by: "packages/engine/tests/test_k2_review.py::test_keeping_a_draft_leaves_its_words_clears_the_doubt_and_makes_it_the_persons"
+  - words: "every drafted field shown on screen must be tested for the 'drafted' mark and the edit path"
+    proved_by: "packages/engine/tests/test_k2_review.py::test_changing_a_draft_writes_the_new_words_as_the_persons_and_the_history_says_who"
+  - words: "every drafted field shown on screen must be tested for the 'drafted' mark and the edit path"
+    proved_by: "packages/engine/tests/test_k2_review.py::test_rejecting_a_draft_empties_the_part_and_takes_its_mark_away"
+  - words: "Nothing the school wrote is touched"
+    proved_by: "packages/engine/tests/test_k2_review.py::test_the_schools_words_and_unmarked_parts_are_refused_by_all_three"
 manual:
   - "The eval of the three prompts is not written and not run: no model key in the build container, and money is Nimish's call (D-047). Each prompt row stays inactive (rule 7) until `engine eval` scores it against a bar set before the run, on the 100 dev pages first."
   - "The upload with the lesson plan loaded as steps has not been run on the real tab or on a copy of live: `bin/engine curriculum k2 <csv>` (a dry run) prints the gaps in the sheet and in the database; the migration 20270101090000 has not run on a copy of live (rehearse update-live)."
@@ -91,6 +99,9 @@ criteria:
     expect: "passed"
   - name: the mapping eval spends from its stage, and M1-05's tests still hold
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_stage.py tests/test_map_ledger.py tests/test_map_check.py tests/test_map_eval.py
+    expect: "passed"
+  - name: a person keeps, changes or rejects a drafted part (the edit path behind the screens)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_review.py
     expect: "passed"
   - name: a batch of pages is judged item by item (pure, no model)
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_batch.py
