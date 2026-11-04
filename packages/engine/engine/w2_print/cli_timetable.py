@@ -2,8 +2,8 @@
 one SQL file for a person to run where this machine cannot reach. `engine/cli.py` only mounts this."""
 
 import hashlib
-import json
 from collections import Counter
+from contextlib import ExitStack
 from datetime import date
 from pathlib import Path
 
@@ -29,24 +29,20 @@ def _held(items: list[str]) -> dict[date, str]:
     return out
 
 
-def _vocabulary(online: bool) -> tt.Vocabulary:
+def _vocabulary(conn: db.Conn | None) -> tt.Vocabulary:
     """The words the sheets are read with: the database's row, or the seed file's when there is no database, which is
     the same row (`engine load` puts the seed there)."""
-    if online:
-        with db.connect() as conn:
-            found = settings.config(conn, VOCABULARY)
-        if found:
-            return tt.Vocabulary.from_config(found)
-    seed = json.loads((db.REPO_ROOT / "supabase/seed/config.json").read_text())["config"]
-    return tt.Vocabulary.from_config(next(c["value"] for c in seed if c["key"] == VOCABULARY))
+    found = settings.config(conn, VOCABULARY) if conn else None
+    return tt.Vocabulary.from_config(
+        found or next(c["value"] for c in settings.seed("config.json", "config") if c["key"] == VOCABULARY)
+    )
 
 
-def _online() -> bool:
+def _connect(stack: ExitStack) -> db.Conn | None:
     try:
-        with db.connect():
-            return True
+        return stack.enter_context(db.connect())
     except (RuntimeError, psycopg.OperationalError):
-        return False
+        return None
 
 
 @timetable_app.command("load")
@@ -66,38 +62,57 @@ def load(
     apply: bool = typer.Option(False, "--apply", help="write to this database (otherwise a dry run)"),
 ) -> None:
     """Dry run unless --apply: prints counts, never the school's text. Safe to run twice."""
-    online = _online()
-    if apply and not online:
+    with ExitStack() as stack:
+        conn = _connect(stack)
+        if apply and conn is None:
+            typer.echo(
+                "There is no database to write to here: nothing was applied. Use --sql for a file to run elsewhere."
+            )
+            raise typer.Exit(1)
+        files = {"frame": frame, "planner": planner, "calendar": calendar}
+        texts = {k: p.read_text() for k, p in files.items()}
+        digests = {p.name: hashlib.sha256(texts[k].encode()).hexdigest() for k, p in files.items()}
+        vocab = _vocabulary(conn)
+        plan = ld.build(
+            ld.read_frame_csv(texts["frame"], vocab), ld.read_planner_csv(texts["planner"], vocab),
+            ld.read_calendar_csv(texts["calendar"], vocab), vocab, first, last, _held(undecided),
+        )  # fmt: skip
+        source = f"{planner.name} sha256:{digests[planner.name][:12]}"
+        target = ld.Target(grade, section, year, db.tenant_slug() if conn else "", source)
+        added, linked = _run(conn, plan, target, apply) if conn else (None, None)
+    _report(plan, added, linked, apply, f"fortnights {first} to {last}, {grade} {section} {year}")
+    if sql:
+        sql.write_text(sq.sql_file(plan, target, digests))
         typer.echo(
-            "There is no database to write to here: nothing was applied. Use --sql for a file to run elsewhere."
+            f"  wrote {sql} ({len(plan.sessions)} sessions); run it in one transaction, it prints counts before and after"
         )
-        raise typer.Exit(1)
-    texts = {k: p.read_text() for k, p in {"frame": frame, "planner": planner, "calendar": calendar}.items()}
-    digests = {
-        p.name: hashlib.sha256(texts[k].encode()).hexdigest()
-        for k, p in (("frame", frame), ("planner", planner), ("calendar", calendar))
-    }
-    vocab = _vocabulary(online)
-    plan = ld.build(
-        ld.read_frame_csv(texts["frame"], vocab), ld.read_planner_csv(texts["planner"], vocab),
-        ld.read_calendar_csv(texts["calendar"], vocab), vocab, first, last, _held(undecided),
-    )  # fmt: skip
-    target = ld.Target(
-        grade,
-        section,
-        year,
-        db.tenant_slug() if online else "",
-        f"{planner.name} sha256:{digests[planner.name][:12]}",
-    )
-    added, linked = _run(plan, target, apply) if online else (None, None)
-    typer.echo(f"fortnights {first} to {last}, {grade} {section} {year}")
+
+
+def _run(
+    conn: db.Conn, plan: ld.Load, target: ld.Target, apply: bool
+) -> tuple[dict[str, int] | None, int | None]:
+    try:
+        added = sq.apply(conn, plan, target)
+        linked: int | None = sq.linked(conn)
+    except sq.NoSuchClass as no:
+        typer.echo(f"  no such class on this database: {no}; nothing was written")
+        added, linked = None, None
+    if apply and added is not None:
+        conn.commit()
+    else:
+        conn.rollback()
+    return added, linked
+
+
+def _report(
+    plan: ld.Load, added: dict[str, int] | None, linked: int | None, apply: bool, heading: str
+) -> None:
+    typer.echo(heading)
+    verb = "added" if apply else "would add"
     for name, n in ld.summary(plan).items():
-        typer.echo(
-            f"  {name:<15}{n:>5}"
-            + (f"   {'added' if apply else 'would add'} {added[name]:>5}" if added else "")
-        )
+        typer.echo(f"  {name:<15}{n:>5}" + (f"   {verb} {added[name]:>5}" if added else ""))
     typer.echo(
-        f"  planner lines linked to exactly one activity: {linked if linked is not None else 'unknown without a database'}"
+        f"  planner lines linked to exactly one activity: {'unknown without a database' if linked is None else linked}"
     )
     typer.echo(
         f"  planner lines with no period, by heading: {dict(Counter(k for _, k, _ in plan.no_slot)) or 'none'}"
@@ -109,20 +124,3 @@ def load(
     ):
         for what, why in items:
             typer.echo(f"  {label}: {what} — {why}")
-    if sql:
-        sql.write_text(sq.sql_file(plan, target, digests))
-        typer.echo(
-            f"  wrote {sql} ({len(plan.sessions)} sessions); run it in one transaction, it prints counts before and after"
-        )
-
-
-def _run(plan: ld.Load, target: ld.Target, apply: bool) -> tuple[dict[str, int] | None, int | None]:
-    with db.connect() as conn:
-        try:
-            added = sq.apply(conn, plan, target)
-        except sq.NoSuchClass as no:
-            typer.echo(f"  no such class on this database: {no}; nothing was written")
-            return None, None
-        linked = sq.linked(conn)
-        conn.commit() if apply else conn.rollback()
-    return added, linked

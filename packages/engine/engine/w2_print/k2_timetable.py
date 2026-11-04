@@ -29,7 +29,7 @@ class Vocabulary:
     planner_row: str
     fortnight_label: str
     other_grade_marks: tuple[str, ...]
-    tentative_marks: tuple[str, ...]
+    calendar_date_format: str
     afternoon_before_hour: int
 
     @classmethod
@@ -45,7 +45,7 @@ class Vocabulary:
             v["planner_row"],
             v["fortnight_label"],
             tuple(v["other_grade_marks"]),
-            tuple(v["tentative_marks"]),
+            v["calendar_date_format"],
             int(v["afternoon_before_hour"]),
         )
 
@@ -149,16 +149,19 @@ def read_plan_row(cells: list[str], fortnight: int, vocab: Vocabulary) -> Plan:
     return Plan(fortnight, {k: _items(v, vocab) for k, v in sections.items()})
 
 
+def _monday(d: date) -> int:
+    return d.toordinal() - d.weekday()
+
+
 def _weeks(days: list[date], first_monday: date | None = None) -> dict[date, str]:
     """Week A is the fortnight's first week, B its second. With the fortnight's own first Monday given, a week of
     holidays cannot make the second week look like the first."""
-    mondays = sorted({d.toordinal() - d.weekday() for d in days})
-    start = (
-        first_monday.toordinal() - first_monday.weekday() if first_monday else (mondays[0] if mondays else 0)
-    )
-    if any(m not in (start, start + 7) for m in mondays):
+    if not days:
+        return {}
+    start = _monday(first_monday or min(days))
+    if any(_monday(d) not in (start, start + 7) for d in days):
         raise ValueError("a fortnight is two weeks; got days from more")
-    return {d: "AB"[(d.toordinal() - d.weekday() - start) // 7] for d in days}
+    return {d: "AB"[(_monday(d) - start) // 7] for d in days}
 
 
 def _halves(items: list[str]) -> dict[str, list[str]]:

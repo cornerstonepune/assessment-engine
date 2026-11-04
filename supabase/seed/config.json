@@ -607,9 +607,7 @@
           "(PG - N)",
           "(PG-N)"
         ],
-        "tentative_marks": [
-          "tentative"
-        ],
+        "calendar_date_format": "%A, %B %d, %Y",
         "afternoon_before_hour": 7
       }
     },

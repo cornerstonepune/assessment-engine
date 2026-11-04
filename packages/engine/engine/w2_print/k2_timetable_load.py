@@ -61,6 +61,7 @@ class Session:
     text: str
     key: str | None
     ord: int | None
+    fortnight: int
 
 
 @dataclass(frozen=True)
@@ -72,7 +73,7 @@ class Target:
     source: str = "unspecified"  # which planner file the lines came from, for plan_entry.source
 
 
-@dataclass(frozen=True)
+@dataclass
 class Load:
     fortnights: list[tuple[int, date, date]] = field(default_factory=list)
     school_days: list[tuple[date, str, str | None]] = field(default_factory=list)
@@ -127,44 +128,44 @@ def read_planner_csv(text: str, vocab: tt.Vocabulary) -> Planner:
     )
 
 
-def _day_of(cell: str) -> date | None:
+def _cell(row: list[str], i: int) -> str:
+    return row[i].strip() if i < len(row) else ""
+
+
+def _day_of(cell: str, vocab: tt.Vocabulary) -> date | None:
     try:
-        return datetime.strptime(cell.strip(), "%A, %B %d, %Y").date()
+        return datetime.strptime(cell.strip(), vocab.calendar_date_format).date()
     except ValueError:
         return None
 
 
+TEACHING = CalDay("teaching", None)
+
+
 def read_calendar_csv(text: str, vocab: tt.Vocabulary) -> Calendar:
     """The Pre-Primary calendar tab: date, fortnight label, events, school holidays. A holiday marked for other grades
-    only is not one here; a tentative one is, and says so."""
+    only is not one here; a holiday the school calls tentative says so in its own words, which are kept."""
     days: dict[date, CalDay] = {}
     fortnights: dict[int, tuple[date, date]] = {}
     conflicts: list[tuple[int, str]] = []
     for r in _rows(text):
-        day = _day_of(r[0])
+        day = _day_of(r[0], vocab)
         if not day:
             continue
-        label, holiday = _cells(r, 1, 2)[0], _cells(r, 3, 4)[0].strip()
-        if holiday and not any(mark in holiday for mark in vocab.other_grade_marks):
-            tentative = any(m in holiday.lower() for m in vocab.tentative_marks)
-            days[day] = CalDay(
-                "holiday",
-                holiday + ("" if not tentative or "tentative" in holiday.lower() else " (tentative)"),
-            )
+        label, holiday = _cell(r, 1), _cell(r, 3)
+        for_here = holiday and not any(mark in holiday for mark in vocab.other_grade_marks)
+        if for_here:
+            days[day] = CalDay("holiday", holiday)
         else:
             days[day] = CalDay("teaching", f"Holiday for other grades only: {holiday}" if holiday else None)
-        m = re.match(vocab.fortnight_label, label.strip())
+        m = re.match(vocab.fortnight_label, label)
         if m:
             n, end = int(m.group(1)), day + timedelta(days=13)
             fortnights[n] = (day, end)
             said = re.findall(r"(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]{3})", label)
             if said and (int(said[-1][0]), said[-1][1].lower()) != (end.day, end.strftime("%b").lower()):
-                conflicts.append(
-                    (
-                        n,
-                        f"the label ends {said[-1][0]} {said[-1][1]}, two weeks from its start is {end:%d %b}",
-                    )
-                )
+                d_, mon = said[-1]
+                conflicts.append((n, f"the label ends {d_} {mon}, two weeks from its start is {end:%d %b}"))
     return Calendar(days, fortnights, conflicts)
 
 
@@ -206,7 +207,7 @@ def build(
         load.fortnights.append((n, start, end))
         window = [start + timedelta(d) for d in range(14) if (start + timedelta(d)).weekday() < 5]
         for d in window:
-            cd = cal.days.get(d, CalDay("teaching", None))
+            cd = cal.days.get(d, TEACHING)
             why = held.get(d)
             load.school_days.append((d, cd.kind, f"undecided: {why}" if why else cd.note))
         load.undecided.extend((d, held[d]) for d in window if d in held)
@@ -214,7 +215,7 @@ def build(
         if plan is None:
             load.missing_plan.append((n, "no row for this fortnight in the Monthly Planner"))
             continue
-        teaching = [d for d in window if cal.days.get(d, CalDay("teaching", None)).kind == "teaching"]
+        teaching = [d for d in window if cal.days.get(d, TEACHING).kind == "teaching"]
         draft = tt.generate(
             frame, plan, teaching, vocab, {d: w for d, w in held.items() if d in teaching}, start
         )
@@ -226,7 +227,7 @@ def build(
             key = vocab.plan_key_of_subject.get(c.subject or "")
             at = plan.lines[key].index(c.source) + 1 if key and c.source else None
             load.sessions.append(
-                Session(c.date, _h24(c.start, vocab), c.subject, c.text, key if at else None, at)
+                Session(c.date, _h24(c.start, vocab), c.subject, c.text, key if at else None, at, n)
             )
         load.no_slot.extend((n, k, ln) for k, ln in draft.no_slot)
     return load
@@ -237,8 +238,3 @@ def summary(load: Load) -> dict[str, int]:
         "fortnight": len(load.fortnights), "school_day": len(load.school_days), "period": len(load.periods),
         "timetable_slot": len(load.slots), "plan_entry": len(load.plan_entries), "session": len(load.sessions),
     }  # fmt: skip
-
-
-def fortnight_of(load: Load, day: date) -> int:
-    """The fortnight a day falls in."""
-    return next(n for n, a, b in load.fortnights if a <= day <= b)

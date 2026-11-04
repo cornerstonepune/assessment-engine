@@ -32,14 +32,18 @@ def _today(conn) -> dt.date:
     return voice_intake.school_day(conn, dt.datetime.now(dt.UTC))
 
 
+def _refused(no: Exception) -> HTTPException:
+    return HTTPException(status_code=getattr(no, "status", 403), detail=str(no))
+
+
 def _mine(conn, body: Ask, on: dt.date) -> tuple[dict, list[dict]]:
-    _on(conn)
+    """Her class and every class she holds on that day; the switch has been checked by the route."""
     try:
         staff = voice_intake.staff_of(conn, body.actor)
         classes = k2_day.my_classes(conn, staff, on)
         return k2_day.chosen(classes, body.class_id), classes
     except (voice_store.Refused, k2_day.Refused) as no:
-        raise HTTPException(status_code=no.status, detail=str(no)) from no
+        raise _refused(no) from no
 
 
 @keyed.post("/timetable/day")
@@ -68,4 +72,4 @@ def period(body: Ask, conn=Depends(get_conn, scope="function")):
     try:
         return k2_day.period(conn, klass, classes, body.day, body.period_id)
     except k2_day.Refused as no:
-        raise HTTPException(status_code=no.status, detail=str(no)) from no
+        raise _refused(no) from no
