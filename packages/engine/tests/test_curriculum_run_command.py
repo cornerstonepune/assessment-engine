@@ -75,6 +75,7 @@ def test_the_page_runs_are_the_dev_stage_with_a_limit_and_the_draft_stage_withou
         ("draft_dev", "someone", json.dumps({"someone": "a;b@x.invalid"}), "not an email"),
         ("draft_dev", "someone", json.dumps({"someone": "a b@x.invalid"}), "not an email"),
         ("draft_dev", "someone", json.dumps({"someone": "$(id)@x.invalid"}), "not an email"),
+        ("draft_dev", "someone", json.dumps({"someone": "-x@x.invalid"}), "not an email"),
     ],
 )
 def test_an_unknown_run_or_a_person_not_on_the_list_or_an_email_with_shell_in_it_is_refused(
@@ -103,7 +104,21 @@ def test_every_stage_a_run_names_is_a_stage_of_the_campaign_whose_cap_and_order_
             stage = re.search(r"--stage (\w+)", c)
             if stage:
                 assert stage.group(1) in seeded["stages"], c
-    assert "cap" not in SCRIPT.read_text().lower().replace("capture", ""), "no limit is raised or set here"
+
+
+def test_no_run_can_carry_a_flag_that_changes_a_limit_only_the_known_ones_with_their_known_values():
+    """The cap, margin, stage caps and order are config the engine reads; a run is only ever these flags."""
+    allowed = {"--stage", "--limit", "--dry-run", "--by", "--dev", "--version", "--validate-version"}
+    for run in cmd.RUNS:
+        for c in lines(run, staff=STAFF):
+            words = c.split()
+            if words[:2] == ["python", "-c"]:
+                continue
+            flags = [w for w in words if w.startswith("--")]
+            assert set(flags) <= allowed, (run, flags)
+            if "--limit" in words:
+                assert words[words.index("--limit") + 1] == "100", c
+    assert re.search(r"\bcap\b", SCRIPT.read_text().lower()) is None, "no limit is named, let alone set, here"
 
 
 def _flow():
@@ -132,3 +147,22 @@ def test_no_input_or_person_is_written_into_a_shell_script_only_passed_as_enviro
             assert "${{" not in script, (
                 f"an expression inside a script is how text reaches a shell: {script[:60]!r}"
             )
+
+
+def test_the_person_is_the_one_who_dispatched_or_re_ran_it_not_the_first_to_start_the_workflow():
+    env = next(
+        st["env"] for job in _flow()["jobs"].values() for st in job["steps"] if "ACTOR" in st.get("env", {})
+    )
+    assert "github.triggering_actor" in env["ACTOR"], "a re-run by someone else is that someone else"
+
+
+def test_the_loop_over_the_commands_does_not_let_ssh_swallow_the_commands_still_to_run():
+    script = next(
+        st["run"]
+        for job in _flow()["jobs"].values()
+        for st in job["steps"]
+        if "while IFS= read" in st.get("run", "")
+    )
+    assert re.search(r"ssh [^\n]*-n\b", script) or "ssh -n" in script, (
+        "ssh reads the loop's stdin unless it is given -n"
+    )

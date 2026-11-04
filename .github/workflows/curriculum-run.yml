@@ -1,7 +1,9 @@
 # Run the K2 drafting commands on the server, where the model's key is. By hand only, and only the FIXED runs in
 # .github/curriculum/command.py: the choice below is that list, no free text reaches a shell, the person who runs it is
 # looked up in the repository variable CURRICULUM_STAFF (login to staff email, outside git), and the money, the stages
-# and their order are the engine's (config row llm.campaigns). Dispatching a run that spends IS the go for that spend;
+# and their order are the engine's (config row llm.campaigns): a stage cannot start until the one before it has made an
+# answered call (whether it met its bars is a person's reading). Dispatch ONE run at a time and wait for it: GitHub keeps
+# one waiting run, so a third dispatch cancels the second. The person is whoever dispatched or re-ran it. Dispatching a run that spends IS the go for that spend;
 # `key`, `forecast` and `review` spend nothing. Order: key, forecast, map_dev, draft_dev, map_held_out, draft_all,
 # materials_all. Needs the secrets LIGHTSAIL_SSH_KEY and LIGHTSAIL_HOST (the ones engine eval uses).
 name: curriculum run
@@ -31,7 +33,7 @@ jobs:
       - name: who and what, before anything runs
         env:
           RUN: "${{ inputs.run }}"
-          ACTOR: "${{ github.actor }}"
+          ACTOR: "${{ github.triggering_actor }}"
           STAFF: "${{ vars.CURRICULUM_STAFF }}"
         run: |
           # refuses an unknown run or a person not on the list here, with nothing yet reached
@@ -53,11 +55,13 @@ jobs:
           HOST: "${{ secrets.LIGHTSAIL_HOST }}"
         run: |
           # minutes of model calls print little: without a keepalive the connection was dropped mid-eval (21 Oct)
-          S="ssh -i $HOME/.ssh/server -o ConnectTimeout=15 -o ServerAliveInterval=30 ubuntu@$HOST"
+          # -n: ssh would otherwise read the rest of the commands file from the loop's stdin and the run would stop after its first
+          S="ssh -n -i $HOME/.ssh/server -o ConnectTimeout=15 -o ServerAliveInterval=30 ubuntu@$HOST"
           n=0
           while IFS= read -r line; do
             n=$((n + 1))
             echo "::group::command $n"
-            $S "sudo docker exec deploy-engine-1 $line"
+            # -n: ssh would otherwise read the rest of the commands file from the loop's stdin and the run would stop at its first
+            $S -n "sudo docker exec deploy-engine-1 $line"
             echo "::endgroup::"
           done < "$RUNNER_TEMP/commands.txt"

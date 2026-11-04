@@ -63,10 +63,10 @@ def _check_order(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None
         return
     before = order[order.index(stage) - 1]
     ran = conn.execute(
-        "select count(*) as n from flow_run f join tenant t on t.id = f.tenant_id"
-        " where t.slug = %s and f.flow = any(%s) and f.trigger = %s and f.status = 'ok'",
+        "select exists (select 1 from flow_run f join tenant t on t.id = f.tenant_id"
+        " where t.slug = %s and f.flow = any(%s) and f.trigger = %s and f.status = 'ok') as ran",
         (tenant_slug, c["purposes"], trigger_for(before)),
-    ).fetchone()["n"]
+    ).fetchone()["ran"]
     if not ran:
         raise Refused(
             f"campaign {name} stage {stage} comes after {before}, and nothing has run in {before} yet"

@@ -13,7 +13,7 @@ import re
 import shlex
 import sys
 
-EMAIL = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$")
+EMAIL = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$")
 BY = "{by}"  # where the dispatcher's email goes; the only substitution
 CHECK_KEY = "import os; print(bool(os.getenv('ANTHROPIC_API_KEY')))"  # True or False: never the key
 RUNS = {
