@@ -2,8 +2,10 @@
 one SQL file for a person to run where this machine cannot reach. `engine/cli.py` only mounts this."""
 
 import hashlib
+import json
 from collections import Counter
 from contextlib import ExitStack
+from dataclasses import replace
 from datetime import date
 from pathlib import Path
 
@@ -33,9 +35,15 @@ def _vocabulary(conn: db.Conn | None) -> tt.Vocabulary:
     """The words the sheets are read with: the database's row, or the seed file's when there is no database, which is
     the same row (`engine load` puts the seed there)."""
     found = settings.config(conn, VOCABULARY) if conn else None
-    return tt.Vocabulary.from_config(
-        found or next(c["value"] for c in settings.seed("config.json", "config") if c["key"] == VOCABULARY)
-    )
+    try:
+        return tt.Vocabulary.from_config(
+            found
+            or next(c["value"] for c in settings.seed("config.json", "config") if c["key"] == VOCABULARY)
+        )
+    except KeyError as missing:
+        raise typer.BadParameter(
+            f"this database's {VOCABULARY} row is older than the code (no {missing}): run `engine load`"
+        ) from missing
 
 
 def _connect(stack: ExitStack) -> db.Conn | None:
@@ -58,7 +66,19 @@ def load(
     undecided: list[str] = typer.Option(
         [], "--undecided", help="DATE=REASON: a day two sources disagree about"
     ),
-    sql: Path | None = typer.Option(None, "--sql", help="write the rows as one SQL file here"),
+    spans: Path | None = typer.Option(
+        None, "--spans", help="frame_spans.json: activities merged over several periods"
+    ),
+    use_row: list[str] = typer.Option(
+        [],
+        "--use-row",
+        help="N=K: Fortnight N is listed twice; use row K (1 = first). Without it neither row is loaded",
+    ),
+    sql: Path | None = typer.Option(
+        None,
+        "--sql",
+        help="write the rows as one SQL file here (and one per row of a fortnight listed twice that nobody has chosen)",
+    ),
     apply: bool = typer.Option(False, "--apply", help="write to this database (otherwise a dry run)"),
 ) -> None:
     """Dry run unless --apply: prints counts, never the school's text. Safe to run twice."""
@@ -73,16 +93,28 @@ def load(
         texts = {k: p.read_text() for k, p in files.items()}
         digests = {p.name: hashlib.sha256(texts[k].encode()).hexdigest() for k, p in files.items()}
         vocab = _vocabulary(conn)
-        plan = ld.build(
-            ld.read_frame_csv(texts["frame"], vocab), ld.read_planner_csv(texts["planner"], vocab),
-            ld.read_calendar_csv(texts["calendar"], vocab), vocab, first, last, _held(undecided),
-        )  # fmt: skip
+        held, use = _held(undecided), {int(n): int(k) for n, _, k in (u.partition("=") for u in use_row)}
+        frame_in = ld.read_frame_csv(texts["frame"], vocab, json.loads(spans.read_text()) if spans else None)
+        cal_in = ld.read_calendar_csv(texts["calendar"], vocab)
+        plan_in = ld.read_planner_csv(texts["planner"], vocab, use)
+        plan = ld.build(frame_in, plan_in, cal_in, vocab, first, last, held)
         source = f"{planner.name} sha256:{digests[planner.name][:12]}"
         target = ld.Target(grade, section, year, db.tenant_slug() if conn else "", source)
         added, linked = _run(conn, plan, target, apply) if conn else (None, None)
     _report(plan, added, linked, apply, f"fortnights {first} to {last}, {grade} {section} {year}")
     if sql:
         sql.write_text(sq.sql_file(plan, target, digests))
+        for n, rows in plan_in.candidates.items():
+            for k in () if n in use else range(1, len(rows) + 1):
+                alone = ld.build(
+                    frame_in, ld.read_planner_csv(texts["planner"], vocab, {n: k}), cal_in, vocab, n, n, held
+                )
+                where = replace(target, source=f"{target.source} row {k} of {len(rows)} of Fortnight {n}")
+                out = sql.with_name(f"{sql.stem}_fn{n}_row{k}{sql.suffix}")
+                out.write_text(sq.sql_file(alone, where, digests))
+                typer.echo(
+                    f"  wrote {out}: Fortnight {n} as its row {k} of {len(rows)} says; apply at most one, once the school has said which"
+                )
         typer.echo(
             f"  wrote {sql} ({len(plan.sessions)} sessions); run it in one transaction, it prints counts before and after"
         )
@@ -118,6 +150,7 @@ def _report(
         f"  planner lines with no period, by heading: {dict(Counter(k for _, k, _ in plan.no_slot)) or 'none'}"
     )
     for label, items in (
+        ("row used as told", plan.chosen),
         ("undecided day", plan.undecided),
         ("fortnight with no planner row", plan.missing_plan),
         ("conflict", plan.conflicts),

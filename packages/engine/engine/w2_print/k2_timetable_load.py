@@ -34,6 +34,10 @@ class Calendar:
 class Planner:
     plans: dict[int, tt.Plan]
     conflicts: list[tuple[int, str]]
+    candidates: dict[int, list[tt.Plan]] = field(
+        default_factory=dict
+    )  # every row of a fortnight listed twice
+    chosen: list[tuple[int, str]] = field(default_factory=list)  # which row a person said to use
 
 
 @dataclass(frozen=True)
@@ -87,6 +91,7 @@ class Load:
     undecided: list[tuple[date, str]] = field(default_factory=list)
     missing_plan: list[tuple[int, str]] = field(default_factory=list)
     conflicts: list[tuple[int, str]] = field(default_factory=list)
+    chosen: list[tuple[int, str]] = field(default_factory=list)
 
 
 def _rows(text: str) -> list[list[str]]:
@@ -97,8 +102,15 @@ def _cells(row: list[str], lo: int, hi: int) -> list[str]:
     return [(row[i] if i < len(row) else "") for i in range(lo, hi)]
 
 
-def read_frame_csv(text: str, vocab: tt.Vocabulary) -> tt.Frame:
-    """The Time table tab: a time in the first column, week A in columns B to F, week B in I to M."""
+def _hhmm(text: str) -> str:
+    h, _, m = text.strip().partition(":")
+    return f"{int(h):02d}:{m}"
+
+
+def read_frame_csv(text: str, vocab: tt.Vocabulary, spans: list[dict] | None = None) -> tt.Frame:
+    """The Time table tab: a time in the first column, week A in columns B to F, week B in I to M. Cells the school
+    merged are filled across what they cover. `spans` names an activity merged over several periods: the periods after
+    the first carry it on and take no planner line of their own."""
     rows = []
     for r in _rows(text):
         m = re.match(r"^\s*(\d{1,2}):(\d{2})\s*(?:-\s*(\d{1,2}):(\d{2}))?\s*$", r[0])
@@ -106,26 +118,47 @@ def read_frame_csv(text: str, vocab: tt.Vocabulary) -> tt.Frame:
             h, mi, h2, mi2 = m.groups()
             time = f"{int(h):02d}:{mi}" + (f" - {int(h2):02d}:{mi2}" if h2 else "")
             rows.append({"time": time, "A": _cells(r, 1, 6), "B": _cells(r, 8, 13)})
-    return tt.read_frame(rows, vocab)
+    carries = frozenset((s["week"], s["weekday"], _hhmm(p)) for s in spans or [] for p in s["periods"][1:])
+    return tt.read_frame(rows, vocab, carries)
 
 
-def read_planner_csv(text: str, vocab: tt.Vocabulary) -> Planner:
-    """The Monthly Planner tab: a row `Fortnight N` and a cell for each heading. A fortnight listed twice is a conflict
-    for a person and loads neither row."""
+def _headed(header: str, text: str, vocab: tt.Vocabulary) -> str:
+    """A cell the school left without its own heading takes the heading its column's title implies."""
+    first = next((" ".join(line.split()) for line in text.split("\n") if line.strip()), "")
+    synthetic = vocab.headless_columns.get(header)
+    return f"{synthetic}\n{text}" if synthetic and first and tt.heading_of(first, vocab)[0] is None else text
+
+
+def read_planner_csv(text: str, vocab: tt.Vocabulary, use_row: dict[int, int] | None = None) -> Planner:
+    """The Monthly Planner tab: a row `Fortnight N`, a cell under each column's title. A fortnight listed twice is a
+    conflict for a person and loads neither row, unless a person said which (`use_row`, 1 = the first listed); the rows
+    not used stay as `candidates`."""
+    chosen = use_row or {}
     seen: dict[int, list[list[str]]] = {}
+    headers: dict[int, str] = {}
     for r in _rows(text):
-        m = re.match(vocab.planner_row, r[0].strip())
-        if m:
-            seen.setdefault(int(m.group(1)), []).append(_cells(r, 1, 8))
-    plans = {n: tt.read_plan_row(rows[0], n, vocab) for n, rows in seen.items() if len(rows) == 1}
-    return Planner(
-        plans,
-        [
-            (n, "listed twice in the Monthly Planner: neither row is loaded")
-            for n, rows in sorted(seen.items())
-            if len(rows) > 1
-        ],
-    )
+        if _cell(r, 1).lower() == vocab.planner_header_cell:
+            headers = {i: _cell(r, i).lower() for i in range(1, len(r))}
+        elif m := re.match(vocab.planner_row, r[0].strip()):
+            seen.setdefault(int(m.group(1)), []).append(
+                [_headed(headers.get(i, ""), _cell(r, i), vocab) for i in range(1, 11)]
+            )
+    plans, conflicts, candidates, used = {}, [], {}, []
+    for n, rows in sorted(seen.items()):
+        if len(rows) == 1:
+            plans[n] = tt.read_plan_row(rows[0], n, vocab)
+            continue
+        candidates[n] = [tt.read_plan_row(row, n, vocab) for row in rows]
+        if n in chosen:
+            plans[n] = candidates[n][chosen[n] - 1]
+            used.append(
+                (n, f"listed {len(rows)} times in the Monthly Planner: row {chosen[n]} used, as told")
+            )
+        else:
+            conflicts.append(
+                (n, f"listed {len(rows)} times in the Monthly Planner and the rows differ: none is loaded")
+            )
+    return Planner(plans, conflicts, candidates, used)
 
 
 def _cell(row: list[str], i: int) -> str:
@@ -192,7 +225,11 @@ def build(
     undecided: dict[date, str] | None = None,
 ) -> Load:  # fmt: skip
     held = undecided or {}
-    load = Load(periods=_periods(frame, vocab), conflicts=[*planner.conflicts, *cal.conflicts])
+    load = Load(
+        periods=_periods(frame, vocab),
+        conflicts=[c for c in [*planner.conflicts, *cal.conflicts] if first <= c[0] <= last],
+        chosen=[c for c in planner.chosen if first <= c[0] <= last],
+    )
     load.slots.extend(
         (c.week, c.weekday, _h24(c.start, vocab), c.kind, c.subject, c.text) for c in frame.cells
     )

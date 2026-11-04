@@ -4,13 +4,14 @@ the database is the local copy, rolled back."""
 
 import json
 import os
+from dataclasses import replace
 
 import pytest
 
 from engine.core import db
 from engine.w2_print import k2_timetable_load as ld
 from engine.w2_print import k2_timetable_sql as sq
-from tests.test_k2_timetable_load import CAL_CSV, FN10, FRAME_CSV, VOCAB, planner_csv
+from tests.test_k2_timetable_load import CAL_CSV, FRAME_CSV, PLANNER_CSV, SPANS, VOCAB
 from tests.voice_rows import a_k2_class
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
@@ -41,11 +42,11 @@ def world(conn, monkeypatch):
         " 'smells', 'matches', 'sorts', 'bottles')",
         (k["tenant"],),
     )
-    cells = [c.replace("Addition - orally", "Placeholder counting game") for c in FN10]
-    planner = ld.read_planner_csv(planner_csv(("Fortnight 10", cells)), VOCAB)
-    plan = ld.build(
-        ld.read_frame_csv(FRAME_CSV, VOCAB), planner, ld.read_calendar_csv(CAL_CSV, VOCAB), VOCAB, 10, 10
-    )
+    base = ld.read_planner_csv(PLANNER_CSV, VOCAB, {10: 2}).plans[10]
+    math = ["Placeholder counting game" if x == "Addition - orally" else x for x in base.lines["math"]]
+    planner = ld.Planner({10: replace(base, lines={**base.lines, "math": math})}, [])
+    frame = ld.read_frame_csv(FRAME_CSV, VOCAB, SPANS)
+    plan = ld.build(frame, planner, ld.read_calendar_csv(CAL_CSV, VOCAB), VOCAB, 10, 10)
     sq.apply(conn, plan, ld.Target("K2", section, "2031-32", db.tenant_slug()))
     conn.execute(
         "insert into config (tenant_id, key, value, description) values (%s, 'educator.timetable_enabled', 'true', 't')"
