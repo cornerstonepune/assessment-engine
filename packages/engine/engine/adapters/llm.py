@@ -19,6 +19,7 @@ import anthropic
 import certifi
 import jsonschema
 from anthropic.types import ImageBlockParam, MessageParam, TextBlockParam
+from psycopg.types.json import Json
 
 from engine.adapters import llm_budget
 from engine.core import db
@@ -59,7 +60,7 @@ def active_prompt(conn, purpose, subject=None, version=None):
     one row whether or not it is active — only an eval asks for it (rule 7: a version is scored
     before it is made active)."""
     row = conn.execute(
-        "select id, text, model, json_schema, effort from prompt"
+        "select id, version, text, model, json_schema, effort from prompt"
         " where purpose = %s and (subject = %s or subject is null)"
         " and (active and %s::int is null or version = %s::int)"
         " order by (subject is not null) desc limit 1",
@@ -105,15 +106,21 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
     cfg = conn.execute("select value from config where key = 'llm.fallback_models'").fetchone()
     models = [row["model"]] + list(cfg["value"] if cfg else [])
     run = conn.execute(
-        "insert into flow_run (tenant_id, flow, trigger) select id, %s, %s from tenant where slug = %s"
-        " returning id",
-        (purpose, llm_budget.trigger_for(stage), db.tenant_slug()),
+        "insert into flow_run (tenant_id, flow, trigger, request) select id, %s, %s, %s from tenant"
+        " where slug = %s returning id",
+        (
+            purpose,
+            llm_budget.trigger_for(stage),
+            Json({"purpose": purpose, "version": row.get("version"), "prompt_id": str(row["id"])}),
+            db.tenant_slug(),
+        ),
     ).fetchone()["id"]
 
     text = _fill(row["text"], variables)
     answered = (
         None  # (model, tokens, tokens in, tokens out) once a model has answered: a paid call, right or not
     )
+    out = None  # what it said, kept on the row whether it is accepted or refused (a paid reply is never lost)
     try:
         out, model, tokens, tokens_in, tokens_out = _dispatch(
             models, text, images, row["json_schema"], row.get("effort")
@@ -129,16 +136,22 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
         )
         conn.execute(
             "update flow_run set finished_at = clock_timestamp(), status = %s, error = %s, model = %s,"
-            " tokens = %s, tokens_in = %s, tokens_out = %s, cost_inr = %s where id = %s",
-            ("error", str(e), *paid, run),
+            " tokens = %s, tokens_in = %s, tokens_out = %s, cost_inr = %s, result = %s where id = %s",
+            (
+                "error",
+                str(e),
+                *paid,
+                Json({"reply": out, "outcome": "refused", "reason": str(e)} if answered else {}),
+                run,
+            ),
         )
         raise
     cost = _cost_inr(conn, model, tokens_in, tokens_out)
     # clock_timestamp(), not now(): now() is the transaction's start, which would make every run 0 s
     conn.execute(
         "update flow_run set finished_at = clock_timestamp(), status = %s, model = %s,"
-        " tokens = %s, tokens_in = %s, tokens_out = %s, cost_inr = %s where id = %s",
-        ("ok", model, tokens, tokens_in, tokens_out, cost, run),
+        " tokens = %s, tokens_in = %s, tokens_out = %s, cost_inr = %s, result = %s where id = %s",
+        ("ok", model, tokens, tokens_in, tokens_out, cost, Json({"reply": out, "outcome": "accepted"}), run),
     )
     if meta is not None:
         meta.update(prompt_id=row["id"], model=model, flow_run_id=run, cost_inr=cost)

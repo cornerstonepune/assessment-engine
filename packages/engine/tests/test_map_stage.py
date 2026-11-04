@@ -40,7 +40,8 @@ def test_without_a_stage_the_agents_ask_as_they_always_did(monkeypatch):
 def _run(monkeypatch, *args):
     got: dict = {}
 
-    def fake_ask(conn, propose_version=None, validate_version=None, stage=None):
+    def fake_ask(conn, propose_version=None, validate_version=None, stage=None, say=None):
+        got["says"] = say is not None
         got.update(propose=propose_version, validate=validate_version, stage=stage)
         return lambda *a, **k: {}
 
@@ -57,13 +58,13 @@ def _run(monkeypatch, *args):
 def test_the_held_out_score_is_the_held_out_stage_and_asks_for_the_versions_it_is_given(monkeypatch):
     result, got = _run(monkeypatch, "--version", "1", "--validate-version", "2")
     assert result.exit_code == 0, result.output
-    assert got == {"propose": 1, "validate": 2, "stage": "held_out", "dev": False}
+    assert got == {"propose": 1, "validate": 2, "stage": "held_out", "dev": False, "says": True}
 
 
 def test_the_dev_set_is_the_dev_eval_stage(monkeypatch):
     result, got = _run(monkeypatch, "--dev", "--version", "1", "--validate-version", "2")
     assert result.exit_code == 0, result.output
-    assert got == {"propose": 1, "validate": 2, "stage": "dev_eval", "dev": True}
+    assert got == {"propose": 1, "validate": 2, "stage": "dev_eval", "dev": True, "says": True}
 
 
 def test_with_no_versions_named_the_active_rows_answer_as_before(monkeypatch):

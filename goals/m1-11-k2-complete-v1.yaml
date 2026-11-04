@@ -42,7 +42,7 @@ says:
   - words: "Make failure per ITEM: validate every item of a reply separately, accept the good ones, retry only the bad ones (a bad reply must not cost 4 pages)"
     proved_by: "packages/engine/tests/test_k2_batch.py::test_a_page_with_a_part_left_empty_or_missing_is_bad_and_says_which"
   - words: "keep the schema versioned (new prompt version rows, inactive until their eval meets the bar; rules 2 and 7)"
-    proved_by: "packages/engine/tests/test_k2_gaps.py::test_version_two_of_each_asks_for_several_pages_a_call_and_only_its_key_is_demanded_by_the_schema"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_batched_rows_ask_for_several_pages_a_call_and_only_the_key_is_demanded_by_the_schema"
   - words: "curriculum_map_validate v2 on Haiku 4.5 as a NEW version row, inactive ... Do not touch v1"
     proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_mapping_validator_gets_a_new_version_on_haiku_and_version_one_is_left_as_it_was"
   - words: "Raise the held-out stage cap to 7 USD; the overall campaign cap stays 25 with the 2 USD margin (stop at 23)"

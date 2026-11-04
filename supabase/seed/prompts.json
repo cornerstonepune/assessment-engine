@@ -3311,6 +3311,186 @@
           }
         }
       }
+    },
+    {
+      "purpose": "curriculum_map_propose",
+      "version": 2,
+      "model": "claude-sonnet-5-5",
+      "active": false,
+      "text_file": "prompts/curriculum_map_propose.v2.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "skills",
+          "objective_code",
+          "objective_text",
+          "levels",
+          "confidence",
+          "reason"
+        ],
+        "properties": {
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 3
+          },
+          "objective_code": {
+            "type": "string"
+          },
+          "objective_text": {
+            "type": "string"
+          },
+          "levels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "purpose": "k2_page_draft",
+      "version": 3,
+      "model": "claude-sonnet-5-5",
+      "active": false,
+      "text_file": "prompts/k2_page_draft.v3.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pages"
+        ],
+        "properties": {
+          "pages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "objective": {
+                  "description": "the text of this part, or the empty string when it was not asked for"
+                },
+                "steps": {
+                  "description": "the text of this part, or the empty string when it was not asked for"
+                },
+                "thinking": {
+                  "description": "the text of this part, or the empty string when it was not asked for"
+                },
+                "level_0": {
+                  "description": "the text of this part, or the empty string when it was not asked for"
+                },
+                "level_1": {
+                  "description": "the text of this part, or the empty string when it was not asked for"
+                },
+                "level_2": {
+                  "description": "the text of this part, or the empty string when it was not asked for"
+                },
+                "level_3": {
+                  "description": "the text of this part, or the empty string when it was not asked for"
+                },
+                "flags": {
+                  "description": "a list of short strings"
+                },
+                "confidence": {
+                  "description": "a number from 0 to 1"
+                },
+                "reason": {
+                  "description": "one sentence"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "k2_page_validate",
+      "version": 3,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/k2_page_validate.v3.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verdicts"
+        ],
+        "properties": {
+          "verdicts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "verdict": {
+                  "description": "agree or disagree"
+                },
+                "why": {
+                  "description": "one sentence"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "k2_materials_split",
+      "version": 3,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/k2_materials_split.v3.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "lists"
+        ],
+        "properties": {
+          "lists": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "reason": {
+                  "description": "one sentence, if anything was unclear"
+                },
+                "items": {
+                  "description": "a list of {name, quantity (a number or null), unit}"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

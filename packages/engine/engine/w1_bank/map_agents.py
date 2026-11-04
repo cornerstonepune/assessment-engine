@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import cast
 
 from engine.adapters import llm
-from engine.core import db
+from engine.core import db, settings
 from engine.w1_bank.map_check import LEVELS, Gap, Known, decide, problems
 from engine.w1_bank.map_eval import lo_skill_pairs
 
@@ -68,18 +68,48 @@ class Proposal:
     reason: str
 
 
+def _bad_replies_allowed(conn: db.Conn) -> int:
+    """How many replies in a row may break their schema before the run stops (config row k2.drafting)."""
+    row = settings.config(conn, "k2.drafting") or {}
+    if "stop_after_bad_replies" not in row:
+        raise llm.LLMError(
+            "the config row k2.drafting is missing: load the settings (engine load --settings)"
+        )
+    return int(row["stop_after_bad_replies"])
+
+
 def model_ask(
     conn: db.Conn,
     propose_version: int | None = None,
     validate_version: int | None = None,
     stage: str | None = None,
+    say: Callable[[str], None] | None = None,
 ) -> Ask:
     """The adapter: each question to the prompt row of its purpose (the active one, or the version named), spending
-    from `stage` of the campaign that covers these prompts (llm.campaigns)."""
+    from `stage` of the campaign that covers these prompts (llm.campaigns). A reply that breaks its schema is one
+    activity's loss (`propose` leaves it for a person); replies that keep breaking in a row, counted for each prompt,
+    end the run, since the same failure is then being paid for again and again."""
     versions = {PROPOSE: propose_version, VALIDATE: validate_version}
+    bad = dict.fromkeys(versions, 0)
 
     def ask(purpose: str, about: str, variables: dict[str, object]) -> Reply:
-        return cast(Reply, llm.generate(conn, purpose, variables, version=versions[purpose], stage=stage))
+        try:
+            reply = cast(
+                Reply, llm.generate(conn, purpose, variables, version=versions[purpose], stage=stage)
+            )
+        except llm.LLMSchemaError as e:
+            if say:
+                say(f"  {about}  {purpose}  REFUSED  {e}")
+            bad[purpose] += 1
+            if bad[purpose] >= _bad_replies_allowed(conn):
+                raise llm.LLMError(
+                    f"{bad[purpose]} {purpose} replies in a row broke their schema; stopped, the prompt needs a person"
+                ) from e
+            raise
+        bad[purpose] = 0
+        if say:
+            say(f"  {about}  {purpose}  accepted")
+        return reply
 
     return ask
 
@@ -261,17 +291,20 @@ def _checked(
     verdict, why = "", ""
     if not found:
         listed = cast(list[str], part.get("skills") or [])
-        v = ask(
-            VALIDATE,
-            code,
-            {
-                "activity": {"code": code, **band.words.get(code, {})},
-                "kind": kind,
-                "proposal": part,
-                "skills": [f"{c} {band.names.get(c, '')}" for c in listed],
-            },
-        )
-        verdict, why = str(v.get("verdict", "")), str(v.get("why", ""))
+        try:
+            v = ask(
+                VALIDATE,
+                code,
+                {
+                    "activity": {"code": code, **band.words.get(code, {})},
+                    "kind": kind,
+                    "proposal": part,
+                    "skills": [f"{c} {band.names.get(c, '')}" for c in listed],
+                },
+            )
+            verdict, why = str(v.get("verdict", "")), str(v.get("why", ""))
+        except llm.LLMSchemaError:
+            why = "the checker's reply broke its schema, so this proposal is not checked"
     audit = sampled(kind, code, rules.audit_share)
     status = decide(
         kind,
@@ -290,6 +323,23 @@ def _checked(
     )
 
 
+def _broken(kind: str, code: str) -> Proposal:
+    """What a proposer reply that broke its schema leaves: nothing proposed, and the reason in words."""
+    why = "the proposer's reply broke its schema, so nothing is proposed for this activity"
+    return Proposal(
+        kind=kind,
+        subject_code=code,
+        proposal={},
+        confidence=0.0,
+        proposer=PROPOSE,
+        validator="",
+        problems=[why],
+        verdict="",
+        status="rejected",
+        reason=why,
+    )
+
+
 def propose(band: Band, codes: list[str], ask: Ask, rules: Rules) -> list[Proposal]:
     """A decided proposal for each gap of each activity named: the proposer asked once per activity, each part
     checked by code, the validator asked where code found nothing wrong."""
@@ -298,7 +348,13 @@ def propose(band: Band, codes: list[str], ask: Ask, rules: Rules) -> list[Propos
         gaps = kinds_missing(band.gaps[code])
         if not gaps:
             continue
-        reply = ask(PROPOSE, code, _context(band, code, gaps, rules.examples))
+        try:
+            reply = ask(PROPOSE, code, _context(band, code, gaps, rules.examples))
+        except llm.LLMSchemaError:
+            out += [
+                _broken(kind, code) for kind in gaps
+            ]  # one activity left for a person; the next is still asked
+            continue
         confidence = float(cast(float, reply.get("confidence", 0.0)))
         for kind in gaps:
             out.append(

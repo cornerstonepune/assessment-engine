@@ -263,7 +263,7 @@ def test_the_k2_prompts_are_rows_with_a_schema_and_none_is_active_before_its_eva
     assert all(p["active"] is False and p["json_schema"] for p in rows.values()), (
         "rule 7: not active before an eval"
     )
-    for version in (1, 2):
+    for version in (1, 2, 3):
         draft, check = rows["k2_page_draft", version], rows["k2_page_validate", version]
         assert draft["model"] != check["model"], "the validator is another model"
     for p in rows.values():
@@ -272,13 +272,13 @@ def test_the_k2_prompts_are_rows_with_a_schema_and_none_is_active_before_its_eva
         assert "{{" in text, "the activity's own words go in as data"
 
 
-def test_version_two_of_each_asks_for_several_pages_a_call_and_only_its_key_is_demanded_by_the_schema():
+def test_the_batched_rows_ask_for_several_pages_a_call_and_only_the_key_is_demanded_by_the_schema():
     """The schema asks for a list and a key; whether each page is complete is judged page by page by code
     (k2_batch), so a page missing a part does not make the whole reply fail and cost the others."""
     rows = {
         p["purpose"]: p
         for p in json.loads((SEED / "prompts.json").read_text())["prompts"]
-        if p["version"] == 2
+        if p["version"] == 3
     }
     lists = {"k2_page_draft": "pages", "k2_page_validate": "verdicts", "k2_materials_split": "lists"}
     for purpose, name in lists.items():
