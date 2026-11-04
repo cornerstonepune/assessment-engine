@@ -7,7 +7,8 @@
 --                           never invented), the first day it is needed and the activity it is first needed for.
 --                           `source` says whether the school's plan made the line or the educator added it. A line the
 --                           educator removes is marked, not deleted, so a rebuild does not bring it back.
---   * materials_line_source every activity and day that adds to a line, so the line stays tied to its activities.
+--   * materials_line_source every session (its activity and day) that adds to a line, so the line stays tied to its
+--                           activities and its sources add up to its quantity.
 --   * materials_line_edit   every change by the educator (added, quantity changed, removed) with who and when and the
 --                           line before and after. Append-only.
 --   * material_item_proposal  a catalogue item an educator added, who added it, and that it waits for a person.
@@ -57,10 +58,11 @@ create table if not exists materials_line (
 
 create table if not exists materials_line_source (
   line_id       uuid not null references materials_line(id) on delete cascade,
+  session_id    uuid not null references session(id) on delete cascade,
   activity_code text not null,
   on_date       date not null,
   quantity      numeric check (quantity > 0),
-  primary key (line_id, activity_code, on_date)
+  primary key (line_id, session_id)
 );
 
 create table if not exists materials_line_edit (

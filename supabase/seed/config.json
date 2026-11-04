@@ -652,12 +652,6 @@
       "seed_once": true
     },
     {
-      "key": "materials.email_to",
-      "description": "The materials team's email, the second send route (D-071). Empty until named; the engine has no mail sender, so a send by email is recorded as 'not configured'.",
-      "value": "",
-      "seed_once": true
-    },
-    {
       "key": "materials.reminder_weeks",
       "description": "How many weeks before the first day a material is needed the educator and the materials team are reminded (D-070: 2 and 1). A date that is not a working day moves to the last working day before it; one already past goes today (D-072).",
       "value": [2, 1],

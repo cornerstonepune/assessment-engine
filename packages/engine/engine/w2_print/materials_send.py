@@ -9,9 +9,15 @@ from uuid import UUID
 from engine.core import db, settings
 from engine.w2_print import materials_text as text
 
+SENT = ("opened", "sent")  # a send that went out; 'not configured' and 'failed' did not
+
 
 class NothingToSend(Exception):
     pass
+
+
+class NotSent(Exception):
+    """The team cannot have what was never sent: an email with no sender behind it is a record of a try."""
 
 
 def _lines(conn: db.Conn, list_id: UUID) -> list[text.Line]:
@@ -28,7 +34,7 @@ def _lines(conn: db.Conn, list_id: UUID) -> list[text.Line]:
     ]
 
 
-def send(conn: db.Conn, list_id: UUID, route: str, who: UUID) -> dict[str, Any]:
+def _compose(conn: db.Conn, list_id: UUID) -> tuple[dict[str, Any], str]:
     lst = db.one(
         conn,
         "select l.*, c.grade_code, c.section from materials_list l join school_class c on c.id = l.school_class_id"
@@ -38,9 +44,20 @@ def send(conn: db.Conn, list_id: UUID, route: str, who: UUID) -> dict[str, Any]:
     lines = _lines(conn, list_id)
     if not lines:
         raise NothingToSend("the list has no lines")
-    body = text.checklist(
-        f"{lst['grade_code']} {lst['section'] or ''}".strip(), lst["from_on"], lst["to_on"], lines
-    )
+    name = f"{lst['grade_code']} {lst['section'] or ''}".strip()
+    return lst, text.checklist(name, lst["from_on"], lst["to_on"], lines)
+
+
+def current_text(conn: db.Conn, list_id: UUID) -> str | None:
+    """The checklist as the list reads now, or None when it has no lines."""
+    try:
+        return _compose(conn, list_id)[1]
+    except NothingToSend:
+        return None
+
+
+def send(conn: db.Conn, list_id: UUID, route: str, who: UUID) -> dict[str, Any]:
+    lst, body = _compose(conn, list_id)
     link = None
     if route == "whatsapp":
         status = "opened"
@@ -63,6 +80,9 @@ def send(conn: db.Conn, list_id: UUID, route: str, who: UUID) -> dict[str, Any]:
 
 
 def team_has_it(conn: db.Conn, send_id: UUID, who: UUID) -> None:
+    sent = db.one(conn, "select status from materials_send where id = %s", (send_id,))
+    if sent["status"] not in SENT:
+        raise NotSent(send_id)
     conn.execute(
         "insert into materials_send_ack (send_id, who) values (%s, %s) on conflict do nothing", (send_id, who)
     )

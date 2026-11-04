@@ -61,8 +61,7 @@ def sync(conn: db.Conn, list_id: UUID, today: dt.date) -> None:
             conn.execute(
                 "insert into reminder (tenant_id, list_id, weeks_before, audience, due_on, at_once)"
                 " values (%s, %s, %s, %s, %s, %s) on conflict (list_id, weeks_before, audience) do update"
-                " set due_on = excluded.due_on, at_once = excluded.at_once, updated_at = now()"
-                " where reminder.state = 'pending'",
+                " set due_on = excluded.due_on, at_once = excluded.at_once, state = 'pending', updated_at = now()",
                 (lst["tenant_id"], list_id, r.weeks_before, who, r.due_on, r.at_once),
             )
     conn.execute(
@@ -72,17 +71,24 @@ def sync(conn: db.Conn, list_id: UUID, today: dt.date) -> None:
     )
 
 
-def inbox(conn: db.Conn, today: dt.date, class_id: UUID | None = None) -> list[dict[str, Any]]:
+def inbox(
+    conn: db.Conn, today: dt.date, class_id: UUID | None = None, staff: UUID | None = None
+) -> list[dict[str, Any]]:
     """What the educator is reminded of today: one message for each unsent list with a reminder due, however many lead
-    times are due together."""
+    times are due together. With `staff`, only for classes she holds (`educator.timetable_roles`)."""
+    roles = list(settings.config(conn, "educator.timetable_roles", ["class_teacher", "cover_educator"]))
     rows = conn.execute(
         "select r.list_id, l.school_class_id as class_id, max(r.due_on) as due_on, bool_or(r.at_once) as at_once,"
         " array_agg(r.weeks_before order by r.weeks_before desc) as weeks_before,"
         " (select min(needed_on) from materials_line where list_id = r.list_id and removed_at is null) as first_needed"
         " from reminder r join materials_list l on l.id = r.list_id"
         " where r.state = 'pending' and r.audience = 'educator' and r.due_on <= %s and l.state = 'draft'"
-        " and (%s::uuid is null or l.school_class_id = %s) group by r.list_id, l.school_class_id order by 3, 1",
-        (today, class_id, class_id),
+        " and (%s::uuid is null or l.school_class_id = %s)"
+        " and (%s::uuid is null or exists (select 1 from staff_role_grant g where g.staff_id = %s"
+        " and g.school_class_id = l.school_class_id and g.role_code = any(%s)"
+        " and g.valid_from <= %s and (g.valid_to is null or g.valid_to >= %s)))"
+        " group by r.list_id, l.school_class_id order by 3, 1",
+        (today, class_id, class_id, staff, staff, roles, today, today),
     ).fetchall()
     return list(rows)
 

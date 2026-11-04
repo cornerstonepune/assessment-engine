@@ -1,6 +1,6 @@
 """The K2 educator's materials list (task M1-10): the routes her pages reach. Only wiring: building, editing, sending and
 reminding are `w2_print/materials_*`. The site calls with the engine's key and her email as `actor`, whose staff id the
-engine finds (`public.staff_of_email`); she may touch only a class she holds (`materials.roles_that_edit`). Every route
+engine finds (`public.staff_of_email`); she may touch only a class she holds (`educator.timetable_roles`). Every route
 refuses while `educator.timetable_enabled` is off."""
 
 import datetime as dt
@@ -82,7 +82,7 @@ def _staff(conn, body: Who) -> UUID:
 
 
 def _holds(conn, staff: UUID, class_id: UUID) -> None:
-    if not ml.may_edit(conn, staff, class_id):
+    if not ml.may_edit(conn, staff, class_id, rem.school_today(conn)):
         raise HTTPException(status_code=403, detail="You do not hold this class.")
 
 
@@ -114,6 +114,8 @@ def _mine_line(conn, body: Who, line_id: UUID) -> UUID:
 def build(body: Build, conn=Depends(get_conn, scope="function")):
     staff = _staff(conn, body)
     _holds(conn, staff, body.class_id)
+    if body.to < body.from_:
+        raise HTTPException(status_code=422, detail="The last day is before the first day.")
     lid = ml.build(conn, body.class_id, body.period, body.from_, body.to)
     rem.sync(conn, lid, rem.school_today(conn))
     return ml.read(conn, lid)
@@ -130,6 +132,8 @@ def quantity(body: Quantity, conn=Depends(get_conn, scope="function")):
     staff = _mine_line(conn, body, body.line_id)
     try:
         ml.set_quantity(conn, body.line_id, body.quantity, staff)
+    except ml.LineRemoved as no:
+        raise HTTPException(status_code=409, detail="That line was removed: add it back first.") from no
     except ValueError as no:
         raise HTTPException(status_code=422, detail=str(no)) from no
     return {"ok": True}
@@ -162,6 +166,10 @@ def add(body: AddLine, conn=Depends(get_conn, scope="function")):
     return {"line_id": line}
 
 
+def _tenant(conn) -> UUID:
+    return db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
+
+
 @keyed.post("/catalogue/list")
 def catalogue(body: Who, conn=Depends(get_conn, scope="function")):
     _staff(conn, body)
@@ -184,9 +192,8 @@ def catalogue(body: Who, conn=Depends(get_conn, scope="function")):
 @keyed.post("/catalogue/propose")
 def propose(body: Propose, conn=Depends(get_conn, scope="function")):
     staff = _staff(conn, body)
-    tenant = db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
     try:
-        return {"code": ml.propose_item(conn, tenant, body.name, body.unit, staff)}
+        return {"code": ml.propose_item(conn, _tenant(conn), body.name, body.unit, staff)}
     except ValueError as no:
         raise HTTPException(status_code=422, detail=str(no)) from no
 
@@ -206,7 +213,10 @@ def ack(body: Ack, conn=Depends(get_conn, scope="function")):
     if row is None:
         raise HTTPException(status_code=404, detail="No such send.")
     staff = _mine_list(conn, body, row["list_id"])
-    send.team_has_it(conn, body.send_id, staff)
+    try:
+        send.team_has_it(conn, body.send_id, staff)
+    except send.NotSent as no:
+        raise HTTPException(status_code=409, detail="Nothing went out with that send.") from no
     return {"ok": True}
 
 
@@ -215,6 +225,4 @@ def reminders(body: Inbox, conn=Depends(get_conn, scope="function")):
     staff = _staff(conn, body)
     if body.class_id is not None:
         _holds(conn, staff, body.class_id)
-    today = rem.school_today(conn)
-    rows = [r for r in rem.inbox(conn, today, body.class_id) if ml.may_edit(conn, staff, r["class_id"])]
-    return {"reminders": rows}
+    return {"reminders": rem.inbox(conn, rem.school_today(conn), body.class_id, staff)}

@@ -220,3 +220,40 @@ def test_the_command_counts_what_is_due_and_changes_nothing(conn, s):
     got = rem.due_counts(conn, D1 - dt.timedelta(weeks=1), s["tenant"])
     assert (got["reminders"], got["lists"], got["educator"], got["team"]) == (4, 1, 2, 2)
     assert conn.execute("select count(*) as n, max(updated_at) as t from reminder").fetchone() == before
+
+
+def test_reminders_start_again_when_a_list_that_was_emptied_has_a_line_again(conn, s):
+    lid = _list(conn, s)
+    rem.sync(conn, lid, today=LONG_BEFORE)
+    for g in ml.read(conn, lid)["groups"]:
+        for ln in g["lines"]:
+            ml.remove(conn, ln["line_id"], s["staff"])
+    rem.sync(conn, lid, today=LONG_BEFORE)
+    assert {r["state"] for r in conn.execute("select state from reminder where list_id = %s", (lid,))} == {
+        "cancelled"
+    }
+    code = m.item(conn, s, "Chalk")
+    ml.add(conn, lid, code, 1, D1, None, s["staff"])
+    rem.sync(conn, lid, today=LONG_BEFORE)
+    assert {r["state"] for r in conn.execute("select state from reminder where list_id = %s", (lid,))} == {
+        "pending"
+    }
+
+
+def test_the_inbox_shows_a_member_of_staff_only_the_classes_she_holds(conn, s):
+    lid = _list(conn, s)
+    today = D1 - dt.timedelta(days=3)
+    rem.sync(conn, lid, today=today)
+    other = conn.execute(
+        "insert into staff (tenant_id, campus_id) values (%s, %s) returning id", (s["tenant"], s["campus"])
+    ).fetchone()["id"]
+    assert len(rem.inbox(conn, today, None, s["staff"])) == 1
+    assert rem.inbox(conn, today, None, other) == []
+
+
+def test_an_email_that_could_not_be_sent_is_not_a_send_the_team_can_have(conn, s):
+    lid = _list(conn, s)
+    out = send.send(conn, lid, "email", s["staff"])
+    assert ml.read(conn, lid)["last_send"] is None
+    with pytest.raises(send.NotSent):
+        send.team_has_it(conn, out["send_id"], s["staff"])

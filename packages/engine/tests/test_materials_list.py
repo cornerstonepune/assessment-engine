@@ -228,13 +228,13 @@ def test_building_the_same_range_again_gives_the_same_list(conn, s):
 def test_who_may_edit_is_the_roles_the_school_names_for_the_timetable(conn, s):
     import json
 
-    assert ml.may_edit(conn, s["staff"], s["class"]) is True
+    assert ml.may_edit(conn, s["staff"], s["class"], dt.date(2031, 1, 1)) is True
     conn.execute(
         "insert into config (tenant_id, key, value, description) values (%s, 'educator.timetable_roles', %s, 't')"
         " on conflict (tenant_id, key) do update set value = excluded.value",
         (s["tenant"], json.dumps(["coordinator"])),
     )
-    assert ml.may_edit(conn, s["staff"], s["class"]) is False
+    assert ml.may_edit(conn, s["staff"], s["class"], dt.date(2031, 1, 1)) is False
 
 
 def test_the_edit_table_cannot_be_changed(conn, s):
@@ -256,3 +256,63 @@ def test_building_never_touches_the_catalogue_or_invents_a_rupee_value(conn, s):
     _build(conn, s)
     row = conn.execute("select home, unit_value from material_item where code = %s", (dye,)).fetchone()
     assert row == {"home": None, "unit_value": None}
+
+
+def test_two_sessions_of_one_activity_on_a_day_add_twice_and_the_sources_add_up_to_the_quantity(conn, s):
+    a = s["acts"][0]
+    glue = m.item(conn, s, "Glue", "bottle")
+    m.needs(conn, s, a, glue, 2)
+    m.planned(conn, s, D1, a)
+    m.planned(conn, s, D1, a)
+    [line] = _lines(conn, _build(conn, s))
+    sources = conn.execute(
+        "select quantity from materials_line_source where line_id = %s", (line["id"],)
+    ).fetchall()
+    assert line["quantity"] == 4 and sum(r["quantity"] for r in sources) == 4
+
+
+def test_a_quantity_cannot_be_set_on_a_removed_line(conn, s):
+    a = s["acts"][0]
+    tape = m.item(conn, s, "Tape")
+    m.needs(conn, s, a, tape, 1)
+    m.planned(conn, s, D1, a)
+    [line] = _lines(conn, _build(conn, s))
+    ml.remove(conn, line["id"], s["staff"])
+    with pytest.raises(ml.LineRemoved):
+        ml.set_quantity(conn, line["id"], 3, s["staff"])
+    assert [
+        r["kind"]
+        for r in conn.execute("select kind from materials_line_edit where line_id = %s", (line["id"],))
+    ] == ["remove"]
+
+
+def test_the_read_says_when_the_list_has_changed_since_it_was_sent(conn, s):
+    from engine.w2_print import materials_send as send
+
+    a = s["acts"][0]
+    pen = m.item(conn, s, "Pen")
+    m.needs(conn, s, a, pen, 1)
+    m.planned(conn, s, D1, a)
+    lid = _build(conn, s)
+    send.send(conn, lid, "whatsapp", s["staff"])
+    assert ml.read(conn, lid)["last_send"]["changed"] is False
+    [line] = _lines(conn, lid)
+    ml.set_quantity(conn, line["id"], 7, s["staff"])
+    assert ml.read(conn, lid)["last_send"]["changed"] is True
+    send.send(conn, lid, "whatsapp", s["staff"])
+    assert ml.read(conn, lid)["last_send"]["changed"] is False
+
+
+def test_the_grant_window_is_the_day_the_school_gives_not_the_servers(conn, s):
+    staff = conn.execute(
+        "insert into staff (tenant_id, campus_id) values (%s, %s) returning id", (s["tenant"], s["campus"])
+    ).fetchone()["id"]
+    conn.execute(
+        "insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, valid_from, valid_to, granted_by)"
+        " values (%s, %s, 'cover_educator', %s, '2031-06-10', '2031-06-12', 'test')",
+        (s["tenant"], staff, s["class"]),
+    )
+    day = dt.date(2031, 6, 10)
+    assert ml.may_edit(conn, staff, s["class"], day) is True
+    assert ml.may_edit(conn, staff, s["class"], day - dt.timedelta(days=1)) is False
+    assert ml.may_edit(conn, staff, s["class"], dt.date(2031, 6, 13)) is False

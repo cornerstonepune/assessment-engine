@@ -11,6 +11,7 @@ from typing import Any
 from uuid import UUID
 
 from engine.core import db, settings
+from engine.w2_print import materials_send
 
 
 class NotInCatalogue(Exception):
@@ -21,6 +22,10 @@ class AlreadyOnList(Exception):
     pass
 
 
+class LineRemoved(Exception):
+    """A removed line has no quantity to change; she adds it back first."""
+
+
 def _num(q: Decimal | None) -> int | float | None:
     if q is None:
         return None
@@ -29,7 +34,7 @@ def _num(q: Decimal | None) -> int | float | None:
 
 def _source_rows(conn: db.Conn, class_id: UUID, lo: dt.date, hi: dt.date) -> list[dict[str, Any]]:
     return conn.execute(
-        "select d.on_date, a.code as activity_code, am.material_code, am.quantity, mi.unit"
+        "select s.id as session_id, d.on_date, a.code as activity_code, am.material_code, am.quantity, mi.unit"
         " from session s join school_day d on d.id = s.school_day_id"
         " join plan_entry p on p.id = s.plan_entry_id"
         " join activity a on a.id = p.activity_id"
@@ -90,9 +95,9 @@ def build(conn: db.Conn, class_id: UUID, period: str, lo: dt.date, hi: dt.date) 
         conn.execute("delete from materials_line_source where line_id = %s", (line,))
         for r in rows:
             conn.execute(
-                "insert into materials_line_source (line_id, activity_code, on_date, quantity) values (%s,%s,%s,%s)"
-                " on conflict do nothing",
-                (line, r["activity_code"], r["on_date"], r["quantity"]),
+                "insert into materials_line_source (line_id, session_id, activity_code, on_date, quantity)"
+                " values (%s,%s,%s,%s,%s)",
+                (line, r["session_id"], r["activity_code"], r["on_date"], r["quantity"]),
             )
     for code, ex in have.items():  # the plan no longer needs it, and nobody has touched it
         if code not in wanted and ex["source"] == "school" and ex["id"] not in touched:
@@ -155,13 +160,23 @@ def read(conn: db.Conn, list_id: UUID, group_by: str | None = None) -> dict[str,
         "to": lst["to_on"],
         "state": lst["state"],
         "group_by": group_by,
-        "last_send": conn.execute(
-            "select s.id as send_id, s.route, s.at, exists (select 1 from materials_send_ack a where a.send_id = s.id)"
-            " as team_has_it from materials_send s where s.list_id = %s order by s.at desc limit 1",
-            (list_id,),
-        ).fetchone(),
+        "last_send": _last_send(conn, list_id),
         "groups": [groups[k] for k in sorted(groups)],
     }
+
+
+def _last_send(conn: db.Conn, list_id: UUID) -> dict[str, Any] | None:
+    """The latest send that went out, whether the team has it, and whether the list reads differently now."""
+    last = conn.execute(
+        "select s.id as send_id, s.route, s.at, s.text,"
+        " exists (select 1 from materials_send_ack a where a.send_id = s.id) as team_has_it"
+        " from materials_send s where s.list_id = %s and s.status = any(%s) order by s.at desc limit 1",
+        (list_id, list(materials_send.SENT)),
+    ).fetchone()
+    if last is None:
+        return None
+    now = materials_send.current_text(conn, list_id)
+    return {k: last[k] for k in ("send_id", "route", "at", "team_has_it")} | {"changed": now != last["text"]}
 
 
 def _edit(conn: db.Conn, line: dict[str, Any], kind: str, who: UUID, before: Any, after: Any) -> None:
@@ -180,6 +195,8 @@ def set_quantity(conn: db.Conn, line_id: UUID, quantity: float | None, who: UUID
     if quantity is not None and quantity <= 0:
         raise ValueError("a quantity is more than nothing; remove the line instead")
     line = _line(conn, line_id)
+    if line["removed_at"] is not None:
+        raise LineRemoved(line_id)
     before, after = _num(line["quantity"]), (None if quantity is None else Decimal(str(quantity)))
     if line["quantity"] == after:
         return
@@ -282,13 +299,13 @@ def enabled(conn: db.Conn) -> bool:
     return settings.config(conn, "educator.timetable_enabled", False) is True
 
 
-def may_edit(conn: db.Conn, staff: UUID, class_id: UUID) -> bool:
-    """She builds, edits and sends a class's list only while she holds an open grant on that class in a role the
-    timetable names (`educator.timetable_roles`, a config row)."""
+def may_edit(conn: db.Conn, staff: UUID, class_id: UUID, today: dt.date) -> bool:
+    """She builds, edits and sends a class's list only while she holds an open grant on that class, on the school's
+    `today`, in a role the timetable names (`educator.timetable_roles`, a config row)."""
     roles = list(settings.config(conn, "educator.timetable_roles", ["class_teacher", "cover_educator"]))
     held = conn.execute(
         "select 1 from staff_role_grant where staff_id = %s and school_class_id = %s and role_code = any(%s)"
-        " and valid_from <= current_date and (valid_to is null or valid_to >= current_date)",
-        (staff, class_id, roles),
+        " and valid_from <= %s and (valid_to is null or valid_to >= %s)",
+        (staff, class_id, roles, today, today),
     ).fetchone()
     return held is not None

@@ -188,3 +188,33 @@ def test_removing_the_first_line_moves_the_reminders_to_the_next_day_a_material_
         == 200
     )
     assert min(due()) == min(before) + dt.timedelta(days=7)
+
+
+def test_a_range_that_ends_before_it_starts_is_refused_in_words_not_a_crash(engine):
+    client, conn, s = engine
+    _flag(conn, s)
+    bad = client.post(
+        "/materials/build",
+        headers=H,
+        json={
+            "actor": s["email"],
+            "class_id": str(s["class"]),
+            "period": "week",
+            "from": str(END),
+            "to": str(m.MON),
+        },
+    )
+    assert bad.status_code == 422 and "before" in bad.json()["detail"]
+
+
+def test_a_quantity_on_a_removed_line_is_refused(engine):
+    client, conn, s = engine
+    _flag(conn, s)
+    _plan(conn, s)
+    body = _build(client, s).json()
+    line = body["groups"][0]["lines"][0]["line_id"]
+    client.post("/materials/line/remove", headers=H, json={"actor": s["email"], "line_id": line})
+    again = client.post(
+        "/materials/line/quantity", headers=H, json={"actor": s["email"], "line_id": line, "quantity": 3}
+    )
+    assert again.status_code == 409
