@@ -65,15 +65,16 @@ def k2(conn):
 def seen(conn, s, child, day, outcome, mode="individual", expected=2, supersedes=None):
     """One confirmed observation and, unless not willing or absent, its evidence on the activity's skill."""
     at = DAY0 + dt.timedelta(days=day)
+    reached = min(3, max(0, expected + MOVE[outcome])) if outcome in MOVE else None
     obs = conn.execute(
         "insert into activity_observation (tenant_id, confirmation_id, activity_code, child_id, class_id, outcome,"
-        " entry_mode, route, expected_level, observed_at, observed_by, confirmed_by, supersedes, reason)"
-        " values (%s, %s, %s, %s, %s, %s, %s, 'form', %s, %s, %s, %s, %s, %s) returning id",
-        (s["tenant"], uuid.uuid4(), s["activity"], child, s["class"], outcome, mode, expected, at, s["staff"],
-         s["staff"], supersedes, supersedes and "misheard"),
+        " entry_mode, route, expected_level, reached_level, observed_at, observed_by, confirmed_by, supersedes,"
+        " reason) values (%s, %s, %s, %s, %s, %s, %s, 'form', %s, %s, %s, %s, %s, %s, %s) returning id",
+        (s["tenant"], uuid.uuid4(), s["activity"], child, s["class"], outcome, mode, expected, reached, at,
+         s["staff"], s["staff"], supersedes, supersedes and "misheard"),
     ).fetchone()["id"]  # fmt: skip
     if outcome in MOVE:
-        mark = MARK[min(3, max(0, expected + MOVE[outcome]))]
+        mark = MARK[reached]
         conn.execute(
             "insert into evidence_event (tenant_id, child_id, skill_code, channel, observed_at, confirmed_by, kind,"
             " mark, seen_by, place, source, observation_id)"
@@ -220,11 +221,11 @@ def test_written_evidence_is_read_exactly_as_before(conn, k2):
 
 def test_the_rule_is_rows_per_grade_and_way_of_entry(conn, k2):
     rule = conn.execute(
-        "select secure_mark, secure_days, recheck_days, min_adults from observed_rule"
+        "select secure_level, secure_days, recheck_days, min_adults from observed_rule"
         " where tenant_id = %s and grade_code = 'K2'",
         (k2["tenant"],),
     ).fetchone()
-    assert dict(rule) == {"secure_mark": "yes", "secure_days": 2, "recheck_days": 14, "min_adults": 1}
+    assert dict(rule) == {"secure_level": 3, "secure_days": 2, "recheck_days": 14, "min_adults": 1}
     weights = {
         r["entry_mode"]: (r["opens_secure"], r["rechecks"], r["lowers"])
         for r in conn.execute(
@@ -264,3 +265,31 @@ def test_two_named_marks_at_one_moment_give_the_lower_every_time(conn, k2):
     seen(conn, k2, child, 20, "above")
     seen(conn, k2, child, 20, "below")  # the same moment, a lower mark
     assert {state(conn, k2, child) for _ in range(3)} == {"practising"}
+
+
+def test_secure_reads_the_level_reached_and_never_moves_with_the_level_to_mark_setting(conn):
+    """A rule that silently moved with a config row would be a defect (rule 11): with level 2 marked yes, a child
+    named at level 2 on two days, 14 days apart, has a yes mark each time and is still not secure."""
+    from engine.w3_read import voice_confirm as vc
+    from tests.voice_rows import a_k2_class
+
+    k = a_k2_class(conn)
+    conn.execute(
+        "update config set value = %s where tenant_id = %s and key = 'voice.level_mark'",
+        ('{"0": "not_yet", "1": "not_yet", "2": "yes", "3": "yes"}', k["tenant"]),
+    )
+    for day in (dt.date(2026, 6, 1), dt.date(2026, 6, 15)):  # as expected at level 2: reached level 2
+        vc.save_form(conn, k["email"], k["class"], vc.Confirmed(k["activity"], 2, {"above": []}, True, day))
+    rest = k["children"]["5"]
+    assert {
+        e["mark"] for e in conn.execute("select mark from evidence_event where child_id = %s", (rest,))
+    } == {"yes"}
+    named = k["children"]["3"]
+    for day in (
+        dt.date(2026, 6, 1),
+        dt.date(2026, 6, 15),
+    ):  # named, as expected at level 2: marked yes, level 2
+        vc.save_form(
+            conn, k["email"], k["class"], vc.Confirmed(k["activity"], 3, {"below": ["3"]}, False, day)
+        )
+    assert {r["state"] for r in picture(conn, named)} == {"practising"}

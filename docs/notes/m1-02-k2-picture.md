@@ -31,7 +31,7 @@ W3, gate N10 (the skill graph). Design note, step 1; no code or schema yet (wait
 
 ## Rows, not code
 
-- `observed_rule` (school, grade): `secure_mark` yes, `secure_days` 2, `recheck_days` 14, `min_adults` 1. K2 row
+- `observed_rule` (school, grade): `secure_level` 3, `secure_days` 2, `recheck_days` 14, `min_adults` 1. K2 row
   only; another grade is an insert.
 - `observed_weight` (school, grade, kind, entry mode): `opens_secure`, `rechecks`, `lowers`. K2: individual
   true/true/true; group_as_expected false/true/false. The weight lives here, never on an evidence row.
@@ -47,20 +47,56 @@ the clock** (proposed by the orchestrator, unverified with the school): a fresh 
 before that, a lower mark changes only what is shown (yes, sometimes, yes stays on course, D-052). Built as a small
 state machine over each child-skill's marks in time order (building → secure, to re-check → secure; re-opened).
 **Ties:** two named marks at the same moment, the lower decides (and resets), so a rebuild never flips.
+**The level, not the mark** (after #362 stored `activity_observation.reached_level`; orchestrator, 4 Nov): the rule
+reads the level the educator's outcome showed, never works it back from a mark, so a change to `voice.level_mark`
+cannot move secure. The mark decides only emerging versus practising while a skill is building.
 
 ## Verified (a local database only; never live)
 
-- `tests/test_k2_picture.py` → 13 passed (the reset, a sometimes between, the tie: a test each; one through #362's
-  confirm step); with the graph, voice, register, privileges, rules, roles, vocabulary, loader suites → 86 passed.
+- On main (#362 squashed in) plus this branch, a fresh db from every migration and the seed:
+  `tests/test_k2_picture.py` → 14 passed; with the graph, voice, register, privileges, rules, roles, vocabulary and
+  loader suites → 92 passed. The level test failed first on the mark-reading rule ({'secure'} == {'practising'}).
 - Migration applied twice in a row: no error. `engine live rules --write --url <local>` → only the new tables' rules.
-- `engine past` on a fresh db (every migration but this one, seed, the 11 GR1 ledgers as written evidence), then this
-  migration and `engine graph`: before = after, evidence 154 / states 11 / scored 154, same checksums; no state or
-  next level moved.
+- `engine past`: a fresh db of main's migrations, the seed and the 11 GR1 ledgers as written evidence, then this
+  migration and `engine graph`: before = after, evidence 154 / states 11 / scored 154, same checksums; 0 moved.
 - Independent read (athena-verifier): no blocking finding; its tie-break and tenant-join points fixed and tested.
-- `bin/check` → 34 passed. `bin/engine done m1-02-k2-picture` → every sentence PROVED, every criterion PASSED,
-  "NOT DONE": not on main, live unreachable from here, two steps manual.
+- `bin/check` → 34 passed. `bin/engine done m1-02-k2-picture`, pasted:
+
+```
+Your words, and the test that proves each (run now, on the copy):
+  PROVED  "All parts should just function like a well-oiled machine, right?"
+            packages/engine/tests/test_k2_picture.py::test_secure_needs_level_3_named_on_two_days_and_a_yes_14_days_after_the_first  — 1 passed in 0.16s
+  PROVED  "All parts should just function like a well-oiled machine, right?"
+            packages/engine/tests/test_k2_picture.py::test_the_rest_did_as_expected_is_never_alone_secure  — 1 passed in 0.15s
+  PROVED  "All parts should just function like a well-oiled machine, right?"
+            packages/engine/tests/test_k2_picture.py::test_the_rest_did_as_expected_never_lowers_a_state  — 1 passed in 0.14s
+  PROVED  "All parts should just function like a well-oiled machine, right?"
+            packages/engine/tests/test_k2_picture.py::test_a_child_not_mentioned_is_not_observed_and_has_no_row  — 1 passed in 0.10s
+  PROVED  "All parts should just function like a well-oiled machine, right?"
+            packages/engine/tests/test_k2_picture.py::test_written_evidence_is_read_exactly_as_before  — 1 passed in 0.11s
+  PROVED  "All parts should just function like a well-oiled machine, right?"
+            packages/engine/tests/test_k2_picture.py::test_secure_reads_the_level_reached_and_never_moves_with_the_level_to_mark_setting  — 1 passed in 0.24s
+
+Its criteria (run now):
+  PASSED  the K2 rule, worked by hand, against a database built from the migrations
+            $ cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_picture.py  — 14 passed in 1.23s
+  PASSED  the written graph's own rule is unchanged
+            $ cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_graph_rule.py tests/test_graph.py  — 15 passed in 3.37s
+  PASSED  the code sits where the map says; every promise has its command; lint
+            $ bin/check  — 34 passed in 28.18s
+
+Still manual:
+  - The real proof: the first confirmed K2 notes, each child's state per skill worked out by hand from the notes and compared with the rebuild. Not claimed by this goal.
+  - Actions, rehearse update-live, on this branch: the migration runs on a copy of live; `engine past` prints the same evidence, states, scored answers, questions and levels before and after.
+
+Not live yet:
+  - this work is not on main yet, so the live website and engine do not have it
+  - the live database did not answer from here (ConnectionTimeout): its migrations are unchecked
+
+NOT DONE
+```
 
 ## Handoff
 
-- In flight: PR #364, based on #362's branch; retarget to main once #362 lands. Rehearsal (`rehearse update-live`)
-  only on a head containing #363 on main (orchestrator). Next: the real proof by hand on the first K2 notes.
+- In flight: PR #364; main merged locally, one push when the orchestrator says live has 20261227090000, then retarget
+  to main and the rehearsal (`rehearse update-live`). Next: the real proof by hand on the first K2 notes.

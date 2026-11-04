@@ -1,6 +1,6 @@
 -- A K2 child's picture per skill from confirmed voice notes (goals/m1-02-k2-picture.yaml, task M1-02; design in
 -- docs/notes/m1-02-k2-picture.md). The school's rule (D-008, D-051, D-052; the orchestrator's answers under D-047):
---   * a skill is secure only after the child is named (individual entry) at level 3 (mark `yes`) on two different school
+--   * a skill is secure only after the child is named (individual entry) at level 3 on two different school
 --     days, and a yes comes at least 14 days after the first of those; "the rest did as expected" at level 3 may be
 --     that re-check, never opens secure on its own and never moves a state down;
 --   * once a skill is secure (or secure, to re-check), a later named lower mark re-opens it and resets the clock: secure
@@ -23,16 +23,14 @@ create table if not exists observed_rule (
   id            uuid primary key default gen_random_uuid(),
   tenant_id     uuid not null references tenant(id) on delete cascade,
   grade_code    text not null,
-  scale         text not null default 'seen',
-  secure_mark   text not null,                                  -- the mark a named day must reach
-  secure_days   int not null check (secure_days > 0),           -- different school days named at that mark
+  secure_level  int not null check (secure_level between 0 and 3),  -- the level a named day must reach
+  secure_days   int not null check (secure_days > 0),           -- different school days named at that level
   recheck_days  int not null check (recheck_days >= 0),         -- a re-check at least this long after the first
   min_adults    int not null check (min_adults > 0),            -- different adults who named it
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now(),
   unique (tenant_id, grade_code),
-  foreign key (tenant_id, grade_code) references grade (tenant_id, code),
-  foreign key (tenant_id, scale, secure_mark) references evidence_mark (tenant_id, scale, code)
+  foreign key (tenant_id, grade_code) references grade (tenant_id, code)
 );
 
 create table if not exists observed_weight (
@@ -59,10 +57,10 @@ create table if not exists child_observed_state (
   skill_code       text not null,
   grade_code       text not null,
   state            text not null,
-  named_days       int not null,   -- school days named at the secure mark
-  adults           int not null,   -- adults who named it at the secure mark
+  named_days       int not null,   -- school days named at the secure level
+  adults           int not null,   -- adults who named it at the secure level
   first_named_yes  date,
-  rechecked_on     date,           -- the first day a re-check reached the mark, at least recheck_days after
+  rechecked_on     date,           -- the first day a re-check reached the level, at least recheck_days after
   last_seen        timestamptz not null,
   computed_at      timestamptz not null default now(),
   created_at       timestamptz not null default now(),
@@ -79,8 +77,8 @@ create index if not exists child_observed_state_child_idx on child_observed_stat
 create or replace function internal.observed_rules(p_tenant uuid) returns void
 language plpgsql security definer set search_path = public as $$
 begin
-  insert into observed_rule (tenant_id, grade_code, secure_mark, secure_days, recheck_days, min_adults)
-  values (p_tenant, 'K2', 'yes', 2, 14, 1)
+  insert into observed_rule (tenant_id, grade_code, secure_level, secure_days, recheck_days, min_adults)
+  values (p_tenant, 'K2', 3, 2, 14, 1)
   on conflict (tenant_id, grade_code) do nothing;
   insert into observed_weight (tenant_id, grade_code, kind, entry_mode, opens_secure, rechecks, lowers)
   values (p_tenant, 'K2', 'observed', 'individual', true, true, true),
@@ -105,9 +103,12 @@ select internal.observed_rules(id) from tenant;
 -- that names its observation, weighted by its grade's rows. Evidence of a corrected observation no longer counts; a
 -- school day is the date in `school.time_zone`; a grade with no rule rows gives no state.
 --
--- A small state machine over each child-skill's marks in time order (at one moment, the secure mark first and a lower
+-- The level is the one the educator's outcome showed (`activity_observation.reached_level`), read as stored, never
+-- worked back from a mark: the level-to-mark setting may change and the rule does not move with it. The mark decides
+-- only what a building skill shows (emerging when the latest named mark is not_yet), the word the educator sees.
+-- A small state machine over each child-skill's marks in time order (at one moment, the secure level first and a lower
 -- one after it, so the lower decides):
---   building          -> secure_to_recheck  named at the secure mark on secure_days different days, by min_adults
+--   building          -> secure_to_recheck  named at the secure level on secure_days different days, by min_adults
 --   secure_to_recheck -> secure             a yes that may re-check, recheck_days or more after the cycle's first
 --   secure_to_recheck or secure -> re-opened (shown practising) on a named lower mark: the cycle starts again, its
 --                     first yes, its days and its re-check counting only marks after that lower mark
@@ -132,7 +133,7 @@ begin
   for m in
     select e.tenant_id, e.child_id, e.skill_code, k.grade_code, e.mark, e.seen_by, e.observed_at,
            (e.observed_at at time zone coalesce(z.value #>> '{}', 'UTC'))::date as day,
-           w.opens_secure, w.rechecks, w.lowers, r.secure_mark, r.secure_days, r.recheck_days, r.min_adults,
+           w.opens_secure, w.rechecks, w.lowers, o.reached_level >= r.secure_level as reached, r.secure_days, r.recheck_days, r.min_adults,
            concat_ws('|', e.child_id, e.skill_code, k.grade_code) as unit
     from evidence_event e
     join activity_observation o on o.id = e.observation_id and o.tenant_id = e.tenant_id
@@ -141,10 +142,10 @@ begin
                           and w.entry_mode = o.entry_mode
     join observed_rule r on r.tenant_id = e.tenant_id and r.grade_code = k.grade_code
     left join config z on z.tenant_id = e.tenant_id and z.key = 'school.time_zone'
-    where e.confirmed_by is not null
+    where e.confirmed_by is not null and o.reached_level is not null
       and (p_child is null or e.child_id = p_child)
       and not exists (select 1 from activity_observation c where c.supersedes = o.id)
-    order by e.child_id, e.skill_code, k.grade_code, e.observed_at, e.mark <> r.secure_mark, e.id
+    order by e.child_id, e.skill_code, k.grade_code, e.observed_at, o.reached_level < r.secure_level, e.id
   loop
     if unit is distinct from m.unit then
       if unit is not null then
@@ -163,12 +164,12 @@ begin
     if m.lowers then
       named := true;
       latest := m.mark;
-      if m.mark <> m.secure_mark and phase in ('to_recheck', 'secure') then  -- re-opened: the clock starts again
+      if not m.reached and phase in ('to_recheck', 'secure') then  -- re-opened: the clock starts again
         phase := 'building'; reopened := true; yes_days := '{}'; who := '{}';
         goal.first_yes := null; goal.rechecked := null;
       end if;
     end if;
-    if m.mark = m.secure_mark then
+    if m.reached then
       if m.rechecks and goal.first_yes is not null and m.day >= goal.first_yes + m.recheck_days then
         goal.rechecked := coalesce(goal.rechecked, m.day);
       end if;
