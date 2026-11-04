@@ -15,6 +15,7 @@ export type EngineRoutes = {
   "GET /child/{child_id}/focus": null;
   "GET /child/{child_id}/focus/paper.pdf": null;
   "GET /child/{child_id}/parent-report": null;
+  "GET /curriculum/gold-sheet.csv": null;
   "GET /health": null;
   "GET /paper/{qr}/bank": null;
   "GET /paper/{qr}/review": null;
