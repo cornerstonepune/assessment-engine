@@ -577,6 +577,24 @@
    "value": 5,
    "unit": "count",
    "description": "How many already-mapped activities, nearest by their words, the proposer sees beside an activity (goals/m1-05-mapping-agents.yaml)"
+  },
+  {
+   "key": "k2.batch_pages",
+   "value": 4,
+   "unit": "count",
+   "description": "Pages drafted or checked in one model call (M1-11). One bad page in a reply is retried alone, so a larger batch only changes how much of the instructions is paid for twice."
+  },
+  {
+   "key": "k2.batch_materials",
+   "value": 10,
+   "unit": "count",
+   "description": "Materials texts split in one model call (M1-11)."
+  },
+  {
+   "key": "k2.batch_rounds",
+   "value": 2,
+   "unit": "count",
+   "description": "How many more times a page still bad or missing is asked for before it is left for a person (M1-11)."
   }
  ]
 }

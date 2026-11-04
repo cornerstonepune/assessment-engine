@@ -67,7 +67,7 @@ def active_prompt(conn, purpose, subject=None, version=None):
     return row
 
 
-def generate(conn, purpose, variables, images=(), subject=None, meta=None, version=None):
+def generate(conn, purpose, variables, images=(), subject=None, meta=None, version=None, stage=None):
     """Refuses before spending anything once the tenant's spend today reaches the
     `llm.daily_budget_inr` threshold row — no flow_run is written for a refusal, because no call
     was made. `meta`, if a dict is passed, is filled with prompt_id, model and flow_run_id so a
@@ -93,7 +93,7 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
             )
 
     try:
-        llm_budget.check(conn, db.tenant_slug(), purpose)
+        llm_budget.check(conn, db.tenant_slug(), purpose, stage)
     except llm_budget.Refused as e:
         raise LLMError(str(e)) from e
     row = active_prompt(conn, purpose, subject, version)
@@ -102,7 +102,7 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
     run = conn.execute(
         "insert into flow_run (tenant_id, flow, trigger) select id, %s, %s from tenant where slug = %s"
         " returning id",
-        (purpose, "engine", db.tenant_slug()),
+        (purpose, f"engine:{stage}" if stage else "engine", db.tenant_slug()),
     ).fetchone()["id"]
 
     text = _fill(row["text"], variables)

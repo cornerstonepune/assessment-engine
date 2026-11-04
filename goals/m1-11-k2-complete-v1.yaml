@@ -28,7 +28,7 @@ says:
   - words: "REUSE that machinery; do not build a second one"
     proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_proposal_ledger_takes_a_page_part_and_a_material_and_still_refuses_anything_else"
   - words: "prompts are rows per rule 2 and each gets an eval per rule 7"
-    proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_three_prompts_are_rows_with_a_schema_and_none_is_active_before_its_eval"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_k2_prompts_are_rows_with_a_schema_and_none_is_active_before_its_eval"
   - words: "add a HARD STOP in code: a spend ledger (running total from the token counts in each response times config.llm.prices) that refuses further calls at 25 US dollars minus a safety margin and records every call"
     proved_by: "packages/engine/tests/test_llm_budget.py::test_a_call_is_refused_before_it_is_made_once_the_total_reaches_the_cap_less_the_margin"
   - words: "add a HARD STOP in code: a spend ledger (running total from the token counts in each response times config.llm.prices) that refuses further calls at 25 US dollars minus a safety margin and records every call"
@@ -37,6 +37,18 @@ says:
     proved_by: "packages/engine/tests/test_k2_gaps.py::test_an_upload_never_writes_over_steps_a_person_edited_and_never_empties_a_filled_cell"
   - words: "materials are class-level or school-level, items above a rupee threshold are tracked, so your catalogue item needs a 'home' (class or school) and a unit rate/value field that may be empty (never invent a price)"
     proved_by: "packages/engine/tests/test_k2_gaps.py::test_an_item_has_a_home_and_a_value_that_stay_empty_until_a_person_says_and_are_never_made_up"
+  - words: "Make failure per ITEM: validate every item of a reply separately, accept the good ones, retry only the bad ones (a bad reply must not cost 4 pages)"
+    proved_by: "packages/engine/tests/test_k2_batch.py::test_only_the_bad_and_missing_pages_go_round_again_and_a_good_page_is_never_asked_twice"
+  - words: "Make failure per ITEM: validate every item of a reply separately, accept the good ones, retry only the bad ones (a bad reply must not cost 4 pages)"
+    proved_by: "packages/engine/tests/test_k2_batch.py::test_a_page_with_a_part_left_empty_or_missing_is_bad_and_says_which"
+  - words: "keep the schema versioned (new prompt version rows, inactive until their eval meets the bar; rules 2 and 7)"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_version_two_of_each_asks_for_several_pages_a_call_and_only_its_key_is_demanded_by_the_schema"
+  - words: "curriculum_map_validate v2 on Haiku 4.5 as a NEW version row, inactive ... Do not touch v1"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_mapping_validator_gets_a_new_version_on_haiku_and_version_one_is_left_as_it_was"
+  - words: "Raise the held-out stage cap to 7 USD; the overall campaign cap stays 25 with the 2 USD margin (stop at 23)"
+    proved_by: "packages/engine/tests/test_llm_budget.py::test_a_stage_stops_at_its_own_cap_less_its_margin_while_the_other_stages_go_on"
+  - words: "Raise the held-out stage cap to 7 USD; the overall campaign cap stays 25 with the 2 USD margin (stop at 23)"
+    proved_by: "packages/engine/tests/test_llm_budget.py::test_the_seeded_stages_are_three_dollars_for_the_dev_eval_and_seven_for_the_held_out_score"
 manual:
   - "The eval of the three prompts is not written and not run: no model key in the build container, and money is Nimish's call (D-047). Each prompt row stays inactive (rule 7) until `engine eval` scores it against a bar set before the run, on the 100 dev pages first."
   - "The upload with the lesson plan loaded as steps has not been run on the real tab or on a copy of live: `bin/engine curriculum k2 <csv>` (a dry run) prints the gaps in the sheet and in the database; the migration 20261231090000 has not run on a copy of live (rehearse update-live)."
@@ -49,6 +61,9 @@ criteria:
     expect: "passed"
   - name: the spend cap refuses a call before it is made, counts a paid reply that failed its schema, and stops on a spend it cannot see
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_llm_budget.py tests/test_llm.py
+    expect: "passed"
+  - name: a batch of pages is judged item by item (pure, no model)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_batch.py
     expect: "passed"
   - name: the existing upload still behaves as M0-02 proved
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_upload.py

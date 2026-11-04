@@ -25,10 +25,34 @@ def purposes(conn) -> list[str]:
     return sorted({p for c in campaigns(conn).values() for p in c["purposes"]})
 
 
-def check(conn, tenant_slug: str, purpose: str) -> None:
+def check(conn, tenant_slug: str, purpose: str, stage: str | None = None) -> None:
     for name, c in campaigns(conn).items():
         if purpose in c["purposes"]:
             _check_one(conn, tenant_slug, name, c)
+            if stage:
+                _check_stage(conn, tenant_slug, name, c, stage)
+
+
+def _check_stage(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None:
+    """A stage (dev eval, held-out score, the drafting) is one share of the campaign's money, tagged on each flow_run."""
+    stages = c.get("stages") or {}
+    if stage not in stages:
+        raise Refused(
+            f"campaign {name} has no stage called {stage} (its stages: {', '.join(stages) or 'none'})"
+        )
+    if stages[stage] is None:
+        return  # no cap of its own: the campaign's holds
+    spent = conn.execute(
+        "select coalesce(sum(f.cost_inr), 0) as spent from flow_run f join tenant t on t.id = f.tenant_id"
+        " where t.slug = %s and f.flow = any(%s) and f.trigger = %s",
+        (tenant_slug, c["purposes"], f"engine:{stage}"),
+    ).fetchone()["spent"]
+    spent_usd, limit_usd = float(spent) / c["inr_per_usd"], stages[stage] - c.get("stage_margin_usd", 0)
+    if spent_usd >= limit_usd:
+        raise Refused(
+            f"campaign {name} stage {stage} stopped: ${spent_usd:.2f} spent, at its limit of ${limit_usd:.2f}"
+            f" (stage cap ${stages[stage]})"
+        )
 
 
 def _check_one(conn, tenant_slug: str, name: str, c: dict) -> None:

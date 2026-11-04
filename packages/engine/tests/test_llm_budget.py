@@ -192,3 +192,59 @@ def test_the_campaigns_money_does_not_use_up_the_days_budget_of_every_other_prom
         version=1,
     )
     assert calls == [1], "the day's total for other prompts is still under its ₹150"
+
+
+STAGED = {**CAMPAIGN, "stages": {"dev_eval": 3, "held_out": 7, "draft": None}, "stage_margin_usd": 0.25}
+
+
+def staged(conn):
+    conn.execute(
+        "update config set value = %s where tenant_id = %s and key = 'llm.campaigns'",
+        (json.dumps({"m1-11": STAGED}), conn.tenant),
+    )
+
+
+def spend_in(conn, inr, stage):
+    conn.execute(
+        "insert into flow_run (tenant_id, flow, trigger, status, cost_inr) values (%s,%s,%s,'ok',%s)",
+        (conn.tenant, DRAFT, f"engine:{stage}", inr),
+    )
+
+
+def test_a_stage_stops_at_its_own_cap_less_its_margin_while_the_other_stages_go_on(conn, monkeypatch):
+    staged(conn)
+    calls: list = []
+    answering(monkeypatch, calls)
+    spend_in(conn, (3 - 0.25) * RATE, "dev_eval")  # $2.75: the dev stage is at its limit
+    with pytest.raises(llm.LLMError, match=r"stage dev_eval.*\$2\.75"):
+        llm.generate(conn, DRAFT, VARS, version=1, stage="dev_eval")
+    assert calls == []
+    assert llm.generate(conn, DRAFT, VARS, version=1, stage="held_out") == DRAFTED
+    assert llm.generate(conn, DRAFT, VARS, version=1, stage="draft") == DRAFTED, (
+        "a stage with no cap has the campaign's"
+    )
+
+
+def test_every_stage_counts_toward_the_whole_campaigns_cap(conn, monkeypatch):
+    staged(conn)
+    answering(monkeypatch, [])
+    spend_in(conn, LIMIT_INR, "draft")
+    with pytest.raises(llm.LLMError, match="campaign m1-11 stopped"):
+        llm.generate(conn, DRAFT, VARS, version=1, stage="held_out")
+
+
+def test_a_stage_the_campaign_does_not_name_is_refused_so_a_typo_cannot_spend_unwatched(conn, monkeypatch):
+    staged(conn)
+    answering(monkeypatch, [])
+    with pytest.raises(llm.LLMError, match="no stage called dev_evl"):
+        llm.generate(conn, DRAFT, VARS, version=1, stage="dev_evl")
+
+
+def test_the_seeded_stages_are_three_dollars_for_the_dev_eval_and_seven_for_the_held_out_score():
+    seeded = next(
+        c
+        for c in json.loads((db.REPO_ROOT / "supabase" / "seed" / "config.json").read_text())["config"]
+        if c["key"] == "llm.campaigns"
+    )["value"]["m1-11"]
+    assert seeded["stages"] == {"dev_eval": 3, "held_out": 7, "draft": None}
+    assert 3 + 7 + 2 < seeded["cap_usd"], "the drafting stage keeps the rest"

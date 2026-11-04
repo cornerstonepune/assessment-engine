@@ -253,23 +253,59 @@ def test_the_proposal_ledger_takes_a_page_part_and_a_material_and_still_refuses_
     conn.rollback()
 
 
-def test_the_three_prompts_are_rows_with_a_schema_and_none_is_active_before_its_eval():
+def test_the_k2_prompts_are_rows_with_a_schema_and_none_is_active_before_its_eval():
     rows = {
-        p["purpose"]: p
+        (p["purpose"], p["version"]): p
         for p in json.loads((SEED / "prompts.json").read_text())["prompts"]
         if p["purpose"].startswith("k2_")
     }
-    assert set(rows) == {"k2_page_draft", "k2_page_validate", "k2_materials_split"}
+    assert {k[0] for k in rows} == {"k2_page_draft", "k2_page_validate", "k2_materials_split"}
     assert all(p["active"] is False and p["json_schema"] for p in rows.values()), (
         "rule 7: not active before an eval"
     )
-    assert rows["k2_page_draft"]["model"] != rows["k2_page_validate"]["model"], (
-        "the validator is another model"
-    )
+    for version in (1, 2):
+        draft, check = rows["k2_page_draft", version], rows["k2_page_validate", version]
+        assert draft["model"] != check["model"], "the validator is another model"
     for p in rows.values():
         text = (SEED / p["text_file"]).read_text()
         assert "teacher" not in text.lower() and "borrow" not in text.lower(), "the school's words"
         assert "{{" in text, "the activity's own words go in as data"
+
+
+def test_version_two_of_each_asks_for_several_pages_a_call_and_only_its_key_is_demanded_by_the_schema():
+    """The schema asks for a list and a key; whether each page is complete is judged page by page by code
+    (k2_batch), so a page missing a part does not make the whole reply fail and cost the others."""
+    rows = {
+        p["purpose"]: p
+        for p in json.loads((SEED / "prompts.json").read_text())["prompts"]
+        if p["version"] == 2
+    }
+    lists = {"k2_page_draft": "pages", "k2_page_validate": "verdicts", "k2_materials_split": "lists"}
+    for purpose, name in lists.items():
+        item = rows[purpose]["json_schema"]["properties"][name]["items"]
+        assert (
+            "key" in item["required"]
+            and "{{" + ("lists" if name == "lists" else "pages") + "}}"
+            in (SEED / rows[purpose]["text_file"]).read_text()
+        )
+    assert rows["k2_page_draft"]["json_schema"]["properties"]["pages"]["items"]["required"] == ["key"]
+
+
+def test_the_mapping_validator_gets_a_new_version_on_haiku_and_version_one_is_left_as_it_was():
+    rows = {
+        p["version"]: p
+        for p in json.loads((SEED / "prompts.json").read_text())["prompts"]
+        if p["purpose"] == "curriculum_map_validate"
+    }
+    assert rows[1]["model"] == "claude-opus-5-5" and rows[1]["effort"] == "low" and rows[1]["active"] is False
+    assert rows[2]["model"] == "claude-haiku-4-5" and rows[2]["active"] is False and "effort" not in rows[2]
+    assert rows[2]["json_schema"] == rows[1]["json_schema"]
+    assert (SEED / rows[2]["text_file"]).read_text() == (SEED / rows[1]["text_file"]).read_text()
+
+
+def test_the_batch_sizes_and_rounds_are_threshold_rows_not_numbers_in_code():
+    got = {t["key"]: t["value"] for t in json.loads((SEED / "thresholds.json").read_text())["thresholds"]}
+    assert (got["k2.batch_pages"], got["k2.batch_materials"], got["k2.batch_rounds"]) == (4, 10, 2)
 
 
 @needs_db

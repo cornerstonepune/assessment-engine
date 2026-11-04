@@ -29,8 +29,9 @@ Question for the coordinator: sheet columns W–Z ("L0..L3", headed "Name") and 
   and none overlaps ("Number names 11-20" vs "numbers from 6-10"). Flagged to a person; nothing is changed. Other kinds of
   disagreement need a reader's judgement: a model's question later, never auto-applied.
 - `k2_upload.py`: column J → `steps` (config `k2_sheet.json`), `mark_school`, the gap report in the command's output. 358 lines.
-- Prompt rows, all `active: false` (rule 7): `k2_page_draft` v1 (Sonnet 5.5), `k2_page_validate` v1 (Opus 5.5, low; another
-  model, never sees the drafter's reason), `k2_materials_split` v1 (Haiku 4.5; a quantity the text lacks is null, never guessed).
+- Prompt rows, all `active: false` (rule 7): v1 one page a call, v2 batched (the ones to use): `k2_page_draft` (Sonnet 5.5),
+  `k2_page_validate` (v1 Opus, v2 Haiku 4.5; another model, never sees the drafter's reason), `k2_materials_split` (Haiku 4.5; a
+  quantity the text lacks is null, never guessed; a name must be in the school's text).
 - Not built: the eval and bars for these prompts, the draft/apply commands, the "drafted" chip and keep/change/reject screens,
   planner lines with no activity (the planner tab is not read). Each needs a go; model runs need Nimish's cost approval.
 
@@ -45,15 +46,18 @@ Prices per million tokens in/out: Sonnet 5.5 $2/$10, Haiku 4.5 $1/$5, Opus 5.5 $
 | Check the drafts (Haiku) | $3.9 | $2.1 |
 | Split the materials (Haiku) | $2.4 | $1.7 |
 | **Total** | **~$29.5, over** | **~$21.4, under** |
-So: batching is needed; the rows now ask for one activity a call and must change before the first dev eval. The held-out
-mapping score alone (~$6.0) is above the $5 stage cap on these assumptions. M1-05's validator row is Opus 5.5: with it the
-held-out score costs ~$9.8, so it must become Haiku 4.5 (a new version row, rule 2). Prompt caching might cut input cost; not counted.
-Hard stop: `llm.campaigns` (cap $25, margin $2, so calls stop at $23 spent) over the five prompts above, in `adapters/llm_budget.py`.
+**The plan is the batched column** (orchestrator, 4 Nov: batch now, 4 pages a call, 10 for materials; rows `k2.batch_*`). Forecast per
+stage against its cap (stop at cap less margin): dev eval = map dev $1.4 + page-draft dev $1.2 = $2.6 against $3 (limit $2.75, THIN
+on assumed tokens); held-out score $6.0 against $7; drafting + checks + materials $12.8 against the rest; total $21.4 against the
+stop at $23. M1-05's Opus validator is left alone (v1); `curriculum_map_validate` v2 on Haiku 4.5 is a new inactive row whose
+eval on the 100 dev rows decides whether it may be used; if it misses the D-063 bars: stop and report, not Opus without Nimish.
+Hard stop: `llm.campaigns` (cap $25, margin $2, stages dev_eval 3 / held_out 7 / draft: the campaign's), `adapters/llm_budget.py`.
+Batching: `w1_bank/k2_batch.py` judges each page of a reply alone, keeps the good, asks again only for the bad (rounds = 2).
 
 ## Verified
 - `pytest -q tests/test_llm_budget.py tests/test_llm.py tests/test_k2_gaps.py tests/test_bars.py tests/test_loaders.py` → 64 passed (budget tests written first: 9 failed before the code).
 - Affected files one by one (bars, eval_command, llm, school_words, settings, map_*, jev, layout, loaders) → all passed.
-- `bin/check` → 34 passed. The 14 affected files in ONE pytest process (foreground) → 134 passed; the earlier silent stop was a background run, most likely ended by the harness (inferred, not proved).
+- `pytest tests/test_k2_batch.py` → 11 passed (written before the module; I did not run them failing). Stage-cap tests: 4 failed before the code, now pass. `bin/check` → 34 passed (after fixing a pyright error and a renamed test in the goal). The 14 affected files in ONE pytest process (foreground) → 134 passed; the earlier silent stop was a background run, most likely ended by the harness (inferred, not proved).
 - `engine live rules` needs `--url`; without it it looked for the live database (that was the silence). With `--url` it lists 23
   rules of my new tables not yet in rules.json: to regenerate after #374 merges. NOT done: the 12-shard suite (waits for #374 and
   the renumber), a run on the real tab or on a copy of live.
