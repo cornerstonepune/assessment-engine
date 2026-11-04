@@ -117,13 +117,13 @@
     },
     {
       "code": "N10", "workflow": "W3", "name": "Evidence and the skill graph",
-      "does": "A signed-off answer becomes evidence for every skill it used, and each child's graph is rebuilt in six states.",
+      "does": "A signed-off answer becomes evidence for every skill it used, and each child's graph is rebuilt in six states. A link saying one skill comes before another is proposed from a person's list and read only once a member of staff has confirmed it (M1-15).",
       "who": "code (in the database)",
       "built": "live",
       "takes": ["item_result"],
       "gives": ["evidence_event", "child_skill_state"],
-      "files": ["engine/w3_read/gold.py", "engine/w3_read/cli_gold.py"],
-      "commands": ["engine graph", "engine gold check"],
+      "files": ["engine/w3_read/gold.py", "engine/w3_read/cli_gold.py", "engine/w3_read/skill_links.py", "engine/w3_read/cli_skill_links.py"],
+      "commands": ["engine graph", "engine gold check", "engine skill-links load", "engine skill-links confirm"],
       "screens": ["/growth", "/growth/class/[section]", "/growth/[id]"],
       "subject": {"any": true, "note": "Any subject: evidence and the six states read skill codes, not maths. The rule runs in the database (confirm_results, rebuild_child_skill_state)."}
     },

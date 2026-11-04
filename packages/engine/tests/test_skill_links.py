@@ -123,7 +123,8 @@ def test_every_code_a_skill_names_is_a_key_the_database_checks(conn):
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
     assert _refused(
         conn,
-        "insert into skill_prerequisite (tenant_id, skill_code, before_code) values (%s, 'MUL.FACTS', 'NOT.A.SKILL')",
+        "insert into skill_prerequisite (tenant_id, skill_code, before_code, reason, source)"
+        " values (%s, 'MUL.FACTS', 'NOT.A.SKILL', 'a test', 'a test')",
         (tenant,),
     )
     assert _refused(
@@ -222,7 +223,10 @@ def test_prerequisites_come_from_the_ladders_grades_and_no_skill_comes_before_it
     assert rows == expected and len(rows) == 167
     assert ("MUL.FACTS", "MUL.GROUPS") in rows and ("ADD.2D1D", "ADD.1D1D") in rows
     tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
-    add = "insert into skill_prerequisite (tenant_id, skill_code, before_code) values (%s, %s, %s)"
+    add = (
+        "insert into skill_prerequisite (tenant_id, skill_code, before_code, reason, source)"
+        " values (%s, %s, %s, 'a test', 'a test')"
+    )
     assert _refused(conn, add, (tenant, "MUL.FACTS", "MUL.FACTS"))
     assert _refused(
         conn, add, (tenant, "MUL.GROUPS", "MUL.FACTS")
@@ -274,7 +278,8 @@ def test_a_new_sample_mistake_or_link_is_an_insert(conn):
         "select 1 from skill_prerequisite where skill_code = 'MUL.FACTS' and before_code = 'MUL.GROUPS'"
     ).fetchone()
     conn.execute(
-        "insert into skill_prerequisite (tenant_id, skill_code, before_code) values (%s, 'MUL.FACTS', 'MUL.GROUPS')",
+        "insert into skill_prerequisite (tenant_id, skill_code, before_code, reason, source)"
+        " values (%s, 'MUL.FACTS', 'MUL.GROUPS', 'a test', 'a test')",
         (tenant,),
     )
 
