@@ -98,6 +98,9 @@ test("the board's rules: a stranger, a child in two lists, no activity, a future
   expect(paint(paint(w, "4", "above"), "4", "above").marks["4"]).toEqual(["above"]); // off, then on again
   expect(findActivities(acts, "907").map((a) => a.code)).toEqual(["A907"]);
   expect(findActivities(acts, "sort").map((a) => a.code)).toEqual(["A904"]);
+  const none: Activity = { code: "A000", no: "", name: "Placeholder unnumbered" };
+  expect(findActivities([...acts, none], "unnumbered").map((a) => a.code)).toEqual(["A000"]); // by its name, never lost
+  expect(findActivities([...acts, none], "9").map((a) => a.code)).toEqual(["A904", "A907"]); // a number never matches it
   // heard at 03:54 in Pune on 4 Nov (22:24 UTC on 3 Nov), about 3 Nov: a day late, by the school's clock
   expect(daysLate("2026-11-03", "2026-11-03T22:24:00Z", "Asia/Kolkata")).toBe(1);
   expect(daysLate("2026-11-04", "2026-11-03T22:24:00Z", "Asia/Kolkata")).toBe(0);
@@ -224,6 +227,23 @@ test("with recording off, the K2 educator fills the form: no Record, no micropho
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Confirm this note");
   await expect(page.locator("main audio")).toHaveCount(0);
   expect((await page.request.get(`/api/voice/${note}`)).status()).toBe(404);
+});
+
+test("an activity the K2 sheet left without a number is found by its name and saved", async ({ page }) => {
+  const since = new Date();
+  await page.goto(`/voice/form?class=${klass}`);
+  await page.locator("[data-activity-search]").fill("unnumbered");
+  await page.getByRole("button", { name: "Placeholder unnumbered activity", exact: true }).click();
+  await expect(page.locator("[data-activity]")).toHaveAttribute("data-activity", "ACT-K2-M104-NONE");
+  await page.getByRole("group", { name: "Level expected" }).getByRole("button", { name: "2" }).click();
+  await page.locator("[data-mark-pick=above]").click();
+  await page.locator("[data-roll='2']").click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page).toHaveURL(/\/today\?open=notes/);
+  const [{ n }] = await sql<{ n: number }[]>`
+    select count(*)::int as n from activity_observation where class_id = ${klass} and route = 'form'
+      and activity_code = 'ACT-K2-M104-NONE' and stored_at >= ${since}`;
+  expect(n).toBe(1);
 });
 
 test("a note that could not be read, or where nothing was heard, sends her to the form", async ({ page }) => {

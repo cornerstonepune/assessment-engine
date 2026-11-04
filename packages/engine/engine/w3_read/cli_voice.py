@@ -1,5 +1,6 @@
-"""`engine read voice expire`, `retention`, `check` and `replay` (task M1-01): the two jobs a K2 voice note needs on a
-clock, the reader's score against what was said, and a typed transcript read with no recording.
+"""`engine read voice expire`, `retention`, `check`, `replay` and `switch` (tasks M1-01, M1-04): the two jobs a K2 voice
+note needs on a clock, the reader's score against what was said, a typed transcript read with no recording, and the
+two switches turned by a signed command (`voice_switch.py`).
 
 `expire` leaves every note older than `voice.confirm_within_hours` (48) unconfirmed: it leaves her queue and never
 becomes evidence. `retention` deletes recordings older than `voice.audio_retention_days`; that is O-14, open, and null
@@ -12,7 +13,7 @@ from pathlib import Path
 import typer
 
 from engine.core import db
-from engine.w3_read import voice_check, voice_intake, voice_store
+from engine.w3_read import voice_check, voice_intake, voice_store, voice_switch
 
 voice_app = typer.Typer(help="K2 voice notes", no_args_is_help=True)
 
@@ -55,3 +56,28 @@ def replay(
         for line in voice_check.replay_lines(voice_check.replay(conn, class_id, transcript.read_text())):
             typer.echo(line)
         conn.rollback()
+
+
+@voice_app.command("switch")
+def switch(
+    which: str = typer.Argument(
+        ..., help="screens (What needs doing, the form, Confirm) or recording (record and play)"
+    ),
+    state: str = typer.Argument(..., help="on or off"),
+    by: str = typer.Option(..., "--by", help="your email, the one you sign in with; your staff id is logged"),
+    retention_ref: str = typer.Option(
+        None,
+        "--retention-ref",
+        help="recording on only: the reference of Sarvam's written 'No retention' (D-065)",
+    ),
+) -> None:
+    """Turn a K2 voice switch on or off, logged under your staff id. Recording needs --retention-ref to go on."""
+    if state not in ("on", "off"):
+        raise typer.BadParameter("say on or off")
+    with db.connect() as conn:
+        try:
+            typer.echo(voice_switch.switch(conn, which, state == "on", by, retention_ref))
+        except ValueError as e:
+            conn.rollback()
+            typer.echo(str(e), err=True)
+            raise typer.Exit(1) from e

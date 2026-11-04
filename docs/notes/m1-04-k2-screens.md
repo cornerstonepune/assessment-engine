@@ -68,6 +68,18 @@ icon dependency; before it, every icon was drawn by hand. One icon per concept, 
 - Browser, the parts touched: the K2 spec, u51, u64, u62, u53, u65, u1, u15, u33, s41, u71 → 70 passed. `bin/check` → 34
   passed. tsc and eslint clean.
 
+## The switches by command, and every activity in the picker (branch m1-04c-voice-switch-command)
+
+- `bin/engine read voice switch screens on --by <your email>` (and `off`; and `recording on|off`). Each turn writes
+  the config row and an `access_log` line under the signer's staff id (`core/signer.py`, as a people load is signed);
+  nothing prints an email. `recording on` is refused without `--retention-ref "<reference of Sarvam's written No
+  retention>"` (D-065), and the reference is kept in the log. No raw SQL on live; no migration.
+- The form's activity picker held only activities with a number; the K2 sheet leaves 321 of live's 871 without one
+  (orchestrator, checked on live, 4 Nov). It now holds every activity of the grade, numbered ones first; one with no
+  number is found by a word of its name and shown by its name alone.
+- Tests first, each failing before the code: `tests/test_voice_switch.py` (4) and the browser test "an activity the
+  K2 sheet left without a number is found by its name and saved".
+
 ## Not verified / open
 
 - On a real phone: the browser test fakes the microphone; a real phone is the educator's week-1 test (D-064). Android Chrome records webm, iPhone Safari mp4; both are
