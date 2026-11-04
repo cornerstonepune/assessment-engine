@@ -1,0 +1,169 @@
+"""A dev-set run can be read back from the replies flow_run kept (goals/m1-11d-map-replay.yaml).
+
+2026-11-04: map_dev scored 0.857 right and 0.28 passing on their own, and the replies that explain why were in the
+live database with no way to read them. The proposer is deterministic given its replies, so asking again from the rows
+rebuilds every decision. Nothing here calls a model.
+"""
+
+import json
+import os
+from datetime import UTC, datetime, timedelta
+
+import pytest
+from psycopg.types.json import Json
+
+from engine.adapters import llm
+from engine.w1_bank import map_replay as mr
+from engine.w1_bank.map_agents import PROPOSE, VALIDATE, Proposal
+
+T0 = datetime(2026, 11, 4, 16, 0, tzinfo=UTC)
+
+
+def call(minute, purpose=PROPOSE, about="A", outcome="accepted", reply=None, reason=""):
+    return (T0 + timedelta(minutes=minute), purpose, about, outcome, reply or {"ok": 1}, reason)
+
+
+def test_the_latest_run_is_what_follows_the_last_long_pause():
+    calls = [call(0), call(1), call(60), call(61), call(62)]
+    assert [c[0] for c in mr.last_run(calls, 10)] == [T0 + timedelta(minutes=m) for m in (60, 61, 62)]
+    assert len(mr.last_run(calls, 100)) == 5 and mr.last_run([], 10) == []
+
+
+def test_replies_come_back_in_the_order_they_were_paid_for_each_prompt_apart():
+    ask, left = mr.replaying(
+        [
+            call(0, PROPOSE, "A", reply={"n": 1}),
+            call(1, VALIDATE, "A", reply={"v": 1}),
+            call(2, PROPOSE, "B", reply={"n": 2}),
+        ]
+    )
+    assert ask(PROPOSE, "A", {}) == {"n": 1} and ask(VALIDATE, "A", {}) == {"v": 1}
+    assert ask(PROPOSE, "B", {}) == {"n": 2}
+    assert not any(left.values()), "every stored reply was read"
+
+
+def test_a_refused_reply_is_refused_again_with_the_reason_it_had():
+    ask, _ = mr.replaying([call(0, outcome="refused", reason="'confidence_note' was unexpected")])
+    with pytest.raises(llm.LLMSchemaError, match="confidence_note"):
+        ask(PROPOSE, "A", {})
+
+
+def test_a_reply_for_another_activity_or_none_left_is_not_the_same_run():
+    ask, _ = mr.replaying([call(0, about="A")])
+    with pytest.raises(llm.LLMError, match="not the same run"):
+        ask(PROPOSE, "B", {})
+    ask, _ = mr.replaying([])
+    with pytest.raises(llm.LLMError, match="no more"):
+        ask(VALIDATE, "A", {})
+    ask, _ = mr.replaying([call(0, about="")])  # a row from before the activity was kept: nothing to check
+    assert ask(PROPOSE, "ANY", {}) == {"ok": 1}
+
+
+def test_a_wrong_proposal_says_how_it_is_wrong():
+    gold = frozenset({"NUM.CNT.01", "NUM.CNT.02"})
+    assert mr.wrong_how(frozenset({"NUM.CNT.01", "NUM.OPS.01"}), gold) == "adds a skill people did not link"
+    assert mr.wrong_how(frozenset({"NUM.CNT.09"}), gold) == "a neighbouring skill of the same family"
+    assert mr.wrong_how(frozenset({"GEO.SHP.01"}), gold) == "a skill of another family"
+    assert mr.wrong_how(frozenset(), gold) == "no skill proposed"
+
+
+def prop(code, skills, status, confidence=0.9, verdict="agree", reason="", problems=None):
+    return Proposal(
+        "skill",
+        code,
+        {"skills": skills},
+        confidence,
+        PROPOSE,
+        VALIDATE,
+        problems or [],
+        verdict,
+        status,
+        reason,
+    )
+
+
+def test_each_proposal_is_set_against_what_people_linked_and_the_held_back_are_counted_by_cause():
+    gold = {c: frozenset({"NUM.CNT.01"}) for c in "ABCDEF"}
+    made = [
+        prop("A", ["NUM.CNT.01"], "auto_passed"),
+        prop("B", ["NUM.CNT.01", "NUM.OPS.01"], "auto_passed"),
+        prop("C", ["NUM.CNT.01"], "needs_person", verdict="disagree", reason="not this skill"),
+        prop("D", ["NUM.CNT.01"], "needs_person", confidence=0.6),
+        prop("E", ["NUM.CNT.01"], "needs_person", reason="audit sample"),
+        prop("F", ["GEO.SHP.01"], "needs_person", verdict="disagree"),
+    ]
+    got = mr.explain(made, gold, 0.8)
+    assert got["passed_wrong"] == {"adds a skill people did not link": 1}
+    assert got["held_back"] == {
+        "the checker disagreed, would have been right": 1,
+        "the checker disagreed, would not have been": 1,
+        "confidence under the bar, would have been right": 1,
+        "audit sample, would have been right": 1,
+    }
+    assert [r["cause"] for r in got["rows"]][:2] == ["right", "adds a skill people did not link"]
+
+
+needs_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
+
+
+@needs_db
+def test_a_paid_reply_kept_by_the_adapter_reads_back_as_a_stored_call(monkeypatch):
+    from engine.adapters import llm_budget
+    from engine.core import db
+
+    monkeypatch.setattr(llm.db, "env", lambda name: "k")
+    said = {"skills": ["NUM.CNT.01"], "extra": 1}
+    monkeypatch.setattr(llm, "_dispatch", lambda *a, **k: (said, "claude-sonnet-5-5", 30, 20, 10))
+    with db.connect() as conn:
+        with pytest.raises(llm.LLMSchemaError):
+            llm.generate(conn, PROPOSE, {}, version=2, stage="dev_eval", about="ACT-X-1")
+        got = [c for c in mr.stored(conn) if c[2] == "ACT-X-1"]
+        conn.rollback()
+    assert len(got) == 1 and got[0][1] == PROPOSE and got[0][3] == "refused" and got[0][4] == said
+    assert "failed its schema" in got[0][5]
+    assert llm_budget.trigger_for("dev_eval") == "engine:dev_eval"
+
+
+@needs_db
+def test_a_run_rebuilt_from_its_stored_replies_scores_what_the_run_scored(monkeypatch):
+    """Capture every call of a scripted dev-set run, store them as flow_run rows, read them back: the same score."""
+    from engine.core import db
+    from engine.w1_bank import cli_map
+    from tests.test_map_ledger import RULES, _band  # noqa: F401
+
+    said = {
+        "skills": ["NUM.CNT.01"],
+        "objective_code": "",
+        "objective_text": "",
+        "levels": {},
+        "confidence": 0.9,
+    }
+    calls: list[tuple[str, str, dict]] = []
+
+    def scripted(purpose, about, variables):
+        reply = {**said, "reason": "r"} if purpose == PROPOSE else {"verdict": "agree", "why": "w"}
+        calls.append((purpose, about, reply))
+        return reply
+
+    monkeypatch.setattr(cli_map, "config", lambda: {"band": "KX"})
+    with db.connect() as conn:
+        _band(conn)
+        conn.execute("update threshold set value = 100 where key = 'map.dev_count'")
+        tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+        made, gold, _ = cli_map.replay_dev(conn, scripted)
+        want = cli_map.score(
+            [cli_map.Scored(p.subject_code, frozenset(cli_map.skills(p)), p.status) for p in made], gold
+        )
+        assert calls, "the scripted run asked something"
+        for i, (purpose, about, reply) in enumerate(calls):
+            conn.execute(
+                "insert into flow_run (tenant_id, flow, trigger, request, result, started_at)"
+                " values (%s, %s, 'engine:dev_eval', %s, %s, now() + %s * interval '1 second')",
+                (tenant, purpose, Json({"about": about}), Json({"reply": reply, "outcome": "accepted"}), i),
+            )
+        lines = cli_map.replay_report(conn, 10)
+        conn.rollback()
+    head = json.loads(lines[0])
+    assert head["score"] == want and not any(head["left_unread"].values())
+    json.loads(lines[1])  # the counts by cause print as JSON too
+    assert len(lines) == 2 + len(made)

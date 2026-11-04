@@ -72,11 +72,14 @@ def active_prompt(conn, purpose, subject=None, version=None):
     return row
 
 
-def generate(conn, purpose, variables, images=(), subject=None, meta=None, version=None, stage=None):
+def generate(
+    conn, purpose, variables, images=(), subject=None, meta=None, version=None, stage=None, about=None
+):
     """Refuses before spending anything once the tenant's spend today reaches the
     `llm.daily_budget_inr` threshold row — no flow_run is written for a refusal, because no call
     was made. `meta`, if a dict is passed, is filled with prompt_id, model and flow_run_id so a
-    caller can write provenance without a second lookup (gate 4: every item says what made it)."""
+    caller can write provenance without a second lookup (gate 4: every item says what made it). `about`, the
+    activity or page asked about, is kept on the row so a stored run can be read back item by item."""
     camps = llm_budget.campaigns(conn)  # read once: the carve-out below and the campaign's check both use it
     own_money = llm_budget.purposes(
         camps
@@ -111,7 +114,14 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
         (
             purpose,
             llm_budget.trigger_for(stage),
-            Json({"purpose": purpose, "version": row.get("version"), "prompt_id": str(row["id"])}),
+            Json(
+                {
+                    "purpose": purpose,
+                    "version": row.get("version"),
+                    "prompt_id": str(row["id"]),
+                    **({"about": about} if about else {}),
+                }
+            ),
             db.tenant_slug(),
         ),
     ).fetchone()["id"]
