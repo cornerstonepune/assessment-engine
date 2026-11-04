@@ -32,6 +32,7 @@ RUNS = {
             ["engine", "eval", "curriculum_map", "--dev", "--version", "3", "--validate-version", "2"]
         ],
     },
+    "map_replay": {"spends": False, "commands": [["engine", "curriculum", "map-replay"]]},
     "draft_dev": {
         "spends": True,
         "commands": [["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--by", BY]],

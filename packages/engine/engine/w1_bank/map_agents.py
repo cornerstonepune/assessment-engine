@@ -95,7 +95,8 @@ def model_ask(
     def ask(purpose: str, about: str, variables: dict[str, object]) -> Reply:
         try:
             reply = cast(
-                Reply, llm.generate(conn, purpose, variables, version=versions[purpose], stage=stage)
+                Reply,
+                llm.generate(conn, purpose, variables, version=versions[purpose], stage=stage, about=about),
             )
         except llm.LLMSchemaError as e:
             if say:
