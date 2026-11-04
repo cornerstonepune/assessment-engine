@@ -10,8 +10,10 @@ from engine.core import db
 from engine.w3_read import external, legacy, marking, profiles, reread
 from engine.w3_read.cli_file import register as register_file
 from engine.w3_read.cli_learn import register as register_learn
+from engine.w3_read.cli_voice import voice_app
 
 read_app = typer.Typer(help="W3 — read papers and place them on the skill graph", no_args_is_help=True)
+read_app.add_typer(voice_app, name="voice")
 
 
 @read_app.command("map")

@@ -1,7 +1,8 @@
-"""`engine staff import` and `engine enrol k2` (goals/m0-05-people-enrolment.yaml). A dry run unless `--apply --by <name>`.
+"""`engine staff import` and `engine enrol k2` (goals/m0-05-people-enrolment.yaml). A dry run unless `--apply --by <email>`.
 
 A dry run changes no row but the access log, which records that the children's names were read to compare them. Both
-commands print counts, line numbers and roll numbers, never a name, an email or a birthday.
+commands print counts, line numbers and roll numbers, never a name, an email or a birthday. `--by` is the signer's
+email (the one they sign in with); the rows keep their staff id, not the email (goals/fix-staff-by-id.yaml).
 """
 
 from datetime import date
@@ -30,19 +31,23 @@ def finish(conn: db.Conn, out: people.Report, apply: bool) -> None:
         raise typer.Exit(1)
     conn.commit()
     typer.echo(
-        "  written." if apply else "  dry run — nothing written. Add --apply --by <your name> to write it."
+        "  written." if apply else "  dry run — nothing written. Add --apply --by <your email> to write it."
     )
 
 
 def need_by(apply: bool, by: str | None) -> str:
     if apply and not (by or "").strip():
-        raise typer.BadParameter("--apply needs --by <your name>: it is kept with every row written")
+        raise typer.BadParameter(
+            "--apply needs --by <your email>: your staff id is kept with every row written"
+        )
     return (by or "").strip()
 
 
 def staff_import(
     apply: bool = typer.Option(False, "--apply", help="Write it; without this nothing is written"),
-    by: str = typer.Option(None, "--by", help="Your name, kept with each grant"),
+    by: str = typer.Option(
+        None, "--by", help="Your email, the one you sign in with; your staff id is kept with each grant"
+    ),
 ) -> None:
     """Copy the website's staff list into the staff tables (the list itself is left as it is)."""
     who = need_by(apply, by)
@@ -56,7 +61,11 @@ def k2(
         ..., help="The Children List as CSV: number, name, birthday. Keep it outside git."
     ),
     apply: bool = typer.Option(False, "--apply", help="Write it; without this nothing is written"),
-    by: str = typer.Option(None, "--by", help="Your name, kept with every row written"),
+    by: str = typer.Option(
+        None,
+        "--by",
+        help="Your email, the one you sign in with; your staff id is kept with every row written",
+    ),
     match_existing: bool = typer.Option(
         False,
         "--match-existing",

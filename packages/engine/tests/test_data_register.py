@@ -6,6 +6,7 @@ sees it, in a parent's words". The register is `data_register`, written from the
 
 import json
 import os
+import re
 
 import psycopg
 import pytest
@@ -58,6 +59,29 @@ def test_every_table_that_holds_a_childs_data_is_in_the_register(conn):
         ).fetchall()
     }
     assert named - existing == set()
+
+
+# What a parent reads for each column a migration added to a table of names (pii): a column added there with no words
+# here fails, so the register is told before a parent's data is kept in a new way.
+PII_COLUMN_WORDS = {"pii.child.birthday": "date of birth"}
+
+
+def test_every_column_a_migration_adds_beside_a_childs_name_is_said_in_the_register():
+    """A column added to a `pii` table after it was made (the people migration's birthday, first) is named in the
+    parent's words of the entry that holds its table."""
+    added = {
+        f"pii.{t}.{c}"
+        for f in sorted((db.REPO_ROOT / "supabase" / "migrations").glob("*.sql"))
+        for t, c in re.findall(
+            r"alter table pii\.(\w+)\s+add column if not exists (\w+)", f.read_text(), re.I
+        )
+    }
+    assert "pii.child.birthday" in added
+    assert added <= set(PII_COLUMN_WORDS), f"no parent's words for {sorted(added - set(PII_COLUMN_WORDS))}"
+    for column in added:
+        table = column.rsplit(".", 1)[0]
+        entry = next(e for e in SEED if table in e["tables"])
+        assert PII_COLUMN_WORDS[column] in entry["what"], (column, entry["code"])
 
 
 def test_each_entry_says_what_why_how_long_and_who_sees_it_in_a_parents_words(conn):

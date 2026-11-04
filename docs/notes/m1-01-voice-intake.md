@@ -50,6 +50,79 @@ reads, each line beside its words, a person confirms.
 - `engine live rules --write --url <local>` → 35 rules added, every one on the new tables.
 - Data register: a new "observations" entry names the three tables, in a parent's words.
 
+## Step 4a, the engine — `20261227090000_k2_voice_evidence.sql` (additive) and `w3_read/voice_*`
+
+- A recording is kept on the engine box's disk under `data/voice/<year>/<note id>.<ext>` (gitignored, as scans are);
+  only its key is in the row. Retention is O-14: `bin/engine read voice retention` deletes nothing while
+  `voice.audio_retention_days` is null.
+- Transcribed through `adapters/speech.py` after the upload answers, only when `SARVAM_API_KEY` is set; otherwise the
+  note waits as received. Read by `voice_note.read`; the activity's spoken number found by `activity.sheet_no` in the
+  class's grade; every number in the class's enrolment open that day. A stranger or an unknown activity is a problem.
+- Confirm (or the form's Save) writes, in one transaction: an observation per child (named, or "the rest" as a group),
+  evidence on each activity skill for above / as expected / below with the mark from config rows
+  (`voice.outcome_moves_level`, `voice.level_mark`, unverified for every activity), none for not willing or absent,
+  her decision on each line (`pii.note_claim`), the note confirmed. An incident is never confirmed. `observed_at` is
+  the note's own time on its own day, else the start of the day she said, never later than now.
+- `bin/engine read voice expire`: notes older than `voice.confirm_within_hours` are left unconfirmed, never evidence.
+- Every route refuses while `voice.screens_enabled` (config, false) is off.
+- `uv run pytest -q tests/test_voice_intake.py tests/test_voice_confirm.py tests/test_cli_voice.py
+  tests/api/test_voice_routes.py` → 21 passed (after an independent review: a note past 48 hours is refused at confirm, not only by the job; only her own observation is corrected, and once; a refused upload keeps no recording; an id that is not one is refused in words); with every neighbouring database suite 241 passed locally.
+
+## Step 4a, after the architecture council (3 Nov)
+
+- The database refuses evidence of an observation from a voice note unless that note is confirmed
+  (`internal.evidence_of_a_confirmed_note`); confirm marks the note confirmed first, in the same transaction.
+- Only an educator with an open grant on the class, in a role `voice.roles_that_record` names (class teacher, cover
+  educator; a campus role does not record unless added), records, confirms or corrects for it.
+- The level each outcome showed is kept (`activity_observation.reached_level`), and its mark comes from the two config
+  rows; a test changes both rows and the result follows.
+- `uv run pytest -q tests/test_voice_confirm.py tests/test_voice_intake.py tests/api/test_voice_routes.py
+  tests/test_voice_tables.py tests/test_cli_voice.py` → 33 passed; neighbouring suites 212 passed (three runs; one
+  earlier run, right after re-applying the migration locally, had one failure not seen again and not identified).
+
+## Step 4a, observed evidence and the rung rule (3 Nov, found by the 4b worker)
+
+- Found: `tests/test_rung_folded.py::test_every_rung_code_on_record_is_a_skills_second_code` failed on any database
+  holding a confirmed voice note (`('evidence_event', [{'rung_code': None}])`). CI's clean database never held one.
+- Cause: the test (22 Oct) is older than C2's rule (`20261205100000`, 23 Oct), which lets every kind but a written answer
+  carry no rung (`evidence_event_written_has_rung`); nothing wrote another kind until voice notes. A rung cannot be set:
+  an activity's skills are registry skills, and none of the 3711 `activity_skill` rows is a school skill with a second
+  code (local database, `select count(*) ... from activity_skill a where exists (select 1 from skill s where s.code =
+  a.skill_code)` → 0).
+- Fix: the test confirms a voice note first, so it fails before the fix, and then excuses only an unrunged record that is
+  not written, in `evidence_event` alone; every other table and every non-null rung is held as before. A written answer
+  with no rung stays refused by the database (`tests/test_evidence_every_kind.py`, line 141).
+- `pytest tests/test_rung_folded.py -k every_rung_code` before the fix → `1 failed` (the row above); after →
+  with the evidence, voice, roles, privileges, register and past suites `136 passed`; `bin/check` → 34 passed.
+
+## Step 5 groundwork — scoring the reader, replay, retention
+
+- `bin/engine read voice check <expected.json>`: each drafted note scored against what the educator says it said
+  (activity, above, below, not willing, absent, the rest), field by field; prints note ids, field names and counts,
+  never a transcript or a name. For the first 20 real notes.
+- `bin/engine read voice replay --class <id> <transcript.txt>`: a typed transcript read against a class as a recording's
+  would be; writes nothing and calls no service. A free sentence or incident is shown by its length only.
+- `voice_store.retention`: null keeps every recording; a number deletes finished notes' recordings older than it and
+  reports a count; the row and its key stay.
+- `uv run pytest -q tests/test_voice_check.py tests/test_cli_voice.py` → 8 passed.
+
+## To set up on the engine box, after Nimish approves the pilot (not built: no scheduler here)
+
+The engine runs on the box as the container `deploy-engine-1`. The deploy runs its commands as
+`sudo docker exec deploy-engine-1 engine …` (`.github/workflows/deploy-engine.yml`), so the timer does the same. On the box,
+`sudo crontab -e`, then add these two lines exactly (the box's clock is UTC):
+
+    17 * * * * docker exec deploy-engine-1 engine read voice expire >> /var/log/voice-expire.log 2>&1
+    43 21 * * * docker exec deploy-engine-1 engine read voice retention >> /var/log/voice-retention.log 2>&1
+
+- **The first line, hourly:** a note past `voice.confirm_within_hours` (48) is left unconfirmed and never becomes
+  evidence. Confirm already refuses a late note by itself, so this keeps the queue and the coordinator's count honest.
+  It is safe to run at any time and changes nothing the second time.
+- **The second line, daily at 03:13 in Pune:** it deletes nothing while `voice.audio_retention_days` is null (O-14,
+  open). It prints "kept: … nothing deleted" until Nimish sets a number. It is safe to add now.
+- Both print counts only, never a transcript, a name or which note. `tests/test_cli_voice.py` holds these two lines to
+  commands the engine has.
+
 ## What step 3 (the tables) needed from M0-05 (#358)
 
 - The class a note is about: `school_class.id` (one campus, year, grade, section).
@@ -63,6 +136,13 @@ reads, each line beside its words, a person confirms.
   received_at, status received / drafted / confirmed / left_unconfirmed, staff_id); `pii.note_claim` (each draft line,
   its words, and whether she accepted, changed or removed it). Each child-data table gets its `data_register` row;
   GRANTs for app_engine and app_web; `internal.apply_conventions()` last. No table M0-05 owns is touched.
+
+## Lesson (3 Nov, #363)
+
+- A ledger table's guard trigger must not refuse TRUNCATE, because the rehearsal's copy of live empties every table
+  before loading live's rows (`engine live copy`). Follow `evidence_event`: the trigger refuses update and delete only,
+  and emptying is refused to both services by grant (`internal.apply_conventions()`). #361's triggers refused TRUNCATE
+  too, and every rehearsal failed once they were on live; `20261226100000_voice_ledgers_like_evidence.sql` fixes them.
 
 ## Not verified / open
 
