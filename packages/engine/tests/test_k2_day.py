@@ -42,9 +42,12 @@ def world(conn, monkeypatch):
         " 'smells', 'matches', 'sorts', 'bottles')",
         (k["tenant"],),
     )
-    base = ld.read_planner_csv(PLANNER_CSV, VOCAB, {10: 2}).plans[10]
-    math = ["Placeholder counting game" if x == "Addition - orally" else x for x in base.lines["math"]]
-    planner = ld.Planner({10: replace(base, lines={**base.lines, "math": math})}, [])
+    read = ld.read_planner_csv(PLANNER_CSV, VOCAB)
+    halves = [
+        (block, replace(one, lines={**one.lines, "math": ["Placeholder counting game" if x == "Addition - orally" else x for x in one.lines["math"]]}))
+        for block, one in read.halves[10]
+    ]  # fmt: skip
+    planner = replace(read, halves={10: halves})
     frame = ld.read_frame_csv(FRAME_CSV, VOCAB, SPANS)
     plan = ld.build(frame, planner, ld.read_calendar_csv(CAL_CSV, VOCAB), VOCAB, 10, 10)
     sq.apply(conn, plan, ld.Target("K2", section, "2031-32", db.tenant_slug()))

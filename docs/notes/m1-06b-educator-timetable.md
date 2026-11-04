@@ -17,17 +17,18 @@ W2 step N4, files only (no thirteenth step). Goal: `goals/m1-06b-educator-timeta
   `frozen: false` until the month lock (M1-12) exists. Her email as `actor`; a class she holds an open grant on in a role of config
   `educator.timetable_roles`; 403 while `educator.timetable_enabled` is off (seeded off); no child, no name.
 
-## Fortnight 10 is in the Monthly Planner twice — a question for the school
-The tab has two rows labelled "Fortnight 10": one under the sheet's own heading `K2_November _ Planner 2026`, one under
-`K2_December _ Planner 2026`. They differ in Hindi, Music, Circle Time and PE. Nimish said "the Fortnight 10 row is right"; both
-carry that label. **Working reading, UNVERIFIED (to confirm with the K2 educator):** the November block's row holds the November
-days of Fortnight 10 (23–30 Nov) and the December block's row the December days (1–4 Dec). I did not merge them and did not choose.
-- The main SQL loads **neither** row (302 plan lines, 920 sessions; Fortnight 10's periods have no planner lines).
-- `k2_timetable_fn10_fn17_fn10_row1.sql` (the November block) and `…_row2.sql` (the December block) each add one candidate,
-  tagged with its block in `plan_entry.source`. Apply at most one, after the school answers (row 2 → 336 lines, 1,049 sessions).
-- The local copy behind the screens' fixtures has the December row loaded, only because the screens needed data; not a claim.
-- Splitting by date (November row for 23–30 Nov, December row for 1–4 Dec) would need a per-day plan, which the tables do not
-  have; it is a decision for the school and the rules brick (M1-14), not something to pick here.
+## Fortnight 10 is in the Monthly Planner twice — settled: one row per half
+A fortnight straddles two months, so the sheet lists it under each month's heading (`K2_November _ Planner 2026`, `K2_December
+_ Planner 2026`). The rule (settled by the school's owner, relayed by the orchestrator; the educator should still confirm): **week A
+takes the first block's row, week B the second's.** For Fortnight 10 that is 23–27 Nov from November, 30 Nov–4 Dec from December.
+Mon 30 Nov is a November day in week B: it stays in week B.
+- Every loaded planner line is tagged with its block in `plan_entry.source` ("… (November block)" / "… (December block)").
+- The two rows share the fortnight's `(plan_key, ord)` numbering, so the December row's lines continue after the November
+  row's (ord = November count + position). No schema change.
+- Each row only plans its own week, so a row's lines that belong to the other week land in "no period" (listed, not moved).
+- Checked FN11–FN17 for the same pattern: **none**. Only Fortnight 10 is listed twice in the tab (`grep -c "^Fortnight 10"` = 2);
+  any other repeat is a conflict and loads nothing.
+- Local copy: 375 plan lines (39 November + 34 December for Fortnight 10), 1,049 sessions, 38 lines linked to an activity.
 
 ## Proofs (commands)
 - `pytest tests/test_k2_timetable.py tests/test_k2_timetable_load.py tests/test_k2_day.py` — every planner line of Fortnights 10–17
@@ -40,8 +41,7 @@ days of Fortnight 10 (23–30 Nov) and the December block's row the December day
   filled across; `frame_spans.json`); periods after the first of a merged activity take no planner line.
 - Dropped on purpose, because they are not periods: the week-B "events" rows (e.g. Memory Drawing, No Screen Day) and the
   "Note to educators" rows of the frame tab.
-- Local copy: 8 fortnights, 80 school days, 15 periods, 150 slots; second run adds 0. SQL on an emptied copy: main file
-  `8|80|150|302|920`, then row 2 `8|80|150|336|1049`, main again changes nothing.
+- Local copy: 8 fortnights, 80 school days, 15 periods, 150 slots; second run adds 0. SQL on an emptied copy: `8|80|150|375|1049`; the same file again changes nothing.
 
 ## What the sources said (and did not decide)
 - The calendar says Fortnight 10 ends 6 Dec and Fortnight 11 starts 7 Dec; the Graph tab says 7 Dec and 8 Dec. **Mon 7 Dec is
@@ -52,7 +52,7 @@ days of Fortnight 10 (23–30 Nov) and the December block's row the December day
 - A holiday takes its day's periods with it; those planner lines are listed with no period, never moved.
 - Lines with no period are listed by heading. Block Room and Gross Motor have no slot in the frame; PE has one specialist slot
   a week. Not forced.
-- Activity link: by exact name (letters and digits only) to exactly one K2 activity, in SQL; 30 of 336 lines link today.
+- Activity link: by exact name (letters and digits only) to exactly one K2 activity, in SQL; 38 of 375 lines link today.
 
 ## Not claimed / for a person
 - `engine done m1-06b-educator-timetable`: the K2 educator's line-by-line marks do not exist yet (D-028).

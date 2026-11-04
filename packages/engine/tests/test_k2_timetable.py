@@ -23,7 +23,9 @@ VOCAB = tt.Vocabulary.from_config(
 )
 SPANS = json.loads((TABS / "frame_spans.json").read_text())
 FRAME = ld.read_frame_csv((TABS / "frame.csv").read_text(), VOCAB, SPANS)
-PLAN = ld.read_planner_csv((TABS / "planner.csv").read_text(), VOCAB, {10: 2}).plans[10]
+PLAN = ld.read_planner_csv((TABS / "planner.csv").read_text(), VOCAB).halves[10][1][
+    1
+]  # the December block's row
 DAYS = [
     date(2026, 11, 23) + timedelta(d) for d in range(14) if (date(2026, 11, 23) + timedelta(d)).weekday() < 5
 ]

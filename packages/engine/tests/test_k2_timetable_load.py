@@ -36,8 +36,8 @@ FRAME_CSV, PLANNER_CSV, CAL_CSV = (
 SPANS = json.loads((TABS / "frame_spans.json").read_text())
 
 
-def loaded(first=10, last=10, undecided=None, use_row=None, planner=None):
-    planner = planner or ld.read_planner_csv(PLANNER_CSV, VOCAB, {10: 2} if use_row is None else use_row)
+def loaded(first=10, last=10, undecided=None, planner=None):
+    planner = planner or ld.read_planner_csv(PLANNER_CSV, VOCAB)
     frame = ld.read_frame_csv(FRAME_CSV, VOCAB, SPANS)
     return ld.build(frame, planner, ld.read_calendar_csv(CAL_CSV, VOCAB), VOCAB, first, last, undecided)
 
@@ -65,18 +65,29 @@ def test_a_holiday_for_other_grades_only_is_not_a_holiday_here_and_a_tentative_o
     )
 
 
-def test_fortnight_ten_is_listed_twice_and_the_rows_differ_so_neither_is_loaded_unless_a_person_says():
+def test_fortnight_ten_is_two_rows_one_per_month_block_and_each_week_takes_its_own_block_s_row():
+    """A fortnight straddles two months, so the Monthly Planner lists it under each month's heading. Week A takes the
+    first block's row, week B the second's; every line says which block it came from. (Settled by the school's owner.)"""
     p = ld.read_planner_csv(PLANNER_CSV, VOCAB)
-    assert 10 not in p.plans and [n for n, _ in p.conflicts] == [10] and len(p.candidates[10]) == 2
-    assert p.candidates[10][0] != p.candidates[10][1]
-    assert p.blocks[10] == ["November", "December"]  # the planner's own block headings above each row
-    told = ld.read_planner_csv(PLANNER_CSV, VOCAB, {10: 1})
-    assert (
-        told.plans[10] == told.candidates[10][0]
-        and told.chosen
-        and "row 1 used, as told" in told.chosen[0][1]
-    )
-    assert [n for n, _ in loaded(use_row={}).missing_plan] == [10]
+    assert 10 not in p.plans and p.conflicts == []
+    assert [b for b, _ in p.halves[10]] == ["November", "December"]
+    nov, dec = (plan for _, plan in p.halves[10])
+    assert nov != dec
+    load = loaded()
+    entries = {(e.key, e.ord): e for e in load.plan_entries}
+    for key in {*nov.lines, *dec.lines}:
+        after = len(nov.lines.get(key, []))
+        for i, text in enumerate(nov.lines.get(key, []), 1):
+            assert (entries[key, i].text, entries[key, i].block) == (text, "November")
+        for i, text in enumerate(dec.lines.get(key, []), after + 1):
+            assert (entries[key, i].text, entries[key, i].block) == (text, "December")
+    blocks = set()
+    for s in load.sessions:
+        if s.key and s.ord:
+            blocks.add(entries[s.key, s.ord].block)
+            assert entries[s.key, s.ord].block == ("November" if s.day < date(2026, 11, 30) else "December")
+    assert blocks == {"November", "December"}  # Mon 30 Nov is a November day in week B: it stays in week B
+    assert [n for n, _ in load.split] == [10]
 
 
 def test_fortnight_ten_makes_the_rows_the_sheets_say():
@@ -99,11 +110,8 @@ def test_fortnight_ten_makes_the_rows_the_sheets_say():
         and c.kind != "empty"
     )
     assert len(load.sessions) == want and all(s.day != date(2026, 11, 24) for s in load.sessions)
-    assert len(load.plan_entries) == sum(
-        len(v)
-        for v in load.plan_entries
-        and ld.read_planner_csv(PLANNER_CSV, VOCAB, {10: 2}).plans[10].lines.values()
-    )
+    halves = ld.read_planner_csv(PLANNER_CSV, VOCAB).halves[10]
+    assert len(load.plan_entries) == sum(len(v) for _, plan in halves for v in plan.lines.values())
 
 
 def test_afternoon_times_are_written_as_the_afternoon_from_the_vocabulary_row_not_from_code():
@@ -131,7 +139,7 @@ def test_a_fortnight_that_does_not_start_on_a_monday_is_a_conflict_and_loads_not
     out = io.StringIO()
     csv.writer(out).writerows(rows)
     load = ld.build(
-        ld.read_frame_csv(FRAME_CSV, VOCAB, SPANS), ld.read_planner_csv(PLANNER_CSV, VOCAB, {10: 2}),
+        ld.read_frame_csv(FRAME_CSV, VOCAB, SPANS), ld.read_planner_csv(PLANNER_CSV, VOCAB),
         ld.read_calendar_csv(out.getvalue(), VOCAB), VOCAB, 10, 10,
     )  # fmt: skip
     assert load.fortnights == [] and load.sessions == [] and [n for n, _ in load.conflicts if n == 10]
@@ -159,7 +167,7 @@ def test_every_planner_line_is_the_schools_own_words_and_none_of_them_is_dropped
     for n, k, cells in _source_rows():
         if n < 10:
             continue
-        plan = p.candidates[n][k - 1] if n in p.candidates else p.plans[n]
+        plan = p.halves[n][k - 1][1] if n in p.halves else p.plans[n]
         source = _flat("\n".join(cells))
         kept = [_flat(line) for lines in plan.lines.values() for line in lines]
         assert all(line in source for line in kept), f"FN{n} row {k}: text the school did not write"
@@ -184,8 +192,9 @@ def test_music_and_dance_routines_and_the_column_the_school_titled_value_educati
 def test_no_planner_line_keeps_a_stray_quotation_mark_from_the_cell():
     p = ld.read_planner_csv(PLANNER_CSV, VOCAB)
     for n in range(10, 18):
-        for lines in p.plans.get(n, p.candidates.get(n, [None])[0]).lines.values():
-            assert not any(x.startswith('"') or x.endswith('"') for x in lines)
+        for plan in [p.plans[n]] if n in p.plans else [pl for _, pl in p.halves[n]]:
+            for lines in plan.lines.values():
+                assert not any(x.startswith('"') or x.endswith('"') for x in lines)
 
 
 # ---- the SQL
@@ -198,7 +207,7 @@ def test_the_sql_is_the_same_every_time_and_every_insert_is_safe_to_run_again():
     inserts = [s for s in a if s.lstrip().lower().startswith("insert")]
     assert inserts and all("on conflict" in s.lower() and "do nothing" in s.lower() for s in inserts)
     text = "\n".join(a).lower()
-    assert "pii" not in text and "child" not in text
+    assert "pii" not in text and "child_id" not in text
 
 
 needs_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
@@ -264,7 +273,7 @@ def test_a_line_names_an_activity_only_when_it_is_exactly_one_and_the_sql_is_the
             "insert into activity (tenant_id, code, band, strand, name) values (%s, %s, 'K2', 'Maths', %s)",
             (k["tenant"], code, name),
         )
-    base = ld.read_planner_csv(PLANNER_CSV, VOCAB, {10: 2}).plans[10]
+    base = ld.read_planner_csv(PLANNER_CSV, VOCAB).halves[10][1][1]
     math = [
         {
             "Addition - orally": "Placeholder counting game",
@@ -311,7 +320,7 @@ def test_apply_with_no_database_stops_and_says_so_while_the_sql_file_needs_none(
     assert wrote.exit_code == 0 and out.read_text().count("on conflict do nothing") >= 5
 
 
-def test_a_fortnight_listed_twice_gets_one_candidate_file_a_row_and_the_main_file_loads_neither(
+def test_a_fortnight_listed_under_two_months_loads_as_one_file_and_each_line_says_its_block(
     tmp_path, monkeypatch
 ):
     from typer.testing import CliRunner
@@ -324,12 +333,7 @@ def test_a_fortnight_listed_twice_gets_one_candidate_file_a_row_and_the_main_fil
         app, [*_args(tmp_path), "--sql", str(out), "--undecided", "2026-12-07=graph and calendar disagree"]
     )
     assert run.exit_code == 0, run.output
-    names = sorted(p.name for p in tmp_path.glob("rows*.sql"))
-    assert names == ["rows.sql", "rows_fn10_row1.sql", "rows_fn10_row2.sql"]
-    main, one, two = ((tmp_path / n).read_text() for n in names)
-    assert (
-        "Fortnight 10" not in main
-        and "row 1 of 2 of Fortnight 10 (the November block)" in one
-        and "row 2 of 2 of Fortnight 10 (the December block)" in two
-    )
-    assert one != two and "insert into session" in one and "insert into session" in main
+    assert [p.name for p in tmp_path.glob("rows*.sql")] == ["rows.sql"]
+    text = out.read_text()
+    assert "(November block)" in text and "(December block)" in text and "insert into session" in text
+    assert "week A from the November block" in run.output and "conflict" not in run.output

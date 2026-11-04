@@ -62,15 +62,18 @@ def tables(load: ld.Load, t: ld.Target) -> list[tuple[str, sql.Composed]]:
             "join period p on p.tenant_id = x.tenant and p.grade_code = {g} and p.starts_at = v.st::time\non conflict do nothing"
         ).format(first=L(min(f[1] for f in load.fortnights)), g=g, rows=_values(load.slots))))  # fmt: skip
     if load.plan_entries:
-        rows = [(e.fortnight, e.key, e.ord, e.text) for e in load.plan_entries]
+        rows = [
+            (e.fortnight, e.key, e.ord, e.text, f"{t.source} ({e.block} block)" if e.block else t.source)
+            for e in load.plan_entries
+        ]
         out.append(("plan_entry", S(
             "insert into plan_entry (tenant_id, school_class_id, fortnight_id, plan_key, ord, text, activity_id, source)\n"
-            "select x.tenant, x.klass, f.id, v.k, v.o::int, v.t, act.id, {source} from k2_ctx x cross join (values\n  {rows}\n"
-            ") as v(n, k, o, t)\njoin fortnight f on f.academic_year_id = x.year and f.number = v.n::int\n"
+            "select x.tenant, x.klass, f.id, v.k, v.o::int, v.t, act.id, v.s from k2_ctx x cross join (values\n  {rows}\n"
+            ") as v(n, k, o, t, s)\njoin fortnight f on f.academic_year_id = x.year and f.number = v.n::int\n"
             "left join lateral (select case when count(*) = 1 then min(a.id::text)::uuid end as id from activity a"
             " where a.tenant_id = x.tenant and a.band = {g} and regexp_replace(lower(a.name), '[^a-z0-9]+', '', 'g')"
             " = regexp_replace(lower(v.t), '[^a-z0-9]+', '', 'g')) act on true\non conflict do nothing"
-        ).format(source=L(t.source), g=g, rows=_values(rows))))  # fmt: skip
+        ).format(g=g, rows=_values(rows))))  # fmt: skip
     if load.sessions:
         rows = [(s.day, s.start, s.subject, s.key, s.ord, s.fortnight, s.text) for s in load.sessions]
         out.append(("session", S(

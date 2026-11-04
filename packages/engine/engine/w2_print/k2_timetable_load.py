@@ -34,13 +34,9 @@ class Calendar:
 class Planner:
     plans: dict[int, tt.Plan]
     conflicts: list[tuple[int, str]]
-    candidates: dict[int, list[tt.Plan]] = field(
-        default_factory=dict
-    )  # every row of a fortnight listed twice
-    chosen: list[tuple[int, str]] = field(default_factory=list)  # which row a person said to use
-    blocks: dict[int, list[str]] = field(
-        default_factory=dict
-    )  # the planner's heading above each row of a fortnight
+    # A fortnight straddles two months, so the sheet lists it under each month's heading: (heading, that row's plan),
+    # in the order the sheet gives them. Week A takes the first, week B the second.
+    halves: dict[int, list[tuple[str, tt.Plan]]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -58,6 +54,7 @@ class PlanEntry:
     key: str
     ord: int
     text: str
+    block: str = ""  # the month heading the line sits under, when its fortnight is listed under two
 
 
 @dataclass(frozen=True)
@@ -94,7 +91,7 @@ class Load:
     undecided: list[tuple[date, str]] = field(default_factory=list)
     missing_plan: list[tuple[int, str]] = field(default_factory=list)
     conflicts: list[tuple[int, str]] = field(default_factory=list)
-    chosen: list[tuple[int, str]] = field(default_factory=list)
+    split: list[tuple[int, str]] = field(default_factory=list)  # a fortnight whose weeks take different rows
 
 
 def _rows(text: str) -> list[list[str]]:
@@ -132,13 +129,10 @@ def _headed(header: str, text: str, vocab: tt.Vocabulary) -> str:
     return f"{synthetic}\n{text}" if synthetic and first and tt.heading_of(first, vocab)[0] is None else text
 
 
-def read_planner_csv(text: str, vocab: tt.Vocabulary, use_row: dict[int, int] | None = None) -> Planner:
-    """The Monthly Planner tab: a row `Fortnight N`, a cell under each column's title. A fortnight listed twice is a
-    conflict for a person and loads neither row, unless a person said which (`use_row`, 1 = the first listed); the rows
-    not used stay as `candidates`."""
-    chosen = use_row or {}
-    seen: dict[int, list[list[str]]] = {}
-    blocks: dict[int, list[str]] = {}
+def read_planner_csv(text: str, vocab: tt.Vocabulary) -> Planner:
+    """The Monthly Planner tab: a row `Fortnight N`, a cell under each column's title. A fortnight listed under two
+    different month headings has a row in each: its two halves. Any other repeat is a conflict for a person."""
+    seen: dict[int, list[tuple[str, list[str]]]] = {}
     headers: dict[int, str] = {}
     block = ""
     for r in _rows(text):
@@ -147,26 +141,19 @@ def read_planner_csv(text: str, vocab: tt.Vocabulary, use_row: dict[int, int] | 
         elif _cell(r, 1).lower() == vocab.planner_header_cell:
             headers = {i: _cell(r, i).lower() for i in range(1, len(r))}
         elif m := re.match(vocab.planner_row, r[0].strip()):
-            blocks.setdefault(int(m.group(1)), []).append(block)
-            seen.setdefault(int(m.group(1)), []).append(
-                [_headed(headers.get(i, ""), _cell(r, i), vocab) for i in range(1, 11)]
-            )
-    plans, conflicts, candidates, used = {}, [], {}, []
+            cells = [_headed(headers.get(i, ""), _cell(r, i), vocab) for i in range(1, 11)]
+            seen.setdefault(int(m.group(1)), []).append((block, cells))
+    plans, conflicts, halves = {}, [], {}
     for n, rows in sorted(seen.items()):
         if len(rows) == 1:
-            plans[n] = tt.read_plan_row(rows[0], n, vocab)
-            continue
-        candidates[n] = [tt.read_plan_row(row, n, vocab) for row in rows]
-        if n in chosen:
-            plans[n] = candidates[n][chosen[n] - 1]
-            used.append(
-                (n, f"listed {len(rows)} times in the Monthly Planner: row {chosen[n]} used, as told")
-            )
+            plans[n] = tt.read_plan_row(rows[0][1], n, vocab)
+        elif len(rows) == 2 and rows[0][0] and rows[0][0] != rows[1][0]:
+            halves[n] = [(b, tt.read_plan_row(cells, n, vocab)) for b, cells in rows]
         else:
             conflicts.append(
-                (n, f"listed {len(rows)} times in the Monthly Planner and the rows differ: none is loaded")
+                (n, f"listed {len(rows)} times, not once under each of two month headings: none is loaded")
             )
-    return Planner(plans, conflicts, candidates, used, blocks)
+    return Planner(plans, conflicts, halves)
 
 
 def _cell(row: list[str], i: int) -> str:
@@ -228,6 +215,40 @@ def _periods(frame: tt.Frame, vocab: tt.Vocabulary) -> list[Period]:
     return out
 
 
+def _parts(planner: Planner, n: int, window: list[date], start: date, load: Load):
+    """Which row plans which days: a fortnight's one row plans them all; one listed under two months' headings has week A
+    take the first month's row and week B the second's (noted on the load)."""
+    if n in planner.halves:
+        (b1, p1), (b2, p2) = planner.halves[n]
+        load.split.append((n, f"week A from the {b1} block's row, week B from the {b2} block's"))
+        return [(b1, p1, lambda d: (d - start).days < 7), (b2, p2, lambda d: (d - start).days >= 7)]
+    plan = planner.plans.get(n)
+    return [("", plan, lambda d: True)] if plan else None
+
+
+def _place(
+    load: Load, vocab: tt.Vocabulary, n: int, part: tuple[str, tt.Plan, tt.Draft], after: dict[str, int]
+) -> None:
+    """One row's lines and the sessions drawn from them. `after` counts the lines an earlier row of the same fortnight
+    already holds under each heading, so a second row's lines continue the numbering."""
+    block, plan, draft = part
+    for key, lines in plan.lines.items():
+        load.plan_entries.extend(
+            PlanEntry(n, key, after.get(key, 0) + i, text, block) for i, text in enumerate(lines, 1)
+        )
+    for c in draft.cells:
+        if c.kind in ("header", "empty"):
+            continue
+        key = vocab.plan_key_of_subject.get(c.subject or "")
+        at = after.get(key or "", 0) + plan.lines[key].index(c.source) + 1 if key and c.source else None
+        load.sessions.append(
+            Session(c.date, _h24(c.start, vocab), c.subject, c.text, key if at else None, at, n)
+        )
+    load.no_slot.extend((n, k, ln) for k, ln in draft.no_slot)
+    for key, lines in plan.lines.items():
+        after[key] = after.get(key, 0) + len(lines)
+
+
 def build(
     frame: tt.Frame, planner: Planner, cal: Calendar, vocab: tt.Vocabulary, first: int, last: int,
     undecided: dict[date, str] | None = None,
@@ -236,7 +257,6 @@ def build(
     load = Load(
         periods=_periods(frame, vocab),
         conflicts=[c for c in [*planner.conflicts, *cal.conflicts] if first <= c[0] <= last],
-        chosen=[c for c in planner.chosen if first <= c[0] <= last],
     )
     load.slots.extend(
         (c.week, c.weekday, _h24(c.start, vocab), c.kind, c.subject, c.text) for c in frame.cells
@@ -256,25 +276,15 @@ def build(
             why = held.get(d)
             load.school_days.append((d, cd.kind, f"undecided: {why}" if why else cd.note))
         load.undecided.extend((d, held[d]) for d in window if d in held)
-        plan = planner.plans.get(n)
-        if plan is None:
+        parts = _parts(planner, n, window, start, load)
+        if parts is None:
             load.missing_plan.append((n, "no row for this fortnight in the Monthly Planner"))
             continue
-        teaching = [d for d in window if cal.days.get(d, TEACHING).kind == "teaching"]
-        draft = tt.generate(
-            frame, plan, teaching, vocab, {d: w for d, w in held.items() if d in teaching}, start
-        )
-        for key, lines in plan.lines.items():
-            load.plan_entries.extend(PlanEntry(n, key, i, text) for i, text in enumerate(lines, 1))
-        for c in draft.cells:
-            if c.kind in ("header", "empty"):
-                continue
-            key = vocab.plan_key_of_subject.get(c.subject or "")
-            at = plan.lines[key].index(c.source) + 1 if key and c.source else None
-            load.sessions.append(
-                Session(c.date, _h24(c.start, vocab), c.subject, c.text, key if at else None, at, n)
-            )
-        load.no_slot.extend((n, k, ln) for k, ln in draft.no_slot)
+        after: dict[str, int] = {}
+        for block, plan, week in parts:
+            days = [d for d in window if cal.days.get(d, TEACHING).kind == "teaching" and week(d)]
+            draft = tt.generate(frame, plan, days, vocab, {d: w for d, w in held.items() if d in days}, start)
+            _place(load, vocab, n, (block, plan, draft), after)
     return load
 
 
