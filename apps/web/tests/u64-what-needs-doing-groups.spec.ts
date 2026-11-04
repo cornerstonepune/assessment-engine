@@ -21,7 +21,7 @@ const SRC: Sources = {
   asks: 2,
   empty: 1,
   // K2 voice notes (task M1-04): a class she records for and a note waiting (placeholder ids)
-  voice: { classes: [{ id: "c1", grade: "K2", section: "A" }], notes: [{ id: "n1", class_id: "c1", status: "drafted", received_at: "2026-11-03T05:00:00Z" }] },
+  voice: { classes: [{ id: "c1", grade: "K2", section: "A" }], notes: [{ id: "n1", class_id: "c1", status: "drafted", received_at: "2026-11-03T05:00:00Z" }], recording: true },
 };
 const tasks = buildTasks(SRC, (c) => c ?? "");
 
@@ -87,4 +87,12 @@ test("the top bar has no Viewing control and nothing keeps its choice", () => {
   expect(read("components/shell.tsx")).not.toMatch(/Viewing|isBroad/);
   expect(read("lib/auth-actions.ts")).not.toMatch(/export async function choose/);
   expect(read("lib/auth.ts")).not.toMatch(/cs_classes|cs_subject/);
+});
+
+test("with recording off the K2 group reads Fill the form and each class opens the form, never Record (D-065)", () => {
+  const off = buildTasks({ ...SRC, voice: { ...SRC.voice!, recording: false } }, (c) => c ?? "");
+  const k2 = sectionsOf(off).find((s) => s.group.key === "record")!;
+  expect(k2.title).toBe("Fill the form");
+  expect(k2.tasks.map((t) => [t.href, t.action])).toEqual([["/voice/form?class=c1", "Fill the form"]]);
+  expect(sectionsOf(tasks).find((s) => s.group.key === "record")!.title).toBe("Record a note");
 });

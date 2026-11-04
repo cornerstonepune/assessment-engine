@@ -2,7 +2,7 @@
 // after Nimish reads the screens without touching a page. The words a child's mark is said with come from the engine's
 // template (supabase/seed/voice_template.json) only where the engine sends them; the rest are here.
 export const W = {
-  groups: { record: "Record a note", notes: "Notes to confirm" },
+  groups: { record: "Record a note", form: "Fill the form", notes: "Notes to confirm" },
   kinds: { record: "Record a note", note: "Confirm a note" },
   toConfirm: (n: number) => `${n} to confirm`,
   record: {

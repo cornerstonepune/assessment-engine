@@ -26,10 +26,12 @@ export default async function TheForm({ searchParams }: { searchParams: Promise<
       title={c ? `${W.form.title} · ${c.words}` : W.form.title}
       purpose={W.form.purpose}
       action={
-        <Link href={record.href} className="btn secondary inline-flex items-center gap-1.5">
-          <Icon name="record" />
-          {record.label}
-        </Link>
+        my.recording ? (
+          <Link href={record.href} className="btn secondary inline-flex items-center gap-1.5">
+            <Icon name="record" />
+            {record.label}
+          </Link>
+        ) : null
       }
       next={{ href: "/today", label: W.back }}
     >
