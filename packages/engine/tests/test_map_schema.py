@@ -202,3 +202,23 @@ def test_a_reply_the_batched_schema_lets_through_is_still_judged_bad_by_code_and
         [{"key": "A", "objective": 3, "steps": ["a"], "level_0": None}], {"A": ["objective"]}
     )
     assert good == {} and bad == {"A": "objective is empty"}
+
+
+@needs_db
+def test_each_call_says_which_activity_was_accepted_or_refused_and_why(conn_band, monkeypatch):
+    conn, _ = conn_band
+    said: list[str] = []
+    seq = iter(["good", "bad"])
+
+    def reply(*a, **k):
+        if next(seq) == "bad":
+            raise llm.LLMSchemaError("curriculum_map_propose output failed its schema: 'x' was unexpected")
+        return {"ok": 1}
+
+    monkeypatch.setattr(llm, "generate", reply)
+    ask = model_ask(conn, 2, 2, say=said.append)
+    ask(PROPOSE, "ACT-1", {})
+    with pytest.raises(llm.LLMSchemaError):
+        ask(PROPOSE, "ACT-2", {})
+    assert "ACT-1" in said[0] and "accepted" in said[0]
+    assert "ACT-2" in said[1] and "REFUSED" in said[1] and "was unexpected" in said[1]

@@ -83,6 +83,7 @@ def model_ask(
     propose_version: int | None = None,
     validate_version: int | None = None,
     stage: str | None = None,
+    say: Callable[[str], None] | None = None,
 ) -> Ask:
     """The adapter: each question to the prompt row of its purpose (the active one, or the version named), spending
     from `stage` of the campaign that covers these prompts (llm.campaigns). A reply that breaks its schema is one
@@ -97,6 +98,8 @@ def model_ask(
                 Reply, llm.generate(conn, purpose, variables, version=versions[purpose], stage=stage)
             )
         except llm.LLMSchemaError as e:
+            if say:
+                say(f"  {about}  {purpose}  REFUSED  {e}")
             bad[purpose] += 1
             if bad[purpose] >= _bad_replies_allowed(conn):
                 raise llm.LLMError(
@@ -104,6 +107,8 @@ def model_ask(
                 ) from e
             raise
         bad[purpose] = 0
+        if say:
+            say(f"  {about}  {purpose}  accepted")
         return reply
 
     return ask

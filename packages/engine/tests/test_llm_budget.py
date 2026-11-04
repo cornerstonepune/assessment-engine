@@ -162,6 +162,34 @@ def test_a_reply_that_breaks_its_schema_was_still_paid_for_and_its_cost_counts(c
     assert row["status"] == "error" and float(row["cost_inr"]) > 0, "an error row that cost money says so"
 
 
+def _last_run(conn):
+    return conn.execute(
+        "select status, error, request, result from flow_run where flow = %s order by started_at desc limit 1",
+        (DRAFT,),
+    ).fetchone()
+
+
+def test_a_refused_reply_is_kept_with_its_text_its_prompt_version_and_the_reason(conn, monkeypatch):
+    """M1-11c: a paid reply that broke its schema was lost; now the row says what it said and why it was refused."""
+    said = {"nope": 1, "confidence_note": "fairly sure"}
+    monkeypatch.setattr(llm, "_dispatch", lambda *a, **k: (said, "claude-sonnet-5-5", 3000, 2000, 1000))
+    with pytest.raises(llm.LLMSchemaError):
+        llm.generate(conn, DRAFT, VARS, version=1)
+    row = _last_run(conn)
+    assert row["result"]["reply"] == said and row["result"]["outcome"] == "refused"
+    assert row["result"]["reason"] == row["error"] and "failed its schema" in row["error"]
+    assert row["request"]["purpose"] == DRAFT and row["request"]["version"] == 1
+
+
+def test_an_accepted_reply_is_kept_too_with_its_prompt_version(conn, monkeypatch):
+    calls: list = []
+    answering(monkeypatch, calls)
+    out = llm.generate(conn, DRAFT, VARS, version=1)
+    row = _last_run(conn)
+    assert row["status"] == "ok" and row["result"] == {"reply": out, "outcome": "accepted"}
+    assert row["request"]["version"] == 1
+
+
 def test_the_seeded_campaign_is_twenty_five_dollars_less_a_margin_over_exactly_the_three_prompts():
     seeded = next(
         c

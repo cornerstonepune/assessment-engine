@@ -81,6 +81,19 @@ def _curriculum_map(r: dict[str, float]) -> None:
     held(cli_map.PURPOSE, r)
 
 
+def _kept(conn, ask):
+    """Each call's flow_run row (cost, prompt version, the reply and why it was refused) is committed as it is made, so
+    a run that dies afterwards still has what it spent and what it was told."""
+
+    def keep(*a, **k):
+        try:
+            return ask(*a, **k)
+        finally:
+            conn.commit()
+
+    return keep
+
+
 def _eval_curriculum_map(version: int, dev: bool = False, validate_version: int = 0) -> None:
     """curriculum_map: the agents map the held-out share of what people mapped, blind (or, with `dev`, the dev set);
     the model's replies (on the box, where the key is). `version` is the proposer's, `validate_version` the checker's.
@@ -88,7 +101,7 @@ def _eval_curriculum_map(version: int, dev: bool = False, validate_version: int 
     stage = "dev_eval" if dev else "held_out"
     with db.connect() as conn:
         try:
-            ask = model_ask(conn, version or None, validate_version or None, stage)
+            ask = _kept(conn, model_ask(conn, version or None, validate_version or None, stage, typer.echo))
             r = cli_map.evaluate(conn, ask, dev=dev)
         except LLMError as e:
             conn.commit()
