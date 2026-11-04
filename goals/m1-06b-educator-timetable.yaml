@@ -21,7 +21,7 @@ says:
   - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
     proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_the_sql_is_the_same_every_time_and_every_insert_is_safe_to_run_again"
   - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
-    proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_a_line_that_names_an_activity_exactly_links_to_it_and_any_other_line_stays_plain"
+    proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_a_line_names_an_activity_only_when_it_is_exactly_one_and_the_sql_is_the_one_that_says"
   - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
     proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_loading_twice_adds_nothing_the_second_time_and_counts_are_printed"
   - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
