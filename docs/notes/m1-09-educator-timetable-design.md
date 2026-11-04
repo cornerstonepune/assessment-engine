@@ -13,30 +13,30 @@
 | 5 Reminders | what she gets at 2 weeks and 1 week, what the team gets, what the team receives | new; nothing exists |
 Two taps: Today → period (1); the rubric is on that page (phone: the Rubric jump, 2). Status chips: Ready, Part, Plan, Specialist, Free (colour + icon + one word; no red anywhere).
 
-## What the real FN10 rows showed (read 4 Nov)
-- Four rows read in full (Insects, Lifecycle of Butterfly, Number names 11-20, Addition orally P1). All have steps, rubric and materials; none has "how to think about it".
-- **Number names 11-20 says its objective is "numbers from 6-10"**: a copy slip. Shown as written, with a Correct button.
-- **Planner lines with no activity row:** Clay "carrot, chillies, apple"; Block Room "Smelling Bottles" (not among the 35 Block Room names). Chip "Plan"; the screen says so.
-- Addition orally P2 has no period count; none of the four gives a quantity. Rubric text is shown verbatim (one level reads "ableto").
-- Level 0 reads "does not concentrate in the class": it is shown neutral grey, never red.
+## Found in the school's sheet (for the coordinator to settle)
+- **Number names 11-20 gives its objective as "numbers from 6-10"**: a copy slip. Shown as written, with Correct.
+- **Two plan items have no activity row:** Clay "carrot, chillies, apple" (clay rows read: about 20 of 21) and Block Room "Smelling Bottles" (not among its 35 names). Chip "Plan"; M1-11 drafts the row.
+- **Reminder dates fall in the vacation:** 9 and 16 Nov for FN10 (vacation 4-17 Nov). Rule from the orchestrator: send on the last working day before; if past, send at once. FN10's list is asked for now. Shown on screen 5.
+- Four rows read in full (Insects, Butterfly, Number names 11-20, Addition orally P1): all have steps, rubric and materials, none has "how to think". One level reads "ableto"; shown verbatim.
 
-## What is missing (not invented on any screen)
-1. "How to think about it": no field. Proposal: a person writes it; mapping agents may propose, a person approves (one row per version, never overwritten).
-2. Quantities: the sheet has none. Column says "not in sheet"; she may type one.
-3. Level 0–3 against Easy/Medium/Hard/Advance: the sheet headers say only "Activity Level 0..3". Screen shows numbers until a person confirms.
-4. Stock versus request (chalk, black board): she ticks what she has; the rest is sent. Alternative: the team marks stock items once.
+## What is missing, and how a screen shows it
+1. "How to think about it": no field. "Not written yet" only until the M1-11 agent drafts it; then the text shows tagged Drafted with Keep, Change, Reject (screen 3b; the school's words keep the School tag, a person's change shows Edited). She can write it herself now.
+2. Quantity and unit: the sheet has none. Blank until the agent drafts them as catalogue items (D-071). New items go to review.
+3. Level 0-3: numbers only, no Easy/Medium/Hard/Advance on K2. D-051 and the sheet give no words for the numbers; none is shown.
+4. Stock versus request (chalk, black board): she ticks what she has; the rest is sent.
+5. Send is WhatsApp first (one tap opens it with the list written out), email second. It records what was sent, not that it was read.
 
 ## Questions for a person
-- **O-39** how the materials team receives a request (address, sheet, WhatsApp). Placeholder `[team address]` on screen 5.
-- Channel for her reminders: in the app on Today plus email? (No WhatsApp, 22 Oct.)
-- **Vacation:** FN10 starts 23 Nov, so 2 weeks before is 9 Nov and 1 week before is 16 Nov; both are vacation (4–17 Nov). Send anyway, or on the first working day? For FN10 itself: send the list now?
-- Is "first day a material is needed" the anchor (as M1-10 says) or the fortnight start? Screens use the first day needed.
-- Confirm Level 0–3 = Easy/Medium/Hard/Advance. Does she correct activity text herself (22 Oct: every educator edits, effective next week) or only propose?
-- FN10 end date: roadmap says 4 Dec, Graph says 7 Dec (M1-06 holds this).
+- The materials team's WhatsApp number or group (placeholder on screens 4-5); is email also wanted? M1-10's "team confirms" needs a human tick (she ticks "Team has it"); is that enough?
+- Her own reminder channel: in the app plus email? (No WhatsApp for the dashboard, 22 Oct.) Both FN10 reminders are due now: one message or two? Screen 5 shows one.
+- Words for Level 0-3 on K2 (a legend such as 0 not yet, 1 beginning, 2 expected, 3 stretch exists nowhere I could find). The M1-11 card still says "Easy/Medium/Hard/Advance rubric": to reword.
+- Anchor for reminders: first day a material is needed (M1-10) or the fortnight start? Screens use the first day needed.
+- Who may revert a correction: the coordinator (orchestrator, 4 Nov). FN10 end date: roadmap 4 Dec, Graph 7 Dec (M1-06 holds this).
 
 ## Tables and engine calls (proposed; reuse M1-06's `fortnight`, `school_day`, `period`, `timetable_slot`, `plan_entry`, `session`)
-- New: `activity_thinking(activity_id, text, state proposed|approved, author, approver, at)`; `materials_list(class, fortnight, state draft|sent, sent_by, sent_at, sent_body)`;
-  `materials_line(list, text, activity_id, first_needed, qty, have, added_by)`; append-only `materials_line_edit(line, who, at, before, after)`; `reminder(list, kind 2w|1w, due, to, channel, sent_at)`. Activity corrections go through the existing `approval`.
+- New: `activity_thinking(activity_id, text, state proposed|approved, author, approver, at)`; `materials_list(class, fortnight, state draft|sent, route whatsapp|email, sent_by, sent_at, sent_body)`;
+  `materials_line(list, catalogue_item, activity_id, first_needed, qty, unit, have, added_by)`; append-only `materials_line_edit(line, who, at, before, after)`; `reminder(list, kind 2w|1w, due, to, channel, sent_at)`. 
+- Also: `activity_edit(activity, part, who, at, before, after, reverted_by)` for corrections (revertable by the coordinator); parts carry a source tag school|drafted|edited from M1-11's ledger.
 - Engine endpoints (thin, one per screen): day, week, `period/{slot}` (fields plus where each came from), `materials/collate`, line add/change/remove, `materials/send`, `engine reminders --due`.
 - n8n only triggers and delivers (rule 3): a daily run calls `reminders --due` and sends what it returns; a sent list cancels later reminders.
 - Goals to write first: `goals/m1-09-educator-timetable.yaml`, `goals/m1-10-materials-list.yaml` (scenarios S-M1-09-click, S-M1-10-materials in teacher-os).
