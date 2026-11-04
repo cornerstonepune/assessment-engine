@@ -29,6 +29,7 @@ from engine.w1_bank.cli_bank import bank_app
 from engine.w1_bank.k2_upload import curriculum_app
 from engine.w1_bank.question_types import types_app
 from engine.w2_print.cli_library import library_app
+from engine.w2_print.cli_materials import register_materials
 from engine.w2_print.cli_week import week_app
 from engine.w3_read.cli_gold import gold_app
 from engine.w3_read.cli_legacy import legacy_app
@@ -65,6 +66,7 @@ app.add_typer(report_app, name="report")
 app.add_typer(types_app, name="types")
 app.add_typer(levels_app, name="levels")
 register_staff(app)
+register_materials(app)
 register_checks(app)
 
 

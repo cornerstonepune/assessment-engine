@@ -1,0 +1,47 @@
+"""The text the educator sends to the materials team and the one-tap link that opens WhatsApp with it (task M1-10;
+D-071). A plain checklist, one line per item. The words are built here from rows, never by a model, and a quantity the
+sheet does not give is said to be missing, never filled in."""
+
+import datetime as dt
+import re
+from dataclasses import dataclass
+from urllib.parse import quote
+
+
+@dataclass(frozen=True)
+class Line:
+    item: str
+    quantity: float | None
+    unit: str
+    needed_on: dt.date
+
+
+def _day(d: dt.date) -> str:
+    return f"{d:%a} {d.day} {d:%b}"
+
+
+def _short(d: dt.date) -> str:
+    return f"{d.day} {d:%b}"
+
+
+def _number(q: float) -> str:
+    return str(int(q)) if float(q).is_integer() else f"{q:g}"
+
+
+def checklist(class_name: str, first: dt.date, last: dt.date, lines: list[Line]) -> str:
+    out = [f"{class_name} materials, {_short(first)} to {_short(last)}"]
+    for ln in lines:
+        what = (
+            f"{_number(ln.quantity)} {ln.unit}"
+            if ln.quantity is not None
+            else f"quantity to confirm ({ln.unit})"
+        )
+        out.append(f"[ ] {ln.item}: {what}, needed {_day(ln.needed_on)}")
+    return "\n".join(out)
+
+
+def whatsapp_link(text: str, to: str) -> str:
+    """`https://wa.me/<number>?text=…`; with no number set (or one that is not digits) the chat opens with nobody chosen."""
+    digits = re.sub(r"[\s+()-]", "", to or "")
+    who = digits if digits.isdigit() else ""
+    return f"https://wa.me/{who}?text={quote(text, safe='')}"
