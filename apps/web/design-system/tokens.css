@@ -6,55 +6,55 @@
 :root {
   color-scheme: light;
 
-  /* ---- Brand (names as on the school site) ---- */
-  --color-bamboo: #9a7a3a;
-  --color-bamboo-deep: #6e5420;
-  --color-bamboo-lt: #e9d3a6;
-  --color-bark: #8a6a45;
-  --color-basalt: #26241f;
-  --color-clay-100: #fbefe8;
-  --color-clay-200: #f3c9b3;
-  --color-clay-400: #c57a52;
-  --color-clay-500: #b8562f; /* the app's "terracotta" */
-  --color-clay-700: #9c4626;
-  --color-haldi: #e2a43f;
-  --color-olive: #4a5435;
-  --color-olive-deep: #3e4a2c;
-  --color-olive-lt: #d3dcb8;
-  --color-olive-tint: #eef1e6;
-  --color-olive-mid: #7e9a5c;
-  --color-monsoon-deep: #3f4d55;
-  --color-monsoon-lt: #cfdce2;
-  --color-monsoon-wash: #dde6ea;
-  --color-sand: #ede3d3;
-  --color-sand-pale: #f3f1e8;
-  --color-paper: #ffffff;
-  --color-paper-warm: #fbfaf7;
-  --color-stone: #5e5a52;
-  --color-line: #d9d6ce;
+  /* ---- Brand: the site's names with --brand- in place of --color-, so nothing shadows the app's Tailwind theme ---- */
+  --brand-bamboo: #9a7a3a;
+  --brand-bamboo-deep: #6e5420;
+  --brand-bamboo-lt: #e9d3a6;
+  --brand-bark: #8a6a45;
+  --brand-basalt: #26241f;
+  --brand-clay-100: #fbefe8;
+  --brand-clay-200: #f3c9b3;
+  --brand-clay-400: #c57a52;
+  --brand-clay-500: #b8562f; /* the app's "terracotta" */
+  --brand-clay-700: #9c4626;
+  --brand-haldi: #e2a43f;
+  --brand-olive: #4a5435;
+  --brand-olive-deep: #3e4a2c;
+  --brand-olive-lt: #d3dcb8;
+  --brand-olive-tint: #eef1e6;
+  --brand-olive-mid: #7e9a5c;
+  --brand-monsoon-deep: #3f4d55;
+  --brand-monsoon-lt: #cfdce2;
+  --brand-monsoon-wash: #dde6ea;
+  --brand-sand: #ede3d3;
+  --brand-sand-pale: #f3f1e8;
+  --brand-paper: #ffffff;
+  --brand-paper-warm: #fbfaf7;
+  --brand-stone: #5e5a52;
+  --brand-line: #d9d6ce;
 
   /* ---- Semantic, light ---- */
-  --bg: var(--color-paper-warm);
-  --surface: var(--color-paper);
-  --sunken: var(--color-sand-pale);
-  --text: var(--color-basalt); /* 14.85:1 on --bg */
-  --text-muted: var(--color-stone); /* 6.57:1 on --bg */
-  --link: var(--color-clay-700); /* 6.06:1 on --bg */
-  --border: var(--color-line); /* decoration only, 1.45:1: never the edge of a control */
-  --border-control: var(--color-stone); /* edge of inputs and buttons, 6.86:1 */
-  --focus: var(--color-basalt);
+  --bg: var(--brand-paper-warm);
+  --surface: var(--brand-paper);
+  --sunken: var(--brand-sand-pale);
+  --text: var(--brand-basalt); /* 14.85:1 on --bg */
+  --text-muted: var(--brand-stone); /* 6.57:1 on --bg */
+  --link: var(--brand-clay-700); /* 6.06:1 on --bg */
+  --border: var(--brand-line); /* decoration only, 1.45:1: never the edge of a control */
+  --border-control: var(--brand-stone); /* edge of inputs and buttons, 6.86:1 */
+  --focus: var(--brand-basalt);
 
   /* ---- Chips: icon + colour + one word (D-062). Pairs: text on fill, border. ---- */
-  --chip-donow-fg: var(--color-paper); --chip-donow-bg: var(--color-basalt); --chip-donow-bd: var(--color-basalt); /* icon: play */
-  --chip-confirm-fg: var(--color-bamboo-deep); --chip-confirm-bg: var(--color-bamboo-lt); --chip-confirm-bd: var(--color-bamboo); /* icon: clock */
-  --chip-soon-fg: var(--color-monsoon-deep); --chip-soon-bg: var(--color-paper); --chip-soon-bd: var(--color-monsoon-deep); /* icon: ring */
-  --chip-done-fg: var(--color-olive-deep); --chip-done-bg: var(--color-olive-tint); --chip-done-bd: var(--color-olive); /* icon: tick in circle */
-  --chip-late-fg: var(--color-clay-700); --chip-late-bg: var(--color-clay-100); --chip-late-bd: var(--color-clay-500); /* icon: hourglass; work only, never a child */
+  --chip-donow-fg: var(--brand-paper); --chip-donow-bg: var(--brand-basalt); --chip-donow-bd: var(--brand-basalt); /* icon: play */
+  --chip-confirm-fg: var(--brand-bamboo-deep); --chip-confirm-bg: var(--brand-bamboo-lt); --chip-confirm-bd: var(--brand-bamboo); /* icon: clock */
+  --chip-soon-fg: var(--brand-monsoon-deep); --chip-soon-bg: var(--brand-paper); --chip-soon-bd: var(--brand-monsoon-deep); /* icon: ring */
+  --chip-done-fg: var(--brand-olive-deep); --chip-done-bg: var(--brand-olive-tint); --chip-done-bd: var(--brand-olive); /* icon: tick in circle */
+  --chip-late-fg: var(--brand-clay-700); --chip-late-bg: var(--brand-clay-100); --chip-late-bd: var(--brand-clay-500); /* icon: hourglass; work only, never a child */
 
   /* ---- Where a piece of text came from (round 24 px badge, icon only, word in the legend) ---- */
-  --origin-school-fg: var(--color-olive-deep); --origin-school-bg: var(--color-olive-tint); /* icon: book-open */
-  --origin-drafted-fg: var(--color-bamboo-deep); --origin-drafted-bg: var(--color-bamboo-lt); /* icon: sparkles */
-  --origin-edited-fg: var(--color-monsoon-deep); --origin-edited-bg: var(--color-monsoon-wash); /* icon: pencil (Lucide square-pen) */
+  --origin-school-fg: var(--brand-olive-deep); --origin-school-bg: var(--brand-olive-tint); /* icon: book-open */
+  --origin-drafted-fg: var(--brand-bamboo-deep); --origin-drafted-bg: var(--brand-bamboo-lt); /* icon: sparkles */
+  --origin-edited-fg: var(--brand-monsoon-deep); --origin-edited-bg: var(--brand-monsoon-wash); /* icon: pencil (Lucide square-pen) */
 
   /* ---- Space (px). 4 is for inside a control only. ---- */
   --space-1: 4px;
@@ -91,21 +91,21 @@
   :root {
     color-scheme: dark;
     --bg: #1b1a17; /* derived */
-    --surface: var(--color-basalt);
+    --surface: var(--brand-basalt);
     --sunken: #2f2d27; /* derived */
-    --text: var(--color-sand-pale); /* 15.38:1 on --bg */
+    --text: var(--brand-sand-pale); /* 15.38:1 on --bg */
     --text-muted: #bdb8ad; /* derived, 8.80:1 */
-    --link: var(--color-clay-200);
+    --link: var(--brand-clay-200);
     --border: #3a3832; /* decoration only */
     --border-control: #bdb8ad;
-    --focus: var(--color-haldi);
-    --chip-donow-fg: var(--color-basalt); --chip-donow-bg: var(--color-sand-pale); --chip-donow-bd: var(--color-sand-pale);
-    --chip-confirm-fg: var(--color-bamboo-lt); --chip-confirm-bg: #3b2f14; --chip-confirm-bd: var(--color-bamboo-lt); /* bg derived */
-    --chip-soon-fg: var(--color-monsoon-lt); --chip-soon-bg: transparent; --chip-soon-bd: var(--color-monsoon-lt);
-    --chip-done-fg: var(--color-olive-lt); --chip-done-bg: #2a3220; --chip-done-bd: var(--color-olive-lt); /* bg derived */
-    --chip-late-fg: var(--color-clay-200); --chip-late-bg: #4a2417; --chip-late-bd: var(--color-clay-400); /* bg derived */
-    --origin-school-fg: var(--color-olive-lt); --origin-school-bg: #2a3220;
-    --origin-drafted-fg: var(--color-bamboo-lt); --origin-drafted-bg: #3b2f14;
-    --origin-edited-fg: var(--color-monsoon-lt); --origin-edited-bg: #26333a; /* bg derived, 9.27:1 */
+    --focus: var(--brand-haldi);
+    --chip-donow-fg: var(--brand-basalt); --chip-donow-bg: var(--brand-sand-pale); --chip-donow-bd: var(--brand-sand-pale);
+    --chip-confirm-fg: var(--brand-bamboo-lt); --chip-confirm-bg: #3b2f14; --chip-confirm-bd: var(--brand-bamboo-lt); /* bg derived */
+    --chip-soon-fg: var(--brand-monsoon-lt); --chip-soon-bg: transparent; --chip-soon-bd: var(--brand-monsoon-lt);
+    --chip-done-fg: var(--brand-olive-lt); --chip-done-bg: #2a3220; --chip-done-bd: var(--brand-olive-lt); /* bg derived */
+    --chip-late-fg: var(--brand-clay-200); --chip-late-bg: #4a2417; --chip-late-bd: var(--brand-clay-400); /* bg derived */
+    --origin-school-fg: var(--brand-olive-lt); --origin-school-bg: #2a3220;
+    --origin-drafted-fg: var(--brand-bamboo-lt); --origin-drafted-bg: #3b2f14;
+    --origin-edited-fg: var(--brand-monsoon-lt); --origin-edited-bg: #26333a; /* bg derived, 9.27:1 */
   }
 }

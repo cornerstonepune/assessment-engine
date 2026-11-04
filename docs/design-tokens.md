@@ -1,8 +1,13 @@
 # Design tokens and rules (D-073): the school's own palette, one type system, numbers that can be checked
 
 Machine-readable: `apps/web/design-system/tokens.css` (CSS variables; nothing imports it yet). Audit of what exists: `docs/design-audit-k2.md`.
-Brand values come from cornerstoneschool.in, read 2026-11-04: all 21 colours and the four font names are in its homepage HTML
-(the token names, the 12/20 radius and the 44 px tap size are the orchestrator's brief; I did not re-check those three).
+Brand values come from cornerstoneschool.in, read 2026-11-04: 22 colours from the brief and 3 more read from its CSS variables (clay-200, olive-lt, monsoon-lt) are in its homepage HTML, with the four font names
+(the 12/20 radius and the 44 px tap size are the orchestrator's brief; I did not re-check those two).
+
+## Names and collisions
+Brand colours are `--brand-*` (the site calls them `--color-*`; that prefix is the app's Tailwind theme, where `--color-bamboo` is #C9A96A and `--color-basalt` already exist). Semantic names (`--chip-*`, `--origin-*`, `--space-*`, `--tap`, `--text-*`, `--font-*`, `--radius-*`, `--bg`, `--surface`, `--border`, `--link`, `--focus`) are unchanged.
+Check run on 4 Nov: every CSS variable defined in `apps/web` (27 outside `tokens.css`: `--lime --basalt --terracotta --neem --bamboo --mud --monsoon --chalk --ink-*`, their `--color-*` twins, `--font-body --font-heading --radius`) against the 85 names in `tokens.css`. Result: no exact clash except **`--font-body`**, which the app sets to Source Serif 4; importing `tokens.css` changes it to Jost. That is decision 1, not a bug to rename around. Every `var(--x)` in `tokens.css` resolves.
+`--font-*`, `--text-*` and `--radius-*` sit in Tailwind's theme namespaces. They are declared in plain `:root`, so no utility is made; if anyone moves them into `@theme`, Tailwind will make `font-body`, `text-h1` and similar classes. Tailwind's own default names were **not** checked (it is not installed in this session).
 
 ## Decisions this needs (they conflict with the app today; I have not chosen)
 1. **Fonts.** `design-system/PRINCIPLES.md` says one serif, Source Serif 4 (Nimish, 21 Sep: "a simple serif family"). D-073 says Jost, Cormorant Garamond, Young Serif, Eczar.

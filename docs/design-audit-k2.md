@@ -39,7 +39,7 @@ not run: Tailwind sizes are taken as 0.25 rem per step on a 16 px root (**unveri
 | R3 | 267 of 426 text nodes are under 14 px (11.5, 12, 12.5, 13, 13.5); only 73 sit on the new scale (12, 14, 16) | re-set on the scale; no status or action under 14 |
 | R4 | `system-ui` on 1064 elements, Georgia on 5 | Jost, Cormorant Garamond at 24 and above |
 | R1 | 120 of 164 spacing values are off the scale (6, 10, 12, 14, 9, 11, 13, 18, 20) | tokens `--space-*` |
-| R5 | Grey hints at 62% on chalk 4.46; "Not written yet" monsoon 4.06; the old Late chip, clay-500 on a pale fill, 3.76 | `--text-muted`; `--color-monsoon-deep`; the new Late pair 5.61 |
+| R5 | Grey hints at 62% on chalk 4.46; "Not written yet" monsoon 4.06; the old Late chip, clay-500 on a pale fill, 3.76 | `--text-muted`; `--brand-monsoon-deep`; the new Late pair 5.61 |
 | R6 | A dark palette exists but its pairs were never contrast-checked | use the checked dark tokens |
 | R7 | Checked at 390 px in the phone frame (no sideways scroll at 1360); not at 640 or 320 px | run R7 |
 | R8 | pass: icon, colour and word on every chip; no clay on a child; Late is clay on work only | none |
