@@ -14,74 +14,30 @@ import re
 from dataclasses import dataclass, field
 from datetime import date
 
-FIXED = ("settling", "circle time", "fruit break", "lunch", "reflection", "dispersal", "boarding the bus")
-SPECIALIST = ("pe", "music_guest")
-# the order matters: the first phrase found wins
-SUBJECT_OF = (
-    ("physical education", "pe"),
-    ("music - guest", "music_guest"),
-    ("music", "music"),
-    ("phonics", "phonics"),
-    ("hindi", "hindi"),
-    ("english", "english"),
-    ("math", "math"),
-    ("reading time", "reading"),
-    ("general awareness", "general_awareness"),
-    ("me time", "me_time"),
-    ("rhymes and dance", "rhymes_dance"),
-    ("rhymes", "rhymes"),
-    ("story", "story"),
-    ("clay", "clay"),
-    ("routine of the month", "routine"),
-    ("art", "art"),
-    ("memory drawing", "memory_drawing"),
-    ("practical life", "practical_life"),
-    ("fine motor", "fine_motor"),
-    ("class routine", "cleanup"),
-    ("play based projects", "projects"),
-)
-PLAN_KEY = {  # frame subject -> planner heading it draws its lines from
-    "phonics": "english",
-    "english": "english",
-    "hindi": "hindi",
-    "math": "math",
-    "story": "stories",
-    "rhymes": "rhymes",
-    "rhymes_dance": "rhymes",
-    "general_awareness": "general_awareness",
-    "art": "art",
-    "clay": "clay",
-    "music": "music",
-    "pe": "pe",
-    "fine_motor": "fine_motor",
-    "practical_life": "practical_life",
-    "routine": "routines",
-}
-HEADINGS = {  # a whole line equal to one of these opens a section of the planner cell
-    "english": "english",
-    "hindi": "hindi",
-    "stories": "stories",
-    "rhymes": "rhymes",
-    "math": "math",
-    "block room": "block_room",
-    "brave day task": "brave_day",
-    "general awareness": "general_awareness",
-    "art and craft": "art",
-    "clay": "clay",
-    "music": "music",
-    "circle time": "circle_time",
-    "good deed": "good_deed",
-    "word of the week": "word_of_the_week",
-    "prayer": "prayer",
-    "gross motor skills": "gross_motor",
-    "fine motor skills": "fine_motor",
-    "practical life skills": "practical_life",
-    "physical education": "pe",
-    "routine": "routines",
-    "routines": "routines",
-}
-HEADER_KEYS = ("circle_time", "good_deed", "word_of_the_week", "prayer", "brave_day")
-GLUE_WORDS = {"writing", "reading", "phonics"}
+
+@dataclass(frozen=True)
+class Vocabulary:
+    """How the school's sheets are read. The words are the `timetable.vocabulary` config row, never code."""
+
+    fixed_rows: tuple[str, ...]
+    specialist: frozenset[str]
+    subject_phrases: tuple[tuple[str, str], ...]
+    plan_key_of_subject: dict[str, str]
+    plan_headings: dict[str, str]
+    header_keys: tuple[str, ...]
+    glue_words: frozenset[str]
+
+    @classmethod
+    def from_config(cls, v: dict) -> "Vocabulary":
+        return cls(
+            tuple(v["fixed_rows"]),
+            frozenset(v["specialist"]),
+            tuple((p, s) for p, s in v["subject_phrases"]),
+            dict(v["plan_key_of_subject"]),
+            dict(v["plan_headings"]),
+            tuple(v["header_keys"]),
+            frozenset(v["glue_words"]),
+        )
 
 
 @dataclass(frozen=True)
@@ -128,32 +84,32 @@ def _one_line(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
-def _subject_of(text: str) -> str | None:
+def _subject_of(text: str, vocab: Vocabulary) -> str | None:
     low = text.lower()
-    if low.startswith(FIXED):
+    if low.startswith(vocab.fixed_rows):
         return None
-    for phrase, subject in SUBJECT_OF:
+    for phrase, subject in vocab.subject_phrases:
         if re.search(rf"\b{re.escape(phrase)}\b", low):
             return subject
     return "other"
 
 
-def read_frame(rows: list[dict]) -> Frame:
+def read_frame(rows: list[dict], vocab: Vocabulary) -> Frame:
     cells: list[FrameCell] = []
     for row in rows:
         start, _, end = (_one_line(row["time"]) + " - ").partition(" - ")
         for week in ("A", "B"):
             for i, raw in enumerate(row[week]):
                 text = _one_line(raw)
-                subject = _subject_of(text) if text else None
+                subject = _subject_of(text, vocab) if text else None
                 kind = "empty" if not text else "fixed" if subject is None else "subject"
-                if subject in SPECIALIST:
+                if subject in vocab.specialist:
                     kind = "specialist"
                 cells.append(FrameCell(week, i + 1, start, end.strip(" -"), kind, subject, text))
     return Frame(cells)
 
 
-def _items(lines: list[str]) -> list[str]:
+def _items(lines: list[str], vocab: Vocabulary) -> list[str]:
     items: list[str] = []
     glue = False
     for line in lines:
@@ -164,22 +120,22 @@ def _items(lines: list[str]) -> list[str]:
             items[-1] = f"{items[-1]} {line}".strip()
         else:
             items.append(line)
-        glue = line.endswith(("-", ":")) or line.lower() in GLUE_WORDS
+        glue = line.endswith(("-", ":")) or line.lower() in vocab.glue_words
     return items
 
 
-def read_plan_row(cells: list[str], fortnight: int) -> Plan:
+def read_plan_row(cells: list[str], fortnight: int, vocab: Vocabulary) -> Plan:
     sections: dict[str, list[str]] = {}
     for cell in cells:
         key = None
         for raw in cell.split("\n"):
-            head = HEADINGS.get(_one_line(raw).rstrip(":").lower())
+            head = vocab.plan_headings.get(_one_line(raw).rstrip(":").lower())
             if head:
                 key = head
                 sections.setdefault(key, [])
             elif key and _one_line(raw):
                 sections[key].append(raw)
-    return Plan(fortnight, {k: _items(v) for k, v in sections.items()})
+    return Plan(fortnight, {k: _items(v, vocab) for k, v in sections.items()})
 
 
 def _weeks(days: list[date]) -> dict[date, str]:
@@ -195,7 +151,7 @@ def _halves(items: list[str]) -> dict[str, list[str]]:
 
 
 def _fill_days(
-    frame: Frame, plan: Plan, days: list[date], week_of: dict[date, str]
+    frame: Frame, plan: Plan, days: list[date], week_of: dict[date, str], vocab: Vocabulary
 ) -> tuple[list[Filled], set[str]]:
     grid: dict[tuple[str, int], list[FrameCell]] = {}
     for c in frame.cells:
@@ -206,7 +162,7 @@ def _fill_days(
     for d in sorted(days):
         week = week_of[d]
         for c in grid.get((week, d.weekday() + 1), []):
-            key = PLAN_KEY.get(c.subject or "", "")
+            key = vocab.plan_key_of_subject.get(c.subject or "", "")
             half = _halves(plan.lines.get(key, [])).get(week, [])
             source, text = None, c.text
             if half and c.kind in ("subject", "specialist"):
@@ -219,7 +175,9 @@ def _fill_days(
     return cells, used
 
 
-def _header_cells(plan: Plan, days: list[date], week_of: dict[date, str]) -> tuple[list[Filled], set[str]]:
+def _header_cells(
+    plan: Plan, days: list[date], week_of: dict[date, str], vocab: Vocabulary
+) -> tuple[list[Filled], set[str]]:
     cells: list[Filled] = []
     used: set[str] = set()
     for week in "AB":
@@ -227,7 +185,7 @@ def _header_cells(plan: Plan, days: list[date], week_of: dict[date, str]) -> tup
         if not in_week:
             continue
         first = min(in_week)
-        for key in HEADER_KEYS:
+        for key in vocab.header_keys:
             for line in _halves(plan.lines.get(key, []))[week]:
                 cells.append(
                     Filled(first, week, first.weekday() + 1, "00:00", "header", key, f"{key}: {line}", line)
@@ -236,12 +194,12 @@ def _header_cells(plan: Plan, days: list[date], week_of: dict[date, str]) -> tup
     return cells, used
 
 
-def generate(frame: Frame, plan: Plan, days: list[date]) -> Draft:
+def generate(frame: Frame, plan: Plan, days: list[date], vocab: Vocabulary) -> Draft:
     if any(d.weekday() > 4 for d in days):
         raise ValueError("a school day here is Monday to Friday")
     week_of = _weeks(days)
-    cells, used = _fill_days(frame, plan, days, week_of)
-    head, head_used = _header_cells(plan, days, week_of)
+    cells, used = _fill_days(frame, plan, days, week_of, vocab)
+    head, head_used = _header_cells(plan, days, week_of, vocab)
     used |= head_used
     no_slot = [(k, ln) for k, v in plan.lines.items() for ln in v if ln not in used]
     return Draft(cells + head, no_slot)

@@ -13,7 +13,15 @@ from pathlib import Path
 from engine.w2_print import k2_timetable as tt
 
 FIX = Path(__file__).parent / "fixtures"
+REPO = Path(__file__).resolve().parents[3]
 FRAME_ROWS = json.loads((FIX / "k2_frame_fn_2026_27.json").read_text())["rows"]
+VOCAB = tt.Vocabulary.from_config(
+    next(
+        c["value"]
+        for c in json.loads((REPO / "supabase/seed/config.json").read_text())["config"]
+        if c["key"] == "timetable.vocabulary"
+    )
+)
 PLAN_ROW = json.loads((FIX / "k2_planner_fn10_2026_27.json").read_text())
 
 FN10_DAYS = [
@@ -22,11 +30,11 @@ FN10_DAYS = [
 
 
 def frame():
-    return tt.read_frame(FRAME_ROWS)
+    return tt.read_frame(FRAME_ROWS, VOCAB)
 
 
 def plan():
-    return tt.read_plan_row(PLAN_ROW["cells"], PLAN_ROW["fortnight"])
+    return tt.read_plan_row(PLAN_ROW["cells"], PLAN_ROW["fortnight"], VOCAB)
 
 
 def test_the_frame_is_fifteen_rows_by_two_weeks_of_five_days():
@@ -74,14 +82,14 @@ def test_a_planner_row_is_split_by_its_own_headings():
 
 
 def test_stories_follow_last_years_hand_filled_pattern_item_one_in_week_a_item_two_in_week_b():
-    d = tt.generate(frame(), plan(), FN10_DAYS)
+    d = tt.generate(frame(), plan(), FN10_DAYS, VOCAB)
     story = {(c.week, c.weekday): c.text for c in d.cells if c.subject == "story"}
     assert all("Kisan aur bhalu" in t for (w, _), t in story.items() if w == "A")
     assert all("Walking together" in t for (w, _), t in story.items() if w == "B")
 
 
 def test_every_filled_line_is_a_planner_line_of_its_own_subject_never_written_by_the_system():
-    p, d = plan(), tt.generate(frame(), plan(), FN10_DAYS)
+    p, d = plan(), tt.generate(frame(), plan(), FN10_DAYS, VOCAB)
     allowed = {line for lines in p.lines.values() for line in lines}
     for c in d.cells:
         if c.source:
@@ -90,7 +98,7 @@ def test_every_filled_line_is_a_planner_line_of_its_own_subject_never_written_by
 
 
 def test_every_planner_line_is_placed_or_listed_as_having_no_slot():
-    p, d = plan(), tt.generate(frame(), plan(), FN10_DAYS)
+    p, d = plan(), tt.generate(frame(), plan(), FN10_DAYS, VOCAB)
     placed = {c.source for c in d.cells if c.source}
     unplaced = {line for lines in p.lines.values() for line in lines} - placed
     assert unplaced == {line for _, line in d.no_slot}
@@ -99,18 +107,18 @@ def test_every_planner_line_is_placed_or_listed_as_having_no_slot():
 
 def test_a_holiday_leaves_no_cell_and_the_other_days_keep_their_weekday():
     day_off = date(2026, 11, 25)
-    d = tt.generate(frame(), plan(), [x for x in FN10_DAYS if x != day_off])
+    d = tt.generate(frame(), plan(), [x for x in FN10_DAYS if x != day_off], VOCAB)
     assert day_off not in {c.date for c in d.cells}
     thu = [c for c in d.cells if c.date == date(2026, 11, 26) and c.start == "09:40"]
     assert thu and thu[0].kind == "empty"
 
 
 def test_an_unchanged_week_regenerates_identically_and_one_changed_line_changes_only_its_cells():
-    a, b = tt.generate(frame(), plan(), FN10_DAYS), tt.generate(frame(), plan(), FN10_DAYS)
+    a, b = tt.generate(frame(), plan(), FN10_DAYS, VOCAB), tt.generate(frame(), plan(), FN10_DAYS, VOCAB)
     assert tt.changed(a, b) == []
     cells = list(PLAN_ROW["cells"])
     cells[1] = cells[1].replace("Addition - orally", "Addition - with beads")
-    c = tt.generate(frame(), tt.read_plan_row(cells, 10), FN10_DAYS)
+    c = tt.generate(frame(), tt.read_plan_row(cells, 10, VOCAB), FN10_DAYS, VOCAB)
     diff = tt.changed(a, c)
     assert diff and all(x.subject.startswith("math") for x in diff)
 
