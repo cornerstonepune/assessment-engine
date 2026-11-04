@@ -135,10 +135,13 @@ export function listsOf(w: Work): Record<MarkKey, string[]> {
 export function findActivities(all: readonly Activity[], q: string, most = 8): Activity[] {
   const t = q.trim().toLowerCase();
   if (!t) return [];
-  const byNo = all.filter((a) => a.no === t);
-  const byName = all.filter((a) => !byNo.includes(a) && (a.no.startsWith(t) || a.name.toLowerCase().includes(t)));
+  const byNo = all.filter((a) => a.no && a.no === t);
+  const byName = all.filter((a) => !byNo.includes(a) && ((a.no && a.no.startsWith(t)) || a.name.toLowerCase().includes(t)));
   return [...byNo, ...byName].slice(0, most);
 }
+
+/** An activity as she reads it: "12 · Sorting by colour", or its name alone when the sheet gave it no number. */
+export const activityWords = (a: Activity) => (a.no ? `${a.no} · ${a.name}` : a.name);
 
 /** Days between the day it was taught and the day it reached us, on the school's clock: 0 is today's note, 1 is
  *  "late: about yesterday". */

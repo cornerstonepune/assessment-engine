@@ -450,6 +450,169 @@
       "description": "Whether the K2 educator sees Record and Confirm. Off until she is trained; Nimish turns it on. A page or route asked for while it is off refuses.",
       "value": false,
       "seed_once": true
+    },
+    {
+      "key": "timetable.vocabulary",
+      "description": "How the K2 timetable generator reads the school's sheets (goals/m1-06-plan-today.yaml): which phrases in a period name its subject, which subject draws its lines from which Monthly Planner heading, which planner headings open a section, which sections head the week rather than fill a period, and which one-word lines join the line after them. A new wording in the school's sheet is an edit to this row, never to code.",
+      "value": {
+        "fixed_rows": [
+          "settling",
+          "circle time",
+          "fruit break",
+          "lunch",
+          "reflection",
+          "dispersal",
+          "boarding the bus"
+        ],
+        "specialist": [
+          "pe",
+          "music_guest"
+        ],
+        "subject_phrases": [
+          [
+            "physical education",
+            "pe"
+          ],
+          [
+            "music - guest",
+            "music_guest"
+          ],
+          [
+            "music",
+            "music"
+          ],
+          [
+            "phonics",
+            "phonics"
+          ],
+          [
+            "hindi",
+            "hindi"
+          ],
+          [
+            "english",
+            "english"
+          ],
+          [
+            "math",
+            "math"
+          ],
+          [
+            "reading time",
+            "reading"
+          ],
+          [
+            "general awareness",
+            "general_awareness"
+          ],
+          [
+            "me time",
+            "me_time"
+          ],
+          [
+            "rhymes and dance",
+            "rhymes_dance"
+          ],
+          [
+            "rhymes",
+            "rhymes"
+          ],
+          [
+            "story",
+            "story"
+          ],
+          [
+            "clay",
+            "clay"
+          ],
+          [
+            "routine of the month",
+            "routine"
+          ],
+          [
+            "art",
+            "art"
+          ],
+          [
+            "memory drawing",
+            "memory_drawing"
+          ],
+          [
+            "practical life",
+            "practical_life"
+          ],
+          [
+            "fine motor",
+            "fine_motor"
+          ],
+          [
+            "class routine",
+            "cleanup"
+          ],
+          [
+            "play based projects",
+            "projects"
+          ]
+        ],
+        "plan_key_of_subject": {
+          "phonics": "english",
+          "english": "english",
+          "hindi": "hindi",
+          "math": "math",
+          "story": "stories",
+          "rhymes": "rhymes",
+          "rhymes_dance": "rhymes",
+          "general_awareness": "general_awareness",
+          "art": "art",
+          "clay": "clay",
+          "music": "music",
+          "pe": "pe",
+          "fine_motor": "fine_motor",
+          "practical_life": "practical_life",
+          "routine": "routines"
+        },
+        "plan_headings": {
+          "english": "english",
+          "hindi": "hindi",
+          "stories": "stories",
+          "rhymes": "rhymes",
+          "math": "math",
+          "block room": "block_room",
+          "brave day task": "brave_day",
+          "general awareness": "general_awareness",
+          "art and craft": "art",
+          "clay": "clay",
+          "music": "music",
+          "circle time": "circle_time",
+          "good deed": "good_deed",
+          "word of the week": "word_of_the_week",
+          "prayer": "prayer",
+          "gross motor skills": "gross_motor",
+          "fine motor skills": "fine_motor",
+          "practical life skills": "practical_life",
+          "physical education": "pe",
+          "routine": "routines",
+          "routines": "routines"
+        },
+        "header_keys": [
+          "circle_time",
+          "good_deed",
+          "word_of_the_week",
+          "prayer",
+          "brave_day"
+        ],
+        "glue_words": [
+          "writing",
+          "reading",
+          "phonics"
+        ]
+      }
+    },
+    {
+      "key": "voice.recording_enabled",
+      "description": "Whether the K2 educator may record a spoken note (and hear it back), on top of voice.screens_enabled. Off until Sarvam confirms 'No retention' in writing (D-065); with it off she uses the form, and no recording is kept or sent anywhere. A missing row is off.",
+      "value": false,
+      "seed_once": true
     }
   ]
 }

@@ -37,13 +37,14 @@ export async function draftOf(me: Pick<Session, "email">, noteId: string): Promi
   return (await res.json()) as Draft;
 }
 
-/** The activities of a grade that carry the K2 team's number, for the picker (number first, then name). */
+/** Every activity of a grade, for the picker: those with the K2 team's number first, by number, then those the sheet
+ *  left without one, by name (321 of live's 871 K2 activities; each is found by its name, none is out of reach). */
 export const activitiesOf = cache(
   (grade: string) =>
     sql<Activity[]>`
-      select code, sheet_no as no, name from activity
-      where band = ${grade} and sheet_no ~ '^[0-9]+$'
-      order by sheet_no::int, code`,
+      select code, case when sheet_no ~ '^[0-9]+$' then sheet_no else '' end as no, name from activity
+      where band = ${grade}
+      order by (sheet_no !~ '^[0-9]+$'), case when sheet_no ~ '^[0-9]+$' then sheet_no::int end, name, code`,
 );
 
 /** The engine's reason, in its own words, or ours when it gave none. */

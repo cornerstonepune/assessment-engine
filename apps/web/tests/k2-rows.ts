@@ -34,8 +34,9 @@ export async function k2Class(sql: Sql): Promise<K2> {
     await sql`insert into enrolment (tenant_id, child_id, class_id, roll_no, from_date, recorded_by) values (${t}, ${child}, ${klass}, ${roll}, '2026-01-01', 'm1-04 test')`;
   }
   const skills = await sql<{ code: string }[]>`select code from registry_skill where tenant_id = ${t} order by code limit 2`;
-  for (const [no, name] of [["904", "Placeholder sorting activity"], ["907", "Placeholder counting activity"]]) {
-    const code = `ACT-K2-M104-${no}`;
+  // the K2 team's sheet leaves some activities without a number (321 of 871 on live): found by name, never lost
+  for (const [no, name] of [["904", "Placeholder sorting activity"], ["907", "Placeholder counting activity"], ["", "Placeholder unnumbered activity"]]) {
+    const code = `ACT-K2-M104-${no || "NONE"}`;
     await sql`insert into activity (tenant_id, code, band, strand, name, sheet_no) values (${t}, ${code}, 'K2', 'Maths', ${name}, ${no}) on conflict (tenant_id, code) do nothing`;
     for (const s of skills) await sql`insert into activity_skill (tenant_id, activity_code, skill_code) values (${t}, ${code}, ${s.code}) on conflict do nothing`;
   }
@@ -51,7 +52,13 @@ export async function aK2Note(sql: Sql, k: K2, transcript: string, status = "dra
   return id;
 }
 
-export const voiceSwitch = (sql: Sql, on: boolean) => sql`update config set value = ${on ? sql`'true'::jsonb` : sql`'false'::jsonb`} where key = 'voice.screens_enabled'`;
+/** The two switches: the screens, and recording on top of them (D-065). Recording follows the screens unless said. */
+export async function voiceSwitch(sql: Sql, on: boolean, recording = on) {
+  await sql`update config set value = ${on ? sql`'true'::jsonb` : sql`'false'::jsonb`} where key = 'voice.screens_enabled'`;
+  await sql`delete from config where key = 'voice.recording_enabled'`;
+  await sql`insert into config (tenant_id, key, value, description)
+    select id, 'voice.recording_enabled', ${recording ? sql`'true'::jsonb` : sql`'false'::jsonb`}, 'm1-04 test' from tenant`;
+}
 
 /** Every note the tester left waiting, left unconfirmed (as the 48-hour rule leaves them), so a test reads only its own. */
 export const noNotesWaiting = (sql: Sql, k: K2) => sql`update pii.educator_note set status = 'left_unconfirmed' where staff_id = ${k.staff} and status in ('received', 'drafted')`;
