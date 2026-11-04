@@ -51,7 +51,9 @@ export type EngineRoutes = {
   "POST /commit": { child_id: string; by: string };
   "POST /graph/rebuild": { child_id?: string | null };
   "POST /ingest": { path: string; paper_code: string; child_id: string; actor: string; pages?: number[] | null; masks?: Record<string, number> | null; narrative?: boolean };
+  "POST /k2/child": { actor: string; class_id: string; roll_no: string };
   "POST /k2/coordinator": { actor: string };
+  "POST /k2/picture": { actor: string; class_id: string };
   "POST /k2/todo": { actor: string };
   "POST /mark": { child_id: string };
   "POST /paper/key": { result_id: string; answer: string; by: string };

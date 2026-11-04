@@ -15,7 +15,7 @@ from tests.voice_rows import a_k2_class, a_note
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 KEY = "test-engine-key"
-ROUTES = ("/k2/todo", "/k2/coordinator")
+ROUTES = ("/k2/todo", "/k2/coordinator", "/k2/picture", "/k2/child")
 
 
 @pytest.fixture
@@ -38,6 +38,14 @@ def _switch(conn, on: bool):
     )
 
 
+def _body(path, k):
+    return (
+        {"actor": k["email"], "class_id": k["class"], "roll_no": "1"}
+        if path in ROUTES[2:]
+        else {"actor": k["email"]}
+    )
+
+
 def _post(client, path, body, key=KEY):
     return client.post(path, json=body, headers={"X-Engine-Key": key})
 
@@ -47,7 +55,7 @@ def test_every_k2_read_refuses_while_voice_notes_are_switched_off(engine):
     k = a_k2_class(conn)
     _switch(conn, False)
     for path in ROUTES:
-        r = _post(client, path, {"actor": k["email"]})
+        r = _post(client, path, _body(path, k))
         assert (r.status_code, r.json()["detail"]) == (403, "Voice notes are not switched on."), path
 
 
@@ -56,7 +64,7 @@ def test_every_k2_read_needs_the_engines_key(engine):
     k = a_k2_class(conn)
     _switch(conn, True)
     for path in ROUTES:
-        assert _post(client, path, {"actor": k["email"]}, key="wrong").status_code == 401, path
+        assert _post(client, path, _body(path, k), key="wrong").status_code == 401, path
 
 
 def test_the_todo_is_only_the_signed_in_educators_own(engine):
@@ -88,6 +96,24 @@ def test_the_answers_have_no_field_a_parent_could_be_shown_that_is_not_theirs(en
     client, _ = engine
     schema = client.get("/openapi.json").json()
     text = json.dumps({p: v for p, v in schema["paths"].items() if p.startswith("/k2/")}).lower()
-    assert "/k2/todo" in text
+    assert "/k2/todo" in text and "/k2/picture" in text and "/k2/child" in text
     for banned in ("not_willing", "not willing", "first_name", "last_name", "email_address", "transcript"):
         assert banned not in text, banned
+
+
+def test_the_picture_and_a_childs_page_reach_only_staff_of_that_class(engine):
+    client, conn = engine
+    k, other = a_k2_class(conn), a_k2_class(conn)
+    _switch(conn, True)
+    r = _post(client, "/k2/picture", {"actor": k["email"], "class_id": k["class"]})
+    assert r.status_code == 200, r.text
+    assert [c["roll_no"] for c in r.json()["children"]] == ["1", "2", "3", "4", "5"] and r.json()[
+        "skills"
+    ] == []
+    assert _post(client, "/k2/picture", {"actor": other["email"], "class_id": k["class"]}).status_code == 403
+    one = _post(client, "/k2/child", {"actor": k["email"], "class_id": k["class"], "roll_no": "3"})
+    assert (one.status_code, one.json()["roll_no"], one.json()["skills"]) == (200, "3", [])
+    assert (
+        _post(client, "/k2/child", {"actor": k["email"], "class_id": k["class"], "roll_no": "99"}).status_code
+        == 404
+    )

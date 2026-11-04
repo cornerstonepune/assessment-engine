@@ -1,6 +1,7 @@
 # M1-03 — the K2 screens' read calls
 
-W3, step N9 (the voice notes' reader). No migration: queries in code. Part A is built; Part B waits on #364.
+W3, step N9 (the voice notes' reader). No migration: queries in code. Part A (to-do, coordinator) and Part B (class
+picture, child page, reading `child_observed_state` from #364) are built.
 
 ## Verified
 
@@ -25,9 +26,23 @@ W3, step N9 (the voice notes' reader). No migration: queries in code. Part A is 
 - A note older than 48 hours is "left unconfirmed" by time, whether or not the hourly job has run yet.
 - `voice_intake.resolve` takes optional lookups so a list uses the Confirm page's one rule without a query per note.
 
+## Part B
+
+- `POST /k2/picture` (`actor`, `class_id`): the class's children by Sr. No. against the skills anyone was seen on; a cell
+  `{state, words, colour, level, last_seen}` only where the child was seen. `POST /k2/child` (`actor`, `class_id`,
+  `roll_no`): her skills newest first, each with the free sentence of the note it came from, or null.
+- State words and colour are the `child_state` rows (a test changes a colour and the answer follows). The level is the
+  level reached by the latest *named* observation; "the rest did as expected" shows no level. "Not willing" shows
+  nothing at all. A child not seen has no cell: not seen is not "not secure".
+- Who may ask: a current grant on that class, or a role in config `k2.reads` on its campus; else 403.
+- Tested on a class of 22 and 20 skills of real observations, graph rebuilt by the engine, every cell held to a table
+  worked out by hand from the scenario and to counts read straight from `child_observed_state`; 6 queries (picture)
+  and 7 (page) whether the class has 2 skills or 20; under a second; the query planned below the JIT line.
+- The free sentence is read from the note's own transcript (it is not stored per child), so it can hold whatever she
+  said, including a name if she said one. Nothing strips it. Worth deciding before a parent can ever reach this call.
+
 ## Not verified / open
 
-- Part B (class picture, child page): not started.
 - On live: nothing run; the `k2.reads` row arrives with the first engine deploy after merge.
 - Test fixtures: two K2 classes must have different activity numbers (a number names one activity on the school's list).
 
