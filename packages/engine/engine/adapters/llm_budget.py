@@ -46,7 +46,7 @@ def _check_stage(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None
     _check_order(conn, tenant_slug, name, c, stage)
     if stages[stage] is None:
         return  # no cap of its own: the campaign's holds
-    spent = _spent(conn, tenant_slug, c["purposes"], trigger_for(stage))
+    spent = _spent(conn, tenant_slug, c["purposes"], trigger_for(stage), since(conn, c))
     spent_usd, limit_usd = float(spent) / c["inr_per_usd"], stages[stage] - c.get("stage_margin_usd", 0)
     if spent_usd >= limit_usd:
         raise Refused(
@@ -130,7 +130,9 @@ def status(conn, tenant_slug: str, purpose: str, stage: str | None) -> dict | No
             "stage_limit_usd": None,
         }
         if stage:
-            out["stage_spent_usd"] = _spent(conn, tenant_slug, c["purposes"], trigger_for(stage)) / rate
+            out["stage_spent_usd"] = (
+                _spent(conn, tenant_slug, c["purposes"], trigger_for(stage), since(conn, c)) / rate
+            )
             if caps.get(stage) is not None:
                 out["stage_limit_usd"] = caps[stage] - c.get("stage_margin_usd", 0)
         return out

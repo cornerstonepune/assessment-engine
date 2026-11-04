@@ -53,3 +53,16 @@ def test_a_campaign_with_no_window_still_counts_all_time(conn):
     whole = {k: v for k, v in CAMP.items() if k != "window"}
     with pytest.raises(llm_budget.Refused):
         llm_budget.check(conn, db.tenant_slug(), "materials_read", camps={"m1-16": whole})
+
+
+def test_a_stage_of_a_monthly_campaign_counts_the_same_month(conn):
+    camp = CAMP | {"stages": {"eval": 1.0, "live": None}, "order": ["eval", "live"], "stage_margin_usd": 0}
+    conn.execute(
+        "insert into flow_run (tenant_id, flow, trigger, status, cost_inr, started_at, finished_at)"
+        " select id, 'materials_read', 'engine:eval', 'ok', 500, now() - interval '2 months', now() - interval '2 months'"
+        " from tenant where slug = %s",
+        (db.tenant_slug(),),
+    )
+    llm_budget.check(
+        conn, db.tenant_slug(), "materials_read", "eval", {"m1-16": camp}
+    )  # last months's stage spend: not counted
