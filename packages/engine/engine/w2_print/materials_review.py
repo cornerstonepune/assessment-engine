@@ -4,11 +4,13 @@ aside with a reason; and approve a word or a unit so the next note needs no one.
 
 import datetime as dt
 import math
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
 from engine.core import db
 from engine.w2_print import materials_list as ml
+from engine.w2_print.materials_text import norm
 
 
 class NoSuchNote(Exception):
@@ -60,17 +62,17 @@ def resolve(
     if isinstance(quantity, bool) or not math.isfinite(quantity) or quantity <= 0:
         raise ValueError("a quantity is a number above zero")
     note = _open(conn, tenant, note_id)
-    ml.add(conn, note["list_id"], material_code, quantity, needed_on, None, who, via="note")
+    ml.add(conn, note["list_id"], material_code, quantity, needed_on, None, who, via="note_review")
     conn.execute(
         "update materials_note_review set state = 'added', resolved_by = %s, resolved_at = clock_timestamp(),"
         " resolved_code = %s, resolved_quantity = %s where id = %s",
         (who, material_code, quantity, note_id),
     )
-    return UUID(str(note["list_id"]))
+    return note["list_id"]
 
 
 def dismiss(conn: db.Conn, tenant: UUID, note_id: UUID, why: str, who: UUID) -> None:
-    why = " ".join(why.split())
+    why = norm(why)
     if not why:
         raise ValueError("a note set aside needs a reason")
     _open(conn, tenant, note_id)
@@ -91,7 +93,7 @@ def _item_unit(conn: db.Conn, tenant: UUID, code: str) -> str:
 
 
 def approve_alias(conn: db.Conn, tenant: UUID, alias: str, material_code: str, who: UUID) -> None:
-    word = " ".join(alias.lower().split())
+    word = norm(alias)
     if not word:
         raise ValueError("a word is needed")
     _item_unit(conn, tenant, material_code)
@@ -111,12 +113,12 @@ def approve_conversion(
     conn: db.Conn, tenant: UUID, material_code: str, unit: str, factor: float, who: UUID
 ) -> None:
     """`factor` of the item's own unit make one `unit` ("dozen" -> 12 piece). A different factor is a new row (the latest is used)."""
-    word = " ".join(unit.lower().split())
+    word = norm(unit)
     if not word:
         raise ValueError("a unit is needed")
     if isinstance(factor, bool) or not math.isfinite(factor) or factor <= 0:
         raise ValueError("a factor is a number above zero")
-    if word == " ".join(_item_unit(conn, tenant, material_code).lower().split()):
+    if word == norm(_item_unit(conn, tenant, material_code)):
         raise ValueError("the item's own unit needs no conversion")
     conn.execute(
         "select pg_advisory_xact_lock(hashtext('material_unit_conversion'), hashtext(%s))", (str(tenant),)
@@ -126,7 +128,7 @@ def approve_conversion(
         " order by approved_at desc, id limit 1",
         (tenant, material_code, word),
     ).fetchone()
-    if latest is not None and float(latest["factor"]) == float(factor):
+    if latest is not None and latest["factor"] == Decimal(str(factor)):
         return
     conn.execute(
         "insert into material_unit_conversion (tenant_id, material_code, from_unit, factor, approved_by)"

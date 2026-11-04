@@ -43,6 +43,8 @@ create table if not exists material_alias (
   unique (tenant_id, alias)
 );
 
+create index if not exists material_alias_item_idx on material_alias (tenant_id, material_code);
+
 create table if not exists material_unit_conversion (
   id            uuid primary key default gen_random_uuid(),
   tenant_id     uuid not null references tenant(id) on delete cascade,

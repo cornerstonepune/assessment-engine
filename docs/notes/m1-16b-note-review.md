@@ -32,6 +32,17 @@ it becomes active only after `engine eval materials_read` meets the bars on a go
 are code that waits for a prompt that can use them. Not accepted: "any staff can use the review routes" (the routes require the
 coordinator role; the test `test_the_review_routes_are_for_the_coordinator_only` shows an educator gets 403).
 
+## /simplify (4 angles) and what was done
+Applied: one `materials_text.norm` for every stored and looked-up word and unit (they must match character for character); an
+index on `material_alias (tenant_id, material_code)` (the catalogue read looks up by it); "boxes" and "dozens" match their unit;
+a factor is compared as a decimal, not a float; a line a person adds from a waiting note is marked `via: note_review`, apart from
+`note` (code confirmed it), so the trail tells them apart; dead and duplicated test lines removed.
+Skipped, with reasons: one shared error-to-status handler for the routes (the messages differ per route and a handler would
+touch routes outside this brick); factors as `Decimal` end to end (changes `materials_list.add`'s signature, outside this brick);
+`approve_alias` as one `do update` statement (the table's `updated_at` trigger has no column to touch there); a view for the latest
+factor (two short reads, one definition each use; both order by approved_at desc, id); a page size on the review list (a
+backlog of waiting notes is small and the page is 4b's); lazy load of conversions (one small query per note, before the model call).
+
 ## Not done, on purpose
 - No model call; the prompt is still inactive and the gold set is empty (rule 7).
 - The review page (4b) and the photo upload route.

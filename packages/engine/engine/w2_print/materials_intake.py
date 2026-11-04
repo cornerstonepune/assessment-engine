@@ -18,6 +18,7 @@ from PIL import Image, ImageOps
 from engine.adapters import llm
 from engine.core import db, settings
 from engine.w2_print import materials_list
+from engine.w2_print.materials_text import norm
 
 PURPOSE = "materials_read"
 NUMBER = re.compile(r"\d+(?:\.\d+)?")
@@ -55,8 +56,8 @@ def check_reading(
         return _person(reading, "the quantity is not a number")
     if quantity <= 0:
         return _person(reading, "a quantity is more than nothing")
-    words = " ".join(str(reading.get("text") or "").lower().split())
-    if not words or words not in " ".join(source_text.lower().split()):
+    words = norm(reading.get("text") or "")
+    if not words or words not in norm(source_text):
         return _person(
             reading, "its words are not in the typed note, so code cannot check the number: a person reads it"
         )
@@ -64,12 +65,12 @@ def check_reading(
         return _person(reading, "the number is not in the item's own words (code does not convert)")
     unit = reading.get("unit")
     if unit != item["unit"]:
-        factor = (conversions or {}).get((item["code"], " ".join(str(unit or "").lower().split())))
+        factor = (conversions or {}).get((item["code"], norm(unit or "")))
         if factor is None:
             return _person(
                 reading, f"the unit is not the catalogue's ({item['unit']}) and none is approved to convert"
             )
-        if not re.search(rf"\b{re.escape(str(unit).lower())}s?\b", words):
+        if not re.search(rf"\b{re.escape(norm(unit))}(?:es|s)?\b", words):
             return _person(
                 reading, f"the unit ({unit}) is not in the item's own words, so code does not convert"
             )

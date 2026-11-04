@@ -16,6 +16,12 @@ class Line:
     needed_on: dt.date
 
 
+def norm(s: object) -> str:
+    """A word as the school's rows keep it: lower case, one space between words. The key an approved alias or unit is stored
+    under and the key a note is looked up by must be this, character for character."""
+    return " ".join(str(s).lower().split())
+
+
 def day(d: dt.date) -> str:
     return f"{d:%a} {d.day} {d:%b}"
 

@@ -4,7 +4,6 @@ brick 2): a word that means a catalogue item (`material_alias`) and a unit that 
 the note keeps who cleared it. Code never invents a conversion: only an approved row converts. Placeholder rows only,
 rolled back."""
 
-import datetime as dt
 import os
 
 import pytest
@@ -70,14 +69,15 @@ def test_a_conversion_applies_only_if_the_unit_is_in_the_notes_own_words():
     assert got.status == "needs_person" and "unit" in got.reason
     r = {"text": "2 dozens pens", "item_code": "MAT-1", "quantity": 2, "unit": "dozen"}
     assert mi.check_reading(r, CAT, "2 dozens pens", {("MAT-1", "dozen"): 12.0}).quantity == 24.0
+    r = {"text": "2 boxes of pens", "item_code": "MAT-1", "quantity": 2, "unit": "box"}
+    assert mi.check_reading(r, CAT, "2 boxes of pens", {("MAT-1", "box"): 10.0}).quantity == 20.0
 
 
 def test_a_converted_quantity_carries_no_float_noise():
-    cat = [{"code": "MAT-1", "name": "Pen", "unit": "piece"}]
     r = {"text": "0.7 dozen pens", "item_code": "MAT-1", "quantity": 0.7, "unit": "dozen"}
-    assert mi.check_reading(r, cat, "0.7 dozen pens", {("MAT-1", "dozen"): 12.0}).quantity == 8.4
+    assert mi.check_reading(r, CAT, "0.7 dozen pens", {("MAT-1", "dozen"): 12.0}).quantity == 8.4
     r = {"text": "3 tens", "item_code": "MAT-1", "quantity": 3, "unit": "ten"}
-    assert mi.check_reading(r, cat, "3 tens", {("MAT-1", "ten"): 0.1}).quantity == 0.3
+    assert mi.check_reading(r, CAT, "3 tens", {("MAT-1", "ten"): 0.1}).quantity == 0.3
 
 
 def test_a_converted_number_must_still_be_in_the_notes_own_words():
@@ -99,6 +99,10 @@ def test_clearing_a_waiting_note_adds_the_line_and_closes_the_note(conn):
     assert _lines(conn, lid) == [(pen, 30)]
     row = conn.execute("select * from materials_note_review where id = %s", (nid,)).fetchone()
     assert (row["state"], row["resolved_by"], row["resolved_code"]) == ("added", s["staff"], pen)
+    added = conn.execute(
+        "select after from materials_line_edit where list_id = %s and kind = 'add'", (lid,)
+    ).fetchone()
+    assert added["after"]["via"] == "note_review"  # told apart from a line code confirmed ("note")
     assert row["resolved_at"] is not None and float(row["resolved_quantity"]) == 30.0
 
 
@@ -256,7 +260,3 @@ def test_a_note_in_dozens_is_confirmed_only_after_a_person_approved_the_conversi
     rv.approve_conversion(conn, s["tenant"], pen, "dozen", 12, s["staff"])
     second = mi.read_note(conn, lid, "2 dozen pens", s["staff"], m.MON)
     assert [r.status for r in second] == ["confirmed"] and _lines(conn, lid) == [(pen, 24)]
-
-
-def test_dates_are_plain_dates():
-    assert isinstance(m.MON, dt.date)
