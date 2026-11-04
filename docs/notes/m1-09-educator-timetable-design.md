@@ -1,12 +1,12 @@
-# M1-09 / M1-10 — the K2 educator's timetable: design note (rev 3; wireframes only, no code, no migration)
+# M1-09 / M1-10 — the K2 educator's timetable: design note (rev 4; wireframes only, no code, no migration)
 
 **Gate:** none fits (as for M1-06): `workflows.json` has no step for this, so step 1 of any build adds it. Pictures: `docs/screens/m1-09/index.html`
-(7 screens, desktop and phone; tap "Details" and the rows to open them). Real FN10 lines from the school's sheet; no child names.
+(7 screens, desktop and phone). Every element stays visible; long text sits behind a "Full text" or "Details" tap. Real FN10 lines from the school's sheet; no child names.
 
-## The screens (each shows name, time, one chip, one action; details behind a tap)
-1 Today · 2 This week · 3 One period (Objective, What to do, How to think, Rubric, Materials: collapsed rows that open in place) ·
-4 A drafted part (Keep / Change / Reject) · 5 Materials (day / week / fortnight) · 6 Reminders · 7 The month (coordinator).
-Two taps: Today → period (1) → Rubric row (2).
+## The screens (every part visible; few words in each: label, chip, number, icon)
+1 Today · 2 This week · 3 One period (Objective, What to do, How to think, Rubric, Materials, all on the page; long steps and objective clamp to one line with "Full text") ·
+4 A drafted part (Keep / Change / Reject) · 5 Materials (day / week / fortnight, each line linked to its activity) · 6 Reminders · 7 The month (coordinator).
+Two taps: Today → period (1) → Rubric is already on the page (2 = scroll or none).
 
 ## One vocabulary, every screen: round chip = icon + colour + one word
 Do now (dark) · To confirm (amber) · Coming up (grey ring) · Done (green) · Late (grey hourglass). No red anywhere; none on a child.
@@ -28,14 +28,14 @@ Stepper: planning, frozen, aligned, approved, list sent. Freeze day (20), list o
 She sees only a small lock marked Frozen on her week. After the freeze a change needs a reason, recorded with who and when.
 
 ## Other apps (searched and fetched 4 Nov; vendor claims, not tested by anyone here)
-- Kriyo, parent-app listing: parents get attendance, daily diary, lesson plans, assessments, progress reports; pitched against "juggling WhatsApp groups, emails and paper notices". Teacher-side screens not seen: unverified. https://apps.apple.com/us/app/id1347533660
-- Kriyo teacher side (search summary of a reseller listing, not fetched): QR attendance, logging activities and observations. Unverified. https://www.techjockey.com/detail/kriyo
+- **Kriyo** (confirmed as the app), staff-side iOS listing: QR and geo-QR attendance, teacher self check-in, daily records (meals, sleep, health), observations, assessments, learning outcomes, milestones, "activity planning", learning journals, daily reports, photos, parent notes, announcements, event reminders; "easy-to-use"; English only; 4.7 stars from 28 ratings. No lesson plans or timetable named. https://apps.apple.com/us/app/-/id1384125107
+- Kriyo Parent listing: parents see attendance, daily diary, lesson plans, assessments, progress reports; pitched against "juggling WhatsApp groups, emails and paper notices". https://apps.apple.com/us/app/id1347533660 . Kriyo's own site returned 503 (https://www.kriyo.in); no teacher-app listing found on Google Play. Teacher screens never seen: unverified.
 - Brightwheel: standards preloaded and editable; "easy and quick to make edits" to lessons; assessments "based on milestone or lesson progress". No activity library or phone editing on the page (a search summary said so; unconfirmed). https://mybrightwheel.com/features/learning/
-- HiMama (search says now Lillio: unverified): "add or edit activities in your calendar"; "state standards listed on every activity"; "from any device". https://wow.himama.com/sg_digital_curriculum/
+- HiMama (search says now Lillio: unverified): "add or edit activities in your calendar"; "state standards listed on every activity"; "any device". https://wow.himama.com/sg_digital_curriculum/
 - Toddle: a task links to its rubric, gradebook and portfolio; onboarding by a 1:1 walkthrough and an educator "Toddle Buddy"; K-12, early years only in passing. https://www.toddleapp.com/faqs/
 - ClassDojo: free for teachers; Events with automatic reminders; messages translated into 190+ languages; nothing for preschool on the page. https://www.classdojo.com
-- Seesaw: only through search results (district guides), not fetched: unverified. Not found anywhere: what India's pre-primary educators new to software struggle with.
-**Changed because of them:** edit in place, no edit screen; the objective one tap from the timetable; reminders automatic; WhatsApp stays the send route (Kriyo names it as the rival);
+- Seesaw: through search results only, not fetched: unverified. Not found anywhere: what India's pre-primary educators new to software struggle with.
+**Changed because of them:** edit in place, no edit screen; the objective and rubric on the period page, as Kriyo and HiMama show outcomes with each activity; reminders automatic; WhatsApp stays the send route (Kriyo names it as the rival);
 proposed: a short guided first session with Swarupa, not a manual. Not taken: points, portfolios, a parent feed (out of scope, and no red on a child).
 
 ## Decisions recorded (orchestrator, 4 Nov)
@@ -53,5 +53,5 @@ send is WhatsApp first, email second (D-071) · she corrects activity text herse
   M1-12 and M1-13 own `month_cycle(state, who, at)`, the per-school setting rows, and item home and rupee value. Engine: one endpoint per screen; `engine reminders --due`; n8n only triggers and delivers (rule 3).
 
 ## Verified
-- `build3.py` (kept off git) wrote `index.html`; Playwright at 1360 px shows all 7 screens, phone folding to one column; no Easy/Medium/Hard/Advance on any screen. Not run: `bin/check`, `pytest` (no code changed).
+- `build4.py` (kept off git) wrote `index.html`; Playwright at 1360 px shows all 7 screens, phone folding to one column; no Easy/Medium/Hard/Advance on any screen. Not run: `bin/check`, `pytest` (no code changed).
 - Not verified: matching of plan lines to rows beyond four rows; the generator's placement (an illustration); every claim in "Other apps".
