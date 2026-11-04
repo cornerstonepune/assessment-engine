@@ -149,7 +149,10 @@ def test_the_command_in_dry_run_prints_the_forecast_and_adds_no_flow_run():
 
 def test_a_real_run_without_a_member_of_staff_is_refused_before_anything_is_asked():
     result = CliRunner().invoke(cli.app, ["curriculum", "draft", "--stage", "dev_eval"])
-    assert result.exit_code != 0 and "--by" in result.output
+    shown = re.sub(
+        r"\x1b\[[0-9;]*m", "", result.output
+    )  # CI's terminal colours the option's name; the words are the same
+    assert result.exit_code != 0 and "--by" in shown
 
 
 def test_a_run_drafts_checks_and_records_each_page_where_it_belongs_and_prints_the_spend_every_batch(conn):
