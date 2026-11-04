@@ -646,6 +646,18 @@
       "description": "Whether the K2 educator may record a spoken note (and hear it back), on top of voice.screens_enabled. Off until Sarvam confirms 'No retention' in writing (D-065); with it off she uses the form, and no recording is kept or sent anywhere. A missing row is off.",
       "value": false,
       "seed_once": true
+    },
+    {
+      "key": "materials.whatsapp_to",
+      "description": "The number the educator's one-tap link opens a chat with (digits, with country code). Empty until Nimish names it: then the link opens WhatsApp with nobody chosen (D-071).",
+      "value": "",
+      "seed_once": true
+    },
+    {
+      "key": "materials.reminder_weeks",
+      "description": "How many weeks before the first day a material is needed the educator and the materials team are reminded (D-070: 2 and 1). A date that is not a working day moves to the last working day before it; one already past goes today (D-072).",
+      "value": [2, 1],
+      "seed_once": true
     }
   ]
 }
