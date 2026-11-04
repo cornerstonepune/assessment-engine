@@ -19,7 +19,7 @@ import typer
 from engine.adapters.llm import LLMError
 from engine.core import db
 from engine.w1_bank import map_ledger
-from engine.w1_bank.k2_upload import curriculum_app
+from engine.w1_bank.k2_upload import config, curriculum_app
 from engine.w1_bank.map_agents import (
     Ask,
     Band,
@@ -88,7 +88,9 @@ def _show(made: list[Proposal]) -> None:
 
 @curriculum_app.command("propose")
 def propose_(
-    band: str = typer.Option("K2", "--band"),
+    band: str = typer.Option(
+        "", "--band", help="Default: the band of the K2 sheet (supabase/seed/k2_sheet.json)"
+    ),
     recorded: Path | None = RECORDED,
     write: bool = APPLY,
     by: str = BY,
@@ -98,7 +100,7 @@ def propose_(
     with db.connect() as conn:
         tenant = _tenant(conn)
         staff = staff_of(conn, by) if write else None
-        b, rules = read_band(conn, tenant, band), _rules(conn, tenant)
+        b, rules = read_band(conn, tenant, band or config()["band"]), _rules(conn, tenant)
         b.pool = frozenset(gold_split(conn, b)[0])
         done = map_ledger.proposed(conn, tenant)
         todo = [
@@ -200,10 +202,11 @@ def _blind(conn: db.Conn, ask: Ask, band: str, scored: set[str], pool: set[str])
     return [Scored(p.subject_code, frozenset(skills(p)), p.status) for p in made]
 
 
-def evaluate(conn: db.Conn, ask: Ask, band: str = "K2", dev: bool = False) -> dict[str, float]:
+def evaluate(conn: db.Conn, ask: Ask, band: str = "", dev: bool = False) -> dict[str, float]:
     """The held-out set mapped blind, its examples from the dev set, scored against what people linked. With `dev`
     (tuning a prompt) the dev set instead, in two halves, each half's examples the other's: an activity scored is
     never an example. Writes nothing."""
+    band = band or config()["band"]  # the band is the sheet's row, never a code here (rule 1)
     whole: Band = read_band(conn, _tenant(conn), band)
     tune, held = gold_split(conn, whole)
     if dev:
