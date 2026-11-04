@@ -52,6 +52,9 @@ send is WhatsApp first, email second (D-071) · she corrects activity text herse
 - New: `activity_thinking`, `activity_edit(…who, at, before, after, reverted_by)`, `materials_list`, `materials_line(catalogue_item, activity_id, first_needed, qty, unit, have)`, append-only `materials_line_edit`, `reminder`.
   M1-12 and M1-13 own `month_cycle(state, who, at)`, the per-school setting rows, and item home and rupee value. Engine: one endpoint per screen; `engine reminders --due`; n8n only triggers and delivers (rule 3).
 
+## Design tokens and audit (D-073)
+`docs/design-tokens.md`, `apps/web/design-system/tokens.css`, `docs/design-audit-k2.md`: school palette, five chips, nine rules with checks, breaches by screen. The wireframes are not yet re-coloured (needs a go).
+
 ## Verified
 - `build4.py` (kept off git) wrote `index.html`; Playwright at 1360 px shows all 7 screens, phone folding to one column; no Easy/Medium/Hard/Advance on any screen. Not run: `bin/check`, `pytest` (no code changed).
 - Not verified: matching of plan lines to rows beyond four rows; the generator's placement (an illustration); every claim in "Other apps".
