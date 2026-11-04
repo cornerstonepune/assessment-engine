@@ -12,21 +12,23 @@ goal: >
 # for the coordinator; Working Saturdays are left out; the K2 educator marks Fortnight 10 line by line.
 # Open for a person: the Graph tab says Fortnight 10 ends 7 Dec and Fortnight 11 starts 8 Dec (a Tuesday), which
 # cannot both be right; the fixtures use Mon 23 Nov to Fri 4 Dec. Holidays come from `Pre-Primary Calendar 26-27`.
-# Nimish's words are from research/2026-11-02-voice-notes-extraction.md (an extract of his voice notes: verify
-# against the recording before relying on the exact wording).
+# Nimish's words: the one sentence below, exactly as D-061 records it (teacher-os blueprint/decisions.md). The two lines first
+# tried from the 2 Nov voice-note extract could not be matched to his recorded notes, so they are not used.
 says:
-  - words: "So time table is not a manual thing… So it's a scheduling tool in itself."
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
     proved_by: "packages/engine/tests/test_k2_timetable.py::test_the_frame_is_fifteen_rows_by_two_weeks_of_five_days"
-  - words: "So time table is not a manual thing… So it's a scheduling tool in itself."
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
     proved_by: "packages/engine/tests/test_k2_timetable.py::test_every_filled_line_is_a_planner_line_of_its_own_subject_never_written_by_the_system"
-  - words: "So time table is not a manual thing… So it's a scheduling tool in itself."
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
     proved_by: "packages/engine/tests/test_k2_timetable.py::test_a_holiday_leaves_no_cell_and_the_other_days_keep_their_weekday"
-  - words: "Everything will have a teacher person in the loop."
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
     proved_by: "packages/engine/tests/test_k2_timetable.py::test_every_planner_line_is_placed_or_listed_as_having_no_slot"
-  - words: "Everything will have a teacher person in the loop."
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
     proved_by: "packages/engine/tests/test_k2_timetable.py::test_the_empty_cells_are_kept_empty_for_a_person_eight_in_week_a_and_three_in_week_b"
-  - words: "Everything will have a teacher person in the loop."
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
     proved_by: "packages/engine/tests/test_k2_timetable.py::test_an_unchanged_week_regenerates_identically_and_one_changed_line_changes_only_its_cells"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable.py::test_a_day_a_person_has_yet_to_settle_gets_no_line_and_is_listed"
 manual:
   - "The real proof: the K2 educator marks the generated 23 Nov to 4 Dec timetable line by line (right / changed / removed); the marks are frozen by checksum, off git (D-028), and the generator is changed until it equals them. Not claimed by this goal until she has."
   - "Fortnight 11, generated unseen after that: her edits are counted and reported; not a pass bar."

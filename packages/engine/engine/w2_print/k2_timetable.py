@@ -78,6 +78,7 @@ class Filled:
 class Draft:
     cells: list[Filled] = field(default_factory=list)
     no_slot: list[tuple[str, str]] = field(default_factory=list)
+    undecided: list[tuple[date, str]] = field(default_factory=list)  # days held back for a person, with why
 
 
 def _one_line(s: str) -> str:
@@ -194,15 +195,20 @@ def _header_cells(
     return cells, used
 
 
-def generate(frame: Frame, plan: Plan, days: list[date], vocab: Vocabulary) -> Draft:
+def generate(
+    frame: Frame, plan: Plan, days: list[date], vocab: Vocabulary, undecided: dict[date, str] | None = None
+) -> Draft:
+    """`undecided` names the days two sources disagree about: they get no line, and are listed with the reason."""
     if any(d.weekday() > 4 for d in days):
         raise ValueError("a school day here is Monday to Friday")
+    held = undecided or {}
     week_of = _weeks(days)
-    cells, used = _fill_days(frame, plan, days, week_of, vocab)
-    head, head_used = _header_cells(plan, days, week_of, vocab)
+    open_days = [d for d in days if d not in held]
+    cells, used = _fill_days(frame, plan, open_days, week_of, vocab)
+    head, head_used = _header_cells(plan, open_days, week_of, vocab)
     used |= head_used
     no_slot = [(k, ln) for k, v in plan.lines.items() for ln in v if ln not in used]
-    return Draft(cells + head, no_slot)
+    return Draft(cells + head, no_slot, sorted((d, why) for d, why in held.items() if d in days))
 
 
 def changed(old: Draft, new: Draft) -> list[Filled]:

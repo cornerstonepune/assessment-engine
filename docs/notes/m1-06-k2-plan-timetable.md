@@ -45,7 +45,7 @@ Slots led by specialists stay marked. Re-running an unchanged week gives identic
 Exist: `academic_year`, `school_class`, `enrolment`, `staff`, `staff_role_grant`, `subject`, `activity`, `approval`,
 `activity_observation` (its `session_id` points at nothing yet). Missing, all eight named in modules.md: `fortnight`,
 `school_day`, `period`, `timetable_slot`, `plan_entry`, `session`, `week_plan`, `timetable_version`. Proposal: first migration
-the first six; `week_plan` and `timetable_version` with the approval step. Rehearse on a copy of live first. No migration yet.
+the first six; `week_plan` and `timetable_version` with the approval step. `plan_entry` carries an optional activity id: planner text is never presented as an outcome; mapping lines to activities is a later step (M1-05). Rehearse on a copy of live first.
 
 ## (f) Goal and checks
 **Goal:** the K2 coordinator opens the generated 23 Nov–7 Dec timetable, every period carries what the plan says for that
@@ -56,4 +56,4 @@ subject, and she changes only what is wrong. Machine checks, expected output fix
    changed. FN11 is then generated unseen and her edits are counted and reported, not a pass bar.
 4. Roll-forward: unchanged week gives identical rows and no approval; one changed line flags exactly one.
 5. No child name appears in any file, log or fixture (D-021).
-**Needs a person before the build:** which timetable tab is current and where Block Room goes; whether the planner for FN10–17 is current; who marks FN10.
+**Open for a person (defaults in use):** current tab = `F.N` (A/B); Block Room, Gross Motor, Writing lines stay "no slot"; planner FN10–17 treated as current but the coordinator confirms; the K2 educator marks FN10; Working Saturdays left out. **Date conflict:** Graph says FN10 ends 7 Dec and FN11 starts 8 Dec (a Tuesday): not both right. The generator holds such a day back and lists it, never chooses. Week-A frame leftovers ("Rani's story", "Self - Introduction") need clearing.

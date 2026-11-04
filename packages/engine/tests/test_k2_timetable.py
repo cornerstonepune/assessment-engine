@@ -126,3 +126,12 @@ def test_an_unchanged_week_regenerates_identically_and_one_changed_line_changes_
 def test_the_generator_never_reads_where_names_are_kept():
     src = Path(tt.__file__).read_text()
     assert "pii" not in src
+
+
+def test_a_day_a_person_has_yet_to_settle_gets_no_line_and_is_listed():
+    held = {date(2026, 12, 4): "the sheet's Fortnight 10 and 11 dates disagree"}
+    d = tt.generate(frame(), plan(), FN10_DAYS, VOCAB, undecided=held)
+    assert date(2026, 12, 4) not in {c.date for c in d.cells}
+    assert d.undecided == [(date(2026, 12, 4), held[date(2026, 12, 4)])]
+    tue = [c for c in d.cells if c.date == date(2026, 12, 1)]
+    assert tue and {c.week for c in tue} == {"B"}
