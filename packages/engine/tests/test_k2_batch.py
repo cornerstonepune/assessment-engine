@@ -130,3 +130,17 @@ def test_each_verdict_is_judged_on_its_own_and_a_verdict_for_a_page_not_asked_is
 def test_a_reply_the_model_wrapped_as_an_object_with_its_list_is_unwrapped():
     reply = {"pages": [page("B", thinking="t")]}
     assert batch.items(reply, "pages")[0]["key"] == "B" and batch.items(json.dumps(reply), "pages") == []
+
+
+def test_a_material_name_must_be_a_phrase_of_the_text_with_its_number_and_unit_beside_it():
+    text = "5 red counters, 2 blue dice, 1 set of paints"
+    names = lambda items: [g["name"] for g in batch.judge_materials(items, text)[0]]  # noqa: E731
+    one = lambda name, q, u: [{"name": name, "quantity": q, "unit": u}]  # noqa: E731
+    assert names(one("red counter", 5, "piece")) == ["red counter"]
+    assert names(one("red dice", 99, "piece")) == [], "'red' and 'dice' are in the text, but never together"
+    assert names(one("blue dice", 99, "piece")) == [], "99 is not beside the dice"
+    assert names(one("blue dice", 2, "box")) == [], "a box is not in the text"
+    assert names(one("paint", 1, "set")) == ["paint"]
+    assert names(one("blue dice", None, "piece")) == ["blue dice"], "no quantity asked, none needed"
+    bad = batch.judge_materials(one("red dice", 1, "piece"), text)[1]
+    assert bad == ["red dice: not in the school's text"]

@@ -69,3 +69,13 @@ def test_the_dev_set_is_the_dev_eval_stage(monkeypatch):
 def test_with_no_versions_named_the_active_rows_answer_as_before(monkeypatch):
     result, got = _run(monkeypatch)
     assert result.exit_code == 0 and got["propose"] is None and got["validate"] is None
+
+
+def test_every_scorer_engine_eval_can_call_takes_the_same_three_arguments():
+    import inspect
+
+    for purpose, scorer in evals.BY_VERSION.items():
+        inspect.signature(scorer).bind(
+            1, False, 0
+        )  # TypeError here names the scorer that would break `engine eval`
+        assert purpose

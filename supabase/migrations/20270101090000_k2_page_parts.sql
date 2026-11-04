@@ -45,6 +45,7 @@ create table if not exists material_item (
   unit        text not null default 'piece' check (btrim(unit) <> ''),
   home        text check (home in ('class', 'school')),  -- where it is kept (D-072); empty until a person says
   unit_value  numeric check (unit_value >= 0),           -- rupees for one unit; empty until a person says, never guessed
+  proposal_id uuid references curriculum_proposal(id),   -- the machine proposal that made it; empty for a person's item
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now(),
   primary key (tenant_id, code),

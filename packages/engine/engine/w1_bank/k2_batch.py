@@ -98,21 +98,39 @@ def _stem(word: str) -> str:
     return word[:-1] if word.endswith("s") and len(word) > 3 else word
 
 
+def _tokens(text: str) -> list[str]:
+    return [_stem(w) for w in re.findall(r"[a-z0-9]+", text.casefold())]
+
+
+def _segment_with(text: str, phrase: list[str]) -> list[str] | None:
+    """The comma-, semicolon- or line-separated piece of the text that holds the phrase whole and in order."""
+    for piece in re.split(r"[,;\n]+", text):
+        toks = _tokens(piece)
+        if any(toks[i : i + len(phrase)] == phrase for i in range(len(toks) - len(phrase) + 1)):
+            return toks
+    return None
+
+
 def judge_materials(got: object, text: str) -> tuple[list[dict], list[str]]:
-    """Each line must name something the school's own text names, with a quantity above 0 or none, and a unit."""
-    known = {_stem(w) for w in re.findall(r"[a-z]+", text.casefold())}
+    """Each line must name something the school's own text names as a phrase, in one piece of it; a quantity must be a
+    number above 0 that stands in that same piece (or be empty), and a unit other than "piece" must stand there too."""
     good: list[dict] = []
     bad: list[str] = []
     for it in got if isinstance(got, list) else []:
         name = str(it.get("name") or "") if isinstance(it, dict) else ""
-        words = [_stem(w) for w in re.findall(r"[a-z]+", name.casefold())]
+        phrase = _tokens(re.sub(r"[^A-Za-z ]", " ", name))
         qty, unit = (it.get("quantity"), it.get("unit")) if isinstance(it, dict) else (None, None)
-        if not words or not all(w in known for w in words):
+        piece = _segment_with(text, phrase) if phrase else None
+        if piece is None:
             bad.append(f"{name}: not in the school's text")
         elif qty is not None and (isinstance(qty, bool) or not isinstance(qty, int | float) or qty <= 0):
             bad.append(f"{name}: quantity must be a number above 0, or empty")
+        elif qty is not None and str(int(qty)) not in piece:
+            bad.append(f"{name}: quantity {qty} is not beside it in the school's text")
         elif not (isinstance(unit, str) and unit.strip()):
             bad.append(f"{name}: unit is empty")
+        elif unit.strip().casefold() != "piece" and _stem(unit.strip().casefold()) not in piece:
+            bad.append(f"{name}: unit {unit.strip()} is not in the school's text")
         else:
             good.append({"name": name.strip(), "quantity": qty, "unit": unit.strip()})
     return good, bad

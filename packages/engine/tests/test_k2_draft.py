@@ -491,3 +491,107 @@ def test_the_review_list_is_check_me_first_then_the_audit_share_of_the_rest_draw
     assert again == [r["code"] for r in draft.review_list(conn, conn.t)] and again[0] == "KX-3", (
         "the same draw every time"
     )
+
+
+def test_a_stop_during_the_check_says_which_pages_were_not_checked_and_keeps_the_verdicts_it_got(conn):
+    for i in (1, 2, 3, 4, 5):
+        _act(conn, f"KX-{i}", f"A{i}")
+    inner = Scripted(
+        {("k2_page_draft", f"KX-{i}"): [drafted(**FULL)] for i in range(1, 6)}
+        | {("k2_page_validate", f"KX-{i}"): [AGREE] for i in range(1, 6)}
+    )
+    calls = {"n": 0}
+
+    def ask(purpose, variables):
+        calls["n"] += 1
+        if (
+            calls["n"] == 4
+        ):  # the drafts are 2 calls (4 pages + 1), the checks 3 and 4: the second check is refused
+            raise llm.LLMBudgetError("campaign m1-11 stopped: $23.01 spent")
+        return inner(purpose, variables)
+
+    rep = run(conn, ask)
+    now = {r["subject_code"]: (r["status"], r["reason"]) for r in map_ledger.standing(conn, conn.t)}
+    assert now["KX-1"][0] == "auto_passed" and now["KX-4"][0] == "auto_passed", (
+        "a verdict that came back is kept"
+    )
+    assert now["KX-5"] == ("needs_person", "not checked: the run stopped")
+    assert "m1-11 stopped" in rep.stopped
+
+
+def test_the_forecast_says_the_most_it_could_cost_if_every_page_went_round_every_time(conn):
+    _act(conn, "KX-1", "A")
+    text = draft.forecast(conn, "dev_eval", 10)
+    assert "up to $" in text and "every page" in text.replace("\n", " ")
+    cheap = float(re.search(r"about \$([0-9.]+)", text).group(1))
+    worst = float(re.search(r"up to \$([0-9.]+)", text).group(1))
+    assert worst == pytest.approx(cheap * 3, rel=0.05), "rounds = 2 more passes: three times the one pass"
+
+
+def test_replies_that_keep_breaking_their_schema_stop_the_run_instead_of_paying_for_the_same_failure(conn):
+    for i in range(1, 9):
+        _act(conn, f"KX-{i}", f"A{i}")
+    asked = {"n": 0}
+
+    def ask(purpose, variables):
+        asked["n"] += 1
+        raise llm.LLMSchemaError("k2_page_draft output failed its schema: x")
+
+    rep = run(conn, ask)
+    assert asked["n"] == 3, "three replies in a row that broke their schema, then the run stops"
+    assert "schema" in rep.stopped and rep.proposals == 0
+
+
+def test_a_good_reply_between_the_bad_ones_starts_the_count_again(conn):
+    for i in range(1, 9):
+        _act(conn, f"KX-{i}", f"A{i}")
+    inner = Scripted(
+        {("k2_page_draft", f"KX-{i}"): [drafted(**FULL)] * 3 for i in range(1, 9)}
+        | {("k2_page_validate", f"KX-{i}"): [AGREE] * 3 for i in range(1, 9)}
+    )
+    n = {"i": 0}
+
+    def ask(purpose, variables):
+        n["i"] += 1
+        if n["i"] in (1, 2, 4):  # two bad, a good one, a bad one: never three in a row
+            raise llm.LLMSchemaError("x")
+        return inner(purpose, variables)
+
+    assert run(conn, ask).stopped == ""
+
+
+def test_reverting_a_materials_proposal_takes_away_the_catalogue_items_it_made_and_only_those(conn):
+    _act(conn, "KX-1", "Blocks", materials="10 wooden cubes, red slabs, 2 paper bags")
+    _act(conn, "KX-2", "More blocks", materials="3 wooden cubes")
+    conn.execute(
+        "insert into material_item (tenant_id, code, name, unit) values (%s,'MAT-9000','red slab','piece')",
+        (conn.t,),
+    )
+    ask = Scripted(
+        {
+            ("k2_materials_split", "KX-1"): [
+                {
+                    "items": [
+                        {"name": "wooden cube", "quantity": 10, "unit": "piece"},
+                        {"name": "red slab", "quantity": None, "unit": "piece"},
+                        {"name": "paper bag", "quantity": 2, "unit": "piece"},
+                    ],
+                    "reason": "",
+                }
+            ],
+            ("k2_materials_split", "KX-2"): [
+                {"items": [{"name": "wooden cube", "quantity": 3, "unit": "piece"}], "reason": ""}
+            ],
+        }
+    )
+    draft.materials(conn, conn.t, conn.staff, BAND, "draft", ask, write=True, say=lambda s: None)
+    map_ledger.apply(conn, conn.t, conn.staff, True)
+    p1 = next(p for p in map_ledger.standing(conn, conn.t, "applied") if p["subject_code"] == "KX-1")
+    map_ledger.revert(conn, conn.t, p1["id"], conn.staff, "test")
+    left = {
+        r["name"]
+        for r in conn.execute("select name from material_item where tenant_id = %s", (conn.t,)).fetchall()
+    }
+    assert "wooden cube" in left, "KX-2 still uses it"
+    assert "red slab" in left, "a person's item (MAT-9000) is not the proposal's to remove"
+    assert "paper bag" not in left, "an item only the reverted proposal made goes with it"

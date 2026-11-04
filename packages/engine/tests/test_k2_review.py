@@ -119,3 +119,16 @@ def test_the_review_list_loses_a_page_once_every_doubt_on_it_is_cleared(page):
     for part in ("thinking", "steps", "level_0", "level_1", "level_2", "level_3"):
         review.keep(page, page.t, page.staff, "KX-1", part)
     assert k2_draft.review_list(page, page.t) == []
+
+
+def test_reverting_the_draft_never_wipes_a_part_a_person_kept_with_its_words_unchanged(page):
+    review.keep(page, page.t, page.staff, "KX-1", "steps")  # same words, now the person's
+    (p,) = map_ledger.standing(page, page.t, "applied")
+    map_ledger.revert(page, page.t, p["id"], page.staff, "test")
+    assert _text(page, "steps") == "s", (
+        "a person's approval is not undone by a revert of the machine's proposal"
+    )
+    assert _marks(page, "KX-1")["steps"] == ("person", False)
+    assert _text(page, "thinking") == "" and "thinking" not in _marks(page, "KX-1"), (
+        "the parts still drafted do go"
+    )

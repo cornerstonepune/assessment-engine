@@ -36,6 +36,8 @@ class Report:
     left: dict[str, str] = field(default_factory=dict)  # page → why it has no proposal
     stopped: str = ""
     lines: list[str] = field(default_factory=list)
+    bad_in_a_row: int = 0  # replies in a row that broke their schema
+    bad_limit: int = 3
 
 
 def live_ask(conn: db.Conn, stage: str) -> Ask:
@@ -139,9 +141,11 @@ def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
     status = llm_budget.status(conn, db.tenant_slug(), DRAFT, stage)
     rate = next(iter((llm_budget.campaigns(conn) or {"-": {"inr_per_usd": 88}}).values()))["inr_per_usd"]
     calls = 2 * math.ceil(pages / size) + math.ceil(texts / int(t["k2.batch_materials"]))
+    worst = cost * (int(t["k2.batch_rounds"]) + 1)  # every page asked for again in every round
     return (
         f"forecast (token counts assumed, not measured): {pages} pages and {texts} materials texts"
-        f" → about {calls} calls, about ${cost / rate:.2f}; now {llm_budget.line(status)}; nothing was called"
+        f" → about {calls} calls, about ${cost / rate:.2f}, up to ${worst / rate:.2f} if every page went round every time;"
+        f" now {llm_budget.line(status)}; nothing was called"
     )
 
 
@@ -155,16 +159,24 @@ def _say_call(
 
 def _ask(conn, ask: Ask, stage: str, purpose: str, variables: dict, size: int, say, rep: Report) -> object:
     """One call. The money running out (or being uncountable) ends the run; a reply that broke its schema was paid for
-    and counts as a reply with nothing in it, so its pages go round again."""
+    and counts as a reply with nothing in it, so its pages go round again; too many of those in a row end the run."""
     try:
         reply = ask(purpose, variables)
+        rep.bad_in_a_row = 0
     except llm.LLMSchemaError:
         reply = []
+        rep.bad_in_a_row += 1
     except (
         llm.LLMError
     ) as e:  # the campaign's stop, or the vendor unable to answer: end cleanly, keep what is good
         raise batch.Stop(str(e)) from e
     _say_call(conn, stage, purpose, size, say, rep)
+    if (
+        rep.bad_in_a_row >= rep.bad_limit
+    ):  # the same failure paid for again and again: the prompt needs a person
+        raise batch.Stop(
+            f"{rep.bad_in_a_row} replies in a row broke their schema; stopped, the prompt needs a person"
+        )
     return reply
 
 
@@ -187,6 +199,7 @@ def draft(
         return rep
     t = _thresholds(conn)
     size, rounds = int(t["k2.batch_pages"]), int(t["k2.batch_rounds"])
+    rep.bad_limit = int(t["k2.stop_after_bad_replies"])
     raw: dict[str, dict] = {}
 
     def call(keys: list[str]) -> list:
@@ -201,7 +214,7 @@ def draft(
     if not done.stopped:
         verdicts = _check(conn, stage, ask, done.good, rows, size, rounds, say, rep)
     made = [
-        _proposal(k, parts, raw.get(k, {}), verdicts.get(k), t["map.min_confidence"], bool(done.stopped))
+        _proposal(k, parts, raw.get(k, {}), verdicts.get(k), t["map.min_confidence"], bool(rep.stopped))
         for k, parts in done.good.items()
     ]
     rep.proposals = len(made)
@@ -234,7 +247,7 @@ def _check(
 
 
 def _proposal(
-    key: str, parts: dict, raw: dict, verdict: tuple[str, str] | None, least: float, unchecked: bool
+    key: str, parts: dict, raw: dict, verdict: tuple[str, str] | None, least: float, stopped: bool
 ) -> Proposal:
     conf = raw.get("confidence")
     confidence = (
@@ -246,8 +259,8 @@ def _proposal(
     passed = bool(verdict) and verdict[0] == "agree" and confidence >= least and not flags
     if flags:
         reason = "flagged by the drafter: " + "; ".join(flags)
-    elif unchecked or not verdict:
-        reason = "not checked: the run stopped" if unchecked else "no verdict came back for it"
+    elif not verdict:
+        reason = "not checked: the run stopped" if stopped else "no verdict came back for it"
     elif verdict[0] != "agree":
         reason = verdict[1]
     elif confidence < least:
@@ -288,6 +301,7 @@ def materials(
         return rep
     t = _thresholds(conn)
     size, rounds = int(t["k2.batch_materials"]), int(t["k2.batch_rounds"])
+    rep.bad_limit = int(t["k2.stop_after_bad_replies"])
     final: dict[str, tuple[list, list]] = {}
     pending = list(text_of)
     for _ in range(rounds + 1):

@@ -374,6 +374,7 @@
  "material_item.material_item_home_check": "CHECK ((home = ANY (ARRAY['class'::text, 'school'::text])))",
  "material_item.material_item_name_check": "CHECK ((btrim(name) <> ''::text))",
  "material_item.material_item_pkey": "PRIMARY KEY (tenant_id, code)",
+ "material_item.material_item_proposal_id_fkey": "FOREIGN KEY (proposal_id) REFERENCES curriculum_proposal(id)",
  "material_item.material_item_tenant_id_fkey": "FOREIGN KEY (tenant_id) REFERENCES tenant(id) ON DELETE CASCADE",
  "material_item.material_item_tenant_id_name_key": "UNIQUE (tenant_id, name)",
  "material_item.material_item_unit_check": "CHECK ((btrim(unit) <> ''::text))",

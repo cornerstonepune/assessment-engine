@@ -631,6 +631,12 @@
    "value": 300,
    "unit": "count",
    "description": "Tokens out, per materials text, ASSUMED for the forecast of splitting materials (M1-11); not measured."
+  },
+  {
+   "key": "k2.stop_after_bad_replies",
+   "value": 3,
+   "unit": "count",
+   "description": "Replies in a row that break their schema before a drafting run stops (M1-11): the same failure paid for again and again means the prompt needs a person."
   }
  ]
 }

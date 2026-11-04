@@ -81,6 +81,12 @@ says:
     proved_by: "packages/engine/tests/test_k2_review.py::test_rejecting_a_draft_empties_the_part_and_takes_its_mark_away"
   - words: "Nothing the school wrote is touched"
     proved_by: "packages/engine/tests/test_k2_review.py::test_the_schools_words_and_unmarked_parts_are_refused_by_all_three"
+  - words: "run /code-review ... on your diff and include their output (D-073): a revert never wipes a part a person kept"
+    proved_by: "packages/engine/tests/test_k2_review.py::test_reverting_the_draft_never_wipes_a_part_a_person_kept_with_its_words_unchanged"
+  - words: "run /code-review ... on your diff and include their output (D-073): a name, number and unit must be in the school's own text"
+    proved_by: "packages/engine/tests/test_k2_batch.py::test_a_material_name_must_be_a_phrase_of_the_text_with_its_number_and_unit_beside_it"
+  - words: "run /code-review ... on your diff and include their output (D-073): the same failure is not paid for again and again"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_replies_that_keep_breaking_their_schema_stop_the_run_instead_of_paying_for_the_same_failure"
 manual:
   - "The eval of the three prompts is not written and not run: no model key in the build container, and money is Nimish's call (D-047). Each prompt row stays inactive (rule 7) until `engine eval` scores it against a bar set before the run, on the 100 dev pages first."
   - "The upload with the lesson plan loaded as steps has not been run on the real tab or on a copy of live: `bin/engine curriculum k2 <csv>` (a dry run) prints the gaps in the sheet and in the database; the migration 20270101090000 has not run on a copy of live (rehearse update-live)."

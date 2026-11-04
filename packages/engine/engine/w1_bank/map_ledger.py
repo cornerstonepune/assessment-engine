@@ -190,7 +190,7 @@ def _material(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
             "select code from material_item where tenant_id = %s and lower(name) = lower(%s)",
             (tenant, it["name"]),
         ).fetchone()
-        mat = item["code"] if item else _new_material(conn, tenant, it)
+        mat = item["code"] if item else _new_material(conn, tenant, it, p["id"])
         conn.execute(
             "insert into activity_material (tenant_id, activity_code, material_code, quantity, ord, source, proposal_id)"
             " values (%s,%s,%s,%s,%s,'machine',%s) on conflict do nothing",
@@ -199,15 +199,15 @@ def _material(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
     return f"{code} materials: {', '.join(it['name'] for it in p['proposal']['items'])}"
 
 
-def _new_material(conn: db.Conn, tenant: db.Id, it: dict) -> str:
+def _new_material(conn: db.Conn, tenant: db.Id, it: dict, proposal: db.Id) -> str:
     n = db.one(
         conn,
         "select coalesce(max(substring(code from '[0-9]+$')::int), 0) + 1 as n from material_item where tenant_id = %s",
         (tenant,),
     )["n"]
     conn.execute(
-        "insert into material_item (tenant_id, code, name, unit) values (%s,%s,%s,%s)",
-        (tenant, f"MAT-{n:04d}", it["name"], it["unit"]),
+        "insert into material_item (tenant_id, code, name, unit, proposal_id) values (%s,%s,%s,%s,%s)",
+        (tenant, f"MAT-{n:04d}", it["name"], it["unit"], proposal),
     )
     return f"MAT-{n:04d}"
 
@@ -264,14 +264,22 @@ def revert(conn: db.Conn, tenant: db.Id, about: db.Id, staff: db.Id | None, why:
             f"delete from {table} where tenant_id = %s and proposal_id = %s and source = 'machine'",  # noqa: S608
             (tenant, p["id"]),
         )
+    if p["kind"] == "material":
+        conn.execute(
+            "delete from material_item i where i.tenant_id = %s and i.proposal_id = %s and not exists"
+            " (select 1 from activity_material m where m.tenant_id = i.tenant_id and m.material_code = i.code)",
+            (tenant, p["id"]),
+        )
     if p["kind"] == "page_part":
         for part, text in sorted(p["proposal"]["parts"].items()):
             if part not in PAGE_PARTS:
                 raise ValueError(f"{part} is not a part of a page")
             col = cast(LiteralString, part)
             conn.execute(
-                f"update activity set {col} = '' where tenant_id = %s and code = %s and {col} = %s",  # noqa: S608
-                (tenant, p["subject_code"], text),
+                f"update activity set {col} = '' where tenant_id = %s and code = %s and {col} = %s"  # noqa: S608
+                " and exists (select 1 from activity_part_source s where s.tenant_id = %s and s.activity_code = %s"
+                " and s.part = %s and s.proposal_id = %s and s.source = 'drafted')",  # a person's kept words stay
+                (tenant, p["subject_code"], text, tenant, p["subject_code"], part, p["id"]),
             )
         conn.execute(
             "delete from activity_part_source where tenant_id = %s and proposal_id = %s and source = 'drafted'",
