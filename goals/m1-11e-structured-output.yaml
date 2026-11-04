@@ -1,0 +1,35 @@
+name: m1-11e-structured-output
+goal: >
+  The mapping proposer can no longer add a field its schema forbids, because the vendor holds its reply to the schema
+  (Anthropic's `output_config.format`) instead of the prompt only asking. First full run (2026-11-04, map_dev): 3 of 100
+  replies added a field ('additionalProperties', 'reason_note', 'confidence_note') despite a prompt that forbade it.
+  The vendor takes objects closed with their fields named, and no bounds, so the adapter takes the bounds out of what it
+  sends and keeps checking the full schema itself; and a free-form map (the proposer's `levels`, v2) would be forced
+  empty, so the proposer's third version names its four levels. Which versions are held is a config row.
+# Written 2026-11-04 (task M1-11e). W1, gate N1. The words are the orchestrator's approval of 2026-11-04 (relayed); the
+# originals are not in this repository. Nothing here has made a model call.
+says:
+  - words: "Structured output enforced by the API in the adapter, verified against the current docs page, stripping the unsupported keywords before sending and keeping the local check"
+    proved_by: "packages/engine/tests/test_llm.py::test_a_structured_call_sends_the_schema_as_the_output_format_without_the_keywords_the_vendor_refuses"
+  - words: "stripping the unsupported keywords before sending and keeping the local check"
+    proved_by: "packages/engine/tests/test_llm.py::test_the_local_check_still_holds_the_bounds_the_vendor_cannot"
+  - words: "Structured output enforced by the API in the adapter"
+    proved_by: "packages/engine/tests/test_llm.py::test_only_the_versions_the_config_row_names_are_asked_for_in_structured_form"
+  - words: "Structured output enforced by the API in the adapter"
+    proved_by: "packages/engine/tests/test_llm.py::test_every_version_asked_for_in_structured_form_has_a_schema_the_vendor_can_hold"
+  - words: "tests first"
+    proved_by: "packages/engine/tests/test_llm.py::test_a_call_that_is_not_structured_sends_exactly_what_it_sent_before"
+  - words: "No eval run until I say"
+    proved_by: "packages/engine/tests/test_map_schema.py::test_the_third_proposer_names_all_four_levels_so_the_vendor_can_hold_it_and_v2_is_left_as_it_was"
+  - words: "Structured output enforced by the API in the adapter"
+    proved_by: "packages/engine/tests/test_map_schema.py::test_a_fixed_form_reply_proposes_only_the_levels_that_were_asked_for"
+manual:
+  - "Not tested against the live API: the request shape is from the current docs and the installed SDK's own types; the first real call is `map_dev` (now proposer v3). If the vendor refuses the schema it answers HTTP 400 and no call is paid for; the run says so in its first line."
+  - "Proposer v3 has no eval score yet (rule 7); it stays inactive until map_dev's score against the D-063 bars says otherwise."
+criteria:
+  - name: the adapter asks the vendor to hold the reply, strips what it refuses, keeps its own check, and only for the versions the row names
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_llm.py tests/test_llm_budget.py tests/test_map_schema.py tests/test_curriculum_run_command.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
