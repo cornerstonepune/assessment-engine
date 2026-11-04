@@ -174,12 +174,67 @@ def test_an_educator_adds_a_line_only_from_the_catalogue(conn, s):
 
 
 def test_a_new_item_is_a_catalogue_entry_with_no_home_and_no_value_waiting_for_a_person(conn, s):
-    code = ml.propose_item(conn, s["tenant"], "Feather duster", "piece")
+    code = ml.propose_item(conn, s["tenant"], "Feather duster", "piece", s["staff"])
     row = conn.execute("select * from material_item where code = %s", (code,)).fetchone()
     assert (row["name"], row["home"], row["unit_value"]) == ("Feather duster", None, None)
+    waiting = conn.execute(
+        "select state, who from material_item_proposal where material_code = %s", (code,)
+    ).fetchall()
+    assert [(w["state"], w["who"]) for w in waiting] == [("needs_person", s["staff"])]
     assert (
-        ml.propose_item(conn, s["tenant"], "  feather DUSTER ", "piece") == code
-    )  # the same item, not a second
+        ml.propose_item(conn, s["tenant"], "  feather DUSTER ", "piece", s["staff"]) == code
+    )  # the same, not a second
+    assert (
+        conn.execute(
+            "select count(*) as n from material_item_proposal where material_code = %s", (code,)
+        ).fetchone()["n"]
+        == 1
+    )
+
+
+def test_a_line_names_its_activity_by_id_code_and_name(conn, s):
+    a = s["acts"][0]
+    pen = m.item(conn, s, "Pen")
+    m.needs(conn, s, a, pen, 1)
+    m.planned(conn, s, D1, a)
+    [line] = ml.read(conn, _build(conn, s))["groups"][0]["lines"]
+    assert set(line["activity"]) == {"id", "code", "name"} and line["activity"]["code"] == a
+
+
+def test_the_read_says_whether_it_was_sent_and_whether_the_team_has_it(conn, s):
+    from engine.w2_print import materials_send as send
+
+    a = s["acts"][0]
+    pen = m.item(conn, s, "Pen")
+    m.needs(conn, s, a, pen, 1)
+    m.planned(conn, s, D1, a)
+    lid = _build(conn, s)
+    assert ml.read(conn, lid)["last_send"] is None
+    out = send.send(conn, lid, "whatsapp", s["staff"])
+    assert ml.read(conn, lid)["last_send"]["team_has_it"] is False
+    send.team_has_it(conn, out["send_id"], s["staff"])
+    got = ml.read(conn, lid)["last_send"]
+    assert (got["send_id"], got["route"], got["team_has_it"]) == (out["send_id"], "whatsapp", True)
+
+
+def test_building_the_same_range_again_gives_the_same_list(conn, s):
+    a = s["acts"][0]
+    pen = m.item(conn, s, "Pen")
+    m.needs(conn, s, a, pen, 1)
+    m.planned(conn, s, D1, a)
+    assert _build(conn, s) == _build(conn, s)
+
+
+def test_who_may_edit_is_the_roles_the_school_names_for_the_timetable(conn, s):
+    import json
+
+    assert ml.may_edit(conn, s["staff"], s["class"]) is True
+    conn.execute(
+        "insert into config (tenant_id, key, value, description) values (%s, 'educator.timetable_roles', %s, 't')"
+        " on conflict (tenant_id, key) do update set value = excluded.value",
+        (s["tenant"], json.dumps(["coordinator"])),
+    )
+    assert ml.may_edit(conn, s["staff"], s["class"]) is False
 
 
 def test_the_edit_table_cannot_be_changed(conn, s):

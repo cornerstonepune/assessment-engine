@@ -658,12 +658,6 @@
       "seed_once": true
     },
     {
-      "key": "materials.roles_that_edit",
-      "description": "The roles whose open grant on a class lets a person build, edit and send that class's materials list. A campus-wide role is not here unless added.",
-      "value": ["class_teacher", "cover_educator"],
-      "seed_once": true
-    },
-    {
       "key": "materials.reminder_weeks",
       "description": "How many weeks before the first day a material is needed the educator and the materials team are reminded (D-070: 2 and 1). A date that is not a working day moves to the last working day before it; one already past goes today (D-072).",
       "value": [2, 1],

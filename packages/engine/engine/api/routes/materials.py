@@ -74,7 +74,7 @@ class Inbox(Who):
 
 def _staff(conn, body: Who) -> UUID:
     if not ml.enabled(conn):
-        raise HTTPException(status_code=403, detail="The materials list is not switched on.")
+        raise HTTPException(status_code=403, detail="The timetable is not switched on.")
     sid = db.one(conn, "select public.staff_of_email(%s) as id", (body.actor,))["id"]
     if sid is None:
         raise HTTPException(status_code=403, detail="This sign-in is not on the staff list.")
@@ -99,11 +99,15 @@ def _mine_list(conn, body: Who, list_id: UUID) -> UUID:
     return staff
 
 
-def _mine_line(conn, body: Who, line_id: UUID) -> UUID:
+def _line_list(conn, line_id: UUID) -> UUID:
     row = conn.execute("select list_id from materials_line where id = %s", (line_id,)).fetchone()
     if row is None:
         raise HTTPException(status_code=404, detail="No such line.")
-    return _mine_list(conn, body, row["list_id"])
+    return row["list_id"]
+
+
+def _mine_line(conn, body: Who, line_id: UUID) -> UUID:
+    return _mine_list(conn, body, _line_list(conn, line_id))
 
 
 @keyed.post("/build")
@@ -135,6 +139,7 @@ def quantity(body: Quantity, conn=Depends(get_conn, scope="function")):
 def remove(body: Line, conn=Depends(get_conn, scope="function")):
     staff = _mine_line(conn, body, body.line_id)
     ml.remove(conn, body.line_id, staff)
+    rem.sync(conn, _line_list(conn, body.line_id), rem.school_today(conn))
     return {"ok": True}
 
 
@@ -178,10 +183,10 @@ def catalogue(body: Who, conn=Depends(get_conn, scope="function")):
 
 @keyed.post("/catalogue/propose")
 def propose(body: Propose, conn=Depends(get_conn, scope="function")):
-    _staff(conn, body)
-    tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+    staff = _staff(conn, body)
+    tenant = db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
     try:
-        return {"code": ml.propose_item(conn, tenant, body.name, body.unit)}
+        return {"code": ml.propose_item(conn, tenant, body.name, body.unit, staff)}
     except ValueError as no:
         raise HTTPException(status_code=422, detail=str(no)) from no
 

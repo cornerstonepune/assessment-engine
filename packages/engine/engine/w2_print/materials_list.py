@@ -121,7 +121,7 @@ def read(conn: db.Conn, list_id: UUID, group_by: str | None = None) -> dict[str,
     ).fetchall()
     rows = conn.execute(
         "select l.id, l.material_code, l.unit, l.quantity, l.needed_on, l.source, l.activity_code,"
-        " i.name, i.home, i.unit_value, a.name as activity_name"
+        " i.name, i.home, i.unit_value, a.id as activity_id, a.name as activity_name"
         " from materials_line l join material_item i on i.tenant_id = l.tenant_id and i.code = l.material_code"
         " left join activity a on a.tenant_id = l.tenant_id and a.code = l.activity_code"
         " where l.list_id = %s and l.removed_at is null order by l.needed_on, i.name",
@@ -139,7 +139,7 @@ def read(conn: db.Conn, list_id: UUID, group_by: str | None = None) -> dict[str,
                 "quantity": _num(r["quantity"]),
                 "unit": r["unit"],
                 "needed_on": r["needed_on"],
-                "activity": {"code": r["activity_code"], "name": r["activity_name"]}
+                "activity": {"id": r["activity_id"], "code": r["activity_code"], "name": r["activity_name"]}
                 if r["activity_code"]
                 else None,
                 "source": r["source"],
@@ -155,6 +155,11 @@ def read(conn: db.Conn, list_id: UUID, group_by: str | None = None) -> dict[str,
         "to": lst["to_on"],
         "state": lst["state"],
         "group_by": group_by,
+        "last_send": conn.execute(
+            "select s.id as send_id, s.route, s.at, exists (select 1 from materials_send_ack a where a.send_id = s.id)"
+            " as team_has_it from materials_send s where s.list_id = %s order by s.at desc limit 1",
+            (list_id,),
+        ).fetchone(),
         "groups": [groups[k] for k in sorted(groups)],
     }
 
@@ -241,9 +246,10 @@ def add(
     return line["id"]
 
 
-def propose_item(conn: db.Conn, tenant: UUID, name: str, unit: str = "piece") -> str:
+def propose_item(conn: db.Conn, tenant: UUID, name: str, unit: str, who: UUID) -> str:
     """A catalogue entry for a new item: no home and no value, which is what makes it wait for a person (M1-11). An
-    item already in the catalogue under that name, in any case or spacing, is that item, not a second."""
+    item already in the catalogue under that name, in any case or spacing, is that item, not a second. The proposal
+    names who added it and that it needs a person (`material_item_proposal`)."""
     name = " ".join(name.split())
     if not name:
         raise ValueError("a new item needs a name")
@@ -263,6 +269,10 @@ def propose_item(conn: db.Conn, tenant: UUID, name: str, unit: str = "piece") ->
         "insert into material_item (tenant_id, code, name, unit) values (%s, %s, %s, %s)",
         (tenant, code, name, unit.strip() or "piece"),
     )
+    conn.execute(
+        "insert into material_item_proposal (tenant_id, material_code, who) values (%s, %s, %s)",
+        (tenant, code, who),
+    )
     return code
 
 
@@ -273,15 +283,12 @@ def enabled(conn: db.Conn) -> bool:
 
 
 def may_edit(conn: db.Conn, staff: UUID, class_id: UUID) -> bool:
-    """She builds, edits and sends a class's list only while she holds an open grant on that class in a role that
-    does (`materials.roles_that_edit`, a config row)."""
-    roles = list(settings.config(conn, "materials.roles_that_edit", ["class_teacher", "cover_educator"]))
-    return (
-        db.one(
-            conn,
-            "select 1 from staff_role_grant where staff_id = %s and school_class_id = %s and role_code = any(%s)"
-            " and valid_from <= current_date and (valid_to is null or valid_to >= current_date)",
-            (staff, class_id, roles),
-        )
-        is not None
-    )
+    """She builds, edits and sends a class's list only while she holds an open grant on that class in a role the
+    timetable names (`educator.timetable_roles`, a config row)."""
+    roles = list(settings.config(conn, "educator.timetable_roles", ["class_teacher", "cover_educator"]))
+    held = conn.execute(
+        "select 1 from staff_role_grant where staff_id = %s and school_class_id = %s and role_code = any(%s)"
+        " and valid_from <= current_date and (valid_to is null or valid_to >= current_date)",
+        (staff, class_id, roles),
+    ).fetchone()
+    return held is not None

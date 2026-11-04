@@ -10,6 +10,7 @@
 --   * materials_line_source every activity and day that adds to a line, so the line stays tied to its activities.
 --   * materials_line_edit   every change by the educator (added, quantity changed, removed) with who and when and the
 --                           line before and after. Append-only.
+--   * material_item_proposal  a catalogue item an educator added, who added it, and that it waits for a person.
 --   * materials_send        exactly what was sent, by which route, who tapped and when. Append-only: what was sent is
 --                           never rewritten. Whether it was read cannot be known (D-071).
 --   * materials_send_ack    the educator's "the team has it" tick on a send. A new row, never an edit.
@@ -77,6 +78,16 @@ create index if not exists materials_line_edit_list_idx on materials_line_edit (
 drop trigger if exists materials_line_edit_append_only on materials_line_edit;
 create trigger materials_line_edit_append_only before update or delete on materials_line_edit
   for each statement execute function internal.forbid_change();
+
+create table if not exists material_item_proposal (
+  tenant_id     uuid not null references tenant(id) on delete cascade,
+  material_code text not null,
+  state         text not null default 'needs_person' check (state in ('needs_person')),
+  who           uuid not null references staff(id),
+  at            timestamptz not null default clock_timestamp(),
+  primary key (tenant_id, material_code),
+  foreign key (tenant_id, material_code) references material_item (tenant_id, code)
+);
 
 create table if not exists materials_send (
   id        uuid primary key default gen_random_uuid(),

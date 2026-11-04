@@ -65,7 +65,8 @@ def _build(client, s, actor=None):
 def test_every_route_refuses_while_the_screens_are_off(engine):
     client, conn, s = engine
     _flag(conn, s, False)
-    assert _build(client, s).status_code == 403
+    refused = _build(client, s)
+    assert (refused.status_code, refused.json()["detail"]) == (403, "The timetable is not switched on.")
     assert client.post("/materials/reminders", headers=H, json={"actor": s["email"]}).status_code == 403
 
 
@@ -160,3 +161,30 @@ def test_the_reminder_inbox_lists_only_what_is_due(engine):
     _build(client, s)
     got = client.post("/materials/reminders", headers=H, json={"actor": s["email"]})
     assert got.status_code == 200 and got.json()["reminders"] == []  # 2031 is far off: nothing is due yet
+
+
+def test_removing_the_first_line_moves_the_reminders_to_the_next_day_a_material_is_needed(engine):
+    client, conn, s = engine
+    _flag(conn, s)
+    first, later = m.item(conn, s, "Clay", "packet"), m.item(conn, s, "Bells")
+    m.needs(conn, s, s["acts"][0], first, 1)
+    m.needs(conn, s, s["acts"][1], later, 1)
+    m.planned(conn, s, m.MON, s["acts"][0])
+    m.planned(conn, s, m.MON + dt.timedelta(days=7), s["acts"][1])
+    body = _build(client, s).json()
+
+    def due():
+        return {
+            r["due_on"]
+            for r in conn.execute("select due_on from reminder where list_id = %s", (body["list_id"],))
+        }
+
+    before = due()
+    line = next(ln for g in body["groups"] for ln in g["lines"] if ln["material_code"] == first)
+    assert (
+        client.post(
+            "/materials/line/remove", headers=H, json={"actor": s["email"], "line_id": line["line_id"]}
+        ).status_code
+        == 200
+    )
+    assert min(due()) == min(before) + dt.timedelta(days=7)
