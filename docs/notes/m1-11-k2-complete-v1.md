@@ -15,7 +15,7 @@ has been made; nothing is pushed beyond the first note.** teacher-os was never a
 | materials | `activity.materials` text + `material_item`, `activity_material` (item, quantity, unit) | H | catalogue new |
 | source of each part | `activity_part_source` (school / drafted / person, proposal, staff id) | — | new |
 Migration `20261231090000_k2_page_parts.sql`: additive; widens `curriculum_proposal.kind` with `page_part`, `material` (the M1-05
-ledger carries the drafts, rule 10); the edit trigger now keeps `steps` and `thinking` too. A part with no source row is empty or
+ledger carries the drafts, rule 10); the edit trigger now keeps `steps` and `thinking` too. A catalogue item's `home` (class/school) and `unit_value` stay empty and flagged until a person sets them (D-072; never invented). A part with no source row is empty or
 older than this table; the upload writes 'school'; a later upload turns a 'drafted' part into 'school', never a 'person' one.
 
 ## Baseline (the orchestrator's counts from the Activity tab export; not re-measured by me)
@@ -34,17 +34,29 @@ Question for the coordinator: sheet columns W–Z ("L0..L3", headed "Name") and 
 - Not built: the eval and bars for these prompts, the draft/apply commands, the "drafted" chip and keep/change/reject screens,
   planner lines with no activity (the planner tab is not read). Each needs a go; model runs need Nimish's cost approval.
 
-## Cost (estimate; tokens per call assumed, none measured; `config.llm.prices`)
-About ₹3,700 (~$42), plan ₹3,000–6,000: draft+retries ~1,210, validate ~1,380, materials ~215, evals on gold ~850. 2–3 hours at
-4 calls at once. The inconsistency and planner-only drafts are not sized. Person review is the real cost, unmeasured.
-Wording has no automatic bar: the K2 educator reads 30 drafted pages and marks keep/change/reject; counts reported.
+## Cost, redone for Nimish's $25 (4 Nov; Sonnet 5.5 drafts, Haiku 4.5 checks; ESTIMATE, tokens per call assumed, none measured)
+Prices per million tokens in/out: Sonnet 5.5 $2/$10, Haiku 4.5 $1/$5, Opus 5.5 $4/$20 (`config.llm.prices`, at ₹88/$).
+| Stage | One call per activity | Batched 4 (10 for materials) |
+|---|---|---|
+| Mapping dev eval, 100 (Sonnet propose + Haiku check) | $1.4 | $1.4 (the map asks one at a time) |
+| Mapping held-out score, 427 | $6.0 | $6.0 |
+| Page-draft dev eval, 100 | $2.1 | $1.2 |
+| Draft 871 pages + retries | $13.7 | $9.0 |
+| Check the drafts (Haiku) | $3.9 | $2.1 |
+| Split the materials (Haiku) | $2.4 | $1.7 |
+| **Total** | **~$29.5, over** | **~$21.4, under** |
+So: batching is needed; the rows now ask for one activity a call and must change before the first dev eval. The held-out
+mapping score alone (~$6.0) is above the $5 stage cap on these assumptions. M1-05's validator row is Opus 5.5: with it the
+held-out score costs ~$9.8, so it must become Haiku 4.5 (a new version row, rule 2). Prompt caching might cut input cost; not counted.
+Hard stop: `llm.campaigns` (cap $25, margin $2, so calls stop at $23 spent) over the five prompts above, in `adapters/llm_budget.py`.
 
 ## Verified
-- `pytest -q tests/test_k2_gaps.py tests/test_k2_upload.py` on a database built by `bin/testdb fresh` + my migration → 25 passed.
+- `pytest -q tests/test_llm_budget.py tests/test_llm.py tests/test_k2_gaps.py tests/test_bars.py tests/test_loaders.py` → 64 passed (budget tests written first: 9 failed before the code).
 - Affected files one by one (bars, eval_command, llm, school_words, settings, map_*, jev, layout, loaders) → all passed.
-- `bin/check` → 34 passed. A combined run of those files in one pytest process stopped with no summary (cause not found).
-- NOT done: the whole suite in 12 shards; `engine live rules` (no output in 100 s on my database, not diagnosed); a run on
-  the real tab or on a copy of live.
+- `bin/check` → 34 passed. The 14 affected files in ONE pytest process (foreground) → 134 passed; the earlier silent stop was a background run, most likely ended by the harness (inferred, not proved).
+- `engine live rules` needs `--url`; without it it looked for the live database (that was the silence). With `--url` it lists 23
+  rules of my new tables not yet in rules.json: to regenerate after #374 merges. NOT done: the 12-shard suite (waits for #374 and
+  the renumber), a run on the real tab or on a copy of live.
 
 ## Handoff
 - In flight: branch m1-11-k2-complete-v1. Migration and code are committed locally and NOT pushed (orchestrator).

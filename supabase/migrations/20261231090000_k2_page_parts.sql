@@ -7,7 +7,8 @@
 --   activity.thinking     how it needs to be thought about: the educator's view of the idea and the common slips
 --   activity_part_source  where one part of one page came from: school | drafted | person. A part with no row here has
 --                         no source yet (an empty part, or one loaded before this table); the upload writes 'school'
---   material_item         the catalogue: one row per kind of thing, with its unit
+--   material_item         the catalogue: one row per kind of thing, with its unit, its home (class or school) and its
+--                         value per unit; the last two stay empty, and are flagged, until a person fills them
 --   activity_material     which items an activity needs, how many, in the order the sheet lists them
 --   curriculum_proposal   takes two more kinds, 'page_part' and 'material', so the M1-05 ledger carries these drafts
 
@@ -41,6 +42,8 @@ create table if not exists material_item (
   code        text not null,                     -- MAT-0001
   name        text not null check (btrim(name) <> ''),
   unit        text not null default 'piece' check (btrim(unit) <> ''),
+  home        text check (home in ('class', 'school')),  -- where it is kept (D-072); empty until a person says
+  unit_value  numeric check (unit_value >= 0),           -- rupees for one unit; empty until a person says, never guessed
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now(),
   primary key (tenant_id, code),

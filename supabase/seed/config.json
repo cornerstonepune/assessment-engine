@@ -148,6 +148,18 @@
       ]
     },
     {
+      "key": "llm.campaigns",
+      "description": "A piece of work with its own money (M1-11, Nimish 4 Nov: up to 25 US dollars for the whole drafting run, Sonnet-class models, Haiku for simple steps). The adapter adds up what these purposes have cost (flow_run.cost_inr) and refuses a call before making it once the total reaches cap less margin; the margin covers calls in flight. inr_per_usd is the rate llm.prices was written at. Raise a cap here, by a pull request, never in code.",
+      "value": {
+        "m1-11": {
+          "purposes": ["curriculum_map_propose", "curriculum_map_validate", "k2_page_draft", "k2_page_validate", "k2_materials_split"],
+          "cap_usd": 25,
+          "margin_usd": 2,
+          "inr_per_usd": 88
+        }
+      }
+    },
+    {
       "key": "llm.fallback_models",
       "description": "Tried in order after the prompt row's own model. Haiku is the cheap Anthropic fallback; the Gemini free tier is the last resort (20 requests per model per day).",
       "value": [

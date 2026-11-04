@@ -29,6 +29,14 @@ says:
     proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_proposal_ledger_takes_a_page_part_and_a_material_and_still_refuses_anything_else"
   - words: "prompts are rows per rule 2 and each gets an eval per rule 7"
     proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_three_prompts_are_rows_with_a_schema_and_none_is_active_before_its_eval"
+  - words: "add a HARD STOP in code: a spend ledger (running total from the token counts in each response times config.llm.prices) that refuses further calls at 25 US dollars minus a safety margin and records every call"
+    proved_by: "packages/engine/tests/test_llm_budget.py::test_a_call_is_refused_before_it_is_made_once_the_total_reaches_the_cap_less_the_margin"
+  - words: "add a HARD STOP in code: a spend ledger (running total from the token counts in each response times config.llm.prices) that refuses further calls at 25 US dollars minus a safety margin and records every call"
+    proved_by: "packages/engine/tests/test_llm_budget.py::test_a_reply_that_breaks_its_schema_was_still_paid_for_and_its_cost_counts"
+  - words: "Keep school text sacred: the loader must never overwrite a non-empty cell, test it with a row that has a 'person' edit"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_an_upload_never_writes_over_steps_a_person_edited_and_never_empties_a_filled_cell"
+  - words: "materials are class-level or school-level, items above a rupee threshold are tracked, so your catalogue item needs a 'home' (class or school) and a unit rate/value field that may be empty (never invent a price)"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_an_item_has_a_home_and_a_value_that_stay_empty_until_a_person_says_and_are_never_made_up"
 manual:
   - "The eval of the three prompts is not written and not run: no model key in the build container, and money is Nimish's call (D-047). Each prompt row stays inactive (rule 7) until `engine eval` scores it against a bar set before the run, on the 100 dev pages first."
   - "The upload with the lesson plan loaded as steps has not been run on the real tab or on a copy of live: `bin/engine curriculum k2 <csv>` (a dry run) prints the gaps in the sheet and in the database; the migration 20261231090000 has not run on a copy of live (rehearse update-live)."
@@ -38,6 +46,9 @@ scenarios: []
 criteria:
   - name: the gaps counted, the steps loaded and marked the school's, the part sources, the catalogue, the ledger kinds and the prompts (a database built from the migrations)
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_gaps.py
+    expect: "passed"
+  - name: the spend cap refuses a call before it is made, counts a paid reply that failed its schema, and stops on a spend it cannot see
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_llm_budget.py tests/test_llm.py
     expect: "passed"
   - name: the existing upload still behaves as M0-02 proved
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_upload.py

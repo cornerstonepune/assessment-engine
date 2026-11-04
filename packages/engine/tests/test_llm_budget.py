@@ -1,0 +1,194 @@
+"""M1-11: the drafting run has a hard stop in code (goals/m1-11-k2-complete-v1.yaml).
+
+Nimish, 4 Nov: up to 25 US dollars of model credits for the whole drafting run. Every model call already leaves a
+`flow_run` row with its tokens and its cost from `llm.prices`; the campaign row (`llm.campaigns`) names the purposes the
+run spends on, the cap and a safety margin, and the adapter refuses a call, before making it, once the running total
+reaches cap minus margin. A spend it cannot see (a call that answered with no cost recorded, a call left running)
+stops the run too, because a total that is missing a call is not a total.
+"""
+
+import json
+import os
+
+import pytest
+
+from engine.adapters import llm
+from engine.core import db
+
+pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
+
+DRAFT = "k2_page_draft"
+DRAFTED = {k: "x" for k in ("objective", "steps", "thinking", "level_0", "level_1", "level_2", "level_3")}
+DRAFTED |= {"flags": [], "confidence": 0.9, "reason": "r"}
+VARS = {"activity": "a", "have": "h", "examples": "e", "want": "w"}
+RATE = 88  # INR per US dollar, as llm.prices says
+
+
+@pytest.fixture
+def conn(monkeypatch):
+    monkeypatch.setattr(llm.db, "env", lambda name: "k")
+    with db.connect() as c:
+        c.tenant = c.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+        c.execute(
+            "update config set value = %s where tenant_id = %s and key = 'llm.campaigns'",
+            (json.dumps({"m1-11": CAMPAIGN}), c.tenant),
+        )
+        yield c
+        c.rollback()
+
+
+CAMPAIGN = {
+    "purposes": [DRAFT, "k2_page_validate", "k2_materials_split"],
+    "cap_usd": 25,
+    "margin_usd": 2,
+    "inr_per_usd": RATE,
+}
+LIMIT_INR = (25 - 2) * RATE  # 2024
+
+
+def spend(conn, inr, flow=DRAFT, status="ok", started="now()"):
+    conn.execute(
+        f"insert into flow_run (tenant_id, flow, trigger, status, cost_inr, started_at) values (%s,%s,'test',%s,%s,{started})",  # noqa: S608
+        (conn.tenant, flow, status, inr),
+    )
+
+
+def answering(monkeypatch, calls):
+    def dispatch(models, text, images, schema, effort=None):
+        calls.append(models[0])
+        return DRAFTED, "claude-sonnet-5-5", 3000, 2000, 1000
+
+    monkeypatch.setattr(llm, "_dispatch", dispatch)
+
+
+def runs(conn, flow=DRAFT):
+    return conn.execute("select count(*) as n from flow_run where flow = %s", (flow,)).fetchone()["n"]
+
+
+def test_a_call_is_refused_before_it_is_made_once_the_total_reaches_the_cap_less_the_margin(
+    conn, monkeypatch
+):
+    calls: list = []
+    answering(monkeypatch, calls)
+    spend(conn, LIMIT_INR / 2, "k2_page_validate")
+    spend(conn, LIMIT_INR / 2)  # the total over the campaign's purposes is now exactly the limit
+    before = runs(conn)
+    with pytest.raises(llm.LLMError, match="m1-11"):
+        llm.generate(conn, DRAFT, VARS, version=1)
+    assert calls == [], "no call was made"
+    assert runs(conn) == before, "a refusal leaves no flow_run row, because no call was made"
+
+
+def test_the_refusal_says_the_spend_in_dollars_and_the_cap(conn, monkeypatch):
+    answering(monkeypatch, [])
+    spend(conn, LIMIT_INR + 1)
+    with pytest.raises(llm.LLMError, match=r"\$23\.0\d.*\$25"):
+        llm.generate(conn, DRAFT, VARS, version=1)
+
+
+def test_a_call_under_the_limit_goes_through_and_is_recorded_with_its_cost(conn, monkeypatch):
+    calls: list = []
+    answering(monkeypatch, calls)
+    spend(conn, LIMIT_INR - 10)
+    meta: dict = {}
+    assert llm.generate(conn, DRAFT, VARS, version=1, meta=meta) == DRAFTED
+    assert calls == ["claude-sonnet-5-5"] and meta["cost_inr"] > 0
+    row = conn.execute(
+        "select tokens_in, tokens_out, cost_inr from flow_run where id = %s", (meta["flow_run_id"],)
+    ).fetchone()
+    assert (row["tokens_in"], row["tokens_out"]) == (2000, 1000) and float(row["cost_inr"]) == float(
+        meta["cost_inr"]
+    )
+
+
+def test_the_call_that_crosses_the_limit_is_the_last_one(conn, monkeypatch):
+    calls: list = []
+    answering(monkeypatch, calls)
+    spend(conn, LIMIT_INR - 0.5)
+    llm.generate(
+        conn, DRAFT, VARS, version=1
+    )  # under the limit when asked: allowed, and it takes the total over
+    with pytest.raises(llm.LLMError, match="m1-11"):
+        llm.generate(conn, DRAFT, VARS, version=1)
+    assert len(calls) == 1
+
+
+def test_a_purpose_outside_the_campaign_is_not_stopped_by_it(conn, monkeypatch):
+    spend(conn, LIMIT_INR * 2)
+    calls: list = []
+    monkeypatch.setattr(
+        llm, "_dispatch", lambda *a, **k: (calls.append(1) or {"verdict": "agree", "why": "w"}, "m", 1, 1, 1)
+    )
+    assert llm.generate(
+        conn,
+        "curriculum_map_validate",
+        {"activity": "a", "kind": "k", "proposal": "p", "skills": "s"},
+        version=1,
+    )
+    assert calls == [1]
+
+
+def test_a_call_that_answered_with_no_cost_recorded_stops_the_run_because_the_total_is_unknown(
+    conn, monkeypatch
+):
+    calls: list = []
+    answering(monkeypatch, calls)
+    spend(conn, None)
+    with pytest.raises(llm.LLMError, match="no cost"):
+        llm.generate(conn, DRAFT, VARS, version=1)
+    assert calls == []
+
+
+def test_a_call_left_running_for_ten_minutes_stops_the_run_but_one_in_flight_does_not(conn, monkeypatch):
+    calls: list = []
+    answering(monkeypatch, calls)
+    spend(conn, None, status="running", started="now()")  # another worker's call, in flight
+    assert llm.generate(conn, DRAFT, VARS, version=1)
+    spend(conn, None, status="running", started="now() - interval '11 minutes'")  # one that never came back
+    with pytest.raises(llm.LLMError, match="left running"):
+        llm.generate(conn, DRAFT, VARS, version=1)
+
+
+def test_a_reply_that_breaks_its_schema_was_still_paid_for_and_its_cost_counts(conn, monkeypatch):
+    monkeypatch.setattr(
+        llm, "_dispatch", lambda *a, **k: ({"nope": 1}, "claude-sonnet-5-5", 3000, 2000, 1000)
+    )
+    with pytest.raises(llm.LLMSchemaError):
+        llm.generate(conn, DRAFT, VARS, version=1)
+    row = conn.execute(
+        "select status, cost_inr from flow_run where flow = %s order by started_at desc limit 1", (DRAFT,)
+    ).fetchone()
+    assert row["status"] == "error" and float(row["cost_inr"]) > 0, "an error row that cost money says so"
+
+
+def test_the_seeded_campaign_is_twenty_five_dollars_less_a_margin_over_exactly_the_three_prompts():
+    seeded = next(
+        c
+        for c in json.loads((db.REPO_ROOT / "supabase" / "seed" / "config.json").read_text())["config"]
+        if c["key"] == "llm.campaigns"
+    )["value"]["m1-11"]
+    assert seeded["cap_usd"] == 25 and 0 < seeded["margin_usd"] < seeded["cap_usd"]
+    assert set(seeded["purposes"]) == {
+        "curriculum_map_propose",
+        "curriculum_map_validate",
+        DRAFT,
+        "k2_page_validate",
+        "k2_materials_split",
+    }, "the mapping evals spend from the same 25 dollars"
+    assert seeded["inr_per_usd"] == RATE
+
+
+def test_the_campaigns_money_does_not_use_up_the_days_budget_of_every_other_prompt(conn, monkeypatch):
+    """The daily budget row (₹150) is for everything else; a drafting run of ₹2,000 is the campaign's own money."""
+    spend(conn, 1000)
+    calls: list = []
+    monkeypatch.setattr(
+        llm, "_dispatch", lambda *a, **k: (calls.append(1) or {"verdict": "agree", "why": "w"}, "m", 1, 1, 1)
+    )
+    assert llm.generate(
+        conn,
+        "curriculum_map_validate",
+        {"activity": "a", "kind": "k", "proposal": "p", "skills": "s"},
+        version=1,
+    )
+    assert calls == [1], "the day's total for other prompts is still under its ₹150"

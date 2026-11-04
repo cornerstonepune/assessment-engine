@@ -227,6 +227,22 @@ def test_materials_are_a_catalogue_and_a_line_per_activity_with_a_quantity_and_a
 
 
 @needs_db
+def test_an_item_has_a_home_and_a_value_that_stay_empty_until_a_person_says_and_are_never_made_up(conn):
+    t = conn.info_tenant
+    conn.execute("insert into material_item (tenant_id, code, name) values (%s,'MAT-0002','Clay')", (t,))
+    row = conn.execute("select home, unit_value from material_item where code = 'MAT-0002'").fetchone()
+    assert row["home"] is None and row["unit_value"] is None, (
+        "a drafted item comes with neither: flagged, not guessed"
+    )
+    conn.execute("update material_item set home = 'school', unit_value = 450 where code = 'MAT-0002'")
+    for bad in ("update material_item set home = 'moon'", "update material_item set unit_value = -1"):
+        with pytest.raises(psycopg.errors.CheckViolation):
+            conn.execute(bad + " where code = 'MAT-0002'")
+        conn.rollback()
+        conn.execute("insert into material_item (tenant_id, code, name) values (%s,'MAT-0002','Clay')", (t,))
+
+
+@needs_db
 def test_the_proposal_ledger_takes_a_page_part_and_a_material_and_still_refuses_anything_else(conn):
     t = conn.info_tenant
     base = "insert into curriculum_proposal (tenant_id, run_id, kind, subject_code, status, machine) values (%s, gen_random_uuid(), %s, 'ACT-K2-0001', 'needs_person', 'code:test')"
@@ -254,3 +270,37 @@ def test_the_three_prompts_are_rows_with_a_schema_and_none_is_active_before_its_
         text = (SEED / p["text_file"]).read_text()
         assert "teacher" not in text.lower() and "borrow" not in text.lower(), "the school's words"
         assert "{{" in text, "the activity's own words go in as data"
+
+
+@needs_db
+def test_an_upload_never_writes_over_steps_a_person_edited_and_never_empties_a_filled_cell(tmp_path, conn):
+    path = _csv(tmp_path, B="1", C="Block Room", D="Critical Thinking", F="SR KG", G="Pink Tower", J=STEPS)
+    rows, _ = up.read_csv(path)
+    dbrows, edited = up.snapshot(conn, conn.info_tenant)
+    code = up.plan(rows, dbrows, edited).changes[0][0]
+    up.apply(conn, conn.info_tenant, up.plan(rows, dbrows, edited), "K2 upload — first")
+    conn.execute("select set_config('app.changed_by', 'a member of staff', true)")
+    conn.execute(
+        "update activity set steps = 'Sit in a circle. (changed by an educator)' where code = %s", (code,)
+    )
+    again, _ = up.read_csv(
+        _csv(
+            tmp_path, B="1", C="Block Room", D="Critical Thinking", F="SR KG", G="Pink Tower", J="Other words"
+        )
+    )
+    dbrows, edited = up.snapshot(conn, conn.info_tenant)
+    second = up.plan(again, dbrows, edited)
+    assert all("steps" not in diff for _, _, diff in second.changes), (
+        "the person's words are not written over"
+    )
+    assert (code, "steps", "edited on the site; the sheet's words are not written over it") in second.kept
+    up.apply(conn, conn.info_tenant, second, "K2 upload — second")
+    got = conn.execute("select steps from activity where code = %s", (code,)).fetchone()["steps"]
+    assert got == "Sit in a circle. (changed by an educator)"
+    empty, _ = up.read_csv(
+        _csv(tmp_path, B="1", C="Block Room", D="Critical Thinking", F="SR KG", G="Pink Tower", J="")
+    )
+    dbrows, edited = up.snapshot(conn, conn.info_tenant)
+    assert all("steps" not in diff for _, _, diff in up.plan(empty, dbrows, edited).changes), (
+        "an empty cell empties nothing"
+    )

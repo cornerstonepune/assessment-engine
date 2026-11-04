@@ -20,6 +20,7 @@ import certifi
 import jsonschema
 from anthropic.types import ImageBlockParam, MessageParam, TextBlockParam
 
+from engine.adapters import llm_budget
 from engine.core import db
 
 WAITS = (
@@ -71,12 +72,19 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
     `llm.daily_budget_inr` threshold row — no flow_run is written for a refusal, because no call
     was made. `meta`, if a dict is passed, is filled with prompt_id, model and flow_run_id so a
     caller can write provenance without a second lookup (gate 4: every item says what made it)."""
-    budget = conn.execute("select value from threshold where key = 'llm.daily_budget_inr'").fetchone()
+    own_money = llm_budget.purposes(
+        conn
+    )  # a campaign's purposes have their own cap, and stay out of the day's total
+    budget = (
+        None
+        if purpose in own_money
+        else conn.execute("select value from threshold where key = 'llm.daily_budget_inr'").fetchone()
+    )
     if budget:
         spent = conn.execute(
             "select coalesce(sum(f.cost_inr), 0) as n from flow_run f join tenant t on t.id = f.tenant_id"
-            " where t.slug = %s and f.started_at::date = current_date",
-            (db.tenant_slug(),),
+            " where t.slug = %s and f.started_at::date = current_date and not (f.flow = any(%s))",
+            (db.tenant_slug(), own_money),
         ).fetchone()["n"]
         if spent >= budget["value"]:
             raise LLMError(
@@ -84,6 +92,10 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
                 "daily budget (threshold llm.daily_budget_inr)"
             )
 
+    try:
+        llm_budget.check(conn, db.tenant_slug(), purpose)
+    except llm_budget.Refused as e:
+        raise LLMError(str(e)) from e
     row = active_prompt(conn, purpose, subject, version)
     cfg = conn.execute("select value from config where key = 'llm.fallback_models'").fetchone()
     models = [row["model"]] + list(cfg["value"] if cfg else [])
@@ -94,18 +106,26 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
     ).fetchone()["id"]
 
     text = _fill(row["text"], variables)
+    answered = (
+        None  # (model, tokens, tokens in, tokens out) once a model has answered: a paid call, right or not
+    )
     try:
         out, model, tokens, tokens_in, tokens_out = _dispatch(
             models, text, images, row["json_schema"], row.get("effort")
         )
+        answered = (model, tokens, tokens_in, tokens_out)
         try:
             jsonschema.validate(out, row["json_schema"])
         except jsonschema.ValidationError as e:
             raise LLMSchemaError(f"{purpose} output failed its schema: {e.message}") from e
     except LLMError as e:
+        paid = (
+            (*answered, _cost_inr(conn, answered[0], answered[2], answered[3])) if answered else (None,) * 5
+        )
         conn.execute(
-            "update flow_run set finished_at = clock_timestamp(), status = %s, error = %s where id = %s",
-            ("error", str(e), run),
+            "update flow_run set finished_at = clock_timestamp(), status = %s, error = %s, model = %s,"
+            " tokens = %s, tokens_in = %s, tokens_out = %s, cost_inr = %s where id = %s",
+            ("error", str(e), *paid, run),
         )
         raise
     cost = _cost_inr(conn, model, tokens_in, tokens_out)
