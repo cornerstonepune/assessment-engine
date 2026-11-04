@@ -240,12 +240,17 @@ def replay_report(conn: db.Conn, gap_minutes: float) -> list[str]:
     calls = map_replay_mod.last_run(map_replay_mod.stored(conn), gap_minutes)
     if not calls:
         raise ValueError("no stored dev-set run: no reply was kept (it needs a run after M1-11c)")
-    ask, left = map_replay_mod.replaying(calls)
+    shown: dict[str, frozenset[str]] = {}
+    ask, left = map_replay_mod.replaying(calls, shown)
     made, gold, rules = replay_dev(conn, ask)
     got = map_replay_mod.explain(made, gold, rules.min_confidence)
     scores = score([Scored(p.subject_code, frozenset(skills(p)), p.status) for p in made], gold)
     head = {"score": scores, "left_unread": {k: len(v) for k, v in left.items()}}
-    summary = {**{k: v for k, v in got.items() if k != "rows"}, **map_replay_mod.sweep(made, gold)}
+    summary = {
+        **{k: v for k, v in got.items() if k != "rows"},
+        **map_replay_mod.sweep(made, gold),
+        **map_replay_mod.skill_split(made, gold, shown),
+    }
     return [json.dumps(x, ensure_ascii=False, default=str) for x in (head, summary, *got["rows"])]
 
 

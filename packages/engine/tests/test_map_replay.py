@@ -192,3 +192,60 @@ def test_a_run_rebuilt_from_its_stored_replies_scores_what_the_run_scored(monkey
     assert head["score"] == want and not any(head["left_unread"].values())
     json.loads(lines[1])  # the counts by cause print as JSON too
     assert len(lines) == 2 + len(made)
+
+
+def test_the_skills_each_proposal_was_shown_as_examples_are_noted_as_it_is_replayed():
+    shown: dict = {}
+    ask, _ = mr.replaying([call(0, PROPOSE, "A"), call(1, VALIDATE, "A")], shown)
+    ask(PROPOSE, "A", {"examples": [{"skills": ["NUM.CNT.01"]}, {"skills": ["NUM.CNT.02", "MOT.FMS.01"]}]})
+    ask(VALIDATE, "A", {"examples": [{"skills": ["XXX.YYY.01"]}]})
+    assert shown == {"A": frozenset({"NUM.CNT.01", "NUM.CNT.02", "MOT.FMS.01"})}, (
+        "only the proposer's examples"
+    )
+
+
+def _split_case():
+    gold = {c: frozenset({"NUM.CNT.01", "NUM.CNT.02"}) for c in "ABCD"}
+    shown = {c: frozenset({"NUM.CNT.01", "NUM.CNT.02"}) for c in "ABCD"}
+    made = [
+        prop("A", ["NUM.CNT.01", "NUM.CNT.02"], "auto_passed", confidence=0.9),
+        prop("B", ["NUM.CNT.01", "SEB.ATT.01"], "needs_person", confidence=0.6),  # one core, one extra
+        prop("C", ["NUM.CNT.02"], "needs_person", confidence=0.6, verdict="disagree"),
+        prop("D", ["GEO.SHP.01"], "needs_person", confidence=0.9),  # wrong and not in the examples
+    ]
+    return made, gold, shown
+
+
+def test_each_proposed_skill_is_counted_by_its_place_in_the_list_and_by_whether_it_was_in_the_examples():
+    made, gold, shown = _split_case()
+    got = mr.skill_split(made, gold, shown)
+    assert got["skills"] == {"proposed": 6, "in_gold": 4}
+    assert got["by_rank"] == {"1": [4, 3], "2": [2, 1]}
+    assert got["by_example"] == {"in the examples": [4, 4], "not in the examples": [2, 0]}
+
+
+def test_an_activity_could_pass_when_every_skill_it_names_was_in_the_examples_whatever_it_said_of_itself():
+    made, gold, shown = _split_case()
+    table = mr.skill_split(made, gold, shown)["if_every_skill_was_in_the_examples"]
+    assert table["0.0"] == {"passes": 2, "right": 2, "precision": 1.0, "share": 0.5}, "A and C"
+    assert table["0.9"] == {"passes": 1, "right": 1, "precision": 1.0, "share": 0.25}, "A alone"
+    with_checker = mr.skill_split(made, gold, shown)[
+        "if_every_skill_was_in_the_examples_and_the_checker_agreed"
+    ]
+    assert with_checker["0.0"]["passes"] == 1, "C is out: the checker disagreed"
+
+
+def test_a_proposal_split_into_the_skills_that_pass_and_the_ones_offered_to_a_person():
+    made, gold, shown = _split_case()
+    got = mr.skill_split(made, gold, shown)["split_by_the_examples"]
+    assert got["0.0"] == {
+        "auto_skills": 4,
+        "auto_right": 4,
+        "auto_precision": 1.0,
+        "offered": 2,
+        "offered_in_gold": 0,
+    }
+    assert got["0.9"]["auto_skills"] == 2 and got["0.9"]["offered"] == 4
+    assert got["0.9"]["offered_in_gold"] == 2, (
+        "B's and C's right skills fall below the bar and wait for a person"
+    )
