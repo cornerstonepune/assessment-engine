@@ -24,7 +24,7 @@ def page(key, **parts):
 
 def test_a_good_page_is_kept_and_only_what_was_asked_for_is_taken_from_it():
     good, bad = batch.judge_pages([page("A", objective="o", steps="s", thinking="not asked for")], WANT)
-    assert good == {"A": {"objective": "o", "steps": "s"}} and bad["B"] == "missing from the reply"
+    assert good == {"A": {"objective": "o", "steps": "\u2022 s"}} and bad["B"] == "missing from the reply"
 
 
 def test_a_page_with_a_part_left_empty_or_missing_is_bad_and_says_which():

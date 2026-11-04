@@ -64,7 +64,7 @@ says:
   - words: "materials as catalogue items (item, quantity, unit)"
     proved_by: "packages/engine/tests/test_k2_draft.py::test_applying_a_material_proposal_makes_catalogue_items_with_no_invented_home_value_or_quantity"
   - words: "Write every draft to its empty part marked 'drafted'; those with checker disagreement, low confidence or a flag get a second tag 'check me'"
-    proved_by: "packages/engine/tests/test_k2_draft.py::test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_the_doubtful_ones_are_check_me"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_every_one_is_check_me_until_a_person_reviews"
   - words: "Nothing the school wrote is touched. Revert still works per proposal."
     proved_by: "packages/engine/tests/test_k2_draft.py::test_nothing_the_school_wrote_is_touched_by_a_doubtful_draft_and_it_reverts_like_any_other"
   - words: "The review list order: check-me first, then a random 10% of the rest (D-063)"
