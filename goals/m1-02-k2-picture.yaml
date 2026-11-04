@@ -1,0 +1,40 @@
+name: m1-02-k2-picture
+goal: >
+  A K2 child's picture of each skill changes only from what an educator confirmed, by the school's rule: a skill is
+  secure only after the child was named at level 3 on two different school days and a yes came at least 14 days after
+  the first of those; "the rest did as expected" may be that re-check, never makes a skill secure on its own and never
+  moves a state down; a child not mentioned is not observed and has no row, never "not secure". The rule's numbers and
+  how much each way of entering a child counts are rows per grade, read by the nightly rebuild; nothing about weight is
+  on an evidence row; the picture can be emptied and rebuilt from the evidence at any time; and every state that
+  written tests give today is exactly what it was.
+# Written 2026-11-03, before the code: task M1-02 (decisions D-008, D-051, D-052; the rule relayed by the orchestrator,
+# design in docs/notes/m1-02-k2-picture.md). W3, gate N10 (the skill graph). Built on M1-01 step 4 (#362: an observed
+# evidence row names its observation). The unit proofs use placeholder children made and rolled back inside each test;
+# the real proof is later, by hand, on the first confirmed K2 notes.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture.py::test_secure_needs_level_3_named_on_two_days_and_a_yes_14_days_after_the_first"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture.py::test_the_rest_did_as_expected_is_never_alone_secure"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture.py::test_the_rest_did_as_expected_never_lowers_a_state"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture.py::test_a_child_not_mentioned_is_not_observed_and_has_no_row"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture.py::test_written_evidence_is_read_exactly_as_before"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture.py::test_secure_reads_the_level_reached_and_never_moves_with_the_level_to_mark_setting"
+manual:
+  - "The real proof: the first confirmed K2 notes, each child's state per skill worked out by hand from the notes and compared with the rebuild. Not claimed by this goal."
+  - "Actions, rehearse update-live, on this branch: the migration runs on a copy of live; `engine past` prints the same evidence, states, scored answers, questions and levels before and after."
+scenarios: []
+criteria:
+  - name: the K2 rule, worked by hand, against a database built from the migrations
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_picture.py
+    expect: "passed"
+  - name: the written graph's own rule is unchanged
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_graph_rule.py tests/test_graph.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
