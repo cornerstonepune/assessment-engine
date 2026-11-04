@@ -8,7 +8,7 @@ from typing import Any
 from uuid import UUID
 
 from engine.core import db, settings
-from engine.w2_print import materials_consolidate, materials_text
+from engine.w2_print import materials_consolidate, materials_coverage, materials_text
 from engine.w2_print.materials_send import NothingToSend
 
 
@@ -45,6 +45,14 @@ def send(conn: db.Conn, cid: UUID, who: UUID) -> dict[str, Any]:
     last = None if prior is None else {x["material_code"]: x for x in prior["lines"]}
     body = [f"School materials, {materials_text.short(got['from'])} to {materials_text.short(got['to'])}"]
     body += [_line(item, last) for item in got["lines"]]
+    tenant = db.one(conn, "select tenant_id from materials_consolidated where id = %s", (cid,))["tenant_id"]
+    # the classes absent from the very build the lines above come from (not from today's plans)
+    names = materials_coverage.class_names(conn, tenant)
+    expected = materials_coverage.planned_classes(conn, tenant, got["from"], got["to"])
+    giving = materials_coverage.classes_in(conn, cid)
+    missing = [names[c] for c in expected if c not in giving]
+    if missing:
+        body.append(f"Not included: {', '.join(sorted(missing))} (nothing from them in this list)")
     if last is not None:
         gone = [c for c in last if c not in {x["material_code"] for x in got["lines"]}]
         body += [f"[x] {last[c]['item']}: no longer needed since the last list" for c in gone]

@@ -110,3 +110,12 @@ def planned(conn, s, on, activity, planned_=True, klass=None):
         " values (%s,%s,%s,%s,%s,%s,'x')",
         (s["tenant"], klass or s["class"], day, s["periods"][n], planned_, plan),
     )
+
+
+def another_class(conn, s, section, grade="K2"):
+    """A second class in the same school year as `s`'s, with no plan yet."""
+    return conn.execute(
+        "insert into school_class (tenant_id, campus_id, academic_year_id, grade_code, section)"
+        " select tenant_id, campus_id, academic_year_id, %s, %s from school_class where id = %s returning id",
+        (grade, section, s["class"]),
+    ).fetchone()["id"]

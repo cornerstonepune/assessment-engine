@@ -20,6 +20,11 @@ def campaigns(conn) -> dict:
     return (row or {}).get("value") or {}
 
 
+def campaign_for(conn, purpose: str) -> dict | None:
+    """The campaign that spends on `purpose`, if any."""
+    return next((c for c in campaigns(conn).values() if purpose in c["purposes"]), None)
+
+
 def purposes(camps: dict) -> list[str]:
     """Every purpose some campaign spends on: these answer to their campaign's cap, not to the daily budget."""
     return sorted({p for c in camps.values() for p in c["purposes"]})
@@ -33,7 +38,7 @@ def trigger_for(stage: str | None) -> str:
 def check(conn, tenant_slug: str, purpose: str, stage: str | None = None, camps: dict | None = None) -> None:
     for name, c in (campaigns(conn) if camps is None else camps).items():
         if purpose in c["purposes"]:
-            start = _since(conn, c)
+            start = window_start(conn, c)
             _check_one(conn, tenant_slug, name, c, start)
             if stage:
                 _check_stage(conn, tenant_slug, name, c, stage, start)
@@ -76,7 +81,7 @@ def _check_order(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None
         )
 
 
-def _since(conn, c: dict) -> str:
+def window_start(conn, c: dict) -> str:
     """The moment a campaign starts counting. Most count from the beginning; one that names `"window": "month"` counts
     the school's current calendar month (`school.time_zone`) and starts again at the next (M1-16's monthly cap)."""
     if c.get("window") != "month":
@@ -120,7 +125,7 @@ def status(conn, tenant_slug: str, purpose: str, stage: str | None) -> dict | No
     for name, c in campaigns(conn).items():
         if purpose not in c["purposes"]:
             continue
-        rate, caps, start = c["inr_per_usd"], c.get("stages") or {}, _since(conn, c)
+        rate, caps, start = c["inr_per_usd"], c.get("stages") or {}, window_start(conn, c)
         out = {
             "campaign": name,
             "spent_usd": _spent(conn, tenant_slug, c["purposes"], None, start) / rate,

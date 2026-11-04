@@ -8,6 +8,7 @@ from typing import Any
 from uuid import UUID
 
 from engine.core import db, settings
+from engine.w2_print import materials_coverage as coverage
 from engine.w2_print.materials_list import num
 
 
@@ -78,11 +79,17 @@ def build(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> UUID:
     cons = db.one(
         conn,
         "insert into materials_consolidated (tenant_id, from_on, to_on) values (%s, %s, %s)"
-        " on conflict (tenant_id, from_on, to_on) do update set updated_at = now() returning id, latest_build",
+        " on conflict (tenant_id, from_on, to_on) do update set updated_at = now() returning id, latest_build, skipped_lists",
         (tenant, lo, hi),
     )
     cid, before, now = cons["id"], cons["latest_build"], cons["latest_build"] + 1
     items, skipped = _gather(conn, tenant, lo, hi)
+    if (
+        before
+        and _shape(items) == _stored_shape(conn, cid, before)
+        and skipped == list(cons["skipped_lists"])
+    ):
+        return cid  # nothing moved: no new build, so no rows and no empty "what changed"
     for code, item in items.items():
         conn.execute(
             "insert into materials_consolidated_line (tenant_id, consolidated_id, build, material_code, unit, quantity,"
@@ -102,6 +109,36 @@ def build(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> UUID:
         (now, skipped, cid),
     )
     return cid
+
+
+def _shape(items: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """What a build says, in a form two builds can be compared in."""
+    return {
+        code: (
+            item["unit"],
+            item["quantity"],
+            {c: (f["quantity"], tuple(f["activity_codes"])) for c, f in item["from"].items()},
+        )
+        for code, item in items.items()
+    }
+
+
+def _stored_shape(conn: db.Conn, cid: UUID, build_: int) -> dict[str, Any]:
+    out: dict[str, Any] = {
+        r["material_code"]: (r["unit"], r["quantity"], {})
+        for r in conn.execute(
+            "select material_code, unit, quantity from materials_consolidated_line"
+            " where consolidated_id = %s and build = %s",
+            (cid, build_),
+        )
+    }
+    for r in conn.execute(
+        "select material_code, class_id, quantity, activity_codes from materials_consolidated_source"
+        " where consolidated_id = %s and build = %s",
+        (cid, build_),
+    ):
+        out[r["material_code"]][2][r["class_id"]] = (r["quantity"], tuple(r["activity_codes"]))
+    return out
 
 
 def _totals(conn: db.Conn, cid: UUID, build_: int) -> dict[str, tuple[Any, dict[UUID, Any]]]:
@@ -144,12 +181,7 @@ def _note_changes(conn: db.Conn, tenant: UUID, cid: UUID, before: int, now: int)
 def read(conn: db.Conn, cid: UUID) -> dict[str, Any]:
     cons = db.one(conn, "select * from materials_consolidated where id = %s", (cid,))
     build_ = cons["latest_build"]
-    names = {
-        r["id"]: f"{r['grade_code']} {r['section'] or ''}".strip()
-        for r in conn.execute(
-            "select id, grade_code, section from school_class where tenant_id = %s", (cons["tenant_id"],)
-        )
-    }
+    names = coverage.class_names(conn, cons["tenant_id"])
     sources: dict[str, list[dict[str, Any]]] = {}
     for r in conn.execute(
         "select material_code, class_id, quantity, activity_codes from materials_consolidated_source"

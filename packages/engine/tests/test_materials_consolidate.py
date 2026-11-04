@@ -107,7 +107,8 @@ def test_a_change_an_educator_makes_after_the_build_is_shown_as_a_change(conn):
         7,
     )
     assert [x["quantity"] for x in again["lines"] if x["material_code"] == clay] == [7]
-    assert mc.read(conn, mc.build(conn, s["tenant"], LO, HI))["changes"] == []  # nothing new since
+    # building again with nothing new makes no new build: the change stays the latest, until something else moves
+    assert mc.read(conn, mc.build(conn, s["tenant"], LO, HI))["build"] == again["build"]
 
 
 def test_a_class_dropping_its_need_after_the_build_lowers_the_total_and_shows_as_a_change(conn):
@@ -149,10 +150,11 @@ def test_a_class_with_two_lists_in_the_month_has_them_added_not_one_over_the_oth
     m.planned(conn, s, LO + dt.timedelta(days=14), b)
     ml.build(conn, s["class"], "week", LO, LO + dt.timedelta(days=6))
     ml.build(conn, s["class"], "week", LO + dt.timedelta(days=14), LO + dt.timedelta(days=20))
-    [line] = [
-        x for x in mc.read(conn, mc.build(conn, s["tenant"], LO, HI))["lines"] if x["material_code"] == pen
-    ]
+    cid = mc.build(conn, s["tenant"], LO, HI)
+    [line] = [x for x in mc.read(conn, cid)["lines"] if x["material_code"] == pen]
     assert line["quantity"] == 15
+    # an identical rebuild is seen as identical even with two activities in a line
+    assert mc.build(conn, s["tenant"], LO, HI) == cid and mc.read(conn, cid)["build"] == 1
     [from_] = line["from"]
     assert from_["quantity"] == 15 and sorted(from_["activity_codes"]) == sorted([a, b])
 
@@ -167,3 +169,20 @@ def test_the_lists_skipped_are_the_ones_skipped_when_it_was_built_not_when_it_is
     cid = mc.build(conn, s["tenant"], LO, HI)
     ml.build(conn, s["class"], "week", LO, LO + dt.timedelta(days=6))  # made after the build
     assert mc.read(conn, cid)["skipped_lists"] == []
+
+
+def test_building_again_with_nothing_changed_adds_no_build_and_no_rows(conn):
+    s = m.school(conn)
+    _two_classes_needing_clay(conn, s)
+    cid = mc.build(conn, s["tenant"], LO, HI)
+    counts = lambda: [  # noqa: E731
+        conn.execute(f"select count(*) as n from {t} where consolidated_id = %s", (cid,)).fetchone()["n"]
+        for t in (
+            "materials_consolidated_line",
+            "materials_consolidated_source",
+            "materials_consolidated_change",
+        )
+    ]
+    before = counts()
+    assert mc.build(conn, s["tenant"], LO, HI) == cid
+    assert mc.read(conn, cid)["build"] == 1 and counts() == before
