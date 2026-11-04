@@ -13,6 +13,7 @@ import { buildTasks, type Sources, type Task } from "./todo";
 import { isoWeek, weekWords } from "./week";
 import { mayUse } from "./access";
 import { choices } from "./choices";
+import { myVoice } from "./voice";
 
 type PaperRef = { id: string; section: string | null; code: string; topic: string | null; topic_name: string | null; subject: string | null };
 
@@ -37,6 +38,9 @@ const paperRefs = (ids: string[]) =>
 export const tasksFor = cache(async (me: Session): Promise<Task[]> => {
   const scope = await reachOf(me);
   const [g, may, offered] = await Promise.all([grades(), decidable(me), choices()]);
+  // her K2 notes (task M1-04) are asked for beside the rest, never after them: a config read while voice notes are off
+  const voice = myVoice(me);
+  voice.catch(() => {});
   const [skills, home, queue, signoff, packs, reports, tps, generate, asks, empty] = await Promise.all([
     may("skills")
       ? sql<{ code: string; name: string; grade: string; topic: string | null; topic_name: string | null; subject: string | null; levels: number }[]>`
@@ -106,6 +110,7 @@ export const tasksFor = cache(async (me: Session): Promise<Task[]> => {
     reports: [...reportsBy.values()].map((r) => ({ section: r.section, gradeWords: g.name(r.band), n: r.n })),
     asks: asks.filter((a) => mayUse(me, "any_ask") || a.for_role === me.role).reduce((n, a) => n + a.n, 0),
     empty: empty[0]?.n ?? 0,
+    voice: await voice,
   };
   const label = new Map(offered.subjects.map((x) => [x.code, x.label]));
   return buildTasks(src, (c) => (c ? (label.get(c) ?? c) : ""));

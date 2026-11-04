@@ -123,6 +123,18 @@ The engine runs on the box as the container `deploy-engine-1`. The deploy runs i
 - Both print counts only, never a transcript, a name or which note. `tests/test_cli_voice.py` holds these two lines to
   commands the engine has.
 
+## Step 4a extras, what any front end needs from the engine (branch m1-01-voice-engine-extras)
+
+- `/voice/queue` also returns `classes`: the classes her `staff_role_grant` names today whose grade has activities
+  (`voice_intake.classes_of`); the website never looks staff up by email, so this is how it learns her class.
+- `/voice/notes/draft` also returns `level` (the level she said, else the template's default row) and `day_problems`
+  (the problems about the date she said, `Draft.day_problems`), so picking a date can clear exactly those.
+- `/voice/notes/audio` serves the recording with its own audio type (from its file's ending), so a phone can play it.
+- `uv run pytest -q tests/test_voice_day.py tests/test_voice_note.py tests/test_voice_intake.py tests/test_voice_confirm.py
+  tests/test_cli_voice.py tests/api/test_voice_routes.py tests/test_voice_tables.py tests/test_speech.py` → 107 passed,
+  on a local database built by `bin/testdb fresh`.
+- The screens (step 4b) are stopped until the design is agreed (orchestrator, 3 Nov); no site code on this branch.
+
 ## What step 3 (the tables) needed from M0-05 (#358)
 
 - The class a note is about: `school_class.id` (one campus, year, grade, section).

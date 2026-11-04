@@ -142,10 +142,13 @@ export async function markWhatTrustSettles(): Promise<boolean> {
  *  Vercel function takes at most 4.5 MB, and a class's scan is tens. The key stays here; the browser is given only this
  *  token, signed with it, naming who sends and good for half an hour, which the engine takes for nothing but
  *  `POST /read/upload` (`deps.require_upload_token`). */
-export function uploadTicket(email: string, now = Date.now()): { url: string; token: string } | null {
+export function uploadTicket(email: string, now = Date.now(), to: "/read/upload" | "/voice/notes" = "/read/upload"): { url: string; token: string } | null {
   const k = process.env.ENGINE_KEY;
   if (!k || !process.env.ENGINE_URL) return null;
   const body = `${Buffer.from(email).toString("base64url")}.${now + UPLOAD_LIFE_MS}`;
-  return { url: `${base()}/read/upload`, token: `${body}.${createHmac("sha256", k).update(`upload.${body}`).digest("hex")}` };
+  return { url: `${base()}${to}`, token: `${body}.${createHmac("sha256", k).update(`upload.${body}`).digest("hex")}` };
 }
+
+/** The same for a K2 voice note (task M1-04): her recording goes from the phone straight to `POST /voice/notes`. */
+export const voiceTicket = (email: string) => uploadTicket(email, Date.now(), "/voice/notes");
 const UPLOAD_LIFE_MS = 30 * 60_000;
