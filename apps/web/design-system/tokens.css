@@ -1,0 +1,111 @@
+/* Cornerstone design tokens, D-073. Design only: nothing imports this file yet.
+   Brand values: cornerstoneschool.in, read 2026-11-04 (every hex below is in its homepage HTML).
+   Values marked "derived" are not on the school's site; they are dark-mode choices checked for contrast.
+   Rules and checks: docs/design-tokens.md. Icons: Lucide only (design/ in teacher-os). */
+
+:root {
+  color-scheme: light;
+
+  /* ---- Brand (names as on the school site) ---- */
+  --color-bamboo: #9a7a3a;
+  --color-bamboo-deep: #6e5420;
+  --color-bamboo-lt: #e9d3a6;
+  --color-bark: #8a6a45;
+  --color-basalt: #26241f;
+  --color-clay-100: #fbefe8;
+  --color-clay-200: #f3c9b3;
+  --color-clay-400: #c57a52;
+  --color-clay-500: #b8562f; /* the app's "terracotta" */
+  --color-clay-700: #9c4626;
+  --color-haldi: #e2a43f;
+  --color-olive: #4a5435;
+  --color-olive-deep: #3e4a2c;
+  --color-olive-lt: #d3dcb8;
+  --color-olive-tint: #eef1e6;
+  --color-olive-mid: #7e9a5c;
+  --color-monsoon-deep: #3f4d55;
+  --color-monsoon-lt: #cfdce2;
+  --color-monsoon-wash: #dde6ea;
+  --color-sand: #ede3d3;
+  --color-sand-pale: #f3f1e8;
+  --color-paper: #ffffff;
+  --color-paper-warm: #fbfaf7;
+  --color-stone: #5e5a52;
+  --color-line: #d9d6ce;
+
+  /* ---- Semantic, light ---- */
+  --bg: var(--color-paper-warm);
+  --surface: var(--color-paper);
+  --sunken: var(--color-sand-pale);
+  --text: var(--color-basalt); /* 14.85:1 on --bg */
+  --text-muted: var(--color-stone); /* 6.57:1 on --bg */
+  --link: var(--color-clay-700); /* 6.06:1 on --bg */
+  --border: var(--color-line); /* decoration only, 1.45:1: never the edge of a control */
+  --border-control: var(--color-stone); /* edge of inputs and buttons, 6.86:1 */
+  --focus: var(--color-basalt);
+
+  /* ---- Chips: icon + colour + one word (D-062). Pairs: text on fill, border. ---- */
+  --chip-donow-fg: var(--color-paper); --chip-donow-bg: var(--color-basalt); --chip-donow-bd: var(--color-basalt); /* icon: play */
+  --chip-confirm-fg: var(--color-bamboo-deep); --chip-confirm-bg: var(--color-bamboo-lt); --chip-confirm-bd: var(--color-bamboo); /* icon: clock */
+  --chip-soon-fg: var(--color-monsoon-deep); --chip-soon-bg: var(--color-paper); --chip-soon-bd: var(--color-monsoon-deep); /* icon: ring */
+  --chip-done-fg: var(--color-olive-deep); --chip-done-bg: var(--color-olive-tint); --chip-done-bd: var(--color-olive); /* icon: tick in circle */
+  --chip-late-fg: var(--color-clay-700); --chip-late-bg: var(--color-clay-100); --chip-late-bd: var(--color-clay-500); /* icon: hourglass; work only, never a child */
+
+  /* ---- Where a piece of text came from (round 24 px badge, icon only, word in the legend) ---- */
+  --origin-school-fg: var(--color-olive-deep); --origin-school-bg: var(--color-olive-tint); /* icon: book-open */
+  --origin-drafted-fg: var(--color-bamboo-deep); --origin-drafted-bg: var(--color-bamboo-lt); /* icon: sparkles */
+  --origin-edited-fg: var(--color-monsoon-deep); --origin-edited-bg: var(--color-monsoon-wash); /* icon: pencil (Lucide square-pen) */
+
+  /* ---- Space (px). 4 is for inside a control only. ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+
+  /* ---- Shape and touch ---- */
+  --radius-m: 12px; /* buttons, inputs, cards */
+  --radius-l: 20px; /* large panels */
+  --radius-pill: 999px; /* chips */
+  --tap: 44px; /* least width and height of anything tappable */
+  --focus-ring: 3px solid var(--focus);
+
+  /* ---- Type: one system. Sizes 32 24 20 18 16 14 12; weights 400 500 600. ---- */
+  --font-body: "Jost", sans-serif;
+  --font-display: "Cormorant Garamond", serif; /* headings at 24 px and above only: a thin face */
+  --font-wordmark: "Young Serif", serif; /* the wordmark only */
+  --font-script: "Eczar", serif; /* Devanagari text */
+  --text-h1: 2rem; --lh-h1: 2.5rem;
+  --text-h2: 1.5rem; --lh-h2: 2rem;
+  --text-h3: 1.25rem; --lh-h3: 1.75rem;
+  --text-lead: 1.125rem; --lh-lead: 1.75rem;
+  --text-body: 1rem; --lh-body: 1.5rem;
+  --text-label: 0.875rem; --lh-label: 1.25rem; /* chips, tags, buttons, table heads: weight 500 */
+  --text-caption: 0.75rem; --lh-caption: 1rem; /* timestamps only; never a status or an action */
+}
+
+/* Dark follows the system setting; there is no in-app switch (Apple HIG, Dark Mode). All derived. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #1b1a17; /* derived */
+    --surface: var(--color-basalt);
+    --sunken: #2f2d27; /* derived */
+    --text: var(--color-sand-pale); /* 15.38:1 on --bg */
+    --text-muted: #bdb8ad; /* derived, 8.80:1 */
+    --link: var(--color-clay-200);
+    --border: #3a3832; /* decoration only */
+    --border-control: #bdb8ad;
+    --focus: var(--color-haldi);
+    --chip-donow-fg: var(--color-basalt); --chip-donow-bg: var(--color-sand-pale); --chip-donow-bd: var(--color-sand-pale);
+    --chip-confirm-fg: var(--color-bamboo-lt); --chip-confirm-bg: #3b2f14; --chip-confirm-bd: var(--color-bamboo-lt); /* bg derived */
+    --chip-soon-fg: var(--color-monsoon-lt); --chip-soon-bg: transparent; --chip-soon-bd: var(--color-monsoon-lt);
+    --chip-done-fg: var(--color-olive-lt); --chip-done-bg: #2a3220; --chip-done-bd: var(--color-olive-lt); /* bg derived */
+    --chip-late-fg: var(--color-clay-200); --chip-late-bg: #4a2417; --chip-late-bd: var(--color-clay-400); /* bg derived */
+    --origin-school-fg: var(--color-olive-lt); --origin-school-bg: #2a3220;
+    --origin-drafted-fg: var(--color-bamboo-lt); --origin-drafted-bg: #3b2f14;
+    --origin-edited-fg: var(--color-monsoon-lt); --origin-edited-bg: #26333a; /* bg derived, 9.27:1 */
+  }
+}
