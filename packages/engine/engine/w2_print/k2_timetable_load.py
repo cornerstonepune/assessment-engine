@@ -11,10 +11,9 @@ A day or fortnight two sources disagree about, and a planner line with no period
 import csv
 import io
 import re
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 
-from engine.core import db
 from engine.w2_print import k2_timetable as tt
 
 
@@ -52,7 +51,6 @@ class PlanEntry:
     key: str
     ord: int
     text: str
-    activity_code: str | None = None
 
 
 @dataclass(frozen=True)
@@ -71,6 +69,7 @@ class Target:
     section: str
     year: str
     tenant: str
+    source: str = "unspecified"  # which planner file the lines came from, for plan_entry.source
 
 
 @dataclass(frozen=True)
@@ -169,7 +168,13 @@ def read_calendar_csv(text: str, vocab: tt.Vocabulary) -> Calendar:
     return Calendar(days, fortnights, conflicts)
 
 
-def _periods(frame: tt.Frame) -> list[Period]:
+def _h24(start: str, vocab: tt.Vocabulary) -> str:
+    """The sheet writes 1:15 for a quarter past one: an hour below the vocabulary row's cut is the afternoon."""
+    h = int(start[:2])
+    return f"{h + 12 if h < vocab.afternoon_before_hour else h:02d}:{start[3:5]}"
+
+
+def _periods(frame: tt.Frame, vocab: tt.Vocabulary) -> list[Period]:
     seen: dict[str, tuple[str, list[tt.FrameCell]]] = {}
     for c in frame.cells:
         seen.setdefault(c.start, (c.end, []))[1].append(c)
@@ -177,7 +182,7 @@ def _periods(frame: tt.Frame) -> list[Period]:
     for i, (start, (end, cells)) in enumerate(seen.items(), 1):
         fixed = all(c.kind == "fixed" for c in cells)
         label = next(c.text for c in cells) if fixed else f"{start} - {end}".strip(" -")
-        out.append(Period(i, start, end, label, fixed))
+        out.append(Period(i, _h24(start, vocab), _h24(end, vocab) if end else "", label, fixed))
     return out
 
 
@@ -186,13 +191,18 @@ def build(
     undecided: dict[date, str] | None = None,
 ) -> Load:  # fmt: skip
     held = undecided or {}
-    load = Load(periods=_periods(frame), conflicts=[*planner.conflicts, *cal.conflicts])
-    load.slots.extend((c.week, c.weekday, c.start, c.kind, c.subject, c.text) for c in frame.cells)
+    load = Load(periods=_periods(frame, vocab), conflicts=[*planner.conflicts, *cal.conflicts])
+    load.slots.extend(
+        (c.week, c.weekday, _h24(c.start, vocab), c.kind, c.subject, c.text) for c in frame.cells
+    )
     for n in range(first, last + 1):
         if n not in cal.fortnights:
             load.conflicts.append((n, "no dates for this fortnight in the calendar: nothing loaded"))
             continue
         start, end = cal.fortnights[n]
+        if start.weekday() != 0:
+            load.conflicts.append((n, f"starts on a {start:%A}, not a Monday: nothing loaded"))
+            continue
         load.fortnights.append((n, start, end))
         window = [start + timedelta(d) for d in range(14) if (start + timedelta(d)).weekday() < 5]
         for d in window:
@@ -215,37 +225,11 @@ def build(
                 continue
             key = vocab.plan_key_of_subject.get(c.subject or "")
             at = plan.lines[key].index(c.source) + 1 if key and c.source else None
-            load.sessions.append(Session(c.date, c.start, c.subject, c.text, key if at else None, at))
+            load.sessions.append(
+                Session(c.date, _h24(c.start, vocab), c.subject, c.text, key if at else None, at)
+            )
         load.no_slot.extend((n, k, ln) for k, ln in draft.no_slot)
     return load
-
-
-def norm(text: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "", text.lower())
-
-
-def activity_names(conn: db.Conn, band: str) -> dict[str, list[str]]:
-    out: dict[str, list[str]] = {}
-    for r in conn.execute(
-        "select code, name from activity where band = %s order by code", (band,)
-    ).fetchall():
-        out.setdefault(norm(r["name"]), []).append(r["code"])
-    return out
-
-
-def link_activities(load: Load, names: dict[str, list[str]]) -> Load:
-    """A planner line names an activity when its words are exactly one activity's name: by code, never a model. A line
-    that fits two activities or none stays plain."""
-    entries = [
-        replace(
-            e,
-            activity_code=(names.get(norm(e.text)) or [None])[0]
-            if len(names.get(norm(e.text), [])) == 1
-            else None,
-        )
-        for e in load.plan_entries
-    ]
-    return replace(load, plan_entries=entries)
 
 
 def summary(load: Load) -> dict[str, int]:

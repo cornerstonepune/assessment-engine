@@ -123,11 +123,19 @@ def test_the_sql_is_the_same_every_time_and_every_insert_is_safe_to_run_again():
     assert "pii" not in text and "child" not in text
 
 
-def test_a_line_that_names_an_activity_exactly_links_to_it_and_any_other_line_stays_plain():
-    names = {"smellingbottles": ["ACT-K2-0001"], "tulipmakingusingcraftpaper": ["ACT-K2-0002", "ACT-K2-0003"]}
-    load = ld.link_activities(loaded(), names)
-    linked = {e.text: e.activity_code for e in load.plan_entries if e.activity_code}
-    assert linked == {"Smelling Bottles": "ACT-K2-0001"}  # the tulip line names two activities: never guessed
+def test_afternoon_times_are_written_as_the_afternoon_from_the_vocabulary_row_not_from_code():
+    starts = [p.start for p in loaded().periods]
+    assert "13:15" in starts and "12:40" in starts and not any(x.startswith("01") for x in starts)
+
+
+def test_a_fortnight_that_does_not_start_on_a_monday_is_a_conflict_and_loads_nothing():
+    cal = CAL_CSV.replace("Monday, November 23, 2026", "Tuesday, November 24, 2026").replace(
+        'Tuesday, November 24, 2026","","","Guru', 'Tuesday, November 24, 2026","","","Guru'
+    )
+    planner = ld.read_planner_csv(planner_csv(("Fortnight 10", FN10)), VOCAB)
+    frame = ld.read_frame_csv(FRAME_CSV, VOCAB)
+    load = ld.build(frame, planner, ld.read_calendar_csv(cal, VOCAB), VOCAB, 10, 10)
+    assert load.fortnights == [] and load.sessions == [] and [n for n, _ in load.conflicts if n == 10]
 
 
 needs_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
@@ -180,3 +188,59 @@ def test_the_sql_file_applied_gives_the_same_rows_as_apply(conn):
         (k["class"],),
     ).fetchone()["n"]
     assert got == want["session"]
+
+
+@needs_db
+def test_a_line_names_an_activity_only_when_it_is_exactly_one_and_the_sql_is_the_one_that_says(conn):
+    k, target = a_target(conn)
+    for code, name in (
+        ("ACT-K2-T1", "Placeholder counting game"),
+        ("ACT-K2-T2", "Twin placeholder"),
+        ("ACT-K2-T3", "twin  PLACEHOLDER"),
+    ):
+        conn.execute(
+            "insert into activity (tenant_id, code, band, strand, name) values (%s, %s, 'K2', 'Maths', %s)",
+            (k["tenant"], code, name),
+        )
+    cells = [
+        c.replace("Addition - orally", "Placeholder counting game").replace(
+            "Writing number 41-50 on square notebook", "Twin placeholder"
+        )
+        for c in FN10
+    ]
+    planner = ld.read_planner_csv(planner_csv(("Fortnight 10", cells)), VOCAB)
+    load = ld.build(
+        ld.read_frame_csv(FRAME_CSV, VOCAB), planner, ld.read_calendar_csv(CAL_CSV, VOCAB), VOCAB, 10, 10
+    )
+    sq.apply(conn, load, target)
+    linked = {
+        r["text"]: r["code"]
+        for r in conn.execute(
+            "select pe.text, a.code from plan_entry pe left join activity a on a.id = pe.activity_id"
+            " where pe.school_class_id = %s and pe.text in ('Placeholder counting game', 'Twin placeholder')",
+            (k["class"],),
+        ).fetchall()
+    }
+    assert linked == {
+        "Placeholder counting game": "ACT-K2-T1",
+        "Twin placeholder": None,
+    }  # two twins: never guessed
+    assert sq.linked(conn) >= 1
+
+
+def test_apply_with_no_database_stops_and_says_so_while_the_sql_file_needs_none(tmp_path, monkeypatch):
+    from typer.testing import CliRunner
+
+    from engine.cli import app
+
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    planner = tmp_path / "planner.csv"
+    planner.write_text(planner_csv(("Fortnight 10", FN10)))
+    args = ["timetable", "load", "--frame", str(FIX / "k2_frame_tab_2026_27.csv"), "--planner", str(planner),
+            "--calendar", str(FIX / "k2_calendar_excerpt_2026_27.csv"), "--section", "A", "--grade", "K2",
+            "--from", "10", "--to", "10"]  # fmt: skip
+    refused = CliRunner().invoke(app, [*args, "--apply"])
+    assert refused.exit_code != 0 and "no database" in refused.output.lower()
+    out = tmp_path / "rows.sql"
+    wrote = CliRunner().invoke(app, [*args, "--sql", str(out)])
+    assert wrote.exit_code == 0 and out.read_text().count("on conflict do nothing") >= 5

@@ -43,11 +43,8 @@ def world(conn, monkeypatch):
     )
     cells = [c.replace("Addition - orally", "Placeholder counting game") for c in FN10]
     planner = ld.read_planner_csv(planner_csv(("Fortnight 10", cells)), VOCAB)
-    plan = ld.link_activities(
-        ld.build(
-            ld.read_frame_csv(FRAME_CSV, VOCAB), planner, ld.read_calendar_csv(CAL_CSV, VOCAB), VOCAB, 10, 10
-        ),
-        ld.activity_names(conn, "K2"),
+    plan = ld.build(
+        ld.read_frame_csv(FRAME_CSV, VOCAB), planner, ld.read_calendar_csv(CAL_CSV, VOCAB), VOCAB, 10, 10
     )
     sq.apply(conn, plan, ld.Target("K2", section, "2031-32", db.tenant_slug()))
     conn.execute(
@@ -172,3 +169,34 @@ def test_the_switch_is_seeded_and_off_and_the_roles_that_see_a_timetable_are_nam
     switch = rows["educator.timetable_enabled"]
     assert switch["value"] is False and switch.get("seed_once") is True
     assert rows["educator.timetable_roles"]["value"] == ["class_teacher", "cover_educator"]
+
+
+def test_a_day_outside_every_fortnight_has_no_periods_and_no_week(world):
+    c = world["conn"]
+    campus = c.execute("select campus_id from school_class where id = %s", (world["k"]["class"],)).fetchone()[
+        "campus_id"
+    ]
+    c.execute(
+        "insert into school_day (tenant_id, campus_id, on_date, kind) values (%s, %s, '2026-12-08', 'teaching')"
+        " on conflict do nothing",
+        (world["k"]["tenant"], campus),
+    )
+    r = call(world, "day", day="2026-12-08").json()
+    assert r["kind"] == "teaching" and r["week"] is None and r["fortnight"] is None and r["periods"] == []
+
+
+def test_a_week_whose_monday_has_no_row_still_names_its_week_and_fortnight(world):
+    c = world["conn"]
+    c.execute(
+        "delete from session where school_day_id in (select id from school_day where on_date = '2026-11-23')"
+    )
+    c.execute(
+        "delete from school_day where on_date = '2026-11-23' and not exists (select 1 from session where school_day_id = school_day.id)"
+    )
+    r = call(world, "week", week_of="2026-11-23").json()
+    assert r["days"][0]["kind"] == "none" and r["week"] == "A" and r["fortnight"]["number"] == 10
+
+
+def test_while_the_switch_is_off_a_period_call_without_its_fields_is_refused_the_same_way(world):
+    world["conn"].execute("update config set value = 'false' where key = 'educator.timetable_enabled'")
+    assert call(world, "period").status_code == 403

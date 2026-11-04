@@ -11,17 +11,11 @@ from engine.core import db
 from engine.w2_print import k2_timetable_load as ld
 
 TABLES = ("fortnight", "school_day", "period", "timetable_slot", "plan_entry", "session")
-SOURCE = "Monthly Planner 2026-27"
 S, L = sql.SQL, sql.Literal
 
 
 class NoSuchClass(Exception):
     """The class, section and year named are not a row: nothing is written."""
-
-
-def _t24(start: str) -> str:
-    """The frame writes an afternoon time as 01:15; the database holds 13:15."""
-    return f"{int(start[:2]) + 12 if int(start[:2]) < 7 else int(start[:2]):02d}:{start[3:5]}"
 
 
 def _values(rows: list[tuple]) -> sql.Composed:
@@ -56,16 +50,14 @@ def tables(load: ld.Load, t: ld.Target) -> list[tuple[str, sql.Composed]]:
             ") as v(d, k, n)\non conflict do nothing"
         ).format(rows=_values(load.school_days))  # fmt: skip
     if load.periods:
-        rows = [
-            (p.ord, _t24(p.start), _t24(p.end) if p.end else None, p.label, p.fixed) for p in load.periods
-        ]
+        rows = [(p.ord, p.start, p.end or None, p.label, p.fixed) for p in load.periods]
         out["period"] = S(
             "insert into period (tenant_id, grade_code, ord, starts_at, ends_at, label, fixed)\n"
             "select x.tenant, {g}, v.o::int, v.s::time, v.e::time, v.l, v.f::boolean from k2_ctx x cross join (values\n  {rows}\n"
             ") as v(o, s, e, l, f)\non conflict do nothing"
         ).format(g=g, rows=_values(rows))  # fmt: skip
     if load.slots:
-        rows = [(w, wd, _t24(s), k, sub, x) for w, wd, s, k, sub, x in load.slots]
+        rows = [(w, wd, s, k, sub, x) for w, wd, s, k, sub, x in load.slots]
         out["timetable_slot"] = S(
             "insert into timetable_slot (tenant_id, school_class_id, period_id, week_code, weekday, kind, subject_code,"
             " text, valid_from)\nselect x.tenant, x.klass, p.id, v.w, v.wd::int, v.k, v.s, v.t, {first}"
@@ -81,10 +73,10 @@ def tables(load: ld.Load, t: ld.Target) -> list[tuple[str, sql.Composed]]:
             "left join lateral (select case when count(*) = 1 then min(a.id::text)::uuid end as id from activity a"
             " where a.tenant_id = x.tenant and a.band = {g} and regexp_replace(lower(a.name), '[^a-z0-9]+', '', 'g')"
             " = regexp_replace(lower(v.t), '[^a-z0-9]+', '', 'g')) act on true\non conflict do nothing"
-        ).format(source=L(SOURCE), g=g, rows=_values(rows))  # fmt: skip
+        ).format(source=L(t.source), g=g, rows=_values(rows))  # fmt: skip
     if load.sessions:
         rows = [
-            (s.day, _t24(s.start), s.subject, s.key, s.ord, ld.fortnight_of(load, s.day), s.text)
+            (s.day, s.start, s.subject, s.key, s.ord, ld.fortnight_of(load, s.day), s.text)
             for s in load.sessions
         ]
         out["session"] = S(
@@ -121,6 +113,14 @@ def apply(conn: db.Conn, load: ld.Load, t: ld.Target) -> dict[str, int]:
         raise NoSuchClass(f"{t.grade} {t.section} {t.year}")
     got = {name: conn.execute(q).rowcount for name, q in tables(load, t)}
     return {name: got.get(name, 0) for name in TABLES}
+
+
+def linked(conn: db.Conn) -> int:
+    """How many of the class's planner lines the SQL linked to exactly one activity (after `apply`, same transaction)."""
+    return db.one(
+        conn,
+        "select count(*) as n from plan_entry where school_class_id = (select klass from k2_ctx) and activity_id is not null",
+    )["n"]
 
 
 COUNTS = S(

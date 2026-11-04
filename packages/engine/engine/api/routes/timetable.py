@@ -22,9 +22,18 @@ class Ask(BaseModel):
     period_id: str | None = None
 
 
-def _mine(conn, body: Ask, on: dt.date) -> tuple[dict, list[dict]]:
+def _on(conn) -> None:
     if not k2_day.enabled(conn):
         raise HTTPException(status_code=403, detail="The timetable is not switched on.")
+
+
+def _today(conn) -> dt.date:
+    """Today by the school's clock, never the server's."""
+    return voice_intake.school_day(conn, dt.datetime.now(dt.UTC))
+
+
+def _mine(conn, body: Ask, on: dt.date) -> tuple[dict, list[dict]]:
+    _on(conn)
     try:
         staff = voice_intake.staff_of(conn, body.actor)
         classes = k2_day.my_classes(conn, staff, on)
@@ -35,20 +44,24 @@ def _mine(conn, body: Ask, on: dt.date) -> tuple[dict, list[dict]]:
 
 @keyed.post("/timetable/day")
 def day(body: Ask, conn=Depends(get_conn, scope="function")):
-    on = body.day or dt.date.today()
+    _on(conn)
+    on = body.day or _today(conn)
     klass, classes = _mine(conn, body, on)
     return k2_day.day(conn, klass, classes, on)
 
 
 @keyed.post("/timetable/week")
 def week(body: Ask, conn=Depends(get_conn, scope="function")):
-    on = body.week_of or body.day or dt.date.today()
-    klass, classes = _mine(conn, body, on)
+    _on(conn)
+    on = body.week_of or body.day or _today(conn)
+    # her class is the one she holds by the week's last teaching day, so a grant that starts mid-week still shows the week
+    klass, classes = _mine(conn, body, on - dt.timedelta(days=on.weekday()) + dt.timedelta(days=4))
     return k2_day.week(conn, klass, classes, on)
 
 
 @keyed.post("/timetable/period")
 def period(body: Ask, conn=Depends(get_conn, scope="function")):
+    _on(conn)
     if not (body.day and body.period_id):
         raise HTTPException(status_code=422, detail="Name the day and the period.")
     klass, classes = _mine(conn, body, body.day)

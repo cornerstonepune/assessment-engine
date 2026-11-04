@@ -30,6 +30,7 @@ class Vocabulary:
     fortnight_label: str
     other_grade_marks: tuple[str, ...]
     tentative_marks: tuple[str, ...]
+    afternoon_before_hour: int
 
     @classmethod
     def from_config(cls, v: dict) -> "Vocabulary":
@@ -45,6 +46,7 @@ class Vocabulary:
             v["fortnight_label"],
             tuple(v["other_grade_marks"]),
             tuple(v["tentative_marks"]),
+            int(v["afternoon_before_hour"]),
         )
 
 
@@ -151,7 +153,9 @@ def _weeks(days: list[date], first_monday: date | None = None) -> dict[date, str
     """Week A is the fortnight's first week, B its second. With the fortnight's own first Monday given, a week of
     holidays cannot make the second week look like the first."""
     mondays = sorted({d.toordinal() - d.weekday() for d in days})
-    start = first_monday.toordinal() if first_monday else (mondays[0] if mondays else 0)
+    start = (
+        first_monday.toordinal() - first_monday.weekday() if first_monday else (mondays[0] if mondays else 0)
+    )
     if any(m not in (start, start + 7) for m in mondays):
         raise ValueError("a fortnight is two weeks; got days from more")
     return {d: "AB"[(d.toordinal() - d.weekday() - start) // 7] for d in days}

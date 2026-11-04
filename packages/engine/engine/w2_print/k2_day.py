@@ -55,7 +55,7 @@ from school_day d
 left join fortnight f on f.academic_year_id = %(year)s and d.on_date between f.starts_on and f.ends_on
 left join timetable_slot ts on ts.school_class_id = %(cls)s and d.kind <> 'holiday'
   and ts.weekday = extract(isodow from d.on_date)
-  and ts.week_code = case when d.on_date - f.starts_on < 7 then 'A' else 'B' end
+  and f.id is not null and ts.week_code = case when d.on_date - f.starts_on < 7 then 'A' else 'B' end
   and ts.valid_from <= d.on_date and (ts.valid_to is null or ts.valid_to >= d.on_date)
 left join period p on p.id = ts.period_id
 left join session s on s.school_class_id = ts.school_class_id and s.school_day_id = d.id and s.period_id = ts.period_id
@@ -86,7 +86,7 @@ def days(conn: db.Conn, klass: dict, dates: list[dt.date]) -> list[dict]:
         _ROWS,
         {"year": klass["academic_year_id"], "cls": klass["id"], "campus": klass["campus_id"], "days": dates},
     ).fetchall():
-        d = got.setdefault(r["on_date"], {
+        d = got.get(r["on_date"]) or got.setdefault(r["on_date"], {
             "day": r["on_date"].isoformat(), "weekday": r["on_date"].isoweekday(), "kind": r["day_kind"], "note": r["note"],
             "week": r["week"], "fortnight": {"number": r["number"], "starts_on": r["starts_on"].isoformat(), "ends_on": r["ends_on"].isoformat()} if r["number"] else None,
             "periods": [],
@@ -123,8 +123,8 @@ def week(conn: db.Conn, klass: dict, classes: list[dict], any_day: dt.date) -> d
     monday = any_day - dt.timedelta(days=any_day.weekday())
     five = days(conn, klass, [monday + dt.timedelta(d) for d in range(5)])
     return {
-        **_who(klass, classes), "week_of": monday.isoformat(), "week": five[0]["week"],
-        "fortnight": five[0]["fortnight"], "days": five,
+        **_who(klass, classes), "week_of": monday.isoformat(), "week": next((d["week"] for d in five if d["week"]), None),
+        "fortnight": next((d["fortnight"] for d in five if d["fortnight"]), None), "days": five,
     }  # fmt: skip
 
 
