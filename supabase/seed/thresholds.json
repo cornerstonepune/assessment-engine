@@ -577,6 +577,24 @@
    "value": 5,
    "unit": "count",
    "description": "How many already-mapped activities, nearest by their words, the proposer sees beside an activity (goals/m1-05-mapping-agents.yaml)"
+  },
+  {
+   "key": "eval.materials_read.confirmed_wrong_at_most",
+   "value": 0,
+   "unit": "count",
+   "description": "Readings code confirmed that a person did not mark, over the gold set: none. A wrong item or quantity must never go into a list. PROPOSED by the M1-16 builder on 4 Nov (goals/m1-16-materials-consolidated.yaml); the orchestrator and Nimish confirm or change it before the first run."
+  },
+  {
+   "key": "eval.materials_read.found",
+   "value": 0.8,
+   "unit": "proportion",
+   "description": "Of the items a person marked in the gold set, the share code confirmed. PROPOSED by the M1-16 builder on 4 Nov (goals/m1-16-materials-consolidated.yaml); to be confirmed or changed before the first run."
+  },
+  {
+   "key": "eval.materials_read.held_back_right",
+   "value": 0.95,
+   "unit": "proportion",
+   "description": "Of the gold cases a person marked as needing a person, the share where nothing was confirmed. PROPOSED by the M1-16 builder on 4 Nov (goals/m1-16-materials-consolidated.yaml); to be confirmed or changed before the first run."
   }
  ]
 }

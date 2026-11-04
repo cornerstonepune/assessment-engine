@@ -160,6 +160,14 @@
           "stage_margin_usd": 0.25,
           "stale_minutes": 10,
           "inr_per_usd": 88
+        },
+        "m1-16": {
+          "purposes": ["materials_read"],
+          "cap_usd": 2,
+          "margin_usd": 0.25,
+          "window": "month",
+          "stale_minutes": 10,
+          "inr_per_usd": 88
         }
       }
     },
@@ -178,6 +186,15 @@
         "est_check_out": 250,
         "est_split_in": 400,
         "est_split_out": 300
+      }
+    },
+    {
+      "key": "llm.structured",
+      "description": "The prompt versions whose reply the vendor holds to the schema (Anthropic's output_config.format), so no field outside it can come back: {purpose: [versions]}. Only a version whose schema the vendor can hold belongs here: every object closed with its fields named (a free-form map is forced empty), no recursion. The local check against the full schema still runs (M1-11e).",
+      "value": {
+        "curriculum_map_propose": [
+          3
+        ]
       }
     },
     {
@@ -691,6 +708,30 @@
       "key": "materials.reminder_weeks",
       "description": "How many weeks before the first day a material is needed the educator and the materials team are reminded (D-070: 2 and 1). A date that is not a working day moves to the last working day before it; one already past goes today (D-072).",
       "value": [2, 1],
+      "seed_once": true
+    },
+    {
+      "key": "materials.inventory_whatsapp_to",
+      "description": "The number the consolidated list's one-tap link opens a chat with: the one inventory person (digits, with country code). Empty until named; then the link opens WhatsApp with nobody chosen (D-071, M1-16).",
+      "value": "",
+      "seed_once": true
+    },
+    {
+      "key": "materials.consolidate_roles",
+      "description": "The roles whose open grant lets a person build the school's consolidated materials list, read it and send it to the inventory person (M1-16). A role is added here by a pull request.",
+      "value": ["coordinator", "head"],
+      "seed_once": true
+    },
+    {
+      "key": "materials.photo_max_side",
+      "description": "The longest side, in pixels, a photographed materials note is made before a model reads it (M1-16). The picture is a plain JPEG read in memory and never stored.",
+      "value": 1600,
+      "seed_once": true
+    },
+    {
+      "key": "materials.photo_max_bytes",
+      "description": "The largest picture, in bytes, the engine accepts for a photographed materials note (M1-16). The site's own upload limit (about 4.5 MB through Vercel) is lower.",
+      "value": 10000000,
       "seed_once": true
     }
   ]

@@ -55,7 +55,7 @@ def spend(conn, inr, flow=DRAFT, status="ok", started="now()"):
 
 
 def answering(monkeypatch, calls):
-    def dispatch(models, text, images, schema, effort=None):
+    def dispatch(models, text, images, schema, effort=None, structured=False):
         calls.append(models[0])
         return DRAFTED, "claude-sonnet-5-5", 3000, 2000, 1000
 

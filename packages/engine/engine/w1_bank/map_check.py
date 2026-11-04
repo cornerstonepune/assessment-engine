@@ -36,6 +36,14 @@ class Gap:
     levels: frozenset[str]
 
 
+def asked_levels(levels: object, gap: Gap) -> object:
+    """A reply held to a fixed form names all four levels, "" for each one not asked for: that is no proposal. A level
+    the sheet lacks is kept even when empty, and `problems` says so."""
+    if not isinstance(levels, dict):
+        return levels
+    return {k: v for k, v in levels.items() if k not in gap.levels or str(v).strip()}
+
+
 def _skills(proposal: dict[str, object], gap: Gap, known: Known) -> list[str]:
     raw = proposal.get("skills")
     codes = [str(c) for c in raw] if isinstance(raw, list) else []
