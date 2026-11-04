@@ -402,7 +402,6 @@
  "material_unit_conversion.material_unit_conversion_pkey": "PRIMARY KEY (id)",
  "material_unit_conversion.material_unit_conversion_tenant_id_fkey": "FOREIGN KEY (tenant_id) REFERENCES tenant(id) ON DELETE CASCADE",
  "material_unit_conversion.material_unit_conversion_tenant_id_material_code_fkey": "FOREIGN KEY (tenant_id, material_code) REFERENCES material_item(tenant_id, code)",
- "material_unit_conversion.material_unit_conversion_tenant_id_material_code_from_unit_key": "UNIQUE (tenant_id, material_code, from_unit)",
  "materials_consolidated.materials_consolidated_check": "CHECK ((to_on >= from_on))",
  "materials_consolidated.materials_consolidated_latest_build_check": "CHECK ((latest_build >= 0))",
  "materials_consolidated.materials_consolidated_pkey": "PRIMARY KEY (id)",

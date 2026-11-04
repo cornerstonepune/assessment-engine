@@ -59,6 +59,27 @@ def test_a_conversion_for_another_item_or_unit_does_not_apply():
     assert got.status == "needs_person"
 
 
+def test_a_conversion_applies_only_if_the_unit_is_in_the_notes_own_words():
+    r = {
+        "text": "2 pens",
+        "item_code": "MAT-1",
+        "quantity": 2,
+        "unit": "dozen",
+    }  # the model claimed a unit nobody wrote
+    got = mi.check_reading(r, CAT, "2 pens", {("MAT-1", "dozen"): 12.0})
+    assert got.status == "needs_person" and "unit" in got.reason
+    r = {"text": "2 dozens pens", "item_code": "MAT-1", "quantity": 2, "unit": "dozen"}
+    assert mi.check_reading(r, CAT, "2 dozens pens", {("MAT-1", "dozen"): 12.0}).quantity == 24.0
+
+
+def test_a_converted_quantity_carries_no_float_noise():
+    cat = [{"code": "MAT-1", "name": "Pen", "unit": "piece"}]
+    r = {"text": "0.7 dozen pens", "item_code": "MAT-1", "quantity": 0.7, "unit": "dozen"}
+    assert mi.check_reading(r, cat, "0.7 dozen pens", {("MAT-1", "dozen"): 12.0}).quantity == 8.4
+    r = {"text": "3 tens", "item_code": "MAT-1", "quantity": 3, "unit": "ten"}
+    assert mi.check_reading(r, cat, "3 tens", {("MAT-1", "ten"): 0.1}).quantity == 0.3
+
+
 def test_a_converted_number_must_still_be_in_the_notes_own_words():
     r = {"text": "dozen pens", "item_code": "MAT-1", "quantity": 1, "unit": "dozen"}
     got = mi.check_reading(r, CAT, "dozen pens", {("MAT-1", "dozen"): 12.0})
@@ -74,7 +95,7 @@ def test_clearing_a_waiting_note_adds_the_line_and_closes_the_note(conn):
     pen = m.item(conn, s, "Pen", "piece")
     lid = ml.build(conn, s["class"], "fortnight", m.MON, m.MON)
     nid = _waiting(conn, s, lid)
-    rv.resolve(conn, nid, pen, 30, m.MON, s["staff"])
+    rv.resolve(conn, s["tenant"], nid, pen, 30, m.MON, s["staff"])
     assert _lines(conn, lid) == [(pen, 30)]
     row = conn.execute("select * from materials_note_review where id = %s", (nid,)).fetchone()
     assert (row["state"], row["resolved_by"], row["resolved_code"]) == ("added", s["staff"], pen)
@@ -87,9 +108,9 @@ def test_a_note_cleared_twice_adds_nothing_the_second_time(conn):
     pen = m.item(conn, s, "Pen", "piece")
     lid = ml.build(conn, s["class"], "fortnight", m.MON, m.MON)
     nid = _waiting(conn, s, lid)
-    rv.resolve(conn, nid, pen, 30, m.MON, s["staff"])
+    rv.resolve(conn, s["tenant"], nid, pen, 30, m.MON, s["staff"])
     with pytest.raises(rv.NotWaiting):
-        rv.resolve(conn, nid, pen, 99, m.MON, s["staff"])
+        rv.resolve(conn, s["tenant"], nid, pen, 99, m.MON, s["staff"])
     assert _lines(conn, lid) == [(pen, 30)]
 
 
@@ -101,7 +122,7 @@ def test_an_item_already_on_the_list_keeps_the_note_waiting(conn):
     ml.add(conn, lid, pen, 5, m.MON, None, s["staff"])
     nid = _waiting(conn, s, lid)
     with pytest.raises(ml.AlreadyOnList):
-        rv.resolve(conn, nid, pen, 30, m.MON, s["staff"])
+        rv.resolve(conn, s["tenant"], nid, pen, 30, m.MON, s["staff"])
     assert conn.execute("select state from materials_note_review where id = %s", (nid,)).fetchone()[
         "state"
     ] == ("needs_person")
@@ -114,7 +135,7 @@ def test_an_item_not_in_the_catalogue_cannot_clear_a_note(conn):
     lid = ml.build(conn, s["class"], "fortnight", m.MON, m.MON)
     nid = _waiting(conn, s, lid)
     with pytest.raises(ml.NotInCatalogue):
-        rv.resolve(conn, nid, "MAT-9999", 3, m.MON, s["staff"])
+        rv.resolve(conn, s["tenant"], nid, "MAT-9999", 3, m.MON, s["staff"])
     assert _lines(conn, lid) == []
 
 
@@ -124,8 +145,8 @@ def test_dismissing_a_note_closes_it_with_a_reason_and_adds_nothing(conn):
     lid = ml.build(conn, s["class"], "fortnight", m.MON, m.MON)
     nid = _waiting(conn, s, lid)
     with pytest.raises(ValueError):
-        rv.dismiss(conn, nid, "  ", s["staff"])
-    rv.dismiss(conn, nid, "not a material", s["staff"])
+        rv.dismiss(conn, s["tenant"], nid, "  ", s["staff"])
+    rv.dismiss(conn, s["tenant"], nid, "not a material", s["staff"])
     row = conn.execute(
         "select state, resolved_by, why from materials_note_review where id = %s", (nid,)
     ).fetchone()
@@ -134,11 +155,25 @@ def test_dismissing_a_note_closes_it_with_a_reason_and_adds_nothing(conn):
 
 
 @needs_db
+def test_a_note_of_another_school_cannot_be_cleared_or_set_aside(conn):
+    s = m.school(conn)
+    pen = m.item(conn, s, "Pen", "piece")
+    lid = ml.build(conn, s["class"], "fortnight", m.MON, m.MON)
+    nid = _waiting(conn, s, lid)
+    other = conn.execute("select gen_random_uuid() as id").fetchone()["id"]
+    with pytest.raises(rv.NoSuchNote):
+        rv.resolve(conn, other, nid, pen, 3, m.MON, s["staff"])
+    with pytest.raises(rv.NoSuchNote):
+        rv.dismiss(conn, other, nid, "no", s["staff"])
+    assert rv.waiting(conn, s["tenant"])[0]["id"] == nid
+
+
+@needs_db
 def test_waiting_lists_only_this_schools_open_notes_oldest_first(conn):
     s = m.school(conn)
     lid = ml.build(conn, s["class"], "fortnight", m.MON, m.MON)
     a, b = _waiting(conn, s, lid, "first"), _waiting(conn, s, lid, "second")
-    rv.dismiss(conn, a, "no", s["staff"])
+    rv.dismiss(conn, s["tenant"], a, "no", s["staff"])
     assert [w["text"] for w in rv.waiting(conn, s["tenant"])] == ["second"]
     assert [w["id"] for w in rv.waiting(conn, s["tenant"])] == [b]
 
@@ -191,6 +226,20 @@ def test_an_approved_conversion_is_read_back_and_an_unapproved_unit_is_not(conn)
         rv.approve_conversion(
             conn, s["tenant"], pen, "piece", 1, s["staff"]
         )  # the item's own unit needs none
+
+
+@needs_db
+def test_changing_a_conversion_keeps_the_old_one_and_the_latest_is_used(conn):
+    s = m.school(conn)
+    pen = m.item(conn, s, "Pen", "piece")
+    rv.approve_conversion(conn, s["tenant"], pen, "dozen", 12, s["staff"])
+    rv.approve_conversion(conn, s["tenant"], pen, "Dozen", 12, s["staff"])  # the same again adds nothing
+    rv.approve_conversion(conn, s["tenant"], pen, "dozen", 10, s["staff"])
+    assert mi.conversions(conn, s["tenant"]) == {(pen, "dozen"): 10.0}
+    rows = conn.execute("select factor from material_unit_conversion order by approved_at").fetchall()
+    assert [float(r["factor"]) for r in rows] == [12.0, 10.0]
+    with pytest.raises(Exception, match="append|forbid|not allowed|cannot"):
+        conn.execute("update material_unit_conversion set factor = 1")
 
 
 @needs_db

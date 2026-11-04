@@ -111,23 +111,18 @@ def review_list(body: Who, conn=Depends(get_conn, scope="function"), tenant_id: 
     }
 
 
-def _waiting_of(conn, note_id: UUID, tenant_id: str) -> None:
-    found = conn.execute(
-        "select 1 from materials_note_review where id = %s and tenant_id = %s", (note_id, tenant_id)
-    ).fetchone()
-    if found is None:
-        raise HTTPException(status_code=404, detail="No such note.")
-
-
 @keyed.post("/review/resolve")
 def review_resolve(
     body: Clear, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)
 ):
     """Put what a waiting note asked for on its class's list, as a line a person chose."""
     staff = _mine(conn, body, tenant_id)
-    _waiting_of(conn, body.note_id, tenant_id)
     try:
-        the_list = rv.resolve(conn, body.note_id, body.material_code, body.quantity, body.needed_on, staff)
+        the_list = rv.resolve(
+            conn, UUID(str(tenant_id)), body.note_id, body.material_code, body.quantity, body.needed_on, staff
+        )
+    except rv.NoSuchNote as no:
+        raise HTTPException(status_code=404, detail="No such note.") from no
     except rv.NotWaiting as no:
         raise HTTPException(status_code=409, detail="That note is already cleared.") from no
     except ml.NotInCatalogue as no:
@@ -147,9 +142,10 @@ def review_dismiss(
     body: SetAside, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)
 ):
     staff = _mine(conn, body, tenant_id)
-    _waiting_of(conn, body.note_id, tenant_id)
     try:
-        rv.dismiss(conn, body.note_id, body.why, staff)
+        rv.dismiss(conn, UUID(str(tenant_id)), body.note_id, body.why, staff)
+    except rv.NoSuchNote as no:
+        raise HTTPException(status_code=404, detail="No such note.") from no
     except rv.NotWaiting as no:
         raise HTTPException(status_code=409, detail="That note is already cleared.") from no
     except ValueError as no:

@@ -20,6 +20,18 @@ Run from `packages/engine` with the local database (`DATABASE_URL`, `TEST_DATABA
   column, which `apply_conventions` needs on any table that is updated; that gap is fixed in the migration).
 - The migration was applied twice to a database that already had it (no error).
 
+## Review (/code-review medium) and what was done
+Fixed at the cause: a conversion applies only if the unit is written in the note's own words (a unit the model only claimed does
+not multiply a number); the converted quantity is exact decimal arithmetic (0.7 dozen is 8.4, not 8.399999999999999); clearing and
+setting aside check the school inside the module, not only in the route (one lookup, 404 for no such note, 409 for already cleared);
+an alias is one insert that yields to the unique row; a changed conversion factor is a **new row** (the table is append-only, the
+latest is used) so who approved what, and when, is kept.
+Prompt: v1 told the model to give "the catalogue's unit", so no approved conversion could ever fire, and it never mentioned aliases.
+`materials_read` **v2** (inactive, like v1) shows aliases and asks for the unit as the note wrote it. It makes no call and has no score:
+it becomes active only after `engine eval materials_read` meets the bars on a gold set (rule 7); until then conversions and aliases
+are code that waits for a prompt that can use them. Not accepted: "any staff can use the review routes" (the routes require the
+coordinator role; the test `test_the_review_routes_are_for_the_coordinator_only` shows an educator gets 403).
+
 ## Not done, on purpose
 - No model call; the prompt is still inactive and the gold set is empty (rule 7).
 - The review page (4b) and the photo upload route.

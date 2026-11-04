@@ -8,6 +8,7 @@
 --                                    handed to the model beside the item; code still decides what is confirmed.
 --   * material_unit_conversion       a unit that converts to an item's own ("dozen" -> 12 piece), approved by a person. Code
 --                                    converts only with one of these rows; without one a different unit waits for a person.
+--                                    Append-only: a changed factor is a new row and the latest is used.
 --
 -- No child's name and no rupee value is held here.
 
@@ -50,8 +51,13 @@ create table if not exists material_unit_conversion (
   factor        numeric not null check (factor > 0 and factor < 'Infinity'),
   approved_by   uuid not null references staff(id),
   approved_at   timestamptz not null default clock_timestamp(),
-  foreign key (tenant_id, material_code) references material_item (tenant_id, code),
-  unique (tenant_id, material_code, from_unit)
+  foreign key (tenant_id, material_code) references material_item (tenant_id, code)
 );
+-- Append-only: a changed factor is a new row, the latest is the one used, and the old one stays to show who approved what when.
+create index if not exists material_unit_conversion_latest_idx
+  on material_unit_conversion (tenant_id, material_code, from_unit, approved_at desc);
+drop trigger if exists material_unit_conversion_append_only on material_unit_conversion;
+create trigger material_unit_conversion_append_only before update or delete on material_unit_conversion
+  for each statement execute function internal.forbid_change();
 
 select internal.apply_conventions();

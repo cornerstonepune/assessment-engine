@@ -9,6 +9,7 @@ import datetime as dt
 import io
 import re
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
@@ -68,7 +69,11 @@ def check_reading(
             return _person(
                 reading, f"the unit is not the catalogue's ({item['unit']}) and none is approved to convert"
             )
-        quantity = float(quantity) * factor
+        if not re.search(rf"\b{re.escape(str(unit).lower())}s?\b", words):
+            return _person(
+                reading, f"the unit ({unit}) is not in the item's own words, so code does not convert"
+            )
+        quantity = float(Decimal(str(quantity)) * Decimal(str(factor)))
     return Checked("confirmed", "", str(reading.get("text") or ""), item["code"], quantity, item["unit"])
 
 
@@ -96,10 +101,13 @@ def catalogue(conn: db.Conn, tenant: UUID) -> list[dict[str, Any]]:
 
 
 def conversions(conn: db.Conn, tenant: UUID) -> dict[tuple[str, str], float]:
+    """The latest approved factor for each (item, unit)."""
     return {
         (r["material_code"], r["from_unit"]): float(r["factor"])
         for r in conn.execute(
-            "select material_code, from_unit, factor from material_unit_conversion where tenant_id = %s",
+            "select distinct on (material_code, from_unit) material_code, from_unit, factor"
+            " from material_unit_conversion where tenant_id = %s"
+            " order by material_code, from_unit, approved_at desc, id",
             (tenant,),
         )
     }

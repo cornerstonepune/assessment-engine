@@ -11,8 +11,12 @@ from engine.core import db
 from engine.w2_print import materials_list as ml
 
 
+class NoSuchNote(Exception):
+    """There is no such note in this school."""
+
+
 class NotWaiting(Exception):
-    """The note is already cleared (or is not this school's): nothing is added a second time."""
+    """The note is already cleared: nothing is added a second time."""
 
 
 class AliasTaken(Exception):
@@ -30,23 +34,32 @@ def waiting(conn: db.Conn, tenant: UUID) -> list[dict[str, Any]]:
     ]
 
 
-def _open(conn: db.Conn, note_id: UUID) -> dict[str, Any]:
+def _open(conn: db.Conn, tenant: UUID, note_id: UUID) -> dict[str, Any]:
     row = conn.execute(
-        "select id, list_id, state from materials_note_review where id = %s for update", (note_id,)
+        "select id, list_id, state from materials_note_review where id = %s and tenant_id = %s for update",
+        (note_id, tenant),
     ).fetchone()
-    if row is None or row["state"] != "needs_person":
+    if row is None:
+        raise NoSuchNote(str(note_id))
+    if row["state"] != "needs_person":
         raise NotWaiting(str(note_id))
     return dict(row)
 
 
 def resolve(
-    conn: db.Conn, note_id: UUID, material_code: str, quantity: float, needed_on: dt.date, who: UUID
+    conn: db.Conn,
+    tenant: UUID,
+    note_id: UUID,
+    material_code: str,
+    quantity: float,
+    needed_on: dt.date,
+    who: UUID,
 ) -> UUID:
     """Add what the note asked for to its list, as a line a person chose, and close the note. If the add is refused (not
     in the catalogue, already on the list, a bad quantity) the note stays waiting and nothing changes. Returns the list."""
     if isinstance(quantity, bool) or not math.isfinite(quantity) or quantity <= 0:
         raise ValueError("a quantity is a number above zero")
-    note = _open(conn, note_id)
+    note = _open(conn, tenant, note_id)
     ml.add(conn, note["list_id"], material_code, quantity, needed_on, None, who, via="note")
     conn.execute(
         "update materials_note_review set state = 'added', resolved_by = %s, resolved_at = clock_timestamp(),"
@@ -56,11 +69,11 @@ def resolve(
     return UUID(str(note["list_id"]))
 
 
-def dismiss(conn: db.Conn, note_id: UUID, why: str, who: UUID) -> None:
+def dismiss(conn: db.Conn, tenant: UUID, note_id: UUID, why: str, who: UUID) -> None:
     why = " ".join(why.split())
     if not why:
         raise ValueError("a note set aside needs a reason")
-    _open(conn, note_id)
+    _open(conn, tenant, note_id)
     conn.execute(
         "update materials_note_review set state = 'dismissed', resolved_by = %s, resolved_at = clock_timestamp(),"
         " why = %s where id = %s",
@@ -82,24 +95,22 @@ def approve_alias(conn: db.Conn, tenant: UUID, alias: str, material_code: str, w
     if not word:
         raise ValueError("a word is needed")
     _item_unit(conn, tenant, material_code)
-    conn.execute("select pg_advisory_xact_lock(hashtext('material_alias'))")
-    have = conn.execute(
-        "select material_code from material_alias where tenant_id = %s and alias = %s", (tenant, word)
-    ).fetchone()
-    if have is not None:
-        if have["material_code"] != material_code:
-            raise AliasTaken(word)
-        return
     conn.execute(
-        "insert into material_alias (tenant_id, alias, material_code, approved_by) values (%s, %s, %s, %s)",
+        "insert into material_alias (tenant_id, alias, material_code, approved_by) values (%s, %s, %s, %s)"
+        " on conflict (tenant_id, alias) do nothing",
         (tenant, word, material_code, who),
     )
+    mine = db.one(
+        conn, "select material_code from material_alias where tenant_id = %s and alias = %s", (tenant, word)
+    )["material_code"]
+    if mine != material_code:
+        raise AliasTaken(word)
 
 
 def approve_conversion(
     conn: db.Conn, tenant: UUID, material_code: str, unit: str, factor: float, who: UUID
 ) -> None:
-    """`factor` of the item's own unit make one `unit` ("dozen" -> 12 piece). Approving again changes the factor."""
+    """`factor` of the item's own unit make one `unit` ("dozen" -> 12 piece). A different factor is a new row (the latest is used)."""
     word = " ".join(unit.lower().split())
     if not word:
         raise ValueError("a unit is needed")
@@ -108,9 +119,17 @@ def approve_conversion(
     if word == " ".join(_item_unit(conn, tenant, material_code).lower().split()):
         raise ValueError("the item's own unit needs no conversion")
     conn.execute(
+        "select pg_advisory_xact_lock(hashtext('material_unit_conversion'), hashtext(%s))", (str(tenant),)
+    )
+    latest = conn.execute(
+        "select factor from material_unit_conversion where tenant_id = %s and material_code = %s and from_unit = %s"
+        " order by approved_at desc, id limit 1",
+        (tenant, material_code, word),
+    ).fetchone()
+    if latest is not None and float(latest["factor"]) == float(factor):
+        return
+    conn.execute(
         "insert into material_unit_conversion (tenant_id, material_code, from_unit, factor, approved_by)"
-        " values (%s, %s, %s, %s, %s)"
-        " on conflict (tenant_id, material_code, from_unit) do update"
-        " set factor = excluded.factor, approved_by = excluded.approved_by, approved_at = clock_timestamp()",
+        " values (%s, %s, %s, %s, %s)",
         (tenant, material_code, word, factor, who),
     )
