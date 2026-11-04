@@ -49,6 +49,25 @@ icon dependency; before it, every icon was drawn by hand. One icon per concept, 
   108 passed.
 - `bin/check` → passed; `npx tsc --noEmit` and eslint on the changed files → clean.
 
+## Recording is its own switch (branch m1-04b-voice-recording-switch, D-065)
+
+- `voice.recording_enabled` (config, default off; a missing row is off; in `supabase/seed/config.json` as `seed_once`).
+  No migration. Recording, the upload (`POST /voice/notes`), the playback (`/voice/notes/audio`, `/api/voice/[note]`),
+  the Record page, its ticket and the microphone button need it AND `voice.screens_enabled`; What needs doing, the
+  form and Confirm need `voice.screens_enabled` only. With recording off a class's K2 row reads "Fill the form".
+- Tests written first, failing before the code: `tests/api/test_voice_routes.py::test_with_recording_off_no_route_takes_or_gives_a_recording_and_the_form_still_works`
+  (no row, and the row false: the upload and the playback refuse "Recording is not switched on.", nothing is written
+  to disk, the form, the class and the queue answer), `::test_with_both_switches_on_a_recording_is_taken_and_the_queue_says_so`,
+  and the browser test "with recording off, the K2 educator fills the form ...". The u64 check (the group reads Fill
+  the form) and u51 measuring the form-only pages were written after the code.
+- The whole engine suite in 12 shards, cut by `bin/ci-shard pick` as CI cuts it, on databases built by `bin/testdb
+  fresh`: 3216 passed, 2 skipped, 2 failed. The two failures are `test_spine_provenance.py` (2): it downloads
+  ncert.nic.in, and this container's Python does not trust the proxy's certificate; CI reaches it. Shard 6 first gave
+  one more failure (`test_question.py::test_every_kind_in_the_bank_can_be_printed_again`) only because locally it
+  shared a database with shard 3 before it; on its own fresh database, as CI gives each shard, shard 6 → 252 passed.
+- Browser, the parts touched: the K2 spec, u51, u64, u62, u53, u65, u1, u15, u33, s41, u71 → 70 passed. `bin/check` → 34
+  passed. tsc and eslint clean.
+
 ## Not verified / open
 
 - On a real phone: the browser test fakes the microphone; a real phone is the educator's week-1 test (D-064). Android Chrome records webm, iPhone Safari mp4; both are
