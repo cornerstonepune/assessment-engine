@@ -88,7 +88,7 @@
 
 /* Dark follows the system setting; there is no in-app switch (Apple HIG, Dark Mode). All derived. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-scheme="light"]) { /* a page held light (the site, until it has a dark mode) */
     color-scheme: dark;
     --bg: #1b1a17; /* derived */
     --surface: var(--brand-basalt);
