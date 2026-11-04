@@ -1,8 +1,8 @@
 """The eval for the materials_read prompt (task M1-16; rules 2 and 7: a prompt is inactive until its score meets a bar a
 person set before the first run). It runs the model on cases a person marked, passes what it answered through the same
 check the engine uses (`materials_intake.check_reading`), and scores what code let through. Three measures:
-`confirmed_wrong` (of what code confirmed, the share a person did not mark: a wrong item or quantity that would have gone
-into a list; the one that matters most), `found` (of what a person marked, the share confirmed) and `held_back_right`
+`confirmed_wrong` (how many readings code confirmed that a person did not mark: a wrong item or quantity that would have
+gone into a list; a count, the one that matters most), `found` (of what a person marked, the share confirmed) and `held_back_right`
 (of the cases a person marked as needing a person, the share where nothing was confirmed)."""
 
 import json
@@ -51,7 +51,7 @@ def score(
             should_hold += 1
             held += 0 if got else 1
     return {
-        "confirmed_wrong": wrong / confirmed if confirmed else 0.0,
+        "confirmed_wrong": float(wrong),
         "found": found / marked if marked else 1.0,
         "held_back_right": held / should_hold if should_hold else 1.0,
     }

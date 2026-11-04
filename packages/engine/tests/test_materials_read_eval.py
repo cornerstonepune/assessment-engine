@@ -43,6 +43,8 @@ def test_the_scores_count_what_was_confirmed_wrongly_what_was_found_and_what_was
         "some ribbon": {"people_visible": False, "readings": [_reading(None, None, None, "some ribbon")]},
     }
     got = ev.score(cases, CATALOGUE, _ask(answers))
-    assert got["confirmed_wrong"] == 1 / 2  # of the two confirmed readings, one is not what the person marked
+    assert (
+        got["confirmed_wrong"] == 1
+    )  # a count: one of the two confirmed readings is not what the person marked
     assert got["found"] == 1 / 2  # of the two marked items, one was found
     assert got["held_back_right"] == 1.0  # the case that should go to a person did
