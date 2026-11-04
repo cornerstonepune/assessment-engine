@@ -26,7 +26,7 @@ class LineRemoved(Exception):
     """A removed line has no quantity to change; she adds it back first."""
 
 
-def _num(q: Decimal | None) -> int | float | None:
+def num(q: Decimal | None) -> int | float | None:
     if q is None:
         return None
     return int(q) if q == q.to_integral_value() else float(q)
@@ -143,7 +143,7 @@ def read(conn: db.Conn, list_id: UUID, group_by: str | None = None) -> dict[str,
                 "line_id": r["id"],
                 "item": r["name"],
                 "material_code": r["material_code"],
-                "quantity": _num(r["quantity"]),
+                "quantity": num(r["quantity"]),
                 "unit": r["unit"],
                 "needed_on": r["needed_on"],
                 "activity": {"id": r["activity_id"], "code": r["activity_code"], "name": r["activity_name"]}
@@ -203,13 +203,13 @@ def set_quantity(conn: db.Conn, line_id: UUID, quantity: float | None, who: UUID
     line = _line(conn, line_id)
     if line["removed_at"] is not None:
         raise LineRemoved(line_id)
-    before, after = _num(line["quantity"]), (None if quantity is None else Decimal(str(quantity)))
+    before, after = num(line["quantity"]), (None if quantity is None else Decimal(str(quantity)))
     if line["quantity"] == after:
         return
     conn.execute(
         "update materials_line set quantity = %s, updated_at = now() where id = %s", (after, line_id)
     )
-    _edit(conn, line, "quantity", who, {"quantity": before}, {"quantity": _num(after)})
+    _edit(conn, line, "quantity", who, {"quantity": before}, {"quantity": num(after)})
 
 
 def remove(conn: db.Conn, line_id: UUID, who: UUID) -> None:
@@ -222,7 +222,7 @@ def remove(conn: db.Conn, line_id: UUID, who: UUID) -> None:
         line,
         "remove",
         who,
-        {"quantity": _num(line["quantity"]), "needed_on": str(line["needed_on"])},
+        {"quantity": num(line["quantity"]), "needed_on": str(line["needed_on"])},
         {"removed": True},
     )
 
@@ -271,7 +271,7 @@ def add(
         "add",
         who,
         None,
-        {"quantity": _num(qty), "needed_on": str(needed_on)} | ({"via": via} if via else {}),
+        {"quantity": num(qty), "needed_on": str(needed_on)} | ({"via": via} if via else {}),
     )
     return line["id"]
 

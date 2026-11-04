@@ -12,8 +12,7 @@ from pydantic import Field
 
 from engine.adapters import llm
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
-from engine.api.routes.materials import Who, _holds, _list_class, _staff
-from engine.core import settings
+from engine.api.routes.materials import Who, holds, list_class, staff_of
 from engine.w2_print import materials_consolidate as mc
 from engine.w2_print import materials_intake as mi
 from engine.w2_print import materials_inventory as inv
@@ -32,42 +31,39 @@ class Ref(Who):
     consolidated_id: UUID
 
 
-def _coordinator(conn, body: Who) -> UUID:
-    staff = _staff(conn, body)
+def _mine(conn, body: Who, tenant_id: str, consolidated_id: UUID | None = None) -> UUID:
+    """She may build and send the school's list; if a list is named it is this school's, else not found."""
+    staff = staff_of(conn, body)
     if not mc.may_consolidate(conn, staff, rem.school_today(conn)):
         raise HTTPException(status_code=403, detail="This is for the coordinator.")
+    if consolidated_id is not None:
+        found = conn.execute(
+            "select 1 from materials_consolidated where id = %s and tenant_id = %s",
+            (consolidated_id, tenant_id),
+        ).fetchone()
+        if found is None:
+            raise HTTPException(status_code=404, detail="No such list.")
     return staff
 
 
 @keyed.post("/school/build")
 def build(body: Build, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
-    _coordinator(conn, body)
-    if body.to < body.from_:
-        raise HTTPException(status_code=422, detail="The last day is before the first day.")
-    return mc.read(conn, mc.build(conn, UUID(str(tenant_id)), body.from_, body.to))
-
-
-def _ours(conn, body: Ref, tenant_id: str) -> None:
-    """The list is this school's; otherwise it is not found."""
-    found = conn.execute(
-        "select 1 from materials_consolidated where id = %s and tenant_id = %s",
-        (body.consolidated_id, tenant_id),
-    ).fetchone()
-    if found is None:
-        raise HTTPException(status_code=404, detail="No such list.")
+    _mine(conn, body, tenant_id)
+    try:
+        return mc.read(conn, mc.build(conn, UUID(str(tenant_id)), body.from_, body.to))
+    except ValueError as no:
+        raise HTTPException(status_code=422, detail=str(no)) from no
 
 
 @keyed.post("/school/read")
 def read(body: Ref, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
-    _coordinator(conn, body)
-    _ours(conn, body, tenant_id)
+    _mine(conn, body, tenant_id, body.consolidated_id)
     return mc.read(conn, body.consolidated_id)
 
 
 @keyed.post("/school/send")
 def send(body: Ref, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
-    staff = _coordinator(conn, body)
-    _ours(conn, body, tenant_id)
+    staff = _mine(conn, body, tenant_id, body.consolidated_id)
     try:
         return inv.send(conn, body.consolidated_id, staff)
     except NothingToSend as no:
@@ -87,19 +83,18 @@ async def note(request: Request, conn=Depends(get_conn, scope="function")):
         the_list, the_day = UUID(list_id), dt.date.fromisoformat(needed_on)
     except ValueError as no:
         raise HTTPException(status_code=422, detail="Choose the list and the day it is needed.") from no
-    staff = _staff(conn, Who(actor=actor))
-    _holds(conn, staff, _list_class(conn, the_list))
+    staff = staff_of(conn, Who(actor=actor))
+    holds(conn, staff, list_class(conn, the_list))
     typed = text if isinstance(text, str) else ""
     photo = None
     if upload is not None and not isinstance(upload, str):
-        data = await upload.read()
-        if len(data) > int(settings.config(conn, "materials.photo_max_bytes", 10_000_000)):
+        try:
+            photo = mi.prepare_upload(conn, await upload.read())
+        except mi.TooBig as no:
             raise HTTPException(
                 status_code=422, detail="That picture is too big. Take it again, or send a smaller one."
-            )
-        try:
-            photo = mi.prepare_photo(data, mi.photo_max_side(conn))
-        except Exception as no:  # an unreadable file: Pillow raises its own kinds of error
+            ) from no
+        except mi.Unreadable as no:
             raise HTTPException(status_code=422, detail="That is not a picture the system can read.") from no
     if not typed.strip() and photo is None:
         raise HTTPException(status_code=422, detail="Write the note or take a picture of it.")

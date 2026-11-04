@@ -9,7 +9,6 @@ import json
 from collections.abc import Callable
 from typing import Any
 
-from engine.adapters import llm
 from engine.core import db
 from engine.w2_print import materials_intake
 
@@ -61,11 +60,9 @@ def score(
 def evaluate(conn: db.Conn, version: int | None = None) -> dict[str, float]:
     """Score prompt `version` (the active one by default) on the gold set, on the live catalogue."""
     tenant = db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
-    catalogue = materials_intake._catalogue(conn, tenant)
+    catalogue = materials_intake.catalogue(conn, tenant)
     return score(
         load_gold(),
         catalogue,
-        lambda note, cat: llm.generate(
-            conn, materials_intake.PURPOSE, {"note": note, "catalogue": cat}, version=version
-        ),
+        lambda note, cat: materials_intake.ask_model(conn, note, cat, version=version),
     )

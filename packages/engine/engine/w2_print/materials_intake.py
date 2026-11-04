@@ -70,7 +70,7 @@ def prepare_photo(data: bytes, max_side: int) -> bytes:
     return out.getvalue()
 
 
-def _catalogue(conn: db.Conn, tenant: UUID) -> list[dict[str, Any]]:
+def catalogue(conn: db.Conn, tenant: UUID) -> list[dict[str, Any]]:
     return [
         dict(r)
         for r in conn.execute(
@@ -86,6 +86,21 @@ def _review(conn: db.Conn, tenant: UUID, list_id: UUID, who: UUID, got: Checked)
     )
 
 
+def ask_model(
+    conn: db.Conn,
+    note: str,
+    items: list[dict[str, Any]],
+    image: bytes | None = None,
+    version: int | None = None,
+) -> dict[str, Any]:
+    """The one place the model is asked (the engine's reading and the eval both come here): the note and the catalogue
+    and nothing else. The prompt's own marker lines (===) cannot be typed into the data block they close."""
+    safe = note.replace("===", "= = =")
+    return llm.generate(
+        conn, PURPOSE, {"note": safe, "catalogue": items}, images=[image] if image else (), version=version
+    )
+
+
 def read_note(
     conn: db.Conn,
     list_id: UUID,
@@ -98,12 +113,8 @@ def read_note(
     nothing else: never a name. Confirmed readings become lines on the list (as hers, with the note as their source);
     the rest wait for a person."""
     tenant = db.one(conn, "select tenant_id from materials_list where id = %s", (list_id,))["tenant_id"]
-    catalogue = _catalogue(conn, tenant)
-    # the prompt's own marker lines (===) cannot be typed into the data block they close
-    safe = note.replace("===", "= = =")
-    answer = llm.generate(
-        conn, PURPOSE, {"note": safe, "catalogue": catalogue}, images=[image] if image else ()
-    )
+    items = catalogue(conn, tenant)
+    answer = ask_model(conn, note, items, image)
     if image is not None and answer.get("people_visible") is not False:
         sent = Checked(
             "needs_person", "a person may be in the photograph, so it was not read", "(photograph)"
@@ -113,7 +124,7 @@ def read_note(
     out: list[Checked] = []
     for reading in answer.get("readings") or []:
         # only the staff's own typed words can confirm a number; a photograph alone never can
-        got = check_reading(reading, catalogue, note)
+        got = check_reading(reading, items, note)
         if got.status == "confirmed" and got.item_code is not None:
             try:
                 materials_list.add(
@@ -127,5 +138,19 @@ def read_note(
     return out
 
 
-def photo_max_side(conn: db.Conn) -> int:
-    return int(settings.config(conn, "materials.photo_max_side", 1600))
+class TooBig(Exception):
+    pass
+
+
+class Unreadable(Exception):
+    pass
+
+
+def prepare_upload(conn: db.Conn, data: bytes) -> bytes:
+    """An uploaded photograph, checked against the settings and made a plain JPEG. Raises TooBig or Unreadable."""
+    if len(data) > int(settings.config(conn, "materials.photo_max_bytes", 10_000_000)):
+        raise TooBig(len(data))
+    try:
+        return prepare_photo(data, int(settings.config(conn, "materials.photo_max_side", 1600)))
+    except Exception as no:  # an unreadable file: Pillow raises its own kinds of error
+        raise Unreadable(str(no)) from no

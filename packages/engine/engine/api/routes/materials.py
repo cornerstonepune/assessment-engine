@@ -72,7 +72,7 @@ class Inbox(Who):
     class_id: UUID | None = None
 
 
-def _staff(conn, body: Who) -> UUID:
+def staff_of(conn, body: Who) -> UUID:
     if not ml.enabled(conn):
         raise HTTPException(status_code=403, detail="The timetable is not switched on.")
     sid = db.one(conn, "select public.staff_of_email(%s) as id", (body.actor,))["id"]
@@ -81,12 +81,12 @@ def _staff(conn, body: Who) -> UUID:
     return sid
 
 
-def _holds(conn, staff: UUID, class_id: UUID) -> None:
+def holds(conn, staff: UUID, class_id: UUID) -> None:
     if not ml.may_edit(conn, staff, class_id, rem.school_today(conn)):
         raise HTTPException(status_code=403, detail="You do not hold this class.")
 
 
-def _list_class(conn, list_id: UUID) -> UUID:
+def list_class(conn, list_id: UUID) -> UUID:
     row = conn.execute("select school_class_id from materials_list where id = %s", (list_id,)).fetchone()
     if row is None:
         raise HTTPException(status_code=404, detail="No such list.")
@@ -94,8 +94,8 @@ def _list_class(conn, list_id: UUID) -> UUID:
 
 
 def _mine_list(conn, body: Who, list_id: UUID) -> UUID:
-    staff = _staff(conn, body)
-    _holds(conn, staff, _list_class(conn, list_id))
+    staff = staff_of(conn, body)
+    holds(conn, staff, list_class(conn, list_id))
     return staff
 
 
@@ -113,8 +113,8 @@ def _mine_line(conn, body: Who, line_id: UUID) -> tuple[UUID, UUID]:
 
 @keyed.post("/build")
 def build(body: Build, conn=Depends(get_conn, scope="function")):
-    staff = _staff(conn, body)
-    _holds(conn, staff, body.class_id)
+    staff = staff_of(conn, body)
+    holds(conn, staff, body.class_id)
     try:
         lid = ml.build(conn, body.class_id, body.period, body.from_, body.to)
     except ValueError as no:
@@ -170,7 +170,7 @@ def add(body: AddLine, conn=Depends(get_conn, scope="function")):
 
 @keyed.post("/catalogue/list")
 def catalogue(body: Who, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
-    _staff(conn, body)
+    staff_of(conn, body)
     return {
         "items": [
             {
@@ -189,7 +189,7 @@ def catalogue(body: Who, conn=Depends(get_conn, scope="function"), tenant_id: st
 
 @keyed.post("/catalogue/propose")
 def propose(body: Propose, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
-    staff = _staff(conn, body)
+    staff = staff_of(conn, body)
     try:
         return {"code": ml.propose_item(conn, UUID(str(tenant_id)), body.name, body.unit, staff)}
     except ValueError as no:
@@ -220,7 +220,7 @@ def ack(body: Ack, conn=Depends(get_conn, scope="function")):
 
 @keyed.post("/reminders")
 def reminders(body: Inbox, conn=Depends(get_conn, scope="function")):
-    staff = _staff(conn, body)
+    staff = staff_of(conn, body)
     if body.class_id is not None:
-        _holds(conn, staff, body.class_id)
+        holds(conn, staff, body.class_id)
     return {"reminders": rem.inbox(conn, rem.school_today(conn), body.class_id, staff)}

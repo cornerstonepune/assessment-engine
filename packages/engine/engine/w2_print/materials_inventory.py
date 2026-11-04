@@ -12,8 +12,8 @@ from engine.w2_print import materials_consolidate, materials_text
 from engine.w2_print.materials_send import NothingToSend
 
 
-def _short(d: Any) -> str:
-    return f"{d.day} {d:%b}"
+def _q(q: Any) -> str:
+    return "unknown" if q is None else materials_text.number(q)
 
 
 def _line(item: dict[str, Any], last: dict[str, Any] | None) -> str:
@@ -26,13 +26,11 @@ def _line(item: dict[str, Any], last: dict[str, Any] | None) -> str:
     where = ", ".join(sorted({f["class"] for f in item["from"] if f["class"]}))
     if where:
         out += f" ({where})"
-    if last is not None and item["material_code"] not in last:
+    before = None if last is None else last.get(item["material_code"])
+    if last is not None and before is None:
         out += "; new"
-    elif last is not None and last[item["material_code"]]["quantity"] != item["quantity"]:
-        was = last[item["material_code"]]["quantity"]
-        out += f"; changed: was {materials_text.number(was) if was is not None else 'unknown'}, now " + (
-            materials_text.number(item["quantity"]) if item["quantity"] is not None else "unknown"
-        )
+    elif before is not None and before["quantity"] != item["quantity"]:
+        out += f"; changed: was {_q(before['quantity'])}, now {_q(item['quantity'])}"
     return out
 
 
@@ -45,7 +43,7 @@ def send(conn: db.Conn, cid: UUID, who: UUID) -> dict[str, Any]:
         (cid,),
     ).fetchone()
     last = None if prior is None else {x["material_code"]: x for x in prior["lines"]}
-    body = [f"School materials, {_short(got['from'])} to {_short(got['to'])}"]
+    body = [f"School materials, {materials_text.short(got['from'])} to {materials_text.short(got['to'])}"]
     body += [_line(item, last) for item in got["lines"]]
     if last is not None:
         gone = [c for c in last if c not in {x["material_code"] for x in got["lines"]}]

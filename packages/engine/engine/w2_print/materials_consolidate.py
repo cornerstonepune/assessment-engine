@@ -8,7 +8,12 @@ from typing import Any
 from uuid import UUID
 
 from engine.core import db, settings
-from engine.w2_print.materials_list import _num
+from engine.w2_print.materials_list import num
+
+
+def _total(quantities: list[Any]) -> Any:
+    """The sum, or None when any part is unknown: a total with a part missing is not a smaller number."""
+    return None if None in quantities else sum(quantities)
 
 
 def _kept_lists(
@@ -59,17 +64,17 @@ def _gather(
             if mine is None:
                 item["from"][lst["school_class_id"]] = {"quantity": ln["quantity"], "activity_codes": acts}
             else:  # one class, two lists in the month: its needs add up
-                both = [mine["quantity"], ln["quantity"]]
-                mine["quantity"] = None if None in both else sum(both)
+                mine["quantity"] = _total([mine["quantity"], ln["quantity"]])
                 mine["activity_codes"] = sorted(set(mine["activity_codes"]) | set(acts))
     for item in out.values():
-        qs = [f["quantity"] for f in item["from"].values()]
-        item["quantity"] = None if any(q is None for q in qs) else sum(qs)
+        item["quantity"] = _total([f["quantity"] for f in item["from"].values()])
     return out, skipped
 
 
 def build(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> UUID:
     """Make a new build of the school's list for `lo`..`hi` (one per call) and note what moved since the one before."""
+    if hi < lo:
+        raise ValueError("The last day is before the first day.")
     cons = db.one(
         conn,
         "insert into materials_consolidated (tenant_id, from_on, to_on) values (%s, %s, %s)"
@@ -127,11 +132,8 @@ def _note_changes(conn: db.Conn, tenant: UUID, cid: UUID, before: int, now: int)
             kind, was, is_ = "quantity", old[code][0], new[code][0]
         else:
             continue
-        classes = sorted(
-            c
-            for c in set(old.get(code, (0, {}))[1]) | set(new.get(code, (0, {}))[1])
-            if old.get(code, (0, {}))[1].get(c) != new.get(code, (0, {}))[1].get(c)
-        )
+        was_by, now_by = old.get(code, (None, {}))[1], new.get(code, (None, {}))[1]
+        classes = sorted(c for c in was_by.keys() | now_by.keys() if was_by.get(c) != now_by.get(c))
         conn.execute(
             "insert into materials_consolidated_change (tenant_id, consolidated_id, build, material_code, kind, before,"
             " after, class_ids) values (%s, %s, %s, %s, %s, %s, %s, %s)",
@@ -158,7 +160,7 @@ def read(conn: db.Conn, cid: UUID) -> dict[str, Any]:
             {
                 "class_id": r["class_id"],
                 "class": names.get(r["class_id"], ""),
-                "quantity": _num(r["quantity"]),
+                "quantity": num(r["quantity"]),
                 "activity_codes": list(r["activity_codes"]),
             }
         )
@@ -166,7 +168,7 @@ def read(conn: db.Conn, cid: UUID) -> dict[str, Any]:
         {
             "material_code": r["material_code"],
             "item": r["name"],
-            "quantity": _num(r["quantity"]),
+            "quantity": num(r["quantity"]),
             "unit": r["unit"],
             "to_confirm": r["to_confirm"],
             "from": sources.get(r["material_code"], []),
@@ -183,8 +185,8 @@ def read(conn: db.Conn, cid: UUID) -> dict[str, Any]:
             "kind": r["kind"],
             "material_code": r["material_code"],
             "item": r["name"],
-            "before": _num(r["before"]),
-            "after": _num(r["after"]),
+            "before": num(r["before"]),
+            "after": num(r["after"]),
             "class_ids": list(r["class_ids"]),
             "at": r["at"],
         }
