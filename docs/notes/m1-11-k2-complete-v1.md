@@ -3,7 +3,6 @@ W1, gate N1 (curriculum for K2; beside M1-05). Nimish, 4 Nov: every K2 activity 
 exactly; anything an agent drafts is marked "drafted" and a person can change it. **Step 1 only: no model call, no
 migration, no code.** Not read: teacher-os (`bin/roadmap card M1-11`, D-063/070/071, curriculum-*.md, tables.md) — the
 attach was refused in this session, so the bars below are M1-05's as recorded in this repo, not re-checked against D-063.
-
 ## 1. The structure of a K2 activity page (what exists, what is new)
 | Part | Where it lives now | Sheet column | New? |
 |---|---|---|---|
