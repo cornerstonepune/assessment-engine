@@ -6,7 +6,7 @@ Read `BUILD-ORDER.md` first — it says which of the four workflows we are on, w
 for it, and forbids touching the next one before then. Say "W_, gate _" before doing anything.
 Then `ARCHITECTURE.md` — it settles what runs what, and where n8n is. Then `SPEC.md`.
 Both implement `docs/sources/assessment-workflow-v1.md`, the twelve-node workflow agreed with
-Aseem and Achal. **When any of them disagree, the workflow wins** — its decisions were taken
+the school's staff. **When any of them disagree, the workflow wins** — its decisions were taken
 with the school and are not to be re-derived. Then `STATE.md` (what is verified true) and `HANDOFF.md` (what the last
 session left), both frozen on 2026-10-21, and the newest files in `docs/notes/`, which carry both since. This file is the constitution; `BUILD-ORDER.md` is the sequence; `SPEC.md` is the
 design; `docs/adr/` is why.
