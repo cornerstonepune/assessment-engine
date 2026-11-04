@@ -13,6 +13,7 @@ from engine.core import db
 from engine.w1_bank import cli_map, generate, story_eval, story_shape
 from engine.w1_bank.k2_upload import curriculum_app
 from engine.w1_bank.map_agents import model_ask, recorded_ask
+from engine.w2_print import materials_read_eval
 
 
 def unanswered(r, n):
@@ -122,9 +123,27 @@ def curriculum_eval(
     _curriculum_map(r)
 
 
+def _eval_materials_read(version: int, *_: object) -> None:
+    """materials_read: what code let through from the model's readings of marked requests (M1-16)."""
+    with db.connect() as conn:
+        try:
+            scores = materials_read_eval.evaluate(conn, version or None)
+        except materials_read_eval.NoGold as e:
+            typer.echo(f"NO GOLD  {e}", err=True)
+            raise typer.Exit(1)
+        except LLMError as e:
+            conn.commit()
+            typer.echo(f"MODEL  {e}", err=True)
+            raise typer.Exit(1)
+        conn.commit()  # the flow_run rows: what the eval spent; nothing else is written
+    typer.echo("  " + " · ".join(f"{k} {v:.3f}" for k, v in scores.items()))
+    held("materials_read", scores)
+
+
 # the scorers `engine eval` hands (version, dev, validate_version); most use only the version they score
 BY_VERSION = {
     generate.PURPOSE: _eval_english_generate,
     story_shape.PURPOSE: _eval_story_shape,
     cli_map.PURPOSE: _eval_curriculum_map,
+    materials_read_eval.PURPOSE: _eval_materials_read,
 }

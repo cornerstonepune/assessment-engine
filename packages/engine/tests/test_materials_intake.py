@@ -122,3 +122,14 @@ def test_a_photograph_with_a_person_in_it_is_not_read_and_not_kept(conn, monkeyp
     got = mi.read_note(conn, lid, "", s["staff"], m.MON, image=b"photo")
     assert [r.status for r in got] == ["needs_person"] and "person" in got[0].reason
     assert [ln for g in ml.read(conn, lid)["groups"] for ln in g["lines"]] == []
+
+
+@pytestmark_db
+def test_an_answer_that_does_not_say_whether_a_person_is_visible_is_not_read(conn, monkeypatch):
+    s = m.school(conn)
+    pen = m.item(conn, s, "Pen", "piece")
+    lid = ml.build(conn, s["class"], "fortnight", m.MON, m.MON)
+    _fake(monkeypatch, {"readings": [{"text": "20 pens", "item_code": pen, "quantity": 20, "unit": "piece"}]})
+    got = mi.read_note(conn, lid, "20 pens", s["staff"], m.MON, image=b"photo")
+    assert [r.status for r in got] == ["needs_person"]
+    assert [ln for g in ml.read(conn, lid)["groups"] for ln in g["lines"]] == []

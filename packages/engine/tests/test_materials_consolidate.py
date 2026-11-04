@@ -53,9 +53,9 @@ def test_two_classes_needing_one_item_make_one_line_with_the_total_and_where_it_
     got = mc.read(conn, mc.build(conn, s["tenant"], LO, HI))
     [line] = [x for x in got["lines"] if x["material_code"] == clay]
     assert (line["quantity"], line["unit"]) == (5, "packet")
-    assert {(f["class_id"], f["activity_code"], f["quantity"]) for f in line["from"]} == {
-        (s["class"], s["acts"][0], 2),
-        (two, s["acts"][1], 3),
+    assert {(f["class_id"], tuple(f["activity_codes"]), f["quantity"]) for f in line["from"]} == {
+        (s["class"], (s["acts"][0],), 2),
+        (two, (s["acts"][1],), 3),
     }
 
 
@@ -123,3 +123,17 @@ def test_a_class_dropping_its_need_after_the_build_lowers_the_total_and_shows_as
         5,
         2,
     )
+
+
+def test_a_week_list_inside_a_fortnight_list_of_the_same_class_is_not_counted_twice(conn):
+    s = m.school(conn)
+    a = s["acts"][0]
+    clay = m.item(conn, s, "Clay", "packet")
+    m.needs(conn, s, a, clay, 2)
+    m.planned(conn, s, LO, a)
+    fortnight = ml.build(conn, s["class"], "fortnight", LO, LO + dt.timedelta(days=13))
+    week = ml.build(conn, s["class"], "week", LO, LO + dt.timedelta(days=6))
+    got = mc.read(conn, mc.build(conn, s["tenant"], LO, HI))
+    [line] = [x for x in got["lines"] if x["material_code"] == clay]
+    assert line["quantity"] == 2  # not 4
+    assert got["skipped_lists"] == [week] and fortnight not in got["skipped_lists"]

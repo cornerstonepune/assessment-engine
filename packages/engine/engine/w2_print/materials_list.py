@@ -235,6 +235,7 @@ def add(
     needed_on: dt.date,
     activity_code: str | None,
     who: UUID,
+    via: str | None = None,
 ) -> UUID:
     lst = db.one(conn, "select tenant_id from materials_list where id = %s", (list_id,))
     item = conn.execute(
@@ -264,7 +265,14 @@ def add(
             " source = 'educator', updated_at = now() where id = %s returning *",
             (qty, needed_on, activity_code, have["id"]),
         )
-    _edit(conn, line, "add", who, None, {"quantity": _num(qty), "needed_on": str(needed_on)})
+    _edit(
+        conn,
+        line,
+        "add",
+        who,
+        None,
+        {"quantity": _num(qty), "needed_on": str(needed_on)} | ({"via": via} if via else {}),
+    )
     return line["id"]
 
 
