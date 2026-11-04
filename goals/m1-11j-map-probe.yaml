@@ -1,0 +1,28 @@
+name: m1-11j-map-probe
+goal: >
+  One call to the proposer, about one dev-set activity asked as the eval asks it, tells whether the vendor accepts the
+  request that hands it the reply's shape (proposer v3, M1-11e), before a full dev run is paid for. It prints the HTTP
+  status and whether the reply passed the local check, and nothing else, because the run's log is public.
+# Written 2026-11-04 (task M1-11j). W1, gate N1. The words are the orchestrator's brief of that day; the originals are
+# not in this repository. Nothing here has made a model call.
+says:
+  - words: "One activity, proposer v3, dev_eval, allowlisted run choice, spends about INR 1."
+    proved_by: "packages/engine/tests/test_map_probe.py::test_one_question_is_asked_of_the_proposer_about_the_one_activity_and_no_other"
+  - words: "One activity, proposer v3, dev_eval, allowlisted run choice, spends about INR 1."
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_a_run_that_spends_is_for_a_named_person_and_its_page_commands_name_their_stage_and_who"
+  - words: "It must print the HTTP status and whether the reply passed the local check, nothing else."
+    proved_by: "packages/engine/tests/test_map_probe.py::test_what_is_printed_is_one_line_with_no_words_of_the_school"
+  - words: "It must print the HTTP status and whether the reply passed the local check, nothing else."
+    proved_by: "packages/engine/tests/test_map_probe.py::test_a_refused_request_gives_its_status_and_not_the_vendors_words"
+  - words: "It must print the HTTP status and whether the reply passed the local check, nothing else."
+    proved_by: "packages/engine/tests/test_map_probe.py::test_a_reply_that_broke_the_local_check_says_so_without_the_reason"
+manual:
+  - "Dispatch `map_probe` (a choice of the curriculum run workflow) once Nimish has said yes to the spend (about INR 1). The line it prints is the answer; do not run `map_dev` before it."
+  - "The probe's call is labelled `probe:` on its flow_run row, so a `map_dev` run replayed afterwards does not read it as part of the run (test_a_probe_call_is_not_part_of_a_stored_run)."
+criteria:
+  - name: the probe, the replay and the run choices
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_probe.py tests/test_map_replay.py tests/test_curriculum_run_command.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

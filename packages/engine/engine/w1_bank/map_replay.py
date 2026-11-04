@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 from engine.adapters import llm, llm_budget
 from engine.core import db
 from engine.w1_bank.map_agents import PROPOSE, VALIDATE, Ask, Proposal, Reply
+from engine.w1_bank.map_probe import LABEL as PROBE
 
 Call = tuple[datetime, str, str, str, Reply, str]  # (when, purpose, about, outcome, reply, reason)
 
@@ -125,12 +126,14 @@ def explain(made: Sequence[Proposal], gold: dict[str, frozenset[str]], min_confi
 
 
 def stored(conn: db.Conn) -> list[Call]:
-    """Every kept dev-stage reply of the two mapping prompts, with what it was for when the row says."""
+    """Every kept dev-stage reply of the two mapping prompts, with what it was for when the row says. A probe's call
+    (map_probe) is not part of any run and is left out."""
     rows = conn.execute(
         "select started_at, flow, coalesce(request->>'about', '') as about, result->>'outcome' as outcome,"
         " result->'reply' as reply, coalesce(result->>'reason', '') as reason from flow_run"
-        " where flow = any(%s) and trigger = %s and result ? 'outcome' order by started_at",
-        ([PROPOSE, VALIDATE], llm_budget.trigger_for("dev_eval")),
+        " where flow = any(%s) and trigger = %s and result ? 'outcome' and coalesce(request->>'about', '') not like %s"
+        " order by started_at",
+        ([PROPOSE, VALIDATE], llm_budget.trigger_for("dev_eval"), PROBE + "%"),
     ).fetchall()
     return [
         (r["started_at"], r["flow"], r["about"], r["outcome"], r["reply"] or {}, r["reason"]) for r in rows
