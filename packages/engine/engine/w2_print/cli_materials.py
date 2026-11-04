@@ -39,6 +39,7 @@ def month(
     typer.echo(f"school list {got['consolidated_id']}: {len(got['built'])} classes built")
     for key, why in (
         ("no_plan", "no plan to build from"),
+        ("no_fortnight", "planned on days no school fortnight covers"),
         ("no_materials", "its plan asks for no materials"),
     ):
         for c in got[key]:
@@ -55,6 +56,11 @@ def cost() -> None:
         f" Rs {r['cost_inr']:.2f} (${r['cost_usd']:.3f}), {r['share_of_limit']:.0%} of the cap"
         f" (${r['limit_usd']:.2f} of ${r['cap_usd']})"
     )
+    if not r["spend_known"]:
+        typer.echo(
+            f"  spend unknown: {r['running']} calls still running, {r['cost_unknown']} answered with no cost recorded;"
+            " the cap's gate stops until a person has looked"
+        )
     if r["avg_tokens_in"] is not None:
         typer.echo(f"  per call: {r['avg_tokens_in']} tokens in, {r['avg_tokens_out']} out on average")
 

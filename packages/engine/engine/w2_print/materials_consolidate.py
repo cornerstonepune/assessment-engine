@@ -289,15 +289,38 @@ def with_sessions(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> set[
 
 
 def short_of(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> dict[str, list[dict[str, Any]]]:
-    """Which classes the school's list is short of, now: those with no plan to build from, and those whose plan asks
-    for no materials. Each is named, so a person can read it."""
+    """Which classes the school's list is short of, now, and why: `no_plan` (nothing planned to build from),
+    `no_fortnight` (planned, but on days no school fortnight covers, so no list could be made) and `no_materials`
+    (a list was made and its plan asks for none). Each is named, so a person can read it."""
     names, planned = class_names(conn, tenant), with_sessions(conn, tenant, lo, hi)
-    expected = planned_classes(conn, tenant, lo, hi)
     items, _ = _gather(conn, tenant, lo, hi)
     giving = {c for item in items.values() for c in item["from"]}
+    listed = {
+        r["school_class_id"]
+        for r in conn.execute(
+            "select distinct school_class_id from materials_list where tenant_id = %s and from_on <= %s and to_on >= %s",
+            (tenant, hi, lo),
+        )
+    }
+    expected = planned_classes(conn, tenant, lo, hi)
+
+    def named(ids: list[UUID]) -> list[dict[str, Any]]:
+        return [{"class_id": c, "class": names[c]} for c in ids]
+
     return {
-        "no_plan": [{"class_id": c, "class": names[c]} for c in expected if c not in planned],
-        "no_materials": [
-            {"class_id": c, "class": names[c]} for c in expected if c in planned and c not in giving
-        ],
+        "no_plan": named([c for c in expected if c not in planned]),
+        "no_fortnight": named([c for c in expected if c in planned and c not in listed]),
+        "no_materials": named([c for c in expected if c in listed and c not in giving]),
+    }
+
+
+def classes_in(conn: db.Conn, cid: UUID) -> set[UUID]:
+    """The classes that give something to the school list's latest build."""
+    return {
+        r["class_id"]
+        for r in conn.execute(
+            "select distinct class_id from materials_consolidated_source s join materials_consolidated c"
+            " on c.id = s.consolidated_id and c.latest_build = s.build where s.consolidated_id = %s",
+            (cid,),
+        )
     }

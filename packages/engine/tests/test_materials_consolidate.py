@@ -150,10 +150,11 @@ def test_a_class_with_two_lists_in_the_month_has_them_added_not_one_over_the_oth
     m.planned(conn, s, LO + dt.timedelta(days=14), b)
     ml.build(conn, s["class"], "week", LO, LO + dt.timedelta(days=6))
     ml.build(conn, s["class"], "week", LO + dt.timedelta(days=14), LO + dt.timedelta(days=20))
-    [line] = [
-        x for x in mc.read(conn, mc.build(conn, s["tenant"], LO, HI))["lines"] if x["material_code"] == pen
-    ]
+    cid = mc.build(conn, s["tenant"], LO, HI)
+    [line] = [x for x in mc.read(conn, cid)["lines"] if x["material_code"] == pen]
     assert line["quantity"] == 15
+    # an identical rebuild is seen as identical even with two activities in a line
+    assert mc.build(conn, s["tenant"], LO, HI) == cid and mc.read(conn, cid)["build"] == 1
     [from_] = line["from"]
     assert from_["quantity"] == 15 and sorted(from_["activity_codes"]) == sorted([a, b])
 

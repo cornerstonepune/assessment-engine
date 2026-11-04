@@ -98,14 +98,30 @@ def test_building_the_month_again_with_nothing_changed_changes_nothing(conn):
     assert conn.execute("select count(*) as n from materials_list").fetchone()["n"] == lists
 
 
-def test_the_text_sent_to_the_inventory_person_says_which_classes_it_is_short_of(conn):
+def test_the_text_sent_to_the_inventory_person_names_the_classes_not_in_the_list_it_was_built_from(conn):
     s = m.school(conn)
     _planned_class(conn, s, "T-one", s["acts"][0], 2)
     m.another_class(conn, s, "T-bare")
     got = mm.build_month(conn, s["tenant"], LO, HI)
     out = inv.send(conn, got["consolidated_id"], s["staff"])
     note = [ln for ln in out["text"].splitlines() if ln.startswith("Not included")]
-    assert len(note) == 1 and "T-bare" in note[0] and "no plan" in note[0]
+    assert len(note) == 1 and "T-bare" in note[0] and "nothing from them" in note[0]
+    assert "T-one" not in note[0]
+
+
+def test_the_footer_matches_the_lines_even_if_a_plan_changes_after_the_build(conn):
+    s = m.school(conn)
+    _planned_class(conn, s, "T-one", s["acts"][0], 2)
+    late = m.another_class(conn, s, "T-late")
+    got = mm.build_month(conn, s["tenant"], LO, HI)
+    m.needs(conn, s, s["acts"][1], s["clay"], 4)
+    m.planned(conn, s, LO, s["acts"][1], klass=late)  # a plan appears after the build, and is not rebuilt
+    note = [
+        ln
+        for ln in inv.send(conn, got["consolidated_id"], s["staff"])["text"].splitlines()
+        if ln.startswith("Not included")
+    ]
+    assert len(note) == 1 and "T-late" in note[0]  # still not in the lines above it
 
 
 def test_a_month_with_no_class_short_has_no_not_included_line(conn):
@@ -119,3 +135,29 @@ def test_a_month_with_no_class_short_has_no_not_included_line(conn):
         if ln.startswith("Not included")
     ]
     assert ml.read  # the class's own list was made by the month build, not by the test
+
+
+def test_sessions_on_days_no_fortnight_covers_are_named_for_that_and_not_as_a_dry_plan(conn):
+    s = m.school(conn)
+    _planned_class(conn, s, "T-one", s["acts"][0], 2)
+    stray = m.another_class(conn, s, "T-stray")
+    m.needs(conn, s, s["acts"][1], s["clay"], 1)
+    m.planned(
+        conn, s, m.MON + dt.timedelta(days=20), s["acts"][1], klass=stray
+    )  # fortnight 910 ends on day 13
+    got = mm.build_month(conn, s["tenant"], LO, HI)
+    assert [r["class_id"] for r in got["no_fortnight"]] == [stray]
+    assert stray not in {r["class_id"] for r in got["no_materials"]}
+
+
+def test_a_range_wider_than_a_month_is_refused_before_anything_is_built(conn):
+    s = m.school(conn)
+    _planned_class(conn, s, "T-one", s["acts"][0], 2)
+    with pytest.raises(ValueError, match="one month"):
+        mm.build_month(conn, s["tenant"], LO, LO + dt.timedelta(days=400))
+    assert (
+        conn.execute(
+            "select count(*) as n from materials_list where school_class_id <> %s", (s["class"],)
+        ).fetchone()["n"]
+        == 0
+    )

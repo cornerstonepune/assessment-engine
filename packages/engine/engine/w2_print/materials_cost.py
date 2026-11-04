@@ -16,7 +16,9 @@ def report(conn: db.Conn) -> dict[str, Any]:
     start = llm_budget.window_start(conn, camp)
     got = db.one(
         conn,
-        "select count(*) as calls, count(*) filter (where f.status <> 'ok') as errors,"
+        "select count(*) as calls, count(*) filter (where f.status = 'error') as errors,"
+        " count(*) filter (where f.status = 'running') as running,"
+        " count(*) filter (where f.status = 'ok' and f.cost_inr is null) as cost_unknown,"
         " coalesce(sum(f.tokens_in), 0) as tokens_in, coalesce(sum(f.tokens_out), 0) as tokens_out,"
         " coalesce(sum(f.cost_inr), 0) as cost_inr, avg(f.tokens_in) as avg_in, avg(f.tokens_out) as avg_out"
         " from flow_run f join tenant t on t.id = f.tenant_id"
@@ -28,6 +30,10 @@ def report(conn: db.Conn) -> dict[str, Any]:
     return {
         "calls": got["calls"],
         "errors": got["errors"],
+        "running": got["running"],
+        "cost_unknown": got["cost_unknown"],
+        # the gate refuses once a call may be missing from the total (a call still running, or answered with no cost)
+        "spend_known": not (got["running"] or got["cost_unknown"]),
         "tokens_in": int(got["tokens_in"]),
         "tokens_out": int(got["tokens_out"]),
         "cost_inr": float(got["cost_inr"]),

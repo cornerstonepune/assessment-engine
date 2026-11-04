@@ -7,7 +7,7 @@ import datetime as dt
 from typing import Any
 from uuid import UUID
 
-from engine.core import db
+from engine.core import db, settings
 from engine.w2_print import materials_consolidate as mc
 from engine.w2_print import materials_list as ml
 from engine.w2_print import materials_remind as rem
@@ -31,6 +31,9 @@ def build_month(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> dict[s
     and the classes it is short of (`no_plan`, `no_materials`)."""
     if hi < lo:
         raise ValueError("The last day is before the first day.")
+    longest = int(settings.config(conn, "materials.month_build_max_days", 62))
+    if (hi - lo).days + 1 > longest:
+        raise ValueError(f"A month build is for one month: at most {longest} days.")
     names, today = mc.class_names(conn, tenant), rem.school_today(conn)
     built: dict[UUID, None] = {}
     for p in _pairs(conn, tenant, lo, hi):

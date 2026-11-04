@@ -74,3 +74,20 @@ def test_the_command_prints_the_month_in_a_line_a_person_can_read(conn, monkeypa
     finally:
         conn.execute("delete from flow_run where flow = 'materials_read'")
         conn.commit()
+
+
+def test_a_call_still_running_is_not_counted_as_failed_and_the_spend_is_said_to_be_unknown(conn):
+    _call(conn, 4.4, 4000, 200)
+    conn.execute(
+        "insert into flow_run (tenant_id, flow, trigger, status, started_at)"
+        " select id, 'materials_read', 'engine', 'running', now() from tenant where slug = %s",
+        (db.tenant_slug(),),
+    )
+    conn.execute(
+        "insert into flow_run (tenant_id, flow, trigger, status, started_at, finished_at)"
+        " select id, 'materials_read', 'engine', 'ok', now(), now() from tenant where slug = %s",
+        (db.tenant_slug(),),
+    )
+    got = cost.report(conn)
+    assert got["errors"] == 0 and got["running"] == 1 and got["cost_unknown"] == 1
+    assert got["spend_known"] is False

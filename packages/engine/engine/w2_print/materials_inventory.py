@@ -46,10 +46,13 @@ def send(conn: db.Conn, cid: UUID, who: UUID) -> dict[str, Any]:
     body = [f"School materials, {materials_text.short(got['from'])} to {materials_text.short(got['to'])}"]
     body += [_line(item, last) for item in got["lines"]]
     tenant = db.one(conn, "select tenant_id from materials_consolidated where id = %s", (cid,))["tenant_id"]
-    short = materials_consolidate.short_of(conn, tenant, got["from"], got["to"])
-    for key, why in (("no_plan", "no plan yet"), ("no_materials", "its plan asks for no materials")):
-        if short[key]:
-            body.append(f"Not included: {', '.join(c['class'] for c in short[key])} ({why})")
+    # the classes absent from the very build the lines above come from (not from today's plans)
+    names = materials_consolidate.class_names(conn, tenant)
+    expected = materials_consolidate.planned_classes(conn, tenant, got["from"], got["to"])
+    giving = materials_consolidate.classes_in(conn, cid)
+    missing = sorted(names[c] for c in expected if c not in giving)
+    if missing:
+        body.append(f"Not included: {', '.join(sorted(missing))} (nothing from them in this list)")
     if last is not None:
         gone = [c for c in last if c not in {x["material_code"] for x in got["lines"]}]
         body += [f"[x] {last[c]['item']}: no longer needed since the last list" for c in gone]

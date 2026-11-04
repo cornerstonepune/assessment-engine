@@ -748,6 +748,12 @@
       "description": "The largest picture, in bytes, the engine accepts for a photographed materials note (M1-16). The site's own upload limit (about 4.5 MB through Vercel) is lower.",
       "value": 10000000,
       "seed_once": true
+    },
+    {
+      "key": "materials.month_build_max_days",
+      "description": "The longest range, in days, one month build (engine materials month, the coordinator's Build) accepts: a mistyped date cannot start a build of years (M1-16).",
+      "value": 62,
+      "seed_once": true
     }
   ]
 }
