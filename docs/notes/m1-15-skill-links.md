@@ -33,4 +33,14 @@ Next: orchestrator confirms main has M1-10's migration, then one push (draft PR)
 educator's list: `bin/engine skill-links load <file>`, a person confirms each by id.
 
 ## Verified
-(filled in below from the last runs)
+On the rebased tree (main at a7e9095, M1-10's migration included), on a database built by `bin/testdb fresh`:
+- `bin/engine goal m1-15-skill-links` → scenario met, 2/2 criteria, `GOAL ACHIEVED` (scenario: list of 3 test pairs loads as 3 proposals,
+  a second load adds 0, micro-steps unchanged and 0 read, one confirmation adds exactly one link a reader sees).
+- `bin/engine promises` → every promise has its command. `bin/check` passes (inside the goal's second criterion).
+- Whole engine suite in 12 shards (`bin/ci-shard pick K 12`), each on its own copy of the fresh database: shards 1–11 all passed
+  (113, 215, 265, 188, 845, 198, 213..., sums per shard in the PR); shard 12: 398 passed, 2 failed — `tests/test_spine_provenance.py` (both),
+  because this sandbox's proxy certificate blocks the download of NCERT's PDFs (`CERTIFICATE_VERIFY_FAILED`). Not touched by this change;
+  **unverified here**, CI fetches those PDFs.
+- `rules.json` regenerated from a database built from the migrations alone: 746 rules, identical to the committed file.
+- The migration on the 282 old-shape rows (a database with live's seed, before the migration): all 282 `proposed`, `seed rule`, `soft`,
+  0 confirmed (167 maths reason, 115 English reason); run twice, the second changes nothing.
