@@ -148,6 +148,37 @@
       ]
     },
     {
+      "key": "llm.campaigns",
+      "description": "A piece of work with its own money (M1-11, Nimish 4 Nov: up to 25 US dollars for the whole drafting run, Sonnet-class models, Haiku for simple steps). The adapter adds up what these purposes have cost (flow_run.cost_inr) and refuses a call before making it once the total reaches cap less margin; the margin covers calls in flight. inr_per_usd is the rate llm.prices was written at. A stage (dev_eval 4, held_out 7 dollars; draft has only the campaign's cap) is tagged on each call as flow_run.trigger 'engine:<stage>'. A call left 'running' longer than stale_minutes counts its spend as unknown and stops the campaign. Raise a cap here, by a pull request, never in code.",
+      "value": {
+        "m1-11": {
+          "purposes": ["curriculum_map_propose", "curriculum_map_validate", "k2_page_draft", "k2_page_validate", "k2_materials_split"],
+          "cap_usd": 25,
+          "margin_usd": 2,
+          "stages": {"dev_eval": 4, "held_out": 7, "draft": null},
+          "stage_margin_usd": 0.25,
+          "stale_minutes": 10,
+          "inr_per_usd": 88
+        }
+      }
+    },
+    {
+      "key": "k2.drafting",
+      "description": "How the K2 drafting run is cut and forecast (M1-11): pages per drafting or checking call, materials texts per call, how many more times a page still bad is asked for, how many replies in a row may break their schema before the run stops, and the tokens per page ASSUMED for the forecast (not measured; replace with the measured mean after the dev eval). Operational tuning, so a config row, not a threshold (a threshold is a rule the school reads about itself).",
+      "value": {
+        "batch_pages": 4,
+        "batch_materials": 10,
+        "batch_rounds": 2,
+        "stop_after_bad_replies": 3,
+        "est_draft_in": 1000,
+        "est_draft_out": 700,
+        "est_check_in": 1200,
+        "est_check_out": 250,
+        "est_split_in": 400,
+        "est_split_out": 300
+      }
+    },
+    {
       "key": "llm.fallback_models",
       "description": "Tried in order after the prompt row's own model. Haiku is the cheap Anthropic fallback; the Gemini free tier is the last resort (20 requests per model per day).",
       "value": [

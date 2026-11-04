@@ -14,6 +14,7 @@ import uuid
 from psycopg.rows import DictRow
 
 from engine.core import db
+from engine.w1_bank.k2_gaps import column
 from engine.w1_bank.map_agents import Proposal
 from engine.w1_bank.map_check import LEVELS
 
@@ -112,7 +113,7 @@ def settle(conn: db.Conn, tenant: db.Id, about: db.Id, yes: bool, staff: db.Id, 
     _follow(conn, tenant, about, "approved" if yes else "rejected", staff, why)
 
 
-def _changed_by(conn: db.Conn, who: str) -> None:
+def changed_by(conn: db.Conn, who: str) -> None:
     conn.execute("select set_config('app.changed_by', %s, true)", (who,))
 
 
@@ -143,6 +144,10 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
             (tenant, code, lo, p["id"], tenant, code),
         )
         return f"{code} → {lo}"
+    if p["kind"] == "page_part":
+        return _page_part(conn, tenant, p)
+    if p["kind"] == "material":
+        return _material(conn, tenant, p)
     for f, text in sorted(body["levels"].items()):
         if f not in LEVELS:  # the checks refused it; a column name never comes from a reply
             raise ValueError(f"{f} is not a level")
@@ -151,6 +156,57 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
             (text, tenant, code),
         )
     return f"{code} levels {', '.join(sorted(body['levels']))}"
+
+
+def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
+    """A drafted page's parts written where they are still empty, each marked drafted and naming the proposal."""
+    code, wrote, doubt = p["subject_code"], [], p["now"] == "needs_person"
+    for part, text in sorted(p["proposal"]["parts"].items()):
+        col = column(part)  # a column name never comes from a reply
+        hit = conn.execute(
+            f"update activity set {col} = %s where tenant_id = %s and code = %s and btrim({col}) = ''"  # noqa: S608
+            " returning code",
+            (text, tenant, code),
+        ).fetchone()
+        if hit:
+            conn.execute(
+                "insert into activity_part_source (tenant_id, activity_code, part, source, proposal_id, check_me)"
+                " values (%s,%s,%s,'drafted',%s,%s) on conflict (tenant_id, activity_code, part)"
+                " do update set source = 'drafted', proposal_id = excluded.proposal_id, check_me = excluded.check_me",
+                (tenant, code, part, p["id"], doubt),
+            )
+            wrote.append(part)
+    return f"{code} drafted {', '.join(wrote) or 'nothing (every part had words by then)'}"
+
+
+def _material(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
+    """A materials text's lines: catalogue items found by name or made (no home or value is invented), one line each."""
+    code = p["subject_code"]
+    for i, it in enumerate(p["proposal"]["items"], 1):
+        item = conn.execute(
+            "select code from material_item where tenant_id = %s and lower(name) = lower(%s)",
+            (tenant, it["name"]),
+        ).fetchone()
+        mat = item["code"] if item else _new_material(conn, tenant, it, p["id"])
+        conn.execute(
+            "insert into activity_material (tenant_id, activity_code, material_code, quantity, ord, source, proposal_id)"
+            " values (%s,%s,%s,%s,%s,'machine',%s) on conflict do nothing",
+            (tenant, code, mat, it["quantity"], i, p["id"]),
+        )
+    return f"{code} materials: {', '.join(it['name'] for it in p['proposal']['items'])}"
+
+
+def _new_material(conn: db.Conn, tenant: db.Id, it: dict, proposal: db.Id) -> str:
+    n = db.one(
+        conn,
+        "select coalesce(max(substring(code from '[0-9]+$')::int), 0) + 1 as n from material_item where tenant_id = %s",
+        (tenant,),
+    )["n"]
+    conn.execute(
+        "insert into material_item (tenant_id, code, name, unit, proposal_id) values (%s,%s,%s,%s,%s)",
+        (tenant, f"MAT-{n:04d}", it["name"], it["unit"], proposal),
+    )
+    return f"MAT-{n:04d}"
 
 
 def _new_objective(conn: db.Conn, tenant: db.Id, activity: str, title: str) -> str:
@@ -180,11 +236,13 @@ def apply(conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool) -> list[str]:
         "select max(number) as n from curriculum_version where tenant_id = %s", (tenant,)
     ).fetchone()
     done: list[str] = []
-    for p in [*standing(conn, tenant, "auto_passed"), *standing(conn, tenant, "approved")]:
+    # a drafted page part waiting for a person is written too, tagged check_me: K2 has no empty part (D-071)
+    doubtful = [p for p in standing(conn, tenant, "needs_person") if p["kind"] == "page_part"]
+    for p in [*standing(conn, tenant, "auto_passed"), *standing(conn, tenant, "approved"), *doubtful]:
         if not write:
             done.append(f"{p['kind']}: {p['subject_code']} {json.dumps(p['proposal'], ensure_ascii=False)}")
             continue
-        _changed_by(conn, f"machine:{p['id']} staff:{staff}")
+        changed_by(conn, f"machine:{p['id']} staff:{staff}")
         done.append(_link(conn, tenant, p))
         _follow(conn, tenant, p["id"], "applied", staff, "", "apply", version["n"] if version else None)
     return done
@@ -197,10 +255,29 @@ def revert(conn: db.Conn, tenant: db.Id, about: db.Id, staff: db.Id | None, why:
     if not rows:
         raise ValueError(f"{about} is not applied")
     p = rows[0]
-    _changed_by(conn, f"revert:{p['id']} staff:{staff}")
-    for table in ("activity_skill", "activity_objective", "learning_objective_skill"):
+    changed_by(conn, f"revert:{p['id']} staff:{staff}")
+    for table in ("activity_skill", "activity_objective", "learning_objective_skill", "activity_material"):
         conn.execute(
             f"delete from {table} where tenant_id = %s and proposal_id = %s and source = 'machine'",  # noqa: S608
+            (tenant, p["id"]),
+        )
+    if p["kind"] == "material":
+        conn.execute(
+            "delete from material_item i where i.tenant_id = %s and i.proposal_id = %s and not exists"
+            " (select 1 from activity_material m where m.tenant_id = i.tenant_id and m.material_code = i.code)",
+            (tenant, p["id"]),
+        )
+    if p["kind"] == "page_part":
+        for part, text in sorted(p["proposal"]["parts"].items()):
+            col = column(part)
+            conn.execute(
+                f"update activity set {col} = '' where tenant_id = %s and code = %s and {col} = %s"  # noqa: S608
+                " and exists (select 1 from activity_part_source s where s.tenant_id = %s and s.activity_code = %s"
+                " and s.part = %s and s.proposal_id = %s and s.source = 'drafted')",  # a person's kept words stay
+                (tenant, p["subject_code"], text, tenant, p["subject_code"], part, p["id"]),
+            )
+        conn.execute(
+            "delete from activity_part_source where tenant_id = %s and proposal_id = %s and source = 'drafted'",
             (tenant, p["id"]),
         )
     if p["kind"] == "levels":

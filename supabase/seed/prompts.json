@@ -2985,6 +2985,332 @@
           }
         }
       }
+    },
+    {
+      "purpose": "k2_page_draft",
+      "version": 1,
+      "model": "claude-sonnet-5-5",
+      "active": false,
+      "text_file": "prompts/k2_page_draft.v1.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "objective",
+          "steps",
+          "thinking",
+          "level_0",
+          "level_1",
+          "level_2",
+          "level_3",
+          "flags",
+          "confidence",
+          "reason"
+        ],
+        "properties": {
+          "objective": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "string"
+          },
+          "thinking": {
+            "type": "string"
+          },
+          "level_0": {
+            "type": "string"
+          },
+          "level_1": {
+            "type": "string"
+          },
+          "level_2": {
+            "type": "string"
+          },
+          "level_3": {
+            "type": "string"
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "purpose": "k2_page_validate",
+      "version": 1,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/k2_page_validate.v1.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verdict",
+          "why"
+        ],
+        "properties": {
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "agree",
+              "disagree"
+            ]
+          },
+          "why": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "purpose": "k2_materials_split",
+      "version": 1,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/k2_materials_split.v1.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "reason"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "quantity",
+                "unit"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "unit": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "purpose": "k2_page_draft",
+      "version": 2,
+      "model": "claude-sonnet-5-5",
+      "active": false,
+      "text_file": "prompts/k2_page_draft.v2.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pages"
+        ],
+        "properties": {
+          "pages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "key"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "objective": {
+                  "type": "string"
+                },
+                "steps": {
+                  "type": "string"
+                },
+                "thinking": {
+                  "type": "string"
+                },
+                "level_0": {
+                  "type": "string"
+                },
+                "level_1": {
+                  "type": "string"
+                },
+                "level_2": {
+                  "type": "string"
+                },
+                "level_3": {
+                  "type": "string"
+                },
+                "flags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "confidence": {
+                  "type": "number"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "k2_page_validate",
+      "version": 2,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/k2_page_validate.v2.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verdicts"
+        ],
+        "properties": {
+          "verdicts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "key",
+                "verdict",
+                "why"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "verdict": {
+                  "type": "string",
+                  "enum": [
+                    "agree",
+                    "disagree"
+                  ]
+                },
+                "why": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "k2_materials_split",
+      "version": 2,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/k2_materials_split.v2.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "lists"
+        ],
+        "properties": {
+          "lists": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "key",
+                "items"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "quantity",
+                      "unit"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "quantity": {
+                        "type": [
+                          "number",
+                          "null"
+                        ]
+                      },
+                      "unit": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "purpose": "curriculum_map_validate",
+      "version": 2,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/curriculum_map_validate.v2.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verdict",
+          "why"
+        ],
+        "properties": {
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "agree",
+              "disagree"
+            ]
+          },
+          "why": {
+            "type": "string"
+          }
+        }
+      }
     }
   ]
 }

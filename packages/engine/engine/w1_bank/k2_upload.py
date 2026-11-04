@@ -17,10 +17,12 @@ from pathlib import Path
 import typer
 
 from engine.core import db
+from engine.w1_bank import k2_gaps as gaps
 
 SEED = db.REPO_ROOT / "supabase" / "seed" / "k2_sheet.json"
 BULLET = re.compile(r"^\s*(?:[•·●▪◦*–—-]|\d+[.)])\s*")
-FIELDS = ("strand", "objective", "materials", "level_0", "level_1", "level_2", "level_3", "sheet_no")
+FIELDS = ("strand", "objective", "steps", "materials", "level_0", "level_1", "level_2", "level_3", "sheet_no")
+PARTS = tuple(f for f in FIELDS if f in gaps.PARTS)  # the sheet's fields that are parts of a page
 
 
 def config() -> dict:
@@ -209,7 +211,7 @@ def report(p: Plan, skipped: list[tuple[int, str]], n_rows: int, n_db: int) -> s
 def snapshot(conn, tenant) -> tuple[list[dict], set[tuple[str, str]]]:
     cfg = config()
     dbrows = conn.execute(
-        "select code, strand, name, objective, materials, level_0, level_1, level_2, level_3, sheet_no from activity"
+        "select code, strand, name, objective, steps, thinking, materials, level_0, level_1, level_2, level_3, sheet_no from activity"
         " where tenant_id = %s and band = %s",
         (tenant, cfg["band"]),
     ).fetchall()
@@ -222,6 +224,17 @@ def snapshot(conn, tenant) -> tuple[list[dict], set[tuple[str, str]]]:
         ).fetchall()
     }
     return dbrows, edited
+
+
+def mark_school(conn, tenant, code: str, parts: list[str]) -> None:
+    """These parts of this page are the school's words now. A part a person changed stays the person's."""
+    for part in parts:
+        conn.execute(
+            "insert into activity_part_source (tenant_id, activity_code, part, source) values (%s,%s,%s,'school')"
+            " on conflict (tenant_id, activity_code, part) do update set source = 'school', proposal_id = null"
+            " where activity_part_source.source = 'drafted'",
+            (tenant, code, part),
+        )
 
 
 def apply(conn, tenant, p: Plan, by: str) -> dict[str, int]:
@@ -240,6 +253,7 @@ def apply(conn, tenant, p: Plan, by: str) -> dict[str, int]:
             f"update activity set {sets} where tenant_id = %s and code = %s",  # noqa: S608 — field names come from FIELDS
             [now for _, now in diff.values()] + [tenant, code],
         )
+        mark_school(conn, tenant, code, [f for f in diff if f in PARTS])
     codes: dict[int, str] = {}
     for r in p.inserts:
         top += 1
@@ -247,9 +261,9 @@ def apply(conn, tenant, p: Plan, by: str) -> dict[str, int]:
         codes[r.line] = code
         v = r.values
         conn.execute(
-            "insert into activity (tenant_id, code, band, strand, name, objective, materials, level_0, level_1, level_2,"
+            "insert into activity (tenant_id, code, band, strand, name, objective, steps, materials, level_0, level_1, level_2,"
             " level_3, sheet_no, source_file, source_tab, source_row, source_url)"
-            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+            " values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
             (
                 tenant,
                 code,
@@ -257,6 +271,7 @@ def apply(conn, tenant, p: Plan, by: str) -> dict[str, int]:
                 v["strand"],
                 v["name"],
                 v["objective"],
+                v["steps"],
                 v["materials"],
                 v["level_0"],
                 v["level_1"],
@@ -269,6 +284,7 @@ def apply(conn, tenant, p: Plan, by: str) -> dict[str, int]:
                 f"https://docs.google.com/spreadsheets/d/{cfg['sheet_id']}/edit",
             ),
         )
+        mark_school(conn, tenant, code, [f for f in PARTS if v.get(f)])
     made = 0
     for code, i, title, r in p.objectives:
         code = code or codes[r.line]
@@ -327,6 +343,7 @@ def k2(
         dbrows, edited = snapshot(conn, tenant)
         p = plan(rows, dbrows, edited)
         typer.echo(report(p, skipped, len(rows), len(dbrows)))
+        typer.echo(gaps.report([{**r.values, "code": f"sheet row {r.line}"} for r in rows], dbrows))
         if do_apply:
             typer.echo(f"applied: {apply(conn, tenant, p, f'{cfg["upload_label"]} — {by.strip()}')}")
         else:
