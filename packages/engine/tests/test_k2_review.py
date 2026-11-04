@@ -51,7 +51,7 @@ def _text(conn, part):
 def test_keeping_a_draft_leaves_its_words_clears_the_doubt_and_makes_it_the_persons(page):
     assert _marks(page, "KX-1")["steps"] == ("drafted", True)
     review.keep(page, page.t, page.staff, "KX-1", "steps")
-    assert _text(page, "steps") == "s"
+    assert _text(page, "steps") == "\u2022 s"
     assert _marks(page, "KX-1")["steps"] == ("person", False)
     assert _marks(page, "KX-1")["thinking"] == ("drafted", True), "the other parts are untouched"
 
@@ -65,14 +65,16 @@ def test_changing_a_draft_writes_the_new_words_as_the_persons_and_the_history_sa
     seen = page.execute(
         "select before, after, changed_by from curriculum_edit where code = 'KX-1' and field = 'steps' order by created_at"
     ).fetchall()
-    assert (seen[-1]["before"], seen[-1]["changed_by"]) == ("s", f"staff:{page.staff}"), "ids, never a name"
+    assert (seen[-1]["before"], seen[-1]["changed_by"]) == ("\u2022 s", f"staff:{page.staff}"), (
+        "ids, never a name"
+    )
     assert seen[-1]["after"].startswith("Sit in a circle")
 
 
 def test_changing_a_draft_to_nothing_is_refused_use_reject_for_that(page):
     with pytest.raises(ValueError, match="reject"):
         review.change(page, page.t, page.staff, "KX-1", "steps", "   ")
-    assert _text(page, "steps") == "s"
+    assert _text(page, "steps") == "\u2022 s"
 
 
 def test_rejecting_a_draft_empties_the_part_and_takes_its_mark_away(page):
@@ -98,7 +100,7 @@ def test_a_part_a_person_already_made_theirs_cannot_be_kept_changed_or_rejected_
     review.keep(page, page.t, page.staff, "KX-1", "steps")
     with pytest.raises(ValueError, match="not a drafted part"):
         review.reject(page, page.t, page.staff, "KX-1", "steps")
-    assert _text(page, "steps") == "s"
+    assert _text(page, "steps") == "\u2022 s"
 
 
 def test_reverting_the_draft_afterwards_leaves_the_persons_part_alone(page):
@@ -123,7 +125,7 @@ def test_reverting_the_draft_never_wipes_a_part_a_person_kept_with_its_words_unc
     review.keep(page, page.t, page.staff, "KX-1", "steps")  # same words, now the person's
     (p,) = map_ledger.standing(page, page.t, "applied")
     map_ledger.revert(page, page.t, p["id"], page.staff, "test")
-    assert _text(page, "steps") == "s", (
+    assert _text(page, "steps") == "\u2022 s", (
         "a person's approval is not undone by a revert of the machine's proposal"
     )
     assert _marks(page, "KX-1")["steps"] == ("person", False)

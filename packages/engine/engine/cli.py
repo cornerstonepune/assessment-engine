@@ -19,6 +19,7 @@ from engine.w1_bank import (
     bank,
     generate,
     k2_draft,  # noqa: F401 — registers `curriculum draft` and `curriculum materials`
+    k2_gold,  # noqa: F401 — registers `curriculum gold-sheet`
     mistake_guess,
     review,
     spec,
