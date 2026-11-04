@@ -50,7 +50,7 @@ _ROWS = """
 select d.on_date, d.kind as day_kind, d.note, f.number, f.starts_on, f.ends_on,
   case when f.id is null then null when d.on_date - f.starts_on < 7 then 'A' else 'B' end as week,
   p.id::text as period_id, p.starts_at, p.ends_at, p.label, p.fixed, ts.kind, ts.subject_code,
-  coalesce(s.text, ts.text) as text, s.state, pe.text as line, a.id::text as activity_id, a.code, a.name
+  coalesce(s.text, ts.text) as text, s.state, pe.text as line, pe.id::text as entry_id, a.id::text as activity_id, a.code, a.name
 from school_day d
 left join fortnight f on f.academic_year_id = %(year)s and d.on_date between f.starts_on and f.ends_on
 left join timetable_slot ts on ts.school_class_id = %(cls)s and d.kind <> 'holiday'
@@ -75,7 +75,7 @@ def _period(r: dict) -> dict:
     return {
         "period_id": r["period_id"], "starts_at": _hm(r["starts_at"]), "ends_at": _hm(r["ends_at"]),
         "label": r["label"], "fixed": r["fixed"], "kind": r["kind"], "subject": r["subject_code"],
-        "text": r["text"] or "", "line": r["line"], "state": r["state"] or "planned", "activity": act,
+        "text": r["text"] or "", "line": r["line"], "plan_entry_id": r["entry_id"], "state": r["state"] or "planned", "activity": act,
     }  # fmt: skip
 
 
@@ -110,61 +110,40 @@ def days(conn: db.Conn, klass: dict, dates: list[dt.date]) -> list[dict]:
     ]
 
 
+def _who(klass: dict, classes: list[dict]) -> dict:
+    # `frozen` is the month lock (M1-12): false until that exists, so a screen reads it and never guesses
+    return {"classes": [_public(c) for c in classes], "class": _public(klass), "frozen": False}
+
+
 def day(conn: db.Conn, klass: dict, classes: list[dict], on: dt.date) -> dict:
-    return {"classes": [_public(c) for c in classes], "class": _public(klass), **days(conn, klass, [on])[0]}
+    return {**_who(klass, classes), **days(conn, klass, [on])[0]}
 
 
 def week(conn: db.Conn, klass: dict, classes: list[dict], any_day: dt.date) -> dict:
     monday = any_day - dt.timedelta(days=any_day.weekday())
     five = days(conn, klass, [monday + dt.timedelta(d) for d in range(5)])
-    first = five[0]
     return {
-        "classes": [_public(c) for c in classes], "class": _public(klass), "week_of": monday.isoformat(),
-        "week": first["week"], "fortnight": first["fortnight"], "days": five,
+        **_who(klass, classes), "week_of": monday.isoformat(), "week": five[0]["week"],
+        "fortnight": five[0]["fortnight"], "days": five,
     }  # fmt: skip
 
 
 def period(conn: db.Conn, klass: dict, classes: list[dict], on: dt.date, period_id: str) -> dict:
-    one = next((p for p in days(conn, klass, [on])[0]["periods"] if p["period_id"] == str(period_id)), None)
+    """One period of one day, with the planner lines for its subject in this fortnight. The activity's own text is the
+    activity page's (`/activity`): here it is only who it is."""
+    today = days(conn, klass, [on])[0]
+    one = next((p for p in today["periods"] if p["period_id"] == str(period_id)), None)
     if one is None:
         raise Refused("That period is not on this day.", 404)
-    detail, lines = None, []
-    if one["activity"]:
-        a = db.one(
-            conn,
-            "select id::text, code, name, strand, materials, objective, level_0, level_1, level_2, level_3"
-            " from activity where id = %s",
-            (one["activity"]["id"],),
-        )
-        detail = {
-            "id": a["id"], "code": a["code"], "name": a["name"], "strand": a["strand"], "tlms": a["materials"] or None,
-            "lesson_plan": None, "learning_outcomes": a["objective"] or None,
-            "levels": {str(i): a[f"level_{i}"] for i in range(4)},
-        }  # fmt: skip
-    if one["line"]:
+    lines = []
+    if one["plan_entry_id"]:
         lines = [
             r["text"]
             for r in conn.execute(
-                "select pe.text from plan_entry pe where pe.school_class_id = %s and pe.fortnight_id = (select id from fortnight"
-                " where academic_year_id = %s and %s between starts_on and ends_on) and pe.plan_key = (select plan_key from"
-                " plan_entry where id = (select plan_entry_id from session where school_class_id = %s and period_id = %s and"
-                " school_day_id = (select id from school_day where campus_id = %s and on_date = %s))) order by pe.ord",
-                (
-                    klass["id"],
-                    klass["academic_year_id"],
-                    on,
-                    klass["id"],
-                    one["period_id"],
-                    klass["campus_id"],
-                    on,
-                ),
+                "select sib.text from plan_entry pe join plan_entry sib on sib.school_class_id = pe.school_class_id"
+                " and sib.fortnight_id = pe.fortnight_id and sib.plan_key = pe.plan_key where pe.id = %s order by sib.ord",
+                (one["plan_entry_id"],),
             ).fetchall()
         ]
-    return {
-        "classes": [_public(c) for c in classes],
-        "class": _public(klass),
-        "day": on.isoformat(),
-        **one,
-        "activity_detail": detail,
-        "plan_lines": lines,
-    }
+    head = {k: today[k] for k in ("day", "kind", "note", "week", "fortnight")}
+    return {**_who(klass, classes), **head, **one, "plan_lines": lines}

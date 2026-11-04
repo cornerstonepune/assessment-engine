@@ -224,7 +224,7 @@ def norm(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", text.lower())
 
 
-def activity_names(conn: db.Conn, band: str = "K2") -> dict[str, list[str]]:
+def activity_names(conn: db.Conn, band: str) -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     for r in conn.execute(
         "select code, name from activity where band = %s order by code", (band,)

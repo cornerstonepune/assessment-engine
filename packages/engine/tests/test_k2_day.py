@@ -47,7 +47,7 @@ def world(conn, monkeypatch):
         ld.build(
             ld.read_frame_csv(FRAME_CSV, VOCAB), planner, ld.read_calendar_csv(CAL_CSV, VOCAB), VOCAB, 10, 10
         ),
-        ld.activity_names(conn),
+        ld.activity_names(conn, "K2"),
     )
     sq.apply(conn, plan, ld.Target("K2", section, "2031-32", db.tenant_slug()))
     conn.execute(
@@ -94,7 +94,7 @@ def test_the_week_is_five_days_and_a_holiday_stays_in_it(world):
     assert next(d for d in r["days"] if d["weekday"] == 2)["kind"] == "holiday"
 
 
-def test_a_period_whose_line_names_an_activity_carries_the_activity_and_its_levels(world):
+def test_a_period_whose_line_names_an_activity_says_who_it_is_and_shows_its_neighbouring_lines(world):
     week = call(world, "week", week_of="2026-11-23").json()
     found = [
         (d["day"], p)
@@ -105,8 +105,22 @@ def test_a_period_whose_line_names_an_activity_carries_the_activity_and_its_leve
     assert found, "the placeholder line is on no period this week"
     day, linked = found[0]
     one = call(world, "period", class_id=world["k"]["class"], day=day, period_id=linked["period_id"]).json()
-    assert one["activity_detail"]["levels"] == {"0": "", "1": "smells", "2": "matches", "3": "sorts"}
-    assert one["plan_lines"] and "Placeholder counting game" in one["plan_lines"]
+    assert one["activity"]["name"] == "Placeholder counting game" and "activity_detail" not in one
+    assert (
+        "Placeholder counting game" in one["plan_lines"]
+        and one["week"] in ("A", "B")
+        and one["fortnight"]["number"] == 10
+    )
+
+
+def test_every_answer_says_the_month_is_not_locked_yet(world):
+    day = call(world, "day", day="2026-11-23").json()
+    assert day["frozen"] is False and call(world, "week", week_of="2026-11-23").json()["frozen"] is False
+    pid = day["periods"][0]["period_id"]
+    assert (
+        call(world, "period", class_id=world["k"]["class"], day="2026-11-23", period_id=pid).json()["frozen"]
+        is False
+    )
 
 
 def test_while_the_switch_is_off_every_call_is_refused(world):

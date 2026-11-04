@@ -34,7 +34,7 @@ def load(
     section: str = typer.Option(..., help="the K2 section on this database"),
     first: int = typer.Option(10, "--from", help="first fortnight"),
     last: int = typer.Option(17, "--to", help="last fortnight"),
-    grade: str = typer.Option("K2"),
+    grade: str = typer.Option(..., help="the grade code of the class, as in the grade table"),
     year: str = typer.Option("2026-27"),
     undecided: list[str] = typer.Option(
         [], "--undecided", help="DATE=REASON: a day two sources disagree about"
