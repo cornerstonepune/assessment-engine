@@ -24,7 +24,7 @@ from engine.w1_bank.map_agents import Proposal
 
 Ask = Callable[[str, dict], object]
 DRAFT, CHECK, SPLIT = "k2_page_draft", "k2_page_validate", "k2_materials_split"
-VERSION = 2  # the batched rows; v1 is one page a call and is not run
+VERSION = 3  # the batched rows, judged item by item; v1 is one page a call, v2 failed a whole reply for one stray field
 
 
 @dataclass
