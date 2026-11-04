@@ -181,6 +181,15 @@
       }
     },
     {
+      "key": "llm.structured",
+      "description": "The prompt versions whose reply the vendor holds to the schema (Anthropic's output_config.format), so no field outside it can come back: {purpose: [versions]}. Only a version whose schema the vendor can hold belongs here: every object closed with its fields named (a free-form map is forced empty), no recursion. The local check against the full schema still runs (M1-11e).",
+      "value": {
+        "curriculum_map_propose": [
+          3
+        ]
+      }
+    },
+    {
       "key": "llm.fallback_models",
       "description": "Tried in order after the prompt row's own model. Haiku is the cheap Anthropic fallback; the Gemini free tier is the last resort (20 requests per model per day).",
       "value": [

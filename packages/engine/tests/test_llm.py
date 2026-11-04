@@ -30,8 +30,18 @@ class Conn:
     writes. `prompts` maps (purpose, subject) -> row, for the subject-selection tests; omitted,
     every purpose gets the one fixed row regardless of subject, matching the old fake exactly."""
 
-    def __init__(self, schema=SCHEMA, fallback=("m2", "m3"), prompts=None, prices=None, budget=None, spent=0):
+    def __init__(
+        self,
+        schema=SCHEMA,
+        fallback=("m2", "m3"),
+        prompts=None,
+        prices=None,
+        budget=None,
+        spent=0,
+        structured=(),
+    ):
         self.schema, self.fallback, self.prompts, self.prices = schema, list(fallback), prompts, prices
+        self.structured = structured or {}
         self.budget, self.spent, self.runs, self._sql, self._params = budget, spent, [], "", ()
 
     def execute(self, sql, params=()):
@@ -57,6 +67,8 @@ class Conn:
             return {"n": self.spent}
         if "from config" in self._sql and "llm.fallback_models" in self._sql:
             return {"value": self.fallback}
+        if "from config" in self._sql and "llm.structured" in self._sql:
+            return {"value": self.structured}
         if "from config" in self._sql and "llm.prices" in self._sql:
             return {"value": self.prices} if self.prices is not None else None
         if "returning id" in self._sql:
@@ -334,7 +346,13 @@ def test_the_subject_selection_sql_prefers_the_subject_row_and_falls_back_correc
     monkeypatch.setattr(
         llm,
         "_dispatch",
-        lambda models, text, images, schema, effort=None: (seen.append(text) or {"items": []}, "m1", 5, 3, 2),
+        lambda models, text, images, schema, effort=None, structured=False: (
+            seen.append(text) or {"items": []},
+            "m1",
+            5,
+            3,
+            2,
+        ),
     )
 
     llm.generate(real_conn, "test_purpose_llm", {"n": 1}, subject="NUM")
@@ -349,7 +367,7 @@ def test_the_subject_selection_sql_prefers_the_subject_row_and_falls_back_correc
 def _anthropic_call(seen, fail=()):
     """`_call_anthropic`, stood in: records (model, effort) and fails for the models named in `fail`."""
 
-    def call(model, text, images, schema, effort=None):
+    def call(model, text, images, schema, effort=None, structured=False):
         seen.append((model, effort))
         if model in fail:
             raise llm.LLMError(f"{model} server error HTTP 529: overloaded")
@@ -408,3 +426,142 @@ def test_no_seeded_prompt_asks_a_model_for_an_effort_it_does_not_take():
         if r.get("effort"):
             assert r["effort"] in llm.EFFORTS, (r["purpose"], r["version"], r["effort"])
             assert not r["model"].startswith("claude-haiku"), (r["purpose"], r["version"])
+
+
+# --- M1-11e: the vendor holds the reply to the schema (goals/m1-11e-structured-output.yaml) -------------------------
+
+BOUNDED = {
+    "type": "object",
+    "required": ["skills", "confidence"],
+    "properties": {
+        "skills": {"type": "array", "items": {"type": "string"}, "maxItems": 3},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    },
+}
+
+
+def _wire(monkeypatch):
+    """The request bodies that leave for Anthropic, read through the SDK itself."""
+    import httpx2 as httpx
+
+    bodies = []
+    reply = {
+        "id": "m", "type": "message", "role": "assistant", "model": "m", "stop_reason": "end_turn",
+        "stop_sequence": None, "content": [{"type": "text", "text": '{"skills": [], "confidence": 0.5}'}],
+        "usage": {"input_tokens": 5, "output_tokens": 2},
+    }  # fmt: skip
+
+    def answers(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=reply)
+
+    real = llm.anthropic.Anthropic
+    wire = httpx.Client(transport=httpx.MockTransport(answers))
+    monkeypatch.setattr(llm.anthropic, "Anthropic", lambda **kw: real(**kw, http_client=wire))
+    monkeypatch.setattr(llm.db, "env", lambda name: "k")
+    return bodies
+
+
+def _objects(schema):
+    """Every object schema inside `schema`."""
+    if isinstance(schema, dict):
+        if schema.get("type") == "object":
+            yield schema
+        for v in schema.values():
+            yield from _objects(v)
+    elif isinstance(schema, list):
+        for v in schema:
+            yield from _objects(v)
+
+
+def test_a_structured_call_sends_the_schema_as_the_output_format_without_the_keywords_the_vendor_refuses(
+    monkeypatch,
+):
+    bodies = _wire(monkeypatch)
+    llm._call_anthropic("claude-sonnet-5-5", "t", (), BOUNDED, "low", structured=True)
+    sent = bodies[0]["output_config"]
+    assert sent["effort"] == "low" and sent["format"]["type"] == "json_schema"
+    schema = sent["format"]["schema"]
+    flat = json.dumps(schema)
+    assert "minimum" not in flat.replace("{minimum", "") and '"maxItems"' not in flat, (
+        "the vendor does not take them"
+    )
+    assert all(o["additionalProperties"] is False for o in _objects(schema)), (
+        "the vendor wants every object closed"
+    )
+    assert schema["required"] == ["skills", "confidence"]
+
+
+def test_a_call_that_is_not_structured_sends_exactly_what_it_sent_before(monkeypatch):
+    bodies = _wire(monkeypatch)
+    llm._call_anthropic("claude-sonnet-5-5", "t", (), BOUNDED, "low")
+    llm._call_anthropic("claude-haiku-4-5", "t", (), BOUNDED)
+    assert bodies[0]["output_config"] == {"effort": "low"} and "output_config" not in bodies[1]
+
+
+def test_structured_with_no_effort_sends_only_the_format(monkeypatch):
+    bodies = _wire(monkeypatch)
+    llm._call_anthropic("claude-sonnet-5-5", "t", (), BOUNDED, structured=True)
+    assert list(bodies[0]["output_config"]) == ["format"]
+
+
+def test_the_local_check_still_holds_the_bounds_the_vendor_cannot(monkeypatch):
+    """Four skills where three is the most: the vendor was not asked to stop it, so the check here must."""
+    row = {"id": "p1", "version": 1, "text": "x", "model": "claude-sonnet-5-5", "json_schema": BOUNDED}
+    monkeypatch.setattr(
+        llm, "_call_anthropic", lambda *a, **k: ({"skills": list("abcd"), "confidence": 0.5}, 10, 2)
+    )
+    conn = Conn(prompts={("p", None): row}, structured={"p": [1]})
+    with pytest.raises(llm.LLMSchemaError, match="too long"):
+        llm.generate(conn, "p", {})
+
+
+def test_only_the_versions_the_config_row_names_are_asked_for_in_structured_form(monkeypatch):
+    seen = []
+
+    def call(model, text, images, schema, effort=None, structured=False):
+        seen.append((text.count("The JSON schema to match exactly"), structured))
+        return {"items": []}, 10, 2
+
+    monkeypatch.setattr(llm, "_call_anthropic", call)
+    row = {"id": "p1", "version": 3, "text": "x", "model": "claude-sonnet-5-5", "json_schema": SCHEMA}
+    for held in ({"p": [3]}, {"other": [3]}, {"p": [2]}):  # this version, another purpose, another version
+        llm.generate(Conn(prompts={("p", None): row}, fallback=(), structured=held), "p", {})
+    assert seen == [(0, True), (1, False), (1, False)], "held by the vendor, the schema is not also pasted in"
+
+
+def test_a_model_that_cannot_hold_the_schema_still_gets_it_in_the_prompt(monkeypatch):
+    texts = []
+
+    def call(model, text, images, schema, effort=None, structured=False):
+        raise llm.LLMError(f"{model} server error HTTP 529: overloaded")
+
+    monkeypatch.setattr(llm, "_call_anthropic", call)
+    gemini = {"candidates": [{"content": {"parts": [{"text": '{"items": []}'}]}}], "usageMetadata": {}}
+    monkeypatch.setattr(llm, "_call", lambda models, body, key: texts.append(body) or gemini)
+    monkeypatch.setattr(llm.db, "env", lambda name: "k")
+    llm._dispatch(["claude-sonnet-5-5", "gemini-x"], "t", (), SCHEMA, structured=True)
+    assert b"The JSON schema to match exactly" in texts[0]
+
+
+def test_every_version_asked_for_in_structured_form_has_a_schema_the_vendor_can_hold():
+    """The vendor takes objects closed with their fields named. A free-form map (additionalProperties a schema) would
+    be forced to an empty object, silently: so no such version may be named in the config row."""
+    cfg = next(
+        c
+        for c in json.loads((db.REPO_ROOT / "supabase/seed/config.json").read_text())["config"]
+        if c["key"] == "llm.structured"
+    )["value"]
+    assert cfg["curriculum_map_propose"] == [3]
+    rows = json.loads((db.REPO_ROOT / "supabase/seed/prompts.json").read_text())["prompts"]
+    held = [r for r in rows if r["version"] in cfg.get(r["purpose"], [])]
+    assert held, "the row it names exists"
+    for r in held:
+        for o in _objects(r["json_schema"]):
+            assert o.get("additionalProperties") is False and o.get("properties"), (
+                r["purpose"],
+                r["version"],
+                o,
+            )
+        assert r["model"].startswith("claude-"), "only Anthropic holds a reply to a schema here"
+        assert llm.anthropic.transform_schema(r["json_schema"])["required"] == r["json_schema"]["required"]

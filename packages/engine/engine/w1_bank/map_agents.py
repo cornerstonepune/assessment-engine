@@ -23,7 +23,7 @@ from typing import cast
 
 from engine.adapters import llm
 from engine.core import db, settings
-from engine.w1_bank.map_check import LEVELS, Gap, Known, decide, problems
+from engine.w1_bank.map_check import LEVELS, Gap, Known, asked_levels, decide, problems
 from engine.w1_bank.map_eval import lo_skill_pairs
 
 PROPOSE = "curriculum_map_propose"
@@ -265,7 +265,7 @@ def _context(band: Band, code: str, gaps: list[str], n: int) -> dict[str, object
     }
 
 
-def _split(kind: str, reply: Reply) -> Reply:
+def _split(kind: str, reply: Reply, gap: Gap) -> Reply:
     if kind == "skill":
         return {"skills": reply.get("skills") or []}
     if kind == "objective":
@@ -273,7 +273,7 @@ def _split(kind: str, reply: Reply) -> Reply:
             "objective_code": reply.get("objective_code") or "",
             "objective_text": reply.get("objective_text") or "",
         }
-    return {"levels": reply.get("levels") or {}}
+    return {"levels": asked_levels(reply.get("levels") or {}, gap)}
 
 
 def _checked(
@@ -359,7 +359,15 @@ def propose(band: Band, codes: list[str], ask: Ask, rules: Rules) -> list[Propos
         for kind in gaps:
             out.append(
                 _checked(
-                    band, kind, code, _split(kind, reply), confidence, rules, ask, PROPOSE, band.gaps[code]
+                    band,
+                    kind,
+                    code,
+                    _split(kind, reply, band.gaps[code]),
+                    confidence,
+                    rules,
+                    ask,
+                    PROPOSE,
+                    band.gaps[code],
                 )
             )
     return out
