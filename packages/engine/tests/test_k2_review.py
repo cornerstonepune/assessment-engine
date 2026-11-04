@@ -112,13 +112,11 @@ def test_reverting_the_draft_afterwards_leaves_the_persons_part_alone(page):
 
 
 def test_the_review_list_loses_a_page_once_every_doubt_on_it_is_cleared(page):
-    from engine.w1_bank import k2_draft
-
     page.execute("update threshold set value = 0 where key = 'map.audit_share'")
-    assert [r["code"] for r in k2_draft.review_list(page, page.t)] == ["KX-1"]
+    assert [r["code"] for r in review.review_list(page, page.t)] == ["KX-1"]
     for part in ("thinking", "steps", "level_0", "level_1", "level_2", "level_3"):
         review.keep(page, page.t, page.staff, "KX-1", part)
-    assert k2_draft.review_list(page, page.t) == []
+    assert review.review_list(page, page.t) == []
 
 
 def test_reverting_the_draft_never_wipes_a_part_a_person_kept_with_its_words_unchanged(page):

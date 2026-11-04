@@ -14,7 +14,7 @@ from engine import cli
 from engine.adapters import llm
 from engine.core import db
 from engine.w1_bank import k2_draft as draft
-from engine.w1_bank import map_ledger
+from engine.w1_bank import k2_review, map_ledger
 from tests.rows import tenant
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
@@ -479,19 +479,19 @@ def test_the_review_list_is_check_me_first_then_the_audit_share_of_the_rest_draw
     run(conn, ask)
     map_ledger.apply(conn, conn.t, conn.staff, True)
     conn.execute("update threshold set value = 1 where key = 'map.audit_share'")
-    everything = draft.review_list(conn, conn.t)
+    everything = k2_review.review_list(conn, conn.t)
     assert [(r["code"], r["check_me"]) for r in everything] == [
         ("KX-3", True),
         ("KX-1", False),
         ("KX-2", False),
     ]
     conn.execute("update threshold set value = 0 where key = 'map.audit_share'")
-    assert [r["code"] for r in draft.review_list(conn, conn.t)] == ["KX-3"], (
+    assert [r["code"] for r in k2_review.review_list(conn, conn.t)] == ["KX-3"], (
         "with no share, only the doubtful ones"
     )
     conn.execute("update threshold set value = 0.5 where key = 'map.audit_share'")
-    again = [r["code"] for r in draft.review_list(conn, conn.t)]
-    assert again == [r["code"] for r in draft.review_list(conn, conn.t)] and again[0] == "KX-3", (
+    again = [r["code"] for r in k2_review.review_list(conn, conn.t)]
+    assert again == [r["code"] for r in k2_review.review_list(conn, conn.t)] and again[0] == "KX-3", (
         "the same draw every time"
     )
 
@@ -598,3 +598,17 @@ def test_reverting_a_materials_proposal_takes_away_the_catalogue_items_it_made_a
     assert "wooden cube" in left, "KX-2 still uses it"
     assert "red slab" in left, "a person's item (MAT-9000) is not the proposal's to remove"
     assert "paper bag" not in left, "an item only the reverted proposal made goes with it"
+
+
+def test_dev_reads_the_number_of_pages_the_config_row_names_and_not_both_dev_and_a_limit():
+    """The dev stage's size is `dev_pages` in the k2.drafting config row, not a number typed in a workflow."""
+    ok = CliRunner().invoke(cli.app, ["curriculum", "draft", "--stage", "dev_eval", "--dev", "--dry-run"])
+    assert ok.exit_code == 0 and "100 pages" in ok.output, ok.output
+    two = CliRunner().invoke(
+        cli.app, ["curriculum", "draft", "--stage", "dev_eval", "--dev", "--limit", "5", "--dry-run"]
+    )
+    assert two.exit_code != 0 and "either" in re.sub(r"\x1b\[[0-9;]*m", "", two.output)
+
+
+def test_the_dev_pages_are_a_number_in_the_config_row(conn):
+    assert draft._settings(conn)["dev_pages"] == 100

@@ -1,0 +1,41 @@
+name: m1-11b-curriculum-run
+goal: >
+  Someone can run the K2 drafting commands on the server, where the model's key is, from a manual workflow that offers
+  only fixed runs: whether the key is there, a forecast with no call, the mapping dev eval, the page dev stage, the
+  held-out score, the full drafting and the materials. No free text reaches a shell; the person who runs it is looked up
+  in a repository variable outside git; the money and the order of the stages stay in the engine, so the workflow can
+  raise no limit and run no stage out of order. Dispatching a run that spends is the go for that spend.
+# Written 2026-11-04 (task M1-11, after #378). W1, gate N1. The words are the orchestrator's relay of Nimish's rule (D-071,
+# D-047) and the orchestrator's brief of that day; the originals are not in this repository. Not run: nothing here has
+# been dispatched; the box's key is checked by the `key` run, which spends nothing.
+says:
+  - words: "a manual workflow_dispatch 'curriculum run' with a choice of FIXED commands only ... no free text reaching the shell"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_an_unknown_run_or_a_person_not_on_the_list_or_an_email_with_shell_in_it_is_refused"
+  - words: "a manual workflow_dispatch 'curriculum run' with a choice of FIXED commands only ... no free text reaching the shell"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_no_input_or_person_is_written_into_a_shell_script_only_passed_as_environment"
+  - words: "an allowlist module checked like .github/eval/command.py ... the cap stays in code"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_every_stage_a_run_names_is_a_stage_of_the_campaign_whose_cap_and_order_the_engine_holds"
+  - words: "a stage out of order is refused"
+    proved_by: "packages/engine/tests/test_llm_budget.py::test_a_stage_may_not_start_until_the_stage_before_it_has_made_a_call"
+  - words: "contents: read permission"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_it_can_read_the_repository_and_nothing_more_and_two_runs_never_overlap"
+  - words: "It must not spend anything by itself: dispatching is the go"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_the_workflow_is_a_manual_choice_of_the_fixed_runs_and_nothing_else"
+  - words: "--dry-run forecast ... each with --by set from the dispatcher"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_the_forecast_makes_no_call_and_needs_nobody_to_have_run_it"
+  - words: "tell me whether the box's engine container has the model key"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_the_key_check_prints_whether_the_key_is_there_and_never_the_key"
+manual:
+  - "Not dispatched. `curriculum run` with `key` shows whether ANTHROPIC_API_KEY is in the engine container (True or False, never the key); `forecast` shows the number before any spend. Both need the repository secrets LIGHTSAIL_SSH_KEY and LIGHTSAIL_HOST and, for the runs that spend, the repository variable CURRICULUM_STAFF ({github login: staff email}), which a person with admin on the repository sets."
+  - "Whether a stage met its bars is a person's reading; the engine only refuses a stage whose predecessor has made no answered call."
+scenarios: []
+criteria:
+  - name: the workflow's allowlist, its shape and its refusals (no model, no database)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_curriculum_run_command.py
+    expect: "passed"
+  - name: the campaign's cap, stages and their order, in the engine (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_llm_budget.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
