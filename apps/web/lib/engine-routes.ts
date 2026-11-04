@@ -73,6 +73,14 @@ export type EngineRoutes = {
   "POST /skill/{code}/sample": { level: string; kind: string; by: string; fields: { ask?: string; text?: string; options?: string; left?: string; right?: string; answer?: string; accept?: string; key_points?: string; not_words?: string }; wrong?: { answer?: string; mistake_code?: string }[]; passage_code?: string | null; passage_title?: string | null; passage_text?: string | null; rubric_code?: string | null; ord?: number | null };
   "POST /skill/{code}/sample/more": { level: string; kind: string; by: string; ord: number; n: number };
   "POST /skill/{code}/sample/remove": { level: string; kind: string; by: string; ord: number };
+  "POST /voice/class": { actor: string; class_id: string; day?: string | null };
+  "POST /voice/form": { actor: string; activity: string; level: number; lists?: Record<string, string[]>; rest?: boolean; day?: string | null; class_id: string };
+  "POST /voice/notes": null;
+  "POST /voice/notes/audio": { actor: string; note_id: string };
+  "POST /voice/notes/confirm": { actor: string; activity: string; level: number; lists?: Record<string, string[]>; rest?: boolean; day?: string | null; note_id: string };
+  "POST /voice/notes/draft": { actor: string; note_id: string };
+  "POST /voice/observations/correct": { actor: string; observation_id: string; outcome: "above" | "as_expected" | "below" | "not_willing" | "absent"; reason: string };
+  "POST /voice/queue": { actor: string };
   "POST /week/approve": { section: string; week: string; kind?: string; by: string };
   "POST /week/assemble": { section: string; week: string; kind?: string };
   "POST /week/declaration": { section: string; week: string; note?: string; skill_sets: string[]; by: string; proposed?: Record<string, unknown>[] };

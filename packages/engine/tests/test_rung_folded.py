@@ -16,7 +16,9 @@ from engine.assess import graph
 from engine.checks import past
 from engine.core import db, settings
 from engine.w2_print import shelf
+from engine.w3_read import voice_confirm
 from tests.rows import data_steps
+from tests.voice_rows import a_k2_class, a_note
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 
@@ -115,18 +117,35 @@ def test_each_skill_holds_its_rungs_grade_order_and_description(conn):
 def test_every_rung_code_on_record_is_a_skills_second_code(conn):
     """A question's rung is a key into the skill's second code, as it was into the rung; what the graph and the cards
     hold names a skill by it. Each skill has exactly one."""
+    _a_confirmed_voice_note(conn)  # observed evidence is on record too, as it will be on live
     assert conn.execute(
         "select count(*) = count(distinct (tenant_id, rung_code)) as one from skill"
     ).fetchone()["one"]
     for table in ("item", "evidence_event", "child_skill_state", "class_card", "skill_set_version"):
+        # Only a written answer comes from a question, so only it has a rung. A record of another kind names a registry
+        # skill and no rung: the database's own rule (evidence_event_written_has_rung, C2, 20261205100000).
+        unrunged = (
+            " and not (x.rung_code is null and x.kind <> 'written')" if table == "evidence_event" else ""
+        )
         left = conn.execute(
             f"select distinct x.rung_code from {table} x where not exists"
             " (select 1 from skill s where s.tenant_id = x.tenant_id and s.rung_code = x.rung_code)"
+            + unrunged
         ).fetchall()
         assert left == [], (table, left)
     item = conn.execute("select id from item limit 1").fetchone()
     assert item, "a database with questions"
     assert _refused(conn, "update item set rung_code = 'NO.SUCH.RUNG' where id = %s", (item["id"],))
+
+
+def _a_confirmed_voice_note(conn):
+    """An educator's confirmed note: evidence of kind 'observed' on the activity's registry skills."""
+    k = a_k2_class(conn)
+    note = a_note(conn, k, "Activity 12, level 2. Above 3. The rest did as expected.")
+    voice_confirm.confirm_note(
+        conn, str(note["id"]), k["email"], voice_confirm.Confirmed(k["activity"], 2, {"above": ["3"]}, True)
+    )
+    assert conn.execute("select count(*) n from evidence_event where kind = 'observed'").fetchone()["n"] > 0
 
 
 def test_no_file_reads_the_rung_table(conn):
