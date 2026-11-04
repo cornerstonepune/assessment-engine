@@ -1,7 +1,7 @@
 # M1-09 / M1-10 — the K2 educator's timetable: design note (wireframes only; no code, no migration)
 
 **Gate:** none fits, as for M1-06: `workflows.json` has no step for this, so step 1 of any build adds it. Pictures: `docs/screens/m1-09/index.html`
-(desktop and phone of every screen; PNG previews beside it). Real lines from the K2 Planning Sheet 26-27 for FN10; no child names.
+(desktop and phone of every screen; no PNG previews: the pictures are the HTML). Real lines from the K2 Planning Sheet 26-27 for FN10; no child names.
 
 ## Screens, what each shows, where it comes from today
 | Screen | Shows | Source today |
