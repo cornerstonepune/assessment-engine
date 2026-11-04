@@ -23,6 +23,12 @@ def enabled(conn: db.Conn) -> bool:
     return settings.config(conn, "voice.screens_enabled", False) is True
 
 
+def recording_enabled(conn: db.Conn) -> bool:
+    """Recording, on top of the screens (D-065: no child's voice is kept or sent on until Nimish turns it on). A
+    missing row is off."""
+    return enabled(conn) and settings.config(conn, "voice.recording_enabled", False) is True
+
+
 def valid_id(text: str) -> str:
     """An id from a page, refused in words when it is not one (never a database error)."""
     try:

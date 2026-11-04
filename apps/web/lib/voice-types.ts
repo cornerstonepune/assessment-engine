@@ -2,7 +2,8 @@
 // What needs doing's pure list (lib/todo.ts) can use them.
 export type VoiceClass = { id: string; grade: string; section: string };
 export type QueuedNote = { id: string; class_id: string; status: string; received_at: string };
-export type MyVoice = { classes: VoiceClass[]; notes: QueuedNote[] };
+/** `recording`: both switches on (D-065), so she may record and hear a note back; off, she uses the form. */
+export type MyVoice = { classes: VoiceClass[]; notes: QueuedNote[]; recording: boolean };
 
 /** "K2 A": a class as she reads it. */
 export const classWords = (c: Pick<VoiceClass, "grade" | "section">) => (c.section.startsWith(c.grade) ? c.section : `${c.grade} ${c.section}`);

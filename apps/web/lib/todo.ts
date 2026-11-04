@@ -95,7 +95,10 @@ export function buildTasks(src: Sources, subjectLabel: (code: string | null) => 
   for (const g of src.generate)
     add("generate", `${g.topic}|${g.section}`, { subject: g.subject, topic: g.topic, topicName: g.topicName }, [g.section], "none yet", `/papers/make?topic=${encodeURIComponent(g.topic)}&section=${encodeURIComponent(g.section)}`, "Make one", g.section, [g.section]);
   const klass = new Map((src.voice?.classes ?? []).map((c) => [c.id, classWords(c)]));
-  for (const c of src.voice?.classes ?? []) add("record", c.id, none, [klass.get(c.id)!], "", `/voice/record?class=${c.id}`, W.record.start, klass.get(c.id)!, [klass.get(c.id)!]);
+  // with recording off (D-065) a class's row opens the form: no Record, no microphone
+  const recording = src.voice?.recording ?? false;
+  for (const c of src.voice?.classes ?? [])
+    add("record", c.id, none, [klass.get(c.id)!], "", recording ? `/voice/record?class=${c.id}` : `/voice/form?class=${c.id}`, recording ? W.record.start : W.fillForm, klass.get(c.id)!, [klass.get(c.id)!]);
   for (const n of src.voice?.notes ?? []) {
     const where = klass.get(n.class_id) ?? "";
     add("note", n.id, none, [where, heardAt(n.received_at)], "1 note", `/voice/notes/${n.id}`, n.status === "received" ? W.confirm.reading : W.confirm.button, where, where ? [where] : []);
@@ -136,10 +139,18 @@ export function filterTasks(tasks: readonly Task[], f: Filters, mySubjects: read
  *  (N5-N7), the scans read (N8), the answers checked (N9), the home papers (N11), the reports (N12). */
 export type GroupKey = "record" | "notes" | "skills" | "asks" | "taught" | "generate" | "classpapers" | "scans" | "answers" | "home" | "reports";
 /** `of`: what one row is, for the count on the group's line ("3 papers"). */
-export type Group = { key: GroupKey; title: string; of: readonly [string, string]; kinds: readonly Kind[]; home: string };
+export type Group = {
+  key: GroupKey;
+  title: string;
+  of: readonly [string, string];
+  kinds: readonly Kind[];
+  home: string;
+  /** a title that follows its rows (the K2 group reads "Fill the form" while recording is off) */
+  titleOf?: (tasks: readonly Task[]) => string;
+};
 export const TODO_GROUPS: readonly Group[] = [
   // K2 first: a note is recorded after the activity and confirmed the same day (shown only while voice notes are on)
-  { key: "record", title: W.groups.record, of: ["class", "classes"], kinds: ["record"], home: "/today?open=record" },
+  { key: "record", title: W.groups.record, of: ["class", "classes"], kinds: ["record"], home: "/today?open=record", titleOf: (ts) => (ts.every((t) => t.href.startsWith("/voice/form")) ? W.groups.form : W.groups.record) },
   { key: "notes", title: W.groups.notes, of: ["to confirm", "to confirm"], kinds: ["note"], home: "/today?open=notes" },
   { key: "skills", title: "Skills to approve", of: ["skill", "skills"], kinds: ["skill"], home: "/skill-sets/approve" },
   { key: "asks", title: "Questions to answer", of: ["question", "questions"], kinds: ["ask"], home: "/asks" },
@@ -152,7 +163,7 @@ export const TODO_GROUPS: readonly Group[] = [
   { key: "reports", title: "Parent reports to approve", of: ["class", "classes"], kinds: ["report"], home: "/growth/reports" },
 ];
 
-export type Section = { group: Group; tasks: Task[]; state: State; next: Task };
+export type Section = { group: Group; title: string; tasks: Task[]; state: State; next: Task };
 
 /** The groups that have something waiting, in order. A group is as urgent as its most urgent row; its next action is its first row's. */
 export function sectionsOf(tasks: readonly Task[]): Section[] {
@@ -160,7 +171,7 @@ export function sectionsOf(tasks: readonly Task[]): Section[] {
     const mine = tasks.filter((t) => group.kinds.includes(t.kind));
     if (!mine.length) return [];
     const worst = mine.reduce((a, t) => (KINDS[t.kind].rank < KINDS[a.kind].rank ? t : a));
-    return [{ group, tasks: mine, state: worst.state, next: mine[0] }];
+    return [{ group, title: group.titleOf?.(mine) ?? group.title, tasks: mine, state: worst.state, next: mine[0] }];
   });
 }
 

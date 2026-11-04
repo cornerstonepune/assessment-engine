@@ -51,7 +51,13 @@ export async function aK2Note(sql: Sql, k: K2, transcript: string, status = "dra
   return id;
 }
 
-export const voiceSwitch = (sql: Sql, on: boolean) => sql`update config set value = ${on ? sql`'true'::jsonb` : sql`'false'::jsonb`} where key = 'voice.screens_enabled'`;
+/** The two switches: the screens, and recording on top of them (D-065). Recording follows the screens unless said. */
+export async function voiceSwitch(sql: Sql, on: boolean, recording = on) {
+  await sql`update config set value = ${on ? sql`'true'::jsonb` : sql`'false'::jsonb`} where key = 'voice.screens_enabled'`;
+  await sql`delete from config where key = 'voice.recording_enabled'`;
+  await sql`insert into config (tenant_id, key, value, description)
+    select id, 'voice.recording_enabled', ${recording ? sql`'true'::jsonb` : sql`'false'::jsonb`}, 'm1-04 test' from tenant`;
+}
 
 /** Every note the tester left waiting, left unconfirmed (as the 48-hour rule leaves them), so a test reads only its own. */
 export const noNotesWaiting = (sql: Sql, k: K2) => sql`update pii.educator_note set status = 'left_unconfirmed' where staff_id = ${k.staff} and status in ('received', 'drafted')`;

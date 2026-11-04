@@ -602,6 +602,12 @@
           "phonics"
         ]
       }
+    },
+    {
+      "key": "voice.recording_enabled",
+      "description": "Whether the K2 educator may record a spoken note (and hear it back), on top of voice.screens_enabled. Off until Sarvam confirms 'No retention' in writing (D-065); with it off she uses the form, and no recording is kept or sent anywhere. A missing row is off.",
+      "value": false,
+      "seed_once": true
     }
   ]
 }
