@@ -4,8 +4,8 @@ A campaign is a row of `llm.campaigns`: the purposes a piece of work spends on, 
 the rupees to a dollar `llm.prices` was written at. Before any call whose purpose is in a campaign, `check` adds up what
 those purposes have already cost (every call leaves a `flow_run` row with its cost) and refuses once the total reaches the
 cap less the margin. The margin is what calls in flight at that moment can still add. A total that may be missing a
-call is not a total, so a call that answered with no cost recorded, or one left running past `llm.stale_minutes`
-(a threshold row), stops the campaign too, until a person has looked.
+call is not a total, so a call that answered with no cost recorded, or one left running past the campaign's `stale_minutes`
+(a config row), stops the campaign too, until a person has looked.
 """
 
 
@@ -54,12 +54,6 @@ def _check_stage(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None
         )
 
 
-def _stale_minutes(conn) -> int:
-    """How long a call may stay 'running' before its spend is counted as unknown (threshold llm.stale_minutes)."""
-    row = conn.execute("select value from threshold where key = 'llm.stale_minutes'").fetchone()
-    return int(row["value"]) if row else 10
-
-
 def _check_one(conn, tenant_slug: str, name: str, c: dict) -> None:
     got = conn.execute(
         "select coalesce(sum(f.cost_inr), 0) as spent,"
@@ -67,7 +61,7 @@ def _check_one(conn, tenant_slug: str, name: str, c: dict) -> None:
         " count(*) filter (where f.status = 'running'"
         " and f.started_at < now() - make_interval(mins => %s)) as stuck"
         " from flow_run f join tenant t on t.id = f.tenant_id where t.slug = %s and f.flow = any(%s)",
-        (_stale_minutes(conn), tenant_slug, c["purposes"]),
+        (c["stale_minutes"], tenant_slug, c["purposes"]),
     ).fetchone()
     if got["no_cost"]:
         raise Refused(

@@ -52,9 +52,12 @@ def live_ask(conn: db.Conn, stage: str) -> Ask:
     return ask
 
 
-def _thresholds(conn: db.Conn) -> dict[str, float]:
-    rows = conn.execute("select key, value from threshold where starts_with(key, 'k2.')")
-    return {r["key"]: float(r["value"]) for r in rows.fetchall()}
+def _settings(conn: db.Conn) -> dict[str, float]:
+    """The drafting run's operational numbers (config row k2.drafting)."""
+    row = db.one(
+        conn, "select value from config where key = 'k2.drafting'"
+    )  # a missing row is a failed deploy
+    return {k: float(v) for k, v in row["value"].items()}
 
 
 def wanted(
@@ -112,8 +115,8 @@ def _examples(rows: dict) -> dict[str, dict]:
 
 
 def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
-    t = _thresholds(conn)
-    size = int(t["k2.batch_pages"])
+    t = _settings(conn)
+    size = int(t["batch_pages"])
     prices = (conn.execute("select value from config where key = 'llm.prices'").fetchone() or {"value": {}})[
         "value"
     ]
@@ -129,14 +132,14 @@ def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
         rate = prices.get(models.get(purpose, ""), {})
         return n * (t[tin] * rate.get("in", 0) + t[tout] * rate.get("out", 0)) / 1_000_000
 
-    cost = inr(DRAFT, pages, "k2.est_draft_in", "k2.est_draft_out") + inr(
-        CHECK, pages, "k2.est_check_in", "k2.est_check_out"
+    cost = inr(DRAFT, pages, "est_draft_in", "est_draft_out") + inr(
+        CHECK, pages, "est_check_in", "est_check_out"
     )
-    cost += inr(SPLIT, texts, "k2.est_split_in", "k2.est_split_out")
+    cost += inr(SPLIT, texts, "est_split_in", "est_split_out")
     status = llm_budget.status(conn, db.tenant_slug(), DRAFT, stage)
     rate = next(iter((llm_budget.campaigns(conn) or {"-": {"inr_per_usd": 88}}).values()))["inr_per_usd"]
-    calls = 2 * math.ceil(pages / size) + math.ceil(texts / int(t["k2.batch_materials"]))
-    worst = cost * (int(t["k2.batch_rounds"]) + 1)  # every page asked for again in every round
+    calls = 2 * math.ceil(pages / size) + math.ceil(texts / int(t["batch_materials"]))
+    worst = cost * (int(t["batch_rounds"]) + 1)  # every page asked for again in every round
     return (
         f"forecast (token counts assumed, not measured): {pages} pages and {texts} materials texts"
         f" → about {calls} calls, about ${cost / rate:.2f}, up to ${worst / rate:.2f} if every page went round every time;"
@@ -192,9 +195,9 @@ def draft(
     if dry_run or not want:
         say(rep.forecast if want else "nothing to draft: every page has every text part, or has been drafted")
         return rep
-    t = _thresholds(conn)
-    size, rounds = int(t["k2.batch_pages"]), int(t["k2.batch_rounds"])
-    rep.bad_limit = int(t["k2.stop_after_bad_replies"])
+    t = _settings(conn)
+    size, rounds = int(t["batch_pages"]), int(t["batch_rounds"])
+    rep.bad_limit = int(t["stop_after_bad_replies"])
     raw: dict[str, dict] = {}
     examples = _examples(rows)
 
@@ -296,9 +299,9 @@ def materials(
     if dry_run or not text_of:
         say(rep.forecast if text_of else "nothing to split: every materials text has been split")
         return rep
-    t = _thresholds(conn)
-    size, rounds = int(t["k2.batch_materials"]), int(t["k2.batch_rounds"])
-    rep.bad_limit = int(t["k2.stop_after_bad_replies"])
+    t = _settings(conn)
+    size, rounds = int(t["batch_materials"]), int(t["batch_rounds"])
+    rep.bad_limit = int(t["stop_after_bad_replies"])
     final: dict[str, tuple[list, list]] = {}
     pending = list(text_of)
     for _ in range(rounds + 1):

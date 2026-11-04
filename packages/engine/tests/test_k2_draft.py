@@ -3,7 +3,6 @@ K2 pages through the M1-05 ledger. No model is called here: every reply is scrip
 
 Every row is a placeholder in a band of the test's own ("KX"), made inside the test's transaction and rolled back."""
 
-import json
 import os
 import re
 from collections import Counter
@@ -14,7 +13,6 @@ from typer.testing import CliRunner
 from engine import cli
 from engine.adapters import llm
 from engine.core import db
-from engine.w1_bank import k2_batch as batch
 from engine.w1_bank import k2_draft as draft
 from engine.w1_bank import map_ledger
 from tests.rows import tenant
@@ -361,20 +359,22 @@ def test_applying_a_material_proposal_makes_catalogue_items_with_no_invented_hom
     )
 
 
-def test_the_forecast_uses_threshold_rows_for_its_assumed_tokens_and_the_batch_size(conn):
-    rows = {
-        r["key"] for r in conn.execute("select key from threshold where starts_with(key, 'k2.')").fetchall()
-    }
+def test_the_forecast_and_the_batches_read_one_config_row_not_numbers_in_code_nor_thresholds(conn):
+    """Operational tuning is a config row: a threshold is a rule the school reads about itself, and the guide's own
+    test refuses a number written in words when any threshold holds its value (a batch of four broke it)."""
+    got = draft._settings(conn)
+    assert {"batch_pages", "batch_materials", "batch_rounds", "stop_after_bad_replies"} <= set(got)
     assert {
-        "k2.batch_pages",
-        "k2.est_draft_in",
-        "k2.est_draft_out",
-        "k2.est_check_in",
-        "k2.est_check_out",
-        "k2.est_split_in",
-        "k2.est_split_out",
-    } <= rows
-    assert json.dumps(batch.Done().good) == "{}"
+        "est_draft_in",
+        "est_draft_out",
+        "est_check_in",
+        "est_check_out",
+        "est_split_in",
+        "est_split_out",
+    } <= set(got)
+    assert (
+        conn.execute("select count(*) as n from threshold where starts_with(key, 'k2.')").fetchone()["n"] == 0
+    )
 
 
 def test_every_paid_call_is_committed_at_once_so_a_crash_later_cannot_erase_the_spend_record(monkeypatch):

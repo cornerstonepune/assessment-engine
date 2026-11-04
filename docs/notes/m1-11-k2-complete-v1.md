@@ -32,7 +32,7 @@ coordinator: sheet columns W–Z ("L0..L3") and AD–AI "Revised" are other leve
   `k2_page_validate` (v1 Opus, v2 Haiku 4.5; another model, never sees the drafter's reason), `k2_materials_split` (Haiku 4.5; a
   quantity the text lacks is null, never guessed; a name must be in the school's text).
 - Run commands (UNRUN, tested on scripted replies): `engine curriculum draft --stage S [--limit N] [--dry-run] --by EMAIL` and
-  `materials` (same). `--dry-run` prints a forecast from assumed-token threshold rows (`k2.est_*`) and makes no call; every batch
+  `materials` (same). `--dry-run` prints a forecast from assumed-token config row `k2.drafting` and makes no call; every batch
   prints spend so far and the stage limit; each paid call is committed at once; a budget stop keeps the good pages. Proposals go
   to the M1-05 ledger (`page_part`, `material`); the existing `curriculum apply` writes them, only into parts still empty, marked
   drafted; `revert` empties only what is still the draft's. A page once proposed is not asked for again, even after a revert (orchestrator agreed).
@@ -56,7 +56,7 @@ Prices per million tokens in/out: Sonnet 5.5 $2/$10, Haiku 4.5 $1/$5, Opus 5.5 $
 | Check the drafts (Haiku) | $3.9 | $2.1 |
 | Split the materials (Haiku) | $2.4 | $1.7 |
 | **Total** | **~$29.5, over** | **~$21.4, under** |
-**The plan is the batched column** (orchestrator, 4 Nov: batch now, 4 pages a call, 10 for materials; rows `k2.batch_*`). Forecast per
+**The plan is the batched column** (orchestrator, 4 Nov: batch now, 4 pages a call, 10 for materials; config row `k2.drafting`). Forecast per
 stage against its cap (stop at cap less margin): dev eval = map dev $1.4 + page-draft dev $1.2 = $2.6 against $4 (limit $3.75); held-out score $6.0 against $7; drafting + checks + materials $12.8 against the rest; total $21.4 against the
 stop at $23. M1-05's Opus validator is left alone (v1); `curriculum_map_validate` v2 on Haiku 4.5 is a new inactive row whose
 eval on the 100 dev rows decides whether it may be used; if it misses the D-063 bars: stop and report, not Opus without Nimish.

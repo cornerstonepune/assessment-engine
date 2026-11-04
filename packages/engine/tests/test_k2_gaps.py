@@ -303,9 +303,20 @@ def test_the_mapping_validator_gets_a_new_version_on_haiku_and_version_one_is_le
     assert (SEED / rows[2]["text_file"]).read_text() == (SEED / rows[1]["text_file"]).read_text()
 
 
-def test_the_batch_sizes_and_rounds_are_threshold_rows_not_numbers_in_code():
-    got = {t["key"]: t["value"] for t in json.loads((SEED / "thresholds.json").read_text())["thresholds"]}
-    assert (got["k2.batch_pages"], got["k2.batch_materials"], got["k2.batch_rounds"]) == (4, 10, 2)
+def test_the_batch_sizes_and_rounds_are_a_config_row_not_numbers_in_code():
+    cfg = {c["key"]: c["value"] for c in json.loads((SEED / "config.json").read_text())["config"]}[
+        "k2.drafting"
+    ]
+    assert (
+        cfg["batch_pages"],
+        cfg["batch_materials"],
+        cfg["batch_rounds"],
+        cfg["stop_after_bad_replies"],
+    ) == (4, 10, 2, 3)
+    keys = {t["key"] for t in json.loads((SEED / "thresholds.json").read_text())["thresholds"]}
+    assert not {k for k in keys if k.startswith("k2.") or k == "llm.stale_minutes"}, (
+        "not thresholds: see the guide test"
+    )
 
 
 @needs_db

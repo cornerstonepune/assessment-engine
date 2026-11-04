@@ -38,6 +38,7 @@ def conn(monkeypatch):
 
 
 CAMPAIGN = {
+    "stale_minutes": 10,
     "purposes": [DRAFT, "k2_page_validate", "k2_materials_split"],
     "cap_usd": 25,
     "margin_usd": 2,
@@ -168,6 +169,7 @@ def test_the_seeded_campaign_is_twenty_five_dollars_less_a_margin_over_exactly_t
         if c["key"] == "llm.campaigns"
     )["value"]["m1-11"]
     assert seeded["cap_usd"] == 25 and 0 < seeded["margin_usd"] < seeded["cap_usd"]
+    assert seeded["stale_minutes"] == 10
     assert set(seeded["purposes"]) == {
         "curriculum_map_propose",
         "curriculum_map_validate",
@@ -278,12 +280,19 @@ def test_the_status_says_the_spend_so_far_the_limit_and_the_stages_own(conn, mon
     assert line == "spent $1.50 of $23.00; stage dev_eval $0.50 of $3.75"
 
 
-def test_how_long_a_call_may_stay_running_is_a_threshold_row_not_a_number_in_code(conn, monkeypatch):
+def test_how_long_a_call_may_stay_running_is_the_campaigns_own_row_not_a_number_in_code(conn, monkeypatch):
     answering(monkeypatch, [])
     spend(conn, None, status="running", started="now() - interval '11 minutes'")
-    conn.execute("update threshold set value = 20 where key = 'llm.stale_minutes'")
+
+    def stale(minutes):
+        conn.execute(
+            "update config set value = %s where tenant_id = %s and key = 'llm.campaigns'",
+            (json.dumps({"m1-11": {**CAMPAIGN, "stale_minutes": minutes}}), conn.tenant),
+        )
+
+    stale(20)
     assert llm.generate(conn, DRAFT, VARS, version=1), "11 minutes is not stale when the row says 20"
-    conn.execute("update threshold set value = 5 where key = 'llm.stale_minutes'")
+    stale(5)
     with pytest.raises(llm.LLMBudgetError, match="left running"):
         llm.generate(conn, DRAFT, VARS, version=1)
 
