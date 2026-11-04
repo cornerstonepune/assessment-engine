@@ -266,3 +266,101 @@ def test_the_pictures_query_is_planned_as_what_it_reads_and_never_compiled(conn)
     ).fetchone()["QUERY PLAN"][0]["Plan"]
     jit_above = float(conn.execute("select current_setting('jit_above_cost') as v").fetchone()["v"])
     assert plan["Total Cost"] < jit_above, "Postgres runs it rather than compiling it first"
+
+
+# --- the free sentence is a note's own words: it may name a child, so a code check stands before it is returned --------
+
+HELD = "sentence held back: it may name a child"
+SAID = "Activity 12. Above 9. The rest did as expected. {}"
+
+
+def _with_sentence(conn, sentence):
+    """A class where roll 9's latest observation came from a confirmed note whose free sentence is `sentence`; the
+    class's children carry placeholder names (invented here, in the test database only)."""
+    k = scene(conn, skills=6, observed=6)
+    names = {
+        "9": ("Zorbak", "Quillfeather"),
+        "10": ("आरव", ""),
+        "11": ("Mx", ""),
+    }  # a Latin name, a Devanagari one, an initial
+    for roll, (first, last) in names.items():
+        conn.execute(
+            "update pii.child set first_name = %s, last_name = %s where child_id = %s",
+            (first, last, k["children"][roll]),
+        )
+    note = a_note(conn, k, SAID.format(sentence))
+    conn.execute("update pii.educator_note set status = 'confirmed' where id = %s", (note["id"],))
+    _observe(conn, k, k["children"]["9"], k["skills"][5], 15, "above", note=note["id"])
+    graph.rebuild(conn, k["children"]["9"])
+    return k
+
+
+def _sentence(conn, k, email=None):
+    page = reads.child_page(conn, email or k["email"], k["class"], "9")
+    return page["skills"][0]["sentence"], page["skills"][0]["sentence_note"]
+
+
+@pytest.mark.parametrize(
+    "said",
+    ["Zorbak counted to twenty today.", "zORBAK counted to twenty.", "She sat with Quillfeather's group.",
+     "आरव ने बीस तक गिना।", "It was Quillfeather, again."],
+)  # fmt: skip
+def test_a_sentence_that_names_a_child_of_the_class_is_held_back(conn, said):
+    k = _with_sentence(conn, said)
+    assert _sentence(conn, k) == (None, HELD), said
+
+
+@pytest.mark.parametrize(
+    "said", ["She counted to twenty today.", "Zorbakian rhymes were fun.", "आरवी ने बीस तक गिना।", "Mixed Mxs of blocks."]
+)  # fmt: skip
+def test_a_name_inside_a_longer_word_is_not_a_name_and_the_sentence_is_shown(conn, said):
+    k = _with_sentence(conn, said)
+    assert _sentence(conn, k) == (said.rstrip(".।"), None), (
+        "shown as the reader gave it, without its full stop"
+    )
+
+
+def test_when_the_check_cannot_run_no_sentence_is_returned(conn, monkeypatch):
+    k = _with_sentence(conn, "She counted to twenty today.")
+
+    def broken(*a, **kw):
+        raise RuntimeError("the names could not be read")
+
+    monkeypatch.setattr(reads, "names_of_class", broken)
+    assert _sentence(conn, k) == (None, HELD)
+
+
+def test_the_sentence_is_for_the_educator_who_recorded_it_and_for_coordinators_only(conn):
+    k = _with_sentence(conn, "She counted to twenty today.")
+    assistant = conn.execute(
+        "insert into staff (tenant_id, campus_id) select %s, campus_id from staff where id = %s returning id",
+        (k["tenant"], k["staff"]),
+    ).fetchone()["id"]
+    conn.execute(
+        "insert into pii.staff (tenant_id, staff_id, name, email) values (%s, %s, 'Placeholder Assistant', %s)",
+        (k["tenant"], assistant, f"assistant.{str(assistant)[:6]}@example.test"),
+    )
+    email = conn.execute("select email from pii.staff where staff_id = %s", (assistant,)).fetchone()["email"]
+    conn.execute(
+        "insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, valid_from, granted_by)"
+        " values (%s, %s, 'assistant', %s, %s, 'test')",
+        (k["tenant"], assistant, k["class"], dt.date(2026, 1, 1)),
+    )
+    assert _sentence(conn, k) == ("She counted to twenty today", None), "who recorded it"
+    assert _sentence(conn, k, _coordinator(conn, k)) == ("She counted to twenty today", None), "a coordinator"
+    got, note = _sentence(conn, k, email)
+    assert got is None and note != HELD, "another educator of the class sees the skill, not the sentence"
+    assert reads.child_page(conn, email, k["class"], "9")["skills"], "the rest of the page is hers to see"
+
+
+def test_the_names_are_read_through_the_logged_read_in_one_query_for_the_class(conn):
+    k = _with_sentence(conn, "She counted to twenty today.")
+    c = Counting(conn)
+    page = reads.child_page(c, k["email"], k["class"], "9")
+    assert page["skills"][0]["sentence"]
+    assert c.n <= 8, c.n
+    logged = conn.execute(
+        "select count(*) n from access_log where action = 'read_pii_child' and actor = %s",
+        (reads.NAME_CHECK,),
+    ).fetchone()["n"]
+    assert logged == 22, "each of the class's 22 names read is logged, with who asked"

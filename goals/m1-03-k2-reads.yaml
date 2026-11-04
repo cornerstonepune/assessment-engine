@@ -37,6 +37,10 @@ says:
     proved_by: "packages/engine/tests/test_k2_picture_reads.py::test_no_name_no_child_id_and_no_internal_label_is_ever_in_an_answer"
   - words: "every session has a very specific, clear goal post in test cases"
     proved_by: "packages/engine/tests/test_k2_picture_reads.py::test_each_call_asks_the_database_a_fixed_number_of_times_and_answers_under_a_second"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture_reads.py::test_a_sentence_that_names_a_child_of_the_class_is_held_back"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture_reads.py::test_the_sentence_is_for_the_educator_who_recorded_it_and_for_coordinators_only"
 manual:
   - "The screens that call these routes are not built here (the next task)."
 scenarios: []

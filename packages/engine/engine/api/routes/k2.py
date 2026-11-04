@@ -94,6 +94,7 @@ class Picture(BaseModel):
 
 class PageSkill(Skill, Cell):
     sentence: str | None
+    sentence_note: str | None  # why there is none, when there is one to withhold
 
 
 class Page(BaseModel):

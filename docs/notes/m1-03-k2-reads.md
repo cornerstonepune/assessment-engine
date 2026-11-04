@@ -38,8 +38,17 @@ picture, child page, reading `child_observed_state` from #364) are built.
 - Tested on a class of 22 and 20 skills of real observations, graph rebuilt by the engine, every cell held to a table
   worked out by hand from the scenario and to counts read straight from `child_observed_state`; 6 queries (picture)
   and 7 (page) whether the class has 2 skills or 20; under a second; the query planned below the JIT line.
-- The free sentence is read from the note's own transcript (it is not stored per child), so it can hold whatever she
-  said, including a name if she said one. Nothing strips it. Worth deciding before a parent can ever reach this call.
+- **The free sentence is guarded** (orchestrator's decision, 4 Nov; D-021: names stay off the website). It is read from
+  the note's transcript, and before it is returned the engine compares its words, case-insensitively and on word
+  boundaries (letters, marks and digits, so a Devanagari vowel sign belongs to its word), with every word of the given
+  and family names of the children enrolled in that class, read through the logged `pii.read_child` (22 logged reads,
+  one query). On any match, or if the names cannot be read, the sentence is withheld and the flag
+  `sentence_note` reads "sentence held back: it may name a child". A name inside a longer word is not a match ("Zorbakian"
+  for "Zorbak"; "आरवी" for "आरव"): the rule is whole words, as asked. A one-letter word is never a name.
+- **What the guard cannot catch:** a child of another class; a nickname; a name written in the other script from the one
+  the child's name is held in; a misspelling. So the sentence goes only to the educator who recorded the note and to
+  coordinator roles; any other staff of the class gets the skills without it and a `sentence_note` saying so.
+- The child page lists skills **newest first** (decided).
 
 ## Not verified / open
 
