@@ -1,6 +1,6 @@
 import { currentStaff } from "@/lib/auth";
 import { EngineDown, engineSend } from "@/lib/engine";
-import { voiceOn } from "@/lib/voice";
+import { myVoice, voiceOn } from "@/lib/voice";
 
 const UUID = /^[0-9a-f-]{36}$/;
 
@@ -11,6 +11,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ note: stri
   if (!me) return new Response("sign in first", { status: 401 });
   const { note } = await params;
   if (!UUID.test(note)) return new Response("not found", { status: 404 });
+  if (!(await myVoice(me))?.recording) return new Response("not found", { status: 404 }); // D-065
   try {
     const res = await engineSend("/voice/notes/audio", { actor: me.email, note_id: note });
     if (!res.ok) return new Response("not found", { status: res.status === 403 ? 403 : 404 });

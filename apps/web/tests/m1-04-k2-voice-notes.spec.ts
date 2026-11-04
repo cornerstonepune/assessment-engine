@@ -208,6 +208,24 @@ test("Record sends her recording and opens the note being read; a refused microp
   await allowed.close();
 });
 
+test("with recording off, the K2 educator fills the form: no Record, no microphone, no recording kept or played", async ({ page }) => {
+  await voiceSwitch(sql, true, false);
+  const note = await aK2Note(sql, { klass, staff }, "Activity 904. Above 3. The rest did as expected.");
+  await page.goto("/today?open=record");
+  const row = page.locator("[data-group=record]");
+  await expect(row.locator(`a[href="/voice/form?class=${klass}"]`).first()).toBeVisible();
+  await expect(page.locator('a[href^="/voice/record"]')).toHaveCount(0);
+  await page.goto(`/voice/record?class=${klass}`);
+  await expect(page.getByText("This page could not be found.")).toBeVisible();
+  await page.goto(`/voice/form?class=${klass}`);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Fill the form");
+  await expect(page.locator("main [data-icon=record]")).toHaveCount(0);
+  await page.goto(`/voice/notes/${note}`);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Confirm this note");
+  await expect(page.locator("main audio")).toHaveCount(0);
+  expect((await page.request.get(`/api/voice/${note}`)).status()).toBe(404);
+});
+
 test("a note that could not be read, or where nothing was heard, sends her to the form", async ({ page }) => {
   for (const [words, said] of [["mumble mumble.", "We could not read this note."], ["", "Nothing heard. Record again or use the form."]]) {
     await page.goto(`/voice/notes/${await aK2Note(sql, { klass, staff }, words)}`);

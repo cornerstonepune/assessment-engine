@@ -145,7 +145,7 @@ export default async function WhatNeedsDoing({ searchParams }: { searchParams: P
 
 /** One kind of work: a line (heading to its page, how many, red/amber/green, the next action), folded into its own table. */
 function Group({ s, open, page, q }: { s: Section; open: boolean; page: number; q: Q }) {
-  const { group, tasks, next } = s;
+  const { group, title, tasks, next } = s;
   const mixed = new Set(tasks.map((t) => t.kind)).size > 1;
   return (
     <li className="min-w-0">
@@ -156,7 +156,7 @@ function Group({ s, open, page, q }: { s: Section; open: boolean; page: number; 
           </svg>
           <h2 className="min-w-0 flex-1 text-[16px]">
             <Link href={group.home} data-group-home>
-              {group.title}
+              {title}
             </Link>
           </h2>
           <span className="fact w-28 text-right text-[13px]" data-group-count={tasks.length}>
@@ -173,7 +173,7 @@ function Group({ s, open, page, q }: { s: Section; open: boolean; page: number; 
         </summary>
         <div className="min-w-0 px-4 pb-4">
           <DataTable
-            label={group.title}
+            label={title}
             columns={COLUMNS(mixed)}
             rows={tasks}
             rowKey={(x) => x.id}

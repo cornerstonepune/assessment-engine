@@ -65,6 +65,13 @@ def _on(conn) -> None:
         raise HTTPException(status_code=403, detail="Voice notes are not switched on.")
 
 
+def _recording(conn) -> None:
+    """A recording is taken or given only with both switches on (D-065): the screens, and recording itself."""
+    _on(conn)
+    if not voice_intake.recording_enabled(conn):
+        raise HTTPException(status_code=403, detail="Recording is not switched on.")
+
+
 def _refused(no: voice_store.Refused) -> HTTPException:
     return HTTPException(status_code=no.status, detail=str(no))
 
@@ -90,7 +97,7 @@ async def send_note(
     if isinstance(upload, str) or upload is None or not isinstance(class_id, str):
         raise HTTPException(status_code=422, detail="Not sent. Try again.")
     with db.connect() as conn:
-        _on(conn)
+        _recording(conn)
         try:
             note = voice_intake.receive(conn, actor, class_id, upload.filename or "", await upload.read())
         except voice_store.Refused as no:
@@ -109,6 +116,7 @@ def queue(body: Who, conn=Depends(get_conn, scope="function")):
     return {
         "notes": [{k: str(v) for k, v in n.items()} for n in voice_intake.queue(conn, str(staff))],
         "classes": voice_intake.classes_of(conn, str(staff), dt.date.today()),
+        "recording": voice_intake.recording_enabled(conn),
     }
 
 
@@ -152,7 +160,7 @@ def draft(body: NoteRef, conn=Depends(get_conn, scope="function")):
 @keyed.post("/voice/notes/audio")
 def audio(body: NoteRef, conn=Depends(get_conn, scope="function")):
     """Her own recording, to play beside her note; nobody else's."""
-    _on(conn)
+    _recording(conn)
     key = _mine(conn, body)["audio_key"]
     try:
         data = voice_store.read(key)

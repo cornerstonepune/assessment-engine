@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth";
 import { EngineDown, engineSend, voiceTicket } from "@/lib/engine";
-import { refusal, voiceOn } from "@/lib/voice";
+import { myVoice, refusal, voiceOn } from "@/lib/voice";
 import { W } from "@/lib/voice-words";
 import type { Sent } from "./board";
 
@@ -19,6 +19,7 @@ async function switchedOn() {
 export async function recordTicket(): Promise<{ url: string; token: string } | null> {
   const me = await requireStaff();
   await switchedOn();
+  if (!(await myVoice(me))?.recording) return null; // D-065: no ticket to send a recording while recording is off
   return voiceTicket(me.email);
 }
 
