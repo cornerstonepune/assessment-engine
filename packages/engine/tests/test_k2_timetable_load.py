@@ -364,3 +364,28 @@ def test_the_sql_header_checksums_are_of_the_raw_committed_bytes():
     for name in ("frame.csv", "planner.csv", "calendar.csv"):
         want = hashlib.sha256((TABS / name).read_bytes()).hexdigest()
         assert f"-- source {name}: sha256 {want}" in head, name
+
+
+# ---- before and after counts (the server run prints them)
+
+
+@needs_db
+def test_the_counts_after_a_load_are_what_the_class_holds_and_a_second_load_leaves_them_as_they_were(conn):
+    k, target = a_target(conn)
+    first = sq.apply(conn, loaded(), target)
+    after = sq.counts(conn)
+    assert after["session"] == first["session"] == len(loaded().sessions) and after["timetable_slot"] == 150
+    assert sq.apply(conn, loaded(), target) == dict.fromkeys(first, 0) and sq.counts(conn) == after
+
+
+def test_the_report_prints_the_rows_before_and_after_when_there_is_a_database(capsys):
+    from engine.w2_print import cli_timetable as cli
+
+    plan = loaded()
+    added = {t: n for t, n in ld.summary(plan).items()}
+    after = {t: n + 5 for t, n in added.items()}
+    cli._report(plan, (added, after), 3, True, "heading")
+    out = capsys.readouterr().out
+    assert "before" in out and "after" in out
+    n, after_n = added["session"], after["session"]
+    assert re.search(rf"session\s+{n}\s+{n}\s+{after_n - n}\s+{after_n}\b", out), out

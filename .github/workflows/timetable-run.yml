@@ -1,0 +1,61 @@
+# Load the K2 timetable on the server, from the exports committed in supabase/seed/k2_tabs_2026_11_04/. By hand only, and
+# only the FIXED runs in .github/timetable/command.py: `dry` loads into a transaction it rolls back (prints rows before and
+# after, writes nothing), `apply` writes (twice, so the log shows the second adding nothing). No free text reaches a shell;
+# the person who dispatches an apply is looked up in the repository variable CURRICULUM_STAFF. Dispatch ONE run at a time
+# and wait for it. The server must already have this commit's files (supabase/seed is mounted into the engine).
+# Needs the secrets LIGHTSAIL_SSH_KEY and LIGHTSAIL_HOST (the ones engine eval and the curriculum run use).
+name: timetable run
+
+on:
+  workflow_dispatch:
+    inputs:
+      run:
+        description: "dry (writes nothing; prints the rows before and after) or apply (writes the rows; run it twice and the second adds nothing)"
+        type: choice
+        options: [dry, apply]
+
+permissions:
+  contents: read
+
+# two runs never overlap
+concurrency:
+  group: timetable-run
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: who and what, before anything runs
+        env:
+          RUN: "${{ inputs.run }}"
+          ACTOR: "${{ github.triggering_actor }}"
+          STAFF: "${{ vars.CURRICULUM_STAFF }}"
+        run: |
+          # refuses an unknown run or, for an apply, a person not on the list, with nothing yet reached
+          python3 .github/timetable/command.py > "$RUNNER_TEMP/commands.txt"
+          echo "$(wc -l < "$RUNNER_TEMP/commands.txt") command(s) in this run: $RUN"
+      - name: a way in
+        env:
+          KEY: "${{ secrets.LIGHTSAIL_SSH_KEY }}"
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/server
+          chmod 600 ~/.ssh/server
+          ssh -i ~/.ssh/server -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "ubuntu@$HOST" true
+      - name: the run
+        env:
+          HOST: "${{ secrets.LIGHTSAIL_HOST }}"
+        run: |
+          # -n: ssh would otherwise read the rest of the commands file from the loop's stdin and stop after the first
+          S="ssh -n -i $HOME/.ssh/server -o ConnectTimeout=15 -o ServerAliveInterval=30 ubuntu@$HOST"
+          n=0
+          while IFS= read -r line; do
+            n=$((n + 1))
+            echo "::group::command $n"
+            $S "sudo docker exec deploy-engine-1 $line"
+            echo "::endgroup::"
+          done < "$RUNNER_TEMP/commands.txt"
