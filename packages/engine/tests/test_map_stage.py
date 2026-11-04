@@ -25,8 +25,8 @@ def test_every_question_of_the_agents_goes_through_the_adapter_with_its_version_
     ask(map_agents.PROPOSE, "A", {})
     ask(map_agents.VALIDATE, "A", {})
     assert seen == [
-        {"purpose": map_agents.PROPOSE, "version": 1, "stage": "dev_eval"},
-        {"purpose": map_agents.VALIDATE, "version": 2, "stage": "dev_eval"},
+        {"purpose": map_agents.PROPOSE, "version": 1, "stage": "dev_eval", "about": "A"},
+        {"purpose": map_agents.VALIDATE, "version": 2, "stage": "dev_eval", "about": "A"},
     ]
 
 
@@ -34,7 +34,7 @@ def test_without_a_stage_the_agents_ask_as_they_always_did(monkeypatch):
     seen: list[dict] = []
     monkeypatch.setattr(llm, "generate", lambda conn, purpose, variables, **k: seen.append(k) or {})
     map_agents.model_ask(Conn(), None, None)(map_agents.PROPOSE, "A", {})  # type: ignore[arg-type]
-    assert seen == [{"version": None, "stage": None}]
+    assert seen == [{"version": None, "stage": None, "about": "A"}]
 
 
 def _run(monkeypatch, *args):

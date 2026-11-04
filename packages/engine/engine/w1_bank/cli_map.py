@@ -19,6 +19,7 @@ import typer
 from engine.adapters.llm import LLMError
 from engine.core import db
 from engine.w1_bank import map_ledger
+from engine.w1_bank import map_replay as map_replay_mod
 from engine.w1_bank.k2_upload import config, curriculum_app
 from engine.w1_bank.map_agents import (
     Ask,
@@ -194,12 +195,17 @@ def skills(p: Proposal) -> list[str]:
     return [str(s) for s in cast(list[object], raw)] if isinstance(raw, list) else []
 
 
-def _blind(conn: db.Conn, ask: Ask, band: str, scored: set[str], pool: set[str]) -> list[Scored]:
+def _made(conn: db.Conn, ask: Ask, band: str, scored: set[str], pool: set[str]) -> list[Proposal]:
     tenant = _tenant(conn)
     blind = read_band(conn, tenant, band, frozenset(scored))
     blind.pool = frozenset(pool - scored)
-    made = [p for p in propose(blind, sorted(scored), ask, _rules(conn, tenant)) if p.kind == "skill"]
-    return [Scored(p.subject_code, frozenset(skills(p)), p.status) for p in made]
+    return [p for p in propose(blind, sorted(scored), ask, _rules(conn, tenant)) if p.kind == "skill"]
+
+
+def _blind(conn: db.Conn, ask: Ask, band: str, scored: set[str], pool: set[str]) -> list[Scored]:
+    return [
+        Scored(p.subject_code, frozenset(skills(p)), p.status) for p in _made(conn, ask, band, scored, pool)
+    ]
 
 
 def evaluate(conn: db.Conn, ask: Ask, band: str = "", dev: bool = False) -> dict[str, float]:
@@ -216,3 +222,47 @@ def evaluate(conn: db.Conn, ask: Ask, band: str = "", dev: bool = False) -> dict
     else:
         runs, scored = _blind(conn, ask, band, held, tune), held
     return score(runs, {c: whole.person_skills[c] for c in scored})
+
+
+def replay_dev(conn: db.Conn, ask: Ask) -> tuple[list[Proposal], dict[str, frozenset[str]], Rules]:
+    """The dev-set run of `evaluate`, with its proposals kept: (made, what people linked, the rules it decided by)."""
+    band, tenant = config()["band"], _tenant(conn)
+    whole = read_band(conn, tenant, band)
+    tune, _ = gold_split(conn, whole)
+    ranked = sorted(tune)
+    a, b = set(ranked[::2]), set(ranked[1::2])
+    made = [*_made(conn, ask, band, a, b), *_made(conn, ask, band, b, a)]
+    return made, {c: whole.person_skills[c] for c in tune}, _rules(conn, tenant)
+
+
+def replay_report(conn: db.Conn, gap_minutes: float) -> list[str]:
+    """The latest stored dev-set run, read back: its score as rebuilt, the counts by cause, each activity."""
+    calls = map_replay_mod.last_run(map_replay_mod.stored(conn), gap_minutes)
+    if not calls:
+        raise ValueError("no stored dev-set run: no reply was kept (it needs a run after M1-11c)")
+    ask, left = map_replay_mod.replaying(calls)
+    made, gold, rules = replay_dev(conn, ask)
+    got = map_replay_mod.explain(made, gold, rules.min_confidence)
+    scores = score([Scored(p.subject_code, frozenset(skills(p)), p.status) for p in made], gold)
+    head = {"score": scores, "left_unread": {k: len(v) for k, v in left.items()}}
+    summary = {**{k: v for k, v in got.items() if k != "rows"}, **map_replay_mod.sweep(made, gold)}
+    return [json.dumps(x, ensure_ascii=False, default=str) for x in (head, summary, *got["rows"])]
+
+
+@curriculum_app.command("map-replay")
+def map_replay(
+    gap_minutes: float = typer.Option(
+        10.0, "--gap-minutes", help="A pause this long between calls ends a run"
+    ),
+) -> None:
+    """Read back the latest dev-set run of the mapping agents from the replies flow_run kept: each activity's
+    proposal against what people linked, why it did not pass on its own, the counts by cause. No model, no write."""
+    with db.connect() as conn:
+        conn.read_only = True
+        try:
+            lines = replay_report(conn, gap_minutes)
+        except ValueError as e:
+            typer.echo(str(e), err=True)
+            raise typer.Exit(1) from e
+    for line in lines:
+        typer.echo(line)
