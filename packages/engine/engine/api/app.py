@@ -27,6 +27,7 @@ from engine.api.routes import (
     parent,
     runs,
     samples,
+    timetable,
     upload,
     voice,
     week,
@@ -62,6 +63,7 @@ app.include_router(card.router)
 app.include_router(parent.router)
 app.include_router(upload.router)
 app.include_router(samples.router)
+app.include_router(timetable.keyed)
 app.include_router(k2.router)
 app.include_router(voice.router)
 app.include_router(voice.keyed)

@@ -1,0 +1,27 @@
+{
+ "planner": {
+  "spreadsheet": "1M0KEpC3M-WiMt-YqOgYZmwlKtHEhJsH9_W7h32RGpd0",
+  "tab": "Monthly Planner 2026-27",
+  "range": "A1:K80",
+  "revision": "APfK_pBmqENHCqxuKne_t9ntzw4zJoPFPMaP_MmtDKnt0DOhPbZVlcwIlw9scPjqFcc84RjPtRkNMsMMvadebQ"
+ },
+ "calendar": {
+  "spreadsheet": "15oXxE1QGwwkTN377sy7UjkB0M5iUEGP7dmzE6ylhS0w",
+  "tab": "Pre-Primary Calendar 26-27",
+  "range": "A1:D460",
+  "revision": "APfK_pBhJCzG7brl_WfKDD8XX4WRnfEd8B2OAR3tb4HCCWa5C2rdhmd2oiQkATRoQc8ZULDn3dP8GdErQmAZcQ"
+ },
+ "frame": {
+  "spreadsheet": "1M0KEpC3M-WiMt-YqOgYZmwlKtHEhJsH9_W7h32RGpd0",
+  "tab": "F.N - Time table 26-27",
+  "range": "A1:M30",
+  "revision": "APfK_pBmqENHCqxuKne_t9ntzw4zJoPFPMaP_MmtDKnt0DOhPbZVlcwIlw9scPjqFcc84RjPtRkNMsMMvadebQ",
+  "merges": 18
+ },
+ "redaction": {
+  "staff_names_replaced_by_role": 4,
+  "role": "PE educator",
+  "file": "frame.csv",
+  "how": "At capture, a staff member's first name and honorific were replaced by their role; the name was supplied from the environment at that moment and is stored nowhere. A checker applies the same replacement to the live sheet before comparing."
+ }
+}

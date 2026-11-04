@@ -26,6 +26,15 @@ class Vocabulary:
     plan_headings: dict[str, str]
     header_keys: tuple[str, ...]
     glue_words: frozenset[str]
+    planner_row: str
+    planner_block: str
+    fortnight_label: str
+    other_grade_marks: tuple[str, ...]
+    plan_heading_prefixes: dict[str, str]
+    headless_columns: dict[str, str]
+    planner_header_cell: str
+    calendar_date_format: str
+    afternoon_before_hour: int
 
     @classmethod
     def from_config(cls, v: dict) -> "Vocabulary":
@@ -37,6 +46,15 @@ class Vocabulary:
             dict(v["plan_headings"]),
             tuple(v["header_keys"]),
             frozenset(v["glue_words"]),
+            v["planner_row"],
+            v["planner_block"],
+            v["fortnight_label"],
+            tuple(v["other_grade_marks"]),
+            dict(v["plan_heading_prefixes"]),
+            dict(v["headless_columns"]),
+            v["planner_header_cell"],
+            v["calendar_date_format"],
+            int(v["afternoon_before_hour"]),
         )
 
 
@@ -49,6 +67,7 @@ class FrameCell:
     kind: str  # fixed | subject | specialist | empty
     subject: str | None
     text: str
+    continues: bool = False  # the second period of one activity the school merged across two
 
 
 @dataclass(frozen=True)
@@ -95,7 +114,10 @@ def _subject_of(text: str, vocab: Vocabulary) -> str | None:
     return "other"
 
 
-def read_frame(rows: list[dict], vocab: Vocabulary) -> Frame:
+def read_frame(
+    rows: list[dict], vocab: Vocabulary, continues: frozenset[tuple[str, int, str]] = frozenset()
+) -> Frame:
+    """`continues` names the (week, weekday, start) of periods that carry on the activity of the one before."""
     cells: list[FrameCell] = []
     for row in rows:
         start, _, end = (_one_line(row["time"]) + " - ").partition(" - ")
@@ -106,7 +128,18 @@ def read_frame(rows: list[dict], vocab: Vocabulary) -> Frame:
                 kind = "empty" if not text else "fixed" if subject is None else "subject"
                 if subject in vocab.specialist:
                     kind = "specialist"
-                cells.append(FrameCell(week, i + 1, start, end.strip(" -"), kind, subject, text))
+                cells.append(
+                    FrameCell(
+                        week,
+                        i + 1,
+                        start,
+                        end.strip(" -"),
+                        kind,
+                        subject,
+                        text,
+                        (week, i + 1, start) in continues,
+                    )
+                )
     return Frame(cells)
 
 
@@ -114,7 +147,7 @@ def _items(lines: list[str], vocab: Vocabulary) -> list[str]:
     items: list[str] = []
     glue = False
     for line in lines:
-        line = _one_line(re.sub(r"^\d+\.\s*", "", line))
+        line = _one_line(re.sub(r"^\d+\.\s*", "", _one_line(line).strip('"').strip()))
         if not line:
             continue
         if glue and items:
@@ -125,25 +158,48 @@ def _items(lines: list[str], vocab: Vocabulary) -> list[str]:
     return items
 
 
+def heading_of(line: str, vocab: Vocabulary) -> tuple[str | None, str]:
+    """The section a line opens, and what is left of the line after its heading ("Routine - Survey peers" opens
+    routines with "Survey peers")."""
+    whole = vocab.plan_headings.get(line.rstrip(":").lower())
+    if whole:
+        return whole, ""
+    for prefix, key in vocab.plan_heading_prefixes.items():
+        if line.lower().startswith(prefix):
+            return key, line[len(prefix) :].strip()
+    return None, ""
+
+
 def read_plan_row(cells: list[str], fortnight: int, vocab: Vocabulary) -> Plan:
     sections: dict[str, list[str]] = {}
     for cell in cells:
-        key = None
+        key: str | None = None
         for raw in cell.split("\n"):
-            head = vocab.plan_headings.get(_one_line(raw).rstrip(":").lower())
-            if head:
-                key = head
+            line = _one_line(raw)
+            opened, rest = heading_of(line, vocab)
+            if opened:
+                key = opened
                 sections.setdefault(key, [])
-            elif key and _one_line(raw):
+                if rest:
+                    sections[key].append(rest)
+            elif key and line:
                 sections[key].append(raw)
     return Plan(fortnight, {k: _items(v, vocab) for k, v in sections.items()})
 
 
-def _weeks(days: list[date]) -> dict[date, str]:
-    mondays = sorted({d.toordinal() - d.weekday() for d in days})
-    if len(mondays) > 2:
+def _monday(d: date) -> int:
+    return d.toordinal() - d.weekday()
+
+
+def _weeks(days: list[date], first_monday: date | None = None) -> dict[date, str]:
+    """Week A is the fortnight's first week, B its second. With the fortnight's own first Monday given, a week of
+    holidays cannot make the second week look like the first."""
+    if not days:
+        return {}
+    start = _monday(first_monday or min(days))
+    if any(_monday(d) not in (start, start + 7) for d in days):
         raise ValueError("a fortnight is two weeks; got days from more")
-    return {d: "AB"[mondays.index(d.toordinal() - d.weekday())] for d in days}
+    return {d: "AB"[(_monday(d) - start) // 7] for d in days}
 
 
 def _halves(items: list[str]) -> dict[str, list[str]]:
@@ -166,7 +222,7 @@ def _fill_days(
             key = vocab.plan_key_of_subject.get(c.subject or "", "")
             half = _halves(plan.lines.get(key, [])).get(week, [])
             source, text = None, c.text
-            if half and c.kind in ("subject", "specialist"):
+            if half and c.kind in ("subject", "specialist") and not c.continues:
                 n = turn.get((week, key), 0)
                 turn[(week, key)] = n + 1
                 source = half[n % len(half)]
@@ -196,13 +252,18 @@ def _header_cells(
 
 
 def generate(
-    frame: Frame, plan: Plan, days: list[date], vocab: Vocabulary, undecided: dict[date, str] | None = None
+    frame: Frame,
+    plan: Plan,
+    days: list[date],
+    vocab: Vocabulary,
+    undecided: dict[date, str] | None = None,
+    first_monday: date | None = None,
 ) -> Draft:
     """`undecided` names the days two sources disagree about: they get no line, and are listed with the reason."""
     if any(d.weekday() > 4 for d in days):
         raise ValueError("a school day here is Monday to Friday")
     held = undecided or {}
-    week_of = _weeks(days)
+    week_of = _weeks(days, first_monday)
     open_days = [d for d in days if d not in held]
     cells, used = _fill_days(frame, plan, open_days, week_of, vocab)
     head, head_used = _header_cells(plan, open_days, week_of, vocab)

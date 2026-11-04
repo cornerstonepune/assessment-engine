@@ -24,11 +24,11 @@ says:
   - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
     proved_by: "packages/engine/tests/test_k2_timetable.py::test_every_planner_line_is_placed_or_listed_as_having_no_slot"
   - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
-    proved_by: "packages/engine/tests/test_k2_timetable.py::test_the_empty_cells_are_kept_empty_for_a_person_eight_in_week_a_and_three_in_week_b"
+    proved_by: "packages/engine/tests/test_k2_timetable.py::test_the_cells_the_school_left_empty_stay_empty_for_a_person"
   - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
     proved_by: "packages/engine/tests/test_k2_timetable.py::test_an_unchanged_week_regenerates_identically_and_one_changed_line_changes_only_its_cells"
   - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
-    proved_by: "packages/engine/tests/test_k2_timetable.py::test_a_day_a_person_has_yet_to_settle_gets_no_line_and_is_listed"
+    proved_by: "packages/engine/tests/test_k2_timetable.py::test_a_day_two_sources_disagree_about_gets_no_line_and_is_listed"
 manual:
   - "The real proof: the K2 educator marks the generated 23 Nov to 4 Dec timetable line by line (right / changed / removed); the marks are frozen by checksum, off git (D-028), and the generator is changed until it equals them. Not claimed by this goal until she has."
   - "Fortnight 11, generated unseen after that: her edits are counted and reported; not a pass bar."

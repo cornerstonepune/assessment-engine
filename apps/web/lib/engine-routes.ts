@@ -87,6 +87,9 @@ export type EngineRoutes = {
   "POST /skill/{code}/sample": { level: string; kind: string; by: string; fields: { ask?: string; text?: string; options?: string; left?: string; right?: string; answer?: string; accept?: string; key_points?: string; not_words?: string }; wrong?: { answer?: string; mistake_code?: string }[]; passage_code?: string | null; passage_title?: string | null; passage_text?: string | null; rubric_code?: string | null; ord?: number | null };
   "POST /skill/{code}/sample/more": { level: string; kind: string; by: string; ord: number; n: number };
   "POST /skill/{code}/sample/remove": { level: string; kind: string; by: string; ord: number };
+  "POST /timetable/day": { actor: string; class_id?: string | null; day?: string | null; week_of?: string | null; period_id?: string | null };
+  "POST /timetable/period": { actor: string; class_id?: string | null; day?: string | null; week_of?: string | null; period_id?: string | null };
+  "POST /timetable/week": { actor: string; class_id?: string | null; day?: string | null; week_of?: string | null; period_id?: string | null };
   "POST /voice/class": { actor: string; class_id: string; day?: string | null };
   "POST /voice/form": { actor: string; activity: string; level: number; lists?: Record<string, string[]>; rest?: boolean; day?: string | null; class_id: string };
   "POST /voice/notes": null;
