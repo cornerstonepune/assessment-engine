@@ -48,8 +48,13 @@ def check_reading(reading: dict[str, Any], catalogue: list[dict[str, Any]], sour
         return _person(reading, "the quantity is not a number")
     if quantity <= 0:
         return _person(reading, "a quantity is more than nothing")
-    if float(quantity) not in {float(n) for n in NUMBER.findall(source_text)}:
-        return _person(reading, "the number is not in the note's own words (code does not convert)")
+    words = " ".join(str(reading.get("text") or "").lower().split())
+    if not words or words not in " ".join(source_text.lower().split()):
+        return _person(
+            reading, "its words are not in the typed note, so code cannot check the number: a person reads it"
+        )
+    if float(quantity) not in {float(n) for n in NUMBER.findall(words)}:
+        return _person(reading, "the number is not in the item's own words (code does not convert)")
     if reading.get("unit") != item["unit"]:
         return _person(reading, f"the unit is not the catalogue's ({item['unit']}); code does not convert")
     return Checked("confirmed", "", str(reading.get("text") or ""), item["code"], quantity, item["unit"])
@@ -94,8 +99,10 @@ def read_note(
     the rest wait for a person."""
     tenant = db.one(conn, "select tenant_id from materials_list where id = %s", (list_id,))["tenant_id"]
     catalogue = _catalogue(conn, tenant)
+    # the prompt's own marker lines (===) cannot be typed into the data block they close
+    safe = note.replace("===", "= = =")
     answer = llm.generate(
-        conn, PURPOSE, {"note": note, "catalogue": catalogue}, images=[image] if image else ()
+        conn, PURPOSE, {"note": safe, "catalogue": catalogue}, images=[image] if image else ()
     )
     if image is not None and answer.get("people_visible") is not False:
         sent = Checked(
@@ -105,9 +112,8 @@ def read_note(
         return [sent]
     out: list[Checked] = []
     for reading in answer.get("readings") or []:
-        # a typed note is the words to check the number against; a photograph has only the model's own copy of them
-        words = note if image is None else f"{note}\n{reading.get('text') or ''}"
-        got = check_reading(reading, catalogue, words)
+        # only the staff's own typed words can confirm a number; a photograph alone never can
+        got = check_reading(reading, catalogue, note)
         if got.status == "confirmed" and got.item_code is not None:
             try:
                 materials_list.add(

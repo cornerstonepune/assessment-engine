@@ -21,6 +21,7 @@ create table if not exists materials_consolidated (
   from_on      date not null,
   to_on        date not null,
   latest_build int not null default 0 check (latest_build >= 0),
+  skipped_lists uuid[] not null default '{}',  -- lists left out of the latest build because they overlapped a wider one of the same class
   built_at     timestamptz,
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now(),

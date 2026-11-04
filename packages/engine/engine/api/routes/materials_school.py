@@ -47,15 +47,27 @@ def build(body: Build, conn=Depends(get_conn, scope="function"), tenant_id: str 
     return mc.read(conn, mc.build(conn, UUID(str(tenant_id)), body.from_, body.to))
 
 
+def _ours(conn, body: Ref, tenant_id: str) -> None:
+    """The list is this school's; otherwise it is not found."""
+    found = conn.execute(
+        "select 1 from materials_consolidated where id = %s and tenant_id = %s",
+        (body.consolidated_id, tenant_id),
+    ).fetchone()
+    if found is None:
+        raise HTTPException(status_code=404, detail="No such list.")
+
+
 @keyed.post("/school/read")
-def read(body: Ref, conn=Depends(get_conn, scope="function")):
+def read(body: Ref, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
     _coordinator(conn, body)
+    _ours(conn, body, tenant_id)
     return mc.read(conn, body.consolidated_id)
 
 
 @keyed.post("/school/send")
-def send(body: Ref, conn=Depends(get_conn, scope="function")):
+def send(body: Ref, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
     staff = _coordinator(conn, body)
+    _ours(conn, body, tenant_id)
     try:
         return inv.send(conn, body.consolidated_id, staff)
     except NothingToSend as no:
@@ -71,8 +83,12 @@ async def note(request: Request, conn=Depends(get_conn, scope="function")):
     text, upload = form.get("note"), form.get("file")
     if not (isinstance(actor, str) and isinstance(list_id, str) and isinstance(needed_on, str)):
         raise HTTPException(status_code=422, detail="Not sent. Try again.")
+    try:
+        the_list, the_day = UUID(list_id), dt.date.fromisoformat(needed_on)
+    except ValueError as no:
+        raise HTTPException(status_code=422, detail="Choose the list and the day it is needed.") from no
     staff = _staff(conn, Who(actor=actor))
-    _holds(conn, staff, _list_class(conn, UUID(list_id)))
+    _holds(conn, staff, _list_class(conn, the_list))
     typed = text if isinstance(text, str) else ""
     photo = None
     if upload is not None and not isinstance(upload, str):
@@ -88,7 +104,7 @@ async def note(request: Request, conn=Depends(get_conn, scope="function")):
     if not typed.strip() and photo is None:
         raise HTTPException(status_code=422, detail="Write the note or take a picture of it.")
     try:
-        got = mi.read_note(conn, UUID(list_id), typed, staff, dt.date.fromisoformat(needed_on), photo)
+        got = mi.read_note(conn, the_list, typed, staff, the_day, photo)
     except llm.LLMBudgetError as no:
         raise HTTPException(
             status_code=429,

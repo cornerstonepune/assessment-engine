@@ -55,7 +55,13 @@ def _gather(
         ):
             item = out.setdefault(ln["material_code"], {"unit": ln["unit"], "from": {}})
             acts = sorted(set(ln["acts"]) | ({ln["activity_code"]} if ln["activity_code"] else set()))
-            item["from"][lst["school_class_id"]] = {"quantity": ln["quantity"], "activity_codes": acts}
+            mine = item["from"].get(lst["school_class_id"])
+            if mine is None:
+                item["from"][lst["school_class_id"]] = {"quantity": ln["quantity"], "activity_codes": acts}
+            else:  # one class, two lists in the month: its needs add up
+                both = [mine["quantity"], ln["quantity"]]
+                mine["quantity"] = None if None in both else sum(both)
+                mine["activity_codes"] = sorted(set(mine["activity_codes"]) | set(acts))
     for item in out.values():
         qs = [f["quantity"] for f in item["from"].values()]
         item["quantity"] = None if any(q is None for q in qs) else sum(qs)
@@ -71,7 +77,7 @@ def build(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> UUID:
         (tenant, lo, hi),
     )
     cid, before, now = cons["id"], cons["latest_build"], cons["latest_build"] + 1
-    items, _ = _gather(conn, tenant, lo, hi)
+    items, skipped = _gather(conn, tenant, lo, hi)
     for code, item in items.items():
         conn.execute(
             "insert into materials_consolidated_line (tenant_id, consolidated_id, build, material_code, unit, quantity,"
@@ -87,7 +93,8 @@ def build(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> UUID:
     if before:
         _note_changes(conn, tenant, cid, before, now)
     conn.execute(
-        "update materials_consolidated set latest_build = %s, built_at = now() where id = %s", (now, cid)
+        "update materials_consolidated set latest_build = %s, built_at = now(), skipped_lists = %s where id = %s",
+        (now, skipped, cid),
     )
     return cid
 
@@ -188,7 +195,6 @@ def read(conn: db.Conn, cid: UUID) -> dict[str, Any]:
             (cid, build_),
         )
     ]
-    _, skipped = _kept_lists(conn, cons["tenant_id"], cons["from_on"], cons["to_on"])
     return {
         "id": cid,
         "from": cons["from_on"],
@@ -196,7 +202,7 @@ def read(conn: db.Conn, cid: UUID) -> dict[str, Any]:
         "build": build_,
         "lines": lines,
         "changes": changes,
-        "skipped_lists": skipped,
+        "skipped_lists": list(cons["skipped_lists"]),
     }
 
 

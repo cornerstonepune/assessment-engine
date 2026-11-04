@@ -137,3 +137,33 @@ def test_a_week_list_inside_a_fortnight_list_of_the_same_class_is_not_counted_tw
     [line] = [x for x in got["lines"] if x["material_code"] == clay]
     assert line["quantity"] == 2  # not 4
     assert got["skipped_lists"] == [week] and fortnight not in got["skipped_lists"]
+
+
+def test_a_class_with_two_lists_in_the_month_has_them_added_not_one_over_the_other(conn):
+    s = m.school(conn)
+    a, b = s["acts"][:2]
+    pen = m.item(conn, s, "Pen", "piece")
+    m.needs(conn, s, a, pen, 10)
+    m.needs(conn, s, b, pen, 5)
+    m.planned(conn, s, LO, a)
+    m.planned(conn, s, LO + dt.timedelta(days=14), b)
+    ml.build(conn, s["class"], "week", LO, LO + dt.timedelta(days=6))
+    ml.build(conn, s["class"], "week", LO + dt.timedelta(days=14), LO + dt.timedelta(days=20))
+    [line] = [
+        x for x in mc.read(conn, mc.build(conn, s["tenant"], LO, HI))["lines"] if x["material_code"] == pen
+    ]
+    assert line["quantity"] == 15
+    [from_] = line["from"]
+    assert from_["quantity"] == 15 and sorted(from_["activity_codes"]) == sorted([a, b])
+
+
+def test_the_lists_skipped_are_the_ones_skipped_when_it_was_built_not_when_it_is_read(conn):
+    s = m.school(conn)
+    a = s["acts"][0]
+    clay = m.item(conn, s, "Clay", "packet")
+    m.needs(conn, s, a, clay, 2)
+    m.planned(conn, s, LO, a)
+    ml.build(conn, s["class"], "fortnight", LO, LO + dt.timedelta(days=13))
+    cid = mc.build(conn, s["tenant"], LO, HI)
+    ml.build(conn, s["class"], "week", LO, LO + dt.timedelta(days=6))  # made after the build
+    assert mc.read(conn, cid)["skipped_lists"] == []

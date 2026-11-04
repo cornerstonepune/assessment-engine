@@ -175,3 +175,25 @@ def test_when_the_months_money_is_spent_she_is_told_in_words_and_nothing_is_adde
         data={"actor": s["email"], "list_id": str(lid), "needed_on": str(LO), "note": "20 pens"},
     )
     assert got.status_code == 429 and "reading notes" in got.json()["detail"]
+
+
+def test_a_list_that_is_not_there_is_not_found_not_a_crash(engine):
+    client, conn, s = engine
+    who = _coordinator(conn, s)
+    ghost = "00000000-0000-4000-8000-000000000000"
+    for route in ("read", "send"):
+        got = client.post(
+            f"/materials/school/{route}", headers=H, json={"actor": who, "consolidated_id": ghost}
+        )
+        assert got.status_code == 404, route
+
+
+def test_a_bad_date_or_id_on_a_note_is_refused_before_any_model_call(engine, monkeypatch):
+    client, conn, s = engine
+    lid, _ = _list(conn, s)
+    monkeypatch.setattr(
+        llm, "generate", lambda *a, **k: pytest.fail("no model call for a note that cannot be filed")
+    )
+    for bad in ({"list_id": "nope", "needed_on": str(LO)}, {"list_id": str(lid), "needed_on": "31/12/2026"}):
+        got = client.post("/materials/note", headers=H, data={"actor": s["email"], "note": "20 pens"} | bad)
+        assert got.status_code == 422, bad
