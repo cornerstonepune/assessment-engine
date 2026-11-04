@@ -102,10 +102,9 @@ def _tokens(text: str) -> list[str]:
     return [_stem(w) for w in re.findall(r"[a-z0-9]+", text.casefold())]
 
 
-def _segment_with(text: str, phrase: list[str]) -> list[str] | None:
-    """The comma-, semicolon- or line-separated piece of the text that holds the phrase whole and in order."""
-    for piece in re.split(r"[,;\n]+", text):
-        toks = _tokens(piece)
+def _segment_with(pieces: list[list[str]], phrase: list[str]) -> list[str] | None:
+    """The piece of the text (already split and tokenised) that holds the phrase whole and in order."""
+    for toks in pieces:
         if any(toks[i : i + len(phrase)] == phrase for i in range(len(toks) - len(phrase) + 1)):
             return toks
     return None
@@ -116,11 +115,12 @@ def judge_materials(got: object, text: str) -> tuple[list[dict], list[str]]:
     number above 0 that stands in that same piece (or be empty), and a unit other than "piece" must stand there too."""
     good: list[dict] = []
     bad: list[str] = []
+    pieces = [_tokens(piece) for piece in re.split(r"[,;\n]+", text)]  # once per text, not once per line
     for it in got if isinstance(got, list) else []:
         name = str(it.get("name") or "") if isinstance(it, dict) else ""
         phrase = _tokens(re.sub(r"[^A-Za-z ]", " ", name))
         qty, unit = (it.get("quantity"), it.get("unit")) if isinstance(it, dict) else (None, None)
-        piece = _segment_with(text, phrase) if phrase else None
+        piece = _segment_with(pieces, phrase) if phrase else None
         if piece is None:
             bad.append(f"{name}: not in the school's text")
         elif qty is not None and (isinstance(qty, bool) or not isinstance(qty, int | float) or qty <= 0):

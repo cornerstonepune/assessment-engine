@@ -7,10 +7,23 @@ disagreement needs a reader's judgement and is a model's question later, never d
 """
 
 import re
+from typing import LiteralString, cast
 
 PARTS = ("objective", "steps", "thinking", "materials", "level_0", "level_1", "level_2", "level_3")
 PAGE_PARTS = tuple(p for p in PARTS if p != "materials")  # the ones an agent drafts as text
 RANGE = re.compile(r"(\d+)\s*(?:-|–|—|to)\s*(\d+)")
+
+
+def column(part: str) -> LiteralString:
+    """A page part's column name: only a part of a page ever reaches SQL as a name, never a caller's string."""
+    if part not in PAGE_PARTS:
+        raise ValueError(f"{part} is not a part of a page")
+    return cast(LiteralString, part)
+
+
+def empty_parts(row: dict, parts: tuple[str, ...] = PAGE_PARTS) -> list[str]:
+    """The parts of this one row that are empty (a cell of spaces is empty)."""
+    return [p for p in parts if not (row.get(p) or "").strip()]
 
 
 def empties(rows: list[dict]) -> dict[str, int]:

@@ -18,14 +18,13 @@ from engine.core import db
 from engine.w1_bank import k2_batch as batch
 from engine.w1_bank import map_ledger
 from engine.w1_bank.cli_map import BY, staff_of
-from engine.w1_bank.k2_gaps import PAGE_PARTS
+from engine.w1_bank.k2_gaps import PAGE_PARTS, empty_parts
 from engine.w1_bank.k2_upload import config, curriculum_app
 from engine.w1_bank.map_agents import Proposal, sampled
 
 Ask = Callable[[str, dict], object]
 DRAFT, CHECK, SPLIT = "k2_page_draft", "k2_page_validate", "k2_materials_split"
 VERSION = 2  # the batched rows; v1 is one page a call and is not run
-SHOWN = ("objective", "steps", "thinking", "level_0", "level_1", "level_2", "level_3")
 
 
 @dataclass
@@ -54,9 +53,7 @@ def live_ask(conn: db.Conn, stage: str) -> Ask:
 
 
 def _thresholds(conn: db.Conn) -> dict[str, float]:
-    rows = conn.execute(
-        "select key, value from threshold where starts_with(key, 'k2.') or key = 'map.min_confidence'"
-    )
+    rows = conn.execute("select key, value from threshold where starts_with(key, 'k2.')")
     return {r["key"]: float(r["value"]) for r in rows.fetchall()}
 
 
@@ -74,7 +71,7 @@ def wanted(
         ).fetchall()
     }
     done = _proposed(conn, tenant, "page_part")
-    want = {c: [p for p in PAGE_PARTS if not (r[p] or "").strip()] for c, r in rows.items() if c not in done}
+    want = {c: empty_parts(r) for c, r in rows.items() if c not in done}
     want = {c: parts for c, parts in want.items() if parts}
     return (dict(list(want.items())[:limit]) if limit else want), rows
 
@@ -88,7 +85,7 @@ def _proposed(conn: db.Conn, tenant: db.Id, kind: str) -> set[str]:
 
 
 def _block(row: dict, parts: list[str], example: dict | None, with_draft: dict | None = None) -> str:
-    wrote = [f"  {p}: {row[p].strip()}" for p in SHOWN if (row[p] or "").strip()]
+    wrote = [f"  {p}: {row[p].strip()}" for p in PAGE_PARTS if (row[p] or "").strip()]
     out = [f"key: {row['code']}", f"activity: {row['name']} (section: {row['strand']})"]
     out += ["the school wrote:", *wrote] if wrote else ["the school wrote nothing else for it"]
     if row["materials"].strip():
@@ -104,16 +101,14 @@ def _block(row: dict, parts: list[str], example: dict | None, with_draft: dict |
     return "\n".join(out)
 
 
-def _example(row: dict, rows: dict) -> dict | None:
-    """The first complete page of the same section: the style and length to match."""
+def _examples(rows: dict) -> dict[str, dict]:
+    """For each section, its first complete page: the style and length to match. A page being drafted has a gap, so
+    it is never its own example."""
+    out: dict[str, dict] = {}
     for r in rows.values():
-        if (
-            r["code"] != row["code"]
-            and r["strand"] == row["strand"]
-            and all((r[p] or "").strip() for p in PAGE_PARTS)
-        ):
-            return r
-    return None
+        if not empty_parts(r):
+            out.setdefault(r["strand"], r)
+    return out
 
 
 def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
@@ -201,9 +196,10 @@ def draft(
     size, rounds = int(t["k2.batch_pages"]), int(t["k2.batch_rounds"])
     rep.bad_limit = int(t["k2.stop_after_bad_replies"])
     raw: dict[str, dict] = {}
+    examples = _examples(rows)
 
     def call(keys: list[str]) -> list:
-        text = "\n\n".join(_block(rows[k], want[k], _example(rows[k], rows)) for k in keys)
+        text = "\n\n".join(_block(rows[k], want[k], examples.get(rows[k]["strand"])) for k in keys)
         got = batch.items(_ask(conn, ask, stage, DRAFT, {"pages": text}, len(keys), say, rep), "pages")
         raw.update({it["key"]: it for it in got if isinstance(it, dict) and isinstance(it.get("key"), str)})
         return got
@@ -213,8 +209,9 @@ def draft(
     verdicts: dict[str, tuple[str, str]] = {}
     if not done.stopped:
         verdicts = _check(conn, stage, ask, done.good, rows, size, rounds, say, rep)
+    least = map_ledger.rules(conn)["min_confidence"]
     made = [
-        _proposal(k, parts, raw.get(k, {}), verdicts.get(k), t["map.min_confidence"], bool(rep.stopped))
+        _proposal(k, parts, raw.get(k, {}), verdicts.get(k), least, bool(rep.stopped))
         for k, parts in done.good.items()
     ]
     rep.proposals = len(made)

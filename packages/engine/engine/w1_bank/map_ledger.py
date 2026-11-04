@@ -10,12 +10,11 @@ their id (an email is looked up by the engine, `staff_of_email`), the machine by
 
 import json
 import uuid
-from typing import LiteralString, cast
 
 from psycopg.rows import DictRow
 
 from engine.core import db
-from engine.w1_bank.k2_gaps import PAGE_PARTS
+from engine.w1_bank.k2_gaps import column
 from engine.w1_bank.map_agents import Proposal
 from engine.w1_bank.map_check import LEVELS
 
@@ -114,7 +113,7 @@ def settle(conn: db.Conn, tenant: db.Id, about: db.Id, yes: bool, staff: db.Id, 
     _follow(conn, tenant, about, "approved" if yes else "rejected", staff, why)
 
 
-def _changed_by(conn: db.Conn, who: str) -> None:
+def changed_by(conn: db.Conn, who: str) -> None:
     conn.execute("select set_config('app.changed_by', %s, true)", (who,))
 
 
@@ -163,9 +162,7 @@ def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
     """A drafted page's parts written where they are still empty, each marked drafted and naming the proposal."""
     code, wrote, doubt = p["subject_code"], [], p["now"] == "needs_person"
     for part, text in sorted(p["proposal"]["parts"].items()):
-        if part not in PAGE_PARTS:  # a column name never comes from a reply
-            raise ValueError(f"{part} is not a part of a page")
-        col = cast(LiteralString, part)  # checked against the page's parts just above
+        col = column(part)  # a column name never comes from a reply
         hit = conn.execute(
             f"update activity set {col} = %s where tenant_id = %s and code = %s and btrim({col}) = ''"  # noqa: S608
             " returning code",
@@ -245,7 +242,7 @@ def apply(conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool) -> list[str]:
         if not write:
             done.append(f"{p['kind']}: {p['subject_code']} {json.dumps(p['proposal'], ensure_ascii=False)}")
             continue
-        _changed_by(conn, f"machine:{p['id']} staff:{staff}")
+        changed_by(conn, f"machine:{p['id']} staff:{staff}")
         done.append(_link(conn, tenant, p))
         _follow(conn, tenant, p["id"], "applied", staff, "", "apply", version["n"] if version else None)
     return done
@@ -258,7 +255,7 @@ def revert(conn: db.Conn, tenant: db.Id, about: db.Id, staff: db.Id | None, why:
     if not rows:
         raise ValueError(f"{about} is not applied")
     p = rows[0]
-    _changed_by(conn, f"revert:{p['id']} staff:{staff}")
+    changed_by(conn, f"revert:{p['id']} staff:{staff}")
     for table in ("activity_skill", "activity_objective", "learning_objective_skill", "activity_material"):
         conn.execute(
             f"delete from {table} where tenant_id = %s and proposal_id = %s and source = 'machine'",  # noqa: S608
@@ -272,9 +269,7 @@ def revert(conn: db.Conn, tenant: db.Id, about: db.Id, staff: db.Id | None, why:
         )
     if p["kind"] == "page_part":
         for part, text in sorted(p["proposal"]["parts"].items()):
-            if part not in PAGE_PARTS:
-                raise ValueError(f"{part} is not a part of a page")
-            col = cast(LiteralString, part)
+            col = column(part)
             conn.execute(
                 f"update activity set {col} = '' where tenant_id = %s and code = %s and {col} = %s"  # noqa: S608
                 " and exists (select 1 from activity_part_source s where s.tenant_id = %s and s.activity_code = %s"

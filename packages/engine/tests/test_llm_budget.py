@@ -276,3 +276,19 @@ def test_the_status_says_the_spend_so_far_the_limit_and_the_stages_own(conn, mon
     assert llm_budget.status(conn, db.tenant_slug(), "item_generate", None) is None, "no campaign, no status"
     line = llm_budget.line(got)
     assert line == "spent $1.50 of $23.00; stage dev_eval $0.50 of $3.75"
+
+
+def test_how_long_a_call_may_stay_running_is_a_threshold_row_not_a_number_in_code(conn, monkeypatch):
+    answering(monkeypatch, [])
+    spend(conn, None, status="running", started="now() - interval '11 minutes'")
+    conn.execute("update threshold set value = 20 where key = 'llm.stale_minutes'")
+    assert llm.generate(conn, DRAFT, VARS, version=1), "11 minutes is not stale when the row says 20"
+    conn.execute("update threshold set value = 5 where key = 'llm.stale_minutes'")
+    with pytest.raises(llm.LLMBudgetError, match="left running"):
+        llm.generate(conn, DRAFT, VARS, version=1)
+
+
+def test_the_writer_and_the_readers_of_a_stage_share_one_form_of_the_trigger():
+    assert (
+        llm_budget.trigger_for(None) == "engine" and llm_budget.trigger_for("dev_eval") == "engine:dev_eval"
+    )

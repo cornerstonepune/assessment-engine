@@ -637,6 +637,12 @@
    "value": 3,
    "unit": "count",
    "description": "Replies in a row that break their schema before a drafting run stops (M1-11): the same failure paid for again and again means the prompt needs a person."
+  },
+  {
+   "key": "llm.stale_minutes",
+   "value": 10,
+   "unit": "minutes",
+   "description": "How long a model call may stay running before a campaign counts its spend as unknown and stops (adapters/llm_budget.py): a call that never came back may have been paid for."
   }
  ]
 }

@@ -76,9 +76,10 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
     `llm.daily_budget_inr` threshold row — no flow_run is written for a refusal, because no call
     was made. `meta`, if a dict is passed, is filled with prompt_id, model and flow_run_id so a
     caller can write provenance without a second lookup (gate 4: every item says what made it)."""
+    camps = llm_budget.campaigns(conn)  # read once: the carve-out below and the campaign's check both use it
     own_money = llm_budget.purposes(
-        conn
-    )  # a campaign's purposes have their own cap, and stay out of the day's total
+        camps
+    )  # a campaign's purposes have their own cap, outside the day's total
     budget = (
         None
         if purpose in own_money
@@ -97,7 +98,7 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
             )
 
     try:
-        llm_budget.check(conn, db.tenant_slug(), purpose, stage)
+        llm_budget.check(conn, db.tenant_slug(), purpose, stage, camps)
     except llm_budget.Refused as e:
         raise LLMBudgetError(str(e)) from e
     row = active_prompt(conn, purpose, subject, version)
@@ -106,7 +107,7 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
     run = conn.execute(
         "insert into flow_run (tenant_id, flow, trigger) select id, %s, %s from tenant where slug = %s"
         " returning id",
-        (purpose, f"engine:{stage}" if stage else "engine", db.tenant_slug()),
+        (purpose, llm_budget.trigger_for(stage), db.tenant_slug()),
     ).fetchone()["id"]
 
     text = _fill(row["text"], variables)

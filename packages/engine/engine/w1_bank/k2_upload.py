@@ -22,15 +22,7 @@ from engine.w1_bank import k2_gaps as gaps
 SEED = db.REPO_ROOT / "supabase" / "seed" / "k2_sheet.json"
 BULLET = re.compile(r"^\s*(?:[•·●▪◦*–—-]|\d+[.)])\s*")
 FIELDS = ("strand", "objective", "steps", "materials", "level_0", "level_1", "level_2", "level_3", "sheet_no")
-PARTS = (
-    "objective",
-    "steps",
-    "materials",
-    "level_0",
-    "level_1",
-    "level_2",
-    "level_3",
-)  # the ones a page shows
+PARTS = tuple(f for f in FIELDS if f in gaps.PARTS)  # the sheet's fields that are parts of a page
 
 
 def config() -> dict:
