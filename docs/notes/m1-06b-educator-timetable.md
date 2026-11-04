@@ -54,6 +54,19 @@ Mon 30 Nov is a November day in week B: it stays in week B.
   a week. Not forced.
 - Activity link: by exact name (letters and digits only) to exactly one K2 activity, in SQL; 38 of 375 lines link today.
 
+## Privacy and checksums
+- This repository is public, so staff appear by role. The frame tab named a PE educator (first name + "Sir") in four cells; at capture
+  those became the role "PE educator" (`capture.json` -> `redaction`: 4 replacements; the name itself is stored nowhere, it came from
+  the environment at that moment). A checker applies the same replacement to the live sheet before comparing. A test fails if any
+  committed timetable file holds "<Name> Sir/Madam/Ma'am". (The planner's "Miss Molly" is a nursery rhyme, not a person.)
+- The SQL header's sha256 values are of the raw committed bytes (`sha256sum supabase/seed/k2_tabs_2026_11_04/*.csv`); a test checks it.
+- Earlier pushes of this branch (5bd9b35, 795245c, 23ba747) hold the name in history; a squash merge keeps them out of main.
+
+## For Nimish: 21–24 Dec has no timetable
+The calendar calls 21–24 Dec "Buffer Week 3" (Pre-Primary events such as Show and Tell, and year-end celebrations on 24 Dec); it is not
+marked a holiday. Fortnights run 14 days from a Monday, so Fortnight 11 ends 20 Dec and there is no fortnight for these four days:
+no school_day rows, no sessions. Is that the calendar's intent (no planned lessons that week), or is the school closed? Nothing is loaded for them.
+
 ## Not claimed / for a person
 - `engine done m1-06b-educator-timetable`: the K2 educator's line-by-line marks do not exist yet (D-028).
 - A person confirms: which Time table tab is current, which Fortnight 10 row, Mon 7 Dec, where Block Room goes, whether the

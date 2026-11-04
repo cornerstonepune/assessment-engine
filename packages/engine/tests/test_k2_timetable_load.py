@@ -337,3 +337,30 @@ def test_a_fortnight_listed_under_two_months_loads_as_one_file_and_each_line_say
     text = out.read_text()
     assert "(November block)" in text and "(December block)" in text and "insert into session" in text
     assert "week A from the November block" in run.output and "conflict" not in run.output
+
+
+# ---- privacy: this repository is public, so staff appear by role and never by a typed name
+
+SEED = REPO / "supabase/seed"
+
+
+def test_no_committed_timetable_file_names_a_member_of_staff_and_the_capture_says_it_redacted():
+    named = re.compile(r"\b[A-Z][a-z]+ (?:Sir|Madam|Ma'am)\b")
+    files = [
+        *TABS.glob("*"),
+        *SEED.glob("k2_timetable_fn10_fn17*.sql"),
+        *(REPO / "packages/engine/tests/fixtures").glob("k2_timetable_*.json"),
+    ]
+    assert len(files) >= 8
+    assert [f.name for f in files if named.search(f.read_text())] == []
+    capture = json.loads((TABS / "capture.json").read_text())
+    assert capture["redaction"]["staff_names_replaced_by_role"] >= 1 and "name" not in capture["redaction"]
+
+
+def test_the_sql_header_checksums_are_of_the_raw_committed_bytes():
+    import hashlib
+
+    head = (SEED / "k2_timetable_fn10_fn17.sql").read_text()
+    for name in ("frame.csv", "planner.csv", "calendar.csv"):
+        want = hashlib.sha256((TABS / name).read_bytes()).hexdigest()
+        assert f"-- source {name}: sha256 {want}" in head, name

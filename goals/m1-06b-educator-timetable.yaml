@@ -42,6 +42,10 @@ says:
     proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_no_planner_line_keeps_a_stray_quotation_mark_from_the_cell"
   - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
     proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_a_fortnight_listed_under_two_months_loads_as_one_file_and_each_line_says_its_block"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_no_committed_timetable_file_names_a_member_of_staff_and_the_capture_says_it_redacted"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_the_sql_header_checksums_are_of_the_raw_committed_bytes"
 manual:
   - "Loaded Fortnight 10 to 17 from the exact tab exports (supabase/seed/k2_tabs_2026_11_04/) into a local copy: counts printed, second run adds nothing. Applying the SQL to live is the orchestrator's, in one transaction, with a before and after count."
   - "The K2 educator confirms the reading that settled Fortnight 10: week A (23-27 Nov) from the November block's planner row, week B (30 Nov-4 Dec) from the December block's."

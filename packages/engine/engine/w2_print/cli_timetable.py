@@ -85,7 +85,9 @@ def load(
             raise typer.Exit(1)
         files = {"frame": frame, "planner": planner, "calendar": calendar}
         texts = {k: p.read_text() for k, p in files.items()}
-        digests = {p.name: hashlib.sha256(texts[k].encode()).hexdigest() for k, p in files.items()}
+        digests = {
+            p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in files.values()
+        }  # the committed bytes
         vocab = _vocabulary(conn)
         held = _held(undecided)
         frame_in = ld.read_frame_csv(texts["frame"], vocab, json.loads(spans.read_text()) if spans else None)
