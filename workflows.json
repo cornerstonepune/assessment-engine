@@ -45,12 +45,12 @@
     },
     {
       "code": "N4", "workflow": "W2", "name": "The week's declaration",
-      "does": "The educator says in their own words what the class did this week; the engine proposes which of the grade's skill sets it covered (one yes/no each, Jev, ADR 0036) and the educator confirms or changes the ticks (goals/n4-week-declaration.yaml).",
+      "does": "The educator says in their own words what the class did this week; the engine proposes which of the grade's skill sets it covered (one yes/no each, Jev, ADR 0036) and the educator confirms or changes the ticks (goals/n4-week-declaration.yaml). Also the week ahead: for K2 the timetable is generated from the school's own two-week frame and the Monthly Planner, each period filled with a planner line copied for its subject, and the coordinator changes only what is wrong (goals/m1-06-plan-today.yaml; a thin addition here because the twelve agreed steps do not grow).",
       "who": "Jev proposes, the educator confirms",
       "built": "partly",
       "takes": ["the educator's note"],
       "gives": ["the week's skill sets"],
-      "files": ["engine/w2_print/week_note.py"],
+      "files": ["engine/w2_print/week_note.py", "engine/w2_print/k2_timetable.py"],
       "commands": ["engine eval"],
       "screens": ["/make/[section]/week"],
       "subject": {"any": false, "note": "Maths: the skill sets asked about are the maths grade's; another subject brings its own skill sets and gold notes."}
