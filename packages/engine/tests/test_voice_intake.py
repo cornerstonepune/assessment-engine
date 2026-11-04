@@ -53,6 +53,9 @@ def test_a_recording_is_kept_on_the_private_side_and_only_its_key_is_in_the_row(
     assert (tmp_path / note["audio_key"]).read_bytes() == b"placeholder-audio"
     with pytest.raises(voice_store.Refused, match="not on the staff list"):
         voice_intake.receive(conn, "nobody@example.test", k["class"], "note.m4a", b"x")
+    other = a_k2_class(conn)  # an educator who does not hold this class
+    with pytest.raises(voice_store.Refused, match="do not hold this class"), conn.transaction():
+        voice_intake.receive(conn, other["email"], k["class"], "note.m4a", b"x")
     with pytest.raises(voice_store.Refused, match="not a recording"):
         voice_intake.receive(conn, k["email"], k["class"], "note.pdf", b"x")
     before = sorted(p.name for p in tmp_path.rglob("*") if p.is_file())

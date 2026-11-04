@@ -36,9 +36,14 @@ class Confirmed:
     day: dt.date | None = None  # the day it was taught; the note's own day when not given
 
 
-def _mark(conn: db.Conn, outcome: str, level: int) -> str:
-    move = settings.config(conn, "voice.outcome_moves_level", {})[outcome]
-    return settings.config(conn, "voice.level_mark", {})[str(min(3, max(0, level + move)))]
+def _reached(conn: db.Conn, outcome: str, level: int) -> int:
+    """The level the outcome showed: her expected level moved by the outcome (`voice.outcome_moves_level`), 0 to 3."""
+    return min(3, max(0, level + settings.config(conn, "voice.outcome_moves_level", {})[outcome]))
+
+
+def _mark(conn: db.Conn, reached: int) -> str:
+    """The mark on the seen scale for a level reached (`voice.level_mark`)."""
+    return settings.config(conn, "voice.level_mark", {})[str(reached)]
 
 
 def _observed_at(conn: db.Conn, day: dt.date, received: dt.datetime) -> dt.datetime:
@@ -85,17 +90,18 @@ def _write(
     ]
     confirmation = uuid.uuid4()
     for child, (outcome, mode) in _children(conn, class_id, final.day, final).items():
+        reached = _reached(conn, outcome, final.level) if outcome in EVIDENCE else None
         obs = db.one(
             conn,
             "insert into activity_observation (tenant_id, confirmation_id, note_id, activity_code, child_id, class_id,"
-            " outcome, entry_mode, route, expected_level, observed_at, observed_by, confirmed_by)"
-            " select tenant_id, %s, %s, %s, %s, id, %s, %s, %s, %s, %s, %s, %s from school_class where id = %s"
+            " outcome, entry_mode, route, expected_level, reached_level, observed_at, observed_by, confirmed_by)"
+            " select tenant_id, %s, %s, %s, %s, id, %s, %s, %s, %s, %s, %s, %s, %s from school_class where id = %s"
             " returning id, tenant_id",
-            (confirmation, note_id, final.activity, child, outcome, mode, route, final.level, observed_at, staff,
-             staff, class_id),
+            (confirmation, note_id, final.activity, child, outcome, mode, route, final.level, reached, observed_at,
+             staff, staff, class_id),
         )  # fmt: skip
-        if outcome in EVIDENCE:
-            mark = _mark(conn, outcome, final.level)
+        if reached is not None:
+            mark = _mark(conn, reached)
             for skill in skills:
                 conn.execute(
                     "insert into evidence_event (tenant_id, child_id, skill_code, channel, observed_at, confirmed_by,"
@@ -151,8 +157,12 @@ def confirm_note(conn: db.Conn, note_id: str, email: str, final: Confirmed) -> u
     if draft.kind == "incident":
         raise Refused("An incident note is never confirmed as an observation.", 409)
     found = voice_intake.resolve(conn, note)
+    voice_intake.may_record(conn, staff, note["class_id"])
     final.day = final.day or found.taught_on
     at = _observed_at(conn, final.day, note["received_at"])
+    # confirmed first, in the same transaction: the database refuses evidence from a note that is not
+    # (`internal.evidence_of_a_confirmed_note`), and a refusal below undoes the confirmation with everything else
+    conn.execute("update pii.educator_note set status = 'confirmed' where id = %s", (note["id"],))
     confirmation = _write(
         conn,
         class_id=note["class_id"],
@@ -163,7 +173,6 @@ def confirm_note(conn: db.Conn, note_id: str, email: str, final: Confirmed) -> u
         observed_at=at,
     )
     _claims(conn, note, found, final, staff)
-    conn.execute("update pii.educator_note set status = 'confirmed' where id = %s", (note["id"],))
     return confirmation
 
 
@@ -171,6 +180,7 @@ def save_form(conn: db.Conn, email: str, class_id: str, final: Confirmed) -> uui
     """The form's Save is its confirmation: the same rows, by the form, with no note."""
     staff = voice_intake.staff_of(conn, email)
     class_id = voice_intake.valid_id(class_id)
+    voice_intake.may_record(conn, staff, class_id)
     final.day = final.day or dt.date.today()
     now = db.one(conn, "select now() as n")["n"]
     return _write(
@@ -186,19 +196,22 @@ def correct(conn: db.Conn, observation_id: str, email: str, outcome: str, reason
     old = conn.execute("select * from activity_observation where id = %s", (observation_id,)).fetchone()
     if old is None or staff not in (old["confirmed_by"], old["observed_by"]):
         raise Refused("This is not one of your observations.", 404)
+    voice_intake.may_record(conn, staff, old["class_id"])
     if conn.execute("select 1 from activity_observation where supersedes = %s", (old["id"],)).fetchone():
         raise Refused("This observation is already corrected; correct the newer one.", 409)
+    reached = _reached(conn, outcome, old["expected_level"]) if outcome in EVIDENCE else None
     new = db.one(
         conn,
         "insert into activity_observation (tenant_id, confirmation_id, note_id, activity_code, child_id, class_id,"
-        " outcome, entry_mode, route, expected_level, observed_at, observed_by, confirmed_by, supersedes, reason)"
-        " values (%s, %s, %s, %s, %s, %s, %s, 'individual', %s, %s, %s, %s, %s, %s, %s) returning id",
+        " outcome, entry_mode, route, expected_level, reached_level, observed_at, observed_by, confirmed_by,"
+        " supersedes, reason) values (%s, %s, %s, %s, %s, %s, %s, 'individual', %s, %s, %s, %s, %s, %s, %s, %s)"
+        " returning id",
         (old["tenant_id"], uuid.uuid4(), old["note_id"], old["activity_code"], old["child_id"], old["class_id"],
-         outcome, old["route"], old["expected_level"], old["observed_at"], old["observed_by"], staff, old["id"],
-         reason),
+         outcome, old["route"], old["expected_level"], reached, old["observed_at"], old["observed_by"], staff,
+         old["id"], reason),
     )["id"]  # fmt: skip
-    if outcome in EVIDENCE:
-        mark = _mark(conn, outcome, old["expected_level"])
+    if reached is not None:
+        mark = _mark(conn, reached)
         conn.execute(
             "insert into evidence_event (tenant_id, child_id, skill_code, channel, observed_at, confirmed_by, kind,"
             " mark, seen_by, place, source, observation_id)"

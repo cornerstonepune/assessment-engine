@@ -37,9 +37,23 @@ def staff_of(conn: db.Conn, email: str) -> uuid.UUID:
     return sid
 
 
+def may_record(conn: db.Conn, staff: uuid.UUID, class_id: str) -> None:
+    """She records for a class only while she holds an open grant on it in a role that records
+    (`voice.roles_that_record`, a config row). Anyone else is refused, a campus-wide role too unless the row names it."""
+    roles = list(settings.config(conn, "voice.roles_that_record", []))
+    held = conn.execute(
+        "select 1 from staff_role_grant where staff_id = %s and school_class_id = %s and role_code = any(%s)"
+        " and valid_from <= current_date and (valid_to is null or valid_to >= current_date)",
+        (staff, valid_id(str(class_id)), roles),
+    ).fetchone()
+    if held is None:
+        raise voice_store.Refused("You do not hold this class.", 403)
+
+
 def receive(conn: db.Conn, email: str, class_id: str, filename: str, data: bytes) -> dict:
     """The recording kept and its row written; the words come after (`transcribe`)."""
     staff = staff_of(conn, email)
+    may_record(conn, staff, class_id)
     note_id = uuid.uuid4()
     key = voice_store.key_for(note_id, filename, dt.date.today().year)
     note = conn.execute(

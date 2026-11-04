@@ -435,6 +435,12 @@
       "seed_once": true
     },
     {
+      "key": "voice.roles_that_record",
+      "description": "The roles whose open grant on a class lets a person record, confirm and correct that class's K2 voice notes and form. A campus-wide role (coordinator, head) is not here: it does not record unless added.",
+      "value": ["class_teacher", "cover_educator"],
+      "seed_once": true
+    },
+    {
       "key": "voice.screens_enabled",
       "description": "Whether the K2 educator sees Record and Confirm. Off until she is trained; Nimish turns it on. A page or route asked for while it is off refuses.",
       "value": false,
