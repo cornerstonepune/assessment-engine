@@ -1,0 +1,46 @@
+name: m1-06b-educator-timetable
+goal: >
+  The educator opens her day and sees the generated timetable for her class and nobody else's: a command turns the
+  school's own tabs (the Time table, the Monthly Planner, the Pre-Primary calendar) into the rows of the six timetable
+  tables for Fortnight 10 to 17, safe to run twice, printing counts and not text, listing every day and fortnight the
+  sources disagree about and every planner line with no period, and able to write the same rows as one SQL file that
+  can be applied to live; three read calls (her day, her week, one period with its activity) answer only for a class
+  she holds, refuse while `educator.timetable_enabled` is off, and carry no child and no name; a planner line is linked
+  to an activity only when it names exactly one, by code and never by a model.
+# Written 2026-11-04, before the code: task M1-06 part 2 (decisions D-018, D-028, D-061; design in
+# docs/notes/m1-06-k2-plan-timetable.md; response shapes agreed with the session building the screens). W2 step N4, files
+# only, no thirteenth step. The dated calendar says Fortnight 10 ends 6 Dec and Fortnight 11 starts 7 Dec; the Graph tab
+# says 7 Dec and 8 Dec: Monday 7 Dec is passed to the command as undecided and gets no session. A holiday marked for
+# (PG - N) only is not a K2 holiday; one marked Tentative is loaded and says so. Nimish's words: the one sentence below,
+# exactly as D-061 records it (teacher-os blueprint/decisions.md).
+says:
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_fortnight_ten_makes_the_rows_the_sheets_say"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_a_day_two_sources_disagree_about_gets_no_session_and_a_note_a_person_will_read"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_the_sql_is_the_same_every_time_and_every_insert_is_safe_to_run_again"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_a_line_that_names_an_activity_exactly_links_to_it_and_any_other_line_stays_plain"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_loading_twice_adds_nothing_the_second_time_and_counts_are_printed"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_day.py::test_the_day_is_her_classes_periods_in_time_order_with_what_the_plan_says"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_day.py::test_while_the_switch_is_off_every_call_is_refused"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_day.py::test_a_class_she_does_not_hold_is_refused_and_a_stranger_gets_nothing"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_day.py::test_no_answer_carries_a_child_or_a_name"
+manual:
+  - "Loaded for Fortnight 10 into a local copy: counts printed, second run adds nothing. Applying the SQL file to live is the orchestrator's, in one transaction, with a before and after count."
+  - "The K2 educator's line-by-line marks of the generated 23 Nov to 6 Dec timetable (D-028): not claimed until she has made them."
+  - "A person confirms: the K2 class and section on live, which timetable tab is current, where Block Room goes, planner Fortnights 10 to 17 are current, Saturdays."
+scenarios: []
+criteria:
+  - name: the loader, the three read calls and the switch, against the school's own text and a K2 class made for the test
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_timetable.py tests/test_k2_timetable_load.py tests/test_k2_day.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
