@@ -43,7 +43,11 @@ def test_the_key_check_prints_whether_the_key_is_there_and_never_the_key():
 @pytest.mark.parametrize("run", [r for r, v in cmd.RUNS.items() if v["spends"]])
 def test_a_run_that_spends_is_for_a_named_person_and_its_page_commands_name_their_stage_and_who(run):
     for c in lines(run):
-        if c.startswith("engine curriculum"):
+        if c.startswith("engine curriculum map-probe"):
+            assert c == "engine curriculum map-probe --version 3", (
+                c
+            )  # its stage, dev_eval, is fixed in the engine
+        elif c.startswith("engine curriculum"):
             assert "--stage" in c and c.endswith("--by someone@school.invalid"), c
         else:
             assert c.startswith("engine eval curriculum_map"), (

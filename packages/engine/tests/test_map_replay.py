@@ -150,6 +150,23 @@ def test_a_paid_reply_kept_by_the_adapter_reads_back_as_a_stored_call(monkeypatc
 
 
 @needs_db
+def test_a_probe_call_is_not_part_of_a_stored_run(monkeypatch):
+    from engine.core import db
+
+    monkeypatch.setattr(llm.db, "env", lambda name: "k")
+    monkeypatch.setattr(llm, "_dispatch", lambda *a, **k: ({"skills": []}, "claude-sonnet-5-5", 30, 20, 10))
+    with db.connect() as conn:
+        for about in ("probe:ACT-X-2", "ACT-X-2"):
+            try:
+                llm.generate(conn, PROPOSE, {}, version=2, stage="dev_eval", about=about)
+            except llm.LLMError:
+                pass
+        got = [c[2] for c in mr.stored(conn) if c[2].endswith("ACT-X-2")]
+        conn.rollback()
+    assert got == ["ACT-X-2"]
+
+
+@needs_db
 def test_a_run_rebuilt_from_its_stored_replies_scores_what_the_run_scored(monkeypatch):
     """Capture every call of a scripted dev-set run, store them as flow_run rows, read them back: the same score."""
     from engine.core import db

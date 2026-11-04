@@ -19,6 +19,7 @@ import typer
 from engine.adapters.llm import LLMError
 from engine.core import db
 from engine.w1_bank import map_ledger
+from engine.w1_bank import map_probe as map_probe_mod
 from engine.w1_bank import map_replay as map_replay_mod
 from engine.w1_bank.k2_upload import config, curriculum_app
 from engine.w1_bank.map_agents import (
@@ -271,3 +272,26 @@ def map_replay(
             raise typer.Exit(1) from e
     for line in lines:
         typer.echo(line)
+
+
+@curriculum_app.command("map-probe")
+def map_probe(
+    version: int = typer.Option(0, "--version", help="The proposer's prompt version (0: the active one)"),
+) -> None:
+    """One call to the proposer, about one dev-set activity asked as the eval asks it, to see the vendor take the
+    request. Prints the HTTP status and whether the reply passed the local check, and nothing else (the log is public).
+    Spends one call from the campaign's `dev_eval` stage."""
+    band_name, stage = config()["band"], "dev_eval"
+    with db.connect() as conn:
+        tenant = _tenant(conn)
+        tune, _ = gold_split(conn, read_band(conn, tenant, band_name))
+        code = sorted(tune)[0]
+        blind = read_band(conn, tenant, band_name, frozenset({code}))
+        blind.pool = frozenset(tune - {code})
+        try:
+            line = map_probe_mod.probe(
+                blind, code, _rules(conn, tenant).examples, model_ask(conn, version or None, None, stage)
+            )
+        finally:
+            conn.commit()  # the flow_run row: what the call spent and what it was told
+    typer.echo(line)
