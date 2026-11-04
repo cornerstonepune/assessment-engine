@@ -16,7 +16,7 @@ says:
   - words: "handle the schema-failure path so ONE bad reply costs one item (the per-item failure rule), not the run"
     proved_by: "packages/engine/tests/test_map_schema.py::test_a_reply_that_breaks_its_schema_is_that_activity_left_for_a_person_and_the_others_go_on"
   - words: "handle the schema-failure path so ONE bad reply costs one item (the per-item failure rule), not the run"
-    proved_by: "packages/engine/tests/test_map_schema.py::test_a_checker_reply_that_breaks_its_schema_rejects_that_one_proposal_and_says_why"
+    proved_by: "packages/engine/tests/test_map_schema.py::test_a_checker_reply_that_breaks_its_schema_leaves_that_one_proposal_for_a_person_and_says_why"
   - words: "handle the schema-failure path so ONE bad reply costs one item (the per-item failure rule), not the run"
     proved_by: "packages/engine/tests/test_map_schema.py::test_replies_that_keep_breaking_in_a_row_end_the_run_and_a_good_one_starts_the_count_again"
   - words: "check the other prompts that run in dev_eval for the same trap (k2_page_draft v2, k2_page_validate v2, k2_materials_split v2)"

@@ -15,6 +15,7 @@ import pytest
 
 from engine.adapters import llm
 from engine.core import db
+from engine.w1_bank import map_agents
 from engine.w1_bank.map_agents import PROPOSE, VALIDATE, model_ask, propose, read_band
 from tests.test_map_ledger import RULES, _band
 
@@ -125,11 +126,7 @@ def test_replies_that_keep_breaking_in_a_row_end_the_run_and_a_good_one_starts_t
     conn_band, monkeypatch
 ):
     conn, _ = conn_band
-    limit = int(
-        conn.execute("select value from config where key = 'k2.drafting'").fetchone()["value"][
-            "stop_after_bad_replies"
-        ]
-    )
+    limit = map_agents._bad_replies_allowed(conn)
     monkeypatch.setattr(llm, "generate", lambda *a, **k: (_ for _ in ()).throw(llm.LLMSchemaError("x")))
     ask = model_ask(conn, 2, 2)
     for _ in range(limit - 1):

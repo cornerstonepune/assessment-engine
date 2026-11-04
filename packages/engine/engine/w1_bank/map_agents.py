@@ -89,7 +89,7 @@ def model_ask(
     activity's loss (`propose` leaves it for a person); replies that keep breaking in a row, counted for each prompt,
     end the run, since the same failure is then being paid for again and again."""
     versions = {PROPOSE: propose_version, VALIDATE: validate_version}
-    bad = {PROPOSE: 0, VALIDATE: 0}
+    bad = dict.fromkeys(versions, 0)
 
     def ask(purpose: str, about: str, variables: dict[str, object]) -> Reply:
         try:
@@ -321,7 +321,18 @@ def _checked(
 def _broken(kind: str, code: str) -> Proposal:
     """What a proposer reply that broke its schema leaves: nothing proposed, and the reason in words."""
     why = "the proposer's reply broke its schema, so nothing is proposed for this activity"
-    return Proposal(kind, code, {}, 0.0, PROPOSE, "", [why], "", "rejected", why)
+    return Proposal(
+        kind=kind,
+        subject_code=code,
+        proposal={},
+        confidence=0.0,
+        proposer=PROPOSE,
+        validator="",
+        problems=[why],
+        verdict="",
+        status="rejected",
+        reason=why,
+    )
 
 
 def propose(band: Band, codes: list[str], ask: Ask, rules: Rules) -> list[Proposal]:
