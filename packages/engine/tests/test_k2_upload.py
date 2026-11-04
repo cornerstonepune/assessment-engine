@@ -277,10 +277,13 @@ def test_a_dry_run_runs_in_a_read_only_transaction_so_it_cannot_write_even_if_ap
         return got
 
     monkeypatch.setattr(up, "snapshot", snapshot_then_try_to_write)
+    # the history is not empty on a fresh copy: the seed's own links are in it (M1-05 keeps every link change)
+    with db.connect() as conn:
+        before = conn.execute("select count(*) as n from curriculum_edit").fetchone()["n"]
     result = CliRunner().invoke(cli.app, ["curriculum", "k2", str(sheet(tmp_path, BLOCK))])
     assert isinstance(result.exception, psycopg.errors.ReadOnlySqlTransaction)
     with db.connect() as conn:
-        assert conn.execute("select count(*) as n from curriculum_edit").fetchone()["n"] == 0
+        assert conn.execute("select count(*) as n from curriculum_edit").fetchone()["n"] == before
 
 
 def test_apply_without_by_is_refused_before_the_sheet_is_read_or_the_database_opened(tmp_path, monkeypatch):

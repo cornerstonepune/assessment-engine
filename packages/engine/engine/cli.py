@@ -8,10 +8,14 @@ from engine.adapters.llm import LLMError
 from engine.assess import graph
 from engine.checks.cli_check import register as register_checks
 from engine.checks.cli_live import live_app
+from engine.checks.evals import BY_VERSION
+from engine.checks.evals import held as _held
+from engine.checks.evals import of as _of
+from engine.checks.evals import unanswered as _unanswered
 from engine.checks.levels import levels_app
 from engine.core import asks, db, levels, loaders, references
 from engine.core.cli_staff import register as register_staff
-from engine.w1_bank import bank, generate, mistake_guess, review, spec, story_eval, story_keys, story_shape
+from engine.w1_bank import bank, generate, mistake_guess, review, spec, story_keys, story_shape
 from engine.w1_bank.cli_bank import bank_app
 from engine.w1_bank.k2_upload import curriculum_app
 from engine.w1_bank.question_types import types_app
@@ -35,6 +39,7 @@ EVALS = (
     *review.REVIEWERS,
     "item_generate",
     generate.PURPOSE,
+    "curriculum_map",
 )
 
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)
@@ -99,31 +104,6 @@ def graph_(
     typer.echo(f"  {n} states · {questions} questions with confirmed answers")
 
 
-def _unanswered(r, n):
-    """A Jev eval Jev did not answer fails and says why: with no key it used to score as nothing chosen, and pass."""
-    if r["unanswered"]:
-        typer.echo(f"JEV  not answered on {r['unanswered']} of {n}: {r['error']}", err=True)
-        raise typer.Exit(1)
-
-
-def _of(part: float, whole: float) -> float:
-    return part / whole if whole else 0.0
-
-
-def _held(purpose: str, scores: dict[str, float]) -> None:
-    """An eval's scores against its bars, rows in `threshold` (`checks.bars`): it exits 1 below any bar, or with none
-    on record (goals/p1-done-means-every-check.yaml)."""
-    from engine.checks import bars
-
-    with db.connect() as conn:
-        missed = bars.short(scores, bars.bars(conn, purpose))
-    for m in missed:
-        typer.echo(f"  BELOW  {purpose}: {m}", err=True)
-    if missed:
-        raise typer.Exit(1)
-    typer.echo(f"  {purpose}: every bar met")
-
-
 def _eval_reviewer(purpose: str) -> None:
     """A reviewer's agreement with the hand-judged cases in supabase/seed/validator_gold.json, and each case it
     disagreed on."""
@@ -171,45 +151,6 @@ def _eval_item_generate(n: int, only: str) -> None:
                 typer.echo(f"  {s['code']:<14}{d:<9}{ok:>3}/{ret:<3}  {worst}")
     typer.echo(f"  pass rate {total_ok}/{total} = {total_ok / total:.2f}" if total else "  nothing returned")
     _held("item_generate", {"pass_rate": _of(total_ok, total)})
-
-
-def _eval_english_generate(version: int) -> None:
-    """english_generate: the share of the questions written for the fixed samples that pass every check."""
-    with db.connect() as conn:
-        try:
-            r = generate.evaluate(conn, version or None)
-        except LLMError as e:
-            conn.commit()
-            typer.echo(f"MODEL  {e}", err=True)
-            raise typer.Exit(1)
-        conn.commit()  # the flow_run rows: what the eval spent; nothing else is written
-    typer.echo(json.dumps(r, indent=2, ensure_ascii=False))
-    typer.echo(f"english_generate v{version or 'active'}: {r['kept']}/{r['returned']} passed every check")
-    return _held(generate.PURPOSE, {"kept": _of(r["kept"], r["returned"])})
-
-
-def _eval_story_shape(version: int) -> None:
-    """story_shape: stories placed in the right case, and one-step answers computed right."""
-    with db.connect() as conn:
-        r = story_eval.evaluate(conn, version=version or None)
-        conn.commit()
-    for m in r["misses"]:
-        typer.echo(
-            f"  {'LEFT' if m['got'] is None else 'MISS':<5} {m['text'][:60]}  wanted {m['want']}, {m['got'] or m['why']}"
-            + "".join(f"\n          Jev: {o} {p:.2f}" for o, p in m.get("ranked") or [])
-        )
-    typer.echo(
-        f"  {story_shape.PURPOSE}: named {r['named']}/{r['n']}, the shape right on {r['right']} · one-step answers computed"
-        f" {r['keyed']}, wrong {r['wrong_answer']} · left for a person {r['left']}"
-    )
-    _unanswered(r, r["n"])
-    return _held(
-        story_shape.PURPOSE, {"shape_right": _of(r["right"], r["n"]), "wrong_answers": r["wrong_answer"]}
-    )
-
-
-# the scorers that take only the version they score
-BY_VERSION = {generate.PURPOSE: _eval_english_generate, story_shape.PURPOSE: _eval_story_shape}
 
 
 @app.command("eval")
