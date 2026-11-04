@@ -5,6 +5,8 @@ data/
 *.png
 *.pdf
 !docs/sources/*.pdf
+# the site's screens as a contact sheet for Nimish (docs/screens/<task>/): UI screenshots with placeholder children only, never a scan
+!docs/screens/**/*.png
 
 # secrets
 .env

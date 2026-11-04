@@ -14,7 +14,7 @@ from engine.core import db, people
 from tests.test_cli import run
 
 needs_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
-FROM = "2026-11-05"
+FROM, SIGNER = "2026-11-05", "cy@example.test"
 SIGN_IN = [  # placeholders; the password field is a stand-in for a hash and must never reach the staff tables
     {
         "email": "ann@example.test",
@@ -99,9 +99,9 @@ def rows(sql, *params):
 
 
 def load_everything(tmp_path, *flags):
-    imported = run("staff", "import", "--apply", "--by", "tester")
+    imported = run("staff", "import", "--apply", "--by", SIGNER)
     assert imported.exit_code == 0, imported.output_plain
-    return run("enrol", "k2", listing(tmp_path), "--apply", "--by", "tester", "--from", FROM, *flags)
+    return run("enrol", "k2", listing(tmp_path), "--apply", "--by", SIGNER, "--from", FROM, *flags)
 
 
 @needs_db
@@ -185,7 +185,7 @@ def test_a_child_is_in_a_class_only_through_an_enrolment_and_a_move_closes_one_a
 @needs_db
 def test_a_second_class_teacher_warns_and_is_allowed_only_with_a_recorded_reason(tmp_path, school):
     assert load_everything(tmp_path, "--teacher", "ann@example.test").exit_code == 0
-    again = ["enrol", "k2", listing(tmp_path), "--apply", "--by", "tester", "--from", FROM, "--teacher"]
+    again = ["enrol", "k2", listing(tmp_path), "--apply", "--by", SIGNER, "--from", FROM, "--teacher"]
     warned = run(*again, "bea@example.test")
     assert warned.exit_code == 1 and "already has a class educator" in warned.output_plain
     assert "--override-reason" in warned.output_plain
@@ -230,7 +230,7 @@ def test_staff_import_copies_the_staff_list_leaves_the_config_and_changes_nothin
     assert rows("select count(*) n from staff")[0]["n"] == 0
     refused = run("staff", "import", "--apply")
     assert refused.exit_code != 0 and "--by" in refused.output_plain
-    done = run("staff", "import", "--apply", "--by", "tester")
+    done = run("staff", "import", "--apply", "--by", SIGNER)
     assert done.exit_code == 0, done.output_plain
     assert rows("select count(*) n from staff")[0]["n"] == 4
     got = rows(
@@ -245,7 +245,7 @@ def test_staff_import_copies_the_staff_list_leaves_the_config_and_changes_nothin
     assert "scrypt" not in json.dumps(
         rows("select to_jsonb(s) from staff s") + rows("select to_jsonb(p) from pii.staff p"), default=str
     )
-    again = run("staff", "import", "--apply", "--by", "tester")
+    again = run("staff", "import", "--apply", "--by", SIGNER)
     assert (
         again.exit_code == 0
         and "already there: 4" in again.output_plain
@@ -266,7 +266,7 @@ def test_staff_import_copies_the_staff_list_leaves_the_config_and_changes_nothin
     with db.connect() as conn:
         conn.execute("update config set value = %s where key = 'app.staff'", (json.dumps(bad),))
         conn.commit()
-    refused = run("staff", "import", "--apply", "--by", "tester")
+    refused = run("staff", "import", "--apply", "--by", SIGNER)
     assert refused.exit_code == 1 and "'wizard' is not a role" in refused.output_plain
     assert rows("select count(*) n from staff")[0]["n"] == 4
 
@@ -279,7 +279,7 @@ def test_enrol_k2_is_a_dry_run_until_applied_and_a_second_run_changes_nothing(tm
     assert rows("select count(*) n from child where section = 'K2'")[0]["n"] == 0
     assert rows("select count(*) n from school_class")[0]["n"] == 0
     assert run("enrol", "k2", path, "--apply").exit_code != 0  # --by is needed
-    assert run("enrol", "k2", path, "--apply", "--by", "tester", "--from", FROM).exit_code == 0
+    assert load_everything(tmp_path).exit_code == 0
 
     def state():
         return (
@@ -293,7 +293,7 @@ def test_enrol_k2_is_a_dry_run_until_applied_and_a_second_run_changes_nothing(tm
         )
 
     first = state()
-    again = run("enrol", "k2", path, "--apply", "--by", "tester", "--from", FROM)
+    again = run("enrol", "k2", path, "--apply", "--by", SIGNER, "--from", FROM)
     assert (
         again.exit_code == 0
         and "already there: 22" in again.output_plain
@@ -313,9 +313,9 @@ def test_a_list_with_a_duplicate_or_a_bad_row_is_refused_in_words_and_writes_not
         "9,Placeholder Slip,31/02/2021",  # not a date
         "10,,01/01/2021",  # no name
     ]
-    out = run("enrol", "k2", listing(tmp_path, lines), "--apply", "--by", "tester", "--from", FROM)
-    text = out.output_plain
-    assert out.exit_code == 1 and "nothing was written" in text
+    run("staff", "import", "--apply", "--by", SIGNER)
+    out = run("enrol", "k2", listing(tmp_path, lines), "--apply", "--by", SIGNER, "--from", FROM)
+    assert out.exit_code == 1 and "nothing was written" in (text := out.output_plain)
     for line, why in (
         (5, "also on line 3"),
         (6, "same child as line 2"),
@@ -338,7 +338,7 @@ def test_a_list_with_a_duplicate_or_a_bad_row_is_refused_in_words_and_writes_not
             listing(tmp_path, children(2), name="a.csv"),
             "--apply",
             "--by",
-            "t",
+            SIGNER,
             "--from",
             FROM,
         ).exit_code
@@ -350,7 +350,7 @@ def test_a_list_with_a_duplicate_or_a_bad_row_is_refused_in_words_and_writes_not
         listing(tmp_path, ["number,name,birthday", f"1,Placeholder Someone Else,{born(1)}"], name="b.csv"),
         "--apply",
         "--by",
-        "t",
+        SIGNER,
     )
     assert other.exit_code == 1 and "already a different child" in other.output_plain
 
@@ -383,7 +383,7 @@ def test_no_name_email_phone_or_birthday_is_outside_pii_and_no_report_prints_one
     for role in ("app_web", "app_engine"):
         assert rows("select has_table_privilege(%s, 'pii.staff', 'select') p", role)[0]["p"] is False
     out = (
-        run("staff", "import", "--apply", "--by", "tester").output_plain
+        run("staff", "import", "--apply", "--by", SIGNER).output_plain
         + load_everything(tmp_path, "--teacher", "ann@example.test").output_plain
     )
     for private in ("Placeholder", "example.test", f"/{date.today().year - 5}"):
@@ -430,7 +430,7 @@ def test_the_twelve_roles_of_d026_are_rows_with_their_scope_and_the_rule_is_a_co
     rule = rows("select value from config where key = 'people.class_teacher_rule'")[0]["value"]
     assert rule["from_grade"] == "G1" and set(rule["core_subjects"]) == {"NUM", "ENG"}
     # a role the sign-in list holds for a class (specialist) is not granted at import; the person is added
-    out = run("staff", "import", "--apply", "--by", "tester")
+    out = run("staff", "import", "--apply", "--by", SIGNER)
     assert out.exit_code == 0 and "roles left to set: 1" in out.output_plain, out.output_plain
     assert (
         rows(
@@ -494,7 +494,7 @@ def test_d039_from_grade_one_a_core_teacher_is_not_a_class_teacher_unless_a_reas
 
 @needs_db
 def test_a_grant_is_never_deleted_it_ends(tmp_path, school):
-    assert run("staff", "import", "--apply", "--by", "tester").exit_code == 0
+    assert run("staff", "import", "--apply", "--by", SIGNER).exit_code == 0
     with db.connect() as conn:
         with pytest.raises(psycopg.errors.RaiseException, match="never deleted"):
             conn.execute("delete from staff_role_grant")
@@ -509,7 +509,7 @@ def test_a_grant_is_never_deleted_it_ends(tmp_path, school):
 
 @needs_db
 def test_the_staff_id_of_a_signed_in_email_is_found_in_any_case_and_never_a_name(tmp_path, school):
-    assert run("staff", "import", "--apply", "--by", "tester").exit_code == 0
+    assert run("staff", "import", "--apply", "--by", SIGNER).exit_code == 0
     with db.connect() as conn:
         want = conn.execute("select staff_id from pii.staff where email = 'ann@example.test'").fetchone()[
             "staff_id"

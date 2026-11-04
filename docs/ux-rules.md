@@ -9,6 +9,13 @@ Educators use the site on a desktop. Every screen is designed, tested and screen
 break (no error, no lost action) but no screen is held for it, and rule 7's phone line is no longer a gate. The one
 exception is KG observation (S9), which is done on a phone.
 
+**K2 voice notes (task M1-04, the design agreed 3 Nov 2026).** Desktop first at 1280 px; the same screen folds to one
+column on a phone (both are screenshotted). Colour first, words second, never colour alone. Work is a round chip with
+its icon (red fix this, amber to confirm, green done, grey to do or late); a child is a square cell, and a child is
+never red: not seen is grey. A mark is an icon first (above ▲, below ▼, not willing a hand, absent a dashed ring).
+Nothing is ticked for her, "the rest did as expected" is a single switch, and Confirm is per note. The words are in
+`apps/web/lib/voice-words.ts` and every icon in `apps/web/lib/icons.tsx`.
+
 ## The eight rules, and three more for the desktop
 
 1. **One purpose, one main action.** The title says what the page is for; one main action; the page ends on a link to
@@ -16,6 +23,10 @@ exception is KG observation (S9), which is done on a phone.
 2. **One table style.** The same columns, date and number formats, status chips and words everywhere.
 3. **No long tables.** At most 10 rows shown (`TABLE_ROW_LIMIT`). More are grouped by week or class, or paged, with
    what needs the educator first.
+   *Not a table:* a K2 class's tap grid (each child a square cell by Sr. No., `app/(app)/voice/board.tsx`) shows the
+   whole class at once and is never a `<table>`. She marks children by tapping them, and a class paged ten at a time
+   hides the child she needs; a grid of 40 cells fits a phone's screen where 40 rows would not (task M1-04, the agreed
+   K2 design, 3 Nov 2026). The class picture (M1-03) will be the same.
 4. **No empty noise.** No column of zeros or dashes, no empty chip, no line under the title over 140 characters
    (`PURPOSE_MAX`).
 5. **One count, one meaning.** Computed once, the same on every page and in the menu. Only What needs doing (once Today) has a count.

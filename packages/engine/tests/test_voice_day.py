@@ -24,3 +24,10 @@ def test_the_date_at_the_start_of_the_days_first_note_is_read_and_never_lands_in
 def test_a_date_half_said_is_could_not_read():
     d = vn.read("November. Activity 7. Above 3.")
     assert "could not read the date: a day and a month are both needed" in d.problems
+
+
+def test_the_problems_about_the_date_are_named_apart_so_picking_the_date_fixes_them():
+    d = vn.read("November. Activity 7. Above 3. Below 3.")
+    assert d.day_problems == ("could not read the date: a day and a month are both needed",)
+    assert set(d.day_problems) < set(d.problems)  # the child in two lists is not about the date
+    assert vn.read("Activity 7. Above 3.").day_problems == ()

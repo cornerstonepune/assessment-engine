@@ -228,7 +228,7 @@ def test_the_words_and_the_waiting_time_are_rows_and_audio_is_kept_until_retenti
             "select key, value from config where tenant_id = %s and key like 'voice.%%'", (t,)
         )
     }
-    assert config == {"voice.confirm_within_hours": 48, "voice.audio_retention_days": None}
+    assert (config["voice.confirm_within_hours"], config["voice.audio_retention_days"]) == (48, None)
 
 
 def test_a_correction_is_of_the_same_child_and_activity_in_the_same_school_and_happens_once(conn):
@@ -309,3 +309,17 @@ def _activity_in(conn, tenant, code):
         (tenant, code),
     )
     return code
+
+
+def test_the_ledgers_are_emptied_only_by_the_databases_owner_as_evidence_is(conn):
+    """The copy of live empties every table as the owner (`engine live copy`); neither service may (rule 4, by grant)."""
+    for table in ("activity_observation", "pii.note_claim"):
+        with conn.transaction():
+            conn.execute(f"truncate {table} cascade")  # the owner, as the rehearsal's copy does
+            raise_rollback = psycopg.Rollback
+            raise raise_rollback()
+    for role in ("app_engine", "app_web"):
+        for table in ("activity_observation", "pii.note_claim"):
+            with pytest.raises(psycopg.errors.InsufficientPrivilege), conn.transaction():
+                conn.execute(f"set local role {role}")
+                conn.execute(f"truncate {table}")

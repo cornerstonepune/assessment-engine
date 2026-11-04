@@ -14,14 +14,16 @@ person; a child's evidence, answers and state are never read or written here.
 import csv
 import io
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
 import psycopg
 
-from engine.core import db
+from engine.core import db, signer
+from engine.core import staff_write as write
+from engine.core.report import Report
 from engine.core.staff import staff as signin_list
 
 DEFAULT_LETTER = "A"  # the class's own section within the grade (K2-A)
@@ -29,22 +31,6 @@ ROLL = re.compile(r"^[A-Za-z0-9-]{1,8}$")
 COLUMNS = ("number", "name", "birthday")
 DATE_FORMATS = ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y", "%d %b %Y", "%d %B %Y")
 AGE_YEARS = (2, 10)  # a birthday outside this is a typing slip for a K2 list, refused rather than stored
-
-
-@dataclass
-class Report:
-    """What a run did or would do. `lines` are the words for a person; `counts` are the numbers a test checks."""
-
-    lines: list[str] = field(default_factory=list[str])
-    counts: dict[str, int] = field(default_factory=dict[str, int])
-    refused: list[str] = field(default_factory=list[str])
-
-    def count(self, what: str, n: int = 1) -> None:
-        self.counts[what] = self.counts.get(what, 0) + n
-
-    def refuse(self, why: str) -> None:
-        self.refused.append(why)
-        self.count("refused")
 
 
 def _tenant(conn: db.Conn) -> Any:
@@ -78,15 +64,21 @@ def parse_birthday(text: str, today: date) -> date:
 def import_staff(conn: db.Conn, by: str, apply: bool) -> Report:
     """Copy each entry of the sign-in list into the staff tables. An entry already there (same email) is left. A role
     held for the whole campus is granted from today; a role held for a class or a child (the list's `specialist`) needs
-    that class or child, so the person is added and the role is left to be set there. `config` is read, never written."""
+    that class or child, so the person is added and the role is left to be set there. `config` is read, never written.
+    `by` is the signer's email; grants carry their staff id, looked up once the staff rows exist (signer.py)."""
     out = Report()
     tenant = _tenant(conn)
+    entries = signin_list(conn)
+    if not signer.first_import_ok(conn, by, entries):
+        out.refuse(signer.REFUSED_FIRST)
+        return out
+    grants: list[tuple[Any, str]] = []  # written last, when the signer is surely a member of staff
     scope = {
         r["code"]: r["scope"]
         for r in conn.execute("select code, scope from role where tenant_id = %s", (tenant,)).fetchall()
     }
     campus = db.one(conn, "select id from campus where tenant_id = %s", (tenant,))["id"]
-    for n, entry in enumerate(signin_list(conn), start=1):
+    for n, entry in enumerate(entries, start=1):
         email, role = str(entry["email"]).strip().lower(), str(entry["role"])
         if role not in scope:
             out.refuse(f"entry {n}: the role {role!r} is not a role (roles: {', '.join(sorted(scope))})")
@@ -117,39 +109,12 @@ def import_staff(conn: db.Conn, by: str, apply: bool) -> Report:
         elif staff_id is not None:
             out.count("already there")
         if apply and not out.refused:
-            if staff_id is None:
-                staff_id = _new_staff(conn, tenant, campus, str(entry["name"]), email)
-            if campus_wide and not holds:
-                _grant(conn, tenant, staff_id, role, date.today(), by)
+            grants += write.stage(
+                conn, tenant, campus, entry, staff_id, role if campus_wide and not holds else ""
+            )
+    if apply and not out.refused:
+        write.grant_all(conn, tenant, grants, signer.resolve(conn, by))
     return out
-
-
-def _new_staff(conn: db.Conn, tenant: Any, campus: Any, name: str, email: str) -> Any:
-    sid = db.one(
-        conn, "insert into staff (tenant_id, campus_id) values (%s,%s) returning id", (tenant, campus)
-    )["id"]
-    conn.execute(
-        "insert into pii.staff (tenant_id, staff_id, name, email) values (%s,%s,%s,%s)",
-        (tenant, sid, name.strip(), email),
-    )
-    return sid
-
-
-def _grant(
-    conn: db.Conn,
-    tenant: Any,
-    staff_id: Any,
-    role: str,
-    since: date,
-    by: str,
-    class_id: Any = None,
-    reason: str | None = None,
-) -> None:
-    conn.execute(
-        "insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, valid_from, granted_by,"
-        " override_reason) values (%s,%s,%s,%s,%s,%s,%s)",
-        (tenant, staff_id, role, class_id, since, by, reason),
-    )
 
 
 # ---------------------------------------------------------------- the class list
@@ -283,14 +248,16 @@ def enrol_k2(
     reason: str | None = None,
     letter: str = DEFAULT_LETTER,
 ) -> Report:
+    """`by` is the signer's email, refused before anything is read unless it is a member of staff; rows carry their id."""
     out = Report()
+    who = signer.resolve(conn, by) if by.strip() or apply else ""
     today = date.today()
     since = since or today
     rows = read_list(path, today, out)
     tenant = _tenant(conn)
     grade = _grade(conn, tenant, grade_name)
     class_id = _class_ids(conn, tenant, grade, year_label(since), letter, apply and not out.refused, out)
-    actor = by if apply else "engine enrol k2 (dry run)"
+    actor = who or "engine enrol k2 (dry run)"
     plan: list[tuple[Row, Any, str]] = []  # the row, its existing child (or None), what to do
     for r in rows:
         child = conn.execute(
@@ -337,9 +304,9 @@ def enrol_k2(
                     "update pii.child set birthday = %s where child_id = %s and birthday is null",
                     (r.born, child_id),
                 )
-            conn.execute("select enrol_child(%s,%s,%s,%s,%s)", (child_id, class_id, r.roll, since, by))
+            conn.execute("select enrol_child(%s,%s,%s,%s,%s)", (child_id, class_id, r.roll, since, who))
         if teacher:
-            _grant_teacher(conn, tenant, teacher, class_id, since, by, reason)
+            _grant_teacher(conn, tenant, teacher, class_id, since, who, reason)
     return out
 
 
@@ -393,6 +360,6 @@ def _grant_teacher(
     ).fetchone()
     if not held:
         try:
-            _grant(conn, tenant, person["staff_id"], "class_teacher", since, by, class_id, reason)
+            write.grant(conn, tenant, person["staff_id"], "class_teacher", since, by, class_id, reason)
         except psycopg.errors.RaiseException as e:
             raise ValueError(str(e.diag.message_primary)) from e
