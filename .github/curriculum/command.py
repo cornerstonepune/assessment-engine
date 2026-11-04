@@ -29,7 +29,7 @@ RUNS = {
     "map_dev": {
         "spends": True,
         "commands": [
-            ["engine", "eval", "curriculum_map", "--dev", "--version", "2", "--validate-version", "2"]
+            ["engine", "eval", "curriculum_map", "--dev", "--version", "3", "--validate-version", "2"]
         ],
     },
     "map_replay": {"spends": False, "commands": [["engine", "curriculum", "map-replay"]]},
@@ -39,7 +39,7 @@ RUNS = {
     },
     "map_held_out": {
         "spends": True,
-        "commands": [["engine", "eval", "curriculum_map", "--version", "2", "--validate-version", "2"]],
+        "commands": [["engine", "eval", "curriculum_map", "--version", "3", "--validate-version", "2"]],
     },
     "draft_all": {
         "spends": True,

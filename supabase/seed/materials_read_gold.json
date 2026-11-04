@@ -1,0 +1,4 @@
+{
+  "about": "The gold set for the materials_read eval (task M1-16): requests a person has read and marked. Empty until real requests are given (D-028); nothing is invented. Each case: {\"note\": the text, \"expect\": [{\"item_code\", \"quantity\", \"unit\"}] or [] when code should send it to a person}. `engine eval materials_read` refuses to run on an empty set.",
+  "cases": []
+}

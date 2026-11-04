@@ -17,6 +17,7 @@ from engine.adapters import llm
 from engine.core import db
 from engine.w1_bank import map_agents
 from engine.w1_bank.map_agents import PROPOSE, VALIDATE, model_ask, propose, read_band
+from engine.w1_bank.map_check import LEVELS
 from tests.test_map_ledger import RULES, _band
 
 SEED = db.REPO_ROOT / "supabase" / "seed"
@@ -222,3 +223,31 @@ def test_each_call_says_which_activity_was_accepted_or_refused_and_why(conn_band
         ask(PROPOSE, "ACT-2", {})
     assert "ACT-1" in said[0] and "accepted" in said[0]
     assert "ACT-2" in said[1] and "REFUSED" in said[1] and "was unexpected" in said[1]
+
+
+def test_the_third_proposer_names_all_four_levels_so_the_vendor_can_hold_it_and_v2_is_left_as_it_was():
+    v2, v3 = row("curriculum_map_propose", 2), row("curriculum_map_propose", 3)
+    assert v2["json_schema"]["properties"]["levels"]["additionalProperties"] == {"type": "string"}
+    levels = v3["json_schema"]["properties"]["levels"]
+    assert levels["additionalProperties"] is False and sorted(levels["properties"]) == sorted(LEVELS)
+    assert levels["required"] == list(levels["properties"])
+    text = (SEED / v3["text_file"]).read_text().lower()
+    assert "no other field" in text and "empty string" in text and v3["active"] is False
+    jsonschema.validate({**GOOD, "levels": dict.fromkeys(LEVELS, "")}, v3["json_schema"])
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate({**GOOD, "levels": {"level_0": "x"}}, v3["json_schema"])
+
+
+def test_a_fixed_form_reply_proposes_only_the_levels_that_were_asked_for():
+    from engine.w1_bank.map_agents import _split
+    from engine.w1_bank.map_check import Gap
+
+    gap = Gap("A", "S", frozenset(), frozenset(), frozenset({"level_1", "level_3"}))  # the sheet has 1 and 3
+    reply = {"levels": {"level_0": "Watches", "level_1": "", "level_2": "", "level_3": ""}}
+    assert _split("levels", reply, gap) == {"levels": {"level_0": "Watches", "level_2": ""}}, (
+        "an asked level that came back empty stays, for the code check to say so"
+    )
+    assert _split("levels", {"levels": {"level_1": "", "level_3": ""}}, gap) == {"levels": {}}
+    assert _split("levels", {"levels": {"level_1": "again"}}, gap) == {"levels": {"level_1": "again"}}, (
+        "words for a level the sheet has are still the code check's to refuse"
+    )

@@ -53,6 +53,7 @@ EVALS = (
     "item_generate",
     generate.PURPOSE,
     "curriculum_map",
+    "materials_read",
 )
 
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)

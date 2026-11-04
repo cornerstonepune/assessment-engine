@@ -52,8 +52,8 @@ def test_a_run_that_spends_is_for_a_named_person_and_its_page_commands_name_thei
 
 
 def test_the_map_evals_are_the_two_stages_of_the_mapping_agents():
-    assert lines("map_dev")[0].startswith("engine eval curriculum_map --dev --version 2 --validate-version 2")
-    assert lines("map_held_out")[0].startswith("engine eval curriculum_map --version 2 --validate-version 2")
+    assert lines("map_dev")[0].startswith("engine eval curriculum_map --dev --version 3 --validate-version 2")
+    assert lines("map_held_out")[0].startswith("engine eval curriculum_map --version 3 --validate-version 2")
     assert "--dev" not in lines("map_held_out")[0]
 
 

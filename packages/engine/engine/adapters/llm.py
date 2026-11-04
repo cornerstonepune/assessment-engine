@@ -9,6 +9,7 @@ model id, an HTTP code, or an unvalidated reply.
 
 import base64
 import json
+import re
 import ssl
 import time
 import urllib.error
@@ -18,7 +19,7 @@ from typing import Literal, get_args
 import anthropic
 import certifi
 import jsonschema
-from anthropic.types import ImageBlockParam, MessageParam, TextBlockParam
+from anthropic.types import ImageBlockParam, MessageParam, OutputConfigParam, TextBlockParam
 from psycopg.types.json import Json
 
 from engine.adapters import llm_budget
@@ -108,6 +109,8 @@ def generate(
     row = active_prompt(conn, purpose, subject, version)
     cfg = conn.execute("select value from config where key = 'llm.fallback_models'").fetchone()
     models = [row["model"]] + list(cfg["value"] if cfg else [])
+    held = conn.execute("select value from config where key = 'llm.structured'").fetchone()
+    structured = row.get("version") in ((held["value"] if held else None) or {}).get(purpose, [])
     run = conn.execute(
         "insert into flow_run (tenant_id, flow, trigger, request) select id, %s, %s, %s from tenant"
         " where slug = %s returning id",
@@ -133,7 +136,7 @@ def generate(
     out = None  # what it said, kept on the row whether it is accepted or refused (a paid reply is never lost)
     try:
         out, model, tokens, tokens_in, tokens_out = _dispatch(
-            models, text, images, row["json_schema"], row.get("effort")
+            models, text, images, row["json_schema"], row.get("effort"), structured
         )
         answered = (model, tokens, tokens_in, tokens_out)
         try:
@@ -177,7 +180,7 @@ def _cost_inr(conn, model, tokens_in, tokens_out):
     return round((tokens_in * rate.get("in", 0) + tokens_out * rate.get("out", 0)) / 1_000_000, 4)
 
 
-def _dispatch(models, text, images, schema, effort=None):
+def _dispatch(models, text, images, schema, effort=None, structured=False):
     """Walk the model list in order, each vendor by its own transport. A model that cannot serve
     — quota gone, no key, no credit, transient errors exhausted — hands on to the next, and the
     final error names every model's reason, so a malformed request still reads as one. Returns
@@ -186,15 +189,22 @@ def _dispatch(models, text, images, schema, effort=None):
     errors = []
     # Both vendors see the schema in the prompt: asked only for "JSON", a model may return a bare
     # list where an object was wanted, and the validation after this would refuse the whole page.
-    text = f"{text}\n\nThe JSON schema to match exactly:\n{json.dumps(schema)}"
+    with_schema = f"{text}\n\nThe JSON schema to match exactly:\n{json.dumps(schema)}"
     for model in models:
         try:
             if model.startswith("claude-"):
+                # Held by the vendor, the schema is not also pasted into the prompt: a model shown it in words copied
+                # its keywords into the reply as fields ('additionalProperties', 'confidence_note', 2026-11-04).
                 out, tin, tout = _call_anthropic(
-                    model, text, images, schema, effort if model == models[0] else None
+                    model,
+                    text if structured else with_schema,
+                    images,
+                    schema,
+                    effort if model == models[0] else None,
+                    structured,
                 )
                 return out, model, tin + tout, tin, tout
-            parts = [{"text": text}]
+            parts = [{"text": with_schema}]
             parts += [
                 {"inline_data": {"mime_type": "image/jpeg", "data": base64.b64encode(img).decode()}}
                 for img in images
@@ -217,9 +227,18 @@ def _dispatch(models, text, images, schema, effort=None):
     raise LLMError(f"all models unavailable: {', '.join(models)}; " + " | ".join(errors))
 
 
-def _call_anthropic(model, text, images, schema, effort: Effort | None = None):
+def _output_config(effort: Effort | None, schema: dict, structured: bool) -> OutputConfigParam:
+    out: OutputConfigParam = {"effort": effort} if effort else {}
+    if structured:
+        out["format"] = {"type": "json_schema", "schema": anthropic.transform_schema(schema)}
+    return out
+
+
+def _call_anthropic(model, text, images, schema, effort: Effort | None = None, structured=False):
     """One Messages call → (output, input tokens, output tokens). The reply is validated by the
-    caller; the SDK already retries 429s and 5xx. `effort` bounds how long the model thinks first: at its default,
+    caller; the SDK already retries 429s and 5xx. `structured` has the vendor hold the reply to the schema
+    (`output_config.format`, the SDK's own `transform_schema` taking out the keywords the vendor does not accept:
+    bounds and lengths; the caller's check still holds those). `effort` bounds how long the model thinks first: at its default,
     claude-sonnet-5 read 21 parent reports for over thirty minutes (2026-09-28)."""
     key = db.env("ANTHROPIC_API_KEY")
     client = anthropic.Anthropic(api_key=key, max_retries=3, timeout=TIMEOUT_S)
@@ -241,7 +260,7 @@ def _call_anthropic(model, text, images, schema, effort: Effort | None = None):
             model=model,
             max_tokens=MAX_TOKENS,
             messages=messages,
-            output_config={"effort": effort} if effort else anthropic.omit,
+            output_config=_output_config(effort, schema, structured) or anthropic.omit,
         )
     except anthropic.RateLimitError as e:
         raise LLMError(f"{model} rate limited: {e.message}") from e
@@ -284,11 +303,16 @@ def _quota(body):
 
 
 def _fill(text, variables):
-    for k, v in variables.items():
-        text = text.replace(
-            "{{" + k + "}}", v if isinstance(v, str) else json.dumps(v, ensure_ascii=False, indent=2)
-        )
-    return text
+    """Each {{name}} in the prompt's own text becomes its variable, in one pass: a value that itself contains
+    {{another}} is left as typed, never filled in a second time."""
+
+    def one(m):
+        v = variables.get(m.group(1))
+        if v is None:
+            return m.group(0)
+        return v if isinstance(v, str) else json.dumps(v, ensure_ascii=False, indent=2)
+
+    return re.sub(r"\{\{(\w+)\}\}", one, text)
 
 
 def _call(models, body, key):
