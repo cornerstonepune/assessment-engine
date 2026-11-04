@@ -15,6 +15,8 @@ from typer.testing import CliRunner
 
 from engine.cli import app
 
+pytestmark = pytest.mark.usefixtures("forgets_what_it_commits")
+
 runner = CliRunner()
 
 

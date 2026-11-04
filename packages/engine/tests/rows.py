@@ -62,12 +62,12 @@ def a_read_paper(conn, answers, path="scan.pdf", paper="TEST-P1", fmt="column"):
     the reader took the child to have written), and optionally `state` (candidate / confirmed), `typed` (a
     person's correction of the reading) and `why` (the reason it waited; a confirmed answer's is marking's hold). → {"child", "capture", "results": [item_result ids, in order]}."""
     t = tenant(conn)
-    tag = uuid.uuid4().hex[:6].upper()
-    child = a_child(conn, f"ROWS-{tag}")
+    tag = uuid.uuid4().hex.upper()  # all of it: six digits of it collided on a unique column (M0-04)
+    child = a_child(conn, f"ROWS-{tag[:8]}")
     tpl = conn.execute(
         "insert into sheet_template (tenant_id, band, child_id, week, key, batch_id) values (%s, 'G2', %s, %s, %s, %s)"
         " returning id",
-        (t, child, f"ROWS-{tag}", json.dumps({"code": paper}), paper),
+        (t, child, f"ROWS-{tag[:8]}", json.dumps({"code": paper}), paper),
     ).fetchone()["id"]
     inst = conn.execute(
         "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id, print_status)"
@@ -120,3 +120,42 @@ def data_steps(migration):
     step = r"^do \$\$.*?^end \$\$;|^(?:update|insert into|delete from)\b.*?;[ \t]*$"
     steps = "\n".join(m.group(0) for m in re.finditer(step, migration.read_text(), re.S | re.M))
     return re.sub(r"\bskill_set\b", "skill", steps)
+
+
+def forget_paper(conn, paper):
+    """Take away what `a_read_paper` wrote and what reading it wrote after, for a test that had to commit it (a second
+    connection reads it) and so must put the database back as it found it (M0-04c). `paper` is what `a_read_paper`
+    returned. Some of what a reading writes is append-only by trigger, so the triggers are off for this transaction
+    (`session_replication_role`, the tests' own role may), and every row that names the paper's capture, child, copy or
+    items is deleted by that name, whatever table it is in. The caller commits."""
+    items = [
+        r["item_id"]
+        for r in conn.execute("select item_id from item_result where capture_id = %s", (paper["capture"],))
+    ]
+    sheet = conn.execute(
+        "select c.sheet_instance_id as i, s.sheet_template_id as t from capture c"
+        " join sheet_instance s on s.id = c.sheet_instance_id where c.id = %s",
+        (paper["capture"],),
+    ).fetchone()
+    conn.execute("set local session_replication_role = replica")
+    named = {
+        "capture_id": [paper["capture"]],
+        "item_id": items,
+        "sheet_instance_id": [sheet["i"]],
+        "child_id": [paper["child"]],
+    }
+    for column, ids in named.items():
+        for r in conn.execute(
+            "select table_schema as s, table_name as t from information_schema.columns c"
+            " where column_name = %s and table_schema in ('public', 'pii')"
+            " and (select table_type from information_schema.tables x where x.table_schema = c.table_schema"
+            "      and x.table_name = c.table_name) = 'BASE TABLE'",
+            (column,),
+        ).fetchall():
+            conn.execute(f'delete from {r["s"]}."{r["t"]}" where {column} = any(%s)', (ids,))
+    conn.execute("delete from capture where id = %s", (paper["capture"],))
+    conn.execute("delete from sheet_instance where id = %s", (sheet["i"],))
+    conn.execute("delete from sheet_template where id = %s", (sheet["t"],))
+    conn.execute("delete from item where id = any(%s)", (items,))
+    conn.execute("delete from child where id = %s", (paper["child"],))
+    conn.execute("set local session_replication_role = origin")

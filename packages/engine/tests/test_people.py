@@ -13,6 +13,8 @@ import pytest
 from engine.core import db, people
 from tests.test_cli import run
 
+pytestmark = pytest.mark.usefixtures("forgets_what_it_commits")
+
 needs_db = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
 FROM, SIGNER = "2026-11-05", "cy@example.test"
 SIGN_IN = [  # placeholders; the password field is a stand-in for a hash and must never reach the staff tables

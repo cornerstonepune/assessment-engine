@@ -10,6 +10,8 @@ from engine.core import db
 from tests.test_people import SIGN_IN, children, listing, needs_db, rows, run
 from tests.test_people import school as school  # the fixture, named so usefixtures finds it
 
+pytestmark = pytest.mark.usefixtures("forgets_what_it_commits")
+
 SIGNER = "cy@example.test"  # the coordinator of the placeholder sign-in list
 FROM = "2026-11-05"
 PLACEHOLDER_WORDS = ("placeholder", "example.test")  # every name and email the fixtures hold
