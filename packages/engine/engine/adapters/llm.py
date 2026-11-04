@@ -45,6 +45,10 @@ class LLMError(RuntimeError):
     pass
 
 
+class LLMBudgetError(LLMError):
+    """The money for this work is spent, or cannot be counted: a run ends cleanly, keeping what is good."""
+
+
 class LLMSchemaError(LLMError):
     """The model answered, but not in the form its row's json_schema asks for."""
 
@@ -95,7 +99,7 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
     try:
         llm_budget.check(conn, db.tenant_slug(), purpose, stage)
     except llm_budget.Refused as e:
-        raise LLMError(str(e)) from e
+        raise LLMBudgetError(str(e)) from e
     row = active_prompt(conn, purpose, subject, version)
     cfg = conn.execute("select value from config where key = 'llm.fallback_models'").fetchone()
     models = [row["model"]] + list(cfg["value"] if cfg else [])

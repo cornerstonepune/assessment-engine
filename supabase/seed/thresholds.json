@@ -595,6 +595,42 @@
    "value": 2,
    "unit": "count",
    "description": "How many more times a page still bad or missing is asked for before it is left for a person (M1-11)."
+  },
+  {
+   "key": "k2.est_draft_in",
+   "value": 1000,
+   "unit": "count",
+   "description": "Tokens in, per page, ASSUMED for the forecast of a drafting run (M1-11); not measured. Replace with the measured mean after the dev eval."
+  },
+  {
+   "key": "k2.est_draft_out",
+   "value": 700,
+   "unit": "count",
+   "description": "Tokens out, per page, ASSUMED for the forecast of a drafting run (M1-11); not measured."
+  },
+  {
+   "key": "k2.est_check_in",
+   "value": 1200,
+   "unit": "count",
+   "description": "Tokens in, per page, ASSUMED for the forecast of checking a draft (M1-11); not measured."
+  },
+  {
+   "key": "k2.est_check_out",
+   "value": 250,
+   "unit": "count",
+   "description": "Tokens out, per page, ASSUMED for the forecast of checking a draft (M1-11); not measured."
+  },
+  {
+   "key": "k2.est_split_in",
+   "value": 400,
+   "unit": "count",
+   "description": "Tokens in, per materials text, ASSUMED for the forecast of splitting materials (M1-11); not measured."
+  },
+  {
+   "key": "k2.est_split_out",
+   "value": 300,
+   "unit": "count",
+   "description": "Tokens out, per materials text, ASSUMED for the forecast of splitting materials (M1-11); not measured."
   }
  ]
 }

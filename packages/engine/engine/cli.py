@@ -15,7 +15,16 @@ from engine.checks.evals import unanswered as _unanswered
 from engine.checks.levels import levels_app
 from engine.core import asks, db, levels, loaders, references
 from engine.core.cli_staff import register as register_staff
-from engine.w1_bank import bank, generate, mistake_guess, review, spec, story_keys, story_shape
+from engine.w1_bank import (
+    bank,
+    generate,
+    k2_draft,  # noqa: F401 — registers `curriculum draft` and `curriculum materials`
+    mistake_guess,
+    review,
+    spec,
+    story_keys,
+    story_shape,
+)
 from engine.w1_bank.cli_bank import bank_app
 from engine.w1_bank.k2_upload import curriculum_app
 from engine.w1_bank.question_types import types_app

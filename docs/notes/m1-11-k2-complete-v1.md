@@ -32,7 +32,12 @@ Question for the coordinator: sheet columns W–Z ("L0..L3", headed "Name") and 
 - Prompt rows, all `active: false` (rule 7): v1 one page a call, v2 batched (the ones to use): `k2_page_draft` (Sonnet 5.5),
   `k2_page_validate` (v1 Opus, v2 Haiku 4.5; another model, never sees the drafter's reason), `k2_materials_split` (Haiku 4.5; a
   quantity the text lacks is null, never guessed; a name must be in the school's text).
-- Not built: the eval and bars for these prompts, the draft/apply commands, the "drafted" chip and keep/change/reject screens,
+- Run commands (UNRUN, tested on scripted replies): `engine curriculum draft --stage S [--limit N] [--dry-run] --by EMAIL` and
+  `materials` (same). `--dry-run` prints a forecast from assumed-token threshold rows (`k2.est_*`) and makes no call; every batch
+  prints spend so far and the stage limit; each paid call is committed at once; a budget stop keeps the good pages. Proposals go
+  to the M1-05 ledger (`page_part`, `material`); the existing `curriculum apply` writes them, only into parts still empty, marked
+  drafted; `revert` empties only what is still the draft's. A page once proposed is not asked for again (even after a revert).
+- Not built: the eval harness and bars for these prompts (`engine eval` for them), the "drafted" chip and keep/change/reject screens,
   planner lines with no activity (the planner tab is not read). Each needs a go; model runs need Nimish's cost approval.
 
 ## Cost, redone for Nimish's $25 (4 Nov; Sonnet 5.5 drafts, Haiku 4.5 checks; ESTIMATE, tokens per call assumed, none measured)
@@ -47,21 +52,20 @@ Prices per million tokens in/out: Sonnet 5.5 $2/$10, Haiku 4.5 $1/$5, Opus 5.5 $
 | Split the materials (Haiku) | $2.4 | $1.7 |
 | **Total** | **~$29.5, over** | **~$21.4, under** |
 **The plan is the batched column** (orchestrator, 4 Nov: batch now, 4 pages a call, 10 for materials; rows `k2.batch_*`). Forecast per
-stage against its cap (stop at cap less margin): dev eval = map dev $1.4 + page-draft dev $1.2 = $2.6 against $3 (limit $2.75, THIN
-on assumed tokens); held-out score $6.0 against $7; drafting + checks + materials $12.8 against the rest; total $21.4 against the
+stage against its cap (stop at cap less margin): dev eval = map dev $1.4 + page-draft dev $1.2 = $2.6 against $4 (limit $3.75); held-out score $6.0 against $7; drafting + checks + materials $12.8 against the rest; total $21.4 against the
 stop at $23. M1-05's Opus validator is left alone (v1); `curriculum_map_validate` v2 on Haiku 4.5 is a new inactive row whose
 eval on the 100 dev rows decides whether it may be used; if it misses the D-063 bars: stop and report, not Opus without Nimish.
-Hard stop: `llm.campaigns` (cap $25, margin $2, stages dev_eval 3 / held_out 7 / draft: the campaign's), `adapters/llm_budget.py`.
+Hard stop: `llm.campaigns` (cap $25, margin $2, stages dev_eval 4 / held_out 7 / draft: the campaign's), `adapters/llm_budget.py`.
 Batching: `w1_bank/k2_batch.py` judges each page of a reply alone, keeps the good, asks again only for the bad (rounds = 2).
 
 ## Verified
 - `pytest -q tests/test_llm_budget.py tests/test_llm.py tests/test_k2_gaps.py tests/test_bars.py tests/test_loaders.py` → 64 passed (budget tests written first: 9 failed before the code).
 - Affected files one by one (bars, eval_command, llm, school_words, settings, map_*, jev, layout, loaders) → all passed.
-- `pytest tests/test_k2_batch.py` → 11 passed (written before the module; I did not run them failing). Stage-cap tests: 4 failed before the code, now pass. `bin/check` → 34 passed (after fixing a pyright error and a renamed test in the goal). The 14 affected files in ONE pytest process (foreground) → 134 passed; the earlier silent stop was a background run, most likely ended by the harness (inferred, not proved).
+- `pytest tests/test_k2_draft.py` → 15 passed (import error first, no module yet). `pytest tests/test_k2_batch.py` → 11 passed (written before the module; I did not run them failing). Stage-cap tests: 4 failed before the code, now pass. `bin/check` → 34 passed (after fixing a pyright error and a renamed test in the goal). The 14 affected files in ONE pytest process (foreground) → 134 passed; the earlier silent stop was a background run, most likely ended by the harness (inferred, not proved).
 - `engine live rules` needs `--url`; without it it looked for the live database (that was the silence). With `--url` it lists 23
   rules of my new tables not yet in rules.json: to regenerate after #374 merges. NOT done: the 12-shard suite (waits for #374 and
   the renumber), a run on the real tab or on a copy of live.
 
 ## Handoff
-- In flight: branch m1-11-k2-complete-v1. Migration and code are committed locally and NOT pushed (orchestrator).
+- In flight: branch m1-11-k2-complete-v1, committed locally, NOT pushed (orchestrator). Wording bar: 30 pages read by the educator.
 - Next on a go: dry run of `engine curriculum k2 <csv>`, rehearsal of the migration, the eval harness on the 100 dev pages.

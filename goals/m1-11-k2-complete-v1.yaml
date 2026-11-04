@@ -48,7 +48,21 @@ says:
   - words: "Raise the held-out stage cap to 7 USD; the overall campaign cap stays 25 with the 2 USD margin (stop at 23)"
     proved_by: "packages/engine/tests/test_llm_budget.py::test_a_stage_stops_at_its_own_cap_less_its_margin_while_the_other_stages_go_on"
   - words: "Raise the held-out stage cap to 7 USD; the overall campaign cap stays 25 with the 2 USD margin (stop at 23)"
-    proved_by: "packages/engine/tests/test_llm_budget.py::test_the_seeded_stages_are_three_dollars_for_the_dev_eval_and_seven_for_the_held_out_score"
+    proved_by: "packages/engine/tests/test_llm_budget.py::test_the_seeded_stages_are_four_dollars_for_the_dev_eval_and_seven_for_the_held_out_score"
+  - words: "Write the run commands (the ones that call generate(stage=...)) now with tests ... They must print spend so far and stage limit on every batch"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_a_run_drafts_checks_and_records_each_page_where_it_belongs_and_prints_the_spend_every_batch"
+  - words: "`--dry-run` must print the forecast without any call"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_a_dry_run_prints_the_forecast_and_makes_no_call_and_writes_nothing"
+  - words: "`--dry-run` must print the forecast without any call"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_the_command_in_dry_run_prints_the_forecast_and_adds_no_flow_run"
+  - words: "refuses further calls at 25 US dollars minus a safety margin and records every call"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_when_the_money_runs_out_the_run_stops_keeps_the_good_pages_and_says_so"
+  - words: "refuses further calls at 25 US dollars minus a safety margin and records every call"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_every_paid_call_is_committed_at_once_so_a_crash_later_cannot_erase_the_spend_record"
+  - words: "everything drafted by an agent marked 'drafted' and editable by a person"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_applying_writes_the_drafted_parts_where_they_are_still_empty_marks_them_drafted_and_a_persons_words_stay"
+  - words: "materials as catalogue items (item, quantity, unit)"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_applying_a_material_proposal_makes_catalogue_items_with_no_invented_home_value_or_quantity"
 manual:
   - "The eval of the three prompts is not written and not run: no model key in the build container, and money is Nimish's call (D-047). Each prompt row stays inactive (rule 7) until `engine eval` scores it against a bar set before the run, on the 100 dev pages first."
   - "The upload with the lesson plan loaded as steps has not been run on the real tab or on a copy of live: `bin/engine curriculum k2 <csv>` (a dry run) prints the gaps in the sheet and in the database; the migration 20261231090000 has not run on a copy of live (rehearse update-live)."
@@ -61,6 +75,9 @@ criteria:
     expect: "passed"
   - name: the spend cap refuses a call before it is made, counts a paid reply that failed its schema, and stops on a spend it cannot see
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_llm_budget.py tests/test_llm.py
+    expect: "passed"
+  - name: the run commands, forecast, ledger, apply and revert, on scripted replies (no model)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_draft.py
     expect: "passed"
   - name: a batch of pages is judged item by item (pure, no model)
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_batch.py

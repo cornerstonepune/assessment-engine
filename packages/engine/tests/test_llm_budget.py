@@ -12,7 +12,7 @@ import os
 
 import pytest
 
-from engine.adapters import llm
+from engine.adapters import llm, llm_budget
 from engine.core import db
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
@@ -194,7 +194,7 @@ def test_the_campaigns_money_does_not_use_up_the_days_budget_of_every_other_prom
     assert calls == [1], "the day's total for other prompts is still under its ₹150"
 
 
-STAGED = {**CAMPAIGN, "stages": {"dev_eval": 3, "held_out": 7, "draft": None}, "stage_margin_usd": 0.25}
+STAGED = {**CAMPAIGN, "stages": {"dev_eval": 4, "held_out": 7, "draft": None}, "stage_margin_usd": 0.25}
 
 
 def staged(conn):
@@ -215,8 +215,8 @@ def test_a_stage_stops_at_its_own_cap_less_its_margin_while_the_other_stages_go_
     staged(conn)
     calls: list = []
     answering(monkeypatch, calls)
-    spend_in(conn, (3 - 0.25) * RATE, "dev_eval")  # $2.75: the dev stage is at its limit
-    with pytest.raises(llm.LLMError, match=r"stage dev_eval.*\$2\.75"):
+    spend_in(conn, (4 - 0.25) * RATE, "dev_eval")  # $3.75: the dev stage is at its limit
+    with pytest.raises(llm.LLMError, match=r"stage dev_eval.*\$3\.75"):
         llm.generate(conn, DRAFT, VARS, version=1, stage="dev_eval")
     assert calls == []
     assert llm.generate(conn, DRAFT, VARS, version=1, stage="held_out") == DRAFTED
@@ -240,11 +240,39 @@ def test_a_stage_the_campaign_does_not_name_is_refused_so_a_typo_cannot_spend_un
         llm.generate(conn, DRAFT, VARS, version=1, stage="dev_evl")
 
 
-def test_the_seeded_stages_are_three_dollars_for_the_dev_eval_and_seven_for_the_held_out_score():
+def test_the_seeded_stages_are_four_dollars_for_the_dev_eval_and_seven_for_the_held_out_score():
     seeded = next(
         c
         for c in json.loads((db.REPO_ROOT / "supabase" / "seed" / "config.json").read_text())["config"]
         if c["key"] == "llm.campaigns"
     )["value"]["m1-11"]
-    assert seeded["stages"] == {"dev_eval": 3, "held_out": 7, "draft": None}
-    assert 3 + 7 + 2 < seeded["cap_usd"], "the drafting stage keeps the rest"
+    assert seeded["stages"] == {"dev_eval": 4, "held_out": 7, "draft": None}
+    assert 4 + 7 + 2 < seeded["cap_usd"], "the drafting stage keeps the rest"
+
+
+def test_a_refusal_for_money_is_its_own_error_so_a_run_can_end_cleanly_and_keep_what_is_good(
+    conn, monkeypatch
+):
+    answering(monkeypatch, [])
+    spend(conn, LIMIT_INR + 1)
+    with pytest.raises(llm.LLMBudgetError):
+        llm.generate(conn, DRAFT, VARS, version=1)
+    assert issubclass(llm.LLMBudgetError, llm.LLMError), "callers that only know LLMError still stop"
+
+
+def test_the_status_says_the_spend_so_far_the_limit_and_the_stages_own(conn, monkeypatch):
+    staged(conn)
+    spend_in(conn, 0.5 * RATE, "dev_eval")
+    spend_in(conn, 1.0 * RATE, "held_out")
+    got = llm_budget.status(conn, db.tenant_slug(), DRAFT, "dev_eval")
+    assert got == {
+        "campaign": "m1-11",
+        "spent_usd": pytest.approx(1.5),
+        "limit_usd": 23,
+        "stage": "dev_eval",
+        "stage_spent_usd": pytest.approx(0.5),
+        "stage_limit_usd": 3.75,
+    }
+    assert llm_budget.status(conn, db.tenant_slug(), "item_generate", None) is None, "no campaign, no status"
+    line = llm_budget.line(got)
+    assert line == "spent $1.50 of $23.00; stage dev_eval $0.50 of $3.75"

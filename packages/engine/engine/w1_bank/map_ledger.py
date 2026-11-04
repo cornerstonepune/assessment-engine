@@ -10,10 +10,12 @@ their id (an email is looked up by the engine, `staff_of_email`), the machine by
 
 import json
 import uuid
+from typing import LiteralString, cast
 
 from psycopg.rows import DictRow
 
 from engine.core import db
+from engine.w1_bank.k2_gaps import PAGE_PARTS
 from engine.w1_bank.map_agents import Proposal
 from engine.w1_bank.map_check import LEVELS
 
@@ -143,6 +145,10 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
             (tenant, code, lo, p["id"], tenant, code),
         )
         return f"{code} → {lo}"
+    if p["kind"] == "page_part":
+        return _page_part(conn, tenant, p)
+    if p["kind"] == "material":
+        return _material(conn, tenant, p)
     for f, text in sorted(body["levels"].items()):
         if f not in LEVELS:  # the checks refused it; a column name never comes from a reply
             raise ValueError(f"{f} is not a level")
@@ -151,6 +157,59 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
             (text, tenant, code),
         )
     return f"{code} levels {', '.join(sorted(body['levels']))}"
+
+
+def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
+    """A drafted page's parts written where they are still empty, each marked drafted and naming the proposal."""
+    code, wrote = p["subject_code"], []
+    for part, text in sorted(p["proposal"]["parts"].items()):
+        if part not in PAGE_PARTS:  # a column name never comes from a reply
+            raise ValueError(f"{part} is not a part of a page")
+        col = cast(LiteralString, part)  # checked against the page's parts just above
+        hit = conn.execute(
+            f"update activity set {col} = %s where tenant_id = %s and code = %s and btrim({col}) = ''"  # noqa: S608
+            " returning code",
+            (text, tenant, code),
+        ).fetchone()
+        if hit:
+            conn.execute(
+                "insert into activity_part_source (tenant_id, activity_code, part, source, proposal_id)"
+                " values (%s,%s,%s,'drafted',%s) on conflict (tenant_id, activity_code, part)"
+                " do update set source = 'drafted', proposal_id = excluded.proposal_id",
+                (tenant, code, part, p["id"]),
+            )
+            wrote.append(part)
+    return f"{code} drafted {', '.join(wrote) or 'nothing (every part had words by then)'}"
+
+
+def _material(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
+    """A materials text's lines: catalogue items found by name or made (no home or value is invented), one line each."""
+    code = p["subject_code"]
+    for i, it in enumerate(p["proposal"]["items"], 1):
+        item = conn.execute(
+            "select code from material_item where tenant_id = %s and lower(name) = lower(%s)",
+            (tenant, it["name"]),
+        ).fetchone()
+        mat = item["code"] if item else _new_material(conn, tenant, it)
+        conn.execute(
+            "insert into activity_material (tenant_id, activity_code, material_code, quantity, ord, source, proposal_id)"
+            " values (%s,%s,%s,%s,%s,'machine',%s) on conflict do nothing",
+            (tenant, code, mat, it["quantity"], i, p["id"]),
+        )
+    return f"{code} materials: {', '.join(it['name'] for it in p['proposal']['items'])}"
+
+
+def _new_material(conn: db.Conn, tenant: db.Id, it: dict) -> str:
+    n = db.one(
+        conn,
+        "select coalesce(max(substring(code from '[0-9]+$')::int), 0) + 1 as n from material_item where tenant_id = %s",
+        (tenant,),
+    )["n"]
+    conn.execute(
+        "insert into material_item (tenant_id, code, name, unit) values (%s,%s,%s,%s)",
+        (tenant, f"MAT-{n:04d}", it["name"], it["unit"]),
+    )
+    return f"MAT-{n:04d}"
 
 
 def _new_objective(conn: db.Conn, tenant: db.Id, activity: str, title: str) -> str:
@@ -198,9 +257,22 @@ def revert(conn: db.Conn, tenant: db.Id, about: db.Id, staff: db.Id | None, why:
         raise ValueError(f"{about} is not applied")
     p = rows[0]
     _changed_by(conn, f"revert:{p['id']} staff:{staff}")
-    for table in ("activity_skill", "activity_objective", "learning_objective_skill"):
+    for table in ("activity_skill", "activity_objective", "learning_objective_skill", "activity_material"):
         conn.execute(
             f"delete from {table} where tenant_id = %s and proposal_id = %s and source = 'machine'",  # noqa: S608
+            (tenant, p["id"]),
+        )
+    if p["kind"] == "page_part":
+        for part, text in sorted(p["proposal"]["parts"].items()):
+            if part not in PAGE_PARTS:
+                raise ValueError(f"{part} is not a part of a page")
+            col = cast(LiteralString, part)
+            conn.execute(
+                f"update activity set {col} = '' where tenant_id = %s and code = %s and {col} = %s",  # noqa: S608
+                (tenant, p["subject_code"], text),
+            )
+        conn.execute(
+            "delete from activity_part_source where tenant_id = %s and proposal_id = %s and source = 'drafted'",
             (tenant, p["id"]),
         )
     if p["kind"] == "levels":

@@ -9,6 +9,7 @@ disagreement needs a reader's judgement and is a model's question later, never d
 import re
 
 PARTS = ("objective", "steps", "thinking", "materials", "level_0", "level_1", "level_2", "level_3")
+PAGE_PARTS = tuple(p for p in PARTS if p != "materials")  # the ones an agent drafts as text
 RANGE = re.compile(r"(\d+)\s*(?:-|–|—|to)\s*(\d+)")
 
 

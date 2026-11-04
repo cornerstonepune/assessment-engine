@@ -98,7 +98,7 @@ def _stem(word: str) -> str:
     return word[:-1] if word.endswith("s") and len(word) > 3 else word
 
 
-def judge_materials(got: list, text: str) -> tuple[list[dict], list[str]]:
+def judge_materials(got: object, text: str) -> tuple[list[dict], list[str]]:
     """Each line must name something the school's own text names, with a quantity above 0 or none, and a unit."""
     known = {_stem(w) for w in re.findall(r"[a-z]+", text.casefold())}
     good: list[dict] = []

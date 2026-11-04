@@ -78,3 +78,50 @@ def _check_one(conn, tenant_slug: str, name: str, c: dict) -> None:
             f"campaign {name} stopped: ${spent_usd:.2f} spent, at its limit of ${limit_usd:.2f}"
             f" (cap ${c['cap_usd']}, margin ${c['margin_usd']}); a person raises it in the config row llm.campaigns"
         )
+
+
+def status(conn, tenant_slug: str, purpose: str, stage: str | None) -> dict | None:
+    """Where a purpose's campaign stands, in dollars: the whole of it and, if a stage is named, the stage's share. None
+    when no campaign spends on the purpose."""
+    for name, c in campaigns(conn).items():
+        if purpose not in c["purposes"]:
+            continue
+        rate, caps = c["inr_per_usd"], c.get("stages") or {}
+        out = {
+            "campaign": name,
+            "spent_usd": _spent(conn, tenant_slug, c["purposes"]) / rate,
+            "limit_usd": c["cap_usd"] - c["margin_usd"],
+            "stage": stage,
+            "stage_spent_usd": None,
+            "stage_limit_usd": None,
+        }
+        if stage:
+            out["stage_spent_usd"] = _spent(conn, tenant_slug, c["purposes"], f"engine:{stage}") / rate
+            if caps.get(stage) is not None:
+                out["stage_limit_usd"] = caps[stage] - c.get("stage_margin_usd", 0)
+        return out
+    return None
+
+
+def line(got: dict | None) -> str:
+    """The status as one line for a person watching the run."""
+    if not got:
+        return "no campaign spends on this"
+    text = f"spent ${got['spent_usd']:.2f} of ${got['limit_usd']:.2f}"
+    if got["stage"]:
+        text += f"; stage {got['stage']} ${got['stage_spent_usd']:.2f}"
+        text += (
+            f" of ${got['stage_limit_usd']:.2f}"
+            if got["stage_limit_usd"] is not None
+            else " (the campaign's cap)"
+        )
+    return text
+
+
+def _spent(conn, tenant_slug: str, purposes: list[str], trigger: str | None = None) -> float:
+    row = conn.execute(
+        "select coalesce(sum(f.cost_inr), 0) as spent from flow_run f join tenant t on t.id = f.tenant_id"
+        " where t.slug = %s and f.flow = any(%s) and (%s::text is null or f.trigger = %s)",
+        (tenant_slug, purposes, trigger, trigger),
+    ).fetchone()
+    return float(row["spent"])

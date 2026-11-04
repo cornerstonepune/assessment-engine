@@ -54,7 +54,7 @@ create table if not exists activity_material (
   tenant_id      uuid not null references tenant(id) on delete cascade,
   activity_code  text not null,
   material_code  text not null,
-  quantity       numeric not null check (quantity > 0),
+  quantity       numeric check (quantity > 0),  -- empty when the school's text gives none: never guessed
   ord            integer not null check (ord >= 1),
   source         text not null default 'person' check (source in ('person', 'machine')),
   proposal_id    uuid references curriculum_proposal(id),

@@ -149,13 +149,13 @@
     },
     {
       "key": "llm.campaigns",
-      "description": "A piece of work with its own money (M1-11, Nimish 4 Nov: up to 25 US dollars for the whole drafting run, Sonnet-class models, Haiku for simple steps). The adapter adds up what these purposes have cost (flow_run.cost_inr) and refuses a call before making it once the total reaches cap less margin; the margin covers calls in flight. inr_per_usd is the rate llm.prices was written at. A stage (dev_eval 3, held_out 7 dollars; draft has only the campaign's cap) is tagged on each call as flow_run.trigger 'engine:<stage>'. Raise a cap here, by a pull request, never in code.",
+      "description": "A piece of work with its own money (M1-11, Nimish 4 Nov: up to 25 US dollars for the whole drafting run, Sonnet-class models, Haiku for simple steps). The adapter adds up what these purposes have cost (flow_run.cost_inr) and refuses a call before making it once the total reaches cap less margin; the margin covers calls in flight. inr_per_usd is the rate llm.prices was written at. A stage (dev_eval 4, held_out 7 dollars; draft has only the campaign's cap) is tagged on each call as flow_run.trigger 'engine:<stage>'. Raise a cap here, by a pull request, never in code.",
       "value": {
         "m1-11": {
           "purposes": ["curriculum_map_propose", "curriculum_map_validate", "k2_page_draft", "k2_page_validate", "k2_materials_split"],
           "cap_usd": 25,
           "margin_usd": 2,
-          "stages": {"dev_eval": 3, "held_out": 7, "draft": null},
+          "stages": {"dev_eval": 4, "held_out": 7, "draft": null},
           "stage_margin_usd": 0.25,
           "inr_per_usd": 88
         }
