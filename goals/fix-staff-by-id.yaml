@@ -1,0 +1,40 @@
+name: fix-staff-by-id
+goal: >
+  Who signed a people load is a staff id, never a typed name or email. `engine staff import` and `engine enrol k2` take
+  `--by <the signer's email>`; the engine looks that email up (public.staff_of_email) and writes the staff id, as text, in
+  staff_role_grant.granted_by and enrolment.recorded_by, the two columns the website can read. A `--by` that is nobody on
+  the staff tables (or two people) is refused in plain words before any write, in a dry run too, without repeating what
+  was typed. The first `staff import` is how staff exist at all, so its signer may be someone on the website's sign-in
+  list who the same run adds: the id is looked up after they are in. No name or email lands in any column of the
+  people tables after a full import and enrolment, and no report prints a staff email or name or a child's name.
+# Written 2026-11-03, before the code: the architecture council gate found `--by "<name>"` stored as text in two
+# website-readable columns (D-046: staff by id; CLAUDE.md rule 6). Nimish loads the real K2 class list with
+# `--apply --by <his email>`, so this lands first. No migration: the columns are text, and hold the staff id.
+# Placeholder people only (ann@example.test, "Placeholder Ann"); the test database only; nothing touches live.
+says:
+  - words: "Names stay in pii (CLAUDE.md rule 6)"
+    proved_by: "packages/engine/tests/test_people_signer.py::test_the_first_staff_import_is_signed_by_an_email_on_the_sign_in_list_and_stores_the_staff_id"
+  - words: "Names stay in pii (CLAUDE.md rule 6)"
+    proved_by: "packages/engine/tests/test_people_signer.py::test_enrolment_is_signed_by_the_staff_id_of_the_email"
+  - words: "Names stay in pii (CLAUDE.md rule 6)"
+    proved_by: "packages/engine/tests/test_people_signer.py::test_a_signer_who_is_not_staff_is_refused_before_any_write_in_a_dry_run_too"
+  - words: "Names stay in pii (CLAUDE.md rule 6)"
+    proved_by: "packages/engine/tests/test_people_signer.py::test_the_staff_import_refuses_a_signer_who_is_not_on_the_list_and_writes_nothing"
+  - words: "Names stay in pii (CLAUDE.md rule 6)"
+    proved_by: "packages/engine/tests/test_people_signer.py::test_only_the_staff_import_may_name_a_signer_before_the_staff_exist"
+  - words: "Names stay in pii (CLAUDE.md rule 6)"
+    proved_by: "packages/engine/tests/test_people_signer.py::test_a_second_run_signed_by_the_same_email_adds_nothing"
+  - words: "Names stay in pii (CLAUDE.md rule 6)"
+    proved_by: "packages/engine/tests/test_people_signer.py::test_no_name_or_email_is_in_any_text_column_of_the_people_tables_after_a_full_load"
+  - words: "Names stay in pii (CLAUDE.md rule 6)"
+    proved_by: "packages/engine/tests/test_people_signer.py::test_no_report_prints_the_signers_email_or_name_or_a_childs_name"
+manual:
+  - "The class list load on live (Nimish, 2026-11-04): `bin/engine staff import --apply --by <your email>` then `bin/engine enrol k2 <the csv> --apply --by <your email> --teacher <the K2 educator's email>`; your email must be on the sign-in list. Nothing here touches live."
+scenarios: []
+criteria:
+  - name: the people loaders, old and new tests
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_people.py tests/test_people_signer.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
