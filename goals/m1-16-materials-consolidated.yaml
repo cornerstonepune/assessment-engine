@@ -31,7 +31,7 @@ manual:
 scenarios: []
 criteria:
   - name: the consolidation, the reading checked by code, the monthly cap and the send
-    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_materials_consolidate.py tests/test_materials_intake.py tests/test_materials_inventory.py tests/test_llm_budget_monthly.py
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_materials_consolidate.py tests/test_materials_intake.py tests/test_materials_inventory.py tests/test_llm_budget_monthly.py tests/test_materials_read_eval.py tests/api/test_materials_school_routes.py
     expect: "passed"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check
