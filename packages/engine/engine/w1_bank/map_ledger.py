@@ -160,7 +160,9 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
 
 def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
     """A drafted page's parts written where they are still empty, each marked drafted and naming the proposal."""
-    code, wrote, doubt = p["subject_code"], [], p["now"] == "needs_person"
+    # a draft is unreviewed until a person has approved it, whatever the machine's verdict: its status stays in the data
+    # for the calibration table, but nothing counts as passed on a model's word alone (Nimish's staff, 2026-11-04)
+    code, wrote, doubt = p["subject_code"], [], p["now"] != "approved"
     for part, text in sorted(p["proposal"]["parts"].items()):
         col = column(part)  # a column name never comes from a reply
         hit = conn.execute(

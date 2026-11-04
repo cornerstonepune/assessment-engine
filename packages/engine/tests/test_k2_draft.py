@@ -23,7 +23,7 @@ LEVELS = {
     "level_0": "sits out",
     "level_1": "names it",
     "level_2": "does it as shown",
-    "level_3": "does it her way",
+    "level_3": "does it their own way",
 }
 
 
@@ -410,9 +410,14 @@ def _marks(conn, code):
     return {r["part"]: (r["source"], r["check_me"]) for r in rows.fetchall()}
 
 
-def test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_the_doubtful_ones_are_check_me(conn):
+def test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_every_one_is_check_me_until_a_person_reviews(
+    conn,
+):
     """K2 version 1 has no empty part (D-071): a draft the checker disagreed with, or the drafter flagged, or was
-    unsure of, is on the page too, with a second tag so it heads the review list."""
+    unsure of, is on the page too, with a second tag so it heads the review list. From 2026-11-04 every draft carries
+    that tag, the ones the machine passed too, until a person has reviewed it: the checker invents facts and the drafter's
+    confidence is not calibrated, so nothing counts as passed on a model's word alone. The ledger keeps what the machine
+    said (auto_passed) for the calibration table."""
     for c in ("KX-1", "KX-2", "KX-3", "KX-4"):
         _act(conn, c, f"Activity {c}")
     ask = Scripted(
@@ -428,8 +433,15 @@ def test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_the_doubtf
         }
     )
     run(conn, ask)
+    said = {p["subject_code"]: p["now"] for p in map_ledger.standing(conn, conn.t)}
+    assert said == {
+        "KX-1": "auto_passed",
+        "KX-2": "needs_person",
+        "KX-3": "needs_person",
+        "KX-4": "needs_person",
+    }, "what the machine said is kept in the data for the calibration table"
     map_ledger.apply(conn, conn.t, conn.staff, True)
-    for code, check in (("KX-1", False), ("KX-2", True), ("KX-3", True), ("KX-4", True)):
+    for code, check in (("KX-1", True), ("KX-2", True), ("KX-3", True), ("KX-4", True)):
         assert _marks(conn, code) == {p: ("drafted", check) for p in draft.PAGE_PARTS}, code
         page = conn.execute("select * from activity where code = %s", (code,)).fetchone()
         assert all(page[p].strip() for p in draft.PAGE_PARTS), "no empty part"
@@ -465,7 +477,7 @@ def test_nothing_the_school_wrote_is_touched_by_a_doubtful_draft_and_it_reverts_
     assert _marks(conn, "KX-1") == {}
 
 
-def test_the_review_list_is_check_me_first_then_the_audit_share_of_the_rest_drawn_by_code(conn):
+def test_the_review_list_holds_every_unreviewed_draft_whatever_the_machine_said_of_it(conn):
     for c in ("KX-1", "KX-2", "KX-3"):
         _act(conn, c, f"Activity {c}")
     ask = Scripted(
@@ -478,22 +490,47 @@ def test_the_review_list_is_check_me_first_then_the_audit_share_of_the_rest_draw
     )
     run(conn, ask)
     map_ledger.apply(conn, conn.t, conn.staff, True)
+    conn.execute(
+        "update threshold set value = 0 where key = 'map.audit_share'"
+    )  # no sample: the tag alone lists it
+    assert [(r["code"], r["check_me"]) for r in k2_review.review_list(conn, conn.t)] == [
+        ("KX-1", True),
+        ("KX-2", True),
+        ("KX-3", True),
+    ], "the two the machine passed are on the list too, tagged like the one it doubted"
+
+
+def test_the_review_list_is_check_me_first_then_the_audit_share_of_the_rest_drawn_by_code(conn):
+    """A draft is check me until a person has approved its proposal; then it is only drawn in the audit share."""
+    for c in ("KX-1", "KX-2", "KX-3"):
+        _act(conn, c, f"Activity {c}")
+    ask = Scripted(
+        {("k2_page_draft", c): [drafted(**FULL)] for c in ("KX-2", "KX-3")}
+        | {("k2_page_draft", "KX-1"): [drafted(**{**FULL, "confidence": 0.5})]}  # waits for a person
+        | {("k2_page_validate", c): [AGREE] for c in ("KX-1", "KX-2", "KX-3")}
+    )
+    run(conn, ask)
+    (first,) = [p for p in map_ledger.standing(conn, conn.t) if p["subject_code"] == "KX-1"]
+    map_ledger.settle(
+        conn, conn.t, first["id"], True, conn.staff, "read it"
+    )  # a person approves KX-1's proposal
+    map_ledger.apply(conn, conn.t, conn.staff, True)
     conn.execute("update threshold set value = 1 where key = 'map.audit_share'")
-    everything = k2_review.review_list(conn, conn.t)
-    assert [(r["code"], r["check_me"]) for r in everything] == [
+    assert [(r["code"], r["check_me"]) for r in k2_review.review_list(conn, conn.t)] == [
+        ("KX-2", True),
         ("KX-3", True),
         ("KX-1", False),
-        ("KX-2", False),
     ]
     conn.execute("update threshold set value = 0 where key = 'map.audit_share'")
-    assert [r["code"] for r in k2_review.review_list(conn, conn.t)] == ["KX-3"], (
-        "with no share, only the doubtful ones"
+    assert [r["code"] for r in k2_review.review_list(conn, conn.t)] == ["KX-2", "KX-3"], (
+        "with no share, only the unreviewed ones"
     )
     conn.execute("update threshold set value = 0.5 where key = 'map.audit_share'")
     again = [r["code"] for r in k2_review.review_list(conn, conn.t)]
-    assert again == [r["code"] for r in k2_review.review_list(conn, conn.t)] and again[0] == "KX-3", (
-        "the same draw every time"
-    )
+    assert again == [r["code"] for r in k2_review.review_list(conn, conn.t)] and again[:2] == [
+        "KX-2",
+        "KX-3",
+    ], "the same draw every time"
 
 
 def test_a_stop_during_the_check_says_which_pages_were_not_checked_and_keeps_the_verdicts_it_got(conn):

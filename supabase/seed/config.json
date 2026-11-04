@@ -181,6 +181,21 @@
       }
     },
     {
+      "key": "k2.draft_rules",
+      "description": "What drafted K2 text may never say, applied by code to the drafted parts only (the school's own words are never read): `gendered` are words that name a child as a boy or a girl (a draft says \"the child\"), `compare` are patterns (regular expressions, case ignored) for setting children against each other in body, name or ability. A page that breaks either is asked for again and, if it still does, left for a person with the word or phrase named. A list catches the shapes it names, not every comparison (M1-11f).",
+      "value": {
+        "gendered": ["she", "her", "hers", "herself", "he", "him", "his", "himself", "boy", "boys", "girl", "girls"],
+        "compare": [
+          "\\bside by side\\b",
+          "\\bwho (is|has|are|have)( the)? (taller|tallest|shorter|shortest|bigger|biggest|smaller|smallest|faster|fastest|stronger|strongest|better|best|heavier|heaviest|older|oldest|younger|youngest|longest)\\b",
+          "\\bcompar\\w* (the |two |both )*(children|child|kids|friends|classmates)\\b",
+          "\\b(children|child|kids|friends|classmates)(\u2019s|'s)? (height|heights|weight|size|sizes|body|bodies|hair|skin)\\b",
+          "\\b(taller|shorter|bigger|smaller|faster|stronger|heavier) than (the |an? )?(other )?(child|children|friend|classmate)\\b",
+          "\\b(tallest|shortest|biggest|smallest|fastest|strongest|best) (child|children|friend|classmate|one in the class)\\b"
+        ]
+      }
+    },
+    {
       "key": "llm.fallback_models",
       "description": "Tried in order after the prompt row's own model. Haiku is the cheap Anthropic fallback; the Gemini free tier is the last resort (20 requests per model per day).",
       "value": [

@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 import typer
 
 from engine.adapters import llm, llm_budget
-from engine.core import db
+from engine.core import db, settings
 from engine.w1_bank import k2_batch as batch
 from engine.w1_bank import map_ledger
 from engine.w1_bank.cli_map import BY, staff_of
@@ -207,7 +207,7 @@ def draft(
         raw.update({it["key"]: it for it in got if isinstance(it, dict) and isinstance(it.get("key"), str)})
         return got
 
-    done = batch.run(want, call, size, rounds)
+    done = batch.run(want, call, size, rounds, settings.config(conn, "k2.draft_rules"))
     rep.left, rep.stopped = dict(done.bad), done.stopped
     verdicts: dict[str, tuple[str, str]] = {}
     if not done.stopped:

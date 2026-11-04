@@ -49,8 +49,32 @@ def _by_key(got, want) -> tuple[dict[str, dict], set[str]]:
     return seen, twice
 
 
-def judge_pages(got, want: dict[str, list[str]]) -> tuple[dict[str, dict], dict[str, str]]:
-    """→ the good pages (only the parts asked for) and why each other asked-for page is bad."""
+def normalise_steps(text: str) -> str:
+    """Drafted steps as the school writes its own: one "• " line for each step, whatever numbering or dashes the model
+    put in front of it."""
+    lines = (re.sub(r"^\s*(?:\d+[.)]|[-*\u2022])\s*", "", ln).strip() for ln in text.splitlines())
+    return "\n".join(f"\u2022 {ln}" for ln in lines if ln)
+
+
+def house_rules(parts: dict[str, str], rules: dict | None) -> str:
+    """The first rule a drafted part breaks, in words, or "". The rules are a config row (k2.draft_rules)."""
+    if not rules:
+        return ""
+    gendered = "|".join(re.escape(w) for w in rules.get("gendered", []))
+    for part, text in parts.items():
+        if gendered and (hit := re.search(rf"\b({gendered})\b", text, re.I)):
+            return f"{part} says '{hit.group(1)}': a draft says \"the child\", never he or she"
+        for pattern in rules.get("compare", []):
+            if hit := re.search(pattern, text, re.I):
+                return f"{part} compares children ('{hit.group(0)}'): a draft never sets one child against another"
+    return ""
+
+
+def judge_pages(
+    got, want: dict[str, list[str]], rules: dict | None = None
+) -> tuple[dict[str, dict], dict[str, str]]:
+    """→ the good pages (only the parts asked for) and why each other asked-for page is bad. `rules` (k2.draft_rules)
+    are read on the drafted parts only; the steps are put in the school's own form."""
     seen, twice = _by_key(got, want)
     good: dict[str, dict] = {}
     bad: dict[str, str] = {}
@@ -64,8 +88,12 @@ def judge_pages(got, want: dict[str, list[str]]) -> tuple[dict[str, dict], dict[
             bad[key] = f"{empty[0]} is empty"
         elif same := _first_pair_alike([p for p in parts if p.startswith("level_")], it):
             bad[key] = f"{same[0]} and {same[1]} say the same thing"
+        elif broken := house_rules({p: it[p].strip() for p in parts}, rules):
+            bad[key] = broken
         else:
             good[key] = {p: it[p].strip() for p in parts}
+            if "steps" in good[key]:
+                good[key]["steps"] = normalise_steps(good[key]["steps"])
     return good, bad
 
 
@@ -136,7 +164,13 @@ def judge_materials(got: object, text: str) -> tuple[list[dict], list[str]]:
     return good, bad
 
 
-def run(want: dict[str, list[str]], call: Callable[[list[str]], object], size: int, rounds: int) -> Done:
+def run(
+    want: dict[str, list[str]],
+    call: Callable[[list[str]], object],
+    size: int,
+    rounds: int,
+    rules: dict | None = None,
+) -> Done:
     """Ask for every page in batches of `size`; then up to `rounds` more times for only the pages still bad or missing."""
     done = Done()
     pending = list(want)
@@ -154,7 +188,7 @@ def run(want: dict[str, list[str]], call: Callable[[list[str]], object], size: i
                         done.bad.setdefault(k, "not asked: the run stopped")
                 return done
             done.calls += 1
-            good, bad = judge_pages(reply, {k: want[k] for k in keys})
+            good, bad = judge_pages(reply, {k: want[k] for k in keys}, rules)
             done.good |= good
             done.bad = {k: v for k, v in done.bad.items() if k not in good} | bad
         pending = [k for k in pending if k not in done.good]

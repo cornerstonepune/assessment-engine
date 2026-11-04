@@ -50,6 +50,7 @@ RUNS = {
         "commands": [["engine", "curriculum", "materials", "--stage", "draft", "--by", BY]],
     },
     "review": {"spends": False, "commands": [["engine", "curriculum", "review"]]},
+    "gold_sheet": {"spends": False, "commands": [["engine", "curriculum", "gold-sheet"]]},
 }
 
 
