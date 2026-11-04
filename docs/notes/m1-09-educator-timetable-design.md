@@ -26,9 +26,14 @@ Two taps: Today → period (1); the rubric is on that page (phone: the Rubric ju
 4. Stock versus request (chalk, black board): she ticks what she has; the rest is sent.
 5. Send is WhatsApp first (one tap opens it with the list written out), email second. It records what was sent, not that it was read.
 
+## Decisions recorded (orchestrator, 4 Nov)
+- Both FN10 reminders due now: one message, not two.
+- "Team has it", ticked by her, is enough team confirmation for v1.
+- Her reminder channel: in the app plus email to her school address.
+- Still a placeholder: the team's WhatsApp number or group, until Nimish names the person.
+
 ## Questions for a person
-- The materials team's WhatsApp number or group (placeholder on screens 4-5); is email also wanted? M1-10's "team confirms" needs a human tick (she ticks "Team has it"); is that enough?
-- Her own reminder channel: in the app plus email? (No WhatsApp for the dashboard, 22 Oct.) Both FN10 reminders are due now: one message or two? Screen 5 shows one.
+- The materials team's WhatsApp number or group (placeholder on screens 4-5); is email to the team also wanted?
 - Words for Level 0-3 on K2 (a legend such as 0 not yet, 1 beginning, 2 expected, 3 stretch exists nowhere I could find). The M1-11 card still says "Easy/Medium/Hard/Advance rubric": to reword.
 - Anchor for reminders: first day a material is needed (M1-10) or the fortnight start? Screens use the first day needed.
 - Who may revert a correction: the coordinator (orchestrator, 4 Nov). FN10 end date: roadmap 4 Dec, Graph 7 Dec (M1-06 holds this).
