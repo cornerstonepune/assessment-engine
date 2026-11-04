@@ -1,0 +1,120 @@
+name: m1-11-k2-complete-v1
+goal: >
+  A K2 activity page has eight parts: objective, steps (what to do), thinking (how it needs to be thought about), the
+  four levels (0 to 3, the sheet's own columns) and materials. Every part the school wrote is kept exactly and marked the
+  school's; the sheet's lesson plan, never stored before, is loaded as the steps. The gaps are counted by code, part by
+  part, in the sheet and in the database, and a name that gives different numbers from its objective is flagged to a person
+  with nothing changed. A part an agent drafts later is marked drafted and a person can keep, change or reject it; the
+  materials become a catalogue of items with a quantity and a unit for each activity; the drafts travel the M1-05
+  ledger. The three prompts exist as rows, none active before its eval.
+# Written 2026-11-04 (task M1-11, step 2 of the orchestrator's plan; design: docs/notes/m1-11-k2-complete-v1.md). W1,
+# gate N1. The words below are Nimish's as the orchestrator relayed them on 4 Nov (D-071); the originals are not in this
+# repository. Not built here, and not run: any model call, the eval, the agent's draft (cost approval is Nimish's, D-047).
+says:
+  - words: "every K2 activity page fully filled"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_each_part_of_a_page_is_counted_empty_and_a_blank_cell_of_spaces_is_empty"
+  - words: "the school's own text kept exactly"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_an_upload_keeps_the_lesson_plan_as_steps_marks_it_the_schools_and_a_second_run_changes_nothing"
+  - words: "the school's own text kept exactly"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_a_drafted_part_made_the_schools_by_a_later_upload_is_marked_the_schools_but_a_persons_edit_stays"
+  - words: "everything drafted by an agent marked 'drafted' and editable by a person"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_a_part_has_one_source_and_it_is_the_schools_a_drafts_or_a_persons"
+  - words: "flag such rows for a person and propose a correction marked drafted, never silently overwrite the school's text"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_a_name_and_an_objective_that_give_different_number_ranges_are_flagged_for_a_person"
+  - words: "flag such rows for a person and propose a correction marked drafted, never silently overwrite the school's text"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_agreeing_ranges_overlapping_ranges_and_no_range_are_not_flagged"
+  - words: "materials as catalogue items (item, quantity, unit)"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_materials_are_a_catalogue_and_a_line_per_activity_with_a_quantity_and_a_unit"
+  - words: "REUSE that machinery; do not build a second one"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_proposal_ledger_takes_a_page_part_and_a_material_and_still_refuses_anything_else"
+  - words: "prompts are rows per rule 2 and each gets an eval per rule 7"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_k2_prompts_are_rows_with_a_schema_and_none_is_active_before_its_eval"
+  - words: "add a HARD STOP in code: a spend ledger (running total from the token counts in each response times config.llm.prices) that refuses further calls at 25 US dollars minus a safety margin and records every call"
+    proved_by: "packages/engine/tests/test_llm_budget.py::test_a_call_is_refused_before_it_is_made_once_the_total_reaches_the_cap_less_the_margin"
+  - words: "add a HARD STOP in code: a spend ledger (running total from the token counts in each response times config.llm.prices) that refuses further calls at 25 US dollars minus a safety margin and records every call"
+    proved_by: "packages/engine/tests/test_llm_budget.py::test_a_reply_that_breaks_its_schema_was_still_paid_for_and_its_cost_counts"
+  - words: "Keep school text sacred: the loader must never overwrite a non-empty cell, test it with a row that has a 'person' edit"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_an_upload_never_writes_over_steps_a_person_edited_and_never_empties_a_filled_cell"
+  - words: "materials are class-level or school-level, items above a rupee threshold are tracked, so your catalogue item needs a 'home' (class or school) and a unit rate/value field that may be empty (never invent a price)"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_an_item_has_a_home_and_a_value_that_stay_empty_until_a_person_says_and_are_never_made_up"
+  - words: "Make failure per ITEM: validate every item of a reply separately, accept the good ones, retry only the bad ones (a bad reply must not cost 4 pages)"
+    proved_by: "packages/engine/tests/test_k2_batch.py::test_only_the_bad_and_missing_pages_go_round_again_and_a_good_page_is_never_asked_twice"
+  - words: "Make failure per ITEM: validate every item of a reply separately, accept the good ones, retry only the bad ones (a bad reply must not cost 4 pages)"
+    proved_by: "packages/engine/tests/test_k2_batch.py::test_a_page_with_a_part_left_empty_or_missing_is_bad_and_says_which"
+  - words: "keep the schema versioned (new prompt version rows, inactive until their eval meets the bar; rules 2 and 7)"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_version_two_of_each_asks_for_several_pages_a_call_and_only_its_key_is_demanded_by_the_schema"
+  - words: "curriculum_map_validate v2 on Haiku 4.5 as a NEW version row, inactive ... Do not touch v1"
+    proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_mapping_validator_gets_a_new_version_on_haiku_and_version_one_is_left_as_it_was"
+  - words: "Raise the held-out stage cap to 7 USD; the overall campaign cap stays 25 with the 2 USD margin (stop at 23)"
+    proved_by: "packages/engine/tests/test_llm_budget.py::test_a_stage_stops_at_its_own_cap_less_its_margin_while_the_other_stages_go_on"
+  - words: "Raise the held-out stage cap to 7 USD; the overall campaign cap stays 25 with the 2 USD margin (stop at 23)"
+    proved_by: "packages/engine/tests/test_llm_budget.py::test_the_seeded_stages_are_four_dollars_for_the_dev_eval_and_seven_for_the_held_out_score"
+  - words: "Write the run commands (the ones that call generate(stage=...)) now with tests ... They must print spend so far and stage limit on every batch"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_a_run_drafts_checks_and_records_each_page_where_it_belongs_and_prints_the_spend_every_batch"
+  - words: "`--dry-run` must print the forecast without any call"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_a_dry_run_prints_the_forecast_and_makes_no_call_and_writes_nothing"
+  - words: "`--dry-run` must print the forecast without any call"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_the_command_in_dry_run_prints_the_forecast_and_adds_no_flow_run"
+  - words: "refuses further calls at 25 US dollars minus a safety margin and records every call"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_when_the_money_runs_out_the_run_stops_keeps_the_good_pages_and_says_so"
+  - words: "refuses further calls at 25 US dollars minus a safety margin and records every call"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_every_paid_call_is_committed_at_once_so_a_crash_later_cannot_erase_the_spend_record"
+  - words: "everything drafted by an agent marked 'drafted' and editable by a person"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_applying_writes_the_drafted_parts_where_they_are_still_empty_marks_them_drafted_and_a_persons_words_stay"
+  - words: "materials as catalogue items (item, quantity, unit)"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_applying_a_material_proposal_makes_catalogue_items_with_no_invented_home_value_or_quantity"
+  - words: "Write every draft to its empty part marked 'drafted'; those with checker disagreement, low confidence or a flag get a second tag 'check me'"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_the_doubtful_ones_are_check_me"
+  - words: "Nothing the school wrote is touched. Revert still works per proposal."
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_nothing_the_school_wrote_is_touched_by_a_doubtful_draft_and_it_reverts_like_any_other"
+  - words: "The review list order: check-me first, then a random 10% of the rest (D-063)"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_the_review_list_is_check_me_first_then_the_audit_share_of_the_rest_drawn_by_code"
+  - words: "pass stage= from the mapping eval (engine eval curriculum_map) so the dev/held-out stage caps govern it"
+    proved_by: "packages/engine/tests/test_map_stage.py::test_the_dev_set_is_the_dev_eval_stage"
+  - words: "pass stage= from the mapping eval (engine eval curriculum_map) so the dev/held-out stage caps govern it"
+    proved_by: "packages/engine/tests/test_map_stage.py::test_the_held_out_score_is_the_held_out_stage_and_asks_for_the_versions_it_is_given"
+  - words: "every drafted field shown on screen must be tested for the 'drafted' mark and the edit path"
+    proved_by: "packages/engine/tests/test_k2_review.py::test_keeping_a_draft_leaves_its_words_clears_the_doubt_and_makes_it_the_persons"
+  - words: "every drafted field shown on screen must be tested for the 'drafted' mark and the edit path"
+    proved_by: "packages/engine/tests/test_k2_review.py::test_changing_a_draft_writes_the_new_words_as_the_persons_and_the_history_says_who"
+  - words: "every drafted field shown on screen must be tested for the 'drafted' mark and the edit path"
+    proved_by: "packages/engine/tests/test_k2_review.py::test_rejecting_a_draft_empties_the_part_and_takes_its_mark_away"
+  - words: "Nothing the school wrote is touched"
+    proved_by: "packages/engine/tests/test_k2_review.py::test_the_schools_words_and_unmarked_parts_are_refused_by_all_three"
+  - words: "run /code-review ... on your diff and include their output (D-073): a revert never wipes a part a person kept"
+    proved_by: "packages/engine/tests/test_k2_review.py::test_reverting_the_draft_never_wipes_a_part_a_person_kept_with_its_words_unchanged"
+  - words: "run /code-review ... on your diff and include their output (D-073): a name, number and unit must be in the school's own text"
+    proved_by: "packages/engine/tests/test_k2_batch.py::test_a_material_name_must_be_a_phrase_of_the_text_with_its_number_and_unit_beside_it"
+  - words: "run /code-review ... on your diff and include their output (D-073): the same failure is not paid for again and again"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_replies_that_keep_breaking_their_schema_stop_the_run_instead_of_paying_for_the_same_failure"
+manual:
+  - "The eval of the three prompts is not written and not run: no model key in the build container, and money is Nimish's call (D-047). Each prompt row stays inactive (rule 7) until `engine eval` scores it against a bar set before the run, on the 100 dev pages first."
+  - "The upload with the lesson plan loaded as steps has not been run on the real tab or on a copy of live: `bin/engine curriculum k2 <csv>` (a dry run) prints the gaps in the sheet and in the database; the migration 20270101090000 has not run on a copy of live (rehearse update-live)."
+  - "Level 0 to 3 are the sheet's columns P to S. Which of the sheet's other level sets (W to Z, AD to AI) is final is a question for the coordinator."
+  - "The drafted chip on the page and the keep / change / reject buttons are screens, not built here."
+scenarios: []
+criteria:
+  - name: the gaps counted, the steps loaded and marked the school's, the part sources, the catalogue, the ledger kinds and the prompts (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_gaps.py
+    expect: "passed"
+  - name: the spend cap refuses a call before it is made, counts a paid reply that failed its schema, and stops on a spend it cannot see
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_llm_budget.py tests/test_llm.py
+    expect: "passed"
+  - name: the run commands, forecast, ledger, apply and revert, on scripted replies (no model)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_draft.py
+    expect: "passed"
+  - name: the mapping eval spends from its stage, and M1-05's tests still hold
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_stage.py tests/test_map_ledger.py tests/test_map_check.py tests/test_map_eval.py
+    expect: "passed"
+  - name: a person keeps, changes or rejects a drafted part (the edit path behind the screens)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_review.py
+    expect: "passed"
+  - name: a batch of pages is judged item by item (pure, no model)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_batch.py
+    expect: "passed"
+  - name: the existing upload still behaves as M0-02 proved
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_upload.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

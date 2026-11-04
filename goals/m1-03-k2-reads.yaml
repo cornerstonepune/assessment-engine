@@ -1,0 +1,56 @@
+name: m1-03-k2-reads
+goal: >
+  The engine answers, in one fast call each, every question the K2 screens ask, and says only what the rules allow.
+  Part A: an educator's to-do (her notes to confirm, her notes with a problem to fix, her notes left unconfirmed after
+  48 hours, oldest first) and the coordinator's list (only what needs a decision, red first: notes with problems and
+  notes left unconfirmed as rows; late, unplanned and no-notes as counts; never a name, a child only by Sr. No.).
+  Part B (reads the child's state per skill that M1-02 put on main): the K2 class picture (children by Sr. No.
+  by skills, each cell the state, level shown and last-seen day; an empty cell is "not seen", never a failure) and
+  one child's page (skills in date order, each with the sentence she wrote). No call returns "not willing" or an
+  internal label; "not seen" is never "not secure"; every call answers under a second for a class of 22 with 20 skills
+  and asks the database a fixed number of times however many children there are.
+# Written 2026-11-03, before the code: task M1-03 (orchestrator brief; teacher-os decisions O-13 children as numbers,
+# D-008 not seen is not not secure). W3 step N9/N10 reads; no migration (queries in code). Part A depends only on
+# #362. Part B reads child_observed_state (#364) on a class of 22 with 20 skills made of real observations.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_reads.py::test_the_educators_todo_groups_her_notes_with_counts_oldest_first"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_reads.py::test_a_note_with_a_problem_is_fix_this_and_a_clean_one_is_to_confirm"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_reads.py::test_the_coordinator_sees_only_what_needs_a_decision_red_first_and_counts_not_rows"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_reads.py::test_no_name_and_no_internal_label_is_ever_in_an_answer"
+  - words: "every session has a very specific, clear goal post in test cases"
+    proved_by: "packages/engine/tests/test_k2_reads.py::test_each_call_asks_the_database_a_fixed_number_of_times_and_answers_under_a_second"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/api/test_k2_routes.py::test_every_k2_read_refuses_while_voice_notes_are_switched_off"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/api/test_k2_routes.py::test_the_todo_is_only_the_signed_in_educators_own"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture_reads.py::test_the_class_picture_is_children_by_number_by_skill_and_equals_the_database"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture_reads.py::test_a_cell_nobody_filled_is_empty_and_never_a_failure_and_the_colours_are_the_rows"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture_reads.py::test_a_childs_page_lists_her_skills_newest_first_with_the_sentence_she_said"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture_reads.py::test_no_name_no_child_id_and_no_internal_label_is_ever_in_an_answer"
+  - words: "every session has a very specific, clear goal post in test cases"
+    proved_by: "packages/engine/tests/test_k2_picture_reads.py::test_each_call_asks_the_database_a_fixed_number_of_times_and_answers_under_a_second"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture_reads.py::test_a_sentence_that_names_a_child_of_the_class_is_held_back"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_picture_reads.py::test_the_sentence_is_for_the_educator_who_recorded_it_and_for_coordinators_only"
+manual:
+  - "The screens that call these routes are not built here (the next task)."
+scenarios: []
+criteria:
+  - name: the K2 reads, their rules, their speed and their query counts (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_reads.py tests/test_k2_picture_reads.py tests/api/test_k2_routes.py
+    expect: "passed"
+  - name: the website's list of the engine's routes is what the engine serves
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_contract.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

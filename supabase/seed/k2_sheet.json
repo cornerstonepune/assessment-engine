@@ -6,7 +6,7 @@
   "year": "SR KG",
   "upload_label": "K2 upload",
   "columns": {
-    "sheet_no": "B", "strand": "C", "pillar": "D", "year": "F", "name": "G", "materials": "H",
+    "sheet_no": "B", "strand": "C", "pillar": "D", "year": "F", "name": "G", "materials": "H", "steps": "J",
     "objective": "M", "level_0": "P", "level_1": "Q", "level_2": "R", "level_3": "S"
   },
   "report_only": {

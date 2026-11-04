@@ -38,7 +38,7 @@ def held(purpose: str, scores: dict[str, float]) -> None:
     typer.echo(f"  {purpose}: every bar met")
 
 
-def _eval_english_generate(version: int) -> None:
+def _eval_english_generate(version: int, *_: object) -> None:
     """english_generate: the share of the questions written for the fixed samples that pass every check."""
     with db.connect() as conn:
         try:
@@ -53,7 +53,7 @@ def _eval_english_generate(version: int) -> None:
     return held(generate.PURPOSE, {"kept": of(r["kept"], r["returned"])})
 
 
-def _eval_story_shape(version: int) -> None:
+def _eval_story_shape(version: int, *_: object) -> None:
     """story_shape: stories placed in the right case, and one-step answers computed right."""
     with db.connect() as conn:
         r = story_eval.evaluate(conn, version=version or None)
@@ -81,12 +81,15 @@ def _curriculum_map(r: dict[str, float]) -> None:
     held(cli_map.PURPOSE, r)
 
 
-def _eval_curriculum_map(version: int) -> None:
-    """curriculum_map: the agents map the held-out share of what people mapped, blind; the model's replies (on the
-    box, where the key is). `version` is the proposer's."""
+def _eval_curriculum_map(version: int, dev: bool = False, validate_version: int = 0) -> None:
+    """curriculum_map: the agents map the held-out share of what people mapped, blind (or, with `dev`, the dev set);
+    the model's replies (on the box, where the key is). `version` is the proposer's, `validate_version` the checker's.
+    The calls spend from the campaign's `dev_eval` or `held_out` stage."""
+    stage = "dev_eval" if dev else "held_out"
     with db.connect() as conn:
         try:
-            r = cli_map.evaluate(conn, model_ask(conn, version or None, None))
+            ask = model_ask(conn, version or None, validate_version or None, stage)
+            r = cli_map.evaluate(conn, ask, dev=dev)
         except LLMError as e:
             conn.commit()
             typer.echo(f"MODEL  {e}", err=True)
@@ -106,7 +109,7 @@ def curriculum_eval(
     _curriculum_map(r)
 
 
-# the scorers that take only the version they score
+# the scorers `engine eval` hands (version, dev, validate_version); most use only the version they score
 BY_VERSION = {
     generate.PURPOSE: _eval_english_generate,
     story_shape.PURPOSE: _eval_story_shape,

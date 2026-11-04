@@ -68,12 +68,18 @@ class Proposal:
     reason: str
 
 
-def model_ask(conn: db.Conn, propose_version: int | None = None, validate_version: int | None = None) -> Ask:
-    """The adapter: each question to the prompt row of its purpose (the active one, or the version named)."""
+def model_ask(
+    conn: db.Conn,
+    propose_version: int | None = None,
+    validate_version: int | None = None,
+    stage: str | None = None,
+) -> Ask:
+    """The adapter: each question to the prompt row of its purpose (the active one, or the version named), spending
+    from `stage` of the campaign that covers these prompts (llm.campaigns)."""
     versions = {PROPOSE: propose_version, VALIDATE: validate_version}
 
     def ask(purpose: str, about: str, variables: dict[str, object]) -> Reply:
-        return cast(Reply, llm.generate(conn, purpose, variables, version=versions[purpose]))
+        return cast(Reply, llm.generate(conn, purpose, variables, version=versions[purpose], stage=stage))
 
     return ask
 

@@ -19,8 +19,10 @@ from engine.api.routes import (
     children,
     focus,
     graph,
+    k2,
     library,
     maker,
+    materials,
     paper_edit,
     parent,
     runs,
@@ -62,8 +64,10 @@ app.include_router(parent.router)
 app.include_router(upload.router)
 app.include_router(samples.router)
 app.include_router(timetable.keyed)
+app.include_router(k2.router)
 app.include_router(voice.router)
 app.include_router(voice.keyed)
+app.include_router(materials.keyed)
 
 # A scan is sent by the educator's browser from the site's own address (ADR 0092), so the browser must be let read the
 # answer. Any origin: no route trusts a cookie or the caller's address — each asks for the engine's key, or for the

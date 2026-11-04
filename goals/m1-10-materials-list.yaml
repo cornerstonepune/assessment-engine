@@ -1,0 +1,41 @@
+name: m1-10-materials-list
+goal: >
+  The K2 educator sees every material she needs in one list, fixes it, and sends it to the materials team with enough
+  notice: the list is built by code from the materials of the activities the class has planned, one line for each
+  catalogue item with its quantities added up under the first day it is needed and tied to its activity; she adds from
+  the catalogue, changes a quantity or removes a line and every change is kept with who made it; a new item is a
+  catalogue entry waiting for a person, never loose text; one tap opens WhatsApp with the list written out as a
+  checklist and the engine records exactly what was sent and when she tapped; reminders fall two weeks and one week
+  before the first day a material is needed, on a working day, and stop once the list is sent. A quantity the sheet
+  does not give stays empty and no rupee value is ever made up.
+# Written 2026-11-04, before the code: task M1-10 (card M1-10; decisions D-070, D-071, D-072 as the orchestrator relayed
+# them; teacher-os could not be attached in this session, so the quotations below are the relayed ones and are not
+# re-read against D-070/D-071). Attached to W2 step N4 as files, no thirteenth step (the orchestrator, 4 Nov).
+# Builds on M1-11's `material_item` and `activity_material` (home and rupee value are M1-13's) and on M1-06's tables.
+# Everything behind `educator.timetable_enabled` (default off).
+says:
+  - words: "collating the entire material list in one place"
+    proved_by: "packages/engine/tests/test_materials_list.py::test_a_material_needed_twice_is_one_line_with_the_sum_under_the_day_it_is_first_needed"
+  - words: "sending it directly to the materials team"
+    proved_by: "packages/engine/tests/test_materials_send.py::test_whatsapp_send_writes_the_checklist_records_it_and_returns_a_link_to_nobody_until_a_number_is_set"
+  - words: "this thing needs to be like a proper checklist"
+    proved_by: "packages/engine/tests/test_materials_text.py::test_one_checklist_line_per_item_with_item_quantity_unit_and_the_day_needed"
+  - words: "a certain systematic way"
+    proved_by: "packages/engine/tests/test_materials_list.py::test_an_educator_adds_a_line_only_from_the_catalogue"
+  - words: "not random text"
+    proved_by: "packages/engine/tests/test_materials_list.py::test_a_new_item_is_a_catalogue_entry_with_no_home_and_no_value_waiting_for_a_person"
+  - words: "2 weeks before and 1 week before"
+    proved_by: "packages/engine/tests/test_materials_reminders.py::test_two_weeks_and_one_week_before_the_first_day_a_material_is_needed"
+manual:
+  - "Scenario S-M1-10-materials: the FN10 list (by week) from the planned activities and their Materials column, compared line by line with the one the K2 educator and the materials team write by hand before the system's is shown. Not possible until M1-06 saves its timetable as sessions and M1-05 maps planner lines to activities: today nothing writes them."
+  - "One real request sent through WhatsApp and acknowledged by the materials team (delivery cannot be confirmed from this side, D-071)."
+  - "Nimish names the materials team's number (setting materials.whatsapp_to); until then the link opens WhatsApp with nobody chosen."
+  - "Actions, rehearse update-live, on this branch, before the migration is pushed: states_may_change=false. No migration is pushed without the orchestrator's go."
+scenarios: []
+criteria:
+  - name: the materials list, its send, its reminders, its command and its routes, on a database built from the migrations
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_materials_list.py tests/test_materials_send.py tests/test_materials_text.py tests/test_materials_reminders.py tests/test_cli_materials.py tests/api/test_materials_routes.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

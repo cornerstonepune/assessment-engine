@@ -15,11 +15,21 @@ from engine.checks.evals import unanswered as _unanswered
 from engine.checks.levels import levels_app
 from engine.core import asks, db, levels, loaders, references
 from engine.core.cli_staff import register as register_staff
-from engine.w1_bank import bank, generate, mistake_guess, review, spec, story_keys, story_shape
+from engine.w1_bank import (
+    bank,
+    generate,
+    k2_draft,  # noqa: F401 — registers `curriculum draft` and `curriculum materials`
+    mistake_guess,
+    review,
+    spec,
+    story_keys,
+    story_shape,
+)
 from engine.w1_bank.cli_bank import bank_app
 from engine.w1_bank.k2_upload import curriculum_app
 from engine.w1_bank.question_types import types_app
 from engine.w2_print.cli_library import library_app
+from engine.w2_print.cli_materials import register_materials
 from engine.w2_print.cli_timetable import timetable_app
 from engine.w2_print.cli_week import week_app
 from engine.w3_read.cli_gold import gold_app
@@ -58,6 +68,7 @@ app.add_typer(report_app, name="report")
 app.add_typer(types_app, name="types")
 app.add_typer(levels_app, name="levels")
 register_staff(app)
+register_materials(app)
 register_checks(app)
 
 
@@ -173,12 +184,18 @@ def eval_(
         "--jev-version",
         help="parent_review: the version of Jev's three questions that reads first (0: none)",
     ),
+    dev: bool = typer.Option(
+        False, "--dev", help="curriculum_map: score the dev set, not the held-out share"
+    ),
+    validate_version: int = typer.Option(
+        0, "--validate-version", help="curriculum_map: the version of the checker (0: the active one)"
+    ),
 ) -> None:
     """Score a prompt. item_generate: accepted ÷ returned. The reviewers: agreement with the
     hand-judged gold set in supabase/seed/validator_gold.json. parent_report: every child with signed-off answers,
     each draft held to its facts by code — the bar is all of them."""
     if purpose in BY_VERSION:
-        return BY_VERSION[purpose](version)
+        return BY_VERSION[purpose](version, dev, validate_version)
     if purpose == parent_report.PURPOSE:
         with db.connect() as conn:
             try:
