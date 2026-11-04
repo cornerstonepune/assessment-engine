@@ -28,9 +28,12 @@ def last_run(calls: Sequence[Call], gap_minutes: float) -> list[Call]:
     return ordered[start:]
 
 
-def replaying(calls: Sequence[Call]) -> tuple[Ask, dict[str, deque[Call]]]:
+def replaying(
+    calls: Sequence[Call], shown: dict[str, frozenset[str]] | None = None
+) -> tuple[Ask, dict[str, deque[Call]]]:
     """An Ask that answers each question with the next stored reply for that prompt, in the order they were paid for.
-    A stored reply that names the activity it was for must meet that activity, or the run is not the one replayed."""
+    A stored reply that names the activity it was for must meet that activity, or the run is not the one replayed.
+    `shown`, when given, is filled with the skills of the examples the proposer was shown for each activity."""
     queues: dict[str, deque[Call]] = {PROPOSE: deque(), VALIDATE: deque()}
     for c in calls:
         queues.setdefault(c[1], deque()).append(c)
@@ -39,6 +42,8 @@ def replaying(calls: Sequence[Call]) -> tuple[Ask, dict[str, deque[Call]]]:
         q = queues.get(purpose)
         if not q:
             raise llm.LLMError(f"the stored run has no more {purpose} replies (asked about {about})")
+        if shown is not None and purpose == PROPOSE:
+            shown[about] = _example_skills(variables)
         _, _, was, outcome, reply, reason = q.popleft()
         if was and was != about:
             raise llm.LLMError(
@@ -49,6 +54,15 @@ def replaying(calls: Sequence[Call]) -> tuple[Ask, dict[str, deque[Call]]]:
         return reply
 
     return ask, queues
+
+
+def _example_skills(variables: dict[str, object]) -> frozenset[str]:
+    out: set[str] = set()
+    raw = variables.get("examples")
+    for ex in raw if isinstance(raw, list) else []:
+        skills = ex.get("skills") if isinstance(ex, dict) else None
+        out |= {str(k) for k in skills} if isinstance(skills, list) else set()
+    return frozenset(out)
 
 
 def family(skill: str) -> str:
@@ -157,4 +171,86 @@ def sweep(made: Sequence[Proposal], gold: dict[str, frozenset[str]]) -> dict:
         "by_confidence": tally(lambda p: round(p.confidence, 3)),
         "by_verdict": tally(lambda p: p.verdict or "none"),
         "if_confidence_at_least": table,
+    }
+
+
+def _proposed(p: Proposal) -> list[str]:
+    raw = p.proposal.get("skills")
+    return [str(k) for k in raw] if isinstance(raw, list) else []
+
+
+def skill_split(
+    made: Sequence[Proposal], gold: dict[str, frozenset[str]], shown: dict[str, frozenset[str]]
+) -> dict:
+    """Each proposed skill on its own against what people linked: by its place in the list, and by whether the proposer
+    had been shown it in an example (a signal code can read, which the model's own confidence is not). Then what would
+    follow from judging skills apart: an activity passing when every skill it names was in the examples, and a proposal
+    split into the skills that pass and the ones offered to a person to add. Replay only: nothing here was run."""
+    rows = [
+        (p, k, k in gold.get(p.subject_code, frozenset()), i)
+        for p in made
+        for i, k in enumerate(_proposed(p), 1)
+    ]
+    rank: dict[str, list[int]] = {}
+    seen: dict[str, list[int]] = {"in the examples": [0, 0], "not in the examples": [0, 0]}
+    for p, k, ok, i in rows:
+        for tally, key in (
+            (rank, str(i)),
+            (
+                seen,
+                "in the examples" if k in shown.get(p.subject_code, frozenset()) else "not in the examples",
+            ),
+        ):
+            n = tally.setdefault(key, [0, 0])
+            n[0] += 1
+            n[1] += ok
+    clean = [p for p in made if not p.problems and _proposed(p)]
+
+    def in_examples(p: Proposal) -> bool:
+        return all(k in shown.get(p.subject_code, frozenset()) for k in _proposed(p))
+
+    def right(p: Proposal) -> bool:
+        return set(_proposed(p)) <= gold.get(p.subject_code, frozenset())
+
+    def table(pool: list[Proposal]) -> dict:
+        out = {}
+        for bar in sorted({0.0, *(round(p.confidence, 3) for p in pool)}):
+            passing = [p for p in pool if p.confidence >= bar]
+            ok = sum(right(p) for p in passing)
+            out[str(bar)] = {
+                "passes": len(passing),
+                "right": ok,
+                "precision": round(ok / len(passing), 3) if passing else 0.0,
+                "share": round(len(passing) / len(made), 3) if made else 0.0,
+            }
+        return out
+
+    split = {}
+    for bar in sorted({0.0, *(round(p.confidence, 3) for p in made)}):
+        auto = [
+            (p, k)
+            for p in clean
+            if p.confidence >= bar
+            for k in _proposed(p)
+            if k in shown.get(p.subject_code, frozenset())
+        ]
+        kept = {(p.subject_code, k) for p, k in auto}
+        offered = [(p, k) for p in clean for k in _proposed(p) if (p.subject_code, k) not in kept]
+        ok = sum(k in gold.get(p.subject_code, frozenset()) for p, k in auto)
+        split[str(bar)] = {
+            "auto_skills": len(auto),
+            "auto_right": ok,
+            "auto_precision": round(ok / len(auto), 3) if auto else 0.0,
+            "offered": len(offered),
+            "offered_in_gold": sum(k in gold.get(p.subject_code, frozenset()) for p, k in offered),
+        }
+    return {
+        "skills": {"proposed": len(rows), "in_gold": sum(ok for _, _, ok, _ in rows)},
+        "by_rank": dict(sorted(rank.items())),
+        "by_example": seen,
+        "if_every_skill_was_in_the_examples": table([p for p in clean if in_examples(p)]),
+        "if_every_skill_was_in_the_examples_and_the_checker_agreed": table(
+            [p for p in clean if in_examples(p) and p.verdict == "agree"]
+        ),
+        "split_by_the_examples": split,
     }

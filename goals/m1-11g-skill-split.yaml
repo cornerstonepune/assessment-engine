@@ -1,0 +1,29 @@
+name: m1-11g-skill-split
+goal: >
+  The map replay can say, from the stored replies and with no model call, what would follow from judging each proposed
+  skill on its own instead of one confidence for the whole proposal. The live replay of map_dev (2026-11-04) showed that no
+  confidence bar reaches 0.90 at a useful volume, that the checker's verdict adds no signal, and that the four skills
+  passed wrongly were all extras beside right ones. So: each proposed skill counted against what people linked by its place
+  in the list and by whether the proposer was shown it in an example (a signal code can read); an activity passing when
+  every skill it names was shown; and a proposal split into the skills that pass and the ones offered to a person to add.
+# Written 2026-11-04 (task M1-11g). W1, gate N1. The words are the orchestrator's brief of that day (relayed); the originals
+# are not in this repository. Nothing here has made a model call and nothing changes how a proposal is decided.
+says:
+  - words: "a split of proposals into CORE (skills also in the gold) and EXTRA (not in gold), judged separately. Auto-pass only if every proposed skill passes; otherwise offer the extra as 'add this skill?' for a person."
+    proved_by: "packages/engine/tests/test_map_replay.py::test_a_proposal_split_into_the_skills_that_pass_and_the_ones_offered_to_a_person"
+  - words: "Auto-pass only if every proposed skill passes"
+    proved_by: "packages/engine/tests/test_map_replay.py::test_an_activity_could_pass_when_every_skill_it_names_was_in_the_examples_whatever_it_said_of_itself"
+  - words: "Propose this with a replay-only estimate of precision, no paid run."
+    proved_by: "packages/engine/tests/test_map_replay.py::test_each_proposed_skill_is_counted_by_its_place_in_the_list_and_by_whether_it_was_in_the_examples"
+  - words: "Propose this with a replay-only estimate of precision, no paid run."
+    proved_by: "packages/engine/tests/test_map_replay.py::test_the_skills_each_proposal_was_shown_as_examples_are_noted_as_it_is_replayed"
+manual:
+  - "Dispatch `map_replay` (the same run, nothing new to deploy beyond this change) and read the new keys of its second line: by_rank, by_example, if_every_skill_was_in_the_examples, if_every_skill_was_in_the_examples_and_the_checker_agreed, split_by_the_examples. They are estimates on one run of 100 activities, with the bar chosen on the same data: a lower bound on the noise, not a promise."
+  - "Whether a skill the proposer was shown in an example is a good sign is what the replay measures; nothing in the decision uses it yet."
+criteria:
+  - name: the replay tells each skill apart (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_replay.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
