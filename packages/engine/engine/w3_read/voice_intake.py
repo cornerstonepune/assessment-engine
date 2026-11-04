@@ -147,14 +147,20 @@ def school_day(conn: db.Conn, at: dt.datetime) -> dt.date:
     return at.astimezone(ZoneInfo(settings.config(conn, "school.time_zone", "Asia/Kolkata"))).date()
 
 
-def resolve(conn: db.Conn, note: dict) -> Resolved:
+def resolve(conn: db.Conn, note: dict, enrolled_on=None, activities_of=None, day_of=None) -> Resolved:
+    """A note's draft with its numbers found. A page reading many notes passes `enrolled_on(class_id, day)`,
+    `activities_of(class_id, number)` and `day_of(moment)` answered from rows it fetched at once, so the rule is this
+    one and no query is asked per note (engine/w3_read/k2_reads.py)."""
+    enrolled_on = enrolled_on or (lambda class_id, day: enrolled(conn, class_id, day))
+    activities_of = activities_of or (lambda class_id, number: activity_of(conn, class_id, number))
+    day_of = day_of or (lambda at: school_day(conn, at))
     draft = voice_note.read(note["transcript"] or "")
-    heard = school_day(conn, note["received_at"])
+    heard = day_of(note["received_at"])
     day = voice_day.taught_on(draft.day, heard) or heard
-    out = Resolved(draft, day, None, enrolled=enrolled(conn, note["class_id"], day))
+    out = Resolved(draft, day, None, enrolled=enrolled_on(note["class_id"], day))
     act = draft.line("activity")
     if act and act.numbers:
-        found = activity_of(conn, note["class_id"], act.numbers[0])
+        found = activities_of(note["class_id"], act.numbers[0])
         if len(found) == 1:
             out.activity = found[0]
         else:
