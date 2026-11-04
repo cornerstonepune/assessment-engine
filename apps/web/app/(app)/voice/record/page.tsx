@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import Link from "@/components/link";
 import { PageShell } from "@/components/page-shell";
 import { requireStaff } from "@/lib/auth";
@@ -13,6 +14,7 @@ import { Recorder } from "./recorder";
 export default async function RecordANote({ searchParams }: { searchParams: Promise<{ class?: string; activity?: string }> }) {
   const me = await requireStaff();
   const my = await herVoice(me);
+  if (!my.recording) notFound(); // D-065: no recording until Nimish turns it on
   const q = await searchParams;
   const c = chosenClass(my, q.class);
   const activity = q.activity && /^[0-9]{1,4}$/.test(q.activity) ? q.activity : undefined;
