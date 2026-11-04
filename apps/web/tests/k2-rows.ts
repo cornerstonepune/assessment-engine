@@ -27,8 +27,10 @@ export async function k2Class(sql: Sql): Promise<K2> {
   for (const roll of ROLLS) {
     const [on] = await sql`select 1 from enrolment where class_id = ${klass} and roll_no = ${roll} and to_date is null`;
     if (on) continue;
-    const [{ id: child }] = await sql<{ id: string }[]>`insert into child (tenant_id, roll_no, section, band) values (${t}, ${roll}, ${SECTION}, 'K2') returning id`;
-    await sql`insert into pii.child (tenant_id, child_id, first_name) values (${t}, ${child}, 'Placeholder')`;
+    // the child row may outlive its enrolment (another spec, or a copy that kept children and not enrolments): reuse it
+    const [had] = await sql<{ id: string }[]>`select id from child where tenant_id = ${t} and section = ${SECTION} and roll_no = ${roll}`;
+    const child = had?.id ?? (await sql<{ id: string }[]>`insert into child (tenant_id, roll_no, section, band) values (${t}, ${roll}, ${SECTION}, 'K2') returning id`)[0].id;
+    if (!had) await sql`insert into pii.child (tenant_id, child_id, first_name) values (${t}, ${child}, 'Placeholder')`;
     await sql`insert into enrolment (tenant_id, child_id, class_id, roll_no, from_date, recorded_by) values (${t}, ${child}, ${klass}, ${roll}, '2026-01-01', 'm1-04 test')`;
   }
   const skills = await sql<{ code: string }[]>`select code from registry_skill where tenant_id = ${t} order by code limit 2`;

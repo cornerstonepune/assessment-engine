@@ -95,17 +95,33 @@ reads, each line beside its words, a person confirms.
 - `pytest tests/test_rung_folded.py -k every_rung_code` before the fix → `1 failed` (the row above); after →
   with the evidence, voice, roles, privileges, register and past suites `136 passed`; `bin/check` → 34 passed.
 
+## Step 5 groundwork — scoring the reader, replay, retention
+
+- `bin/engine read voice check <expected.json>`: each drafted note scored against what the educator says it said
+  (activity, above, below, not willing, absent, the rest), field by field; prints note ids, field names and counts,
+  never a transcript or a name. For the first 20 real notes.
+- `bin/engine read voice replay --class <id> <transcript.txt>`: a typed transcript read against a class as a recording's
+  would be; writes nothing and calls no service. A free sentence or incident is shown by its length only.
+- `voice_store.retention`: null keeps every recording; a number deletes finished notes' recordings older than it and
+  reports a count; the row and its key stay.
+- `uv run pytest -q tests/test_voice_check.py tests/test_cli_voice.py` → 8 passed.
+
 ## To set up on the engine box, after Nimish approves the pilot (not built: no scheduler here)
 
-- **What:** `bin/engine read voice expire`. It leaves every note older than `voice.confirm_within_hours` (48)
-  unconfirmed; such a note never becomes evidence. Confirm already refuses a late note by itself, so the job only
-  keeps the queue and the coordinator's count honest.
-- **How often:** hourly. A note then leaves her queue at most an hour after its 48 hours. It is safe to run at any
-  time and changes nothing the second time.
-- **How:** one line in the box's crontab, or a systemd timer beside the engine's own service (`deploy/`):
-  `17 * * * * /path/to/repo/bin/engine read voice expire`.
-- **Not to schedule yet:** `bin/engine read voice retention`. It deletes nothing while `voice.audio_retention_days`
-  is null (O-14, open). Schedule it daily only once Nimish sets a number.
+The engine runs on the box as the container `deploy-engine-1`. The deploy runs its commands as
+`sudo docker exec deploy-engine-1 engine …` (`.github/workflows/deploy-engine.yml`), so the timer does the same. On the box,
+`sudo crontab -e`, then add these two lines exactly (the box's clock is UTC):
+
+    17 * * * * docker exec deploy-engine-1 engine read voice expire >> /var/log/voice-expire.log 2>&1
+    43 21 * * * docker exec deploy-engine-1 engine read voice retention >> /var/log/voice-retention.log 2>&1
+
+- **The first line, hourly:** a note past `voice.confirm_within_hours` (48) is left unconfirmed and never becomes
+  evidence. Confirm already refuses a late note by itself, so this keeps the queue and the coordinator's count honest.
+  It is safe to run at any time and changes nothing the second time.
+- **The second line, daily at 03:13 in Pune:** it deletes nothing while `voice.audio_retention_days` is null (O-14,
+  open). It prints "kept: … nothing deleted" until Nimish sets a number. It is safe to add now.
+- Both print counts only, never a transcript, a name or which note. `tests/test_cli_voice.py` holds these two lines to
+  commands the engine has.
 
 ## Step 4a extras, what any front end needs from the engine (branch m1-01-voice-engine-extras)
 
