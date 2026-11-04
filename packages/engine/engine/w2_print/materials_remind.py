@@ -7,6 +7,7 @@ from typing import Any
 from uuid import UUID
 
 from engine.core import db, settings
+from engine.w2_print import materials_list
 from engine.w2_print import materials_reminders as dates
 
 AUDIENCES = ("educator", "team")
@@ -47,12 +48,10 @@ def sync(conn: db.Conn, list_id: UUID, today: dt.date) -> None:
         (list_id,),
     )
     weeks = [int(w) for w in settings.config(conn, "materials.reminder_weeks", [2, 1])]
-    if lst["state"] == "sent" or lst["first"] is None:
-        weeks = []
-    made: list[dates.Reminder] = []
     first = lst["first"]
-    if weeks and first is not None:
-        lo = first - dt.timedelta(weeks=max(weeks) + 12)
+    made: list[dates.Reminder] = []
+    if lst["state"] == "draft" and first is not None:
+        lo = first - dt.timedelta(weeks=max(weeks, default=0) + 12)
         made = dates.reminder_dates(
             first, weeks, today, _holidays(conn, lst["tenant_id"], lst["campus_id"], lo, first)
         )
@@ -76,7 +75,7 @@ def inbox(
 ) -> list[dict[str, Any]]:
     """What the educator is reminded of today: one message for each unsent list with a reminder due, however many lead
     times are due together. With `staff`, only for classes she holds (`educator.timetable_roles`)."""
-    roles = list(settings.config(conn, "educator.timetable_roles", ["class_teacher", "cover_educator"]))
+    held = None if staff is None else materials_list.held_classes(conn, staff, today)
     rows = conn.execute(
         "select r.list_id, l.school_class_id as class_id, max(r.due_on) as due_on, bool_or(r.at_once) as at_once,"
         " array_agg(r.weeks_before order by r.weeks_before desc) as weeks_before,"
@@ -84,11 +83,9 @@ def inbox(
         " from reminder r join materials_list l on l.id = r.list_id"
         " where r.state = 'pending' and r.audience = 'educator' and r.due_on <= %s and l.state = 'draft'"
         " and (%s::uuid is null or l.school_class_id = %s)"
-        " and (%s::uuid is null or exists (select 1 from staff_role_grant g where g.staff_id = %s"
-        " and g.school_class_id = l.school_class_id and g.role_code = any(%s)"
-        " and g.valid_from <= %s and (g.valid_to is null or g.valid_to >= %s)))"
+        " and (%s::uuid[] is null or l.school_class_id = any(%s))"
         " group by r.list_id, l.school_class_id order by 3, 1",
-        (today, class_id, class_id, staff, staff, roles, today, today),
+        (today, class_id, class_id, held, held),
     ).fetchall()
     return list(rows)
 

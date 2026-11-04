@@ -16,7 +16,7 @@ class Line:
     needed_on: dt.date
 
 
-def _day(d: dt.date) -> str:
+def day(d: dt.date) -> str:
     return f"{d:%a} {d.day} {d:%b}"
 
 
@@ -36,7 +36,7 @@ def checklist(class_name: str, first: dt.date, last: dt.date, lines: list[Line])
             if ln.quantity is not None
             else f"quantity to confirm ({ln.unit})"
         )
-        out.append(f"[ ] {ln.item}: {what}, needed {_day(ln.needed_on)}")
+        out.append(f"[ ] {ln.item}: {what}, needed {day(ln.needed_on)}")
     return "\n".join(out)
 
 

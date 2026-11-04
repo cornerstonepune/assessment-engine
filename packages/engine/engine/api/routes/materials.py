@@ -10,7 +10,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from engine.api.deps import get_conn, require_engine_key
+from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.core import db
 from engine.w2_print import materials_list as ml
 from engine.w2_print import materials_remind as rem
@@ -106,17 +106,19 @@ def _line_list(conn, line_id: UUID) -> UUID:
     return row["list_id"]
 
 
-def _mine_line(conn, body: Who, line_id: UUID) -> UUID:
-    return _mine_list(conn, body, _line_list(conn, line_id))
+def _mine_line(conn, body: Who, line_id: UUID) -> tuple[UUID, UUID]:
+    list_id = _line_list(conn, line_id)
+    return _mine_list(conn, body, list_id), list_id
 
 
 @keyed.post("/build")
 def build(body: Build, conn=Depends(get_conn, scope="function")):
     staff = _staff(conn, body)
     _holds(conn, staff, body.class_id)
-    if body.to < body.from_:
-        raise HTTPException(status_code=422, detail="The last day is before the first day.")
-    lid = ml.build(conn, body.class_id, body.period, body.from_, body.to)
+    try:
+        lid = ml.build(conn, body.class_id, body.period, body.from_, body.to)
+    except ValueError as no:
+        raise HTTPException(status_code=422, detail=str(no)) from no
     rem.sync(conn, lid, rem.school_today(conn))
     return ml.read(conn, lid)
 
@@ -129,7 +131,7 @@ def read(body: Read, conn=Depends(get_conn, scope="function")):
 
 @keyed.post("/line/quantity")
 def quantity(body: Quantity, conn=Depends(get_conn, scope="function")):
-    staff = _mine_line(conn, body, body.line_id)
+    staff, _ = _mine_line(conn, body, body.line_id)
     try:
         ml.set_quantity(conn, body.line_id, body.quantity, staff)
     except ml.LineRemoved as no:
@@ -141,9 +143,9 @@ def quantity(body: Quantity, conn=Depends(get_conn, scope="function")):
 
 @keyed.post("/line/remove")
 def remove(body: Line, conn=Depends(get_conn, scope="function")):
-    staff = _mine_line(conn, body, body.line_id)
+    staff, list_id = _mine_line(conn, body, body.line_id)
     ml.remove(conn, body.line_id, staff)
-    rem.sync(conn, _line_list(conn, body.line_id), rem.school_today(conn))
+    rem.sync(conn, list_id, rem.school_today(conn))
     return {"ok": True}
 
 
@@ -166,12 +168,8 @@ def add(body: AddLine, conn=Depends(get_conn, scope="function")):
     return {"line_id": line}
 
 
-def _tenant(conn) -> UUID:
-    return db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
-
-
 @keyed.post("/catalogue/list")
-def catalogue(body: Who, conn=Depends(get_conn, scope="function")):
+def catalogue(body: Who, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
     _staff(conn, body)
     return {
         "items": [
@@ -190,10 +188,10 @@ def catalogue(body: Who, conn=Depends(get_conn, scope="function")):
 
 
 @keyed.post("/catalogue/propose")
-def propose(body: Propose, conn=Depends(get_conn, scope="function")):
+def propose(body: Propose, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
     staff = _staff(conn, body)
     try:
-        return {"code": ml.propose_item(conn, _tenant(conn), body.name, body.unit, staff)}
+        return {"code": ml.propose_item(conn, UUID(str(tenant_id)), body.name, body.unit, staff)}
     except ValueError as no:
         raise HTTPException(status_code=422, detail=str(no)) from no
 

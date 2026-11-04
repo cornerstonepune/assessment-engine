@@ -34,30 +34,28 @@ def _lines(conn: db.Conn, list_id: UUID) -> list[text.Line]:
     ]
 
 
-def _compose(conn: db.Conn, list_id: UUID) -> tuple[dict[str, Any], str]:
+def _compose(conn: db.Conn, list_id: UUID, lock: bool = False) -> tuple[dict[str, Any], str | None]:
+    """The list's row and its checklist (None when it has no lines). `lock` holds the row while it is sent."""
     lst = db.one(
         conn,
         "select l.*, c.grade_code, c.section from materials_list l join school_class c on c.id = l.school_class_id"
-        " where l.id = %s for update of l",
+        f" where l.id = %s{' for update of l' if lock else ''}",
         (list_id,),
     )
     lines = _lines(conn, list_id)
-    if not lines:
-        raise NothingToSend("the list has no lines")
     name = f"{lst['grade_code']} {lst['section'] or ''}".strip()
-    return lst, text.checklist(name, lst["from_on"], lst["to_on"], lines)
+    return lst, text.checklist(name, lst["from_on"], lst["to_on"], lines) if lines else None
 
 
 def current_text(conn: db.Conn, list_id: UUID) -> str | None:
     """The checklist as the list reads now, or None when it has no lines."""
-    try:
-        return _compose(conn, list_id)[1]
-    except NothingToSend:
-        return None
+    return _compose(conn, list_id)[1]
 
 
 def send(conn: db.Conn, list_id: UUID, route: str, who: UUID) -> dict[str, Any]:
-    lst, body = _compose(conn, list_id)
+    lst, body = _compose(conn, list_id, lock=True)
+    if body is None:
+        raise NothingToSend("the list has no lines")
     link = None
     if route == "whatsapp":
         status = "opened"

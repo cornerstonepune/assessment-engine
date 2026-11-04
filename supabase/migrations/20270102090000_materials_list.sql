@@ -97,7 +97,7 @@ create table if not exists materials_send (
   list_id   uuid not null references materials_list(id),
   route     text not null check (route in ('whatsapp', 'email')),
   text      text not null check (btrim(text) <> ''),
-  status    text not null check (btrim(status) <> ''),  -- whatsapp: 'opened'; email: 'not configured', 'sent', 'failed'
+  status    text not null check (status in ('opened', 'sent', 'not configured', 'failed')),  -- whatsapp: 'opened'; email: 'not configured', 'sent', 'failed'
   who       uuid not null references staff(id),
   at        timestamptz not null default clock_timestamp()
 );

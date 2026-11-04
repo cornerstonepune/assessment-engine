@@ -11,7 +11,7 @@ from typing import Any
 from uuid import UUID
 
 from engine.core import db, settings
-from engine.w2_print import materials_send
+from engine.w2_print import materials_send, materials_text
 
 
 class NotInCatalogue(Exception):
@@ -48,6 +48,8 @@ def _source_rows(conn: db.Conn, class_id: UUID, lo: dt.date, hi: dt.date) -> lis
 
 def build(conn: db.Conn, class_id: UUID, period: str, lo: dt.date, hi: dt.date) -> UUID:
     """Make or refresh the list for the class over `lo`..`hi`; returns its id. Safe to run again."""
+    if hi < lo:
+        raise ValueError("The last day is before the first day.")
     klass = db.one(conn, "select tenant_id from school_class where id = %s", (class_id,))
     lst = db.one(
         conn,
@@ -107,7 +109,7 @@ def build(conn: db.Conn, class_id: UUID, period: str, lo: dt.date, hi: dt.date) 
 
 def _label(group_by: str, d: dt.date, fortnights: list[dict[str, Any]]) -> tuple[Any, str]:
     if group_by == "day":
-        return d, f"{d:%a} {d.day} {d:%b}"
+        return d, materials_text.day(d)
     if group_by == "week":
         mon = d - dt.timedelta(days=d.weekday())
         return mon, f"Week of {mon.day} {mon:%b}"
@@ -191,9 +193,13 @@ def _line(conn: db.Conn, line_id: UUID) -> dict[str, Any]:
     return db.one(conn, "select * from materials_line where id = %s for update", (line_id,))
 
 
-def set_quantity(conn: db.Conn, line_id: UUID, quantity: float | None, who: UUID) -> None:
+def _check_quantity(quantity: float | None) -> None:
     if quantity is not None and quantity <= 0:
         raise ValueError("a quantity is more than nothing; remove the line instead")
+
+
+def set_quantity(conn: db.Conn, line_id: UUID, quantity: float | None, who: UUID) -> None:
+    _check_quantity(quantity)
     line = _line(conn, line_id)
     if line["removed_at"] is not None:
         raise LineRemoved(line_id)
@@ -236,8 +242,7 @@ def add(
     ).fetchone()
     if item is None:
         raise NotInCatalogue(material_code)
-    if quantity is not None and quantity <= 0:
-        raise ValueError("a quantity is more than nothing")
+    _check_quantity(quantity)
     qty = None if quantity is None else Decimal(str(quantity))
     have = conn.execute(
         "select * from materials_line where list_id = %s and material_code = %s for update",
@@ -299,13 +304,19 @@ def enabled(conn: db.Conn) -> bool:
     return settings.config(conn, "educator.timetable_enabled", False) is True
 
 
-def may_edit(conn: db.Conn, staff: UUID, class_id: UUID, today: dt.date) -> bool:
-    """She builds, edits and sends a class's list only while she holds an open grant on that class, on the school's
-    `today`, in a role the timetable names (`educator.timetable_roles`, a config row)."""
+def held_classes(conn: db.Conn, staff: UUID, today: dt.date) -> list[UUID]:
+    """The classes she holds on the school's `today`: an open grant in a role the timetable names
+    (`educator.timetable_roles`, a config row). The one rule for who may build, edit, send and be reminded."""
     roles = list(settings.config(conn, "educator.timetable_roles", ["class_teacher", "cover_educator"]))
-    held = conn.execute(
-        "select 1 from staff_role_grant where staff_id = %s and school_class_id = %s and role_code = any(%s)"
-        " and valid_from <= %s and (valid_to is null or valid_to >= %s)",
-        (staff, class_id, roles, today, today),
-    ).fetchone()
-    return held is not None
+    return [
+        r["school_class_id"]
+        for r in conn.execute(
+            "select distinct school_class_id from staff_role_grant where staff_id = %s and role_code = any(%s)"
+            " and school_class_id is not null and valid_from <= %s and (valid_to is null or valid_to >= %s)",
+            (staff, roles, today, today),
+        )
+    ]
+
+
+def may_edit(conn: db.Conn, staff: UUID, class_id: UUID, today: dt.date) -> bool:
+    return class_id in held_classes(conn, staff, today)
