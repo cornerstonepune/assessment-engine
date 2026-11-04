@@ -8,6 +8,7 @@ No model is called: every reply is a recorded one (a file the test writes), as o
 
 import json
 import os
+import re
 
 import psycopg
 import pytest
@@ -265,9 +266,20 @@ def test_a_link_a_person_removes_is_kept_in_the_history_too(conn):
     assert row == {"before": "NUM.CNT.01", "after": "", "changed_by": "A test educator"}
 
 
-def test_the_commands_write_nothing_without_apply_and_by(conn):
-    run = CliRunner().invoke(cli.app, ["curriculum", "apply", "--apply"])
-    assert run.exit_code != 0 and "--by is required" in run.output
+def test_the_commands_write_nothing_without_apply_and_by(monkeypatch):
+    """--apply without --by is refused before the database is opened (as `engine curriculum k2` is)."""
+
+    def never(*_a, **_k):
+        raise AssertionError("the database was opened")
+
+    monkeypatch.setattr(db, "connect", never)
+    for command in (["apply"], ["propose"], ["revert", "x", "--why", "y"]):
+        run = CliRunner().invoke(cli.app, ["curriculum", *command, "--apply"])
+        plain = " ".join(
+            re.sub(r"[│╭╮╰╯─]", " ", re.sub(r"\x1b\[[0-9;]*m", "", run.output)).split()
+        )  # any colours or wraps
+        assert run.exit_code != 0 and "--by is required with --apply" in plain, command
+        assert not isinstance(run.exception, AssertionError), command
 
 
 def test_a_recorded_gold_run_is_held_to_the_bars_before_anything_applies(conn, tmp_path, monkeypatch):
