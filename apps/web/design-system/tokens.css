@@ -54,7 +54,7 @@
   /* ---- Where a piece of text came from (round 24 px badge, icon only, word in the legend) ---- */
   --origin-school-fg: var(--brand-olive-deep); --origin-school-bg: var(--brand-olive-tint); /* icon: book-open */
   --origin-drafted-fg: var(--brand-bamboo-deep); --origin-drafted-bg: var(--brand-bamboo-lt); /* icon: sparkles */
-  --origin-edited-fg: var(--brand-monsoon-deep); --origin-edited-bg: var(--brand-monsoon-wash); /* icon: pencil (Lucide square-pen) */
+  --origin-edited-fg: var(--brand-monsoon-deep); --origin-edited-bg: var(--brand-monsoon-wash); /* icon: pencil (Lucide pencil) */
 
   /* ---- Space (px). 4 is for inside a control only. ---- */
   --space-1: 4px;
