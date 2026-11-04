@@ -1,0 +1,35 @@
+name: m1-06c-timetable-run
+goal: >
+  The K2 timetable reaches the live database by a logged command on the server: a manual workflow `timetable run` with
+  two fixed runs, `dry` (loads the committed exports into a transaction it rolls back and prints the rows before and
+  after) and `apply` (writes them, twice, so the log shows the second adding nothing); no free text reaches a shell, an
+  apply is for a person on the repository variable CURRICULUM_STAFF, and the load itself prints what the class held
+  before and after.
+# Written 2026-11-04, before the code: follow-up to M1-06 part 2 (#379), asked for by the orchestrator so the 151 KB of SQL is
+# not pasted through a connector. The pattern is .github/workflows/curriculum-run.yml. W2 step N4; no new engine step, no
+# new command (the counts are part of `engine timetable load`). Expected on live: 8 fortnights, 80 school days, 15 periods,
+# 150 slots, 375 plan lines, 1,049 sessions. Nimish's words: the one sentence below, as D-061 records it.
+says:
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_timetable_run_command.py::test_there_are_two_runs_a_dry_one_that_writes_nothing_and_the_apply"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_timetable_run_command.py::test_the_apply_runs_twice_so_the_log_shows_the_second_adding_nothing"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_timetable_run_command.py::test_an_unknown_run_or_a_person_not_on_the_list_is_refused_before_anything_is_written"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_timetable_run_command.py::test_the_workflow_is_a_manual_choice_of_the_fixed_runs_and_nothing_else"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_the_counts_after_a_load_are_what_the_class_holds_and_a_second_load_leaves_them_as_they_were"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable_load.py::test_the_report_prints_the_rows_before_and_after_when_there_is_a_database"
+manual:
+  - "Dispatching `timetable run` dry, then apply, on the server is the orchestrator's: the log must show 8/80/15/150/375/1049 after and 0 added by the second apply."
+  - "The server must hold this commit's supabase/seed (it is mounted into the engine) and the seed loaded (`engine load`, so the vocabulary row has `planner_block`)."
+scenarios: []
+criteria:
+  - name: the run command, the workflow's shape, and the counts the load prints
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_timetable_run_command.py tests/test_k2_timetable_load.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

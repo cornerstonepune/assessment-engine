@@ -96,8 +96,8 @@ def load(
         plan = ld.build(frame_in, plan_in, cal_in, vocab, first, last, held)
         source = f"{planner.name} sha256:{digests[planner.name][:12]}"
         target = ld.Target(grade, section, year, db.tenant_slug() if conn else "", source)
-        added, linked = _run(conn, plan, target, apply) if conn else (None, None)
-    _report(plan, added, linked, apply, f"fortnights {first} to {last}, {grade} {section} {year}")
+        counted, linked = _run(conn, plan, target, apply) if conn else (None, None)
+    _report(plan, counted, linked, apply, f"fortnights {first} to {last}, {grade} {section} {year}")
     if sql:
         sql.write_text(sq.sql_file(plan, target, digests))
         typer.echo(
@@ -107,27 +107,41 @@ def load(
 
 def _run(
     conn: db.Conn, plan: ld.Load, target: ld.Target, apply: bool
-) -> tuple[dict[str, int] | None, int | None]:
+) -> tuple[tuple[dict[str, int], dict[str, int]] | None, int | None]:
+    """What the load added and what the class holds after it (so before = after - added), and how many lines linked."""
     try:
         added = sq.apply(conn, plan, target)
+        counted: tuple[dict[str, int], dict[str, int]] | None = (added, sq.counts(conn))
         linked: int | None = sq.linked(conn)
     except sq.NoSuchClass as no:
         typer.echo(f"  no such class on this database: {no}; nothing was written")
-        added, linked = None, None
-    if apply and added is not None:
+        counted, linked = None, None
+    if apply and counted is not None:
         conn.commit()
     else:
         conn.rollback()
-    return added, linked
+    return counted, linked
 
 
 def _report(
-    plan: ld.Load, added: dict[str, int] | None, linked: int | None, apply: bool, heading: str
+    plan: ld.Load,
+    counted: tuple[dict[str, int], dict[str, int]] | None,
+    linked: int | None,
+    apply: bool,
+    heading: str,
 ) -> None:
     typer.echo(heading)
-    verb = "added" if apply else "would add"
+    typer.echo(
+        f"  {'table':<15}{'planned':>8}" + (f"{'added':>8}{'before':>8}{'after':>8}" if counted else "")
+    )
     for name, n in ld.summary(plan).items():
-        typer.echo(f"  {name:<15}{n:>5}" + (f"   {verb} {added[name]:>5}" if added else ""))
+        row = f"  {name:<15}{n:>8}"
+        if counted:
+            added, after = counted
+            row += f"{added[name]:>8}{after[name] - added[name]:>8}{after[name]:>8}"
+        typer.echo(row)
+    if counted and not apply:
+        typer.echo("  dry run: nothing was written; 'after' is what the class would hold")
     typer.echo(
         f"  planner lines linked to exactly one activity: {'unknown without a database' if linked is None else linked}"
     )

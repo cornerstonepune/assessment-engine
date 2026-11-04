@@ -128,6 +128,11 @@ COUNTS = S(
 )  # fmt: skip
 
 
+def counts(conn: db.Conn) -> dict[str, int]:
+    """The rows the class holds in each of the six tables (same transaction as `apply`, whose context it reads)."""
+    return {r["t"]: r["count"] for r in conn.execute(COUNTS).fetchall()}
+
+
 def sql_file(load: ld.Load, t: ld.Target, sources: dict[str, str]) -> str:
     """One transaction, with the row counts before and after, for a person to run where this code cannot reach."""
     head = [
