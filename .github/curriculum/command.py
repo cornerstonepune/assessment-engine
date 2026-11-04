@@ -26,6 +26,10 @@ RUNS = {
             ["engine", "curriculum", "materials", "--stage", "draft", "--dry-run"],
         ],
     },
+    "map_probe": {
+        "spends": True,
+        "commands": [["engine", "curriculum", "map-probe", "--version", "3"]],
+    },
     "map_dev": {
         "spends": True,
         "commands": [
