@@ -18,6 +18,7 @@ from engine.api.routes import (
     card,
     children,
     focus,
+    gold,
     graph,
     k2,
     library,
@@ -66,6 +67,7 @@ app.include_router(upload.router)
 app.include_router(samples.router)
 app.include_router(timetable.keyed)
 app.include_router(k2.router)
+app.include_router(gold.router)
 app.include_router(voice.router)
 app.include_router(voice.keyed)
 app.include_router(materials.keyed)

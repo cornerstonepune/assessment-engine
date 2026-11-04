@@ -35,6 +35,12 @@ test("no session: an API route answers 401 before it reads anything", async ({ r
   expect(res.status()).toBe(401);
 });
 
+test("no session: the sheet of drafted pages, which holds the school's lesson text, is turned away", async ({ request }) => {
+  const res = await request.get("/api/gold-sheet", { maxRedirects: 0 });
+  expect(res.status()).toBe(401);
+  expect(await res.text()).not.toContain("objective");
+});
+
 test("a wrong password is refused and you stay on the sign-in page", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel("School email").fill(`nobody-${randomUUID().slice(0, 8)}@example.com`);

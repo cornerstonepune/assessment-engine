@@ -16,7 +16,7 @@
   tagged check me until a person has reviewed it; the ledger status is unchanged.
 
 ## Handoff
-- New: `config k2.draft_rules`, `engine curriculum gold-sheet` (run choice `gold_sheet`), the rules in `k2_batch`.
-- Next: dispatch `gold_sheet`; a person marks about 30 rows; then the replay table for page parts (not built).
+- New: `config k2.draft_rules`, `engine curriculum gold-sheet --out FILE`, the rules in `k2_batch`.
+- Next: a person downloads the sheet (m1-11h) and marks about 30 rows; then the replay table for page parts (not built).
 - The ones already drafted in dev (99 pages) were drafted before these rules: `check_me` is set on apply, so re-applying
   nothing changes them; they would need drafting again (a paid run) to get the rules. Orchestrator's call.

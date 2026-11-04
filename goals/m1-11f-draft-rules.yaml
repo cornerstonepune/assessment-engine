@@ -38,7 +38,7 @@ manual:
   - "A phrase list catches the shapes it names, not every way of comparing children; the checker's prompt is a second line only. Add patterns to the config row k2.draft_rules as new shapes are seen."
   - "The gendered-word list refuses every he/she/her/his in a draft, including one meant for the educator: the school's own steps say 'She will ...' for the educator, a draft says 'The educator will ...'. Stricter than the school on purpose; the school's words are never touched."
   - "No web page reads check_me yet (checked 2026-11-04): when the K2 pages are shown, a part with check_me true is unreviewed whatever its ledger status says."
-  - "The checker (Haiku) invents facts and has no score until the gold sheet is marked: `engine curriculum gold-sheet` prints it (the `gold_sheet` choice of the curriculum run workflow)."
+  - "The checker (Haiku) invents facts and has no score until the gold sheet is marked: the sheet is a download behind the staff sign-in (goals/m1-11h-gold-sheet-delivery.yaml); the `gold_sheet` run choice was taken out because a run's output is a public log."
 criteria:
   - name: drafted text is held to the rules, steps are in the school's form, every draft is check me, and the gold sheet is a CSV (a database built from the migrations)
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_rules.py tests/test_k2_gold.py tests/test_k2_draft.py tests/test_k2_review.py tests/test_k2_batch.py tests/test_k2_gaps.py tests/test_curriculum_run_command.py
