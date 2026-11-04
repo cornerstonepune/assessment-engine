@@ -15,10 +15,8 @@ attach was refused in this session, so the bars below are M1-05's as recorded in
 | materials | `activity.materials` free text | H "TLMs" | catalogue lines, new |
 | skill links | `activity_skill` (source, proposal_id from M1-05) | none | no |
 | source of each part, who edits | `curriculum_edit` (who, when) | — | per-part source is new |
-Mapping confirmed from the sheet's headers (read 4 Nov): P="Activity Level 0 / Doesn't sit for the class", Q..S Level 1..3.
-The school's four words Easy/Medium/Hard/Advance are Level 0..3 in that order; the sheet never says them, so **that
-pairing is an assumption for Nimish to confirm**. Columns W–AB repeat the levels ("0. Doesn't sit…"), AD–AI are "Revised"
-(L0–L4): which set is final is still open (M0-02 left it open).
+Mapping from the sheet's headers: P="Activity Level 0" (Doesn't sit for the class), Q..S Level 1..3. Easy..Advance = Level 0..3 is my
+assumption (the sheet never says Easy/Hard): **Nimish to confirm**. W–AB repeat the levels; AD–AI are "Revised" L0–L4; which is final is open.
 
 **Smallest additions (proposal, nothing written):**
 1. `activity.steps text`, `activity.thinking text` (two columns, like `materials`).
@@ -27,19 +25,17 @@ pairing is an assumption for Nimish to confirm**. Columns W–AB repeat the leve
    writes `curriculum_edit` for the new columns once added to its list.
 3. `material_item(code, name, unit)` and `activity_material(activity_code, material_code, quantity)`; free text kept in
    `activity.materials` untouched. Needs the `curriculum_proposal.kind` check widened (migration, additive).
-Not needed: a new ledger. M1-05's `curriculum_proposal` (append-only, validator, 10% audit, apply/revert) is reused (rule 10).
+No new ledger: M1-05's `curriculum_proposal` is reused (rule 10).
 
 ## 2. Gap audit — what I could and could not measure
-- Sheet tab "Activity list_Lesson Plans": 1,429 rows, 44 columns. Headers confirmed (above). Row 2–3 are fully filled.
+- Tab "Activity list_Lesson Plans": 1,429 rows, 44 columns; its first two data rows are fully filled.
 - **Per-part empty counts from the sheet: NOT produced.** The connector returns text to the model, not a file, and the
   container cannot download the tab (M0-02). Counting 871 rows × 6 long columns by eye would be a guess, so I did not.
   What I did see: column B (activity no.) has long blocks of `#REF!` and blanks, and Nursery rows sit at the bottom,
   which agrees in kind with the orchestrator's 321 without a number; the count itself is unverified.
 - Live (orchestrator's numbers, not mine): of 871, empty = objective 328, materials 225, level_0 129, level_3 126,
   requirement 281, skill link 344. **Steps and thinking were not measured on live because no column holds them.**
-- To get exact counts: someone exports the tab as CSV; then a read-only `engine curriculum k2 <csv>` extension prints
-  empties per part and per column (code, not a model). That is the first thing to do after a go.
-
+- Exact counts need the tab exported as CSV, then a read-only extension of `engine curriculum k2 <csv>` (code, not a model).
 ## 3. Plan
 - **Order:** (a) load steps from column J as "school" (no model; it is the school's text); (b) per-part dry-run counts;
   (c) draft only what is empty, one call per activity returning every missing part; (d) validate; (e) person review.
@@ -55,9 +51,7 @@ Not needed: a new ledger. M1-05's `curriculum_proposal` (append-only, validator,
   proposal row says no). Nothing drafted is shown to a parent unreviewed.
 - **Bars (proposed, to be set before any run, as M1-05 did):** gold = the 527 activities people filled; objectives and
   rubrics are scored on the dev 100 then held-out 427 for facts code can check (valid codes, four rungs, no copy);
-  wording quality is a person's read of a sample of 40 per part, bar: 90% kept without change (my number, Nimish may change it).
-  Wording quality has no automatic test: said plainly.
-
+  wording: a person reads 40 per part, bar 90% kept unchanged (my number; Nimish may change it). No automatic test of wording.
 ## 4. Cost and time — ESTIMATE, tokens per call are assumptions, none measured
 Prices from `config.llm.prices` (₹ per million tokens, in/out): Sonnet 5.5 176/880, Opus 5.5 352/1760, Haiku 4.5 88/440.
 | Run | Calls | Tokens in/out per call | ₹ |
@@ -68,12 +62,8 @@ Prices from `config.llm.prices` (₹ per million tokens, in/out): Sonnet 5.5 176
 | Materials split | 871 | 800 / 400 | ~215 |
 | Evals (dev 100 + held-out 427, draft+validate) | ~527 | as above | ~850 |
 **Total about ₹3,700 (about $42); plan for ₹3,000–6,000.** Time with 4 calls at once, ~25 s per activity: about 1.5 hours
-for the run plus about 40 min for evals, so 2–3 hours. Person review is the real cost: 871 pages, unmeasured.
-
+for the run plus about 40 min for evals, so 2–3 hours. Person review is the real cost, unmeasured.
 ## Unverified / open
 - No sheet counts (above). Tokens per call assumed. teacher-os decisions not read. Level 0..3 = Easy..Advance assumed.
 - Whether column J holds steps for all 871 (a blank J is a gap I cannot count yet).
-- The 35-minute CI run is avoided: branch pushed, no PR.
-
-## Handoff
-- Next on a go: CSV export → dry-run counts → migration for the 3 additions → prompt rows → eval on the box.
+- Next on a go: CSV export → counts → migration → prompt rows → eval on the box.
