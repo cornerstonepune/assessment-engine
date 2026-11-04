@@ -14,7 +14,7 @@ has been made; nothing is pushed beyond the first note.** teacher-os was never a
 | level 0–3 | `activity.level_0..3` | P–S | existed |
 | materials | `activity.materials` text + `material_item`, `activity_material` (item, quantity, unit) | H | catalogue new |
 | source of each part | `activity_part_source` (school / drafted / person, proposal, staff id) | — | new |
-Migration `20261231090000_k2_page_parts.sql` (additive; to renumber after #374): widens `curriculum_proposal.kind` with `page_part`, `material` (the M1-05
+Migration `20270101090000_k2_page_parts.sql` (additive; renumbered after #374 took 20261231090000): widens `curriculum_proposal.kind` with `page_part`, `material` (the M1-05
 ledger carries the drafts, rule 10); the edit trigger now keeps `steps` and `thinking` too. A catalogue item's `home` (class/school) and `unit_value` stay empty and flagged until a person sets them (D-072; never invented). A part with no source row is empty or
 older than this table; the upload writes 'school'; a later upload turns a 'drafted' part into 'school', never a 'person' one.
 

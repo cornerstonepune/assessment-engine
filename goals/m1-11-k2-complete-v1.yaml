@@ -75,7 +75,7 @@ says:
     proved_by: "packages/engine/tests/test_map_stage.py::test_the_held_out_score_is_the_held_out_stage_and_asks_for_the_versions_it_is_given"
 manual:
   - "The eval of the three prompts is not written and not run: no model key in the build container, and money is Nimish's call (D-047). Each prompt row stays inactive (rule 7) until `engine eval` scores it against a bar set before the run, on the 100 dev pages first."
-  - "The upload with the lesson plan loaded as steps has not been run on the real tab or on a copy of live: `bin/engine curriculum k2 <csv>` (a dry run) prints the gaps in the sheet and in the database; the migration 20261231090000 has not run on a copy of live (rehearse update-live)."
+  - "The upload with the lesson plan loaded as steps has not been run on the real tab or on a copy of live: `bin/engine curriculum k2 <csv>` (a dry run) prints the gaps in the sheet and in the database; the migration 20270101090000 has not run on a copy of live (rehearse update-live)."
   - "Level 0 to 3 are the sheet's columns P to S. Which of the sheet's other level sets (W to Z, AD to AI) is final is a question for the coordinator."
   - "The drafted chip on the page and the keep / change / reject buttons are screens, not built here."
 scenarios: []
