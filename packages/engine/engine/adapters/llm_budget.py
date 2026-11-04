@@ -73,14 +73,29 @@ def _check_order(conn, tenant_slug: str, name: str, c: dict, stage: str) -> None
         )
 
 
+def since(conn, c: dict) -> str:
+    """The moment a campaign starts counting. Most count from the beginning; one that names `"window": "month"` counts
+    the school's current calendar month (`school.time_zone`) and starts again at the next (M1-16's monthly cap)."""
+    if c.get("window") != "month":
+        return "-infinity"
+    zone = (conn.execute("select value from config where key = 'school.time_zone'").fetchone() or {}).get(
+        "value"
+    )
+    return conn.execute(
+        "select (date_trunc('month', now() at time zone %s) at time zone %s)::text as t",
+        (zone or "Asia/Kolkata", zone or "Asia/Kolkata"),
+    ).fetchone()["t"]
+
+
 def _check_one(conn, tenant_slug: str, name: str, c: dict) -> None:
     got = conn.execute(
         "select coalesce(sum(f.cost_inr), 0) as spent,"
         " count(*) filter (where f.status = 'ok' and f.cost_inr is null) as no_cost,"
         " count(*) filter (where f.status = 'running'"
         " and f.started_at < now() - make_interval(mins => %s)) as stuck"
-        " from flow_run f join tenant t on t.id = f.tenant_id where t.slug = %s and f.flow = any(%s)",
-        (c["stale_minutes"], tenant_slug, c["purposes"]),
+        " from flow_run f join tenant t on t.id = f.tenant_id where t.slug = %s and f.flow = any(%s)"
+        " and f.started_at >= %s::timestamptz",
+        (c["stale_minutes"], tenant_slug, c["purposes"], since(conn, c)),
     ).fetchone()
     if got["no_cost"]:
         raise Refused(
@@ -108,7 +123,7 @@ def status(conn, tenant_slug: str, purpose: str, stage: str | None) -> dict | No
         rate, caps = c["inr_per_usd"], c.get("stages") or {}
         out = {
             "campaign": name,
-            "spent_usd": _spent(conn, tenant_slug, c["purposes"]) / rate,
+            "spent_usd": _spent(conn, tenant_slug, c["purposes"], None, since(conn, c)) / rate,
             "limit_usd": c["cap_usd"] - c["margin_usd"],
             "stage": stage,
             "stage_spent_usd": None,
@@ -137,10 +152,13 @@ def line(got: dict | None) -> str:
     return text
 
 
-def _spent(conn, tenant_slug: str, purposes: list[str], trigger: str | None = None) -> float:
+def _spent(
+    conn, tenant_slug: str, purposes: list[str], trigger: str | None = None, from_: str = "-infinity"
+) -> float:
     row = conn.execute(
         "select coalesce(sum(f.cost_inr), 0) as spent from flow_run f join tenant t on t.id = f.tenant_id"
-        " where t.slug = %s and f.flow = any(%s) and (%s::text is null or f.trigger = %s)",
-        (tenant_slug, purposes, trigger, trigger),
+        " where t.slug = %s and f.flow = any(%s) and (%s::text is null or f.trigger = %s)"
+        " and f.started_at >= %s::timestamptz",
+        (tenant_slug, purposes, trigger, trigger, from_),
     ).fetchone()
     return float(row["spent"])
