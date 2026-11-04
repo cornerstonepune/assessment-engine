@@ -76,5 +76,14 @@
     {"code": "sent_back", "words": "sent back"},
     {"code": "waiting_second", "words": "waiting for a second approval"},
     {"code": "approved", "words": "approved"}
+  ],
+  "_links_note": "M1-15 (goals/m1-15-skill-links.yaml): how strongly one skill must come before another, and whether a person has confirmed the link. `confirmed` is what the views and the confirmation trigger read: nothing reads a link in a state where it is false. The migration inserts the same rows for every school.",
+  "link_strengths": [
+    {"code": "hard", "words": "a child needs the first before the second"},
+    {"code": "soft", "words": "the first helps with the second, but is not needed"}
+  ],
+  "link_states": [
+    {"code": "proposed", "words": "proposed, not yet checked by a person", "confirmed": false},
+    {"code": "confirmed", "words": "confirmed by a member of staff", "confirmed": true}
   ]
 }

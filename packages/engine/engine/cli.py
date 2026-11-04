@@ -35,6 +35,7 @@ from engine.w2_print.cli_week import week_app
 from engine.w3_read.cli_gold import gold_app
 from engine.w3_read.cli_legacy import legacy_app
 from engine.w3_read.cli_read import read_app
+from engine.w3_read.cli_skill_links import skill_links_app
 from engine.w4_close import parent_report, parent_review
 from engine.w4_close.cli_card import card_app
 from engine.w4_close.cli_report import report_app
@@ -63,6 +64,7 @@ app.add_typer(read_app, name="read")
 app.add_typer(live_app, name="live")
 app.add_typer(library_app, name="library")
 app.add_typer(gold_app, name="gold")
+app.add_typer(skill_links_app, name="skill-links")
 app.add_typer(card_app, name="card")
 app.add_typer(report_app, name="report")
 app.add_typer(types_app, name="types")

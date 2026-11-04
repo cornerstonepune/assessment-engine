@@ -50,12 +50,24 @@ def load(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> None:
     )
 
 
+# The seed is a draft by a grade rule that no person has checked link by link, so each row it makes is proposed (M1-15):
+# the default status, with the seed named as its source. The same words the migration gave the rows already there.
+DRAFT_SOURCE = "seed rule"
+DRAFT_REASON = "drafted by a grade rule: a skill after every skill of its topic on the nearest grade below"
+
+
 def prerequisites(conn: db.Conn, t: db.Id, seed: Callable[[str, str], Any]) -> None:
     """What comes before each skill, drafted from the seed once: only while the school has none. After that the rows are
-    a person's, and a prerequisite they removed is never put back (B3-3, ADR 0092)."""
+    a person's, and a prerequisite they removed is never put back (B3-3, ADR 0092). Each is proposed, not confirmed."""
     conn.execute(
-        "insert into skill_prerequisite (tenant_id, skill_code, before_code)"
-        " select %s, x.skill, x.after from jsonb_to_recordset(%s::jsonb) x(skill text, after text)"
+        "insert into skill_prerequisite (tenant_id, skill_code, before_code, reason, source)"
+        " select %s, x.skill, x.after, %s, %s from jsonb_to_recordset(%s::jsonb) x(skill text, after text)"
         " where not exists (select 1 from skill_prerequisite p where p.tenant_id = %s)",
-        (t, json.dumps(seed("skill_prerequisites.json", "skill_prerequisites")), t),
+        (
+            t,
+            DRAFT_REASON,
+            DRAFT_SOURCE,
+            json.dumps(seed("skill_prerequisites.json", "skill_prerequisites")),
+            t,
+        ),
     )

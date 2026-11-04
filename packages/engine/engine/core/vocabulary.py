@@ -95,6 +95,19 @@ def _records(conn: db.Conn, tenant: db.Id, seed: Callable[[str, str], Any]) -> N
             " every_answer_to_person=excluded.every_answer_to_person, updated_at=now()",
             (tenant, v["code"], i, v["words"], v["every_answer_to_person"]),
         )
+    for i, w in enumerate(seed("vocabulary.json", "link_strengths")):
+        conn.execute(
+            "insert into link_strength (tenant_id, code, ord, words) values (%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set ord=excluded.ord, words=excluded.words, updated_at=now()",
+            (tenant, w["code"], i, w["words"]),
+        )
+    for i, w in enumerate(seed("vocabulary.json", "link_states")):
+        conn.execute(
+            "insert into link_status (tenant_id, code, ord, words, confirmed) values (%s,%s,%s,%s,%s)"
+            " on conflict (tenant_id, code) do update set ord=excluded.ord, words=excluded.words,"
+            " confirmed=excluded.confirmed, updated_at=now()",
+            (tenant, w["code"], i, w["words"], w["confirmed"]),
+        )
     for i, k in enumerate(seed("vocabulary.json", "evidence_kinds")):
         conn.execute(
             "insert into evidence_kind (tenant_id, code, ord, words, scale) values (%s,%s,%s,%s,%s)"

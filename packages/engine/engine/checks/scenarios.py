@@ -20,7 +20,7 @@ from engine.assess import md_tags as MD
 from engine.assess import misconceptions as M
 from engine.assess import operations as O
 from engine.checks import multiples as ML
-from engine.checks import scenarios_graph, scenarios_week
+from engine.checks import scenarios_graph, scenarios_links, scenarios_week
 from engine.checks import sentences as SN
 from engine.checks import stories as ST
 from engine.core import db
@@ -296,6 +296,8 @@ def run_one(conn, sc):
         return scenarios_week.run(conn, sc)
     if kind == "graph":
         return scenarios_graph.run(conn, sc)
+    if kind == "links":
+        return scenarios_links.run(conn, sc)
     if kind != "bank":
         return {"kind": kind}, [f"no runner for a {kind!r} scenario yet — this goal is declared, not met"]
     return _run_bank(conn, sc)

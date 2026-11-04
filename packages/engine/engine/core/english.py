@@ -20,7 +20,7 @@ import json
 from collections.abc import Callable
 from typing import Any
 
-from engine.core import db, settings
+from engine.core import db, settings, topics
 
 SUBJECT = "ENG"
 FOLDER = "english/"
@@ -162,15 +162,27 @@ def level_kinds(conn: db.Conn, t: db.Id) -> None:
     )
 
 
+DRAFT_REASON = "drafted with the English foundation, not yet checked by the English educator"
+
+
 def prerequisites(conn: db.Conn, t: db.Id) -> None:
-    """Drafted once: only while no English skill has any, so one a person removes stays removed (ADR 0092)."""
+    """Drafted once: only while no English skill has any, so one a person removes stays removed (ADR 0092). Each is
+    proposed, not confirmed: the English educator has not checked them link by link (M1-15)."""
     conn.execute(
-        "insert into skill_prerequisite (tenant_id, skill_code, before_code)"
-        " select %s, x.skill_code, x.before_code from jsonb_to_recordset(%s::jsonb) x(skill_code text, before_code text)"
+        "insert into skill_prerequisite (tenant_id, skill_code, before_code, reason, source)"
+        " select %s, x.skill_code, x.before_code, %s, %s"
+        " from jsonb_to_recordset(%s::jsonb) x(skill_code text, before_code text)"
         " where not exists (select 1 from skill_prerequisite p join skill s"
         "   on s.tenant_id = p.tenant_id and s.code = p.skill_code join topic o"
         "   on o.tenant_id = s.tenant_id and o.code = s.topic_code where p.tenant_id = %s and o.subject_code = %s)",
-        (t, json.dumps(seed("skill_prerequisite.json", "skill_prerequisites")), t, SUBJECT),
+        (
+            t,
+            DRAFT_REASON,
+            topics.DRAFT_SOURCE,
+            json.dumps(seed("skill_prerequisite.json", "skill_prerequisites")),
+            t,
+            SUBJECT,
+        ),
     )
 
 

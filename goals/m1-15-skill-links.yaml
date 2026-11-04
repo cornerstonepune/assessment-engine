@@ -1,0 +1,75 @@
+name: m1-15-skill-links
+goal: >
+  The skill graph can hold a prerequisite link between any two skills with its reason and who confirmed it, and nothing
+  reads a link nobody confirmed.
+# Written 2026-11-04 (task M1-15), W3, gate N10. The words are the orchestrator's relay of Nimish's approved goal and
+# done-when of that day; the originals are not in this repository. Nothing here has run on live: the scenario runs on the
+# local copy, and the rehearsal on a copy of live (rehearse-update-live, states_may_change off) is dispatched after the push.
+#
+# Decisions taken here, each checkable in the files named:
+#  - The 282 prerequisites live holds (167 maths from a grade rule, 115 English drafted with the foundation) are PROPOSED,
+#    source 'seed rule', strength 'soft'. The seeders make the same, because neither seed has been checked link by link.
+#  - Readers of skill_prerequisite today: one audit check (engine links check) and the seed loader. No screen and no
+#    feature reads it (apps/web names it in one comment). The check reads skill_prerequisite_audit, which returns the same
+#    282 rows; test_the_audit_check_still_counts_every_prerequisite_whatever_its_status keeps it so.
+says:
+  - words: "The skill graph can hold a prerequisite link between any two skills with its reason and who confirmed it"
+    proved_by: "packages/engine/tests/test_skill_links_confirmed.py::test_a_link_between_two_broad_skills_holds_its_strength_reason_source_and_status"
+  - words: "its reason and who confirmed it"
+    proved_by: "packages/engine/tests/test_skill_links_confirmed.py::test_confirmed_needs_a_person_and_a_time_and_proposed_has_neither"
+  - words: "Strength and status are vocabulary ROWS (tables), not CHECK lists in code"
+    proved_by: "packages/engine/tests/test_skill_links_confirmed.py::test_strength_and_status_are_rows_not_lists_in_a_check"
+  - words: "Strength and status are vocabulary ROWS (tables), not CHECK lists in code"
+    proved_by: "packages/engine/tests/test_skill_links_confirmed.py::test_a_new_school_has_the_seed_rows_for_strength_and_status_from_the_moment_it_exists"
+  - words: "DELETE must be revoked explicitly on new tables"
+    proved_by: "packages/engine/tests/test_skill_links_confirmed.py::test_a_link_can_never_be_deleted_by_the_engine_or_the_site"
+  - words: "THE 282 EXISTING ROWS ARE MARKED status='proposed', source='seed rule'. Do NOT mark them confirmed."
+    proved_by: "packages/engine/tests/test_skill_links_confirmed.py::test_the_micro_step_prerequisites_have_the_same_words_and_none_is_confirmed"
+  - words: "Seeders ... would create hidden edges ... they seed 'proposed' with source naming the seed"
+    proved_by: "packages/engine/tests/test_skill_links_confirmed.py::test_the_two_seeders_draw_rows_that_nobody_has_confirmed_and_say_which_seed"
+  - words: "Views show CONFIRMED links only (one per table)"
+    proved_by: "packages/engine/tests/test_skill_links_confirmed.py::test_the_views_show_confirmed_links_only"
+  - words: "a test fails if any code outside the views and the seeders reads the raw tables"
+    proved_by: "packages/engine/tests/test_skill_links_confirmed.py::test_no_code_outside_the_views_and_the_seeders_reads_the_raw_link_tables"
+  - words: "a test fails if any code outside the views and the seeders reads the raw tables"
+    proved_by: "packages/engine/tests/test_skill_links_confirmed.py::test_only_the_named_checks_read_the_audit_views_which_show_every_status"
+  - words: "keep each working: if a reader today uses the raw table for something that must keep working ... a clearly named path that still returns the same rows"
+    proved_by: "packages/engine/tests/test_skill_links_loader.py::test_the_audit_check_still_counts_every_prerequisite_whatever_its_status"
+  - words: "A cycle among the new links is refused"
+    proved_by: "packages/engine/tests/test_skill_links_confirmed.py::test_a_cycle_among_links_is_refused_however_long_and_whatever_their_status"
+  - words: "loads a person's list of pairs 'A before B' (CSV: before_code, after_code, reason, source) as PROPOSED links, idempotently"
+    proved_by: "packages/engine/tests/test_skill_links_loader.py::test_the_loader_adds_a_persons_pairs_as_proposed_links_and_a_second_run_changes_nothing"
+  - words: "loads a person's list of pairs 'A before B' (CSV: before_code, after_code, reason, source) as PROPOSED links, idempotently"
+    proved_by: "packages/engine/tests/test_skill_links_loader.py::test_a_file_that_is_wrong_anywhere_writes_nothing_and_names_the_line"
+  - words: "loads a person's list of pairs 'A before B' (CSV: before_code, after_code, reason, source) as PROPOSED links, idempotently"
+    proved_by: "packages/engine/tests/test_skill_links_loader.py::test_a_file_without_the_four_columns_or_with_nothing_in_it_is_refused"
+  - words: "confirms one link by id for a named staff member (--by email, existing staff only)"
+    proved_by: "packages/engine/tests/test_skill_links_loader.py::test_confirming_names_a_member_of_staff_and_refuses_nobody_and_nothing"
+  - words: "Fixed commands, no free text to a shell"
+    proved_by: "packages/engine/tests/test_skill_links_loader.py::test_the_commands_exist_take_no_free_text_to_a_shell_and_write_nothing_when_refused"
+  - words: "nothing reads a link nobody confirmed"
+    proved_by: "packages/engine/tests/test_skill_links_loader.py::test_the_loader_never_unconfirms_or_rewrites_a_link_that_is_there"
+manual:
+  - "Not run on live: the rehearsal on a copy of live (rehearse-update-live, states_may_change off) is dispatched by the orchestrator after the push; it shows the 282 rows before and after the migration."
+  - "The educator's own pairs have not arrived. The scenario below runs a three-pair TEST list (goals/fixtures/m1-15-test-pairs.csv, its source column says so); set SKILL_LINK_PAIRS to a real file to run it on the educator's list."
+  - "Nobody has confirmed any link, so on live every reader of confirmed links sees none. That is the design; no screen or paper read the 282 before, so nothing stops working."
+scenarios:
+  - name: a person's list loads as proposals nobody reads, one confirmation makes exactly one link readable, and the micro-steps are untouched
+    kind: links
+    pairs: goals/fixtures/m1-15-test-pairs.csv
+    expect:
+      every_pair_in_the_list_is_a_link: true
+      a_second_load_adds: 0
+      loading_leaves_the_micro_steps_as_they_were: true
+      micro_steps_read_after_loading: 0
+      loading_changes_what_a_reader_sees: false
+      word_on_confirming: confirmed
+      one_confirmation_adds_one_link_a_reader_sees: true
+      confirming_a_link_confirms_no_micro_step: true
+criteria:
+  - name: the new tests and the older tests of the same tables (a database built from the migrations)
+    run: cd packages/engine && uv run python -m pytest -q -p no:cacheprovider tests/test_skill_links_confirmed.py tests/test_skill_links_loader.py tests/test_skill_links.py tests/test_e0_english.py tests/test_vocabulary.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
