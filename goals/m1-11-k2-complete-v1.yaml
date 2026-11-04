@@ -63,6 +63,16 @@ says:
     proved_by: "packages/engine/tests/test_k2_draft.py::test_applying_writes_the_drafted_parts_where_they_are_still_empty_marks_them_drafted_and_a_persons_words_stay"
   - words: "materials as catalogue items (item, quantity, unit)"
     proved_by: "packages/engine/tests/test_k2_draft.py::test_applying_a_material_proposal_makes_catalogue_items_with_no_invented_home_value_or_quantity"
+  - words: "Write every draft to its empty part marked 'drafted'; those with checker disagreement, low confidence or a flag get a second tag 'check me'"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_the_doubtful_ones_are_check_me"
+  - words: "Nothing the school wrote is touched. Revert still works per proposal."
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_nothing_the_school_wrote_is_touched_by_a_doubtful_draft_and_it_reverts_like_any_other"
+  - words: "The review list order: check-me first, then a random 10% of the rest (D-063)"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_the_review_list_is_check_me_first_then_the_audit_share_of_the_rest_drawn_by_code"
+  - words: "pass stage= from the mapping eval (engine eval curriculum_map) so the dev/held-out stage caps govern it"
+    proved_by: "packages/engine/tests/test_map_stage.py::test_the_dev_set_is_the_dev_eval_stage"
+  - words: "pass stage= from the mapping eval (engine eval curriculum_map) so the dev/held-out stage caps govern it"
+    proved_by: "packages/engine/tests/test_map_stage.py::test_the_held_out_score_is_the_held_out_stage_and_asks_for_the_versions_it_is_given"
 manual:
   - "The eval of the three prompts is not written and not run: no model key in the build container, and money is Nimish's call (D-047). Each prompt row stays inactive (rule 7) until `engine eval` scores it against a bar set before the run, on the 100 dev pages first."
   - "The upload with the lesson plan loaded as steps has not been run on the real tab or on a copy of live: `bin/engine curriculum k2 <csv>` (a dry run) prints the gaps in the sheet and in the database; the migration 20261231090000 has not run on a copy of live (rehearse update-live)."
@@ -78,6 +88,9 @@ criteria:
     expect: "passed"
   - name: the run commands, forecast, ledger, apply and revert, on scripted replies (no model)
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_draft.py
+    expect: "passed"
+  - name: the mapping eval spends from its stage, and M1-05's tests still hold
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_stage.py tests/test_map_ledger.py tests/test_map_check.py tests/test_map_eval.py
     expect: "passed"
   - name: a batch of pages is judged item by item (pure, no model)
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_batch.py

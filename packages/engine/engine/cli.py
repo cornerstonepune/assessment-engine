@@ -180,12 +180,18 @@ def eval_(
         "--jev-version",
         help="parent_review: the version of Jev's three questions that reads first (0: none)",
     ),
+    dev: bool = typer.Option(
+        False, "--dev", help="curriculum_map: score the dev set, not the held-out share"
+    ),
+    validate_version: int = typer.Option(
+        0, "--validate-version", help="curriculum_map: the version of the checker (0: the active one)"
+    ),
 ) -> None:
     """Score a prompt. item_generate: accepted ÷ returned. The reviewers: agreement with the
     hand-judged gold set in supabase/seed/validator_gold.json. parent_report: every child with signed-off answers,
     each draft held to its facts by code — the bar is all of them."""
     if purpose in BY_VERSION:
-        return BY_VERSION[purpose](version)
+        return BY_VERSION[purpose](version, dev, validate_version)
     if purpose == parent_report.PURPOSE:
         with db.connect() as conn:
             try:

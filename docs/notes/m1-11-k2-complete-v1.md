@@ -14,15 +14,14 @@ has been made; nothing is pushed beyond the first note.** teacher-os was never a
 | level 0–3 | `activity.level_0..3` | P–S | existed |
 | materials | `activity.materials` text + `material_item`, `activity_material` (item, quantity, unit) | H | catalogue new |
 | source of each part | `activity_part_source` (school / drafted / person, proposal, staff id) | — | new |
-Migration `20261231090000_k2_page_parts.sql`: additive; widens `curriculum_proposal.kind` with `page_part`, `material` (the M1-05
+Migration `20261231090000_k2_page_parts.sql` (additive; to renumber after #374): widens `curriculum_proposal.kind` with `page_part`, `material` (the M1-05
 ledger carries the drafts, rule 10); the edit trigger now keeps `steps` and `thinking` too. A catalogue item's `home` (class/school) and `unit_value` stay empty and flagged until a person sets them (D-072; never invented). A part with no source row is empty or
 older than this table; the upload writes 'school'; a later upload turns a 'drafted' part into 'school', never a 'person' one.
 
-## Baseline (the orchestrator's counts from the Activity tab export; not re-measured by me)
-Sheet, non-empty: steps 624, outcomes 578, materials 711, Level 0–3 756/746/746/746. Live K2 (871): objective 543, materials 646,
-level_0 742, level_3 745, requirement 590, note 78. Exact per-part counts now print from the file `engine curriculum k2 <csv>`
-already reads (`k2_gaps.report`, code not a model). Column B has `#REF!` blocks (321 rows without an activity number).
-Question for the coordinator: sheet columns W–Z ("L0..L3", headed "Name") and AD–AI "Revised" are other level sets; not used.
+## Baseline (the orchestrator's counts, not re-measured by me)
+Sheet non-empty: steps 624, outcomes 578, materials 711, Level 0–3 756/746/746/746. Live K2 (871): objective 543, materials 646,
+level_0 742, level_3 745. `engine curriculum k2 <csv>` now prints exact per-part gaps (`k2_gaps.report`, code). Open for the
+coordinator: sheet columns W–Z ("L0..L3") and AD–AI "Revised" are other level sets; not used.
 
 ## Built (tests first; the first run failed on the missing module)
 - `engine/w1_bank/k2_gaps.py` (pure): empties per part; **inconsistencies** = a name and an objective that give number ranges
@@ -36,7 +35,11 @@ Question for the coordinator: sheet columns W–Z ("L0..L3", headed "Name") and 
   `materials` (same). `--dry-run` prints a forecast from assumed-token threshold rows (`k2.est_*`) and makes no call; every batch
   prints spend so far and the stage limit; each paid call is committed at once; a budget stop keeps the good pages. Proposals go
   to the M1-05 ledger (`page_part`, `material`); the existing `curriculum apply` writes them, only into parts still empty, marked
-  drafted; `revert` empties only what is still the draft's. A page once proposed is not asked for again (even after a revert).
+  drafted; `revert` empties only what is still the draft's. A page once proposed is not asked for again, even after a revert (orchestrator agreed).
+- D-071 (orchestrator, 4 Nov): EVERY draft is written to its empty part, marked drafted; one the checker disagreed with, that the drafter
+  flagged or was unsure of also gets `check_me` (a second tag) and heads `k2_draft.review_list` (check_me first, then `map.audit_share` of
+  the rest by code). Nothing the school wrote is touched; `revert` works per proposal. `engine eval curriculum_map [--dev]
+  [--version N] [--validate-version N]` now spends from stage held_out / dev_eval.
 - Not built: the eval harness and bars for these prompts (`engine eval` for them), the "drafted" chip and keep/change/reject screens,
   planner lines with no activity (the planner tab is not read). Each needs a go; model runs need Nimish's cost approval.
 

@@ -20,7 +20,7 @@ from engine.w1_bank import map_ledger
 from engine.w1_bank.cli_map import BY, staff_of
 from engine.w1_bank.k2_gaps import PAGE_PARTS
 from engine.w1_bank.k2_upload import config, curriculum_app
-from engine.w1_bank.map_agents import Proposal
+from engine.w1_bank.map_agents import Proposal, sampled
 
 Ask = Callable[[str, dict], object]
 DRAFT, CHECK, SPLIT = "k2_page_draft", "k2_page_validate", "k2_materials_split"
@@ -357,3 +357,19 @@ def draft_cmd(stage: str = STAGE, limit: int | None = LIMIT, dry_run: bool = DRY
 def materials_cmd(stage: str = STAGE, limit: int | None = LIMIT, dry_run: bool = DRY, by: str = BY) -> None:
     """Split the materials texts into items, check each against the school's text, record them in the ledger."""
     _run(materials, stage, limit, dry_run, by)
+
+
+def review_list(conn: db.Conn, tenant: db.Id) -> list[dict]:
+    """The drafted pages a person reads, in order: those tagged check_me first, then the audit share (`map.audit_share`,
+    D-063) of the rest, drawn by code (the same draw every time). Each: the page's code, check_me, the proposal's reason."""
+    share = map_ledger.rules(conn)["audit_share"]
+    rows = conn.execute(
+        "select p.subject_code as code, p.reason, bool_or(s.check_me) as check_me from curriculum_proposal p"
+        " join activity_part_source s on s.tenant_id = p.tenant_id and s.proposal_id = p.id and s.source = 'drafted'"
+        " where p.tenant_id = %s and p.kind = 'page_part' and p.about is null group by p.id, p.subject_code, p.reason"
+        " order by p.subject_code",
+        (tenant,),
+    ).fetchall()
+    doubtful = [dict(r) for r in rows if r["check_me"]]
+    rest = [dict(r) for r in rows if not r["check_me"] and sampled("page_part", r["code"], share)]
+    return [*doubtful, *rest]

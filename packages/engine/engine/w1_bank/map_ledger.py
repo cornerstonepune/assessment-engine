@@ -161,7 +161,7 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
 
 def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
     """A drafted page's parts written where they are still empty, each marked drafted and naming the proposal."""
-    code, wrote = p["subject_code"], []
+    code, wrote, doubt = p["subject_code"], [], p["now"] == "needs_person"
     for part, text in sorted(p["proposal"]["parts"].items()):
         if part not in PAGE_PARTS:  # a column name never comes from a reply
             raise ValueError(f"{part} is not a part of a page")
@@ -173,10 +173,10 @@ def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
         ).fetchone()
         if hit:
             conn.execute(
-                "insert into activity_part_source (tenant_id, activity_code, part, source, proposal_id)"
-                " values (%s,%s,%s,'drafted',%s) on conflict (tenant_id, activity_code, part)"
-                " do update set source = 'drafted', proposal_id = excluded.proposal_id",
-                (tenant, code, part, p["id"]),
+                "insert into activity_part_source (tenant_id, activity_code, part, source, proposal_id, check_me)"
+                " values (%s,%s,%s,'drafted',%s,%s) on conflict (tenant_id, activity_code, part)"
+                " do update set source = 'drafted', proposal_id = excluded.proposal_id, check_me = excluded.check_me",
+                (tenant, code, part, p["id"], doubt),
             )
             wrote.append(part)
     return f"{code} drafted {', '.join(wrote) or 'nothing (every part had words by then)'}"
@@ -239,7 +239,9 @@ def apply(conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool) -> list[str]:
         "select max(number) as n from curriculum_version where tenant_id = %s", (tenant,)
     ).fetchone()
     done: list[str] = []
-    for p in [*standing(conn, tenant, "auto_passed"), *standing(conn, tenant, "approved")]:
+    # a drafted page part waiting for a person is written too, tagged check_me: K2 has no empty part (D-071)
+    doubtful = [p for p in standing(conn, tenant, "needs_person") if p["kind"] == "page_part"]
+    for p in [*standing(conn, tenant, "auto_passed"), *standing(conn, tenant, "approved"), *doubtful]:
         if not write:
             done.append(f"{p['kind']}: {p['subject_code']} {json.dumps(p['proposal'], ensure_ascii=False)}")
             continue

@@ -31,6 +31,7 @@ create table if not exists activity_part_source (
   source         text not null check (source in ('school', 'drafted', 'person')),
   proposal_id    uuid references curriculum_proposal(id),  -- the draft this part came from, when it is drafted
   staff_id       uuid references staff(id),                -- the member of staff who kept or changed it (D-046: ids)
+  check_me       boolean not null default false,           -- a draft the checker, the drafter or the confidence doubted: heads the review list
   created_at     timestamptz not null default now(),
   updated_at     timestamptz not null default now(),
   primary key (tenant_id, activity_code, part),

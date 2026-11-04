@@ -398,3 +398,96 @@ def test_every_paid_call_is_committed_at_once_so_a_crash_later_cannot_erase_the_
     assert spy.commits == 2, (
         "a refusal or a failure commits too: nothing paid is ever left in an open transaction"
     )
+
+
+def _marks(conn, code):
+    rows = conn.execute(
+        "select part, source, check_me from activity_part_source where activity_code = %s", (code,)
+    )
+    return {r["part"]: (r["source"], r["check_me"]) for r in rows.fetchall()}
+
+
+def test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_the_doubtful_ones_are_check_me(conn):
+    """K2 version 1 has no empty part (D-071): a draft the checker disagreed with, or the drafter flagged, or was
+    unsure of, is on the page too, with a second tag so it heads the review list."""
+    for c in ("KX-1", "KX-2", "KX-3", "KX-4"):
+        _act(conn, c, f"Activity {c}")
+    ask = Scripted(
+        {
+            ("k2_page_draft", "KX-1"): [drafted(**FULL)],
+            ("k2_page_draft", "KX-2"): [drafted(**FULL)],
+            ("k2_page_draft", "KX-3"): [drafted(**{**FULL, "flags": ["name and objective disagree"]})],
+            ("k2_page_draft", "KX-4"): [drafted(**{**FULL, "confidence": 0.5})],
+            ("k2_page_validate", "KX-1"): [AGREE],
+            ("k2_page_validate", "KX-2"): [{"verdict": "disagree", "why": "describes another activity"}],
+            ("k2_page_validate", "KX-3"): [AGREE],
+            ("k2_page_validate", "KX-4"): [AGREE],
+        }
+    )
+    run(conn, ask)
+    map_ledger.apply(conn, conn.t, conn.staff, True)
+    for code, check in (("KX-1", False), ("KX-2", True), ("KX-3", True), ("KX-4", True)):
+        assert _marks(conn, code) == {p: ("drafted", check) for p in draft.PAGE_PARTS}, code
+        page = conn.execute("select * from activity where code = %s", (code,)).fetchone()
+        assert all(page[p].strip() for p in draft.PAGE_PARTS), "no empty part"
+
+
+def test_nothing_the_school_wrote_is_touched_by_a_doubtful_draft_and_it_reverts_like_any_other(conn):
+    _act(conn, "KX-1", "A", objective="the school's own words", level_1="the school's level one")
+    run(
+        conn,
+        Scripted(
+            {
+                ("k2_page_draft", "KX-1"): [drafted(**FULL)],
+                ("k2_page_validate", "KX-1"): [{"verdict": "disagree", "why": "w"}],
+            }
+        ),
+    )
+    map_ledger.apply(conn, conn.t, conn.staff, True)
+    a = conn.execute("select objective, level_1, thinking from activity where code = 'KX-1'").fetchone()
+    assert (a["objective"], a["level_1"], a["thinking"]) == (
+        "the school's own words",
+        "the school's level one",
+        "t",
+    )
+    assert "objective" not in _marks(conn, "KX-1") and "level_1" not in _marks(conn, "KX-1")
+    (p,) = map_ledger.standing(conn, conn.t, "applied")
+    map_ledger.revert(conn, conn.t, p["id"], conn.staff, "test")
+    a = conn.execute("select objective, level_1, thinking from activity where code = 'KX-1'").fetchone()
+    assert (a["objective"], a["level_1"], a["thinking"]) == (
+        "the school's own words",
+        "the school's level one",
+        "",
+    )
+    assert _marks(conn, "KX-1") == {}
+
+
+def test_the_review_list_is_check_me_first_then_the_audit_share_of_the_rest_drawn_by_code(conn):
+    for c in ("KX-1", "KX-2", "KX-3"):
+        _act(conn, c, f"Activity {c}")
+    ask = Scripted(
+        {("k2_page_draft", c): [drafted(**FULL)] for c in ("KX-1", "KX-2", "KX-3")}
+        | {
+            ("k2_page_validate", "KX-1"): [AGREE],
+            ("k2_page_validate", "KX-2"): [AGREE],
+            ("k2_page_validate", "KX-3"): [{"verdict": "disagree", "why": "w"}],
+        }
+    )
+    run(conn, ask)
+    map_ledger.apply(conn, conn.t, conn.staff, True)
+    conn.execute("update threshold set value = 1 where key = 'map.audit_share'")
+    everything = draft.review_list(conn, conn.t)
+    assert [(r["code"], r["check_me"]) for r in everything] == [
+        ("KX-3", True),
+        ("KX-1", False),
+        ("KX-2", False),
+    ]
+    conn.execute("update threshold set value = 0 where key = 'map.audit_share'")
+    assert [r["code"] for r in draft.review_list(conn, conn.t)] == ["KX-3"], (
+        "with no share, only the doubtful ones"
+    )
+    conn.execute("update threshold set value = 0.5 where key = 'map.audit_share'")
+    again = [r["code"] for r in draft.review_list(conn, conn.t)]
+    assert again == [r["code"] for r in draft.review_list(conn, conn.t)] and again[0] == "KX-3", (
+        "the same draw every time"
+    )
