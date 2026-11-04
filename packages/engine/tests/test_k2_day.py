@@ -142,3 +142,19 @@ def test_the_calls_are_a_fixed_small_number_of_queries(world, monkeypatch):
     )
     call(world, "week", week_of="2026-11-23")
     assert 0 < len(seen) <= 8
+
+
+def test_the_switch_is_seeded_and_off_and_the_roles_that_see_a_timetable_are_named():
+    """The seed says it, so a new school or a fresh copy starts with the timetable off and the roles named."""
+    import json
+    from pathlib import Path
+
+    rows = {
+        c["key"]: c
+        for c in json.loads((Path(__file__).resolve().parents[3] / "supabase/seed/config.json").read_text())[
+            "config"
+        ]
+    }
+    switch = rows["educator.timetable_enabled"]
+    assert switch["value"] is False and switch.get("seed_once") is True
+    assert rows["educator.timetable_roles"]["value"] == ["class_teacher", "cover_educator"]
