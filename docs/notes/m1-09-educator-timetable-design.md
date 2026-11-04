@@ -1,51 +1,57 @@
-# M1-09 / M1-10 — the K2 educator's timetable: design note (wireframes only; no code, no migration)
+# M1-09 / M1-10 — the K2 educator's timetable: design note (rev 3; wireframes only, no code, no migration)
 
-**Gate:** none fits, as for M1-06: `workflows.json` has no step for this, so step 1 of any build adds it. Pictures: `docs/screens/m1-09/index.html`
-(desktop and phone of every screen; no PNG previews: the pictures are the HTML). Real lines from the K2 Planning Sheet 26-27 for FN10; no child names.
+**Gate:** none fits (as for M1-06): `workflows.json` has no step for this, so step 1 of any build adds it. Pictures: `docs/screens/m1-09/index.html`
+(7 screens, desktop and phone; tap "Details" and the rows to open them). Real FN10 lines from the school's sheet; no child names.
 
-## Screens, what each shows, where it comes from today
-| Screen | Shows | Source today |
-|---|---|---|
-| 1 Today | the day's periods in time order, one status chip each, "materials: not sent" link | M1-06 `timetable_slot`; chip from the activity row |
-| 2 This week | Mon–Fri grid, toggle to next week; every box opens | M1-06 slots; topics are Monthly Planner lines |
-| 3 One period | objective · what to do · how to think about it · rubric · materials, each with Correct | Activity list: Learning outcomes, Lesson plan, Level 0–3, TLMs |
-| 4 Materials | one list by day / week / fortnight; tick "I have it"; add, change, remove; Send | TLMs of the planned activities |
-| 5 Reminders | what she gets at 2 weeks and 1 week, what the team gets, what the team receives | new; nothing exists |
-Two taps: Today → period (1); the rubric is on that page (phone: the Rubric jump, 2). Status chips: Ready, Part, Plan, Specialist, Free (colour + icon + one word; no red anywhere).
+## The screens (each shows name, time, one chip, one action; details behind a tap)
+1 Today · 2 This week · 3 One period (Objective, What to do, How to think, Rubric, Materials: collapsed rows that open in place) ·
+4 A drafted part (Keep / Change / Reject) · 5 Materials (day / week / fortnight) · 6 Reminders · 7 The month (coordinator).
+Two taps: Today → period (1) → Rubric row (2).
 
-## Found in the school's sheet (for the coordinator to settle)
-- **Number names 11-20 gives its objective as "numbers from 6-10"**: a copy slip. Shown as written, with Correct.
-- **Two plan items have no activity row:** Clay "carrot, chillies, apple" (clay rows read: about 20 of 21) and Block Room "Smelling Bottles" (not among its 35 names). Chip "Plan"; M1-11 drafts the row.
-- **Reminder dates fall in the vacation:** 9 and 16 Nov for FN10 (vacation 4-17 Nov). Rule from the orchestrator: send on the last working day before; if past, send at once. FN10's list is asked for now. Shown on screen 5.
-- Four rows read in full (Insects, Butterfly, Number names 11-20, Addition orally P1): all have steps, rubric and materials, none has "how to think". One level reads "ableto"; shown verbatim.
+## One vocabulary, every screen: round chip = icon + colour + one word
+Do now (dark) · To confirm (amber) · Coming up (grey ring) · Done (green) · Late (grey hourglass). No red anywhere; none on a child.
+Do now is the period in progress; To confirm is a part waiting for her (objective to check, draft to keep); Done and Late need a recorded note
+(M1-04), so until recording runs only Do now, To confirm and Coming up can show. Statuses on the wireframes are an example moment (Mon 23 Nov, 11:35).
+Small round icons say where text came from: book = School's own words, sparkle = Drafted by the agent, pencil = Edited (who and when kept; the coordinator can revert).
+Materials lines carry Class / School / Not tracked tags (M1-13); the tags are placeholders, no homes or rupee values exist yet.
 
-## What is missing, and how a screen shows it
-1. "How to think about it": no field. "Not written yet" only until the M1-11 agent drafts it; then the text shows tagged Drafted with Keep, Change, Reject (screen 3b; the school's words keep the School tag, a person's change shows Edited). She can write it herself now.
-2. Quantity and unit: the sheet has none. Blank until the agent drafts them as catalogue items (D-071). New items go to review.
-3. Level 0-3: numbers only, no Easy/Medium/Hard/Advance on K2. D-051 and the sheet give no words for the numbers; none is shown.
-4. Stock versus request (chalk, black board): she ticks what she has; the rest is sent.
-5. Send is WhatsApp first (one tap opens it with the list written out), email second. It records what was sent, not that it was read.
+## Found in the school's sheet (for the coordinator)
+- Number names 11-20 gives its objective as "numbers from 6-10": a copy slip. Shown as written, with Correct.
+- Two plan items have no activity row: Clay "carrot, chillies, apple" (about 20 of 21 clay rows read) and Block Room "Smelling Bottles" (not among its 35 names).
+- Reminder dates for FN10 (9 and 16 Nov) fall in the vacation. Rule (orchestrator): last working day before; if past, at once. FN10's list goes now, as one message.
+- "How to think about it" has no field: "Not written yet" until the M1-11 agent drafts it, then it shows a sparkle and Keep / Change / Reject. She can write it now.
+- Quantity and unit: none in the sheet; drafted later. Level 0-3 shown as numbers only; no words for them exist in D-051 or the sheet.
+
+## The month (screen 7, D-072, M1-12)
+Stepper: planning, frozen, aligned, approved, list sent. Freeze day (20), list out (10 days before), reminders (2 and 1 weeks) are per-school settings. FN10 is the named exception.
+**Finding:** with the defaults, December's freeze is Fri 20 Nov and the list goes out Sat 21 Nov: one day for alignment, approval and the educators' sign-off.
+She sees only a small lock marked Frozen on her week. After the freeze a change needs a reason, recorded with who and when.
+
+## Other apps (searched and fetched 4 Nov; vendor claims, not tested by anyone here)
+- Kriyo, parent-app listing: parents get attendance, daily diary, lesson plans, assessments, progress reports; pitched against "juggling WhatsApp groups, emails and paper notices". Teacher-side screens not seen: unverified. https://apps.apple.com/us/app/id1347533660
+- Kriyo teacher side (search summary of a reseller listing, not fetched): QR attendance, logging activities and observations. Unverified. https://www.techjockey.com/detail/kriyo
+- Brightwheel: standards preloaded and editable; "easy and quick to make edits" to lessons; assessments "based on milestone or lesson progress". No activity library or phone editing on the page (a search summary said so; unconfirmed). https://mybrightwheel.com/features/learning/
+- HiMama (search says now Lillio: unverified): "add or edit activities in your calendar"; "state standards listed on every activity"; "from any device". https://wow.himama.com/sg_digital_curriculum/
+- Toddle: a task links to its rubric, gradebook and portfolio; onboarding by a 1:1 walkthrough and an educator "Toddle Buddy"; K-12, early years only in passing. https://www.toddleapp.com/faqs/
+- ClassDojo: free for teachers; Events with automatic reminders; messages translated into 190+ languages; nothing for preschool on the page. https://www.classdojo.com
+- Seesaw: only through search results (district guides), not fetched: unverified. Not found anywhere: what India's pre-primary educators new to software struggle with.
+**Changed because of them:** edit in place, no edit screen; the objective one tap from the timetable; reminders automatic; WhatsApp stays the send route (Kriyo names it as the rival);
+proposed: a short guided first session with Swarupa, not a manual. Not taken: points, portfolios, a parent feed (out of scope, and no red on a child).
 
 ## Decisions recorded (orchestrator, 4 Nov)
-- Both FN10 reminders due now: one message, not two.
-- "Team has it", ticked by her, is enough team confirmation for v1.
-- Her reminder channel: in the app plus email to her school address.
-- Still a placeholder: the team's WhatsApp number or group, until Nimish names the person.
+One message when both FN10 reminders are due now · "Team has it", ticked by her, is enough for v1 · her reminders: in the app plus email to her school address ·
+send is WhatsApp first, email second (D-071) · she corrects activity text herself, the coordinator can revert.
 
 ## Questions for a person
-- The materials team's WhatsApp number or group (placeholder on screens 4-5); is email to the team also wanted?
-- Words for Level 0-3 on K2 (a legend such as 0 not yet, 1 beginning, 2 expected, 3 stretch exists nowhere I could find). The M1-11 card still says "Easy/Medium/Hard/Advance rubric": to reword.
-- Anchor for reminders: first day a material is needed (M1-10) or the fortnight start? Screens use the first day needed.
-- Who may revert a correction: the coordinator (orchestrator, 4 Nov). FN10 end date: roadmap 4 Dec, Graph 7 Dec (M1-06 holds this).
+- New icons (Lucide, ISC, lucide-static 1.67.0): sparkles, book-open, lock, school, package, circle-minus, chevron-down, play. design/README wants each in the gallery with a yes.
+- Late is grey in the agreed gallery. Should lateness of work be terracotta (red is allowed on work, never on a child)?
+- Are the month defaults right, given the one day? Does "approved teacher-to-teacher" mean the educators of the month's activities (unverified)?
+- Team WhatsApp number or group (placeholder). Words for Level 0-3. Anchor for reminders: first day a material is needed or fortnight start?
 
 ## Tables and engine calls (proposed; reuse M1-06's `fortnight`, `school_day`, `period`, `timetable_slot`, `plan_entry`, `session`)
-- New: `activity_thinking(activity_id, text, state proposed|approved, author, approver, at)`; `materials_list(class, fortnight, state draft|sent, route whatsapp|email, sent_by, sent_at, sent_body)`;
-  `materials_line(list, catalogue_item, activity_id, first_needed, qty, unit, have, added_by)`; append-only `materials_line_edit(line, who, at, before, after)`; `reminder(list, kind 2w|1w, due, to, channel, sent_at)`. 
-- Also: `activity_edit(activity, part, who, at, before, after, reverted_by)` for corrections (revertable by the coordinator); parts carry a source tag school|drafted|edited from M1-11's ledger.
-- Engine endpoints (thin, one per screen): day, week, `period/{slot}` (fields plus where each came from), `materials/collate`, line add/change/remove, `materials/send`, `engine reminders --due`.
-- n8n only triggers and delivers (rule 3): a daily run calls `reminders --due` and sends what it returns; a sent list cancels later reminders.
-- Goals to write first: `goals/m1-09-educator-timetable.yaml`, `goals/m1-10-materials-list.yaml` (scenarios S-M1-09-click, S-M1-10-materials in teacher-os).
+- New: `activity_thinking`, `activity_edit(…who, at, before, after, reverted_by)`, `materials_list`, `materials_line(catalogue_item, activity_id, first_needed, qty, unit, have)`, append-only `materials_line_edit`, `reminder`.
+  M1-12 and M1-13 own `month_cycle(state, who, at)`, the per-school setting rows, and item home and rupee value. Engine: one endpoint per screen; `engine reminders --due`; n8n only triggers and delivers (rule 3).
 
 ## Verified
-- `python3 build.py` (kept off git) wrote `index.html`; Playwright screenshots at 1360 px show desktop and phone folding to one column on all five screens. Not run: `bin/check`, `pytest` (no code changed).
-- Not verified: the activity matching (plan line to row) beyond the four rows above; the generator's placement of topics (illustration, labelled so).
+- `build3.py` (kept off git) wrote `index.html`; Playwright at 1360 px shows all 7 screens, phone folding to one column; no Easy/Medium/Hard/Advance on any screen. Not run: `bin/check`, `pytest` (no code changed).
+- Not verified: matching of plan lines to rows beyond four rows; the generator's placement (an illustration); every claim in "Other apps".
