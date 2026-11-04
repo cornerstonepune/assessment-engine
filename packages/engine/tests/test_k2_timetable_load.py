@@ -16,6 +16,7 @@ import pytest
 from engine.core import db
 from engine.w2_print import k2_timetable as tt
 from engine.w2_print import k2_timetable_load as ld
+from engine.w2_print import k2_timetable_sql as sq
 from tests.voice_rows import a_k2_class
 
 FIX = Path(__file__).parent / "fixtures"
@@ -114,7 +115,7 @@ def test_a_day_two_sources_disagree_about_gets_no_session_and_a_note_a_person_wi
 
 def test_the_sql_is_the_same_every_time_and_every_insert_is_safe_to_run_again():
     target = ld.Target("K2", "A", "2026-27", "cornerstone")
-    a, b = ld.statements(loaded(), target), ld.statements(loaded(), target)
+    a, b = sq.statements(loaded(), target), sq.statements(loaded(), target)
     assert a == b
     inserts = [s for s in a if s.lstrip().lower().startswith("insert")]
     assert inserts and all("on conflict" in s.lower() and "do nothing" in s.lower() for s in inserts)
@@ -148,27 +149,31 @@ def a_target(conn):
 @needs_db
 def test_loading_twice_adds_nothing_the_second_time_and_counts_are_printed(conn):
     k, target = a_target(conn)
-    first = ld.apply(conn, loaded(), target)
+    # school days belong to the campus, not the class: any already loaded for these dates are not added again
+    had = conn.execute(
+        "select count(*) n from school_day where on_date between '2026-11-23' and '2026-12-06'"
+    ).fetchone()["n"]
+    first = sq.apply(conn, loaded(), target)
     assert first == {
-        "fortnight": 1, "school_day": 10, "period": first["period"], "timetable_slot": 150,
+        "fortnight": 1, "school_day": 10 - had, "period": first["period"], "timetable_slot": 150,
         "plan_entry": first["plan_entry"], "session": 125,
     }  # fmt: skip
-    assert ld.apply(conn, loaded(), target) == {t: 0 for t in first}
+    assert sq.apply(conn, loaded(), target) == {t: 0 for t in first}
 
 
 @needs_db
 def test_a_class_that_is_not_there_stops_the_load_before_it_writes_anything(conn):
-    with pytest.raises(ld.NoSuchClass):
-        ld.apply(conn, loaded(), ld.Target("K2", "no-such-section", "2031-32", db.tenant_slug()))
+    with pytest.raises(sq.NoSuchClass):
+        sq.apply(conn, loaded(), ld.Target("K2", "no-such-section", "2031-32", db.tenant_slug()))
 
 
 @needs_db
 def test_the_sql_file_applied_gives_the_same_rows_as_apply(conn):
     k, target = a_target(conn)
     conn.execute("savepoint s")
-    want = ld.apply(conn, loaded(), target)
+    want = sq.apply(conn, loaded(), target)
     conn.execute("rollback to savepoint s")
-    for stmt in ld.statements(loaded(), target):
+    for stmt in sq.statements(loaded(), target):
         conn.execute(stmt)
     got = conn.execute(
         "select count(*) n from session s join school_class c on c.id = s.school_class_id where c.id = %s",

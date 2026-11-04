@@ -600,6 +600,15 @@
           "writing",
           "reading",
           "phonics"
+        ],
+        "planner_row": "^Fortnight\\s+(\\d+)$",
+        "fortnight_label": "^F\\.N\\s*(\\d+)",
+        "other_grade_marks": [
+          "(PG - N)",
+          "(PG-N)"
+        ],
+        "tentative_marks": [
+          "tentative"
         ]
       }
     },
@@ -608,6 +617,20 @@
       "description": "Whether the K2 educator may record a spoken note (and hear it back), on top of voice.screens_enabled. Off until Sarvam confirms 'No retention' in writing (D-065); with it off she uses the form, and no recording is kept or sent anywhere. A missing row is off.",
       "value": false,
       "seed_once": true
+    },
+    {
+      "key": "educator.timetable_enabled",
+      "description": "Whether the K2 educator sees her generated timetable (her day, her week, a period). Off until the coordinator has marked the first fortnight; Nimish turns it on. While it is off the three timetable calls refuse.",
+      "value": false,
+      "seed_once": true
+    },
+    {
+      "key": "educator.timetable_roles",
+      "description": "The roles whose open grant on a class lets a person see that class's generated timetable. A campus-wide role is not here: the timetable answers for a class she holds.",
+      "value": [
+        "class_teacher",
+        "cover_educator"
+      ]
     }
   ]
 }

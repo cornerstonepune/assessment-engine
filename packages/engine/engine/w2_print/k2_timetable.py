@@ -26,6 +26,10 @@ class Vocabulary:
     plan_headings: dict[str, str]
     header_keys: tuple[str, ...]
     glue_words: frozenset[str]
+    planner_row: str
+    fortnight_label: str
+    other_grade_marks: tuple[str, ...]
+    tentative_marks: tuple[str, ...]
 
     @classmethod
     def from_config(cls, v: dict) -> "Vocabulary":
@@ -37,6 +41,10 @@ class Vocabulary:
             dict(v["plan_headings"]),
             tuple(v["header_keys"]),
             frozenset(v["glue_words"]),
+            v["planner_row"],
+            v["fortnight_label"],
+            tuple(v["other_grade_marks"]),
+            tuple(v["tentative_marks"]),
         )
 
 
@@ -139,11 +147,14 @@ def read_plan_row(cells: list[str], fortnight: int, vocab: Vocabulary) -> Plan:
     return Plan(fortnight, {k: _items(v, vocab) for k, v in sections.items()})
 
 
-def _weeks(days: list[date]) -> dict[date, str]:
+def _weeks(days: list[date], first_monday: date | None = None) -> dict[date, str]:
+    """Week A is the fortnight's first week, B its second. With the fortnight's own first Monday given, a week of
+    holidays cannot make the second week look like the first."""
     mondays = sorted({d.toordinal() - d.weekday() for d in days})
-    if len(mondays) > 2:
+    start = first_monday.toordinal() if first_monday else (mondays[0] if mondays else 0)
+    if any(m not in (start, start + 7) for m in mondays):
         raise ValueError("a fortnight is two weeks; got days from more")
-    return {d: "AB"[mondays.index(d.toordinal() - d.weekday())] for d in days}
+    return {d: "AB"[(d.toordinal() - d.weekday() - start) // 7] for d in days}
 
 
 def _halves(items: list[str]) -> dict[str, list[str]]:
@@ -196,13 +207,18 @@ def _header_cells(
 
 
 def generate(
-    frame: Frame, plan: Plan, days: list[date], vocab: Vocabulary, undecided: dict[date, str] | None = None
+    frame: Frame,
+    plan: Plan,
+    days: list[date],
+    vocab: Vocabulary,
+    undecided: dict[date, str] | None = None,
+    first_monday: date | None = None,
 ) -> Draft:
     """`undecided` names the days two sources disagree about: they get no line, and are listed with the reason."""
     if any(d.weekday() > 4 for d in days):
         raise ValueError("a school day here is Monday to Friday")
     held = undecided or {}
-    week_of = _weeks(days)
+    week_of = _weeks(days, first_monday)
     open_days = [d for d in days if d not in held]
     cells, used = _fill_days(frame, plan, open_days, week_of, vocab)
     head, head_used = _header_cells(plan, open_days, week_of, vocab)

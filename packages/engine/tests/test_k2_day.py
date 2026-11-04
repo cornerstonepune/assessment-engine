@@ -9,6 +9,7 @@ import pytest
 
 from engine.core import db
 from engine.w2_print import k2_timetable_load as ld
+from engine.w2_print import k2_timetable_sql as sq
 from tests.test_k2_timetable_load import CAL_CSV, FN10, FRAME_CSV, VOCAB, planner_csv
 from tests.voice_rows import a_k2_class
 
@@ -36,18 +37,19 @@ def world(conn, monkeypatch):
     ]
     conn.execute(
         "insert into activity (tenant_id, code, band, strand, name, sheet_no, objective, level_1, level_2, level_3,"
-        " materials) values (%s, 'ACT-K2-TSMELL', 'K2', 'Block Room', 'Smelling Bottles', '77', 'Tell smells apart',"
+        " materials) values (%s, 'ACT-K2-TCLAY', 'K2', 'Clay', 'Placeholder counting game', '77', 'Tell smells apart',"
         " 'smells', 'matches', 'sorts', 'bottles')",
         (k["tenant"],),
     )
-    planner = ld.read_planner_csv(planner_csv(("Fortnight 10", FN10)), VOCAB)
+    cells = [c.replace("Addition - orally", "Placeholder counting game") for c in FN10]
+    planner = ld.read_planner_csv(planner_csv(("Fortnight 10", cells)), VOCAB)
     plan = ld.link_activities(
         ld.build(
             ld.read_frame_csv(FRAME_CSV, VOCAB), planner, ld.read_calendar_csv(CAL_CSV, VOCAB), VOCAB, 10, 10
         ),
         ld.activity_names(conn),
     )
-    ld.apply(conn, plan, ld.Target("K2", section, "2031-32", db.tenant_slug()))
+    sq.apply(conn, plan, ld.Target("K2", section, "2031-32", db.tenant_slug()))
     conn.execute(
         "insert into config (tenant_id, key, value, description) values (%s, 'educator.timetable_enabled', 'true', 't')"
         " on conflict (tenant_id, key) do update set value = 'true'",
@@ -93,14 +95,18 @@ def test_the_week_is_five_days_and_a_holiday_stays_in_it(world):
 
 
 def test_a_period_whose_line_names_an_activity_carries_the_activity_and_its_levels(world):
-    day = call(world, "day", day="2026-11-23").json()
-    linked = [p for p in day["periods"] if p["activity"]]
-    assert linked and linked[0]["activity"]["code"] == "ACT-K2-TSMELL"
-    one = call(
-        world, "period", class_id=world["k"]["class"], day="2026-11-23", period_id=linked[0]["period_id"]
-    ).json()
+    week = call(world, "week", week_of="2026-11-23").json()
+    found = [
+        (d["day"], p)
+        for d in week["days"]
+        for p in d["periods"]
+        if p["activity"] and p["activity"]["code"] == "ACT-K2-TCLAY"
+    ]
+    assert found, "the placeholder line is on no period this week"
+    day, linked = found[0]
+    one = call(world, "period", class_id=world["k"]["class"], day=day, period_id=linked["period_id"]).json()
     assert one["activity_detail"]["levels"] == {"0": "", "1": "smells", "2": "matches", "3": "sorts"}
-    assert one["plan_lines"]
+    assert one["plan_lines"] and "Placeholder counting game" in one["plan_lines"]
 
 
 def test_while_the_switch_is_off_every_call_is_refused(world):
