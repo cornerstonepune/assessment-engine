@@ -16,6 +16,7 @@ from engine.api.routes.materials import Who, holds, list_class, staff_of
 from engine.w2_print import materials_consolidate as mc
 from engine.w2_print import materials_intake as mi
 from engine.w2_print import materials_inventory as inv
+from engine.w2_print import materials_month as mm
 from engine.w2_print import materials_remind as rem
 from engine.w2_print.materials_send import NothingToSend
 
@@ -50,9 +51,10 @@ def _mine(conn, body: Who, tenant_id: str, consolidated_id: UUID | None = None) 
 def build(body: Build, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
     _mine(conn, body, tenant_id)
     try:
-        return mc.read(conn, mc.build(conn, UUID(str(tenant_id)), body.from_, body.to))
+        got = mm.build_month(conn, UUID(str(tenant_id)), body.from_, body.to)
     except ValueError as no:
         raise HTTPException(status_code=422, detail=str(no)) from no
+    return mc.read(conn, got["consolidated_id"]) | {k: got[k] for k in ("built", "no_plan", "no_materials")}
 
 
 @keyed.post("/school/read")

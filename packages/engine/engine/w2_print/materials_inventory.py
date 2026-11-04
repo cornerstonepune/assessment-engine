@@ -45,6 +45,11 @@ def send(conn: db.Conn, cid: UUID, who: UUID) -> dict[str, Any]:
     last = None if prior is None else {x["material_code"]: x for x in prior["lines"]}
     body = [f"School materials, {materials_text.short(got['from'])} to {materials_text.short(got['to'])}"]
     body += [_line(item, last) for item in got["lines"]]
+    tenant = db.one(conn, "select tenant_id from materials_consolidated where id = %s", (cid,))["tenant_id"]
+    short = materials_consolidate.short_of(conn, tenant, got["from"], got["to"])
+    for key, why in (("no_plan", "no plan yet"), ("no_materials", "its plan asks for no materials")):
+        if short[key]:
+            body.append(f"Not included: {', '.join(c['class'] for c in short[key])} ({why})")
     if last is not None:
         gone = [c for c in last if c not in {x["material_code"] for x in got["lines"]}]
         body += [f"[x] {last[c]['item']}: no longer needed since the last list" for c in gone]

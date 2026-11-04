@@ -197,3 +197,17 @@ def test_a_bad_date_or_id_on_a_note_is_refused_before_any_model_call(engine, mon
     for bad in ({"list_id": "nope", "needed_on": str(LO)}, {"list_id": str(lid), "needed_on": "31/12/2026"}):
         got = client.post("/materials/note", headers=H, data={"actor": s["email"], "note": "20 pens"} | bad)
         assert got.status_code == 422, bad
+
+
+def test_the_coordinators_build_makes_every_class_list_and_names_the_classes_it_is_short_of(engine):
+    client, conn, s = engine
+    _list(conn, s)
+    bare = m.another_class(conn, s, "T-bare")
+    who = _coordinator(conn, s)
+    got = client.post(
+        "/materials/school/build", headers=H, json={"actor": who, "from": str(LO), "to": str(HI)}
+    )
+    assert got.status_code == 200, got.text
+    body = got.json()
+    assert [r["class_id"] for r in body["built"]] == [str(s["class"])]
+    assert str(bare) in {r["class_id"] for r in body["no_plan"]} and body["no_materials"] == []

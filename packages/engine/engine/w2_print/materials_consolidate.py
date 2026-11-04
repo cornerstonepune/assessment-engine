@@ -78,11 +78,17 @@ def build(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> UUID:
     cons = db.one(
         conn,
         "insert into materials_consolidated (tenant_id, from_on, to_on) values (%s, %s, %s)"
-        " on conflict (tenant_id, from_on, to_on) do update set updated_at = now() returning id, latest_build",
+        " on conflict (tenant_id, from_on, to_on) do update set updated_at = now() returning id, latest_build, skipped_lists",
         (tenant, lo, hi),
     )
     cid, before, now = cons["id"], cons["latest_build"], cons["latest_build"] + 1
     items, skipped = _gather(conn, tenant, lo, hi)
+    if (
+        before
+        and _shape(items) == _stored_shape(conn, cid, before)
+        and skipped == list(cons["skipped_lists"])
+    ):
+        return cid  # nothing moved: no new build, so no rows and no empty "what changed"
     for code, item in items.items():
         conn.execute(
             "insert into materials_consolidated_line (tenant_id, consolidated_id, build, material_code, unit, quantity,"
@@ -102,6 +108,36 @@ def build(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> UUID:
         (now, skipped, cid),
     )
     return cid
+
+
+def _shape(items: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """What a build says, in a form two builds can be compared in."""
+    return {
+        code: (
+            item["unit"],
+            item["quantity"],
+            {c: (f["quantity"], tuple(f["activity_codes"])) for c, f in item["from"].items()},
+        )
+        for code, item in items.items()
+    }
+
+
+def _stored_shape(conn: db.Conn, cid: UUID, build_: int) -> dict[str, Any]:
+    out: dict[str, Any] = {
+        r["material_code"]: (r["unit"], r["quantity"], {})
+        for r in conn.execute(
+            "select material_code, unit, quantity from materials_consolidated_line"
+            " where consolidated_id = %s and build = %s",
+            (cid, build_),
+        )
+    }
+    for r in conn.execute(
+        "select material_code, class_id, quantity, activity_codes from materials_consolidated_source"
+        " where consolidated_id = %s and build = %s",
+        (cid, build_),
+    ):
+        out[r["material_code"]][2][r["class_id"]] = (r["quantity"], tuple(r["activity_codes"]))
+    return out
 
 
 def _totals(conn: db.Conn, cid: UUID, build_: int) -> dict[str, tuple[Any, dict[UUID, Any]]]:
@@ -144,12 +180,7 @@ def _note_changes(conn: db.Conn, tenant: UUID, cid: UUID, before: int, now: int)
 def read(conn: db.Conn, cid: UUID) -> dict[str, Any]:
     cons = db.one(conn, "select * from materials_consolidated where id = %s", (cid,))
     build_ = cons["latest_build"]
-    names = {
-        r["id"]: f"{r['grade_code']} {r['section'] or ''}".strip()
-        for r in conn.execute(
-            "select id, grade_code, section from school_class where tenant_id = %s", (cons["tenant_id"],)
-        )
-    }
+    names = class_names(conn, cons["tenant_id"])
     sources: dict[str, list[dict[str, Any]]] = {}
     for r in conn.execute(
         "select material_code, class_id, quantity, activity_codes from materials_consolidated_source"
@@ -218,3 +249,55 @@ def may_consolidate(conn: db.Conn, staff: UUID, today: dt.date) -> bool:
         (staff, roles, today, today),
     ).fetchone()
     return held is not None
+
+
+def class_names(conn: db.Conn, tenant: UUID) -> dict[UUID, str]:
+    return {
+        r["id"]: f"{r['grade_code']} {r['section'] or ''}".strip()
+        for r in conn.execute(
+            "select id, grade_code, section from school_class where tenant_id = %s", (tenant,)
+        )
+    }
+
+
+def planned_classes(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> list[UUID]:
+    """The classes expected to have a plan for the month: a grade that has activities, in a school year the month
+    touches. A class of a grade the activity list does not cover is not short of a plan, it has none to give."""
+    return [
+        r["id"]
+        for r in conn.execute(
+            "select c.id from school_class c join academic_year y on y.id = c.academic_year_id"
+            " where c.tenant_id = %s and y.starts_on <= %s and y.ends_on >= %s"
+            " and exists (select 1 from activity a where a.tenant_id = c.tenant_id and a.band = c.grade_code)"
+            " order by c.grade_code, c.section, c.id",
+            (tenant, hi, lo),
+        )
+    ]
+
+
+def with_sessions(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> set[UUID]:
+    """The classes that have at least one planned session of a mapped activity in the range."""
+    return {
+        r["school_class_id"]
+        for r in conn.execute(
+            "select distinct s.school_class_id from session s join school_day d on d.id = s.school_day_id"
+            " join plan_entry p on p.id = s.plan_entry_id"
+            " where s.tenant_id = %s and s.planned and p.activity_id is not null and d.on_date between %s and %s",
+            (tenant, lo, hi),
+        )
+    }
+
+
+def short_of(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> dict[str, list[dict[str, Any]]]:
+    """Which classes the school's list is short of, now: those with no plan to build from, and those whose plan asks
+    for no materials. Each is named, so a person can read it."""
+    names, planned = class_names(conn, tenant), with_sessions(conn, tenant, lo, hi)
+    expected = planned_classes(conn, tenant, lo, hi)
+    items, _ = _gather(conn, tenant, lo, hi)
+    giving = {c for item in items.values() for c in item["from"]}
+    return {
+        "no_plan": [{"class_id": c, "class": names[c]} for c in expected if c not in planned],
+        "no_materials": [
+            {"class_id": c, "class": names[c]} for c in expected if c in planned and c not in giving
+        ],
+    }

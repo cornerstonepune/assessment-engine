@@ -39,3 +39,9 @@ def test_while_they_are_on_it_prints_the_counts(monkeypatch):
     out = CliRunner().invoke(app, ["reminders", "--due"])
     assert out.exit_code == 0, out.output
     assert re.search(r"due: \d+ reminders for \d+ lists \(educator \d+, team \d+\)", out.output), out.output
+
+
+@pytest.mark.parametrize("command", ["materials month", "materials cost"])
+def test_the_materials_commands_exist(command):
+    out = CliRunner().invoke(app, [*command.split(), "--help"])
+    assert out.exit_code == 0, out.output
