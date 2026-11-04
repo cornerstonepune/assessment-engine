@@ -8,7 +8,7 @@ from typing import Any
 from uuid import UUID
 
 from engine.core import db, settings
-from engine.w2_print import materials_consolidate, materials_text
+from engine.w2_print import materials_consolidate, materials_coverage, materials_text
 from engine.w2_print.materials_send import NothingToSend
 
 
@@ -47,10 +47,10 @@ def send(conn: db.Conn, cid: UUID, who: UUID) -> dict[str, Any]:
     body += [_line(item, last) for item in got["lines"]]
     tenant = db.one(conn, "select tenant_id from materials_consolidated where id = %s", (cid,))["tenant_id"]
     # the classes absent from the very build the lines above come from (not from today's plans)
-    names = materials_consolidate.class_names(conn, tenant)
-    expected = materials_consolidate.planned_classes(conn, tenant, got["from"], got["to"])
-    giving = materials_consolidate.classes_in(conn, cid)
-    missing = sorted(names[c] for c in expected if c not in giving)
+    names = materials_coverage.class_names(conn, tenant)
+    expected = materials_coverage.planned_classes(conn, tenant, got["from"], got["to"])
+    giving = materials_coverage.classes_in(conn, cid)
+    missing = [names[c] for c in expected if c not in giving]
     if missing:
         body.append(f"Not included: {', '.join(sorted(missing))} (nothing from them in this list)")
     if last is not None:

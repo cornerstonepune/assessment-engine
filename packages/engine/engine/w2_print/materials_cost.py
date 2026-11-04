@@ -1,18 +1,19 @@
 """What the note-reading step has cost this month against its cap (task M1-16). Read from the calls already recorded in
 `flow_run` (every model call leaves one with its tokens and cost); it never calls a model. The cap and the month are the
-campaign's (`llm.campaigns`, "m1-16"). After the first real notes the averages replace the design note's assumed token
+campaign's (`llm.campaigns`, the one that spends on `materials_read`). After the first real notes the averages replace the design note's assumed token
 counts."""
 
 from typing import Any
 
 from engine.adapters import llm_budget
 from engine.core import db
-
-CAMPAIGN = "m1-16"
+from engine.w2_print import materials_intake
 
 
 def report(conn: db.Conn) -> dict[str, Any]:
-    camp = llm_budget.campaigns(conn)[CAMPAIGN]
+    camp = llm_budget.campaign_for(conn, materials_intake.PURPOSE)
+    if camp is None:
+        raise LookupError(f"no campaign in llm.campaigns spends on {materials_intake.PURPOSE}")
     start = llm_budget.window_start(conn, camp)
     got = db.one(
         conn,

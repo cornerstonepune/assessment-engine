@@ -210,4 +210,7 @@ def test_the_coordinators_build_makes_every_class_list_and_names_the_classes_it_
     assert got.status_code == 200, got.text
     body = got.json()
     assert [r["class_id"] for r in body["built"]] == [str(s["class"])]
-    assert str(bare) in {r["class_id"] for r in body["no_plan"]} and body["no_materials"] == []
+    assert str(bare) in {r["class_id"] for r in body["no_plan"]}
+    assert (
+        body["no_materials"] == [] and body["no_fortnight"] == []
+    )  # every shortness the build knows is returned

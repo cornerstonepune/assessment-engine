@@ -13,8 +13,11 @@
 - The shortness is computed now, from today's plans, when the text is sent; it is not stored with the build.
 - Needs real sessions (M1-06 part 2) and mapped planner lines (M1-05) to have anything to build from; with none, every class is `no_plan`, which is the true answer.
 
-## Verified
-_(filled at the end of the session, below)_
+## Verified (4 Nov, on a database built from the migrations alone; this brick adds no migration)
+- Tests written first and seen failing (import errors; the identical-build and command-exists tests failed on behaviour), then passing: the month build, the cost report, the identical-build skip, the "Not included" footer, the range cap, the route. 71 tests across the files touched. `bin/check` → 34 passed. Ruff and pyright clean.
+- `/code-review` (medium): 8 findings. Fixed with a test each: the footer was worked out from today's plans while the lines came from the stored build (it now reads the stored build); sessions on days no fortnight covers were called "plan asks for no materials" (own bucket `no_fortnight`); the cost report counted a running call as failed and hid unknown spend (it now mirrors the gate); no cap on the range of a month build (setting `materials.month_build_max_days`, 62). **Not fixed, with reasons:** `engine materials cost` is not behind `educator.timetable_enabled` (it only reads, and an operator should see spend even with the screens off); a month build refreshes lists already sent (carrying later changes into the school list is the requirement, and the sent text stays recorded); the changes of the latest build stay visible after an identical rebuild (by design).
+- `/simplify`: applied. The class-coverage helpers moved out of `materials_consolidate` into `materials_coverage`; the school list's shortness is read from the stored build (no second gather); the route returns every shortness; the reasons live beside the buckets (`WHY`); the cost report finds its campaign by purpose (`llm_budget.campaign_for`). **Not done:** merging `_stored_shape` into `_totals` (risk to the change-noting code for little gain); a shared SQL fragment for the planned-session join (the two uses need different columns); a tenant helper for the CLI (about eight modules inline it).
+- Whole suite in 12 shards: see the PR.
 
 ## Handoff
 - PR B (one migration, after this is merged and live): a way to clear a note waiting for a person (through `ml.add`), `material_alias` and approved unit conversions as rows, and the widened state check.

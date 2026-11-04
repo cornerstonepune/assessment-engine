@@ -6,7 +6,13 @@ import datetime as dt
 import typer
 
 from engine.core import db
-from engine.w2_print import materials_cost, materials_list, materials_month, materials_remind
+from engine.w2_print import (
+    materials_cost,
+    materials_coverage,
+    materials_list,
+    materials_month,
+    materials_remind,
+)
 
 materials_app = typer.Typer(help="W2 — the school's materials list", no_args_is_help=True)
 
@@ -37,11 +43,7 @@ def month(
         except ValueError as no:
             raise typer.BadParameter(str(no)) from no
     typer.echo(f"school list {got['consolidated_id']}: {len(got['built'])} classes built")
-    for key, why in (
-        ("no_plan", "no plan to build from"),
-        ("no_fortnight", "planned on days no school fortnight covers"),
-        ("no_materials", "its plan asks for no materials"),
-    ):
+    for key, why in materials_coverage.WHY.items():
         for c in got[key]:
             typer.echo(f"  short: {c['class']} ({why})")
 

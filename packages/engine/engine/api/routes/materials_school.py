@@ -54,7 +54,7 @@ def build(body: Build, conn=Depends(get_conn, scope="function"), tenant_id: str 
         got = mm.build_month(conn, UUID(str(tenant_id)), body.from_, body.to)
     except ValueError as no:
         raise HTTPException(status_code=422, detail=str(no)) from no
-    return mc.read(conn, got["consolidated_id"]) | {k: got[k] for k in ("built", "no_plan", "no_materials")}
+    return mc.read(conn, got["consolidated_id"]) | {k: v for k, v in got.items() if k != "consolidated_id"}
 
 
 @keyed.post("/school/read")

@@ -8,6 +8,7 @@ from typing import Any
 from uuid import UUID
 
 from engine.core import db, settings
+from engine.w2_print import materials_coverage as coverage
 from engine.w2_print.materials_list import num
 
 
@@ -180,7 +181,7 @@ def _note_changes(conn: db.Conn, tenant: UUID, cid: UUID, before: int, now: int)
 def read(conn: db.Conn, cid: UUID) -> dict[str, Any]:
     cons = db.one(conn, "select * from materials_consolidated where id = %s", (cid,))
     build_ = cons["latest_build"]
-    names = class_names(conn, cons["tenant_id"])
+    names = coverage.class_names(conn, cons["tenant_id"])
     sources: dict[str, list[dict[str, Any]]] = {}
     for r in conn.execute(
         "select material_code, class_id, quantity, activity_codes from materials_consolidated_source"
@@ -249,78 +250,3 @@ def may_consolidate(conn: db.Conn, staff: UUID, today: dt.date) -> bool:
         (staff, roles, today, today),
     ).fetchone()
     return held is not None
-
-
-def class_names(conn: db.Conn, tenant: UUID) -> dict[UUID, str]:
-    return {
-        r["id"]: f"{r['grade_code']} {r['section'] or ''}".strip()
-        for r in conn.execute(
-            "select id, grade_code, section from school_class where tenant_id = %s", (tenant,)
-        )
-    }
-
-
-def planned_classes(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> list[UUID]:
-    """The classes expected to have a plan for the month: a grade that has activities, in a school year the month
-    touches. A class of a grade the activity list does not cover is not short of a plan, it has none to give."""
-    return [
-        r["id"]
-        for r in conn.execute(
-            "select c.id from school_class c join academic_year y on y.id = c.academic_year_id"
-            " where c.tenant_id = %s and y.starts_on <= %s and y.ends_on >= %s"
-            " and exists (select 1 from activity a where a.tenant_id = c.tenant_id and a.band = c.grade_code)"
-            " order by c.grade_code, c.section, c.id",
-            (tenant, hi, lo),
-        )
-    ]
-
-
-def with_sessions(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> set[UUID]:
-    """The classes that have at least one planned session of a mapped activity in the range."""
-    return {
-        r["school_class_id"]
-        for r in conn.execute(
-            "select distinct s.school_class_id from session s join school_day d on d.id = s.school_day_id"
-            " join plan_entry p on p.id = s.plan_entry_id"
-            " where s.tenant_id = %s and s.planned and p.activity_id is not null and d.on_date between %s and %s",
-            (tenant, lo, hi),
-        )
-    }
-
-
-def short_of(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> dict[str, list[dict[str, Any]]]:
-    """Which classes the school's list is short of, now, and why: `no_plan` (nothing planned to build from),
-    `no_fortnight` (planned, but on days no school fortnight covers, so no list could be made) and `no_materials`
-    (a list was made and its plan asks for none). Each is named, so a person can read it."""
-    names, planned = class_names(conn, tenant), with_sessions(conn, tenant, lo, hi)
-    items, _ = _gather(conn, tenant, lo, hi)
-    giving = {c for item in items.values() for c in item["from"]}
-    listed = {
-        r["school_class_id"]
-        for r in conn.execute(
-            "select distinct school_class_id from materials_list where tenant_id = %s and from_on <= %s and to_on >= %s",
-            (tenant, hi, lo),
-        )
-    }
-    expected = planned_classes(conn, tenant, lo, hi)
-
-    def named(ids: list[UUID]) -> list[dict[str, Any]]:
-        return [{"class_id": c, "class": names[c]} for c in ids]
-
-    return {
-        "no_plan": named([c for c in expected if c not in planned]),
-        "no_fortnight": named([c for c in expected if c in planned and c not in listed]),
-        "no_materials": named([c for c in expected if c in listed and c not in giving]),
-    }
-
-
-def classes_in(conn: db.Conn, cid: UUID) -> set[UUID]:
-    """The classes that give something to the school list's latest build."""
-    return {
-        r["class_id"]
-        for r in conn.execute(
-            "select distinct class_id from materials_consolidated_source s join materials_consolidated c"
-            " on c.id = s.consolidated_id and c.latest_build = s.build where s.consolidated_id = %s",
-            (cid,),
-        )
-    }

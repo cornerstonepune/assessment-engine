@@ -20,6 +20,11 @@ def campaigns(conn) -> dict:
     return (row or {}).get("value") or {}
 
 
+def campaign_for(conn, purpose: str) -> dict | None:
+    """The campaign that spends on `purpose`, if any."""
+    return next((c for c in campaigns(conn).values() if purpose in c["purposes"]), None)
+
+
 def purposes(camps: dict) -> list[str]:
     """Every purpose some campaign spends on: these answer to their campaign's cap, not to the daily budget."""
     return sorted({p for c in camps.values() for p in c["purposes"]})

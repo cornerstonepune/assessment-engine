@@ -9,11 +9,14 @@ from uuid import UUID
 
 from engine.core import db, settings
 from engine.w2_print import materials_consolidate as mc
+from engine.w2_print import materials_coverage as coverage
 from engine.w2_print import materials_list as ml
 from engine.w2_print import materials_remind as rem
 
 
-def _pairs(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> list[dict[str, Any]]:
+def _pairs(
+    conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date, expected: list[UUID]
+) -> list[dict[str, Any]]:
     """Each (class, fortnight) with a planned session of a mapped activity on a day of the month."""
     return conn.execute(
         "select distinct s.school_class_id as class_id, f.id as fortnight_id, f.starts_on, f.ends_on"
@@ -22,26 +25,26 @@ def _pairs(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> list[dict[s
         " and d.on_date between f.starts_on and f.ends_on"
         " where s.tenant_id = %s and s.planned and p.activity_id is not null and d.on_date between %s and %s"
         " and c.id = any(%s) order by 1, 3",
-        (tenant, lo, hi, mc.planned_classes(conn, tenant, lo, hi)),
+        (tenant, lo, hi, expected),
     ).fetchall()
 
 
 def build_month(conn: db.Conn, tenant: UUID, lo: dt.date, hi: dt.date) -> dict[str, Any]:
     """Build every class's lists for `lo`..`hi`, then the school's. Returns the school list's id, the classes built,
-    and the classes it is short of (`no_plan`, `no_materials`)."""
+    and the classes it is short of (`no_plan`, `no_fortnight`, `no_materials`: see `materials_coverage.WHY`)."""
     if hi < lo:
         raise ValueError("The last day is before the first day.")
     longest = int(settings.config(conn, "materials.month_build_max_days", 62))
     if (hi - lo).days + 1 > longest:
         raise ValueError(f"A month build is for one month: at most {longest} days.")
-    names, today = mc.class_names(conn, tenant), rem.school_today(conn)
-    built: dict[UUID, None] = {}
-    for p in _pairs(conn, tenant, lo, hi):
+    names, today = coverage.class_names(conn, tenant), rem.school_today(conn)
+    expected = coverage.planned_classes(conn, tenant, lo, hi)
+    pairs = _pairs(conn, tenant, lo, hi, expected)
+    for p in pairs:
         rem.sync(conn, ml.build(conn, p["class_id"], "fortnight", p["starts_on"], p["ends_on"]), today)
-        built[p["class_id"]] = None
     cid = mc.build(conn, tenant, lo, hi)
     return {
         "consolidated_id": cid,
-        "built": [{"class_id": c, "class": names[c]} for c in built],
-        **mc.short_of(conn, tenant, lo, hi),
+        "built": [{"class_id": c, "class": names[c]} for c in dict.fromkeys(p["class_id"] for p in pairs)],
+        **coverage.short_of(conn, tenant, lo, hi, cid, expected),
     }
