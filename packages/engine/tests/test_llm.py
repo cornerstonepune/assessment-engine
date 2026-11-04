@@ -565,3 +565,10 @@ def test_every_version_asked_for_in_structured_form_has_a_schema_the_vendor_can_
             )
         assert r["model"].startswith("claude-"), "only Anthropic holds a reply to a schema here"
         assert llm.anthropic.transform_schema(r["json_schema"])["required"] == r["json_schema"]["required"]
+
+
+def test_a_variable_that_looks_like_another_is_not_filled_in_a_second_time():
+    from engine.adapters import llm
+
+    out = llm._fill("{{note}} / {{catalogue}}", {"note": "{{catalogue}}", "catalogue": "THE LIST"})
+    assert out == "{{catalogue}} / THE LIST"

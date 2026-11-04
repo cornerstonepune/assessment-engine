@@ -3557,6 +3557,62 @@
           }
         }
       }
+    },
+    {
+      "purpose": "materials_read",
+      "version": 1,
+      "model": "claude-haiku-4-5",
+      "active": false,
+      "text_file": "prompts/materials_read.v1.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "people_visible",
+          "readings"
+        ],
+        "properties": {
+          "people_visible": {
+            "type": "boolean"
+          },
+          "readings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "text",
+                "item_code",
+                "quantity",
+                "unit"
+              ],
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "item_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "quantity": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "unit": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }

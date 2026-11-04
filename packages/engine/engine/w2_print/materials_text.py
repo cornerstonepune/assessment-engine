@@ -20,19 +20,19 @@ def day(d: dt.date) -> str:
     return f"{d:%a} {d.day} {d:%b}"
 
 
-def _short(d: dt.date) -> str:
+def short(d: dt.date) -> str:
     return f"{d.day} {d:%b}"
 
 
-def _number(q: float) -> str:
+def number(q: float) -> str:
     return str(int(q)) if float(q).is_integer() else f"{q:g}"
 
 
 def checklist(class_name: str, first: dt.date, last: dt.date, lines: list[Line]) -> str:
-    out = [f"{class_name} materials, {_short(first)} to {_short(last)}"]
+    out = [f"{class_name} materials, {short(first)} to {short(last)}"]
     for ln in lines:
         what = (
-            f"{_number(ln.quantity)} {ln.unit}"
+            f"{number(ln.quantity)} {ln.unit}"
             if ln.quantity is not None
             else f"quantity to confirm ({ln.unit})"
         )
