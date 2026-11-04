@@ -7,7 +7,7 @@ export type MenuPage = { href: string; label: string; match: readonly string[] }
 export type MenuGroup = { key: string; label: string; href: string; pages: readonly MenuPage[]; setup?: boolean };
 
 export const GROUPS: readonly MenuGroup[] = [
-  { key: "doing", label: "What needs doing", href: "/today", pages: [{ href: "/today", label: "What needs doing", match: ["/today"] }] },
+  { key: "doing", label: "What needs doing", href: "/today", pages: [{ href: "/today", label: "What needs doing", match: ["/today", "/voice"] }] },
   {
     key: "assessments",
     label: "Assessments",

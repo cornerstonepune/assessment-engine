@@ -53,6 +53,9 @@ def test_a_recording_is_kept_on_the_private_side_and_only_its_key_is_in_the_row(
     assert (tmp_path / note["audio_key"]).read_bytes() == b"placeholder-audio"
     with pytest.raises(voice_store.Refused, match="not on the staff list"):
         voice_intake.receive(conn, "nobody@example.test", k["class"], "note.m4a", b"x")
+    other = a_k2_class(conn)  # an educator who does not hold this class
+    with pytest.raises(voice_store.Refused, match="do not hold this class"), conn.transaction():
+        voice_intake.receive(conn, other["email"], k["class"], "note.m4a", b"x")
     with pytest.raises(voice_store.Refused, match="not a recording"):
         voice_intake.receive(conn, k["email"], k["class"], "note.pdf", b"x")
     before = sorted(p.name for p in tmp_path.rglob("*") if p.is_file())
@@ -118,3 +121,19 @@ def test_a_key_that_is_not_a_recordings_names_no_file():
     for bad in ("../../.env", "voice/2026/x.m4a", "scans/2026/" + "0" * 36 + ".pdf"):
         with pytest.raises(voice_store.Refused):
             voice_store.path(bad)
+
+
+@needs_db
+def test_a_note_is_about_the_day_on_the_schools_clock_not_the_servers(conn):
+    """Heard at 03:54 in Pune on 4 Nov is 22:24 UTC on 3 Nov: the note is about 4 Nov."""
+    import datetime as dt
+
+    k = a_k2_class(conn)
+    note = a_note(conn, k, "Activity 12. Above 2.")
+    conn.execute("alter table pii.educator_note disable trigger educator_note_clock")
+    conn.execute(
+        "update pii.educator_note set received_at = '2026-11-03 22:24:00+00' where id = %s", (note["id"],)
+    )
+    conn.execute("alter table pii.educator_note enable trigger educator_note_clock")
+    note = conn.execute("select * from pii.educator_note where id = %s", (note["id"],)).fetchone()
+    assert voice_intake.resolve(conn, note).taught_on == dt.date(2026, 11, 4)

@@ -70,10 +70,15 @@ def _notes(conn: db.Conn, cfg: dict, staff: str | None, campus: str | None) -> l
     def activities_of(class_id, number):
         return sorted(a["code"] for a in named[(grade_of[class_id], str(number))])
 
+    zone = ZoneInfo(cfg["zone"])
+
+    def day_of(at):
+        return at.astimezone(zone).date()
+
     names = {a["code"]: a["name"] for found in named.values() for a in found}
     out = []
     for n in notes:
-        found = voice_intake.resolve(conn, n, enrolled_on, activities_of) if n["transcript"] else None
+        found = voice_intake.resolve(conn, n, enrolled_on, activities_of, day_of) if n["transcript"] else None
         late = n["status"] == "left_unconfirmed" or (
             n["status"] in ("received", "drafted") and n["age_hours"] >= cfg["hours"]
         )

@@ -3,8 +3,8 @@
   "data_register": [
     {
       "code": "name",
-      "what": "Your child's name, and the languages spoken at home.",
-      "why": "So your child's educators know whose work is whose. The name is kept apart from everything else, and is never sent to the computer service that reads handwriting.",
+      "what": "Your child's name, date of birth, and the languages spoken at home.",
+      "why": "So your child's educators know whose work is whose. The name and date of birth are kept apart from everything else, and are never sent to the computer service that reads handwriting.",
       "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
       "who_sees": "Your child's educators and the school's coordinator.",
       "tables": ["pii.child"]
@@ -39,7 +39,7 @@
       "why": "So your child's educators know what to teach next. A record is kept as it was written; a correction is added beside it, never in its place.",
       "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
       "who_sees": "Your child's educators and the school's coordinator.",
-      "tables": ["public.evidence_event", "public.child_skill_state"]
+      "tables": ["public.evidence_event", "public.child_skill_state", "public.child_observed_state"]
     },
     {
       "code": "observations",

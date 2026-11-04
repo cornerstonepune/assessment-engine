@@ -11,6 +11,7 @@ from typer.testing import CliRunner
 
 from engine import cli
 from engine.assess import words as W
+from engine.checks import evals
 from engine.core import db
 from engine.w1_bank import story_eval as E
 from engine.w1_bank import story_shape as S
@@ -267,9 +268,11 @@ def test_engine_eval_scores_the_story_reader_version_it_is_given(monkeypatch):
         seen.update(kw)
         return result
 
-    monkeypatch.setattr(cli.story_eval, "evaluate", scored)
+    monkeypatch.setattr(E, "evaluate", scored)
     monkeypatch.setattr(cli.db, "connect", _no_database)
-    monkeypatch.setattr(cli, "_held", lambda purpose, score: None)
+    monkeypatch.setattr(
+        evals, "held", lambda purpose, score: None
+    )  # the scorer moved there with its bar check
     CliRunner().invoke(cli.app, ["eval", "story_shape", "--version", "2"])
     assert seen == {"version": 2}
 

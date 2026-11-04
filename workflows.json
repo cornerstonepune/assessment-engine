@@ -14,8 +14,8 @@
       "built": "live",
       "takes": ["the skill registry", "the team's taxonomy"],
       "gives": ["skill_set", "rung", "taxonomy_case", "misconception"],
-      "files": ["engine/w1_bank/spec.py", "engine/w1_bank/english_edit.py", "engine/w1_bank/english_check.py", "engine/w1_bank/english_wrong.py", "engine/w1_bank/english_words.py", "engine/w1_bank/english_form.py", "engine/w1_bank/k2_upload.py"],
-      "commands": ["engine load", "engine bank levels", "engine asks", "engine curriculum k2"],
+      "files": ["engine/w1_bank/spec.py", "engine/w1_bank/english_edit.py", "engine/w1_bank/english_check.py", "engine/w1_bank/english_wrong.py", "engine/w1_bank/english_words.py", "engine/w1_bank/english_form.py", "engine/w1_bank/k2_upload.py", "engine/w1_bank/map_check.py", "engine/w1_bank/map_eval.py", "engine/w1_bank/map_agents.py", "engine/w1_bank/map_ledger.py", "engine/w1_bank/cli_map.py"],
+      "commands": ["engine load", "engine bank levels", "engine asks", "engine curriculum k2", "engine curriculum propose", "engine curriculum review", "engine curriculum apply", "engine curriculum revert", "engine curriculum eval"],
       "screens": ["/", "/skill-sets/[code]", "/skill-sets/[code]/edit", "/skill-sets/approve", "/skill-sets/levels", "/asks"],
       "subject": {"any": false, "note": "The shape (skill → four levels → cases, approved once) is any subject's. The content is maths: the add/sub ladder, the 269 cases and the named mistakes are rows a new subject writes for itself — no code."}
     },
@@ -110,9 +110,9 @@
       "built": "live",
       "takes": ["capture", "item", "a K2 voice note, as words"],
       "gives": ["item_result", "read_correction", "child_reading_profile", "a voice note read into draft lines", "the K2 to-do and coordinator lists"],
-      "files": ["engine/w3_read/reading.py", "engine/w3_read/boxes.py", "engine/w3_read/ink_line.py", "engine/w3_read/lists.py", "engine/w3_read/marking.py", "engine/w3_read/again.py", "engine/w3_read/keys.py", "engine/w3_read/whose_paper.py", "engine/w3_read/naming.py", "engine/w3_read/profiles.py", "engine/w3_read/crops.py", "engine/w3_read/second_reader.py", "engine/w3_read/replay.py", "engine/w3_read/read_eval.py", "engine/w3_read/cli_read.py", "engine/w3_read/cli_learn.py", "engine/w3_read/voice_note.py", "engine/w3_read/voice_day.py", "engine/w3_read/voice_store.py", "engine/w3_read/voice_intake.py", "engine/w3_read/voice_confirm.py", "engine/w3_read/k2_reads.py", "engine/w3_read/cli_voice.py"],
-      "commands": ["engine read waiting", "engine read profile", "engine read guess", "engine read report", "engine read replay", "engine read eval", "engine read voice expire", "engine read voice retention"],
-      "screens": ["/papers", "/capture", "/capture/[id]", "/capture/check", "/api/scan/[capture]/[page]"],
+      "files": ["engine/w3_read/reading.py", "engine/w3_read/boxes.py", "engine/w3_read/ink_line.py", "engine/w3_read/lists.py", "engine/w3_read/marking.py", "engine/w3_read/again.py", "engine/w3_read/keys.py", "engine/w3_read/whose_paper.py", "engine/w3_read/naming.py", "engine/w3_read/profiles.py", "engine/w3_read/crops.py", "engine/w3_read/second_reader.py", "engine/w3_read/replay.py", "engine/w3_read/read_eval.py", "engine/w3_read/cli_read.py", "engine/w3_read/cli_learn.py", "engine/w3_read/voice_note.py", "engine/w3_read/voice_day.py", "engine/w3_read/voice_store.py", "engine/w3_read/voice_intake.py", "engine/w3_read/voice_confirm.py", "engine/w3_read/cli_voice.py", "engine/w3_read/voice_check.py", "engine/w3_read/k2_reads.py"],
+      "commands": ["engine read waiting", "engine read profile", "engine read guess", "engine read report", "engine read replay", "engine read eval", "engine read voice expire", "engine read voice retention", "engine read voice check", "engine read voice replay"],
+      "screens": ["/papers", "/capture", "/capture/[id]", "/capture/check", "/api/scan/[capture]/[page]", "/voice/record", "/voice/notes/[id]", "/voice/form", "/api/voice/[note]"],
       "subject": {"any": false, "note": "The loop — notebook, trust per kind, a person's check — is any subject's. The reader reads numbers only, and marking is a lookup against computed answers: a subject answered in words would reach a person every time. A K2 voice note (M1-01) is read by code the same way, each line beside its words, and a person confirms it."}
     },
     {
@@ -301,7 +301,7 @@
       "engine/assess/evaluate.py": 63,
       "engine/assess/focus.py": 106,
       "engine/assess/geometry.py": 20,
-      "engine/assess/graph.py": 26,
+      "engine/assess/graph.py": 23,
       "engine/assess/items.py": 359,
       "engine/assess/learned_rules.py": 164,
       "engine/assess/mark.py": 50,

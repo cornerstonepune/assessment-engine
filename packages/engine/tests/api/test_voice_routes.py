@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 from engine.api import deps
 from engine.api.app import app
 from engine.core import db
+from engine.w3_read import voice_note
 from tests.test_upload import token
 from tests.voice_rows import a_k2_class, a_note
 
@@ -121,3 +122,37 @@ class _held:
 
     def __exit__(self, *exc):
         return False
+
+
+def test_her_classes_come_from_her_grant_today_and_a_draft_carries_the_level_she_expected_and_whether_anything_was_heard(
+    engine,
+):
+    """The Record row lists the classes she records for today: an open grant in a role that records (config
+    `voice.roles_that_record`), on a class whose grade has activities; never one she typed, never a role that does not
+    record, never a grant that has ended. The draft says the level she expected, or the template's default."""
+    client, conn = engine
+    k, assisted, ended = a_k2_class(conn), a_k2_class(conn), a_k2_class(conn)
+    _switch(conn, True)
+    conn.execute(
+        "insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, valid_from, granted_by)"
+        " values (%s, %s, 'assistant', %s, current_date - 1, 'test')",
+        (k["tenant"], k["staff"], assisted["class"]),
+    )
+    conn.execute(
+        "insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, valid_from, valid_to,"
+        " granted_by) values (%s, %s, 'cover_educator', %s, current_date - 9, current_date - 2, 'test')",
+        (k["tenant"], k["staff"], ended["class"]),
+    )
+    got = _post(client, "/voice/queue", {"actor": k["email"]}).json()
+    assert [c["id"] for c in got["classes"]] == [k["class"]]
+    assert got["classes"][0]["grade"] == "K2"
+    said = a_note(conn, k, "Activity 12, level 3. Above 3.")
+    plain = a_note(conn, k, "Activity 12. Above 3.")
+
+    def draft(note) -> dict:
+        me = {"actor": k["email"], "note_id": str(note["id"])}
+        return _post(client, "/voice/notes/draft", me).json()
+
+    assert draft(said)["level"] == 3
+    assert draft(plain)["level"] == voice_note.template().default_level
+    assert draft(plain)["heard"] is True and draft(a_note(conn, k, ""))["heard"] is False

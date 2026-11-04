@@ -7,7 +7,7 @@ import re
 import uuid
 from pathlib import Path
 
-from engine.core import db
+from engine.core import db, settings
 
 ROOT = db.REPO_ROOT / "data"
 KINDS = {".m4a", ".mp3", ".wav", ".ogg", ".opus", ".webm", ".aac", ".mp4", ".flac"}
@@ -52,3 +52,24 @@ def read(key: str) -> bytes:
     if not p.exists():
         raise Refused("This recording is no longer kept.", 404)
     return p.read_bytes()
+
+
+def retention(conn: db.Conn) -> tuple[int | None, int]:
+    """→ (the days a recording is kept, how many were deleted). With no number decided (O-14) nothing is deleted.
+    Only a recording of a note that is finished (confirmed, or left unconfirmed) and older than that is deleted; its
+    row and its key stay, so a page says the recording is no longer kept."""
+    days = settings.config(conn, "voice.audio_retention_days")
+    if days is None:
+        return None, 0
+    rows = conn.execute(
+        "select audio_key from pii.educator_note where status in ('confirmed', 'left_unconfirmed')"
+        " and received_at < now() - make_interval(days => %s)",
+        (int(days),),
+    ).fetchall()
+    gone = 0
+    for r in rows:
+        p = path(r["audio_key"])
+        if p.exists():
+            p.unlink()
+            gone += 1
+    return int(days), gone

@@ -10,6 +10,7 @@ with no child, an activity not on the list, is a problem shown to her, never gue
 import datetime as dt
 import uuid
 from dataclasses import dataclass, field
+from zoneinfo import ZoneInfo
 
 from engine.adapters import speech
 from engine.core import db, settings
@@ -37,9 +38,23 @@ def staff_of(conn: db.Conn, email: str) -> uuid.UUID:
     return sid
 
 
+def may_record(conn: db.Conn, staff: uuid.UUID, class_id: str) -> None:
+    """She records for a class only while she holds an open grant on it in a role that records
+    (`voice.roles_that_record`, a config row). Anyone else is refused, a campus-wide role too unless the row names it."""
+    roles = list(settings.config(conn, "voice.roles_that_record", []))
+    held = conn.execute(
+        "select 1 from staff_role_grant where staff_id = %s and school_class_id = %s and role_code = any(%s)"
+        " and valid_from <= current_date and (valid_to is null or valid_to >= current_date)",
+        (staff, valid_id(str(class_id)), roles),
+    ).fetchone()
+    if held is None:
+        raise voice_store.Refused("You do not hold this class.", 403)
+
+
 def receive(conn: db.Conn, email: str, class_id: str, filename: str, data: bytes) -> dict:
     """The recording kept and its row written; the words come after (`transcribe`)."""
     staff = staff_of(conn, email)
+    may_record(conn, staff, class_id)
     note_id = uuid.uuid4()
     key = voice_store.key_for(note_id, filename, dt.date.today().year)
     note = conn.execute(
@@ -120,14 +135,22 @@ def activity_of(conn: db.Conn, class_id: str, number: int) -> list[str]:
     ]
 
 
-def resolve(conn: db.Conn, note: dict, enrolled_on=None, activities_of=None) -> Resolved:
-    """A note's draft with its numbers found. A page reading many notes passes `enrolled_on(class_id, day)` and
-    `activities_of(class_id, number)` answered from rows it fetched at once, so the rule is this one and no query is
-    asked per note (engine/w3_read/k2_reads.py)."""
+def school_day(conn: db.Conn, at: dt.datetime) -> dt.date:
+    """The day a moment falls on by the school's clock (config `school.time_zone`), never the server's: a note heard at
+    03:54 in Pune is about that morning, though it is still the night before in UTC."""
+    return at.astimezone(ZoneInfo(settings.config(conn, "school.time_zone", "Asia/Kolkata"))).date()
+
+
+def resolve(conn: db.Conn, note: dict, enrolled_on=None, activities_of=None, day_of=None) -> Resolved:
+    """A note's draft with its numbers found. A page reading many notes passes `enrolled_on(class_id, day)`,
+    `activities_of(class_id, number)` and `day_of(moment)` answered from rows it fetched at once, so the rule is this
+    one and no query is asked per note (engine/w3_read/k2_reads.py)."""
     enrolled_on = enrolled_on or (lambda class_id, day: enrolled(conn, class_id, day))
     activities_of = activities_of or (lambda class_id, number: activity_of(conn, class_id, number))
+    day_of = day_of or (lambda at: school_day(conn, at))
     draft = voice_note.read(note["transcript"] or "")
-    day = voice_day.taught_on(draft.day, note["received_at"].date()) or note["received_at"].date()
+    heard = day_of(note["received_at"])
+    day = voice_day.taught_on(draft.day, heard) or heard
     out = Resolved(draft, day, None, enrolled=enrolled_on(note["class_id"], day))
     act = draft.line("activity")
     if act and act.numbers:
@@ -147,6 +170,19 @@ def resolve(conn: db.Conn, note: dict, enrolled_on=None, activities_of=None) -> 
             else:
                 out.problems.append(f"#{n} is not in this class. Which child?")
     return out
+
+
+def classes_of(conn: db.Conn, staff_id: str, day: dt.date) -> list[dict]:
+    """The classes she records a note for that day: an open grant in a role that records (`voice.roles_that_record`,
+    the rule `may_record` holds her to), on a class whose grade has activities. M0-05's grants, never a class she types."""
+    roles = list(settings.config(conn, "voice.roles_that_record", []))
+    return conn.execute(
+        "select distinct c.id::text as id, c.grade_code as grade, c.section from staff_role_grant g"
+        " join school_class c on c.id = g.school_class_id where g.staff_id = %s and g.role_code = any(%s)"
+        " and g.valid_from <= %s and (g.valid_to is null or g.valid_to >= %s) and exists (select 1 from activity a"
+        " where a.tenant_id = c.tenant_id and a.band = c.grade_code) order by c.grade_code, c.section",
+        (staff_id, roles, day, day),
+    ).fetchall()
 
 
 def queue(conn: db.Conn, staff_id: str) -> list[dict]:
