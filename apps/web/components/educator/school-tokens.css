@@ -1,0 +1,15 @@
+/* The school's design tokens (D-073, D-075) for the screens inside SchoolShell only, as the lowest layer (declared in
+   app/globals.css): a name the site also sets keeps the site's value, and pages outside the shell never load this. */
+@import "../../design-system/tokens.css" layer(tokens);
+
+/* Inside the shell, the site's shared blocks keep the school's floor (D-073 R2: every tap at least 44 px each way):
+   PageShell's next step and its "?" are the site's own, and stay as they are on every other page. */
+@layer components {
+  [data-educator] .chip,
+  [data-educator] [data-ux="help"] {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    min-width: var(--tap);
+  }
+}

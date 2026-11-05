@@ -1,3 +1,6 @@
+/* The layers, lowest first. `tokens` is the school's design tokens (D-073, design-system/tokens.css), imported only by
+   the school's own screens' shell (components/educator/shell.tsx): the other pages keep their look. */
+@layer tokens, theme, base, components, utilities;
 @import "tailwindcss";
 
 /* The material library — Cornerstone Brand Book, Edition 02 (design-system/PRINCIPLES.md).
@@ -65,6 +68,21 @@ h3 {
   }
   a:hover {
     color: var(--basalt);
+  }
+}
+
+/* A phone's floor for any other action, a toggle or a select: 24 px (WCAG 2.2 AA, 2.5.8). In the base layer, so a
+   control's own size (the school's screens' 44 px taps) wins: unlayered, this floor beat every utility and shrank them. */
+@layer base {
+  @media (max-width: 767px) {
+    main summary,
+    main button,
+    main select,
+    main input:not([type="hidden"]),
+    main label:has(> input[type="checkbox"]),
+    main label:has(> input[type="radio"]) {
+      min-height: 24px;
+    }
   }
 }
 
@@ -289,14 +307,6 @@ table.grid.steady tr.under td {
   .chip {
     display: inline-flex;
     align-items: center;
-  }
-  main summary,
-  main button,
-  main select,
-  main input:not([type="hidden"]),
-  main label:has(> input[type="checkbox"]),
-  main label:has(> input[type="radio"]) {
-    min-height: 24px;
   }
   main td > a:only-child {
     display: inline-block;

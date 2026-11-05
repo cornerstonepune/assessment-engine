@@ -1,0 +1,55 @@
+name: m1-09c-educator-calendar
+goal: >
+  A K2 educator, on a desktop or a phone, sees her day as a calendar (every period a block with its time as time, the
+  school's words for it, a Now line today, the next period with a countdown) and her week as a grid (a column a day, a
+  row a period, a holiday one cell, today's column grey, no chip on a cell still to come); every block opens its period
+  (the school's words, the planner's lines for the subject this fortnight, its activity); a strip of counts heads each
+  page and every count opens what it counts; her menu is a sidebar with submenus (tabs at the foot of a phone) and a
+  breadcrumb says where she is. White ground, the school's tokens only (D-073, D-075). From M1-06's /timetable routes,
+  behind the switch and the staff preview (D-076).
+# Written 2026-11-05 (D-076: build the screens now, in the real app; D-075's rules). The activity page and materials are
+# their own PRs. No migration.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-calendar.spec.ts::while the timetable is switched off Today, This week and a period are not found"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-calendar.spec.ts::Today is the day as a calendar: every period a block in time order, its time as time, the school's words, a chip only on work"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-calendar.spec.ts::This week is a grid: a column a day, a row a period, a holiday one cell; on a phone the days stand one under another"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-calendar.spec.ts::any block opens its period: the time, the school's words, the planner's lines for the subject, and its activity"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-calendar.spec.ts::her menu is a sidebar on a desktop and tabs at the foot of a phone, each with where she is marked"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-calendar.spec.ts::in the week grid today's column is grey and no future cell carries a chip"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-tokens.spec.ts::the Now line falls before the first period still to come, after the one running, and nowhere before or after the day"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-tokens.spec.ts::a chip is one thing everywhere: Do now in the period, none on a period still to come, Done and Late only from a record, none for a fixed or empty period"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-tokens.spec.ts::every token the educator's screens name is in tokens.css"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-tokens.spec.ts::the educator's screens write no colour, size or font of their own: only the tokens"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-calendar.spec.ts::the school's tokens load inside the shell only: a page outside it keeps the site's own look"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-calendar.spec.ts::a day in the address that is not a date is not found, never an error"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-tokens.spec.ts::a day in the address is a real date or nothing"
+manual:
+  - "After the shell has been opened, a link elsewhere keeps its tokens loaded (Next.js keeps a route's CSS): they are the lowest layer, so the site's own values win wherever both name a thing; scoping them fully would mean changing tokens.css (the design worker's) from :root to the shell."
+  - "Fortnight and month calendar views (D-075 rule 5) and the sidebar's Activities, Materials and Children and notes items come with their screens; this PR draws Today, the day and the week."
+  - "The month's lock (Frozen) is drawn when the engine says so; M1-06 says false until M1-12."
+  - "The site keeps its own font (Source Serif 4): D-075 names no face, and the D-073 faces (Jost, Cormorant) went with the look Nimish rejected."
+  - "Nimish sees it signed in as staff once he holds 'head' on live (the staff preview, M1-09p)."
+scenarios: []
+criteria:
+  - name: the calendars, the period and the tokens, with screenshots (a database built from the migrations)
+    run: cd apps/web && npx playwright test tests/m1-09-calendar.spec.ts tests/m1-09-tokens.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the website type-checks
+    run: cd apps/web && npx next typegen >/dev/null && npx tsc --noEmit && echo passed
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
