@@ -3,14 +3,14 @@ import { Icon, type IconName } from "@/lib/icons";
 import { requireStaff } from "@/lib/auth";
 import { gap, mustBeOn, readOffers, waiting, type State } from "@/lib/curriculum-screens";
 
-// The breadcrumb, title and the three tabs every curriculum screen shares.
+// The breadcrumb, the strip of counts and the three tabs every curriculum screen shares, inside the page's PageShell.
 const TABS = [
   { href: "/curriculum/browse", label: "Browser" },
   { href: "/curriculum/fill", label: "What is filled" },
   { href: "/curriculum/offers", label: "Skills offered" },
 ] as const;
 
-export async function Chrome({ here, crumb, title, lead, children }: { here: (typeof TABS)[number]["href"]; crumb?: string; title: string; lead: string; children: React.ReactNode }) {
+export async function Chrome({ here, crumb, children }: { here: (typeof TABS)[number]["href"]; crumb?: string; children: React.ReactNode }) {
   const tab = TABS.find((t) => t.href === here)!;
   const me = await requireStaff();
   await mustBeOn();
@@ -29,8 +29,6 @@ export async function Chrome({ here, crumb, title, lead, children }: { here: (ty
           </>
         ) : null}
       </nav>
-      <h1>{title}</h1>
-      <p className="cs-lead">{lead}</p>
       <nav aria-label="Counts" className="cs-strip">
         <Link href="/curriculum/fill/walk" data-count="waiting"><b>{drafted.length}</b> drafted parts to check</Link>
         <Link href="/curriculum/offers" data-count="offers"><b>{offered === null ? "–" : offered.length}</b> skills offered</Link>

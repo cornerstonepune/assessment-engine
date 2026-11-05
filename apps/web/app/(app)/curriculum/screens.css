@@ -1,6 +1,5 @@
 /* The curriculum screens: tokens only (design-system/tokens.css), spacing in steps of 8, one type scale. */
 .cs-page { background: var(--surface); color: var(--text); font-size: var(--text-body); line-height: var(--lh-body); padding: var(--space-4) var(--space-3); max-width: 1280px; margin: 0 auto; }
-.cs-page h1 { font-size: var(--text-h2); line-height: var(--lh-h2); font-weight: 600; margin: var(--space-2) 0; }
 .cs-page h2 { font-size: var(--text-lead); line-height: var(--lh-lead); font-weight: 600; }
 .cs-lead { color: var(--text-muted); max-width: 640px; margin-bottom: var(--space-4); }
 .cs-crumbs { font-size: var(--text-label); color: var(--text-muted); display: flex; gap: var(--space-2); flex-wrap: wrap; }

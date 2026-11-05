@@ -702,6 +702,12 @@
       "seed_once": true
     },
     {
+      "key": "curriculum.screens_grade",
+      "description": "The grade whose activities the curriculum screens (browser, fill view, offered skills) list: the code of a row of `grade`. K2 first.",
+      "value": "K2",
+      "seed_once": true
+    },
+    {
       "key": "curriculum.fill_green",
       "description": "The share of a section's page parts and skills that must be filled for the curriculum browser to show it green (1 = every one).",
       "value": 1,

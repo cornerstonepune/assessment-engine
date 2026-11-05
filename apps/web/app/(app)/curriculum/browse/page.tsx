@@ -1,8 +1,19 @@
 import Link from "@/components/link";
+import { DataTable } from "@/components/data-table";
+import { FilterBar } from "@/components/filter-bar";
+import { PageShell } from "@/components/page-shell";
 import { requireStaff } from "@/lib/auth";
-import { activities, mustBeOn, PAGE_SIZE, sections, SLOT_WORDS, SLOTS } from "@/lib/curriculum-screens";
-import { Icon } from "@/lib/icons";
-import { Chrome, Empty, Pager, Progress, StateChip } from "../chrome";
+import { activities, mustBeOn, PAGE_SIZE, sections, SLOT_WORDS, SLOTS, type Row } from "@/lib/curriculum-screens";
+import type { Column } from "@/lib/ux-rules";
+import { Chrome, Empty, Progress, StateChip } from "../chrome";
+
+const COLUMNS: Column<Row>[] = [
+  { key: "code", label: "Number", value: (r) => r.code, cell: (r) => <Link href={`/curriculum/fill/${r.code}`}>{r.code}</Link>, width: "9rem" },
+  { key: "name", label: "Activity", value: (r) => r.name },
+  { key: "section", label: "Section", value: (r) => r.section, width: "10rem" },
+  { key: "filled", label: "Filled", value: (r) => `${r.filled} of ${SLOTS.length}`, num: true, width: "6rem" },
+  { key: "state", label: "State", value: (r) => r.state, cell: (r) => <StateChip state={r.state} />, status: true, width: "10rem" },
+];
 
 // The K2 curriculum by section: how much of each is filled, a section opened, its activities searched.
 export default async function Browse({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -19,68 +30,52 @@ export default async function Browse({ searchParams }: { searchParams: Promise<R
   if (page !== asked) ({ rows, total } = await activities(section, text, page)); // a page past the end shows the last
   const href = (p: number) => `/curriculum/browse?${new URLSearchParams({ ...(section ? { section } : {}), ...(text ? { q: text } : {}), page: String(p) })}`;
   return (
-    <Chrome here="/curriculum/browse" title="Curriculum browser" lead="Every K2 activity by section, and how much of each page is filled in: objective, materials, steps, thinking, the four levels and the skills.">
-      {all.length === 0 ? (
-        <Empty>No K2 activities are loaded yet.</Empty>
-      ) : (
-        <div className="cs-grid">
-          {all.map((s) => (
-            <section key={s.section} className="cs-card cs-col-4" data-section={s.section} data-state={s.state}>
-              <header>
-                <h2>
-                  {s.section ? <Link href={`/curriculum/browse?section=${encodeURIComponent(s.section)}`}>{s.section}</Link> : "No section named"}
-                </h2>
-                <StateChip state={s.state} />
-              </header>
-              <p className="cs-note">
-                <span data-total>{s.total}</span> {s.total === 1 ? "activity" : "activities"}
-              </p>
-              <Progress share={s.share} state={s.state} label={`${s.section || "No section named"} filled`} />
-              <dl className="cs-slots">
-                {SLOTS.map((k) => (
-                  <div key={k}>
-                    <dt>{SLOT_WORDS[k]}</dt>
-                    <dd data-slot={k}>{`${s.filled[k]} of ${s.total}`}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-          ))}
-        </div>
-      )}
-      <h2 style={{ marginTop: "var(--space-5)" }}>{section || "All sections"}</h2>
-      <form className="cs-filter" role="search" action="/curriculum/browse">
-        <div>
-          <label htmlFor="q">Search by name or number</label>
-          <input id="q" type="search" name="q" defaultValue={text} />
-        </div>
-        {section ? <input type="hidden" name="section" value={section} /> : null}
-        <button className="cs-btn" type="submit">
-          <Icon name="search" size={16} /> Search
-        </button>
-        {section || text ? <Link href="/curriculum/browse" className="cs-btn">Clear</Link> : null}
-      </form>
-      {rows.length === 0 ? (
-        <Empty>No activity matches that.</Empty>
-      ) : (
-        <table className="cs-table">
-          <thead>
-            <tr><th>Number</th><th>Activity</th><th>Section</th><th className="n">Filled</th><th>State</th></tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.code} data-row={r.code}>
-                <td><Link href={`/curriculum/fill/${r.code}`}>{r.code}</Link></td>
-                <td>{r.name}</td>
-                <td>{r.section}</td>
-                <td className="n">{r.filled} of {SLOTS.length}</td>
-                <td><StateChip state={r.state} /></td>
-              </tr>
+    <PageShell
+      stage="Curriculum"
+      title="Curriculum browser"
+      purpose="Every K2 activity by section, and how much of each page is filled in."
+      action={<Link href="/curriculum/fill/walk" className="btn">Check the drafted parts</Link>}
+      next={{ href: "/curriculum/fill", label: "See what is filled, and by whom" }}
+    >
+      <Chrome here="/curriculum/browse">
+        {all.length === 0 ? (
+          <Empty next={{ href: "/curriculum/fill", label: "See what is filled" }}>No K2 activities are loaded yet.</Empty>
+        ) : (
+          <div className="cs-grid">
+            {all.map((s) => (
+              <section key={s.section} className="cs-card cs-col-4" data-section={s.section} data-state={s.state}>
+                <header>
+                  <h2>{s.section ? <Link href={`/curriculum/browse?section=${encodeURIComponent(s.section)}`}>{s.section}</Link> : "No section named"}</h2>
+                  <StateChip state={s.state} />
+                </header>
+                <p className="cs-note">
+                  <span data-total>{s.total}</span> {s.total === 1 ? "activity" : "activities"}
+                </p>
+                <Progress share={s.share} state={s.state} label={`${s.section || "No section named"} filled`} />
+                <dl className="cs-slots">
+                  {SLOTS.map((k) => (
+                    <div key={k}>
+                      <dt>{SLOT_WORDS[k]}</dt>
+                      <dd data-slot={k}>{`${s.filled[k]} of ${s.total}`}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
             ))}
-          </tbody>
-        </table>
-      )}
-      <Pager page={page} last={last} href={href} />
-    </Chrome>
+          </div>
+        )}
+        <h2 style={{ margin: "var(--space-5) 0 var(--space-2)" }}>{section || "All sections"}</h2>
+        <FilterBar
+          action="/curriculum/browse"
+          filters={[{ name: "section", label: "Section", value: section, all: "Every section", options: all.filter((s) => s.section).map((s) => [s.section, s.section] as const) }]}
+          search={{ name: "q", value: text, placeholder: "Search by name or number" }}
+        />
+        {rows.length === 0 ? (
+          <Empty next={{ href: "/curriculum/browse", label: "Clear the search" }}>No activity matches that.</Empty>
+        ) : (
+          <DataTable label="Activities" columns={COLUMNS} rows={rows} rowKey={(r) => r.code} more={{ page, href, of: total }} extras={{ attrs: (r) => ({ "data-row": r.code }) }} />
+        )}
+      </Chrome>
+    </PageShell>
   );
 }

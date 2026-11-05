@@ -72,7 +72,7 @@ test("the browser counts what is filled per section, with a bar and a state", as
 test("a section lists ten rows a page, is searchable, and a row opens its activity", async ({ page }) => {
   await page.goto(`/curriculum/browse?section=${encodeURIComponent(RED)}`);
   await expect(page.locator("[data-row]")).toHaveCount(10);
-  await page.getByRole("link", { name: "Next page" }).click();
+  await page.getByRole("link", { name: /Later/ }).click();
   await expect(page.locator("[data-row]")).toHaveCount(3);
   await page.goto(`/curriculum/browse?section=${encodeURIComponent(RED)}&q=activity 13`);
   await expect(page.locator("[data-row]")).toHaveCount(1);
@@ -91,10 +91,12 @@ test("the fill view counts each part by who wrote it, and the four add up to eve
   await page.goto("/curriculum/fill");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("What is filled, and by whom");
   const row = page.locator('[data-part="steps"]');
-  const counts = await Promise.all(["school", "drafted", "person", "empty"].map(async (k) => Number(await row.locator(`[data-count="${k}"]`).innerText())));
+  // a column of nothing but zeros is not drawn (rule 4), so a missing cell is a zero
+  const cell = async (label: string) => ((await row.locator(`td[data-label="${label}"]`).count()) ? Number(await row.locator(`td[data-label="${label}"]`).innerText()) : 0);
+  const counts = [await cell("The school's"), await cell("Drafted, check me"), await cell("Kept by a person"), await cell("Empty")];
   expect(counts.reduce((a, b) => a + b, 0)).toBe(total);
   expect(counts[1]).toBe(draftedSteps);
-  await expect(page.locator('[data-part="level_1"] [data-count="drafted"]')).toHaveText("1");
+  await expect(page.locator('[data-part="level_1"] td[data-label="Drafted, check me"]')).toHaveText("1");
   await shoot(page, "fill");
 });
 

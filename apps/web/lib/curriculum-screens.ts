@@ -8,8 +8,6 @@ import { engineSend } from "./engine";
 // are rows the site reads for itself; every answer is the engine's (POST /curriculum/page/* and /curriculum/offers/*),
 // made as the signed-in member of staff. All of it behind `curriculum.screens_enabled` (config, false).
 
-/** K2 first: the grade these screens are about. Its activities are rows (`activity.band`). */
-export const GRADE = "K2";
 /** The eight parts of a page, in the order a person reads them, with the school's words. */
 export const PARTS = ["objective", "materials", "steps", "thinking", "level_0", "level_1", "level_2", "level_3"] as const;
 export type PartKey = (typeof PARTS)[number];
@@ -39,6 +37,13 @@ export async function mustBeOn(): Promise<void> {
   if (!(await screensOn())) notFound();
 }
 
+/** The grade these screens list: the config row `curriculum.screens_grade` (the code of a row of `grade`). */
+const grade = cache(async () => {
+  const [row] = await sql<{ v: string | null }[]>`select (select value #>> '{}' from config where key = 'curriculum.screens_grade') as v`;
+  if (!row?.v) throw new Error("config curriculum.screens_grade is missing: run engine load");
+  return row.v;
+});
+
 /** A number from the config table; a missing row is a seed not loaded (`engine load`), said so rather than guessed. */
 const bar = cache(async (key: string) => {
   const [row] = await sql<{ v: string | null }[]>`select (select value #>> '{}' from config where key = ${key}) as v`;
@@ -50,6 +55,7 @@ const bar = cache(async (key: string) => {
 export type SectionFill = { section: string; total: number; filled: Record<Slot, number>; share: number; state: State };
 
 export async function sections(): Promise<SectionFill[]> {
+  const band = await grade();
   const [rows, state] = await Promise.all([
     sql<(Record<Slot, number> & { section: string; total: number })[]>`
       select a.strand as section, count(*)::int as total,
@@ -62,7 +68,7 @@ export async function sections(): Promise<SectionFill[]> {
         count(*) filter (where btrim(a.level_2) <> '')::int as level_2,
         count(*) filter (where btrim(a.level_3) <> '')::int as level_3,
         count(*) filter (where exists (select 1 from activity_skill k where k.tenant_id = a.tenant_id and k.activity_code = a.code))::int as skills
-      from activity a where a.band = ${GRADE} group by a.strand order by a.strand`,
+      from activity a where a.band = ${band} group by a.strand order by a.strand`,
     stateOf(),
   ]);
   return rows.map(({ section, total, ...filled }) => {
@@ -75,9 +81,9 @@ export type Row = { code: string; name: string; section: string; filled: number;
 
 /** One page of activities, optionally of one section and matching a search of the name or number. */
 export async function activities(section: string, q: string, page: number): Promise<{ rows: Row[]; total: number }> {
-  const state = await stateOf();
+  const [state, band] = await Promise.all([stateOf(), grade()]);
   const like = `%${q.replace(/[\\%_]/g, "\\$&")}%`;
-  const where = sql`a.band = ${GRADE} ${section ? sql`and a.strand = ${section}` : sql``} ${q ? sql`and (a.name ilike ${like} or a.code ilike ${like})` : sql``}`;
+  const where = sql`a.band = ${band} ${section ? sql`and a.strand = ${section}` : sql``} ${q ? sql`and (a.name ilike ${like} or a.code ilike ${like})` : sql``}`;
   const [[{ n }], rows] = await Promise.all([
     sql<{ n: number }[]>`select count(*)::int as n from activity a where ${where}`,
     sql<{ code: string; name: string; section: string; filled: number }[]>`
@@ -94,10 +100,11 @@ export type Gap = { part: PartKey; school: number; drafted: number; person: numb
 
 /** Each part: whose words fill it. A part with words and no mark is the school's (as the engine reads a page). */
 export const gap = cache(async (): Promise<Gap[]> => {
+  const band = await grade();
   const rows = await sql<Gap[]>`
     with t as (
       select a.tenant_id, a.code, p.part, btrim(p.txt) as txt
-      from activity a cross join lateral (values ('objective', a.objective), ('materials', a.materials), ('steps', a.steps), ('thinking', a.thinking), ('level_0', a.level_0), ('level_1', a.level_1), ('level_2', a.level_2), ('level_3', a.level_3)) as p(part, txt) where a.band = ${GRADE})
+      from activity a cross join lateral (values ('objective', a.objective), ('materials', a.materials), ('steps', a.steps), ('thinking', a.thinking), ('level_0', a.level_0), ('level_1', a.level_1), ('level_2', a.level_2), ('level_3', a.level_3)) as p(part, txt) where a.band = ${band})
     select t.part,
       count(*) filter (where t.txt <> '' and coalesce(s.source, 'school') = 'school')::int as school,
       count(*) filter (where t.txt <> '' and s.source = 'drafted')::int as drafted,
@@ -112,10 +119,11 @@ export type Waiting = { code: string; part: PartKey };
 
 /** The drafted parts waiting for a person (the materials are items, which the page read does not carry: not here), those a checker doubted first, then by activity number and part. */
 export const waiting = cache(async (part?: string): Promise<Waiting[]> => {
+  const band = await grade();
   return sql<Waiting[]>`
     select s.activity_code as code, s.part
     from activity_part_source s join activity a on a.tenant_id = s.tenant_id and a.code = s.activity_code
-    where a.band = ${GRADE} and s.source = 'drafted' and s.part <> 'materials' and btrim(case s.part when 'objective' then a.objective when 'steps' then a.steps when 'thinking' then a.thinking when 'level_0' then a.level_0 when 'level_1' then a.level_1 when 'level_2' then a.level_2 when 'level_3' then a.level_3 else '' end) <> ''
+    where a.band = ${band} and s.source = 'drafted' and s.part <> 'materials' and btrim(case s.part when 'objective' then a.objective when 'steps' then a.steps when 'thinking' then a.thinking when 'level_0' then a.level_0 when 'level_1' then a.level_1 when 'level_2' then a.level_2 when 'level_3' then a.level_3 else '' end) <> ''
       ${part ? sql`and s.part = ${part}` : sql``}
     order by s.check_me desc, s.activity_code, array_position(${sql.array([...PARTS])}::text[], s.part)`;
 });

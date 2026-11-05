@@ -2,6 +2,8 @@ import { requireStaff } from "@/lib/auth";
 import { mustBeOn, linked, PAGE_SIZE, readOffers } from "@/lib/curriculum-screens";
 import { Icon } from "@/lib/icons";
 import { answerOffer } from "../actions";
+import { PageShell } from "@/components/page-shell";
+import Link from "@/components/link";
 import { Chrome, Empty, Pager } from "../chrome";
 
 // Skills the machine offers for an activity that the examples did not show: the activity, the skills, what the school
@@ -16,7 +18,14 @@ export default async function Offers({ searchParams }: { searchParams: Promise<R
   const shown = all.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const had = await linked([...new Set(shown.map((o) => o.activity.code))]);
   return (
-    <Chrome here="/curriculum/offers" title="Skills offered, waiting for you" lead={`${all.length} offered. Yes adds the skill to the activity; No closes the offer and adds nothing.`}>
+    <PageShell
+      stage="Curriculum"
+      title="Skills offered, waiting for you"
+      purpose={`${all.length} offered. Yes adds the skill to the activity; No closes the offer and adds nothing.`}
+      action={<Link href="/curriculum/browse" className="btn">Curriculum browser</Link>}
+      next={{ href: "/curriculum/fill", label: "See what is filled, and by whom" }}
+    >
+      <Chrome here="/curriculum/offers">
       {shown.length === 0 ? (
         <Empty next={{ href: "/curriculum/browse", label: "Back to the curriculum browser" }}>No skills are waiting for you.</Empty>
       ) : (
@@ -44,6 +53,7 @@ export default async function Offers({ searchParams }: { searchParams: Promise<R
         </div>
       )}
       <Pager page={page} last={last} href={(p) => `/curriculum/offers?page=${p}`} />
-    </Chrome>
+      </Chrome>
+    </PageShell>
   );
 }
