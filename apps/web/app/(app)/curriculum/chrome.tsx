@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { Icon, type IconName } from "@/lib/icons";
-import { gap, gate, readOffers, waiting, type State } from "@/lib/curriculum-screens";
+import { requireStaff } from "@/lib/auth";
+import { gap, mustBeOn, readOffers, waiting, type State } from "@/lib/curriculum-screens";
 
 // The breadcrumb, title and the three tabs every curriculum screen shares.
 const TABS = [
@@ -11,7 +12,8 @@ const TABS = [
 
 export async function Chrome({ here, crumb, title, lead, children }: { here: (typeof TABS)[number]["href"]; crumb?: string; title: string; lead: string; children: React.ReactNode }) {
   const tab = TABS.find((t) => t.href === here)!;
-  const me = await gate();
+  const me = await requireStaff();
+  await mustBeOn();
   const [drafted, gaps, offered] = await Promise.all([waiting(), gap(), readOffers(me.email).catch(() => null)]);
   const empty = gaps.reduce((n, g) => n + g.empty, 0);
   return (

@@ -1,12 +1,14 @@
 import Link from "@/components/link";
-import { gate, readPage, waiting } from "@/lib/curriculum-screens";
+import { requireStaff } from "@/lib/auth";
+import { mustBeOn, readPage, waiting } from "@/lib/curriculum-screens";
 import { Chrome, Empty } from "../../chrome";
 import { PartCard } from "../../parts";
 
 // The drafted parts, one at a time: the one a checker doubted first. Answering one takes it out of the line, so the next
 // one is always the first; "Skip" moves along it without answering.
 export default async function Walk({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  const me = await gate();
+  const me = await requireStaff();
+  await mustBeOn();
   const q = await searchParams;
   const part = q.part ?? "";
   const line = (await waiting()).filter((w) => !part || w.part === part);

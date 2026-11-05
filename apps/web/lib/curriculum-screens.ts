@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { notFound } from "next/navigation";
-import { requireStaff, type Session } from "./auth";
+import type { Session } from "./auth";
 import { sql } from "./db";
 import { engineSend } from "./engine";
 
@@ -33,11 +33,10 @@ export const screensOn = cache(async (): Promise<boolean> => {
   return row?.on ?? false;
 });
 
-/** The signed-in member of staff, or the page is not found while the screens are switched off. */
-export async function gate(): Promise<Session> {
-  const me = await requireStaff();
+/** While the screens are switched off every address is not found. Called after `requireStaff()`, which each page and
+ *  action makes itself (tests/test_web_gate.py reads for it). */
+export async function mustBeOn(): Promise<void> {
   if (!(await screensOn())) notFound();
-  return me;
 }
 
 /** A number from the config table; a missing row is a seed not loaded (`engine load`), said so rather than guessed. */

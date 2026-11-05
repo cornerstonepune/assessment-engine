@@ -1,12 +1,14 @@
 import Link from "@/components/link";
-import { gap, gate, SLOT_WORDS, waiting } from "@/lib/curriculum-screens";
+import { requireStaff } from "@/lib/auth";
+import { gap, mustBeOn, SLOT_WORDS, waiting } from "@/lib/curriculum-screens";
 import { Icon } from "@/lib/icons";
 import { Chrome, Empty } from "../chrome";
 
 // Per part of the page: how many K2 activities hold the school's words, a draft waiting for a check, a person's
 // words, or nothing. A person can walk the drafted ones one by one.
 export default async function Fill() {
-  await gate();
+  await requireStaff();
+  await mustBeOn();
   const [rows, queue] = await Promise.all([gap(), waiting()]);
   const total = rows[0] ? rows[0].school + rows[0].drafted + rows[0].person + rows[0].empty : 0;
   return (

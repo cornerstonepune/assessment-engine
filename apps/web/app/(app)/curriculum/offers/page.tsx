@@ -1,4 +1,5 @@
-import { gate, linked, PAGE_SIZE, readOffers } from "@/lib/curriculum-screens";
+import { requireStaff } from "@/lib/auth";
+import { mustBeOn, linked, PAGE_SIZE, readOffers } from "@/lib/curriculum-screens";
 import { Icon } from "@/lib/icons";
 import { answerOffer } from "../actions";
 import { Chrome, Empty, Pager } from "../chrome";
@@ -6,7 +7,8 @@ import { Chrome, Empty, Pager } from "../chrome";
 // Skills the machine offers for an activity that the examples did not show: the activity, the skills, what the school
 // had already linked, and why it waits. Yes adds the link; No closes the offer.
 export default async function Offers({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  const me = await gate();
+  const me = await requireStaff();
+  await mustBeOn();
   const q = await searchParams;
   const all = await readOffers(me.email);
   const last = Math.max(1, Math.ceil(all.length / PAGE_SIZE));

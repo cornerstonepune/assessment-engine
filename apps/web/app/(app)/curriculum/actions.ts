@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { gate, PARTS, slipsMax } from "@/lib/curriculum-screens";
+import { requireStaff } from "@/lib/auth";
+import { mustBeOn, PARTS, slipsMax } from "@/lib/curriculum-screens";
 import { enginePost } from "@/lib/engine";
 
 // Every answer is the engine's, made as the signed-in member of staff; the page then goes where `back` says. `back` is
@@ -10,11 +11,10 @@ import { enginePost } from "@/lib/engine";
 const own = (back: FormDataEntryValue | null) => (typeof back === "string" && /^\/curriculum\/[\w/?=&.%-]*$/.test(back) ? back : "/curriculum/fill");
 const field = (f: FormData, k: string) => String(f.get(k) ?? "");
 
-async function target(form: FormData) {
-  const me = await gate();
+function target(form: FormData) {
   const [code, part, back] = [field(form, "code"), field(form, "part"), own(form.get("back"))];
   if (!(PARTS as readonly string[]).includes(part)) throw new Error("not a part of a page");
-  return { me, code, part, back };
+  return { code, part, back };
 }
 function done(back: string): never {
   revalidatePath("/curriculum", "layout");
@@ -23,14 +23,18 @@ function done(back: string): never {
 
 /** Keep a drafted part as written, or send it back (the part is emptied). */
 export async function answerPart(form: FormData): Promise<void> {
-  const { me, code, part, back } = await target(form);
+  const me = await requireStaff();
+  await mustBeOn();
+  const { code, part, back } = target(form);
   await enginePost(form.get("do") === "keep" ? "/curriculum/page/confirm" : "/curriculum/page/revert", { actor: me.email, code, part });
   done(back);
 }
 
 /** A person's own words in place of the draft: lines for the steps, an idea and slips for the thinking, else text. */
 export async function editPart(form: FormData): Promise<void> {
-  const { me, code, part, back } = await target(form);
+  const me = await requireStaff();
+  await mustBeOn();
+  const { code, part, back } = target(form);
   const lines = field(form, "words").split("\n").map((l) => l.trim()).filter(Boolean);
   const slips = Array.from({ length: await slipsMax() }, (_, i) => i).map((i) => ({ keyword: field(form, `keyword${i}`).trim(), spot: field(form, `spot${i}`).trim() })).filter((s) => s.keyword && s.spot);
   const base = { actor: me.email, code, part };
@@ -42,7 +46,8 @@ export async function editPart(form: FormData): Promise<void> {
 
 /** Yes adds the offered skills as links; no closes the offer. */
 export async function answerOffer(form: FormData): Promise<void> {
-  const me = await gate();
+  const me = await requireStaff();
+  await mustBeOn();
   await enginePost("/curriculum/offers/answer", { actor: me.email, id: field(form, "id"), yes: form.get("do") === "yes" });
   revalidatePath("/curriculum/offers");
   redirect("/curriculum/offers");

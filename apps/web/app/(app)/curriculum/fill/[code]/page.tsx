@@ -1,11 +1,13 @@
+import { requireStaff } from "@/lib/auth";
 import { notFound } from "next/navigation";
-import { gate, readPage } from "@/lib/curriculum-screens";
+import { mustBeOn, readPage } from "@/lib/curriculum-screens";
 import { Chrome } from "../../chrome";
 import { PartCard } from "../../parts";
 
 // One activity with every part, who wrote it, and Keep / Edit / Send back on the drafted ones.
 export default async function ActivityFill({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
-  const me = await gate();
+  const me = await requireStaff();
+  await mustBeOn();
   const { code } = await params;
   const q = await searchParams;
   const page = await readPage(me, decodeURIComponent(code));

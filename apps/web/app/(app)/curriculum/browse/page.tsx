@@ -1,11 +1,13 @@
 import Link from "@/components/link";
-import { activities, gate, PAGE_SIZE, sections, SLOT_WORDS, SLOTS } from "@/lib/curriculum-screens";
+import { requireStaff } from "@/lib/auth";
+import { activities, mustBeOn, PAGE_SIZE, sections, SLOT_WORDS, SLOTS } from "@/lib/curriculum-screens";
 import { Icon } from "@/lib/icons";
 import { Chrome, Empty, Pager, Progress, StateChip } from "../chrome";
 
 // The K2 curriculum by section: how much of each is filled, a section opened, its activities searched.
 export default async function Browse({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await gate();
+  await requireStaff();
+  await mustBeOn();
   const q = await searchParams;
   const all = await sections();
   const section = all.some((s) => s.section === q.section) ? q.section! : "";
