@@ -144,3 +144,13 @@ test("in the week grid today's column is grey and no future cell carries a chip"
     }
   }
 });
+
+test("the school's tokens load inside the shell only: a page outside it keeps the site's own look", async ({ page }) => {
+  await page.goto("/papers");
+  const outside = await page.evaluate(() => ({
+    token: getComputedStyle(document.documentElement).getPropertyValue("--chip-done-fg").trim(),
+    font: getComputedStyle(document.body).fontFamily,
+  }));
+  expect(outside.token).toBe("");
+  expect(outside.font).toMatch(/Source Serif/);
+});

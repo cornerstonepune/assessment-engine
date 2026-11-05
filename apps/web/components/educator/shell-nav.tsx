@@ -3,29 +3,13 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "@/components/link";
 import { Icon, type IconName } from "@/lib/icons";
-import { E } from "@/lib/educator/words";
 
-// Her timetable's menu (D-075): a left sidebar with submenus on a desktop, a bar of tabs at the foot of a phone. The
-// class she picked and the day she is on go with every link.
-type Sub = { key: string; label: string; path: string; extra?: string };
-type Item = { key: string; label: string; icon: IconName; path: string; sub?: Sub[] };
-// D-075's order: Today, then the timetable (day, week; fortnight and month come with their screens)
-const ITEMS: Item[] = [
-  { key: "today", label: E.nav.today, icon: "today", path: "/educator" },
-  {
-    key: "week",
-    label: E.nav.timetable,
-    icon: "week",
-    path: "/educator/week",
-    sub: [
-      { key: "day", label: E.nav.day, path: "/educator", extra: "tomorrow" },
-      { key: "week", label: E.nav.week, path: "/educator/week" },
-      { key: "next", label: E.nav.nextWeek, path: "/educator/week", extra: "next" },
-    ],
-  },
-];
+// The school's screens' menu (D-075): a left sidebar with submenus on a desktop, a bar of tabs at the foot of a phone.
+// The items are the area's own (lib/educator/menu.ts for the educator); the class she picked goes with every link.
+export type MenuSub = { key: string; label: string; path: string; extra?: string };
+export type MenuItem = { key: string; label: string; icon: IconName; path: string; also?: string[]; sub?: MenuSub[] };
 
-export function EducatorNav({ as }: { as: "side" | "tabs" }) {
+export function ShellNav({ as, items, label }: { as: "side" | "tabs"; items: MenuItem[]; label: string }) {
   const path = usePathname();
   const q = useSearchParams();
   const keep = (extra?: string) => {
@@ -36,15 +20,12 @@ export function EducatorNav({ as }: { as: "side" | "tabs" }) {
     const s = p.toString();
     return s ? `?${s}` : "";
   };
-  const on = (i: Item) =>
-    i.path === "/educator"
-      ? path === "/educator" || path.startsWith("/educator/period")
-      : path.startsWith(i.path);
+  const on = (i: MenuItem) => path === i.path || (i.also ?? []).some((p) => path.startsWith(p));
   if (as === "side")
     return (
-      <nav aria-label={E.nav.label} data-educator-nav="side">
+      <nav aria-label={label} data-educator-nav="side">
         <ul className="grid gap-[var(--space-1)]">
-          {ITEMS.map((i) => (
+          {items.map((i) => (
             <li key={i.key}>
               <Link
                 href={`${i.path}${keep()}`}
@@ -77,12 +58,12 @@ export function EducatorNav({ as }: { as: "side" | "tabs" }) {
     );
   return (
     <nav
-      aria-label={E.nav.label}
+      aria-label={label}
       className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-[var(--surface)] pb-[env(safe-area-inset-bottom)] md:hidden"
       data-educator-nav="tabs"
     >
-      <ul className="grid grid-cols-2">
-        {ITEMS.map((i) => (
+      <ul className="grid grid-flow-col auto-cols-fr">
+        {items.map((i) => (
           <li key={i.key}>
             <Link
               href={`${i.path}${keep()}`}

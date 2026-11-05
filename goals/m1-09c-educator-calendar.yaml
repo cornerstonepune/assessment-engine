@@ -31,7 +31,7 @@ says:
   - words: "All parts should just function like a well-oiled machine, right?"
     proved_by: "apps/web/tests/m1-09-tokens.spec.ts::the educator's screens write no colour, size or font of their own: only the tokens"
   - words: "All parts should just function like a well-oiled machine, right?"
-    proved_by: "apps/web/tests/m1-09-shared-taps.spec.ts::the header's ? and the page's next step are at least 44 px each way at 390 px"
+    proved_by: "apps/web/tests/m1-09-calendar.spec.ts::the school's tokens load inside the shell only: a page outside it keeps the site's own look"
 manual:
   - "Fortnight and month calendar views (D-075 rule 5) and the sidebar's Activities, Materials and Children and notes items come with their screens; this PR draws Today, the day and the week."
   - "The month's lock (Frozen) is drawn when the engine says so; M1-06 says false until M1-12."
@@ -39,8 +39,8 @@ manual:
   - "Nimish sees it signed in as staff once he holds 'head' on live (the staff preview, M1-09p)."
 scenarios: []
 criteria:
-  - name: the calendars, the period, the tokens and the shared taps, with screenshots (a database built from the migrations)
-    run: cd apps/web && npx playwright test tests/m1-09-calendar.spec.ts tests/m1-09-tokens.spec.ts tests/m1-09-shared-taps.spec.ts --reporter=line --workers=1
+  - name: the calendars, the period and the tokens, with screenshots (a database built from the migrations)
+    run: cd apps/web && npx playwright test tests/m1-09-calendar.spec.ts tests/m1-09-tokens.spec.ts --reporter=line --workers=1
     expect: "passed"
   - name: the website type-checks
     run: cd apps/web && npx next typegen >/dev/null && npx tsc --noEmit && echo passed

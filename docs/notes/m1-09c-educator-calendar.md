@@ -18,6 +18,14 @@ This replaces the first M1-09 branch (cream ground, Jost and Cormorant, lists), 
 - **A period** (`/educator/period/[id]`), opened from any block: its date and time, the school's words, the planner's
   lines for its subject this fortnight, its activity's name (its page comes with the activity PR).
 
+## The shell (for the other areas)
+
+`components/educator/shell.tsx`, `SchoolShell({ items, label })`: white ground, the area's menu (a sidebar with
+submenus; tabs at the foot of a phone), the page in ten of twelve columns, and the school's tokens loaded for this
+shell alone (`school-tokens.css`, the lowest CSS layer). An area moves in with one change: its layout renders
+`<SchoolShell items={its menu} label={its name}>`; the educator's menu is `lib/educator/menu.ts`. Pages outside it keep
+the site's look and font (orchestrator, 5 Nov; tested).
+
 ## Choices made without asking (D-076: the simplest reading, recorded)
 
 - The site's top bar stays; the sidebar is the educator area's own, beside the page.
