@@ -118,3 +118,45 @@ def test_the_picture_and_a_childs_page_reach_only_staff_of_that_class(engine):
         _post(client, "/k2/child", {"actor": k["email"], "class_id": k["class"], "roll_no": "99"}).status_code
         == 404
     )
+
+
+# ---- M1-17: the picture and a child's page answer the staff preview while the switch is off (D-076, educator_gate) ----
+
+
+def test_the_staff_preview_sees_the_picture_and_a_child_while_the_switch_is_off_and_nobody_else_does(engine):
+    client, conn = engine
+    k = a_k2_class(conn)
+    preview = _coordinator(conn, k)  # a coordinator: a role `educator.preview_roles` names
+    _switch(conn, False)
+    for path, body in (
+        ("/k2/picture", {"actor": preview, "class_id": k["class"]}),
+        ("/k2/child", {"actor": preview, "class_id": k["class"], "roll_no": "1"}),
+    ):
+        assert _post(client, path, body).status_code == 200, path
+    # her own class teacher is not the preview: switched off still means no
+    for path in ROUTES[2:]:
+        r = _post(client, path, _body(path, k))
+        assert (r.status_code, r.json()["detail"]) == (403, "Voice notes are not switched on."), path
+    # a sign-in not on the staff list is not the preview either
+    r = _post(client, "/k2/picture", {"actor": "nobody@example.test", "class_id": k["class"]})
+    assert (r.status_code, r.json()["detail"]) == (403, "Voice notes are not switched on.")
+
+
+def test_the_preview_changes_nothing_else_the_to_do_and_the_coordinator_list_still_wait_for_the_switch(
+    engine,
+):
+    client, conn = engine
+    k = a_k2_class(conn)
+    preview = _coordinator(conn, k)
+    _switch(conn, False)
+    for path in ROUTES[:2]:
+        assert _post(client, path, {"actor": preview}).status_code == 403, path
+
+
+def test_a_preview_role_that_is_not_named_is_not_the_preview(engine):
+    client, conn = engine
+    k = a_k2_class(conn)
+    who = _coordinator(conn, k)
+    conn.execute("update config set value = '[\"head\"]'::jsonb where key = 'educator.preview_roles'")
+    _switch(conn, False)
+    assert _post(client, "/k2/picture", {"actor": who, "class_id": k["class"]}).status_code == 403

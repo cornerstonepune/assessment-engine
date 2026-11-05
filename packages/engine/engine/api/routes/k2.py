@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from engine.api.deps import get_conn, require_engine_key
+from engine.w2_print import educator_gate
 from engine.w3_read import k2_picture_reads, k2_reads, voice_intake, voice_store
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
@@ -88,6 +89,16 @@ class PictureRow(BaseModel):
     cells: dict[str, Cell]  # by skill code; no cell where the child was not seen
 
 
+class ClassRef(BaseModel):
+    id: str
+    grade: str
+    section: str
+
+
+class Classes(BaseModel):
+    classes: list[ClassRef]
+
+
 class Picture(BaseModel):
     class_: str = Field(alias="class")
     skills: list[Skill]
@@ -136,6 +147,19 @@ def _on(conn) -> None:
         raise HTTPException(status_code=403, detail="Voice notes are not switched on.")
 
 
+def _on_or_preview(conn, actor: str) -> None:
+    """The picture and a child's page answer the staff preview while the switch is off (D-076, `educator_gate`): a member of
+    staff whose open grant is in a role `educator.preview_roles` names. A preview only looks, and both calls only read."""
+    if voice_intake.enabled(conn):
+        return
+    try:
+        staff = voice_intake.staff_of(conn, actor)
+    except voice_store.Refused:
+        staff = None
+    if staff is None or not educator_gate.previews(conn, staff):
+        raise HTTPException(status_code=403, detail="Voice notes are not switched on.")
+
+
 def _refused(no: voice_store.Refused) -> HTTPException:
     return HTTPException(status_code=no.status, detail=str(no))
 
@@ -158,9 +182,25 @@ def coordinator(body: Who, conn=Depends(get_conn, scope="function")):
         raise _refused(no) from no
 
 
+@router.post("/k2/classes", response_model=Classes)
+def classes(body: Who, conn=Depends(get_conn, scope="function")):
+    """Her classes; the staff preview, who holds none, is offered every class whose timetable is in force today."""
+    _on_or_preview(conn, body.actor)
+    try:
+        staff = voice_intake.staff_of(conn, body.actor)
+    except voice_store.Refused as no:
+        raise _refused(no) from no
+    every = (
+        educator_gate.timetabled_classes(conn, educator_gate.school_today(conn))
+        if educator_gate.previews(conn, staff)
+        else []
+    )
+    return {"classes": k2_picture_reads.classes(conn, staff, every)}
+
+
 @router.post("/k2/picture", response_model=Picture)
 def picture(body: Class, conn=Depends(get_conn, scope="function")):
-    _on(conn)
+    _on_or_preview(conn, body.actor)
     try:
         return k2_picture_reads.class_picture(conn, body.actor, body.class_id)
     except voice_store.Refused as no:
@@ -169,7 +209,7 @@ def picture(body: Class, conn=Depends(get_conn, scope="function")):
 
 @router.post("/k2/child", response_model=Page)
 def child(body: Child, conn=Depends(get_conn, scope="function")):
-    _on(conn)
+    _on_or_preview(conn, body.actor)
     try:
         return k2_picture_reads.child_page(conn, body.actor, body.class_id, body.roll_no)
     except voice_store.Refused as no:

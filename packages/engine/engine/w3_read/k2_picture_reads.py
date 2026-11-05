@@ -14,7 +14,7 @@ import datetime as dt
 import unicodedata
 from zoneinfo import ZoneInfo
 
-from engine.core import db
+from engine.core import db, settings
 from engine.w3_read import k2_growth, voice_intake, voice_note
 from engine.w3_read.voice_store import Refused
 
@@ -118,6 +118,26 @@ def _cell(r: dict) -> dict:
         "state": r["state"], "words": r["words"], "colour": r["colour"],
         "level": r["reached_level"], "last_seen": r["last_seen"].isoformat(),
     }  # fmt: skip
+
+
+def classes(conn: db.Conn, staff, also: list[dict]) -> list[dict]:
+    """The classes the pictures list for her: those she holds today, and `also` (for the staff preview, D-076, the door gives
+    every class whose timetable is in force today: the timetable's own rule), each once. Only the grades the K2 reads are for
+    (config `k2.reads`)."""
+    grades = list((settings.config(conn, "k2.reads", {}) or {}).get("grades", []))
+    today = dt.datetime.now(ZoneInfo(settings.config(conn, "school.time_zone", "Asia/Kolkata"))).date()
+    held = conn.execute(
+        "select distinct c.id::text as id, c.grade_code as grade, c.section from staff_role_grant g"
+        " join school_class c on c.id = g.school_class_id where g.staff_id = %s and g.valid_from <= %s"
+        " and (g.valid_to is null or g.valid_to >= %s) and c.grade_code = any(%s) order by c.grade_code, c.section",
+        (staff, today, today, grades),
+    ).fetchall()
+    seen = {c["id"] for c in held}
+    return held + [
+        {"id": c["id"], "grade": c["grade"], "section": c["section"]}
+        for c in also
+        if c["id"] not in seen and c["grade"] in grades
+    ]
 
 
 def class_picture(conn: db.Conn, email: str, class_id: str) -> dict:
