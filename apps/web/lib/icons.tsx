@@ -9,6 +9,7 @@ import {
   Lock,
   AudioLines,
   Bandage,
+  BookOpen,
   Blocks,
   CalendarClock,
   CalendarDays,
@@ -37,6 +38,7 @@ import {
   RefreshCw,
   Search,
   SendHorizontal,
+  Sparkles,
   Sprout,
   Square,
   SquareDashed,
@@ -45,10 +47,12 @@ import {
   Target,
   TreeDeciduous,
   TriangleAlert,
+  Undo2,
   UserCog,
   UserRound,
   UserX,
   UsersRound,
+  X,
 } from "lucide-react";
 
 // Every icon the site's K2 screens and its status chip draw, behind this one lookup (task M1-04). One open-source set,
@@ -89,6 +93,12 @@ export const ICONS = {
   next: ArrowRight,
   clear: Eraser,
   form: ClipboardList,
+  "send-back": Undo2,
+  no: X,
+  // where a piece of text came from
+  "from-school": BookOpen,
+  "from-draft": Sparkles,
+  "from-person": PenLine,
   // things
   child: UserRound,
   class: UsersRound,

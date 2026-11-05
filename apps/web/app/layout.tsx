@@ -12,7 +12,6 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // held light (design-system/tokens.css): the site has no dark mode yet, and a dark panel in a light page is worse
     <html lang="en" data-scheme="light" className={`${serif.variable} h-full`}>
       <body className="min-h-full">{children}</body>
     </html>
