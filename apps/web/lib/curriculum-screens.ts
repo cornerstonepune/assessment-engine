@@ -10,9 +10,7 @@ import { PART_KEYS, PART_WORDS, type PagePart, type PartKey } from "./page-part"
 // made as the signed-in member of staff. All of it behind `curriculum.screens_enabled` (config, false).
 
 /** The eight parts of a page, in the order a person reads them, with the school's words. */
-export const PARTS = PART_KEYS;
-export type { PagePart, PartKey } from "./page-part";
-export const SLOTS = [...PARTS, "skills"] as const;
+export const SLOTS = [...PART_KEYS, "skills"] as const;
 export type Slot = (typeof SLOTS)[number];
 export const SLOT_WORDS: Record<Slot, string> = { ...PART_WORDS, skills: "Skills" };
 export const PAGE_SIZE = 10;
@@ -110,7 +108,7 @@ export const gap = cache(async (): Promise<Gap[]> => {
       count(*) filter (where t.txt = '')::int as empty
     from t left join activity_part_source s on s.tenant_id = t.tenant_id and s.activity_code = t.code and s.part = t.part
     group by t.part`;
-  return PARTS.map((p) => rows.find((r) => r.part === p) ?? { part: p, school: 0, drafted: 0, person: 0, empty: 0 });
+  return PART_KEYS.map((p) => rows.find((r) => r.part === p) ?? { part: p, school: 0, drafted: 0, person: 0, empty: 0 });
 });
 
 export type Waiting = { code: string; part: PartKey };
@@ -123,7 +121,7 @@ export const waiting = cache(async (part?: string): Promise<Waiting[]> => {
     from activity_part_source s join activity a on a.tenant_id = s.tenant_id and a.code = s.activity_code
     where a.band = ${band} and s.source = 'drafted' and s.part <> 'materials' and btrim(case s.part when 'objective' then a.objective when 'steps' then a.steps when 'thinking' then a.thinking when 'level_0' then a.level_0 when 'level_1' then a.level_1 when 'level_2' then a.level_2 when 'level_3' then a.level_3 else '' end) <> ''
       ${part ? sql`and s.part = ${part}` : sql``}
-    order by s.check_me desc, s.activity_code, array_position(${sql.array([...PARTS])}::text[], s.part)`;
+    order by s.check_me desc, s.activity_code, array_position(${sql.array([...PART_KEYS])}::text[], s.part)`;
 });
 
 // ---- the page as the engine reads it (docs/notes/m1-12b-apply-and-edit.md) ----

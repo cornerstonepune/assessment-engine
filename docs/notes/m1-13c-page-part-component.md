@@ -2,7 +2,8 @@
 
 ## Verified
 - `cd apps/web && npx playwright test tests/m1-13c-page-part.spec.ts tests/m1-13-curriculum-fill.spec.ts tests/u51-ux-rules.spec.ts tests/u53-the-menu.spec.ts --reporter=line` → 23 passed. The component's 3 tests were written first and seen failing (the files absent: 3 failed).
-- `bin/check`, `npx tsc --noEmit`, `npx eslint --max-warnings 0` on the changed files: see the pull request.
+- `bin/check` → 34 passed. `cd packages/engine && uv run pytest -q tests/test_grades.py tests/test_ux_rules.py tests/test_web_gate.py tests/test_layout.py tests/test_contract.py` → 30 passed. `cd apps/web && npx tsc --noEmit` and `npx eslint --max-warnings 0` on the changed files → no output (clean).
+- A fourth test draws a real page and reads the computed styles (a card with its edge, a slip's keyword in the state colour), because the first three read source text.
 
 ## What changed (no behaviour, no migration, no engine change)
 - `lib/page-part.ts`: the shapes (`PagePart`, `Slip`, `PartKey`) and the school's words for the eight parts (`PART_WORDS`); pure.

@@ -7,6 +7,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
+import postgres from "postgres";
+import { code, curriculumRows, screensSwitch } from "./m1-13-rows";
 
 const root = path.resolve(__dirname, "..");
 const read = (f: string) => readFileSync(path.join(root, f), "utf8");
@@ -34,4 +36,37 @@ test("/curriculum draws its parts with the component and keeps no copy of it", (
   expect(parts).toContain('from "@/components/page-part/part"');
   expect(parts).not.toMatch(/export function (Words|Origin)\b/);
   expect(read("app/(app)/curriculum/screens.css")).not.toMatch(/\.cs-(steps|slip|origin)\b/);
+});
+
+test.describe("drawn on a real page", () => {
+  const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
+  test.beforeAll(async () => {
+    await curriculumRows(sql);
+    await screensSwitch(sql, true);
+  });
+  test.afterAll(async () => {
+    await screensSwitch(sql, false);
+    await sql`delete from activity_skill where activity_code like 'ACT-K2-M113-%'`;
+    await sql`delete from activity where code like 'ACT-K2-M113-%'`;
+    await sql.end();
+  });
+
+  test("the component's own styles reach the page: a card with its edge, a slip's keyword in the state's colour, the origin in the school's", async ({ page }) => {
+    await page.goto(`/curriculum/fill/${code(2)}`);
+    const card = page.locator("[data-card=thinking].pp-card");
+    await expect(card).toBeVisible();
+    expect(await card.evaluate((e) => getComputedStyle(e).borderTopWidth)).toBe("1px");
+    const [mark, token] = await page.evaluate(() => {
+      const m = document.querySelector("[data-card=thinking] mark")!;
+      const probe = document.createElement("div");
+      probe.style.background = "var(--state-soon-bg)";
+      document.body.append(probe);
+      return [getComputedStyle(m).backgroundColor, getComputedStyle(probe).backgroundColor];
+    });
+    expect(mark).toBe(token);
+    expect(token).not.toBe("rgba(0, 0, 0, 0)");
+    await expect(page.locator("[data-card=objective] .pp-origin")).toContainText("The school's words");
+    await expect(page.locator("[data-card=steps] .pp-origin")).toContainText("Drafted, check me");
+    await expect(page.locator("[data-card=steps] li")).toHaveCount(2);
+  });
 });

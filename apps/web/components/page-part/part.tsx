@@ -5,8 +5,8 @@ import { PART_WORDS, type PagePart } from "@/lib/page-part";
 // One part of an activity page, drawn the same wherever it is shown (D-075): its name, whose words they are (an icon and a
 // word, never colour alone), and the words themselves: steps as a short list, thinking as an idea with each slip's keyword
 // highlighted and how to spot it, anything else as text. It reads and asks nothing: what a person may do with the part
-// (keep, edit, send back) comes in as `actions`, or `editor` in place of the words, from the screen that knows who is
-// asking. A screen with neither shows the part read-only.
+// (keep, edit, send back) comes in as `actions`, or `editor` in place of the words (never both: the type says so), from the screen
+// that knows who is asking. A screen with neither shows the part read-only.
 const ORIGIN: Record<string, [IconName, string]> = {
   school: ["from-school", "The school's words"],
   drafted: ["from-draft", "Drafted, check me"],
@@ -50,7 +50,7 @@ export function Words({ part }: { part: PagePart }) {
 }
 
 /** The part as a card: heading, origin, then its words (or `editor`), then `actions`. The heading is an h2: the page's own is the h1. */
-export function PartView({ part, actions, editor }: { part: PagePart; actions?: React.ReactNode; editor?: React.ReactNode }) {
+export function PartView({ part, actions, editor }: { part: PagePart } & ({ actions?: React.ReactNode; editor?: never } | { editor: React.ReactNode; actions?: never })) {
   return (
     <section className="pp-card" data-card={part.part} data-source={part.source || "empty"}>
       <header>
@@ -58,7 +58,7 @@ export function PartView({ part, actions, editor }: { part: PagePart; actions?: 
         {part.source ? <Origin part={part} /> : <span className="pp-note">Empty</span>}
       </header>
       {editor ?? <Words part={part} />}
-      {editor ? null : actions}
+      {actions}
     </section>
   );
 }
