@@ -1,0 +1,29 @@
+name: ci-postgres-retry
+goal: >
+  CI's database step (`bin/ci-postgres`) survives a network download that drops part-way: the key fetch retries on any
+  transfer error with a delay, and `apt-get update` and `install` are retried, each failing loudly, naming the command,
+  after the last attempt. No test or check is weakened, and the source of the packages is unchanged.
+
+# Written 2026-11-04, before the fix (orchestrator's CI task). Measured: `bin/ci-postgres` failed about 90 seconds in with
+# `curl: (56) Failure when receiving data from the peer`, before any test, on main's CI once (engine shard 4) and on shards
+# of #386, #388, #389 and #390; a re-run of the failed jobs fixed each, at 10 to 20 minutes apiece, and blocks the
+# one-at-a-time merge rule. The cause (docs/notes/ci-postgres-retry.md): the script downloads three times (the signing key
+# with curl, `apt-get update`, `apt-get install`), none retried, so one dropped connection ended the whole job.
+# Tier 3 (CI). No workflow gate moves. Words: the sentence recorded for M0-03 and M0-04 (Nimish, 2026-11-03).
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_ci_postgres.py::test_a_key_fetch_that_drops_part_way_is_tried_again_and_succeeds"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_ci_postgres.py::test_a_fetch_that_always_fails_fails_the_step_after_its_last_attempt"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_ci_postgres.py::test_every_download_in_the_script_goes_through_a_retry"
+manual:
+  - "The first CI run after this merges: bin/ci-postgres passes in every job (a download that drops is now tried again, and the job log shows it)."
+scenarios: []
+criteria:
+  - name: the script's retry paths, with a download simulated to drop
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_ci_postgres.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -33,6 +33,13 @@ def test_each_ask_of_a_page_is_counted_with_the_rule_it_broke():
     assert got["pages_good"] == 1 and got["pages_never_good"] == 0
 
 
+def test_a_reply_in_the_prompts_own_shape_an_object_holding_the_pages_is_judged_as_the_run_judged_it():
+    got = tally({"pages": [page()]}, {"pages": [page(steps=LONG)]})
+    assert got["pages_good"] == 1 and got["pages_never_good"] == 0
+    assert got["attempts"][0] == {"attempt": 1, "asked": 1, "good": 1, "faults": {}}
+    assert got["attempts"][1]["faults"] == {"step_too_long": 1}, "never 'missing': the page is in the reply"
+
+
 def test_a_page_never_good_is_counted_and_a_refused_reply_is_a_reply_with_nothing_in_it():
     got = rp.tally([("refused", [page()]), ("accepted", [page(steps=LONG)])], WANT, JUDGE)
     assert got["replies"] == 2 and got["refused"] == 1

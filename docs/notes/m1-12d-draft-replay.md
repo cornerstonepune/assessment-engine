@@ -16,3 +16,9 @@
 - Not known until then: whether the rule at fault is the materials check (`uses_unlisted`, `step_word_unlisted`) or a length.
 - The forecast's worst case (`up to $`) still assumes every page goes round every time; with the retry stop it is now an
   overstatement.
+
+## Correction (M1-12e)
+- The first `draft_replay` (run 16) reported `missing: 59` on every ask. That was the replay's own fault: it judged the
+  reply object `{"pages": [...]}` where the run judges the list inside it, so every page read as missing. Fixed in
+  `k2_replay.tally`; test `test_a_reply_in_the_prompts_own_shape_an_object_holding_the_pages_is_judged_as_the_run_judged_it`
+  fails without the fix and passes with it. The real per-rule counts need the replay dispatched again (free).

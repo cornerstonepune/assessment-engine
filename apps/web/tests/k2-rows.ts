@@ -8,14 +8,14 @@ export const SECTION = "M104";
 export const ROLLS = Array.from({ length: 22 }, (_, i) => String(i + 1));
 export type K2 = { klass: string; staff: string };
 
-export async function k2Class(sql: Sql): Promise<K2> {
+export async function k2Class(sql: Sql, section: string = SECTION): Promise<K2> {
   const [{ id: t }] = await sql<{ id: string }[]>`select id from tenant order by created_at limit 1`;
   const [{ id: campus }] = await sql<{ id: string }[]>`select id from campus where tenant_id = ${t} limit 1`;
   const [{ id: year }] = await sql<{ id: string }[]>`
     insert into academic_year (tenant_id, label, starts_on, ends_on) values (${t}, '2031-32', '2026-01-01', '2032-03-31')
     on conflict (tenant_id, label) do update set label = excluded.label returning id`;
   const [{ id: klass }] = await sql<{ id: string }[]>`
-    insert into school_class (tenant_id, campus_id, academic_year_id, grade_code, section) values (${t}, ${campus}, ${year}, 'K2', ${SECTION})
+    insert into school_class (tenant_id, campus_id, academic_year_id, grade_code, section) values (${t}, ${campus}, ${year}, 'K2', ${section})
     on conflict (tenant_id, campus_id, academic_year_id, grade_code, section) do update set section = excluded.section returning id`;
   const [had] = await sql<{ staff_id: string }[]>`select staff_id from pii.staff where email = ${TEST_STAFF.email}`;
   const staff = had?.staff_id ?? (await sql<{ id: string }[]>`insert into staff (tenant_id, campus_id) values (${t}, ${campus}) returning id`)[0].id;
@@ -28,8 +28,8 @@ export async function k2Class(sql: Sql): Promise<K2> {
     const [on] = await sql`select 1 from enrolment where class_id = ${klass} and roll_no = ${roll} and to_date is null`;
     if (on) continue;
     // the child row may outlive its enrolment (another spec, or a copy that kept children and not enrolments): reuse it
-    const [had] = await sql<{ id: string }[]>`select id from child where tenant_id = ${t} and section = ${SECTION} and roll_no = ${roll}`;
-    const child = had?.id ?? (await sql<{ id: string }[]>`insert into child (tenant_id, roll_no, section, band) values (${t}, ${roll}, ${SECTION}, 'K2') returning id`)[0].id;
+    const [had] = await sql<{ id: string }[]>`select id from child where tenant_id = ${t} and section = ${section} and roll_no = ${roll}`;
+    const child = had?.id ?? (await sql<{ id: string }[]>`insert into child (tenant_id, roll_no, section, band) values (${t}, ${roll}, ${section}, 'K2') returning id`)[0].id;
     if (!had) await sql`insert into pii.child (tenant_id, child_id, first_name) values (${t}, ${child}, 'Placeholder')`;
     await sql`insert into enrolment (tenant_id, child_id, class_id, roll_no, from_date, recorded_by) values (${t}, ${child}, ${klass}, ${roll}, '2026-01-01', 'm1-04 test')`;
   }
