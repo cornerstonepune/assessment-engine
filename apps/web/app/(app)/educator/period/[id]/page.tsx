@@ -1,3 +1,4 @@
+import Link from "@/components/link";
 import { PageShell } from "@/components/page-shell";
 import { Crumbs } from "@/components/educator/crumbs";
 import { Where } from "@/components/educator/day-head";
@@ -68,7 +69,10 @@ export default async function PeriodPage({ params, searchParams }: { params: Pro
           {p.activity ? (
             <>
               <p className="font-medium">{p.activity.name}</p>
-              <p className="text-[length:var(--text-label)] text-[var(--text-muted)]">{E.activityLater}</p>
+              <Link href={`/educator/activity/${encodeURIComponent(p.activity.code)}?back=${encodeURIComponent(today)}`} data-open-activity className="inline-flex min-h-[var(--tap)] w-fit items-center gap-[var(--space-1)] rounded-[var(--radius-m)] border border-[var(--border-control)] px-[var(--space-3)] font-medium text-[var(--text)] no-underline">
+                <Icon name="next" size={16} />
+                {E.page.open}
+              </Link>
             </>
           ) : (
             <p className="text-[var(--text-muted)]">{E.noActivity}</p>

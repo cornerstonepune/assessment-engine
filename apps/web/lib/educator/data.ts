@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Session } from "../auth";
 import { type BodyOf, EngineDown, type PostPath, engineSend } from "../engine";
-import type { CatalogueItem, Day, MaterialsList, OnePeriod, SchoolList, WaitingNote, Week } from "./types";
+import type { ActivityPage, CatalogueItem, Day, MaterialsList, OnePeriod, SchoolList, WaitingNote, Week } from "./types";
 
 // What the K2 educator's screens read, all from the engine with her email as `actor` (M1-09): the engine finds her staff
 // id and her classes. Behind `educator.timetable_enabled` (config, off): the engine refuses while it is off, and every
@@ -61,3 +61,6 @@ export async function waitingNotes(me: Pick<Session, "email">): Promise<WaitingN
   if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}).`);
   return ((await res.json()) as { notes: WaitingNote[] }).notes;
 }
+
+/** An activity's page, part by part (M1-12b's /curriculum/page/read). */
+export const pageOf = (me: Pick<Session, "email">, code: string) => read<ActivityPage, "/curriculum/page/read">("/curriculum/page/read", { actor: me.email, code });
