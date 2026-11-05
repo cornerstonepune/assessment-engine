@@ -10,6 +10,7 @@ checker (a stronger model, shown only the school's words) is the judge of that. 
 """
 
 import re
+from collections import Counter
 from collections.abc import Callable, Iterable
 from typing import LiteralString
 
@@ -20,11 +21,31 @@ BULLET = "•"
 LISTS: dict[str, LiteralString] = {"steps": "steps_list", "thinking": "thinking_doc"}  # a part's list column
 
 
+def _words(text: str) -> list[str]:
+    """The words of a text, each as one word for its thing (no digits)."""
+    return [t for t in batch._tokens(text) if t.isalpha()]
+
+
+def ordinary_words(rows: Iterable[dict], min_pages: int) -> frozenset[str]:
+    """Words the school's own steps use, on at least `min_pages` pages, where that page's materials text does not list
+    them: ordinary words ("point", "small"), not props. The school writes its steps freely; a word it uses so, again and
+    again, is not a thing a draft may not say."""
+    seen: Counter[str] = Counter()
+    for r in rows:
+        steps = (r.get("steps") or "").strip()
+        if not steps:
+            continue
+        mine = {t for p in batch.pieces_of(r.get("materials") or "") for t in _words(p)}
+        seen.update(set(_words(steps)) - mine)
+    return frozenset(w for w, n in seen.items() if n >= min_pages)
+
+
 def _head_nouns(materials: str, function_words: frozenset[str]) -> set[str]:
     """The last word of each thing a materials text lists ("Number cards 1-10" → card), the noun a step would name. The
     words of the language that trail a piece ("as needed", "for the") are not part of what is listed."""
     out: set[str] = set()
-    for piece in re.split(r"[,;\n]+|\band\b", re.sub(r"\([^)]*\)", " ", materials or ""), flags=re.I):
+    listed = (re.sub(r"\([^)]*\)", " ", p) for p in batch.pieces_of(materials))
+    for piece in (q for p in listed for q in re.split(r"\band\b", p, flags=re.I)):
         toks = batch._tokens(re.sub(r"[^A-Za-z ]", " ", piece))
         while toks and toks[-1] in function_words:
             toks.pop()
@@ -94,7 +115,7 @@ def _thinking(it: dict, fmt: dict) -> tuple[dict, str]:
 def _unlisted(steps: list[str], uses: object, materials: str, vocab: frozenset[str], fmt: dict) -> str:
     """A thing a step or the page's own `uses` names that the school's materials text does not."""
     # words only, on both sides: "Beads (10 per child)" is listed as bead, per, child whichever way the digits were kept
-    pieces = [[t for t in batch._tokens(p) if t.isalpha()] for p in re.split(r"[,;\n]+", materials)]
+    pieces = [_words(p) for p in batch.pieces_of(materials)]
     for name in uses if isinstance(uses, list) else []:
         phrase = batch._tokens(re.sub(r"[^A-Za-z ]", " ", str(name)))
         if phrase and batch._segment_with(pieces, phrase) is None:

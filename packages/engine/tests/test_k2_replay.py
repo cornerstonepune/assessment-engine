@@ -143,3 +143,9 @@ def test_the_latest_run_is_read_from_the_rows_of_the_stage_and_an_older_run_is_l
     keep(61, "refused", [])
     got = rp.stored(conn, "dev_eval", gap_minutes=10.0)
     assert [o for o, _ in got][-2:] == ["accepted", "refused"] and all(r != [{"key": "OLD"}] for _, r in got)
+
+
+def test_a_use_whose_words_are_all_listed_is_told_apart_by_where_the_list_has_them():
+    one = unlisted([page(uses=["cards number"])])["uses_unlisted"]["kinds"]  # one piece, the wrong order
+    many = unlisted([page(uses=["beads cards"])])["uses_unlisted"]["kinds"]  # two pieces of the list
+    assert one == {"one_piece_not_contiguous": 1} and many == {"spans_pieces": 1}

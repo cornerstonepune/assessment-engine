@@ -162,11 +162,36 @@ def judge_verdicts(got, keys: list[str]) -> tuple[dict[str, tuple[str, str]], di
 
 
 def _stem(word: str) -> str:
-    return word[:-1] if word.endswith("s") and len(word) > 3 else word
+    """One word for a thing, whether it is one or many ("boxes" and "box", "berries" and "berry") and whether it is
+    written in British or American spelling ("colour" and "color"). A word ending in "ss" is not a plural."""
+    if len(word) > 3:
+        if word.endswith("ies"):
+            word = word[:-3] + "y"
+        elif word.endswith(("sses", "xes", "zes", "ches", "shes")):
+            word = word[:-2]
+        elif word.endswith("s") and not word.endswith("ss"):
+            word = word[:-1]
+    if len(word) > 5 and word.endswith("our"):
+        word = word[:-3] + "or"
+    return word
 
 
 def _tokens(text: str) -> list[str]:
     return [_stem(w) for w in re.findall(r"[a-z0-9]+", text.casefold())]
+
+
+def pieces_of(text: str) -> list[str]:
+    """The things a materials text lists: split at a comma, a semicolon or a new line that is not inside brackets
+    ("Crayons (red, blue)" is one thing)."""
+    out: list[str] = []
+    depth, start = 0, 0
+    for i, ch in enumerate(text or ""):
+        depth += (ch == "(") - (ch == ")" and depth > 0)
+        if ch in ",;\n" and depth == 0:
+            out.append(text[start:i])
+            start = i + 1
+    out.append((text or "")[start:])
+    return [p for p in out if p.strip()]
 
 
 def _segment_with(pieces: list[list[str]], phrase: list[str]) -> list[str] | None:
@@ -182,7 +207,7 @@ def judge_materials(got: object, text: str) -> tuple[list[dict], list[str]]:
     number above 0 that stands in that same piece (or be empty), and a unit other than "piece" must stand there too."""
     good: list[dict] = []
     bad: list[str] = []
-    pieces = [_tokens(piece) for piece in re.split(r"[,;\n]+", text)]  # once per text, not once per line
+    pieces = [_tokens(piece) for piece in pieces_of(text)]  # once per text, not once per line
     for it in got if isinstance(got, list) else []:
         name = str(it.get("name") or "") if isinstance(it, dict) else ""
         phrase = _tokens(re.sub(r"[^A-Za-z ]", " ", name))

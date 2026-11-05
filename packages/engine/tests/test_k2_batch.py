@@ -196,3 +196,23 @@ def test_a_material_name_must_be_a_phrase_of_the_text_with_its_number_and_unit_b
     assert names(one("blue dice", None, "piece")) == ["blue dice"], "no quantity asked, none needed"
     bad = batch.judge_materials(one("red dice", 1, "piece"), text)[1]
     assert bad == ["red dice: not in the school's text"]
+
+
+def test_a_materials_text_is_split_where_the_school_separates_things_and_not_inside_brackets():
+    got = batch.pieces_of("Crayons (red, blue, green), Paper; Tape\nGlue")
+    assert [p.strip() for p in got] == ["Crayons (red, blue, green)", "Paper", "Tape", "Glue"]
+    assert batch.pieces_of("") == [] and [p.strip() for p in batch.pieces_of("Beads")] == ["Beads"]
+
+
+def test_a_word_is_one_word_whether_plural_or_british_and_a_word_ending_in_ss_is_not_a_plural():
+    same = [
+        ("boxes", "box"),
+        ("glasses", "glass"),
+        ("berries", "berry"),
+        ("colours", "colors"),
+        ("colour", "color"),
+    ]
+    for a, b in same:
+        assert batch._tokens(a) == batch._tokens(b), (a, b)
+    assert batch._tokens("glass") == ["glass"] and batch._tokens("class") == ["class"]
+    assert batch._tokens("bus") == ["bus"] and batch._tokens("beads") == ["bead"]
