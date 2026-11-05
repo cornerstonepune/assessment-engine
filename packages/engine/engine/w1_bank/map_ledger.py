@@ -12,9 +12,10 @@ import json
 import uuid
 
 from psycopg.rows import DictRow
+from psycopg.types.json import Jsonb
 
 from engine.core import db
-from engine.w1_bank.k2_format import render
+from engine.w1_bank.k2_format import LISTS, render
 from engine.w1_bank.k2_gaps import column
 from engine.w1_bank.map_agents import Proposal
 from engine.w1_bank.map_check import LEVELS
@@ -160,16 +161,25 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
 
 
 def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
-    """A drafted page's parts written where they are still empty, each marked drafted and naming the proposal."""
+    """A drafted page's parts written where they are still empty, or where a machine drafted them earlier (never the
+    school's words, never a person's): each marked drafted and naming the proposal. A steps or thinking part is written
+    as its list too."""
     # a draft is unreviewed until a person has approved it, whatever the machine's verdict: its status stays in the data
     # for the calibration table, but nothing counts as passed on a model's word alone (Nimish's staff, 2026-11-04)
     code, wrote, doubt = p["subject_code"], [], p["now"] != "approved"
     for part, value in sorted(p["proposal"]["parts"].items()):
-        col, text = column(part), render(part, value)  # a column name never comes from a reply
+        col, text, listed = column(part), render(part, value), LISTS.get(part)
         hit = conn.execute(
-            f"update activity set {col} = %s where tenant_id = %s and code = %s and btrim({col}) = ''"  # noqa: S608
-            " returning code",
-            (text, tenant, code),
+            f"update activity a set {col} = %s{f', {listed} = %s' if listed else ''} where a.tenant_id = %s and a.code = %s"  # noqa: S608
+            f" and (btrim(a.{col}) = '' or exists (select 1 from activity_part_source s where s.tenant_id = a.tenant_id"
+            " and s.activity_code = a.code and s.part = %s and s.source = 'drafted')) returning a.code",
+            (
+                text,
+                *((Jsonb(value) if not isinstance(value, str) else None,) if listed else ()),
+                tenant,
+                code,
+                part,
+            ),
         ).fetchone()
         if hit:
             conn.execute(
@@ -241,7 +251,24 @@ def apply(conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool) -> list[str]:
     done: list[str] = []
     # a drafted page part waiting for a person is written too, tagged check_me: K2 has no empty part (D-071)
     doubtful = [p for p in standing(conn, tenant, "needs_person") if p["kind"] == "page_part"]
+    newest = {
+        p["subject_code"]: p["id"] for p in standing(conn, tenant) if p["kind"] == "page_part"
+    }  # oldest first
     for p in [*standing(conn, tenant, "auto_passed"), *standing(conn, tenant, "approved"), *doubtful]:
+        if p["kind"] == "page_part" and newest[p["subject_code"]] != p["id"]:
+            if (
+                write
+            ):  # a newer draft of this page exists: this one is kept in the ledger, set aside, never written
+                _follow(
+                    conn,
+                    tenant,
+                    p["id"],
+                    "rejected",
+                    staff,
+                    "superseded by a newer draft of this page",
+                    "apply",
+                )
+            continue
         if not write:
             done.append(f"{p['kind']}: {p['subject_code']} {json.dumps(p['proposal'], ensure_ascii=False)}")
             continue
@@ -272,9 +299,10 @@ def revert(conn: db.Conn, tenant: db.Id, about: db.Id, staff: db.Id | None, why:
         )
     if p["kind"] == "page_part":
         for part, value in sorted(p["proposal"]["parts"].items()):
-            col, text = column(part), render(part, value)
+            col, text, listed = column(part), render(part, value), LISTS.get(part)
             conn.execute(
-                f"update activity set {col} = '' where tenant_id = %s and code = %s and {col} = %s"  # noqa: S608
+                f"update activity set {col} = ''{f', {listed} = null' if listed else ''}"  # noqa: S608
+                f" where tenant_id = %s and code = %s and {col} = %s"
                 " and exists (select 1 from activity_part_source s where s.tenant_id = %s and s.activity_code = %s"
                 " and s.part = %s and s.proposal_id = %s and s.source = 'drafted')",  # a person's kept words stay
                 (tenant, p["subject_code"], text, tenant, p["subject_code"], part, p["id"]),
