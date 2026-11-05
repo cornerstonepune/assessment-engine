@@ -25,10 +25,19 @@ def shown_in(context: dict[str, object]) -> frozenset[str]:
     return frozenset(out)
 
 
-def split(p: Proposal, shown: frozenset[str], rules: Rules) -> list[Proposal]:
-    """The proposals a decided skill proposal becomes. `shown` are the skills of the examples the proposer was shown."""
+def split(
+    p: Proposal, shown: frozenset[str], rules: Rules, asked: frozenset[tuple[str, str]] = frozenset()
+) -> list[Proposal]:
+    """The proposals a decided skill proposal becomes. `shown` are the skills of the examples the proposer was shown;
+    `asked` are the (activity, skill) pairs already offered or refused, which are never proposed again."""
     raw = p.proposal.get("skills")
     listed = [str(s) for s in raw] if isinstance(raw, list) else []
+    if p.kind in ("skill", OFFER):
+        listed = [s for s in listed if (p.subject_code, s) not in asked]
+        if raw and not listed:
+            return []  # everything it names was already offered or refused
+        if isinstance(raw, list) and len(listed) != len(raw):
+            p = replace(p, proposal={**p.proposal, "skills": listed})  # what is left of it
     if p.kind != "skill" or not rules.from_examples or p.status == "rejected" or not listed:
         return [p]
     kept = [s for s in listed if s in shown]

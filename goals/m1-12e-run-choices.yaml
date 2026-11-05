@@ -1,0 +1,28 @@
+name: m1-12e-run-choices
+goal: >
+  The orchestrator can draft the K2 pages in tranches (the next N pages not yet drafted, N a settings row) and load the
+  reviewed settings on the server, each as a fixed run choice of the curriculum workflow, because no other command can be
+  run on the server.
+# Written 2026-11-05 (task M1-12e). W1, gate N1. The words are the orchestrator's brief of that day; the originals are not in
+# this repository. Nothing here has made a model call.
+says:
+  - words: "a run choice 'draft_tranche' that drafts the next 250 undrafted pages (the number is a config row, not free text) and stops"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_a_tranche_is_the_next_pages_not_yet_drafted_as_many_as_the_row_names"
+  - words: "a run choice 'draft_tranche' ... (the number is a config row, not free text)"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_the_tranche_run_drafts_the_next_pages_in_the_draft_stage_and_the_size_is_a_row_not_text"
+  - words: "the number is a config row"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_the_tranche_size_is_a_number_in_the_config_row"
+  - words: "a run choice 'load_settings' (the fixed command `engine load --settings`)"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_loading_the_settings_is_a_fixed_command_that_spends_nothing_and_needs_no_person"
+  - words: "Both allowlisted, with tests"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_the_tranche_cannot_be_combined_with_the_dev_size_or_a_limit"
+manual:
+  - "Dispatch `load_settings` after a deploy that changes seed settings, prompts or thresholds, and before the stage that needs them. It writes the rows the reviewed repository holds; it spends nothing."
+  - "Dispatch `draft_tranche` as many times as needed, with `forecast` and `checkers` between; the stage cap and the stop at $23 hold whatever is dispatched."
+criteria:
+  - name: the run choices and the tranche
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_curriculum_run_command.py tests/test_k2_draft.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

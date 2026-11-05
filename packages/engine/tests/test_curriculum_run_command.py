@@ -119,6 +119,8 @@ def test_no_run_can_carry_a_flag_that_changes_a_limit_only_the_known_ones_with_t
         "--dev",
         "--version",
         "--validate-version",
+        "--tranche",
+        "--settings",
     }  # no --limit: the size is a row
     for run in cmd.RUNS:
         for c in lines(run, staff=STAFF):
@@ -173,3 +175,14 @@ def test_the_loop_over_the_commands_does_not_let_ssh_swallow_the_commands_still_
         if "while IFS= read" in st.get("run", "")
     )
     assert "ssh -n" in script, "ssh reads the loop's stdin unless it is given -n"
+
+
+def test_the_tranche_run_drafts_the_next_pages_in_the_draft_stage_and_the_size_is_a_row_not_text():
+    (c,) = lines("draft_tranche")
+    assert c == "engine curriculum draft --stage draft --tranche --by someone@school.invalid"
+    assert cmd.RUNS["draft_tranche"]["spends"] is True and "--limit" not in c
+
+
+def test_loading_the_settings_is_a_fixed_command_that_spends_nothing_and_needs_no_person():
+    assert lines("load_settings") == ["engine load --settings"]
+    assert cmd.RUNS["load_settings"]["spends"] is False

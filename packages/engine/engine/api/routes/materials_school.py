@@ -59,9 +59,10 @@ class Unit(Who):
     factor: float
 
 
-def _mine(conn, body: Who, tenant_id: str, consolidated_id: UUID | None = None) -> UUID:
-    """She may build and send the school's list; if a list is named it is this school's, else not found."""
-    staff = staff_of(conn, body)
+def _mine(conn, body: Who, tenant_id: str, consolidated_id: UUID | None = None, reads: bool = False) -> UUID:
+    """She may build and send the school's list; if a list is named it is this school's, else not found. A route that
+    only `reads` lets the staff preview look while switched off."""
+    staff = staff_of(conn, body, reads)
     if not mc.may_consolidate(conn, staff, rem.school_today(conn)):
         raise HTTPException(status_code=403, detail="This is for the coordinator.")
     if consolidated_id is not None:
@@ -86,7 +87,7 @@ def build(body: Build, conn=Depends(get_conn, scope="function"), tenant_id: str 
 
 @keyed.post("/school/read")
 def read(body: Ref, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
-    _mine(conn, body, tenant_id, body.consolidated_id)
+    _mine(conn, body, tenant_id, body.consolidated_id, reads=True)
     return mc.read(conn, body.consolidated_id)
 
 
@@ -102,7 +103,7 @@ def send(body: Ref, conn=Depends(get_conn, scope="function"), tenant_id: str = D
 @keyed.post("/review/list")
 def review_list(body: Who, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
     """The notes the system could not confirm, oldest first, for a person to read."""
-    _mine(conn, body, tenant_id)
+    _mine(conn, body, tenant_id, reads=True)
     return {
         "notes": [
             {**n, "id": str(n["id"]), "list_id": str(n["list_id"])}

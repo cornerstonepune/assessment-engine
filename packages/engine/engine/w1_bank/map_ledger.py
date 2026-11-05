@@ -81,6 +81,18 @@ def proposed(conn: db.Conn, tenant: db.Id) -> set[tuple[str, str, str]]:
     }
 
 
+def asked(conn: db.Conn, tenant: db.Id) -> frozenset[tuple[str, str]]:
+    """The (activity, skill) pairs a person has been asked about or has refused: every skill ever offered (whatever became of
+    the offer) and every skill of a skill proposal a person turned down. A second run does not propose them again."""
+    rows = conn.execute(
+        "select p.subject_code, p.proposal from curriculum_proposal p where p.tenant_id = %s and p.about is null"
+        " and (p.kind = 'skill_offer' or (p.kind = 'skill' and exists (select 1 from curriculum_proposal d"
+        " where d.about = p.id and d.status = 'rejected')))",
+        (tenant,),
+    ).fetchall()
+    return frozenset((r["subject_code"], str(s)) for r in rows for s in r["proposal"].get("skills") or [])
+
+
 def stopped(conn: db.Conn, tenant: db.Id, at_most: float, least: float) -> frozenset[str]:
     """The kinds whose audit sample people turned down too often (more than `at_most` of at least `least`
     decided): they stop passing on their own."""
@@ -123,7 +135,7 @@ def changed_by(conn: db.Conn, who: str) -> None:
     conn.execute("select set_config('app.changed_by', %s, true)", (who,))
 
 
-def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
+def _link(conn: db.Conn, tenant: db.Id, p: DictRow, only: set[str] | None = None) -> str:
     """The one change a proposal makes, made; what it was, in words."""
     body, code = p["proposal"], p["subject_code"]
     if p["kind"] in ("skill", "skill_offer"):
@@ -151,7 +163,7 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
         )
         return f"{code} → {lo}"
     if p["kind"] == "page_part":
-        return _page_part(conn, tenant, p)
+        return _page_part(conn, tenant, p, only)
     if p["kind"] == "material":
         return _material(conn, tenant, p)
     for f, text in sorted(body["levels"].items()):
@@ -164,7 +176,7 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
     return f"{code} levels {', '.join(sorted(body['levels']))}"
 
 
-def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
+def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow, only: set[str] | None = None) -> str:
     """A drafted page's parts written where they are still empty, or where a machine drafted them earlier (never the
     school's words, never a person's): each marked drafted and naming the proposal. A steps or thinking part is written
     as its list too."""
@@ -172,6 +184,8 @@ def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
     # for the calibration table, but nothing counts as passed on a model's word alone (Nimish's staff, 2026-11-04)
     code, wrote, doubt = p["subject_code"], [], p["now"] != "approved"
     for part, value in sorted(p["proposal"]["parts"].items()):
+        if only is not None and part not in only:
+            continue
         col, text, listed = column(part), render(part, value), LISTS.get(part)
         hit = conn.execute(
             f"update activity a set {col} = %s{f', {listed} = %s' if listed else ''} where a.tenant_id = %s and a.code = %s"  # noqa: S608
@@ -245,6 +259,29 @@ def _new_objective(conn: db.Conn, tenant: db.Id, activity: str, title: str) -> s
     return lo
 
 
+WHY_SET_ASIDE = "every part of it is covered by a newer draft of this page, or by a part a person approved"
+
+
+def _winners(rows: list[DictRow]) -> dict[tuple[str, str], uuid.UUID]:
+    """For each part of each page, the draft that is written: the newest still waiting to be applied (one a person turned
+    down, or that is already applied or taken back, is not newer), unless a person has approved one, and then the newest
+    of those. A newer draft that covers fewer parts takes only the parts it covers."""
+    waiting = [
+        p
+        for p in rows
+        if p["kind"] == "page_part" and p["now"] in ("auto_passed", "needs_person", "approved")
+    ]
+    win: dict[tuple[str, str], uuid.UUID] = {}
+    for tier in (
+        ("auto_passed", "needs_person"),
+        ("approved",),
+    ):  # the second overrides the first; oldest first in each
+        for p in waiting:
+            if p["now"] in tier:
+                win |= {(p["subject_code"], part): p["id"] for part in p["proposal"]["parts"]}
+    return win
+
+
 def apply(
     conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool, only: uuid.UUID | str | None = None
 ) -> list[str]:
@@ -257,31 +294,20 @@ def apply(
     done: list[str] = []
     # a drafted page part waiting for a person is written too, tagged check_me: K2 has no empty part (D-071)
     doubtful = [p for p in standing(conn, tenant, "needs_person") if p["kind"] == "page_part"]
-    newest = {
-        p["subject_code"]: p["id"] for p in standing(conn, tenant) if p["kind"] == "page_part"
-    }  # oldest first
+    win = _winners(standing(conn, tenant))
     for p in [*standing(conn, tenant, "auto_passed"), *standing(conn, tenant, "approved"), *doubtful]:
         if only is not None and str(p["id"]) != str(only):
             continue
-        if p["kind"] == "page_part" and newest[p["subject_code"]] != p["id"]:
-            if (
-                write
-            ):  # a newer draft of this page exists: this one is kept in the ledger, set aside, never written
-                _follow(
-                    conn,
-                    tenant,
-                    p["id"],
-                    "rejected",
-                    staff,
-                    "superseded by a newer draft of this page",
-                    "apply",
-                )
+        keep = {n for n in p["proposal"].get("parts", {}) if win.get((p["subject_code"], n)) == p["id"]}
+        if p["kind"] == "page_part" and not keep:
+            if write:  # every part of it is covered by a newer draft, or one a person approved: set aside, never written
+                _follow(conn, tenant, p["id"], "rejected", staff, WHY_SET_ASIDE, "apply")
             continue
         if not write:
             done.append(f"{p['kind']}: {p['subject_code']} {json.dumps(p['proposal'], ensure_ascii=False)}")
             continue
         changed_by(conn, f"machine:{p['id']} staff:{staff}")
-        done.append(_link(conn, tenant, p))
+        done.append(_link(conn, tenant, p, keep if p["kind"] == "page_part" else None))
         _follow(conn, tenant, p["id"], "applied", staff, "", "apply", version["n"] if version else None)
     return done
 

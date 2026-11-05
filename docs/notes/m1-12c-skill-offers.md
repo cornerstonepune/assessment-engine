@@ -20,6 +20,12 @@
 ```
 `POST /curriculum/offers/answer {actor, id, yes, why}` returns the list that is left. 409 if the proposal is not waiting; 403 if not staff.
 
+## A no is never asked again (orchestrator, 2026-11-05)
+- `map_ledger.asked` = every (activity, skill) ever offered, whatever became of the offer, plus every skill of a skill proposal a person turned down. `propose` and `split` leave those out, so a rerun of `engine curriculum propose` offers nothing already waiting, added or refused; a proposal whose every skill was asked about is not made at all. Tested by a rerun after a refusal and after a yes.
+
+## Switches
+- The offers routes do not look at the educator or voice switches. Acceptable for now: engine key plus a signed-in staff check. They go behind the shared `educator.preview_roles` helper when the 4b session lands it.
+
 ## Limits
 - The dev run's numbers behind X are one run, the bar chosen on the same data, 33 activities: see m1-11i. The skills offered will be many (up to 84 per 100 activities in the dev run); a person's time is what the screen decides.
 - The score printed by `engine eval curriculum_map` counts only the `skill` proposals, so offered skills are not in it; the replay's `skill_split` table is where their hit rate is read.
