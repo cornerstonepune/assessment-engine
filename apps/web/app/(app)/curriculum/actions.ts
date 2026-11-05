@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { gate, PARTS } from "@/lib/curriculum-screens";
+import { gate, PARTS, slipsMax } from "@/lib/curriculum-screens";
 import { enginePost } from "@/lib/engine";
 
 // Every answer is the engine's, made as the signed-in member of staff; the page then goes where `back` says. `back` is
@@ -26,7 +26,7 @@ export async function editPart(form: FormData): Promise<void> {
   const [code, part, back] = [field(form, "code"), field(form, "part"), own(form.get("back"))];
   if (!(PARTS as readonly string[]).includes(part)) throw new Error("not a part of a page");
   const lines = field(form, "words").split("\n").map((l) => l.trim()).filter(Boolean);
-  const slips = [0, 1, 2, 3].map((i) => ({ keyword: field(form, `keyword${i}`).trim(), spot: field(form, `spot${i}`).trim() })).filter((s) => s.keyword && s.spot);
+  const slips = Array.from({ length: await slipsMax() }, (_, i) => i).map((i) => ({ keyword: field(form, `keyword${i}`).trim(), spot: field(form, `spot${i}`).trim() })).filter((s) => s.keyword && s.spot);
   const base = { actor: me.email, code, part };
   if (part === "steps") await enginePost("/curriculum/page/edit", { ...base, items: lines });
   else if (part === "thinking") await enginePost("/curriculum/page/edit", { ...base, idea: field(form, "idea").trim(), slips });

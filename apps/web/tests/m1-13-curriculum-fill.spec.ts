@@ -33,6 +33,9 @@ test.beforeAll(async () => {
 });
 test.afterAll(async () => {
   await screensSwitch(sql, false);
+  await clearOffers(sql);
+  await sql`delete from activity_skill where activity_code like 'ACT-K2-M113-%'`;
+  await sql`delete from activity where code like 'ACT-K2-M113-%'`;
   await sql.end();
 });
 test.beforeEach(async ({ page }) => {

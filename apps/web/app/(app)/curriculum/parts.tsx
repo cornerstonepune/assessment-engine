@@ -1,6 +1,6 @@
 import Link from "@/components/link";
 import { Icon, type IconName } from "@/lib/icons";
-import { SLOT_WORDS, type PagePart } from "@/lib/curriculum-screens";
+import { SLOT_WORDS, slipsMax, type PagePart } from "@/lib/curriculum-screens";
 import { answerPart, editPart } from "./actions";
 
 const ORIGIN: Record<string, [IconName, string]> = {
@@ -25,8 +25,8 @@ export function Words({ part }: { part: PagePart }) {
   if (part.kind === "bullets")
     return (
       <ul className="cs-steps">
-        {part.items.map((x) => (
-          <li key={x}>{x}</li>
+        {part.items.map((x, i) => (
+          <li key={i}>{x}</li>
         ))}
       </ul>
     );
@@ -34,8 +34,8 @@ export function Words({ part }: { part: PagePart }) {
     return (
       <>
         <p>{part.idea}</p>
-        {part.slips.map((s) => (
-          <div className="cs-slip" key={s.keyword}>
+        {part.slips.map((s, i) => (
+          <div className="cs-slip" key={i}>
             <mark>{s.keyword}</mark>
             <small>How to spot it: {s.spot}</small>
           </div>
@@ -45,8 +45,9 @@ export function Words({ part }: { part: PagePart }) {
   return <p>{part.text}</p>;
 }
 
-function EditForm({ part, code, back }: { part: PagePart; code: string; back: string }) {
-  const slips = [0, 1, 2, 3].map((i) => part.slips[i] ?? { keyword: "", spot: "" });
+async function EditForm({ part, code, back }: { part: PagePart; code: string; back: string }) {
+  const room = Math.max(await slipsMax(), part.slips.length);
+  const slips = Array.from({ length: room }, (_, i) => part.slips[i] ?? { keyword: "", spot: "" });
   return (
     <form action={editPart}>
       <input type="hidden" name="code" value={code} />
@@ -86,7 +87,7 @@ function EditForm({ part, code, back }: { part: PagePart; code: string; back: st
 }
 
 /** One part of a page. A drafted part carries Keep, Edit and Send back; `editing` swaps the words for the editor. */
-export function PartCard({ part, code, back, editHref, editing }: { part: PagePart; code: string; back: string; editHref: string; editing: boolean }) {
+export async function PartCard({ part, code, back, editHref, editing }: { part: PagePart; code: string; back: string; editHref: string; editing: boolean }) {
   const drafted = part.source === "drafted";
   return (
     <section className="cs-card" data-card={part.part} data-source={part.source || "empty"}>

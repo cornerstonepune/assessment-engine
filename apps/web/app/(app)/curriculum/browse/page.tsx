@@ -10,9 +10,11 @@ export default async function Browse({ searchParams }: { searchParams: Promise<R
   const all = await sections();
   const section = all.some((s) => s.section === q.section) ? q.section! : "";
   const text = (q.q ?? "").trim();
-  const page = Math.max(1, Number.parseInt(q.page ?? "1", 10) || 1);
-  const { rows, total } = await activities(section, text, page);
+  const asked = Math.max(1, Number.parseInt(q.page ?? "1", 10) || 1);
+  let { rows, total } = await activities(section, text, asked);
   const last = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(asked, last);
+  if (page !== asked) ({ rows, total } = await activities(section, text, page)); // a page past the end shows the last
   const href = (p: number) => `/curriculum/browse?${new URLSearchParams({ ...(section ? { section } : {}), ...(text ? { q: text } : {}), page: String(p) })}`;
   return (
     <Chrome here="/curriculum/browse" title="Curriculum browser" lead="Every K2 activity by section, and how much of each page is filled in: objective, materials, steps, thinking, the four levels and the skills.">
@@ -24,14 +26,14 @@ export default async function Browse({ searchParams }: { searchParams: Promise<R
             <section key={s.section} className="cs-card cs-col-4" data-section={s.section} data-state={s.state}>
               <header>
                 <h2>
-                  <Link href={`/curriculum/browse?section=${encodeURIComponent(s.section)}`}>{s.section}</Link>
+                  {s.section ? <Link href={`/curriculum/browse?section=${encodeURIComponent(s.section)}`}>{s.section}</Link> : "No section named"}
                 </h2>
                 <StateChip state={s.state} />
               </header>
               <p className="cs-note">
-                <span data-total>{s.total}</span> activities
+                <span data-total>{s.total}</span> {s.total === 1 ? "activity" : "activities"}
               </p>
-              <Progress share={s.share} state={s.state} label={`${s.section} filled`} />
+              <Progress share={s.share} state={s.state} label={`${s.section || "No section named"} filled`} />
               <dl className="cs-slots">
                 {SLOTS.map((k) => (
                   <div key={k}>
@@ -78,7 +80,7 @@ export default async function Browse({ searchParams }: { searchParams: Promise<R
       )}
       <div className="cs-pager">
         {page > 1 ? <Link href={href(page - 1)}>Previous page</Link> : <span />}
-        <span className="cs-note">Page {Math.min(page, last)} of {last}</span>
+        <span className="cs-note">Page {page} of {last}</span>
         {page < last ? <Link href={href(page + 1)}>Next page</Link> : <span />}
       </div>
     </Chrome>

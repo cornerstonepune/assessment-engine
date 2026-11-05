@@ -92,7 +92,7 @@ export async function activities(section: string, q: string, page: number): Prom
 export type Gap = { part: PartKey; school: number; drafted: number; person: number; empty: number };
 
 /** Each part: whose words fill it. A part with words and no mark is the school's (as the engine reads a page). */
-export async function gap(): Promise<Gap[]> {
+export const gap = cache(async (): Promise<Gap[]> => {
   const rows = await sql<Gap[]>`
     with t as (
       select a.tenant_id, a.code, p.part, btrim(coalesce(to_jsonb(a) ->> p.part, '')) as txt
@@ -105,19 +105,19 @@ export async function gap(): Promise<Gap[]> {
     from t left join activity_part_source s on s.tenant_id = t.tenant_id and s.activity_code = t.code and s.part = t.part
     group by t.part`;
   return PARTS.map((p) => rows.find((r) => r.part === p) ?? { part: p, school: 0, drafted: 0, person: 0, empty: 0 });
-}
+});
 
 export type Waiting = { code: string; part: PartKey; check_me: boolean };
 
-/** The drafted parts waiting for a person, those a checker doubted first, then by activity number and part. */
-export async function waiting(part?: string): Promise<Waiting[]> {
+/** The drafted parts waiting for a person (the materials are items, which the page read does not carry: not here), those a checker doubted first, then by activity number and part. */
+export const waiting = cache(async (part?: string): Promise<Waiting[]> => {
   return sql<Waiting[]>`
     select s.activity_code as code, s.part, s.check_me
     from activity_part_source s join activity a on a.tenant_id = s.tenant_id and a.code = s.activity_code
-    where a.band = ${GRADE} and s.source = 'drafted' and btrim(coalesce(to_jsonb(a) ->> s.part, '')) <> ''
+    where a.band = ${GRADE} and s.source = 'drafted' and s.part <> 'materials' and btrim(coalesce(to_jsonb(a) ->> s.part, '')) <> ''
       ${part ? sql`and s.part = ${part}` : sql``}
     order by s.check_me desc, s.activity_code, array_position(${sql.array([...PARTS])}::text[], s.part)`;
-}
+});
 
 // ---- the page as the engine reads it (docs/notes/m1-12b-apply-and-edit.md) ----
 export type Slip = { keyword: string; spot: string };
@@ -141,11 +141,11 @@ export type Offer = {
   skills: Named[]; also: Named[]; confidence: number; reason: string;
 };
 
-export async function readOffers(me: Pick<Session, "email">): Promise<Offer[]> {
-  const res = await engineSend("/curriculum/offers/list", { actor: me.email });
+export const readOffers = cache(async (email: string): Promise<Offer[]> => {
+  const res = await engineSend("/curriculum/offers/list", { actor: email });
   if (!res.ok) throw new Error(`The engine refused that (${res.status}).`);
   return ((await res.json()) as { offers: Offer[] }).offers;
-}
+});
 
 /** The skills each activity already carries (the school's, and any a person said yes to). */
 export async function linked(codes: string[]): Promise<Map<string, Named[]>> {
@@ -158,3 +158,10 @@ export async function linked(codes: string[]): Promise<Map<string, Named[]>> {
   for (const r of rows) out.set(r.activity_code, [...(out.get(r.activity_code) ?? []), { code: r.code, name: r.name }]);
   return out;
 }
+
+/** How many slips a thinking part may hold: the config row `k2.format` (`slips_max`), never a number of ours. */
+export const slipsMax = cache(async (): Promise<number> => {
+  const [row] = await sql<{ v: string | null }[]>`select (select value ->> 'slips_max' from config where key = 'k2.format') as v`;
+  const n = Number(row?.v);
+  return Number.isInteger(n) && n > 0 ? n : 4;
+});

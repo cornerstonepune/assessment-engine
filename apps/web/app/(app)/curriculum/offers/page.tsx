@@ -9,7 +9,7 @@ import { Chrome, Empty } from "../chrome";
 export default async function Offers({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await gate();
   const q = await searchParams;
-  const all = await readOffers(me);
+  const all = await readOffers(me.email);
   const last = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
   const page = Math.min(last, Math.max(1, Number.parseInt(q.page ?? "1", 10) || 1));
   const shown = all.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);

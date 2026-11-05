@@ -12,7 +12,7 @@ const TABS = [
 export async function Chrome({ here, crumb, title, lead, children }: { here: (typeof TABS)[number]["href"]; crumb?: string; title: string; lead: string; children: React.ReactNode }) {
   const tab = TABS.find((t) => t.href === here)!;
   const me = await gate();
-  const [drafted, gaps, offered] = await Promise.all([waiting(), gap(), readOffers(me).catch(() => null)]);
+  const [drafted, gaps, offered] = await Promise.all([waiting(), gap(), readOffers(me.email).catch(() => null)]);
   const empty = gaps.reduce((n, g) => n + g.empty, 0);
   return (
     <>
