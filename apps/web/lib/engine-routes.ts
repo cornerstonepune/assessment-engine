@@ -51,6 +51,12 @@ export type EngineRoutes = {
   "POST /child/{child_id}/parent-report/{note_id}/edit": { by: string; draft: Record<string, unknown> };
   "POST /children/find": { section: string; first_name: string; actor: string };
   "POST /commit": { child_id: string; by: string };
+  "POST /curriculum/offers/answer": { actor: string; id: string; yes: boolean; why?: string };
+  "POST /curriculum/offers/list": { actor: string };
+  "POST /curriculum/page/confirm": { actor: string; code: string; part: string };
+  "POST /curriculum/page/edit": { actor: string; code: string; part: string; text?: string | null; items?: string[] | null; idea?: string | null; slips?: { keyword: string; spot: string }[] | null };
+  "POST /curriculum/page/read": { actor: string; code: string };
+  "POST /curriculum/page/revert": { actor: string; code: string; part: string };
   "POST /graph/rebuild": { child_id?: string | null };
   "POST /ingest": { path: string; paper_code: string; child_id: string; actor: string; pages?: number[] | null; masks?: Record<string, number> | null; narrative?: boolean };
   "POST /k2/child": { actor: string; class_id: string; roll_no: string };
@@ -100,6 +106,8 @@ export type EngineRoutes = {
   "POST /skill/{code}/sample/remove": { level: string; kind: string; by: string; ord: number };
   "POST /timetable/day": { actor: string; class_id?: string | null; day?: string | null; week_of?: string | null; period_id?: string | null };
   "POST /timetable/period": { actor: string; class_id?: string | null; day?: string | null; week_of?: string | null; period_id?: string | null };
+  "POST /timetable/rules/change": { actor: string; class_id?: string | null; rule: string; action: string; id?: string | null; period_id?: string | null; starts_at?: string | null; ends_at?: string | null; label?: string | null; on_date?: string | null; weekday?: number | null; week_code?: string | null; reason?: string | null; subject_code?: string | null; span?: string | null; fewest?: number | null; most?: number | null; text?: string | null };
+  "POST /timetable/rules/read": { actor: string; class_id?: string | null };
   "POST /timetable/week": { actor: string; class_id?: string | null; day?: string | null; week_of?: string | null; period_id?: string | null };
   "POST /voice/class": { actor: string; class_id: string; day?: string | null };
   "POST /voice/form": { actor: string; activity: string; level: number; lists?: Record<string, string[]>; rest?: boolean; day?: string | null; class_id: string };

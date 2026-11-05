@@ -1,0 +1,26 @@
+name: m1-12d-draft-replay
+goal: >
+  A draft run that loses its pages says which code rule each page broke on each ask, without a model call and without
+  any page text; a page that breaks the same rule twice in a row is not asked a third time.
+# Written 2026-11-05 (task M1-12d). W1, gate N1. The words are the orchestrator's brief of 2026-11-05, relaying Nimish's
+# rule (root cause, no band-aid) after the first dev run saved 1 page of 60. Nothing here has made a model call.
+says:
+  - words: "a replay command that re-reads the kept replies and counts failures per code rule, no model call, no page text (counts and rule names only)"
+    proved_by: "packages/engine/tests/test_k2_replay.py::test_each_ask_of_a_page_is_counted_with_the_rule_it_broke"
+  - words: "no page text (counts and rule names only)"
+    proved_by: "packages/engine/tests/test_k2_replay.py::test_a_key_nobody_asked_for_is_not_counted_and_the_output_holds_no_page_text"
+  - words: "make the retry loop stop early when the same page fails the same rule twice"
+    proved_by: "packages/engine/tests/test_k2_batch.py::test_a_page_still_bad_after_the_last_round_is_reported_with_why_and_the_run_stops_asking"
+  - words: "print the per-rule counts in the run log"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_a_page_still_bad_after_the_last_round_is_reported_with_why_and_nothing_is_recorded_for_it"
+  - words: "re-reads the kept replies"
+    proved_by: "packages/engine/tests/test_k2_replay.py::test_the_latest_run_is_read_from_the_rows_of_the_stage_and_an_older_run_is_left_out"
+manual:
+  - "Not run live. The replay needs one free dispatch (`draft_replay`) after merge; its counts decide whether a rule or the prompt is at fault. No school-facing rule (12 words, 8 steps, 1 to 4 slips) is changed here."
+criteria:
+  - name: the replay, the retry stop and the run log
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_batch.py tests/test_k2_replay.py tests/test_k2_draft.py tests/test_k2_check.py tests/test_curriculum_run_command.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

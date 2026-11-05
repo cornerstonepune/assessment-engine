@@ -1,0 +1,63 @@
+{
+  "menu": "/timetable/rules",
+  "forWhat": [
+    "The timetable's rules for a class. Set when periods start and end, which days are blocked, which slots are fixed, and the fewest and most periods of a subject. Every change is kept with who made it."
+  ],
+  "layout": [
+    {
+      "area": "Title and main button",
+      "shows": "[[Block a day]], which takes you to the blocked days."
+    },
+    {
+      "area": "Blocked days and periods",
+      "shows": "Each block with its reason, and a form to add one."
+    },
+    {
+      "area": "Fewest and most periods",
+      "shows": "Each limit, how many periods are placed now, and a form to set one."
+    },
+    {
+      "area": "Fixed slots",
+      "shows": "The slots the school pinned, by week and weekday, and a form to pin one."
+    },
+    {
+      "area": "Period times and Changes",
+      "shows": "Each period's name and times, and the last changes with who made them."
+    }
+  ],
+  "jobs": [
+    {
+      "id": "block-a-day",
+      "title": "Block a day",
+      "steps": [
+        "Pick the date, or a weekday, and say why in [[Reason]].",
+        "Press [[Block]]. Nothing will be placed on that day or period."
+      ]
+    },
+    {
+      "id": "change-a-limit",
+      "title": "Change the most periods of a subject",
+      "steps": [
+        "Under the limits, pick the subject and week or fortnight.",
+        "Type the fewest, the most, or both, then press [[Save limit]]."
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Block a day",
+      "does": "Takes you to the form that blocks a day or a period.",
+      "doesNot": "It does not block anything by itself."
+    },
+    {
+      "label": "Block",
+      "does": "Saves the block and keeps who made it.",
+      "doesNot": "It does not move lessons yet."
+    },
+    {
+      "label": "Save limit",
+      "does": "Saves the fewest and most for that subject.",
+      "doesNot": "It does not rebuild the timetable yet."
+    }
+  ]
+}

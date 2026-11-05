@@ -7,6 +7,7 @@ model: `call` is whatever answers for the keys it is given (the adapter, in the 
 """
 
 import re
+from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
@@ -21,6 +22,44 @@ class Done:
     bad: dict[str, str] = field(default_factory=dict)  # page key → why it is still bad
     calls: int = 0
     stopped: str = ""
+    faults: Counter[str] = field(default_factory=Counter)  # rule broken → times, over every ask
+    stuck: dict[str, str] = field(
+        default_factory=dict
+    )  # page key → the rule it broke twice in a row: not asked again
+
+
+# What a judge says when a page breaks a rule, in order, each with the name the run log and the replay count it under.
+# The wordings are the ones k2_format and judge_pages make; a test pins that every one of them is named here.
+RULES = (
+    (r"^steps must be a list", "steps_not_list"),
+    (r"^steps is empty", "steps_empty"),
+    (r"^steps has \d+ lines", "steps_too_many"),
+    (r"^steps line \d+ has \d+ words", "step_too_long"),
+    (r"^slips: ", "slips_count"),
+    (r"^slips item \d+ is not", "slip_shape"),
+    (r"^slips item \d+ keyword must be", "keyword_length"),
+    (r"^slips item \d+ spot must be", "spot_length"),
+    (r"^idea is empty", "idea_empty"),
+    (r"^idea has \d+ words", "idea_too_long"),
+    (r"^uses '.*': not in the school's materials", "uses_unlisted"),
+    (r"^steps line \d+ uses '", "step_word_unlisted"),
+    (r"^answered twice", "answered_twice"),
+    (r"^missing from the reply", "missing"),
+    (r" is empty$", "part_empty"),
+    (r"say the same thing$", "levels_alike"),
+    (r"a draft says \"the child\", never he or she$", "gendered"),
+    (r"a draft never sets one child against another$", "compares"),
+)
+
+
+def rule_of(why: str) -> str:
+    """The name of the rule a failure in words broke ("other" for a wording nobody named)."""
+    return next((name for pattern, name in RULES if re.search(pattern, why)), "other")
+
+
+def line_of(faults: Counter[str]) -> str:
+    """The run log's line: each rule and how many times a page broke it, most first."""
+    return ", ".join(f"{r} {n}" for r, n in faults.most_common()) or "no failures"
 
 
 def items(reply, name: str) -> list:
@@ -176,6 +215,7 @@ def run(
     `judge` reads a reply (default: the parts as text, with `rules`); the drafted pages' own judge reads lists."""
     done = Done()
     pending = list(want)
+    last: dict[str, str] = {}  # the rule each page broke on its latest ask
     for attempt in range(rounds + 1):
         if not pending:
             break
@@ -194,4 +234,11 @@ def run(
             done.good |= good
             done.bad = {k: v for k, v in done.bad.items() if k not in good} | bad
         pending = [k for k in pending if k not in done.good]
+        for k in pending:
+            rule = rule_of(done.bad.get(k, ""))
+            done.faults[rule] += 1
+            if last.get(k) == rule:
+                done.stuck[k] = rule  # the same failure twice: another ask would pay for it a third time
+            last[k] = rule
+        pending = [k for k in pending if k not in done.stuck]
     return done

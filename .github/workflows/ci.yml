@@ -39,6 +39,11 @@ concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# Every uv call below uses the engine image's Python (packages/engine/Dockerfile, packages/engine/.python-version), never the
+# runner image's: on 2026-11-05 ubuntu-latest began shipping 3.14, and paddlepaddle has no wheel for it (tests/test_python_pin.py).
+env:
+  UV_PYTHON: "3.12"
+
 jobs:
   # Which of the jobs below this run starts. It fails to everything: if the files cannot be listed or the script breaks, every
   # output says true.

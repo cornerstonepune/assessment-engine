@@ -121,6 +121,16 @@ def _block(
     return "\n".join(out)
 
 
+def _judge(conn: db.Conn, rows: dict) -> k2_format.Judge:
+    """The code that reads a drafted page: the school's format and house rules are config rows."""
+    return k2_format.judger(
+        rows,
+        k2_format.vocabulary(r["materials"] for r in rows.values()),
+        settings.config(conn, "k2.format"),
+        settings.config(conn, "k2.draft_rules"),
+    )
+
+
 def _examples(rows: dict) -> dict[str, dict]:
     """For each section, its first complete page: the style and length to match. A page being drafted has a gap, so
     it is never its own example."""
@@ -184,12 +194,7 @@ def draft(
     rep.bad_limit = int(t["stop_after_bad_replies"])
     raw: dict[str, dict] = {}
     examples = _examples(rows)
-    judge = k2_format.judger(
-        rows,
-        k2_format.vocabulary(r["materials"] for r in rows.values()),
-        settings.config(conn, "k2.format"),
-        settings.config(conn, "k2.draft_rules"),
-    )
+    judge = _judge(conn, rows)
 
     def ask_maker(keys: list[str], revise: dict | None) -> list:
         parts = {k: k2_check.parts_at_fault(revise[k][1], want[k]) if revise else want[k] for k in keys}
@@ -218,6 +223,10 @@ def draft(
     rep.proposals = len(made)
     if write and made:
         map_ledger.record(conn, tenant, made, staff)
+    if (
+        res.faults
+    ):  # which rule, so a run that loses its pages says why (counts and rule names: the log is public)
+        say(f"rules broken: {batch.line_of(res.faults)}; {res.stuck} pages not asked a third time")
     say(f"{rep.proposals} pages recorded, {len(rep.left)} left for a person; {rep.stopped or 'run complete'}")
     return rep
 

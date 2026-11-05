@@ -6,6 +6,7 @@ round again. Nothing here calls a model; `call` is whatever answers for the keys
 """
 
 import json
+from collections import Counter
 
 from engine.w1_bank import k2_batch as batch
 
@@ -77,8 +78,59 @@ def test_a_page_still_bad_after_the_last_round_is_reported_with_why_and_the_run_
         return [page("A", objective="o", steps="s")]
 
     done = batch.run({"A": WANT["A"], "B": WANT["B"]}, call, size=4, rounds=2)
-    assert asked == [["A", "B"], ["B"], ["B"]], "the first ask and two more rounds, B alone"
-    assert set(done.good) == {"A"} and done.bad == {"B": "missing from the reply"} and done.calls == 3
+    assert asked == [["A", "B"], ["B"]], (
+        "B failed the same rule twice: a third ask would only buy the same failure"
+    )
+    assert set(done.good) == {"A"} and done.bad == {"B": "missing from the reply"} and done.calls == 2
+    assert done.stuck == {"B": "missing"}
+
+
+def test_a_page_failing_a_different_rule_each_time_is_still_asked_again_until_the_rounds_are_spent():
+    asked: list[list[str]] = []
+
+    def call(keys):
+        asked.append(list(keys))
+        return [page("B", thinking="")] if len(asked) == 1 else []
+
+    done = batch.run({"B": WANT["B"]}, call, size=4, rounds=2)
+    assert len(asked) == 3 and done.stuck == {"B": "missing"}, (
+        "empty, then missing, then missing again: stopped"
+    )
+
+
+def test_every_failure_is_counted_by_the_rule_it_broke_for_the_run_log():
+    def call(keys):
+        return [page("A", objective="o", steps="s")]
+
+    done = batch.run({"A": WANT["A"], "B": WANT["B"], "C": WANT["C"]}, call, size=4, rounds=2)
+    assert done.faults == {"missing": 4}, "B and C missing on the first ask, again on the second"
+    assert batch.line_of(done.faults) == "missing 4"
+    assert batch.line_of(Counter()) == "no failures"
+
+
+def test_a_failure_in_words_names_one_rule_and_every_wording_the_judges_make_is_known():
+    said = {
+        "steps must be a list of lines": "steps_not_list",
+        "steps is empty": "steps_empty",
+        "steps has 9 lines, at most 8": "steps_too_many",
+        "steps line 3 has 15 words, at most 14": "step_too_long",
+        "slips: 1 to 4 wanted, got 0": "slips_count",
+        "slips item 2 is not a keyword and a spot": "slip_shape",
+        "slips item 1 keyword must be 2 to 4 words": "keyword_length",
+        "slips item 1 spot must be one short sentence of at most 20 words": "spot_length",
+        "idea is empty": "idea_empty",
+        "idea has 30 words, at most 25": "idea_too_long",
+        "uses 'Rope': not in the school's materials": "uses_unlisted",
+        "steps line 2 uses 'chalk', which the school's materials do not name": "step_word_unlisted",
+        "answered twice": "answered_twice",
+        "missing from the reply": "missing",
+        "objective is empty": "part_empty",
+        "level_0 and level_1 say the same thing": "levels_alike",
+        "objective says 'she': a draft says \"the child\", never he or she": "gendered",
+        "steps compares children ('better than'): a draft never sets one child against another": "compares",
+        "something nobody wrote": "other",
+    }
+    assert {w: batch.rule_of(w) for w in said} == said
 
 
 def test_pages_are_sent_in_batches_of_the_size_the_row_says_and_a_refused_call_ends_the_run_cleanly():
