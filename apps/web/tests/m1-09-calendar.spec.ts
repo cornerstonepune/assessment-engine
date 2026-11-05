@@ -78,7 +78,8 @@ test("This week is a grid: a column a day, a row a period, a holiday one cell; o
   await expect(page.locator(`[data-day="${MONDAY}"] [data-period]`)).toHaveCount(15);
   await expect(page.locator('[data-day="2026-11-24"][data-day-kind="holiday"]')).toContainText("Holiday");
   await expect(page.locator('[data-day="2026-11-26"] [data-kind="empty"]').first()).toContainText("Free");
-  const y = async (day: string, time: string) => (await page.locator(`[data-day="${day}"] [data-period]`).filter({ hasText: time }).first().boundingBox())!.y;
+  await expect(page.locator(`[data-day="${MONDAY}"] [data-period]`).first()).toBeVisible(); // streamed in: wait for it shown
+  const y = async (day: string, time: string) => (await page.locator(`[data-day="${day}"] [data-period]`).filter({ hasText: new RegExp(`^${time}`) }).first().boundingBox())!.y;
   expect(Math.round(await y(MONDAY, "09:40"))).toBe(Math.round(await y("2026-11-25", "09:40"))); // one row, one time
   await tapsAreBig(page);
   await displayFaceOnlyLarge(page);
