@@ -15,15 +15,16 @@ import unicodedata
 from zoneinfo import ZoneInfo
 
 from engine.core import db
-from engine.w3_read import voice_intake, voice_note
+from engine.w3_read import k2_growth, voice_intake, voice_note
 from engine.w3_read.voice_store import Refused
 
 CELLS_SQL = """
-select s.child_id, e.roll_no, s.skill_code, s.state, cs.words, cs.colour,
+select s.child_id, e.roll_no, s.skill_code, rs.name as skill_name, s.state, cs.words, cs.colour,
        (s.last_seen at time zone %(zone)s)::date as last_seen, lv.reached_level, lv.note_id
 from enrolment e
 join child_observed_state s on s.child_id = e.child_id and s.grade_code = %(grade)s
 join child_state cs on cs.tenant_id = s.tenant_id and cs.code = s.state
+join registry_skill rs on rs.tenant_id = s.tenant_id and rs.code = s.skill_code
 left join lateral (
   select o.reached_level, o.note_id
   from evidence_event v join activity_observation o on o.id = v.observation_id
@@ -36,6 +37,16 @@ where e.class_id = %(class)s and e.from_date <= %(day)s and (e.to_date is null o
   and (%(roll)s::text is null or e.roll_no = %(roll)s)
 """
 
+
+GROWTH_SQL = """
+select v.skill_code, (o.observed_at at time zone %(zone)s)::date as day, o.reached_level
+from enrolment e
+join evidence_event v on v.child_id = e.child_id and v.kind = 'observed' and v.confirmed_by is not null
+join activity_observation o on o.id = v.observation_id and o.entry_mode = 'individual' and o.reached_level is not null
+where e.class_id = %(class)s and e.roll_no = %(roll)s and e.from_date <= %(day)s
+  and (e.to_date is null or e.to_date >= %(day)s)
+  and not exists (select 1 from activity_observation c where c.supersedes = o.id)
+"""
 
 NAME_CHECK = "k2 child page: sentence name check"  # who is logged as asking for each name
 HELD = "sentence held back: it may name a child"
@@ -78,6 +89,7 @@ def _allowed(conn: db.Conn, email: str, class_id: str) -> dict:
     class_id = voice_intake.valid_id(class_id)
     got = conn.execute(
         "select c.grade_code, c.section, coalesce(z.value #>> '{}', 'Asia/Kolkata') as zone,"
+        " (select k.value from config k where k.key = 'k2.child_page') as child_page,"
         " exists (select 1 from staff_role_grant g where g.staff_id = %(staff)s and g.school_class_id = c.id"
         "   and g.valid_from <= current_date and (g.valid_to is null or g.valid_to >= current_date)) as on_class,"
         " exists (select 1 from staff_role_grant g join staff s on s.id = g.staff_id"
@@ -116,10 +128,7 @@ def class_picture(conn: db.Conn, email: str, class_id: str) -> dict:
         "select roll_no from enrolment where class_id = %s and from_date <= %s and (to_date is null or to_date >= %s)",
         (where["class"], day, day),
     ).fetchall()
-    seen = sorted({c["skill_code"] for c in cells})
-    skills = conn.execute(
-        "select code, name from registry_skill where code = any(%s) order by code", (seen,)
-    ).fetchall()
+    skills = [{"code": c, "name": n} for c, n in sorted({(c["skill_code"], c["skill_name"]) for c in cells})]
     by_roll: dict[str, dict] = {r["roll_no"]: {} for r in roll}
     for c in cells:
         by_roll[c["roll_no"]][c["skill_code"]] = _cell(c)
@@ -128,7 +137,7 @@ def class_picture(conn: db.Conn, email: str, class_id: str) -> dict:
     ]  # fmt: skip
     return {
         "class": f"{where['grade_code']} {where['section']}",
-        "skills": [{"code": s["code"], "name": s["name"]} for s in skills],
+        "skills": skills,
         "children": children,
     }
 
@@ -145,12 +154,7 @@ def child_page(conn: db.Conn, email: str, class_id: str, roll_no: str) -> dict:
     if here is None:
         raise Refused("There is no such Sr. No. in this class.", 404)
     cells = conn.execute(CELLS_SQL, cells_params(conn, where["class"], where["zone"], roll_no)).fetchall()
-    names_by_code = {
-        r["code"]: r["name"]
-        for r in conn.execute(
-            "select code, name from registry_skill where code = any(%s)", ([c["skill_code"] for c in cells],)
-        ).fetchall()
-    }
+    names_by_code = {c["skill_code"]: c["skill_name"] for c in cells}
     notes = {
         n["id"]: n
         for n in conn.execute(
@@ -180,7 +184,57 @@ def child_page(conn: db.Conn, email: str, class_id: str, roll_no: str) -> dict:
             "code": c["skill_code"], "name": names_by_code.get(c["skill_code"], c["skill_code"]),
             **_cell(c), "sentence": shown, "sentence_note": note,
         })  # fmt: skip
-    return {"class": f"{where['grade_code']} {where['section']}", "roll_no": roll_no, "skills": skills}
+    return {
+        "class": f"{where['grade_code']} {where['section']}", "roll_no": roll_no, "skills": skills,
+        **_growth_and_next(conn, where, roll_no, cells, names_by_code),
+    }  # fmt: skip
+
+
+def _growth_and_next(
+    conn: db.Conn, where: dict, roll_no: str, cells: list[dict], names: dict[str, str]
+) -> dict:
+    """How the child has moved on each skill, and what is ready next from confirmed links alone (task M1-17)."""
+    rule = where["child_page"]
+    if rule is None:  # the seed row is loaded on every deploy; no state or number is kept in code (rule 1)
+        raise RuntimeError("config k2.child_page is missing: run `engine load --settings`")
+    day = _today(where)
+    by_skill: dict[str, list] = {}
+    for r in conn.execute(
+        GROWTH_SQL, {"zone": where["zone"], "class": where["class"], "roll": roll_no, "day": day}
+    ):
+        by_skill.setdefault(r["skill_code"], []).append((r["day"], r["reached_level"]))
+    links = conn.execute(
+        "select l.skill_code as skill, l.before_code as before, l.strength, a.name as skill_name, b.name as before_name"
+        " from skill_link_confirmed l join school_class c on c.tenant_id = l.tenant_id"
+        " join registry_skill a on a.tenant_id = l.tenant_id and a.code = l.skill_code"
+        " join registry_skill b on b.tenant_id = l.tenant_id and b.code = l.before_code where c.id = %s",
+        (where["class"],),
+    ).fetchall()
+    for link in links:
+        names = {**names, link["skill"]: link["skill_name"], link["before"]: link["before_name"]}
+
+    def skill(code: str) -> dict:
+        return {"code": code, "name": names.get(code, code)}
+
+    grown = []
+    for code, seen in by_skill.items():
+        g = k2_growth.growth(seen, rule["growth_min_months"])
+        if g is None:  # no seen days: not reachable from the query, which returns a row per day
+            continue
+        grown.append({"skill": skill(code), **g, "first_seen": g["first_seen"].isoformat(),
+                      "last_seen": g["last_seen"].isoformat()})  # fmt: skip
+    grown.sort(key=lambda g: (g["last_seen"], g["skill"]["code"]), reverse=True)
+    ready = k2_growth.ready_next(
+        links, {c["skill_code"]: c["state"] for c in cells}, set(rule["done_states"])
+    )
+    return {
+        "growth": grown,
+        "ready_next": [
+            {"skill": skill(r["skill"]),
+             "because": [{"before": skill(b["before"]), "strength": b["strength"]} for b in r["because"]]}
+            for r in ready
+        ],
+    }  # fmt: skip
 
 
 def _sentence(note: dict) -> str | None:
