@@ -47,6 +47,12 @@ call. Design: `docs/notes/m1-17-design.md` (#402).
   `names` copied once, not per row. **Skipped, on purpose:** `ready_next` also listing a skill already practising (where the
   educator pushes next; the plan section above it is a different view); the name check covering only this class's children
   (M1-03's documented limit); the chip's copied class string (minor); paging the class on the engine side.
+- **CI caught three source-scan rules I had not run (all fixed, all mine):** no web file names a grade code (my page header said "K2": now
+  "Children" and "Class picture"); no web code names the raw link tables (the browser test now sets its two links up with
+  `packages/engine/tests/k2_link_fixture.py`, a script beside the engine's own tests); no browser test may skip itself (the empty-class
+  test now makes its own empty class). The browser spec also had its own class (`M117`) because the voice-notes spec leaves
+  observations in `M104` and CI shares a database per shard. Since then I run the whole set of tests that read source files, not only the
+  K2 ones, on a clean database before a push; checked in CI's order (voice notes spec, then this one, then the UX-rules spec): 26 passed.
 - **Not run:** the sharded whole suites; the whole browser suite (CI).
 
 ## Handoff

@@ -18,7 +18,7 @@ export default async function TheClassPicture({ params, searchParams }: { params
   const got = await classPicture(me.email, classId);
   return (
     <PageShell
-      stage="K2"
+      stage="Children"
       title={got.ok ? `Class picture · ${got.value.class}` : "Class picture"}
       purpose="Who has been seen on which skill, and where each child is. An empty square means not seen yet, nothing more."
       action={<Link href={`/voice/form?class=${classId}`} className="btn secondary inline-flex items-center gap-1.5"><Icon name="form" />Fill the form</Link>}

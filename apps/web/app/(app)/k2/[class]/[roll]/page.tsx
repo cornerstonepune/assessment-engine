@@ -15,7 +15,7 @@ export default async function TheChild({ params }: { params: Promise<{ class: st
   const got = await childPage(me.email, classId, roll);
   return (
     <PageShell
-      stage="K2"
+      stage="Class picture"
       title={`Sr. No. ${roll}${got.ok ? ` · ${got.value.class}` : ""}`}
       purpose="Where this child is on each skill, what is ready next, and how the child has moved over the months."
       action={<Link href={`/k2/${classId}`} className="btn secondary inline-flex items-center gap-1.5"><Icon name="class" />Class picture</Link>}

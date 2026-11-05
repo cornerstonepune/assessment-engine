@@ -3,32 +3,36 @@
  * (the class "M104" of k2-rows.ts, two skills, four children seen). The educator switch is on only inside a test.
  * Walkthrough, taps counted: the class picture (0 taps, the address) → a child (1 tap on the Sr. No.) → back (1 tap).
  */
+import { execFileSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { k2Class, voiceSwitch } from "./k2-rows";
 
+const SECTION = "M117";
+
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SHOTS = path.resolve(__dirname, "../../../docs/screens/m1-17");
 const DESKTOP = { width: 1280, height: 900 };
 const PHONE = { width: 390, height: 844 };
 let klass: string;
+let staff: string;
 let tenant: string;
 let skills: { code: string; name: string }[];
 
 async function observe(roll: string, activity: string, level: number | null, daysAgo: number, mode = "individual") {
   const [c] = await sql<{ child_id: string }[]>`select child_id from enrolment where class_id = ${klass} and roll_no = ${roll} and to_date is null`;
-  const [{ id: staff }] = await sql<{ id: string }[]>`select staff_id as id from pii.staff where email = (select email from pii.staff order by created_at limit 1)`;
+  const by = staff; // the tester, who observed and confirmed
   const at = new Date(Date.now() - daysAgo * 86400_000);
   const [o] = await sql<{ id: string }[]>`
     insert into activity_observation (tenant_id, confirmation_id, activity_code, child_id, class_id, outcome, entry_mode, route, expected_level, reached_level, observed_at, observed_by, confirmed_by)
-    values (${tenant}, gen_random_uuid(), ${activity}, ${c.child_id}, ${klass}, ${mode === "individual" ? "as_expected" : "as_expected"}, ${mode}, 'form', ${level ?? 2}, ${level}, ${at}, ${staff}, ${staff}) returning id`;
+    values (${tenant}, gen_random_uuid(), ${activity}, ${c.child_id}, ${klass}, ${mode === "individual" ? "as_expected" : "as_expected"}, ${mode}, 'form', ${level ?? 2}, ${level}, ${at}, ${by}, ${by}) returning id`;
   if (level !== null || mode !== "individual") {
     const mark = level === 3 ? "yes" : level === 2 ? "sometimes" : "not_yet";
     for (const s of skills.slice(0, 2)) {
       await sql`insert into evidence_event (tenant_id, child_id, skill_code, channel, observed_at, confirmed_by, kind, mark, seen_by, place, source, observation_id)
-        values (${tenant}, ${c.child_id}, ${s.code}, 'educator', ${at}, ${staff}, 'observed', ${mark}, ${staff}, 'class', 'm1-17 test', ${o.id})`;
+        values (${tenant}, ${c.child_id}, ${s.code}, 'educator', ${at}, ${by}, 'observed', ${mark}, ${by}, 'class', 'm1-17 test', ${o.id})`;
     }
   }
   await sql`select rebuild_child_observed_state(${c.child_id})`;
@@ -45,7 +49,7 @@ async function shoot(page: Page, name: string) {
 
 test.beforeAll(async () => {
   mkdirSync(SHOTS, { recursive: true });
-  ({ klass } = await k2Class(sql));
+  ({ klass, staff } = await k2Class(sql, SECTION)); // its own class: other specs leave observations in the shared M104
   [{ id: tenant }] = await sql<{ id: string }[]>`select id from tenant order by created_at limit 1`;
   skills = await sql<{ code: string; name: string }[]>`select code, name from registry_skill where tenant_id = ${tenant} order by code limit 4`;
 });
@@ -65,9 +69,16 @@ test("with the educator switch off the pages say so and show no child", async ({
 
 test("a class nobody has been seen in is an empty state, not a blank", async ({ page }) => {
   await voiceSwitch(sql, true);
-  const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from activity_observation where class_id = ${klass}`;
-  test.skip(n > 0, "this copy already holds observations for the class");
-  await page.goto(`/k2/${klass}`);
+  // a class of its own with no child seen, the tester's grant on it: it is empty on any database, so the test never skips
+  const [{ id: empty }] = await sql<{ id: string }[]>`
+    insert into school_class (tenant_id, campus_id, academic_year_id, grade_code, section)
+    select tenant_id, campus_id, academic_year_id, grade_code, 'M117E' from school_class where id = ${klass}
+    on conflict (tenant_id, campus_id, academic_year_id, grade_code, section) do update set section = excluded.section returning id`;
+  await sql`
+    insert into staff_role_grant (tenant_id, staff_id, role_code, school_class_id, valid_from, granted_by)
+    select ${tenant}, ${staff}, 'class_teacher', ${empty}, current_date - 1, 'm1-17 test'
+    where not exists (select 1 from staff_role_grant where staff_id = ${staff} and school_class_id = ${empty})`;
+  await page.goto(`/k2/${empty}`);
   await expect(page.getByText("No child in this class has been seen on a skill yet")).toBeVisible();
   await shoot(page, "class-empty");
 });
@@ -141,11 +152,9 @@ test("a child with nothing ready next is told why, and no skill is called not re
 test("a confirmed link makes a skill ready next; a proposed one does not", async ({ page }) => {
   await voiceSwitch(sql, true);
   const [a, , c, d] = skills; // child 1 is secure on a (level 3 on two days, 20 days apart); c and d were never seen
-  const [staff] = await sql<{ staff_id: string }[]>`select staff_id from pii.staff order by created_at limit 1`;
-  await sql`insert into skill_link (tenant_id, skill_code, before_code, strength, reason, source, status, confirmed_by, confirmed_at)
-    values (${tenant}, ${c.code}, ${a.code}, 'hard', 'a test reason', 'm1-17 test', 'confirmed', ${staff.staff_id}, now()),
-           (${tenant}, ${d.code}, ${a.code}, 'hard', 'a test reason', 'm1-17 test', 'proposed', null, null)
-    on conflict (tenant_id, skill_code, before_code) do nothing`;
+  // child 1 is secure on `a`; the engine's own fixture proposes one link and confirms the other (no web code names the raw link tables)
+  const engine = path.resolve(__dirname, "../../../packages/engine");
+  execFileSync(path.join(engine, ".venv/bin/python"), ["tests/k2_link_fixture.py", a.code, c.code, d.code], { cwd: engine, env: process.env, stdio: "pipe" });
   const [{ state }] = await sql<{ state: string }[]>`select s.state from child_observed_state s join enrolment e on e.child_id = s.child_id
     where e.class_id = ${klass} and e.roll_no = '1' and s.skill_code = ${a.code}`;
   expect(state).toBe("secure");
