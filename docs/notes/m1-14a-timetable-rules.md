@@ -11,7 +11,7 @@ W2, step N4 (files only). Goal: `goals/m1-14a-timetable-rules.yaml`. Screen: `/t
 - The educator switch stays off: the spec asserts it; the staff screens do not read it.
 
 ## Handoff
-- Needs the migration `20270106090000_timetable_rules.sql` merged alone (three tables: timetable_block, timetable_limit,
+- Needs the migration `20270109090000_timetable_rules.sql` merged alone (three tables: timetable_block, timetable_limit,
   timetable_rule_edit; rules.json updated, 27 rules).
 - Known risk for part b: `engine timetable load` identifies periods by (grade, start time). A person who changes a period's start
   here makes a re-run of that load add a second period. Part b should not re-run the load once rules exist, or the loader should key

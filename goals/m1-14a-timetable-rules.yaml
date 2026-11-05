@@ -5,7 +5,7 @@ goal: >
   change is checked before it is written, a rule that cannot be right is refused with its reason and writes nothing, and
   every change is kept with who made it and what it was before. Nothing yet places a lesson: the generator is part b.
 # Written 2026-11-05, before the code. Task M1-14 part (a), widened by Nimish on 2026-11-05; W2 step N4, files only. The
-# migration (20270106090000) merges alone, by the orchestrator. The staff setup screens do not wait on the educator switch
+# migration (20270109090000) merges alone, by the orchestrator. The staff setup screens do not wait on the educator switch
 # (educator.timetable_enabled), which stays off. The words below are the acceptance line of the brief as relayed.
 says:
   - words: "the K2 educator blocks a day, changes a subject's weekly limit"
