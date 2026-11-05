@@ -30,6 +30,7 @@ from engine.api.routes import (
     runs,
     samples,
     timetable,
+    timetable_rules,
     upload,
     voice,
     week,
@@ -66,6 +67,7 @@ app.include_router(parent.router)
 app.include_router(upload.router)
 app.include_router(samples.router)
 app.include_router(timetable.keyed)
+app.include_router(timetable_rules.keyed)
 app.include_router(k2.router)
 app.include_router(gold.router)
 app.include_router(voice.router)

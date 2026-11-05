@@ -1,0 +1,25 @@
+/* The timetable screens (D-075): white ground, lines, the five meanings as chips. Colours and sizes are the tokens', never a hex. */
+.tt { background: var(--brand-paper); color: var(--brand-basalt); border: 1px solid var(--brand-line); border-radius: var(--radius-m); padding: var(--space-4); display: grid; gap: var(--space-4); font-size: var(--text-body); line-height: var(--lh-body); }
+.tt-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-4); }
+.tt-card { grid-column: span 12; border: 1px solid var(--brand-line); border-radius: var(--radius-m); padding: var(--space-3); display: grid; gap: var(--space-3); align-content: start; }
+@media (min-width: 1024px) { .tt-card.half { grid-column: span 6; } }
+.tt h2 { font-size: var(--text-h3); line-height: var(--lh-h3); font-weight: 600; }
+.tt-note { color: var(--brand-stone); font-size: var(--text-label); line-height: var(--lh-label); }
+.tt-school { color: var(--brand-bamboo); font-weight: 500; }
+.tt-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: var(--space-2); align-items: end; padding-block: var(--space-2); border-top: 1px solid var(--brand-line); }
+.tt-row:first-of-type { border-top: 0; }
+.tt label { min-width: 0; display: grid; gap: var(--space-1); font-size: var(--text-label); font-weight: 500; }
+.tt input, .tt select { width: 100%; min-width: 0; min-height: var(--tap); border: 1px solid var(--border-control); border-radius: var(--radius-m); padding-inline: var(--space-2); background: var(--brand-paper); color: var(--brand-basalt); font: inherit; }
+.tt button { min-height: var(--tap); border: 1px solid var(--brand-basalt); border-radius: var(--radius-m); padding-inline: var(--space-3); background: var(--brand-basalt); color: var(--brand-paper); font: inherit; font-weight: 500; cursor: pointer; }
+.tt button.quiet { background: var(--brand-paper); color: var(--brand-basalt); }
+.tt :focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+.tt-chip { display: inline-flex; align-items: center; gap: var(--space-1); border: 1px solid; border-radius: var(--radius-pill); padding: 0 var(--space-2); font-size: var(--text-label); font-weight: 500; white-space: nowrap; }
+.tt-chip.done { color: var(--chip-done-fg); background: var(--chip-done-bg); border-color: var(--chip-done-bd); }
+.tt-chip.soon { color: var(--chip-confirm-fg); background: var(--chip-confirm-bg); border-color: var(--chip-confirm-bd); }
+.tt-chip.late { color: var(--chip-late-fg); background: var(--chip-late-bg); border-color: var(--chip-late-bd); }
+.tt-chip.coming { color: var(--chip-soon-fg); background: var(--chip-soon-bg); border-color: var(--chip-soon-bd); }
+.tt-empty { border: 1px dashed var(--brand-line); border-radius: var(--radius-m); padding: var(--space-3); color: var(--brand-stone); }
+.tt-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.tt-list li { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding-block: var(--space-2); border-top: 1px solid var(--brand-line); }
+.tt-list li:first-child { border-top: 0; }
+.tt-list .grow { flex: 1 1 12rem; }

@@ -40,6 +40,7 @@ export const GROUPS: readonly MenuGroup[] = [
       { href: "/library", label: "Question bank", match: ["/library", "/worksheets/taxonomy"] },
       { href: "/staff", label: "Staff", match: ["/staff"] },
       { href: "/school", label: "School", match: ["/school"] },
+      { href: "/timetable/rules", label: "Timetable rules", match: ["/timetable"] },
     ],
   },
 ];
