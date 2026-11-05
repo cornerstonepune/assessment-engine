@@ -1,6 +1,6 @@
 import Link from "@/components/link";
 import { Icon, type IconName } from "@/lib/icons";
-import type { State } from "@/lib/curriculum-screens";
+import { gap, gate, readOffers, waiting, type State } from "@/lib/curriculum-screens";
 
 // The breadcrumb, title and the three tabs every curriculum screen shares.
 const TABS = [
@@ -9,8 +9,11 @@ const TABS = [
   { href: "/curriculum/offers", label: "Skills offered" },
 ] as const;
 
-export function Chrome({ here, crumb, title, lead, children }: { here: (typeof TABS)[number]["href"]; crumb?: string; title: string; lead: string; children: React.ReactNode }) {
+export async function Chrome({ here, crumb, title, lead, children }: { here: (typeof TABS)[number]["href"]; crumb?: string; title: string; lead: string; children: React.ReactNode }) {
   const tab = TABS.find((t) => t.href === here)!;
+  const me = await gate();
+  const [drafted, gaps, offered] = await Promise.all([waiting(), gap(), readOffers(me).catch(() => null)]);
+  const empty = gaps.reduce((n, g) => n + g.empty, 0);
   return (
     <>
       <nav aria-label="Breadcrumb" className="cs-crumbs">
@@ -26,6 +29,11 @@ export function Chrome({ here, crumb, title, lead, children }: { here: (typeof T
       </nav>
       <h1>{title}</h1>
       <p className="cs-lead">{lead}</p>
+      <nav aria-label="Counts" className="cs-strip">
+        <Link href="/curriculum/fill/walk" data-count="waiting"><b>{drafted.length}</b> drafted parts to check</Link>
+        <Link href="/curriculum/offers" data-count="offers"><b>{offered === null ? "–" : offered.length}</b> skills offered</Link>
+        <Link href="/curriculum/fill" data-count="empty"><b>{empty}</b> parts still empty</Link>
+      </nav>
       <nav aria-label="Curriculum screens" className="cs-tabs">
         {TABS.map((t) => (
           <Link key={t.href} href={t.href} aria-current={t.href === here ? "page" : undefined}>

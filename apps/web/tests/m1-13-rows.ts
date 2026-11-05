@@ -45,7 +45,6 @@ export async function curriculumRows(sql: Sql): Promise<{ skills: string[] }> {
     const [{ id: staff }] = await sql<{ id: string }[]>`insert into staff (tenant_id, campus_id) values (${t}, ${campus}) returning id`;
     await sql`insert into pii.staff (tenant_id, staff_id, name, email) values (${t}, ${staff}, 'Placeholder Educator', ${TEST_STAFF.email})`;
   }
-  await sql`delete from curriculum_proposal where subject_code like 'ACT-K2-M113-%' and machine = 'm1-13 test'`.catch(() => undefined);
   await sql`delete from activity where tenant_id = ${t} and code like 'ACT-K2-M113-%'`;
   // red: 13 activities, 20 of 117 slots filled — the first full with a skill, the second drafted in three parts, the third a person's objective, the fifth materials only
   await activity(sql, t, 1, RED, FULL, [skills[0]]);
@@ -73,6 +72,7 @@ export async function offers(sql: Sql, skills: string[]): Promise<void> {
   const [{ id: t }] = await sql<{ id: string }[]>`select id from tenant order by created_at limit 1`;
   await sql`delete from activity_skill where tenant_id = ${t} and activity_code = ${code(3)}`;
   await sql`insert into activity_skill (tenant_id, activity_code, skill_code, source) values (${t}, ${code(3)}, ${skills[0]}, 'person')`;
+  await clearOffers(sql);
   const run = crypto.randomUUID();
   for (const [skill, also, reason] of [[skills[1], skills[0], "The nearest examples did not carry it."], [skills[2], "", "Counting objects needs it too."]]) {
     await sql`
@@ -81,8 +81,15 @@ export async function offers(sql: Sql, skills: string[]): Promise<void> {
   }
 }
 
+/** The ledger is append-only (it refuses a delete), so a leftover offer is closed the way a person closes one: a
+ *  `rejected` row that moves on it. */
 export async function clearOffers(sql: Sql): Promise<void> {
-  await sql`delete from curriculum_proposal where subject_code like 'ACT-K2-M113-%'`.catch(() => undefined);
+  await sql`
+    insert into curriculum_proposal (tenant_id, run_id, about, kind, subject_code, status, reason, staff_id)
+    select p.tenant_id, p.run_id, p.id, p.kind, p.subject_code, 'rejected', 'm1-13 test clean-up', (select staff_id from pii.staff where email = ${TEST_STAFF.email})
+    from curriculum_proposal p
+    where p.about is null and p.status = 'needs_person' and p.subject_code like 'ACT-K2-M113-%'
+      and not exists (select 1 from curriculum_proposal f where f.about = p.id)`;
 }
 
 export async function screensSwitch(sql: Sql, on: boolean) {
