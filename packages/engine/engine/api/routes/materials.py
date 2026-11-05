@@ -1,7 +1,8 @@
 """The K2 educator's materials list (task M1-10): the routes her pages reach. Only wiring: building, editing, sending and
 reminding are `w2_print/materials_*`. The site calls with the engine's key and her email as `actor`, whose staff id the
 engine finds (`public.staff_of_email`); she may touch only a class she holds (`educator.timetable_roles`). Every route
-refuses while `educator.timetable_enabled` is off."""
+refuses while `educator.timetable_enabled` is off, except to the staff preview (`w2_print/educator_gate.py`, D-076),
+which may look and change nothing: a list she holds a class for is still hers alone, and no catalogue item is proposed."""
 
 import datetime as dt
 from typing import Literal
@@ -192,6 +193,10 @@ def catalogue(body: Who, conn=Depends(get_conn, scope="function"), tenant_id: st
 @keyed.post("/catalogue/propose")
 def propose(body: Propose, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
     staff = staff_of(conn, body)
+    if educator_gate.previewing(conn, staff):
+        raise HTTPException(
+            status_code=403, detail="The preview only looks: switch the timetable on to change it."
+        )
     try:
         return {"code": ml.propose_item(conn, UUID(str(tenant_id)), body.name, body.unit, staff)}
     except ValueError as no:

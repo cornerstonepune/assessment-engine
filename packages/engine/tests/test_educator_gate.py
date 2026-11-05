@@ -77,3 +77,27 @@ def test_the_materials_routes_open_to_a_previewer_and_stay_shut_to_the_educator_
     post = lambda actor: world["client"].post("/materials/catalogue/list", json={"actor": actor})  # noqa: E731
     assert post(world["k"]["email"]).status_code == 403
     assert post(_head(world)).status_code == 200
+
+
+def test_once_switched_on_a_head_sees_only_classes_they_hold_and_a_preview_adds_no_catalogue_item(world):
+    _switch(world, True)
+    head = _head(world)
+    assert (
+        call(world, "day", actor=head, day="2026-11-23").status_code == 403
+    )  # holds none, and the preview is over
+    _switch(world, False)
+    r = world["client"].post("/materials/catalogue/propose", json={"actor": head, "name": "Placeholder glue"})
+    assert (r.status_code, r.json()["detail"]) == (
+        403,
+        "The preview only looks: switch the timetable on to change it.",
+    )
+
+
+def test_a_preview_offers_only_classes_whose_timetable_is_in_force_on_the_day_asked(world):
+    _switch(world, False)
+    head = _head(world)
+    world["conn"].execute(
+        "update timetable_slot set valid_to = valid_from where school_class_id = %s", (world["k"]["class"],)
+    )
+    r = call(world, "day", actor=head, day="2026-11-25")  # after every slot ended
+    assert r.status_code == 403 or all(c["id"] != world["k"]["class"] for c in r.json()["classes"])

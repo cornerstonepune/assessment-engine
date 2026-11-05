@@ -22,7 +22,8 @@ def enabled(conn: db.Conn) -> bool:
 
 
 def my_classes(conn: db.Conn, staff_id: Any, day: dt.date) -> list[dict]:
-    """The classes she holds that day; with every class that has a timetable when she is the staff preview (D-076)."""
+    """The classes she holds that day; while switched off, the staff preview (D-076) also gets every class whose
+    timetable is in force that day."""
     roles = list(settings.config(conn, "educator.timetable_roles", []))
     held = conn.execute(
         "select distinct c.id::text as id, c.grade_code as grade, c.section, c.academic_year_id, c.campus_id"
@@ -31,10 +32,10 @@ def my_classes(conn: db.Conn, staff_id: Any, day: dt.date) -> list[dict]:
         " and (g.valid_to is null or g.valid_to >= %s) order by c.grade_code, c.section",
         (staff_id, roles, day, day),
     ).fetchall()
-    if not gate.previews(conn, staff_id):
+    if not gate.previewing(conn, staff_id):
         return held
     ids = {c["id"] for c in held}
-    return held + [c for c in gate.timetabled_classes(conn) if c["id"] not in ids]
+    return held + [c for c in gate.timetabled_classes(conn, day) if c["id"] not in ids]
 
 
 def chosen(classes: list[dict], class_id: str | None) -> dict:

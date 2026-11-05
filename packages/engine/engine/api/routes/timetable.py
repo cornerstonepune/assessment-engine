@@ -46,9 +46,9 @@ def _gate(conn, body: Ask):
     return staff
 
 
-def _mine(conn, body: Ask, on: dt.date) -> tuple[dict, list[dict]]:
-    """Her class and every class she holds on that day."""
-    staff = _gate(conn, body)
+def _mine(conn, body: Ask, on: dt.date, staff=None) -> tuple[dict, list[dict]]:
+    """Her class and every class she holds on that day (`staff` when the gate has run already)."""
+    staff = staff or _gate(conn, body)
     try:
         classes = k2_day.my_classes(conn, staff, on)
         return k2_day.chosen(classes, body.class_id), classes
@@ -73,10 +73,10 @@ def week(body: Ask, conn=Depends(get_conn, scope="function")):
 
 @keyed.post("/timetable/period")
 def period(body: Ask, conn=Depends(get_conn, scope="function")):
-    _gate(conn, body)
+    staff = _gate(conn, body)
     if not (body.day and body.period_id):
         raise HTTPException(status_code=422, detail="Name the day and the period.")
-    klass, classes = _mine(conn, body, body.day)
+    klass, classes = _mine(conn, body, body.day, staff)
     try:
         return k2_day.period(conn, klass, classes, body.day, body.period_id)
     except k2_day.Refused as no:
