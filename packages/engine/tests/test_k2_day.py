@@ -11,7 +11,7 @@ import pytest
 from engine.core import db
 from engine.w2_print import k2_timetable_load as ld
 from engine.w2_print import k2_timetable_sql as sq
-from tests.test_k2_timetable_load import CAL_CSV, FRAME_CSV, PLANNER_CSV, SPANS, VOCAB
+from tests.test_k2_timetable_load import CAL_CSV, FRAME_CSV, PLANNER_CSV, REPO, SPANS, VOCAB
 from tests.voice_rows import a_k2_class
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
@@ -204,6 +204,54 @@ def test_a_week_whose_monday_has_no_row_still_names_its_week_and_fortnight(world
 def test_while_the_switch_is_off_a_period_call_without_its_fields_is_refused_the_same_way(world):
     world["conn"].execute("update config set value = 'false' where key = 'educator.timetable_enabled'")
     assert call(world, "period").status_code == 403
+
+
+def _lines(w, monday, subject):
+    """The planner lines the week's first period of `subject` with a planner line shows, in order."""
+    days = call(w, "week", week_of=monday).json()["days"]
+    day, one = next(
+        (d["day"], p) for d in days for p in d["periods"] if p["subject"] == subject and p["plan_entry_id"]
+    )
+    return call(w, "period", class_id=w["k"]["class"], day=day, period_id=one["period_id"]).json()[
+        "plan_lines"
+    ]
+
+
+def test_a_fortnight_under_two_months_shows_a_period_only_its_own_weeks_lines(world):
+    """Fortnight 10 is listed under November and December: week A takes November's row, week B December's. A period
+    shows the lines of its own week's row only, so General Awareness says each of its two lines once. Week A is the
+    week of 23 Nov, week B of 30 Nov."""
+    assert [x.strip() for x in _lines(world, "2026-11-23", "general_awareness")] == [
+        "Insects",
+        "lifecycle of a butterfly",
+    ]
+    assert [x.strip() for x in _lines(world, "2026-11-30", "general_awareness")] == [
+        "Insects",
+        "lifecycle of a butterfly",
+    ]
+    (_, a), (_, b) = ld.read_planner_csv(PLANNER_CSV, VOCAB).halves[10]
+    assert a.lines["music"] != b.lines["music"], "the two rows' Music differ in the school's text"
+    assert _lines(world, "2026-11-23", "music") == a.lines["music"]
+    assert _lines(world, "2026-11-30", "music") == b.lines["music"]
+
+
+def test_a_fortnight_with_a_single_row_still_shows_all_its_lines(conn, world):
+    """A fortnight listed once has no week on its lines: every period shows all of them."""
+    conn.execute("update plan_entry set week_code = null where school_class_id = %s", (world["k"]["class"],))
+    lines = _lines(world, "2026-11-23", "general_awareness")
+    assert [x.strip() for x in lines] == ["Insects", "lifecycle of a butterfly"] * 2
+
+
+def test_the_migration_gives_rows_loaded_before_it_the_week_the_loader_now_writes(conn, world):
+    """Rows loaded before week_code existed: the migration's backfill, run on them, gives every line the week the loader
+    gives it today, from what was stored (each half's month in `source`, the second half numbered on)."""
+    klass = world["k"]["class"]
+    weeks = "select plan_key, ord, week_code from plan_entry where school_class_id = %s order by 1, 2"
+    written = conn.execute(weeks, (klass,)).fetchall()
+    assert {r["week_code"] for r in written} == {"A", "B"}
+    conn.execute("update plan_entry set week_code = null where school_class_id = %s", (klass,))
+    conn.execute((REPO / "supabase/migrations/20270108090000_plan_entry_week.sql").read_text())
+    assert conn.execute(weeks, (klass,)).fetchall() == written
 
 
 def test_a_period_with_no_end_lasts_until_the_next_one_starts_and_the_days_last_keeps_none(conn, world):
