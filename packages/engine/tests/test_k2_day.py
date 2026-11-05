@@ -204,3 +204,42 @@ def test_a_week_whose_monday_has_no_row_still_names_its_week_and_fortnight(world
 def test_while_the_switch_is_off_a_period_call_without_its_fields_is_refused_the_same_way(world):
     world["conn"].execute("update config set value = 'false' where key = 'educator.timetable_enabled'")
     assert call(world, "period").status_code == 403
+
+
+def test_a_period_with_no_end_lasts_until_the_next_one_starts_and_the_days_last_keeps_none(conn, world):
+    """The frame gives some periods no end (the bus). The engine says when each ends, once, for every screen: a period
+    with no end lasts until the next starts; the day's last keeps none. The day and the period itself agree."""
+    conn.execute(
+        "update period set ends_at = null where id = (select ts.period_id from timetable_slot ts join period p on"
+        " p.id = ts.period_id where ts.school_class_id = %s and p.starts_at = '10:20' limit 1)",
+        (world["k"]["class"],),
+    )
+    periods = call(world, "day", day="2026-11-23").json()["periods"]
+    ga = next(p for p in periods if p["starts_at"] == "10:20")
+    assert ga["ends_at"] == "10:40"
+    assert all(p["ends_at"] for p in periods[:-1]) and periods[-1]["ends_at"] is None
+    one = call(
+        world, "period", class_id=world["k"]["class"], day="2026-11-23", period_id=ga["period_id"]
+    ).json()
+    assert one["ends_at"] == "10:40"
+
+
+def test_each_period_carries_its_own_name_apart_from_its_planner_line(world):
+    """A lesson is named by the frame ("Academic 2 General Awareness"), its planner line is `line`; a break by its own
+    words. The name is never cut from the joined text, so a line holding ': ' cannot leak into it."""
+    periods = call(world, "day", day="2026-11-23").json()["periods"]
+    by_start = {p["starts_at"]: p for p in periods}
+    assert (
+        by_start["10:20"]["name"] == "Academic 2 General Awareness" and by_start["10:20"]["line"] == "Insects"
+    )
+    assert by_start["10:00"]["name"] == "Reading time"
+    assert by_start["11:45"]["name"] == "Lunch + Washroom"
+    assert all(p["name"] and (p["line"] or "") not in p["name"] for p in periods if p["line"])
+    one = call(
+        world,
+        "period",
+        class_id=world["k"]["class"],
+        day="2026-11-23",
+        period_id=by_start["10:20"]["period_id"],
+    )
+    assert one.json()["name"] == "Academic 2 General Awareness"
