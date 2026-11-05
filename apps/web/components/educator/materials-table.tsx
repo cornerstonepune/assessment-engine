@@ -1,3 +1,4 @@
+import Link from "@/components/link";
 import { removeLine, setQuantity } from "@/app/(app)/educator/materials/actions";
 import { Icon } from "@/lib/icons";
 import type { Column } from "@/lib/ux-rules";
@@ -5,7 +6,7 @@ import type { MaterialLine } from "@/lib/educator/types";
 import { E } from "@/lib/educator/words";
 
 // The columns of her list, for the site's one table (DataTable, D-075: rows of one kind): the item, the activity it is
-// for (a link to its page comes with the activity page, M1-09a), how many (a dash when the plan gives none, never
+// for (a link to its page), how many (a dash when the plan gives none, never
 // guessed; she sets it in place), where it is kept, remove. `look` (the staff preview): the lines only, nothing to change.
 const W = E.materials;
 export const BTN = "inline-flex min-h-[var(--tap)] min-w-[var(--tap)] items-center justify-center gap-[var(--space-1)] rounded-[var(--radius-m)] border border-[var(--border-control)] bg-[var(--surface)] px-[var(--space-2)] text-[length:var(--text-label)] font-medium text-[var(--text)]";
@@ -18,7 +19,17 @@ const qty = (l: MaterialLine) => (l.quantity === null ? W.noQty : `${l.quantity}
 export function materialColumns(look: boolean): Column<DayLine>[] {
   const cols: Column<DayLine>[] = [
     { key: "item", label: W.cols.item, value: (l) => l.item },
-    { key: "activity", label: W.cols.activity, value: (l) => l.activity?.name },
+    {
+      key: "activity",
+      label: W.cols.activity,
+      value: (l) => l.activity?.name,
+      cell: (l) =>
+        l.activity ? (
+          <Link href={`/educator/activity/${encodeURIComponent(l.activity.code)}?back=/educator/materials`} className="inline-flex min-h-[var(--tap)] items-center text-[var(--text)] underline underline-offset-4">
+            {l.activity.name}
+          </Link>
+        ) : null,
+    },
     {
       key: "quantity",
       label: W.cols.quantity,

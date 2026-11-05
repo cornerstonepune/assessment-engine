@@ -4,7 +4,7 @@ import { E } from "./words";
 // The K2 educator's menu (D-075's order): Today, then the timetable (a day, this week, next week). Fortnight, month,
 // materials (the class's list, the school's, the notes to read); activities and children come with their screens.
 export const EDUCATOR_MENU: MenuItem[] = [
-  { key: "today", label: E.today.title, icon: "today", path: "/educator", also: ["/educator/period"] },
+  { key: "today", label: E.today.title, icon: "today", path: "/educator", also: ["/educator/period", "/educator/activity"] },
   {
     key: "week",
     label: E.nav.timetable,

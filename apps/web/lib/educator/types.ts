@@ -75,3 +75,12 @@ export type SchoolList = {
 };
 /** A note the system could not read for sure, waiting for a person (M1-16's /materials/review/list). */
 export type WaitingNote = { id: string; list_id: string; text: string; reason: string; at: string };
+
+/** An activity's page (M1-12b's /curriculum/page/read): its parts as the shared page-part component draws them. */
+export type ActivityPage = {
+  code: string;
+  name: string;
+  section: string;
+  parts: import("../page-part").PagePart[];
+  materials: { text: string; items: { name: string; quantity: number | null; unit: string }[] };
+};

@@ -1,0 +1,25 @@
+name: m1-09a-activity-page
+goal: >
+  An activity's page in the educator's screens, each part drawn by the shared page-part component (#422), shows the
+  school's own words, a drafted part marked "Drafted, check me", the steps as bullets, how to think as an idea line with slips whose word is highlighted,
+  Levels 0–3 and the materials. On a drafted part she can Keep it, Edit it or Send it back, through M1-12b's page
+  routes; the school's words are never answered. The page opens from the period that names the activity, and is not
+  found unless her screens are open to her (the switch, or the staff preview), as every educator page.
+# Written 2026-11-05 (D-076, screen 2), once #398 (M1-12b) and #422 (the shared page part) had merged. No migration; no
+# engine change (the gate, /timetable/open, came with #419).
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-activity.spec.ts::the page shows the school's words, drafted steps as bullets and how to think as an idea with slips, each draft marked check me"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-activity.spec.ts::Keep makes a draft a person's, Edit puts her words in its place, and Send back empties it"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-activity.spec.ts::a period whose line names an activity opens its page, and back returns to the day"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-activity.spec.ts::while the timetable is switched off an activity's page is not found"
+manual:
+  - "The drafted words in the tests are placeholders; the school's words are the real Insects sheet."
+scenarios: []
+criteria:
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

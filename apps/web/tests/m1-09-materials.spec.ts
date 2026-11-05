@@ -55,7 +55,7 @@ test("the class list is a table a day, each line tied to its activity, its quant
   await expect(line(page, "Dustbin").locator("[data-home]")).toHaveAttribute("data-home", "class");
   await expect(line(page, "Beads").locator('input[name="quantity"]')).toHaveValue(""); // the plan gives none
   await expect(line(page, "Beads").locator("[data-home]")).toHaveAttribute("data-home", "none");
-  await expect(line(page, "Dustbin")).toContainText("Proper Use Of Dustbin"); // the activity it is for
+  await expect(line(page, "Dustbin").getByRole("link", { name: "Proper Use Of Dustbin" })).toHaveAttribute("href", /\/educator\/activity\/ACT-K2-0287/);
   await expect(page.locator("[data-summary]")).toContainText("1 without a quantity");
   await expect(page.getByRole("button", { name: /WhatsApp|Send/ })).toHaveCount(0);
   await tapsAreBig(page);
