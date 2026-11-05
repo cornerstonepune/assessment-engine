@@ -180,6 +180,7 @@
         "batch_rounds": 2,
         "stop_after_bad_replies": 3,
         "dev_pages": 60,
+        "tranche_pages": 250,
         "est_draft_in": 450,
         "est_draft_out": 800,
         "est_check_in": 700,
