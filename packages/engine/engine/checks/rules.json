@@ -186,7 +186,7 @@
  "curriculum_proposal.curriculum_proposal_check2": "CHECK (((status <> ALL (ARRAY['approved'::text, 'rejected'::text])) OR (about IS NULL) OR (staff_id IS NOT NULL)))",
  "curriculum_proposal.curriculum_proposal_check3": "CHECK ( CASE WHEN (about IS NULL) THEN (status = ANY (ARRAY['auto_passed'::text, 'needs_person'::text, 'rejected'::text])) ELSE (status = ANY (ARRAY['approved'::text, 'rejected'::text, 'applied'::text, 'reverted'::text])) END)",
  "curriculum_proposal.curriculum_proposal_confidence_check": "CHECK (((confidence >= (0)::numeric) AND (confidence <= (1)::numeric)))",
- "curriculum_proposal.curriculum_proposal_kind_check": "CHECK ((kind = ANY (ARRAY['skill'::text, 'objective'::text, 'levels'::text, 'lo_skill'::text, 'page_part'::text, 'material'::text])))",
+ "curriculum_proposal.curriculum_proposal_kind_check": "CHECK ((kind = ANY (ARRAY['skill'::text, 'objective'::text, 'levels'::text, 'lo_skill'::text, 'page_part'::text, 'material'::text, 'skill_offer'::text])))",
  "curriculum_proposal.curriculum_proposal_machine_check": "CHECK ((btrim(machine) <> ''::text))",
  "curriculum_proposal.curriculum_proposal_pkey": "PRIMARY KEY (id)",
  "curriculum_proposal.curriculum_proposal_staff_id_fkey": "FOREIGN KEY (staff_id) REFERENCES staff(id)",
