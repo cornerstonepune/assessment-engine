@@ -182,6 +182,7 @@ test("the offered-skills queue shows the activity, skills, what was linked, the 
 });
 
 test("the staff preview looks and changes nothing: the drafts and offers show, with no Keep, Edit, Send back, Yes or No", async ({ page }) => {
+  await curriculumRows(sql); // the walk-through above answered the drafts: they are written again
   await gate(sql, "preview");
   await offers(sql, skills);
   await page.goto("/curriculum/fill/walk");
