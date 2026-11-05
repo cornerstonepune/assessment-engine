@@ -16,8 +16,10 @@ from engine.api.routes.materials import Who, holds, list_class, staff_of
 from engine.w2_print import materials_consolidate as mc
 from engine.w2_print import materials_intake as mi
 from engine.w2_print import materials_inventory as inv
+from engine.w2_print import materials_list as ml
 from engine.w2_print import materials_month as mm
 from engine.w2_print import materials_remind as rem
+from engine.w2_print import materials_review as rv
 from engine.w2_print.materials_send import NothingToSend
 
 keyed = APIRouter(prefix="/materials", dependencies=[Depends(require_engine_key)])
@@ -30,6 +32,31 @@ class Build(Who):
 
 class Ref(Who):
     consolidated_id: UUID
+
+
+class Note(Who):
+    note_id: UUID
+
+
+class Clear(Note):
+    material_code: str
+    quantity: float
+    needed_on: dt.date
+
+
+class SetAside(Note):
+    why: str
+
+
+class Word(Who):
+    word: str
+    material_code: str
+
+
+class Unit(Who):
+    material_code: str
+    unit: str
+    factor: float
 
 
 def _mine(conn, body: Who, tenant_id: str, consolidated_id: UUID | None = None) -> UUID:
@@ -70,6 +97,92 @@ def send(body: Ref, conn=Depends(get_conn, scope="function"), tenant_id: str = D
         return inv.send(conn, body.consolidated_id, staff)
     except NothingToSend as no:
         raise HTTPException(status_code=422, detail="The list has nothing to send.") from no
+
+
+@keyed.post("/review/list")
+def review_list(body: Who, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
+    """The notes the system could not confirm, oldest first, for a person to read."""
+    _mine(conn, body, tenant_id)
+    return {
+        "notes": [
+            {**n, "id": str(n["id"]), "list_id": str(n["list_id"])}
+            for n in rv.waiting(conn, UUID(str(tenant_id)))
+        ]
+    }
+
+
+@keyed.post("/review/resolve")
+def review_resolve(
+    body: Clear, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)
+):
+    """Put what a waiting note asked for on its class's list, as a line a person chose."""
+    staff = _mine(conn, body, tenant_id)
+    try:
+        the_list = rv.resolve(
+            conn, UUID(str(tenant_id)), body.note_id, body.material_code, body.quantity, body.needed_on, staff
+        )
+    except rv.NoSuchNote as no:
+        raise HTTPException(status_code=404, detail="No such note.") from no
+    except rv.NotWaiting as no:
+        raise HTTPException(status_code=409, detail="That note is already cleared.") from no
+    except ml.NotInCatalogue as no:
+        raise HTTPException(status_code=422, detail="Choose an item from the catalogue.") from no
+    except ml.AlreadyOnList as no:
+        raise HTTPException(
+            status_code=409, detail="It is already on the list: change its quantity there."
+        ) from no
+    except ValueError as no:
+        raise HTTPException(status_code=422, detail=str(no)) from no
+    rem.sync(conn, the_list, rem.school_today(conn))
+    return {"list_id": str(the_list)}
+
+
+@keyed.post("/review/dismiss")
+def review_dismiss(
+    body: SetAside, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)
+):
+    staff = _mine(conn, body, tenant_id)
+    try:
+        rv.dismiss(conn, UUID(str(tenant_id)), body.note_id, body.why, staff)
+    except rv.NoSuchNote as no:
+        raise HTTPException(status_code=404, detail="No such note.") from no
+    except rv.NotWaiting as no:
+        raise HTTPException(status_code=409, detail="That note is already cleared.") from no
+    except ValueError as no:
+        raise HTTPException(status_code=422, detail=str(no)) from no
+    return {"ok": True}
+
+
+@keyed.post("/review/alias")
+def review_alias(
+    body: Word, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)
+):
+    """A word the school uses for a catalogue item: the model is shown it beside the item from the next note on."""
+    staff = _mine(conn, body, tenant_id)
+    try:
+        rv.approve_alias(conn, UUID(str(tenant_id)), body.word, body.material_code, staff)
+    except ml.NotInCatalogue as no:
+        raise HTTPException(status_code=422, detail="Choose an item from the catalogue.") from no
+    except rv.AliasTaken as no:
+        raise HTTPException(status_code=409, detail="That word already means a different item.") from no
+    except ValueError as no:
+        raise HTTPException(status_code=422, detail=str(no)) from no
+    return {"ok": True}
+
+
+@keyed.post("/review/convert")
+def review_convert(
+    body: Unit, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)
+):
+    """A unit that converts to the item's own ("dozen" is 12 piece): from the next note on, code converts with it."""
+    staff = _mine(conn, body, tenant_id)
+    try:
+        rv.approve_conversion(conn, UUID(str(tenant_id)), body.material_code, body.unit, body.factor, staff)
+    except ml.NotInCatalogue as no:
+        raise HTTPException(status_code=422, detail="Choose an item from the catalogue.") from no
+    except ValueError as no:
+        raise HTTPException(status_code=422, detail=str(no)) from no
+    return {"ok": True}
 
 
 @keyed.post("/note")

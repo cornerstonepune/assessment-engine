@@ -66,6 +66,11 @@ export type EngineRoutes = {
   "POST /materials/note": null;
   "POST /materials/read": { actor: string; list_id: string; group_by?: "day" | "week" | "fortnight" | null };
   "POST /materials/reminders": { actor: string; class_id?: string | null };
+  "POST /materials/review/alias": { actor: string; word: string; material_code: string };
+  "POST /materials/review/convert": { actor: string; material_code: string; unit: string; factor: number };
+  "POST /materials/review/dismiss": { actor: string; note_id: string; why: string };
+  "POST /materials/review/list": { actor: string };
+  "POST /materials/review/resolve": { actor: string; note_id: string; material_code: string; quantity: number; needed_on: string };
   "POST /materials/school/build": { actor: string; from: string; to: string };
   "POST /materials/school/read": { actor: string; consolidated_id: string };
   "POST /materials/school/send": { actor: string; consolidated_id: string };

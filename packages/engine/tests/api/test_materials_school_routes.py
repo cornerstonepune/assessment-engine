@@ -214,3 +214,112 @@ def test_the_coordinators_build_makes_every_class_list_and_names_the_classes_it_
     assert (
         body["no_materials"] == [] and body["no_fortnight"] == []
     )  # every shortness the build knows is returned
+
+
+def _waiting_note(conn, s, lid, text="some pens"):
+    return conn.execute(
+        "insert into materials_note_review (tenant_id, list_id, text, reason, who) values (%s, %s, %s, 'no quantity', %s)"
+        " returning id",
+        (s["tenant"], lid, text, s["staff"]),
+    ).fetchone()["id"]
+
+
+def test_the_review_routes_are_for_the_coordinator_only(engine):
+    client, conn, s = engine
+    lid, _ = _list(conn, s)
+    nid = _waiting_note(conn, s, lid)
+    body = {
+        "actor": s["email"],
+        "note_id": str(nid),
+        "material_code": "MAT-1",
+        "quantity": 3,
+        "needed_on": str(LO),
+    }
+    for path in ("/materials/review/list", "/materials/review/resolve", "/materials/review/dismiss"):
+        assert client.post(path, headers=H, json=body | {"why": "x"}).status_code == 403, path
+
+
+def test_a_coordinator_sees_the_waiting_notes_clears_one_and_sets_one_aside(engine):
+    client, conn, s = engine
+    lid, _ = _list(conn, s)
+    pen = m.item(conn, s, "Pen", "piece")
+    first, second = _waiting_note(conn, s, lid, "some pens"), _waiting_note(conn, s, lid, "a thing")
+    who = _coordinator(conn, s)
+    seen = client.post("/materials/review/list", headers=H, json={"actor": who}).json()["notes"]
+    assert [n["text"] for n in seen] == ["some pens", "a thing"]
+    done = client.post(
+        "/materials/review/resolve",
+        headers=H,
+        json={
+            "actor": who,
+            "note_id": str(first),
+            "material_code": pen,
+            "quantity": 30,
+            "needed_on": str(LO),
+        },
+    )
+    assert done.status_code == 200, done.text
+    again = client.post(
+        "/materials/review/resolve",
+        headers=H,
+        json={
+            "actor": who,
+            "note_id": str(first),
+            "material_code": pen,
+            "quantity": 30,
+            "needed_on": str(LO),
+        },
+    )
+    assert again.status_code == 409
+    set_aside = client.post(
+        "/materials/review/dismiss",
+        headers=H,
+        json={"actor": who, "note_id": str(second), "why": "not a material"},
+    )
+    assert set_aside.status_code == 200, set_aside.text
+    assert client.post("/materials/review/list", headers=H, json={"actor": who}).json()["notes"] == []
+
+
+def test_a_review_that_cannot_be_done_says_why_in_words(engine):
+    client, conn, s = engine
+    lid, clay = _list(conn, s)
+    nid = _waiting_note(conn, s, lid)
+    who = _coordinator(conn, s)
+    base = {"actor": who, "note_id": str(nid), "needed_on": str(LO)}
+    cases = [
+        ({"material_code": "MAT-9999", "quantity": 3}, 422),
+        ({"material_code": clay, "quantity": 0}, 422),
+        ({"material_code": clay, "quantity": 3, "needed_on": "31/12/2026"}, 422),
+    ]
+    for extra, want in cases:
+        got = client.post("/materials/review/resolve", headers=H, json=base | extra)
+        assert got.status_code == want, (extra, got.text)
+    assert client.post("/materials/review/dismiss", headers=H, json=base | {"why": " "}).status_code == 422
+    unknown = base | {"note_id": "00000000-0000-0000-0000-000000000000", "why": "x"}
+    assert client.post("/materials/review/dismiss", headers=H, json=unknown).status_code == 404
+
+
+def test_a_coordinator_approves_a_word_and_a_unit_and_a_clash_is_said_in_words(engine):
+    client, conn, s = engine
+    pen, pencil = m.item(conn, s, "Pen", "piece"), m.item(conn, s, "Pencil", "piece")
+    who = _coordinator(conn, s)
+    ok = client.post(
+        "/materials/review/alias", headers=H, json={"actor": who, "word": "Ball Pen", "material_code": pen}
+    )
+    assert ok.status_code == 200, ok.text
+    clash = client.post(
+        "/materials/review/alias", headers=H, json={"actor": who, "word": "ball pen", "material_code": pencil}
+    )
+    assert clash.status_code == 409
+    conv = {"actor": who, "material_code": pen, "unit": "dozen", "factor": 12}
+    assert client.post("/materials/review/convert", headers=H, json=conv).status_code == 200
+    for bad in ({"factor": 0}, {"unit": "piece"}, {"material_code": "MAT-9999"}):
+        assert client.post("/materials/review/convert", headers=H, json=conv | bad).status_code == 422, bad
+    assert (
+        client.post(
+            "/materials/review/alias",
+            headers=H,
+            json={"actor": s["email"], "word": "x", "material_code": pen},
+        ).status_code
+        == 403
+    )
