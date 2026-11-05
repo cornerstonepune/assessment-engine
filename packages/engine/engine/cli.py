@@ -8,17 +8,35 @@ from engine.adapters.llm import LLMError
 from engine.assess import graph
 from engine.checks.cli_check import register as register_checks
 from engine.checks.cli_live import live_app
+from engine.checks.evals import BY_VERSION
+from engine.checks.evals import held as _held
+from engine.checks.evals import of as _of
+from engine.checks.evals import unanswered as _unanswered
 from engine.checks.levels import levels_app
 from engine.core import asks, db, levels, loaders, references
 from engine.core.cli_staff import register as register_staff
-from engine.w1_bank import bank, generate, mistake_guess, review, spec, story_eval, story_keys, story_shape
+from engine.w1_bank import (
+    bank,
+    generate,
+    k2_draft,  # noqa: F401 — registers `curriculum draft` and `curriculum materials`
+    k2_gold,  # noqa: F401 — registers `curriculum gold-sheet`
+    mistake_guess,
+    review,
+    spec,
+    story_keys,
+    story_shape,
+)
 from engine.w1_bank.cli_bank import bank_app
+from engine.w1_bank.k2_upload import curriculum_app
 from engine.w1_bank.question_types import types_app
 from engine.w2_print.cli_library import library_app
+from engine.w2_print.cli_materials import register_materials
+from engine.w2_print.cli_timetable import timetable_app
 from engine.w2_print.cli_week import week_app
 from engine.w3_read.cli_gold import gold_app
 from engine.w3_read.cli_legacy import legacy_app
 from engine.w3_read.cli_read import read_app
+from engine.w3_read.cli_skill_links import skill_links_app
 from engine.w4_close import parent_report, parent_review
 from engine.w4_close.cli_card import card_app
 from engine.w4_close.cli_report import report_app
@@ -34,21 +52,27 @@ EVALS = (
     *review.REVIEWERS,
     "item_generate",
     generate.PURPOSE,
+    "curriculum_map",
+    "materials_read",
 )
 
 app = typer.Typer(help="Cornerstone assessment engine", no_args_is_help=True)
 app.add_typer(bank_app, name="bank")
+app.add_typer(curriculum_app, name="curriculum")
 app.add_typer(week_app, name="week")
+app.add_typer(timetable_app, name="timetable")
 app.add_typer(legacy_app, name="legacy")
 app.add_typer(read_app, name="read")
 app.add_typer(live_app, name="live")
 app.add_typer(library_app, name="library")
 app.add_typer(gold_app, name="gold")
+app.add_typer(skill_links_app, name="skill-links")
 app.add_typer(card_app, name="card")
 app.add_typer(report_app, name="report")
 app.add_typer(types_app, name="types")
 app.add_typer(levels_app, name="levels")
 register_staff(app)
+register_materials(app)
 register_checks(app)
 
 
@@ -95,31 +119,6 @@ def graph_(
         questions = learn.item_stats(conn)
         conn.commit()
     typer.echo(f"  {n} states · {questions} questions with confirmed answers")
-
-
-def _unanswered(r, n):
-    """A Jev eval Jev did not answer fails and says why: with no key it used to score as nothing chosen, and pass."""
-    if r["unanswered"]:
-        typer.echo(f"JEV  not answered on {r['unanswered']} of {n}: {r['error']}", err=True)
-        raise typer.Exit(1)
-
-
-def _of(part: float, whole: float) -> float:
-    return part / whole if whole else 0.0
-
-
-def _held(purpose: str, scores: dict[str, float]) -> None:
-    """An eval's scores against its bars, rows in `threshold` (`checks.bars`): it exits 1 below any bar, or with none
-    on record (goals/p1-done-means-every-check.yaml)."""
-    from engine.checks import bars
-
-    with db.connect() as conn:
-        missed = bars.short(scores, bars.bars(conn, purpose))
-    for m in missed:
-        typer.echo(f"  BELOW  {purpose}: {m}", err=True)
-    if missed:
-        raise typer.Exit(1)
-    typer.echo(f"  {purpose}: every bar met")
 
 
 def _eval_reviewer(purpose: str) -> None:
@@ -171,45 +170,6 @@ def _eval_item_generate(n: int, only: str) -> None:
     _held("item_generate", {"pass_rate": _of(total_ok, total)})
 
 
-def _eval_english_generate(version: int) -> None:
-    """english_generate: the share of the questions written for the fixed samples that pass every check."""
-    with db.connect() as conn:
-        try:
-            r = generate.evaluate(conn, version or None)
-        except LLMError as e:
-            conn.commit()
-            typer.echo(f"MODEL  {e}", err=True)
-            raise typer.Exit(1)
-        conn.commit()  # the flow_run rows: what the eval spent; nothing else is written
-    typer.echo(json.dumps(r, indent=2, ensure_ascii=False))
-    typer.echo(f"english_generate v{version or 'active'}: {r['kept']}/{r['returned']} passed every check")
-    return _held(generate.PURPOSE, {"kept": _of(r["kept"], r["returned"])})
-
-
-def _eval_story_shape(version: int) -> None:
-    """story_shape: stories placed in the right case, and one-step answers computed right."""
-    with db.connect() as conn:
-        r = story_eval.evaluate(conn, version=version or None)
-        conn.commit()
-    for m in r["misses"]:
-        typer.echo(
-            f"  {'LEFT' if m['got'] is None else 'MISS':<5} {m['text'][:60]}  wanted {m['want']}, {m['got'] or m['why']}"
-            + "".join(f"\n          Jev: {o} {p:.2f}" for o, p in m.get("ranked") or [])
-        )
-    typer.echo(
-        f"  {story_shape.PURPOSE}: named {r['named']}/{r['n']}, the shape right on {r['right']} · one-step answers computed"
-        f" {r['keyed']}, wrong {r['wrong_answer']} · left for a person {r['left']}"
-    )
-    _unanswered(r, r["n"])
-    return _held(
-        story_shape.PURPOSE, {"shape_right": _of(r["right"], r["n"]), "wrong_answers": r["wrong_answer"]}
-    )
-
-
-# the scorers that take only the version they score
-BY_VERSION = {generate.PURPOSE: _eval_english_generate, story_shape.PURPOSE: _eval_story_shape}
-
-
 @app.command("eval")
 def eval_(
     purpose: str,
@@ -228,12 +188,18 @@ def eval_(
         "--jev-version",
         help="parent_review: the version of Jev's three questions that reads first (0: none)",
     ),
+    dev: bool = typer.Option(
+        False, "--dev", help="curriculum_map: score the dev set, not the held-out share"
+    ),
+    validate_version: int = typer.Option(
+        0, "--validate-version", help="curriculum_map: the version of the checker (0: the active one)"
+    ),
 ) -> None:
     """Score a prompt. item_generate: accepted ÷ returned. The reviewers: agreement with the
     hand-judged gold set in supabase/seed/validator_gold.json. parent_report: every child with signed-off answers,
     each draft held to its facts by code — the bar is all of them."""
     if purpose in BY_VERSION:
-        return BY_VERSION[purpose](version)
+        return BY_VERSION[purpose](version, dev, validate_version)
     if purpose == parent_report.PURPOSE:
         with db.connect() as conn:
             try:

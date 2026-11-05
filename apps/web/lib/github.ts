@@ -7,7 +7,7 @@
 // write, nothing else. It is never logged, never sent anywhere but GitHub, and never said: a failure is a word on the
 // note's own row (`staff_note.status`), counted by `engine live watch`.
 
-export const REPO = "cornerstonepune/assessment-engine";
+export const REPO = "cornerstonepune/cornerstone-platform";
 /** Every issue made from the tool carries this label beside its kind's. */
 export const FROM_THE_TOOL = "from-the-tool";
 

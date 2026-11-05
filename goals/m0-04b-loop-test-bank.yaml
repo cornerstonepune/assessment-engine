@@ -1,0 +1,39 @@
+name: m0-04b-loop-test-bank
+goal: >
+  The whole-loop test chooses its planted mistake from the bank it is actually running against, never assuming a
+  question exists. A mistake is planted only if the paper shows it among the graph's last answers of one skill AND the
+  bank holds another question, not on that paper, made for that skill, that can show it on the child's next paper. When
+  no mistake qualifies, the test fails with a message that names the bank, not the test. A separate check reads the bank
+  and fails when a level of a new skill set holds no mistake that two questions can show. No assertion is loosened, no
+  limit raised, nothing skipped, and the same tests pass on 50 different banks.
+
+# Written 2026-11-03, before the fix (task M0-04b). CI of PR #367, engine shard 2: `test_the_loop_holds_when_the_graph_reads_fewer_answers_than_a_paper_has[MD.MULTIPLES-Easy]`
+# failed with "no next question can show M_LAST_DIGIT_RULE_MISAPPLIED", after M0-04 (PR #356) had fixed an earlier "graph []".
+# The cause, by evidence (docs/notes/m0-04b-loop-test-bank.md): each build draws its question bank from an unseeded generator,
+# so the number of questions that can show a mistake at a level differs per build (MD.MULTIPLES Easy, M_LAST_DIGIT_RULE_MISAPPLIED:
+# 0, 1, 4 and 0 on four fresh builds). The next paper takes questions the child has not just been given before any they have
+# (`focus_paper._draw`); the paper just signed off gave the child the ones the bank held, so none was left to show it again.
+# The test chose the mistake from the paper alone.
+# Words: the sentence recorded for M0-04 and M0-03 (Nimish, 2026-11-03). The orchestrator's brief quoted another sentence
+# ("The platform's checks give the same answer every time for the same code."); it is in no file of this repository, so it
+# is not used here, since a goal carries Nimish's own words (rule 14).
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_the_loop.py::test_the_loop_holds_when_the_graph_reads_fewer_answers_than_a_paper_has"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_the_loop.py::test_the_bank_holds_a_mistake_the_loop_can_plant_and_show_again"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_the_loop.py::test_a_mistake_the_bank_cannot_show_again_is_not_the_one_planted"
+manual:
+  - "50 different banks: bin/testdb fresh once, then for each seed a clone with MD.MULTIPLES and MD.EQUALITY Easy re-drawn from that seed; the count of passes is in docs/notes/m0-04b-loop-test-bank.md."
+scenarios: []
+criteria:
+  - name: the whole-loop test, every new skill set at every level, and the bank check
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_the_loop.py
+    expect: "passed"
+  - name: the calibration tests, unchanged
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_calibration.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

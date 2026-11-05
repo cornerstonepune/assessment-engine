@@ -1,0 +1,59 @@
+name: m0-05-people-enrolment
+goal: >
+  The system knows who the K2 educator is, which class she teaches, and which children are in that class, with their
+  roll numbers. People, campus, academic year, class and enrolment are tables of their own: a child belongs to a class
+  only through an enrolment (a move closes one row and opens another, so the history is kept); an educator holds a
+  role only through a dated grant that is never deleted; the twelve roles of D-026 are rows; a class has one class
+  teacher at a time, and from Grade 1 a core-subject teacher is not a class teacher (D-039, a config row): giving a
+  second, or breaking that, warns and is allowed only with a reason that is recorded. Names, emails and phone numbers of staff, and a child's name and birthday, live
+  only in the `pii` schema. `engine staff import` copies the staff list the website signs in from into the staff
+  tables; `engine enrol k2 <csv>` loads the K2 class and its children from the school's Children List. Both show what
+  they would do and write nothing until `--apply --by <name>`; both can run twice and the second run changes nothing.
+# Written 2026-11-03, before the code: task M0-05 (cornerstonepune/teacher-os blueprint/roadmap.toml; scenario
+# S-M0-05-people; decisions D-039, D-046, D-047, D-055). The blueprint files named in the task (data-architecture.md,
+# people-and-access.md, modules.md) could not be read from the build container, so every choice that rests on them is
+# listed in docs/notes/m0-05-people-enrolment.md for the orchestrator to check. Not in this slice, on purpose: who may
+# see which class (P-05 says that needs a proven route first), the class list's real file (Nimish sends it on
+# 2026-11-04 and it stays outside git), and any write to live. The tests use obviously placeholder rows in the test
+# database only.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_the_k2_educator_her_class_and_its_children_with_roll_numbers_are_all_in_the_tables"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_a_child_is_in_a_class_only_through_an_enrolment_and_a_move_closes_one_and_opens_another"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_a_second_class_teacher_warns_and_is_allowed_only_with_a_recorded_reason"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_staff_import_copies_the_staff_list_leaves_the_config_and_changes_nothing_the_second_time"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_enrol_k2_is_a_dry_run_until_applied_and_a_second_run_changes_nothing"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_a_list_with_a_duplicate_or_a_bad_row_is_refused_in_words_and_writes_nothing"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_no_name_email_phone_or_birthday_is_outside_pii_and_no_report_prints_one"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_the_twelve_roles_of_d026_are_rows_with_their_scope_and_the_rule_is_a_config_row"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_d039_from_grade_one_a_core_teacher_is_not_a_class_teacher_unless_a_reason_is_kept"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_a_grant_is_never_deleted_it_ends"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_the_staff_id_of_a_signed_in_email_is_found_in_any_case_and_never_a_name"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_a_grant_is_never_edited_only_ended"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_each_service_can_call_what_it_may_and_neither_can_delete_history"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_people.py::test_d039_fails_closed_when_the_rules_grade_is_not_a_grade"
+manual:
+  - "The class list: Nimish sends the Children List (columns number, name, birthday) on 2026-11-04. Keep it outside the repository. Dry run first: `~/cornerstone/assessment-engine/bin/engine enrol k2 <that file>`; read the counts and every refused row; nothing is written."
+  - "The load on live, only after that report is approved: `~/cornerstone/assessment-engine/bin/engine staff import --apply --by <your email>`, then `~/cornerstone/assessment-engine/bin/engine enrol k2 <that file> --apply --by <your email> --teacher <the K2 educator's email>`; the same two commands again must add nothing: every row says already there."
+  - "Actions, rehearse update-live, on this branch: the migration runs on a copy of live; `engine past` prints the same evidence, states, scored answers, questions and levels before and after."
+scenarios: []
+criteria:
+  - name: S-M0-05-people — the K2 educator, her class and its children with roll numbers; staff import; enrolment; the class-teacher warning
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_people.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

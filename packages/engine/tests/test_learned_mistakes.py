@@ -51,7 +51,7 @@ def _written(conn, tenant, key, wrote, state="confirmed"):
     ).fetchone()["id"]
     si = conn.execute(
         "insert into sheet_instance (tenant_id, qr_code, sheet_template_id, child_id) values (%s,%s,%s,%s) returning id",
-        (tenant, f"CS{uuid.uuid4().hex[:6]}", t, child),
+        (tenant, f"CS{uuid.uuid4().hex}", t, child),
     ).fetchone()["id"]
     cap = conn.execute(
         "insert into capture (tenant_id, path, sheet_instance_id) values (%s,'~/x.pdf',%s) returning id",

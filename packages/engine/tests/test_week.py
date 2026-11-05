@@ -13,7 +13,10 @@ from engine.assess import graph
 from engine.core import db, roster
 from engine.w2_print import assemble, prescribe
 
-pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
+pytestmark = [
+    pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)"),
+    pytest.mark.usefixtures("forgets_what_it_commits"),
+]
 
 SET, WEEK, SECTION = "SUB.2D2D", "T2W9-test", "TESTSEC"
 
@@ -205,9 +208,9 @@ def test_two_classes_assembled_at_the_same_moment_both_finish():
     """
     import threading
 
-    # A class of its own, made once and kept, as every browser test's is: a child cannot be deleted
-    # (`evidence_event`'s append-only trigger refuses even an empty cascade), and the class made fresh on every
-    # run, then deactivated, left two more children in the copy each time — 24 by 2026-10-01.
+    # A class of its own. A child cannot be deleted by the usual way (`evidence_event`'s append-only trigger refuses
+    # even an empty cascade), which once left two more children in the copy on every run, 24 by 2026-10-01; the module
+    # now takes what it made away at its end (`forgets_what_it_commits`, with the triggers off for that transaction).
     section = "CONCURSEC-TEST"
     errors: list[Exception] = []
 

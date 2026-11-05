@@ -27,7 +27,7 @@ import { switchTopic } from "../topic-actions";
 // (lib/todo.ts `TODO_GROUPS`). A row has its own action and there is no button over every row. Each group's heading opens the page
 // that does that kind of work. In the person's subjects and classes (lib/viewing.ts, lib/scope.ts); the page's own filters narrow it.
 const COLUMNS = (mixed: boolean): Column<Task>[] => [
-  { key: "priority", label: "Priority", status: true, width: "9rem", keep: true, value: (t) => t.state, cell: (t) => <StatusChip state={t.state} /> },
+  { key: "priority", label: "Priority", status: true, width: "9rem", keep: true, value: (t) => t.state, cell: (t) => <StatusChip state={t.state} round={t.kind === "note" || t.kind === "record"} /> },
   ...(mixed ? [{ key: "what", label: "What", width: "13rem", value: (t: Task) => t.what }] : []),
   { key: "where", label: "Where", value: (t) => t.where },
   { key: "many", label: "How many", width: "8rem", value: (t) => t.many },
@@ -69,13 +69,20 @@ const SECTION_ORDER = (a: string, b: string) => a.localeCompare(b, "en", { numer
 export default async function WhatNeedsDoing({ searchParams }: { searchParams: Promise<Q> }) {
   const q = await searchParams;
   const me = await requireStaff();
-  const [all, offered] = await deadline(Promise.all([tasksFor(me), choices()]));
+  // The list (the layout asks for it too, once per request) and the note under it are read together, never the note after the
+  // list: they depend on each other for nothing, and read in turn the page was its list plus its note (goals/m0-03-today-speed.yaml).
+  const listed = tasksFor(me);
+  const offered = await deadline(choices());
   const mine = subjectsFor(me, offered.subjects);
   const mySubjects = mine.map((s) => s.code);
+  const subject = mine.find((s) => s.code === q.subject)?.code;
+  // the note under the list is read for the class chosen in the page's own filter, else for all the person's classes
+  const noted = workScope(me).then((scope) => deadline(weekNote(q.class && isMine(scope, q.class) ? { classes: [q.class], note: null } : scope, subject ?? mine[0]?.code ?? "")));
+  noted.catch(() => {}); // if the list fails first the page errors; this one is then never awaited
+  const all = await deadline(listed);
   // what waits on this person, and the one count the menu carries; the page's filters narrow what is listed, never that figure
   const here = filterTasks(all, {}, mySubjects);
   const classes = [...new Set(here.flatMap((t) => t.sections))].sort(SECTION_ORDER);
-  const subject = mine.find((s) => s.code === q.subject)?.code;
   const section = classes.find((c) => c === q.class);
   const group = TODO_GROUPS.find((g) => g.key === q.group)?.key;
   // `kind` is the address the page had before it had groups (a bookmark, a link in a message): one kind of task, so one group
@@ -84,9 +91,7 @@ export default async function WhatNeedsDoing({ searchParams }: { searchParams: P
   // with a class chosen, a topic is marked taught for that class alone
   const narrowed = section ? tasks.map((t) => (t.kind === "taught" ? { ...t, sections: [section], where: t.where.replace(/ · [^·]*$/, ` · ${section}`), many: count(1, "class", "classes") } : t)) : tasks;
   const sections = sectionsOf(narrowed);
-  // the note under the list is read for the class chosen in the page's own filter, else for all the person's classes
-  const scope = await workScope(me);
-  const known = await deadline(weekNote(q.class && isMine(scope, q.class) ? { classes: [q.class], note: null } : scope, subject ?? mine[0]?.code ?? ""));
+  const known = await noted;
   const waiting = waitingCount(here);
   const first = here.find((t) => t.state === "doNow") ?? here[0];
   // one group left (a kind asked for, a filter) is the open one, and the page number is its own
@@ -140,7 +145,7 @@ export default async function WhatNeedsDoing({ searchParams }: { searchParams: P
 
 /** One kind of work: a line (heading to its page, how many, red/amber/green, the next action), folded into its own table. */
 function Group({ s, open, page, q }: { s: Section; open: boolean; page: number; q: Q }) {
-  const { group, tasks, next } = s;
+  const { group, title, tasks, next } = s;
   const mixed = new Set(tasks.map((t) => t.kind)).size > 1;
   return (
     <li className="min-w-0">
@@ -151,7 +156,7 @@ function Group({ s, open, page, q }: { s: Section; open: boolean; page: number; 
           </svg>
           <h2 className="min-w-0 flex-1 text-[16px]">
             <Link href={group.home} data-group-home>
-              {group.title}
+              {title}
             </Link>
           </h2>
           <span className="fact w-28 text-right text-[13px]" data-group-count={tasks.length}>
@@ -168,7 +173,7 @@ function Group({ s, open, page, q }: { s: Section; open: boolean; page: number; 
         </summary>
         <div className="min-w-0 px-4 pb-4">
           <DataTable
-            label={group.title}
+            label={title}
             columns={COLUMNS(mixed)}
             rows={tasks}
             rowKey={(x) => x.id}

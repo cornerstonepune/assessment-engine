@@ -1,0 +1,4 @@
+before_code,after_code,reason,source
+ART.CLAY.01,ART.CLAY.02,A test pair: handling clay comes before modelling a shape,test list for goals/m1-15-skill-links.yaml (not the educator's)
+ART.MUS.01,ART.MUS.03,A test pair: knowing voices comes before singing with rhythm,test list for goals/m1-15-skill-links.yaml (not the educator's)
+ART.MUS.03,ART.MUS.04,A test pair: singing with rhythm comes before beat and tempo,test list for goals/m1-15-skill-links.yaml (not the educator's)

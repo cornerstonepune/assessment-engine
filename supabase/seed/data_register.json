@@ -3,8 +3,8 @@
   "data_register": [
     {
       "code": "name",
-      "what": "Your child's name, and the languages spoken at home.",
-      "why": "So your child's educators know whose work is whose. The name is kept apart from everything else, and is never sent to the computer service that reads handwriting.",
+      "what": "Your child's name, date of birth, and the languages spoken at home.",
+      "why": "So your child's educators know whose work is whose. The name and date of birth are kept apart from everything else, and are never sent to the computer service that reads handwriting.",
       "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
       "who_sees": "Your child's educators and the school's coordinator.",
       "tables": ["pii.child"]
@@ -15,7 +15,7 @@
       "why": "So your child's papers reach them, and their work is shown with their class.",
       "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
       "who_sees": "Your child's educators and the school's coordinator.",
-      "tables": ["public.child", "public.child_move"]
+      "tables": ["public.child", "public.child_move", "public.enrolment", "public.staff_role_grant"]
     },
     {
       "code": "papers",
@@ -39,7 +39,15 @@
       "why": "So your child's educators know what to teach next. A record is kept as it was written; a correction is added beside it, never in its place.",
       "how_long": "While your child is at the school. How long after they leave is for the school to decide.",
       "who_sees": "Your child's educators and the school's coordinator.",
-      "tables": ["public.evidence_event", "public.child_skill_state"]
+      "tables": ["public.evidence_event", "public.child_skill_state", "public.child_observed_state"]
+    },
+    {
+      "code": "observations",
+      "what": "What your child's educator saw during class activities in kindergarten, and the short voice notes she records after them. In a note, children are named only by their class number, never by name.",
+      "why": "So the educator can see how each child is getting on with each activity and plan what comes next. A recording is turned into words by a speech-to-text service, which receives the recording only, never your child's name.",
+      "how_long": "While your child is at the school. How long a recording is kept is for the school to decide; until it does, recordings are kept and not deleted.",
+      "who_sees": "Your child's educators and the school's coordinator. The recordings themselves are kept private.",
+      "tables": ["public.activity_observation", "pii.educator_note", "pii.note_claim"]
     },
     {
       "code": "reports",

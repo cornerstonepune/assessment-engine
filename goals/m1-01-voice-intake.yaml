@@ -1,0 +1,88 @@
+name: m1-01-voice-intake
+goal: >
+  A K2 educator records a short spoken note after an activity, saying children only by their roll numbers; the words of
+  the note are read by code into a draft (the activity, who did above, below, not willing or absent, "the rest did as
+  expected", one free sentence, and any incident routed away from learning), each number matched by code to a child on
+  that day's enrolment roll; the educator sees each draft line beside the words it came from, nothing ticked for them,
+  and confirms or corrects it; only a confirmed note becomes observations and evidence, written by code, and a note
+  not confirmed within 48 hours never does. The recording stays on the school's private side and is never in git or a
+  log. Where the code cannot read a line it says "could not read", never a guess.
+# Written 2026-11-03, before the code: task M1-01 (cornerstonepune/teacher-os blueprint/roadmap.toml; scenarios
+# S-M1-01-fixtures, S-M1-01-notes; decisions D-040, D-045, D-051, D-052, D-053, D-055, D-056). W3, a new step for voice
+# notes proposed to workflows.json with the parser. Speech to text is Sarvam AI (Nimish, 3 Nov). Built in five pull requests: (1) this goal and the transcription
+# spike (research/2026-11-03-k2-voice-transcription-spike.md), (2) the parser, (3) the tables, (4) Record and Confirm,
+# (5) confirming writes the rows. Each step adds its sentences and tests here. Open and not resolved here: O-13 (children
+# as numbers), O-14 (how long pilot audio is kept). Real-note acceptance (the first 20 real K2 notes) comes later.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_intake.py::test_git_refuses_every_kind_of_voice_recording_and_holds_none"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_note.py::test_the_template_is_read_into_one_line_per_section_each_beside_its_own_words"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_note.py::test_an_unclear_or_misheard_word_is_could_not_read_and_blocks_confirm"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_note.py::test_hindi_number_words_are_read_in_latin_letters_and_in_devanagari_and_devanagari_digits_too"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_note.py::test_a_note_that_starts_with_incident_is_an_incident_and_is_never_read_for_lists"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_day.py::test_the_date_at_the_start_of_the_days_first_note_is_read_and_never_lands_in_the_future"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_speech.py::test_only_the_recording_and_the_templates_own_words_leave_us"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_tables.py::test_an_observation_is_never_edited_or_deleted_and_a_correction_names_what_it_replaces"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_tables.py::test_the_engine_writes_and_never_deletes_and_the_website_never_sees_a_note"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_confirm.py::test_a_confirmed_note_gives_one_row_a_child_and_evidence_on_each_skill_only_where_it_is_evidence"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_intake.py::test_a_note_waits_48_hours_then_is_left_unconfirmed_and_leaves_the_queue"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_intake.py::test_the_activity_and_every_number_are_found_in_the_class_and_a_stranger_is_a_problem"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/api/test_voice_routes.py::test_every_route_refuses_while_voice_notes_are_switched_off"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/api/test_voice_routes.py::test_her_classes_come_from_her_grant_today_and_a_draft_carries_the_level_she_expected_and_whether_anything_was_heard"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_day.py::test_the_problems_about_the_date_are_named_apart_so_picking_the_date_fixes_them"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_check.py::test_each_note_is_scored_field_by_field_against_what_she_said"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_check.py::test_a_typed_transcript_is_read_against_the_class_and_writes_nothing"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_voice_check.py::test_a_retention_deletes_only_finished_recordings_older_than_it"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_cli_voice.py::test_every_line_the_box_timer_is_given_runs_a_command_the_engine_has"
+manual:
+  - "The live call, not run: no Sarvam key in the build container. With SARVAM_API_KEY set on the server, each fixture through engine/adapters/speech.py and the parser; every template word and number counted."
+  - "S-M1-01-fixtures: 8 recordings of an adult reading the spoken template with placeholder numbers, made by Nimish per research/2026-11-03-k2-voice-transcription-spike.md (no children, no real numbers); each sent to Sarvam (Nimish's choice, 3 Nov) and every template word and number counted from the parser's reading of its transcript. Fixtures are never proof (D-056)."
+  - "Before the first real note: the school's Sarvam workspace Owner sets Settings, Workspace, Data retention to 'No retention' for Model APIs (Sarvam's default keeps data indefinitely), and Sarvam confirms in writing that this covers speech-to-text and that audio is not used for training."
+  - "Actions, rehearse update-live, on the step 3 branch: the migration 20261226090000 runs on a copy of live; `engine past` prints the same evidence, states, scored answers, questions and levels before and after."
+  - "On the engine box, the two crontab lines in docs/notes/m1-01-voice-intake.md (expire hourly, retention daily), after Nimish approves the pilot; not set up from here."
+  - "The first 20 real K2 notes scored: the educator writes what each said in the expected file (voice_check.py) and `bin/engine read voice check <file>` prints the per-field agreement. Not run: no real note yet."
+  - "Real-note acceptance: the first 20 real K2 notes confirmed by the educator. Not claimed by this goal."
+scenarios: []
+criteria:
+  - name: S-M1-01-notes (typed) — the template read by code from typed transcripts, problems blocking Confirm
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_note.py
+    expect: "passed"
+  - name: the day a note is about, never later than the day it reached us
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_day.py
+    expect: "passed"
+  - name: speech to text against a recorded-response stub (the live call on fixtures is manual, not run)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_speech.py
+    expect: "passed"
+  - name: the tables keep every observation, never edit one, and keep a note off the website (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_tables.py
+    expect: "passed"
+  - name: a note from the phone to a draft, the 48-hour rule, confirm writes observations and evidence by code (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_intake.py tests/test_voice_confirm.py tests/test_cli_voice.py tests/api/test_voice_routes.py
+    expect: "passed"
+  - name: the reader scored against what was said, a typed transcript replayed, recordings kept until retention is decided
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_check.py tests/test_cli_voice.py
+    expect: "passed"
+  - name: a voice recording never reaches git
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_voice_intake.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

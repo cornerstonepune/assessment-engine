@@ -115,8 +115,8 @@ def compare(conn: db.Conn) -> dict[str, Any]:
     disagree += samples_disagree
     circles = conn.execute(
         "with recursive walk(start, code) as ("
-        "  select skill_code, before_code from skill_prerequisite"
-        "  union select w.start, p.before_code from walk w join skill_prerequisite p on p.skill_code = w.code"
+        "  select skill_code, before_code from skill_prerequisite_audit"
+        "  union select w.start, p.before_code from walk w join skill_prerequisite_audit p on p.skill_code = w.code"
         ") select distinct start from walk where start = code"
     ).fetchall()
     disagree += [f"{c['start']} comes before itself" for c in circles]
@@ -124,7 +124,7 @@ def compare(conn: db.Conn) -> dict[str, Any]:
         conn,
         "select (select count(*) from skill)::int as skills, (select count(*) from skill_mistake)::int as mistakes,"
         " (select count(*) from skill_registry_link)::int as links,"
-        " (select count(*) from skill_prerequisite)::int as prerequisites,"
+        " (select count(*) from skill_prerequisite_audit)::int as prerequisites,"
         " (select count(*) from skill_level_sample where question_format is null)::int as word_samples,"
         " (select count(*) from skill_level_sample where question_format is not null)::int as card_samples",
     )

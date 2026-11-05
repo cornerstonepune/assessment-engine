@@ -12,6 +12,7 @@ from pathlib import Path
 import typer
 
 from engine.core import db, settings, staff_load, staff_remove
+from engine.core.cli_people import enrol_app, staff_import
 from engine.core.staff import NODE_DEFAULT_N, add, classes, save, set_classes, staff, staff_hash
 
 staff_app = typer.Typer(help="Who signs in to the website", no_args_is_help=True)
@@ -257,7 +258,9 @@ def _hand_over(given: dict[str, str], keep: Path | None) -> None:
 
 def register(app: typer.Typer) -> None:
     """`engine staff …` and `engine set-password`, the name Nimish already uses."""
+    staff_app.command("import")(staff_import)
     app.add_typer(staff_app, name="staff")
+    app.add_typer(enrol_app, name="enrol")
 
     @app.command("set-password")
     def set_password(email: str) -> None:

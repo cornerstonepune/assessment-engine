@@ -148,6 +148,71 @@
       ]
     },
     {
+      "key": "llm.campaigns",
+      "description": "A piece of work with its own money (M1-11, Nimish 4 Nov: up to 25 US dollars for the whole drafting run, Sonnet-class models, Haiku for simple steps). The adapter adds up what these purposes have cost (flow_run.cost_inr) and refuses a call before making it once the total reaches cap less margin; the margin covers calls in flight. inr_per_usd is the rate llm.prices was written at. The stages go in the order of `order`: one may not start until the one before it has made a call. A stage (dev_eval 4, held_out 7 dollars; draft has only the campaign's cap) is tagged on each call as flow_run.trigger 'engine:<stage>'. A call left 'running' longer than stale_minutes counts its spend as unknown and stops the campaign. Raise a cap here, by a pull request, never in code.",
+      "value": {
+        "m1-11": {
+          "purposes": ["curriculum_map_propose", "curriculum_map_validate", "k2_page_draft", "k2_page_validate", "k2_materials_split"],
+          "cap_usd": 25,
+          "margin_usd": 2,
+          "stages": {"dev_eval": 4, "held_out": 7, "draft": null},
+          "order": ["dev_eval", "held_out", "draft"],
+          "stage_margin_usd": 0.25,
+          "stale_minutes": 10,
+          "inr_per_usd": 88
+        },
+        "m1-16": {
+          "purposes": ["materials_read"],
+          "cap_usd": 2,
+          "margin_usd": 0.25,
+          "window": "month",
+          "stale_minutes": 10,
+          "inr_per_usd": 88
+        }
+      }
+    },
+    {
+      "key": "k2.drafting",
+      "description": "How the K2 drafting run is cut and forecast (M1-11): pages per drafting or checking call, materials texts per call, how many more times a page still bad is asked for, how many replies in a row may break their schema before the run stops, how many pages the dev stage reads (`--dev`), and the tokens per page ASSUMED for the forecast (not measured; replace with the measured mean after the dev eval). Operational tuning, so a config row, not a threshold (a threshold is a rule the school reads about itself).",
+      "value": {
+        "batch_pages": 4,
+        "batch_materials": 10,
+        "batch_rounds": 2,
+        "stop_after_bad_replies": 3,
+        "dev_pages": 100,
+        "est_draft_in": 1000,
+        "est_draft_out": 700,
+        "est_check_in": 1200,
+        "est_check_out": 250,
+        "est_split_in": 400,
+        "est_split_out": 300
+      }
+    },
+    {
+      "key": "k2.draft_rules",
+      "description": "What drafted K2 text may never say, applied by code to the drafted parts only (the school's own words are never read): `gendered` are words that name a child as a boy or a girl (a draft says \"the child\"), `compare` are patterns (regular expressions, case ignored) for setting children against each other in body, name or ability. A page that breaks either is asked for again and, if it still does, left for a person with the word or phrase named. A list catches the shapes it names, not every comparison (M1-11f).",
+      "value": {
+        "gendered": ["she", "her", "hers", "herself", "he", "him", "his", "himself", "boy", "boys", "girl", "girls"],
+        "compare": [
+          "\\bside by side\\b",
+          "\\bwho (is|has|are|have)( the)? (taller|tallest|shorter|shortest|bigger|biggest|smaller|smallest|faster|fastest|stronger|strongest|better|best|heavier|heaviest|older|oldest|younger|youngest|longest)\\b",
+          "\\bcompar\\w* (the |two |both )*(children|child|kids|friends|classmates)\\b",
+          "\\b(children|child|kids|friends|classmates)(\u2019s|'s)? (height|heights|weight|size|sizes|body|bodies|hair|skin)\\b",
+          "\\b(taller|shorter|bigger|smaller|faster|stronger|heavier) than (the |an? )?(other )?(child|children|friend|classmate)\\b",
+          "\\b(tallest|shortest|biggest|smallest|fastest|strongest|best) (child|children|friend|classmate|one in the class)\\b"
+        ]
+      }
+    },
+    {
+      "key": "llm.structured",
+      "description": "The prompt versions whose reply the vendor holds to the schema (Anthropic's output_config.format), so no field outside it can come back: {purpose: [versions]}. Only a version whose schema the vendor can hold belongs here: every object closed with its fields named (a free-form map is forced empty), no recursion. The local check against the full schema still runs (M1-11e).",
+      "value": {
+        "curriculum_map_propose": [
+          3
+        ]
+      }
+    },
+    {
       "key": "llm.fallback_models",
       "description": "Tried in order after the prompt row's own model. Haiku is the cheap Anthropic fallback; the Gemini free tier is the last resort (20 requests per model per day).",
       "value": [
@@ -397,6 +462,298 @@
       "key": "school.time_zone",
       "description": "The school's own clock: its day and its week, which a published curriculum takes effect from (C3). The migration 20261206090000 writes the same for every school.",
       "value": "Asia/Kolkata"
+    },
+    {
+      "key": "people.class_teacher_rule",
+      "description": "D-039: from this grade up, someone who teaches a core subject is not a class teacher, and the other way round, unless the grant gives a reason (people.staff_role_grant). Core subjects are subject codes; science and Hindi are added when they are subjects of the school. Before this grade (pre-primary) one educator is the class's class teacher.",
+      "value": {
+        "from_grade": "G1",
+        "core_subjects": [
+          "NUM",
+          "ENG"
+        ]
+      },
+      "seed_once": true
+    },
+    {
+      "key": "voice.confirm_within_hours",
+      "description": "A K2 voice note not confirmed within this many hours leaves the educator's queue, is kept as unconfirmed, and never becomes evidence (observation model, section 4). The migration 20261226090000 writes the same for every school.",
+      "value": 48,
+      "seed_once": true
+    },
+    {
+      "key": "k2.reads",
+      "description": "What the K2 screens' read calls (engine/w3_read/k2_reads.py) take from the school: which roles may ask for the coordinator's list, which grades the voice notes are for, how many days back a list shows a note, and where a week starts (0 is Monday).",
+      "value": {"coordinator_roles": ["coordinator", "deputy_coordinator", "head"], "grades": ["K2"], "row_days": 14, "week_starts_on": 0}
+    },
+    {
+      "key": "voice.audio_retention_days",
+      "description": "How many days a voice note's audio is kept. Not decided (O-14): null keeps it. Nothing deletes audio until this is a number and a deletion is built.",
+      "value": null,
+      "seed_once": true
+    },
+    {
+      "key": "voice.outcome_moves_level",
+      "description": "How each outcome of a K2 voice note moves the level the educator expected, before the level gives its mark. Unverified for every activity. The migration 20261227090000 writes the same for every school.",
+      "value": {"above": 1, "as_expected": 0, "below": -1},
+      "seed_once": true
+    },
+    {
+      "key": "voice.level_mark",
+      "description": "The mark on the seen scale for each activity level a child reached. Unverified for every activity.",
+      "value": {"0": "not_yet", "1": "not_yet", "2": "sometimes", "3": "yes"},
+      "seed_once": true
+    },
+    {
+      "key": "voice.roles_that_record",
+      "description": "The roles whose open grant on a class lets a person record, confirm and correct that class's K2 voice notes and form. A campus-wide role (coordinator, head) is not here: it does not record unless added.",
+      "value": ["class_teacher", "cover_educator"],
+      "seed_once": true
+    },
+    {
+      "key": "voice.screens_enabled",
+      "description": "Whether the K2 educator sees Record and Confirm. Off until she is trained; Nimish turns it on. A page or route asked for while it is off refuses.",
+      "value": false,
+      "seed_once": true
+    },
+    {
+      "key": "timetable.vocabulary",
+      "description": "How the K2 timetable generator reads the school's sheets (goals/m1-06-plan-today.yaml): which phrases in a period name its subject, which subject draws its lines from which Monthly Planner heading, which planner headings open a section, which sections head the week rather than fill a period, and which one-word lines join the line after them. A new wording in the school's sheet is an edit to this row, never to code.",
+      "value": {
+        "fixed_rows": [
+          "settling",
+          "circle time",
+          "fruit break",
+          "lunch",
+          "reflection",
+          "dispersal",
+          "boarding the bus"
+        ],
+        "specialist": [
+          "pe",
+          "music_guest"
+        ],
+        "subject_phrases": [
+          [
+            "physical education",
+            "pe"
+          ],
+          [
+            "music - guest",
+            "music_guest"
+          ],
+          [
+            "music",
+            "music"
+          ],
+          [
+            "phonics",
+            "phonics"
+          ],
+          [
+            "hindi",
+            "hindi"
+          ],
+          [
+            "english",
+            "english"
+          ],
+          [
+            "math",
+            "math"
+          ],
+          [
+            "reading time",
+            "reading"
+          ],
+          [
+            "general awareness",
+            "general_awareness"
+          ],
+          [
+            "me time",
+            "me_time"
+          ],
+          [
+            "rhymes and dance",
+            "rhymes_dance"
+          ],
+          [
+            "rhymes",
+            "rhymes"
+          ],
+          [
+            "story",
+            "story"
+          ],
+          [
+            "clay",
+            "clay"
+          ],
+          [
+            "routine of the month",
+            "routine"
+          ],
+          [
+            "art",
+            "art"
+          ],
+          [
+            "memory drawing",
+            "memory_drawing"
+          ],
+          [
+            "practical life",
+            "practical_life"
+          ],
+          [
+            "fine motor",
+            "fine_motor"
+          ],
+          [
+            "class routine",
+            "cleanup"
+          ],
+          [
+            "play based projects",
+            "projects"
+          ]
+        ],
+        "plan_key_of_subject": {
+          "phonics": "english",
+          "english": "english",
+          "hindi": "hindi",
+          "math": "math",
+          "story": "stories",
+          "rhymes": "rhymes",
+          "rhymes_dance": "rhymes",
+          "general_awareness": "general_awareness",
+          "art": "art",
+          "clay": "clay",
+          "music": "music",
+          "pe": "pe",
+          "fine_motor": "fine_motor",
+          "practical_life": "practical_life",
+          "routine": "routines"
+        },
+        "plan_headings": {
+          "english": "english",
+          "hindi": "hindi",
+          "stories": "stories",
+          "rhymes": "rhymes",
+          "math": "math",
+          "block room": "block_room",
+          "brave day task": "brave_day",
+          "general awareness": "general_awareness",
+          "art and craft": "art",
+          "clay": "clay",
+          "music": "music",
+          "circle time": "circle_time",
+          "good deed": "good_deed",
+          "word of the week": "word_of_the_week",
+          "prayer": "prayer",
+          "gross motor skills": "gross_motor",
+          "fine motor skills": "fine_motor",
+          "practical life skills": "practical_life",
+          "physical education": "pe",
+          "routine": "routines",
+          "routines": "routines",
+          "music and dance": "music",
+          "events": "events",
+          "value education": "value_education"
+        },
+        "header_keys": [
+          "circle_time",
+          "good_deed",
+          "word_of_the_week",
+          "prayer",
+          "brave_day"
+        ],
+        "glue_words": [
+          "writing",
+          "reading",
+          "phonics"
+        ],
+        "planner_row": "^Fortnight\\s+(\\d+)$",
+        "planner_block": "^K2_\\s*(\\w+?)\\s*_\\s*Planner",
+        "fortnight_label": "^F\\.N\\s*(\\d+)",
+        "other_grade_marks": [
+          "(PG - N)",
+          "(PG-N)"
+        ],
+        "plan_heading_prefixes": {
+          "routine -": "routines"
+        },
+        "headless_columns": {
+          "events/special days": "Events",
+          "value education": "Value Education"
+        },
+        "planner_header_cell": "expression",
+        "calendar_date_format": "%A, %B %d, %Y",
+        "afternoon_before_hour": 7
+      }
+    },
+    {
+      "key": "voice.recording_enabled",
+      "description": "Whether the K2 educator may record a spoken note (and hear it back), on top of voice.screens_enabled. Off until Sarvam confirms 'No retention' in writing (D-065); with it off she uses the form, and no recording is kept or sent anywhere. A missing row is off.",
+      "value": false,
+      "seed_once": true
+    },
+    {
+      "key": "educator.timetable_enabled",
+      "description": "Whether the K2 educator sees her generated timetable (her day, her week, a period). Off until the coordinator has marked the first fortnight; Nimish turns it on. While it is off the three timetable calls refuse.",
+      "value": false,
+      "seed_once": true
+    },
+    {
+      "key": "educator.timetable_roles",
+      "description": "The roles whose open grant on a class lets a person see that class's generated timetable. A campus-wide role is not here: the timetable answers for a class she holds.",
+      "value": [
+        "class_teacher",
+        "cover_educator"
+      ]
+    },
+    {
+      "key": "materials.whatsapp_to",
+      "description": "The number the educator's one-tap link opens a chat with (digits, with country code). Empty until Nimish names it: then the link opens WhatsApp with nobody chosen (D-071).",
+      "value": "",
+      "seed_once": true
+    },
+    {
+      "key": "materials.reminder_weeks",
+      "description": "How many weeks before the first day a material is needed the educator and the materials team are reminded (D-070: 2 and 1). A date that is not a working day moves to the last working day before it; one already past goes today (D-072).",
+      "value": [2, 1],
+      "seed_once": true
+    },
+    {
+      "key": "materials.inventory_whatsapp_to",
+      "description": "The number the consolidated list's one-tap link opens a chat with: the one inventory person (digits, with country code). Empty until named; then the link opens WhatsApp with nobody chosen (D-071, M1-16).",
+      "value": "",
+      "seed_once": true
+    },
+    {
+      "key": "materials.consolidate_roles",
+      "description": "The roles whose open grant lets a person build the school's consolidated materials list, read it and send it to the inventory person (M1-16). A role is added here by a pull request.",
+      "value": ["coordinator", "head"],
+      "seed_once": true
+    },
+    {
+      "key": "materials.photo_max_side",
+      "description": "The longest side, in pixels, a photographed materials note is made before a model reads it (M1-16). The picture is a plain JPEG read in memory and never stored.",
+      "value": 1600,
+      "seed_once": true
+    },
+    {
+      "key": "materials.photo_max_bytes",
+      "description": "The largest picture, in bytes, the engine accepts for a photographed materials note (M1-16). The site's own upload limit (about 4.5 MB through Vercel) is lower.",
+      "value": 10000000,
+      "seed_once": true
+    },
+    {
+      "key": "materials.month_build_max_days",
+      "description": "The longest range, in days, one month build (engine materials month, the coordinator's Build) accepts: a mistyped date cannot start a build of years (M1-16).",
+      "value": 62,
+      "seed_once": true
     }
   ]
 }

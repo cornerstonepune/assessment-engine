@@ -1,0 +1,67 @@
+name: m1-05-mapping-agents
+goal: >
+  Where an activity of the K2 curriculum has no skill, no learning objective or no level words, an agent proposes them:
+  it sees the activity's own words, the band's skills in the families people have linked to its subject, and the
+  activities people mapped themselves nearest it. Code checks every proposal (every code exists in the band, a skill's
+  family is one people linked to that subject, nothing named twice or already linked, level words only where the sheet
+  has none) and rejects it on any problem; a second agent, another model that never sees the first one's reason, agrees
+  or not. A confident, agreed, checked skill or existing objective is applied without waiting for a person; new words,
+  a disagreement, a low confidence and a code-drawn audit sample go to one list a person works down. Every proposal,
+  decision, apply and revert is a row of an append-only ledger, a member of staff kept by id and never by name; a machine link is marked as the machine's and can be
+  reverted; every link added or removed, by anyone, is in the curriculum's edit history. Nothing is applied until the
+  agents, mapping a held-out share of what people mapped blind, meet the bars set before any run.
+# Written 2026-11-03 (task M1-05; design: docs/notes/m1-05-mapping-agents.md). W1, step N1. The bars
+# (eval.curriculum_map.*: every skill right 0.90, people's skills found 0.85, passed on their own 0.60) were set before
+# any run by the orchestrator for Nimish (D-047; he may overturn them); the dev set (100 of the 527, the rest held out
+# for the final score, P-08), the audit share (10%) and the confidence bar (0.8) are rows too (map.*). The
+# second instance Nimish named ("given a certain topic, the system itself generates the next set of learning
+# objectives") is designed by blueprint chapter P-08 and not built here: a new kind is a prompt row, a code check and a
+# bar on the same propose, check, decide, apply loop.
+says:
+  - words: "one agent that develops for all the places where you don't have descriptions, the right learning objectives, or the skill mapping"
+    proved_by: "packages/engine/tests/test_map_ledger.py::test_each_gap_is_proposed_checked_and_sent_where_it_belongs"
+  - words: "An agent that has the entire context of what we're trying to build, reads the entire skill map, and is able to map that."
+    proved_by: "packages/engine/tests/test_map_ledger.py::test_the_proposer_sees_the_skills_that_fit_and_the_nearest_activities_people_mapped"
+  - words: "Another validation agent is also needed"
+    proved_by: "packages/engine/tests/test_map_check.py::test_a_skill_code_the_registry_does_not_hold_is_named_as_invented_and_never_passes"
+  - words: "Another validation agent is also needed"
+    proved_by: "packages/engine/tests/test_map_check.py::test_a_skill_from_a_family_people_never_used_for_that_subject_is_refused"
+  - words: "Another validation agent is also needed"
+    proved_by: "packages/engine/tests/test_map_check.py::test_only_a_confident_agreed_unsampled_skill_from_a_known_code_passes_on_its_own"
+  - words: "so we don't have to wait for manual input from teachers"
+    proved_by: "packages/engine/tests/test_map_ledger.py::test_applying_marks_every_link_as_the_machines_keeps_it_in_the_history_and_a_revert_undoes_it"
+  - words: "so we don't have to wait for manual input from teachers"
+    proved_by: "packages/engine/tests/test_map_check.py::test_new_words_always_go_to_a_person_because_nothing_scores_them"
+  - words: "so we don't have to wait for manual input from teachers"
+    proved_by: "packages/engine/tests/test_map_ledger.py::test_the_ledger_is_never_edited_or_deleted_and_a_person_answers_with_a_new_row"
+  - words: "Consider the mapping as a good example of setting that up."
+    proved_by: "packages/engine/tests/test_map_ledger.py::test_a_recorded_gold_run_is_held_to_the_bars_before_anything_applies"
+  - words: "Consider the mapping as a good example of setting that up."
+    proved_by: "packages/engine/tests/test_map_eval.py::test_a_recorded_gold_run_is_scored_by_code_against_what_people_mapped"
+  - words: "Consider the mapping as a good example of setting that up."
+    proved_by: "packages/engine/tests/test_map_ledger.py::test_a_held_out_activity_is_never_an_example_the_proposer_sees"
+  - words: "so we don't have to wait for manual input from teachers"
+    proved_by: "packages/engine/tests/test_map_check.py::test_no_skill_at_all_is_an_answer_and_a_person_confirms_it"
+manual:
+  - "The real eval, not run: no model key in the build container. On the box, after the prompts are loaded: `bin/engine eval curriculum_map --version 1` maps the 427 held-out activities of the 527 people mapped, blind, and scores it against eval.curriculum_map.*; the score goes in DECISIONS-LOG.md; only if every bar is met are the two prompt rows (curriculum_map_propose, curriculum_map_validate v1) made active. Until then `engine curriculum propose` has no active prompt and refuses."
+  - "Then on the box, in this order, each a dry run first: `bin/engine curriculum propose --apply --by <staff email>`, `bin/engine curriculum review`, `bin/engine curriculum apply --apply --by <staff email>` (only the staff id is kept). Not run on live by this task."
+  - "The bars (0.90, 0.85, 0.60), the audit share (10%) and the confidence bar (0.8) were set by the orchestrator under D-047; Nimish may overturn them."
+  - "Actions, rehearse update-live, on this branch once the schema queue reaches it (after #363, #362, M1-02): the migration 20261230090000 runs on a copy of live; `engine past` prints the same before and after. Not dispatched by this task."
+  - "Given a topic, the next learning objectives and how to teach them: designed by blueprint chapter P-08, not built here."
+scenarios: []
+criteria:
+  - name: the code half of the validator, pure (no database, no model)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_check.py
+    expect: "passed"
+  - name: the eval scores a recorded run against what people mapped; the held-out share is the same every run
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_eval.py
+    expect: "passed"
+  - name: the ledger, a recorded run proposed, decided, applied and reverted, and the eval held to its bars (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_ledger.py
+    expect: "passed"
+  - name: every eval holds its score to a bar on record, the mapping agents' included
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_bars.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

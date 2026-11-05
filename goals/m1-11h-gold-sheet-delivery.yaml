@@ -1,0 +1,35 @@
+name: m1-11h-gold-sheet-delivery
+goal: >
+  The sheet of drafted K2 pages for people to mark reaches Nimish as a download behind the staff sign-in, and nowhere
+  else. The first dispatch of the run choice that printed it (2026-11-04) printed nothing, for a reason that was two
+  mistakes: the sheet read only the pages whose drafts had been applied, and the 99 drafted so far are in the ledger
+  unapplied; and its way out was a run's log, which on this public repository is public, with the school's lesson text on
+  it. Now the sheet reads the ledger, the run choice is gone, the command writes only to a file it is told to, and the
+  site serves the sheet to a signed-in member of staff as a download.
+# Written 2026-11-04 (task M1-11h). W1, gate N1. The words are the orchestrator's brief of that day (relayed); the originals
+# are not in this repository. Nothing here has made a model call.
+says:
+  - words: "Do not print the sheet into a CI log."
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_no_run_can_carry_a_flag_that_changes_a_limit_only_the_known_ones_with_their_known_values"
+  - words: "this repo and its Actions logs are PUBLIC, so the school's lesson text must not appear there"
+    proved_by: "packages/engine/tests/test_k2_gold.py::test_the_command_writes_to_the_file_it_is_told_and_prints_no_text_of_the_sheet"
+  - words: "a staff-only route (or a signed link) ... behind the existing educator/staff login"
+    proved_by: "packages/engine/tests/api/test_gold_sheet_route.py::test_a_sign_in_that_is_not_on_the_staff_list_gets_nothing"
+  - words: "a staff-only route (or a signed link) ... behind the existing educator/staff login"
+    proved_by: "packages/engine/tests/api/test_gold_sheet_route.py::test_it_needs_the_engines_key"
+  - words: "it must be a link or a page"
+    proved_by: "packages/engine/tests/api/test_gold_sheet_route.py::test_a_member_of_staff_gets_a_csv_to_save_that_is_never_kept_by_a_cache"
+  - words: "prints only school text and the draft, with no machine verdict and no names"
+    proved_by: "packages/engine/tests/api/test_gold_sheet_route.py::test_what_the_machine_said_of_a_draft_is_not_in_what_is_sent"
+  - words: "gold_sheet ran ... and 'command 1' printed nothing in the log"
+    proved_by: "packages/engine/tests/test_k2_gold.py::test_a_draft_nobody_has_applied_yet_is_on_the_sheet_with_the_schools_words_beside_it"
+manual:
+  - "After deploy, signed in, open /api/gold-sheet (optionally ?pages=20): the browser saves k2-drafts-to-mark.csv. Signed out it answers 401 (apps/web/tests/gate.spec.ts). Not opened by this session: it has no sign-in on the site."
+  - "The file is the school's lesson text: it is never committed, and a person saving it is the only copy this system makes."
+criteria:
+  - name: the sheet is read from the ledger, goes only where it is told, and is served to staff and no one else (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_gold.py tests/api/test_gold_sheet_route.py tests/test_curriculum_run_command.py tests/test_contract.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

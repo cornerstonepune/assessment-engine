@@ -1,0 +1,48 @@
+name: m1-11f-draft-rules
+goal: >
+  What the K2 drafter writes obeys rules code applies, not a prompt's plea, and nothing counts as passed on a model's word
+  alone. The first draft_dev run (2026-11-04) showed a child named "her", steps numbered some pages and plain on others where
+  the school writes bulleted lines, a draft setting two children side by side to see who is tall, and 19 pages marked as
+  passed on the drafter's own confidence and a checker that was seen to invent facts. Now: gendered words and comparisons of
+  children are refused in drafted text only (the school's own words are never read) and asked for again; drafted steps come
+  out in the school's own bulleted form; every drafted page part is tagged check me until a person has reviewed it, the
+  machine's verdict kept in the data; and a sheet of drafted pages for people to mark keep or reject is one command.
+# Written 2026-11-04 (task M1-11f). W1, gate N1. The words are the orchestrator's approval of 2026-11-04 (relayed); the
+# originals are not in this repository. Nothing here has made a model call.
+says:
+  - words: "Use 'the child' only, checked by code, not by a prompt plea."
+    proved_by: "packages/engine/tests/test_k2_rules.py::test_a_drafted_part_that_genders_a_child_is_refused_naming_the_word_and_the_part"
+  - words: "the check must apply to drafted text only. The school's own words stay exactly as written."
+    proved_by: "packages/engine/tests/test_k2_rules.py::test_a_part_the_page_was_not_asked_for_is_never_read"
+  - words: "Use 'the child' only, checked by code, not by a prompt plea."
+    proved_by: "packages/engine/tests/test_k2_rules.py::test_a_page_refused_once_is_asked_for_again_and_kept_when_the_next_reply_is_clean"
+  - words: "Step format is mixed ... Code should normalise this ... read the sheet's own step format first and match it."
+    proved_by: "packages/engine/tests/test_k2_rules.py::test_drafted_steps_come_out_as_the_schools_own_bulleted_lines"
+  - words: "Add a code-checked rule: never compare children's bodies, names or abilities with each other."
+    proved_by: "packages/engine/tests/test_k2_rules.py::test_a_drafted_part_that_sets_children_against_each_other_is_refused_saying_so"
+  - words: "Add a code-checked rule: never compare children's bodies, names or abilities with each other."
+    proved_by: "packages/engine/tests/test_k2_rules.py::test_the_rules_are_read_from_the_row_so_a_new_word_is_data_not_code"
+  - words: "the checker must see the school's objective and materials text"
+    proved_by: "packages/engine/tests/test_k2_rules.py::test_the_checker_is_shown_the_schools_objective_and_materials_beside_the_draft"
+  - words: "Make every drafted page part 'check me' until the gold set exists, so nothing counts as passed on a model's word alone. Keep the auto_passed status in the data for the later calibration table"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_every_one_is_check_me_until_a_person_reviews"
+  - words: "the review list and any parent-facing view must treat it as unreviewed"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_the_review_list_holds_every_unreviewed_draft_whatever_the_machine_said_of_it"
+  - words: "A CSV of the draft and the school's text for a person to mark is enough."
+    proved_by: "packages/engine/tests/test_k2_gold.py::test_each_row_has_the_school_text_beside_the_draft_and_says_which_is_which"
+  - words: "A CSV of the draft and the school's text for a person to mark is enough."
+    proved_by: "packages/engine/tests/test_k2_gold.py::test_nothing_the_machine_said_of_a_draft_is_on_the_sheet"
+  - words: "no paid run"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_the_forecast_makes_no_call_and_needs_nobody_to_have_run_it"
+manual:
+  - "A phrase list catches the shapes it names, not every way of comparing children; the checker's prompt is a second line only. Add patterns to the config row k2.draft_rules as new shapes are seen."
+  - "The gendered-word list refuses every he/she/her/his in a draft, including one meant for the educator: the school's own steps say 'She will ...' for the educator, a draft says 'The educator will ...'. Stricter than the school on purpose; the school's words are never touched."
+  - "No web page reads check_me yet (checked 2026-11-04): when the K2 pages are shown, a part with check_me true is unreviewed whatever its ledger status says."
+  - "The checker (Haiku) invents facts and has no score until the gold sheet is marked: the sheet is a download behind the staff sign-in (goals/m1-11h-gold-sheet-delivery.yaml); the `gold_sheet` run choice was taken out because a run's output is a public log."
+criteria:
+  - name: drafted text is held to the rules, steps are in the school's form, every draft is check me, and the gold sheet is a CSV (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_rules.py tests/test_k2_gold.py tests/test_k2_draft.py tests/test_k2_review.py tests/test_k2_batch.py tests/test_k2_gaps.py tests/test_curriculum_run_command.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

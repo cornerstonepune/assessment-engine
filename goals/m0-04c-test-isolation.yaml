@@ -1,0 +1,31 @@
+name: m0-04c-test-isolation
+goal: >
+  A test leaves the database as it found it, and a sheet code a test makes is unique among every row of the shared test
+  database. A test module that commits a row and leaves it fails loudly, naming the tables and the rows; the seven that
+  did are cleaned at their cause; the sheet codes made from six hex digits use the whole random id. Tests only: no
+  engine, schema or seed change, no assertion loosened, nothing skipped.
+
+# Written 2026-11-04, before the fix (task M0-04c, asked by the orchestrator after M0-04b). Cause, by evidence
+# (docs/notes/m0-04c-test-isolation.md): on the 12-shard run of 2026-11-03, shard 11 failed seven tests of
+# test_question_types and shard 3 one of test_goal because an earlier shard on the same database had left an item with
+# no skill set, written by test_who_sees (it commits a read paper so a second connection can see it, and removed only
+# the flow run). Measured by comparing every table's row count before and after each test module over the whole suite:
+# test_who_sees, test_cli (293 flow runs), test_staff, test_graph, test_people_signer (88 children), test_people (200),
+# api/test_maker_routes and, depending on order, test_week left rows. CI gives each shard its own database, so it never
+# met this; a laptop or a second run on one database did.
+# Words: the sentence recorded for M0-03 and M0-04 (Nimish, 2026-11-03).
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_who_sees.py::test_an_upload_records_who_put_it_in_and_a_reading_again_keeps_it"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_test_ids.py::test_no_test_makes_a_sheet_code_from_a_cut_short_random_id"
+manual:
+  - "The whole suite in 12 shards on fresh databases, the isolation check failing, passes (output in docs/notes/m0-04c-test-isolation.md)."
+scenarios: []
+criteria:
+  - name: the modules that left rows, and the sheet-code guard, with the isolation check on
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_who_sees.py tests/test_cli.py tests/test_staff.py tests/test_staff_load.py tests/test_graph.py tests/test_people.py tests/test_people_signer.py tests/api/test_maker_routes.py tests/test_week.py tests/test_test_ids.py tests/test_child_move.py tests/test_learn.py tests/test_learned_mistakes.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

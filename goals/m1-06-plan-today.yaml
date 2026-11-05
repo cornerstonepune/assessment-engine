@@ -1,0 +1,44 @@
+name: m1-06-plan-today
+goal: >
+  The system generates the K2 timetable from the plans, and the coordinator changes only what is wrong: for each
+  fortnight it lays the school's own two-week frame (which subject sits in which period, read from the K2 planning sheet,
+  never typed in) over the school's dated days, and fills each subject's periods with that subject's lines from the
+  Monthly Planner, copied and never written by the system; a planner line with no period is listed, never forced into
+  one; a period the school left empty stays empty for a person; and a week nobody changed regenerates identically.
+# Written 2026-11-04, before the code: task M1-06 (decisions D-018, D-028, D-053, D-067; design in
+# docs/notes/m1-06-k2-plan-timetable.md). Attached to W2 step N4 as files, no thirteenth step (test_layout holds the
+# twelve agreed steps); the orchestrator was told. Defaults agreed with the orchestrator on 4 Nov while a person
+# confirms: the current frame is `F.N - Time table 26-27`; planner Fortnights 10-17 are treated as current and flagged
+# for the coordinator; Working Saturdays are left out; the K2 educator marks Fortnight 10 line by line.
+# Open for a person: the Graph tab says Fortnight 10 ends 7 Dec and Fortnight 11 starts 8 Dec (a Tuesday), which
+# cannot both be right; the fixtures use Mon 23 Nov to Fri 4 Dec. Holidays come from `Pre-Primary Calendar 26-27`.
+# Nimish's words: the one sentence below, exactly as D-061 records it (teacher-os blueprint/decisions.md). The two lines first
+# tried from the 2 Nov voice-note extract could not be matched to his recorded notes, so they are not used.
+says:
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable.py::test_the_frame_is_fifteen_rows_by_two_weeks_of_five_days"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable.py::test_every_filled_line_is_a_planner_line_of_its_own_subject_never_written_by_the_system"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable.py::test_a_holiday_leaves_no_cell_and_the_other_days_keep_their_weekday"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable.py::test_every_planner_line_is_placed_or_listed_as_having_no_slot"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable.py::test_the_cells_the_school_left_empty_stay_empty_for_a_person"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable.py::test_an_unchanged_week_regenerates_identically_and_one_changed_line_changes_only_its_cells"
+  - words: "Ensure that every session has a very specific, clear goal post in test cases, so the testing and every build are properly being orchestrated."
+    proved_by: "packages/engine/tests/test_k2_timetable.py::test_a_day_two_sources_disagree_about_gets_no_line_and_is_listed"
+manual:
+  - "The real proof: the K2 educator marks the generated 23 Nov to 4 Dec timetable line by line (right / changed / removed); the marks are frozen by checksum, off git (D-028), and the generator is changed until it equals them. Not claimed by this goal until she has."
+  - "Fortnight 11, generated unseen after that: her edits are counted and reported; not a pass bar."
+  - "A person confirms: which timetable tab is current, where Block Room goes, that planner Fortnights 10-17 are current, whether K2 attends Working Saturdays, and the Fortnight 10/11 boundary."
+  - "Actions, rehearse update-live, on this branch, before the tables migration is pushed: states_may_change=false."
+scenarios: []
+criteria:
+  - name: the frame, the planner row and the fill, against the school's own text
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_timetable.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -1,0 +1,39 @@
+name: m1-11c-one-bad-reply-costs-one-item
+goal: >
+  A model reply that breaks its schema costs one activity or one page, never the run. The first real call (2026-11-04,
+  map_dev) stopped after 8 paid calls because the mapping proposer added a field its schema forbids. The schema is only
+  asked for in the prompt, so the fix is at three depths and none weakens validation: the prompt says "no other field"
+  (a new version, the first left as it was), a refused reply leaves that one activity for a person and the next is still
+  asked, and replies that keep breaking in a row end the run. The batched K2 rows stop failing a whole reply for one stray
+  field on one page.
+# Written 2026-11-04 (task M1-11c). W1, gate N1. The words are the orchestrator's brief of that day (relaying the first
+# real run's output); the originals are not in this repository. Nothing here has made a model call.
+says:
+  - words: "if a 'confidence_note' is useful, make it a declared optional property ... if not, make the prompt forbid it AND keep the schema strict; do not weaken validation generally"
+    proved_by: "packages/engine/tests/test_map_schema.py::test_the_proposers_schema_stays_strict_a_good_reply_passes_an_extra_or_missing_field_does_not"
+  - words: "make the prompt forbid it AND keep the schema strict"
+    proved_by: "packages/engine/tests/test_map_schema.py::test_the_new_proposer_version_forbids_other_fields_in_words_and_keeps_the_first_as_it_was"
+  - words: "handle the schema-failure path so ONE bad reply costs one item (the per-item failure rule), not the run"
+    proved_by: "packages/engine/tests/test_map_schema.py::test_a_reply_that_breaks_its_schema_is_that_activity_left_for_a_person_and_the_others_go_on"
+  - words: "handle the schema-failure path so ONE bad reply costs one item (the per-item failure rule), not the run"
+    proved_by: "packages/engine/tests/test_map_schema.py::test_a_checker_reply_that_breaks_its_schema_leaves_that_one_proposal_for_a_person_and_says_why"
+  - words: "handle the schema-failure path so ONE bad reply costs one item (the per-item failure rule), not the run"
+    proved_by: "packages/engine/tests/test_map_schema.py::test_replies_that_keep_breaking_in_a_row_end_the_run_and_a_good_one_starts_the_count_again"
+  - words: "check the other prompts that run in dev_eval for the same trap (k2_page_draft v2, k2_page_validate v2, k2_materials_split v2)"
+    proved_by: "packages/engine/tests/test_map_schema.py::test_a_stray_field_on_one_item_of_a_batched_reply_does_not_fail_the_other_items"
+  - words: "check the other prompts that run in dev_eval for the same trap (k2_page_draft v2, k2_page_validate v2, k2_materials_split v2)"
+    proved_by: "packages/engine/tests/test_map_schema.py::test_the_batched_rows_keep_their_earlier_version_and_say_no_other_fields"
+manual:
+  - "Re-run `map_dev` (now proposer v2: `--version 2 --validate-version 2`) after this is deployed; its score against the D-063 bars is the eval that decides whether the proposer may be made active (rule 7)."
+  - "Structured outputs (the vendor constraining the reply to the schema) would remove this class of failure but cannot be tested without a live call here, and the schema uses keywords (minimum, maximum, maxItems) that a vendor's constrained mode may not accept. Left as a named option, not built."
+scenarios: []
+criteria:
+  - name: the schemas stay strict, the new versions forbid other fields, and one bad reply is one item's loss (a database built from the migrations)
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_schema.py
+    expect: "passed"
+  - name: the earlier mapping tests still hold
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_ledger.py tests/test_map_check.py tests/test_map_eval.py tests/test_map_stage.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

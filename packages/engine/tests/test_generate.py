@@ -191,7 +191,7 @@ def an_open_sample(conn):
 def writer(*questions):
     """The model's transport, replaced: the real adapter still checks the reply against the row's schema."""
 
-    def fake(models, text, images, schema, effort=None):
+    def fake(models, text, images, schema, effort=None, structured=False):
         return {"questions": [copy.deepcopy(q) for q in questions]}, "fixed", 0, 0, 0
 
     return fake

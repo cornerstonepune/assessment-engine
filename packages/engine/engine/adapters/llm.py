@@ -9,6 +9,7 @@ model id, an HTTP code, or an unvalidated reply.
 
 import base64
 import json
+import re
 import ssl
 import time
 import urllib.error
@@ -18,8 +19,10 @@ from typing import Literal, get_args
 import anthropic
 import certifi
 import jsonschema
-from anthropic.types import ImageBlockParam, MessageParam, TextBlockParam
+from anthropic.types import ImageBlockParam, MessageParam, OutputConfigParam, TextBlockParam
+from psycopg.types.json import Json
 
+from engine.adapters import llm_budget
 from engine.core import db
 
 WAITS = (
@@ -44,6 +47,10 @@ class LLMError(RuntimeError):
     pass
 
 
+class LLMBudgetError(LLMError):
+    """The money for this work is spent, or cannot be counted: a run ends cleanly, keeping what is good."""
+
+
 class LLMSchemaError(LLMError):
     """The model answered, but not in the form its row's json_schema asks for."""
 
@@ -54,7 +61,7 @@ def active_prompt(conn, purpose, subject=None, version=None):
     one row whether or not it is active — only an eval asks for it (rule 7: a version is scored
     before it is made active)."""
     row = conn.execute(
-        "select id, text, model, json_schema, effort from prompt"
+        "select id, version, text, model, json_schema, effort from prompt"
         " where purpose = %s and (subject = %s or subject is null)"
         " and (active and %s::int is null or version = %s::int)"
         " order by (subject is not null) desc limit 1",
@@ -66,17 +73,28 @@ def active_prompt(conn, purpose, subject=None, version=None):
     return row
 
 
-def generate(conn, purpose, variables, images=(), subject=None, meta=None, version=None):
+def generate(
+    conn, purpose, variables, images=(), subject=None, meta=None, version=None, stage=None, about=None
+):
     """Refuses before spending anything once the tenant's spend today reaches the
     `llm.daily_budget_inr` threshold row — no flow_run is written for a refusal, because no call
     was made. `meta`, if a dict is passed, is filled with prompt_id, model and flow_run_id so a
-    caller can write provenance without a second lookup (gate 4: every item says what made it)."""
-    budget = conn.execute("select value from threshold where key = 'llm.daily_budget_inr'").fetchone()
+    caller can write provenance without a second lookup (gate 4: every item says what made it). `about`, the
+    activity or page asked about, is kept on the row so a stored run can be read back item by item."""
+    camps = llm_budget.campaigns(conn)  # read once: the carve-out below and the campaign's check both use it
+    own_money = llm_budget.purposes(
+        camps
+    )  # a campaign's purposes have their own cap, outside the day's total
+    budget = (
+        None
+        if purpose in own_money
+        else conn.execute("select value from threshold where key = 'llm.daily_budget_inr'").fetchone()
+    )
     if budget:
         spent = conn.execute(
             "select coalesce(sum(f.cost_inr), 0) as n from flow_run f join tenant t on t.id = f.tenant_id"
-            " where t.slug = %s and f.started_at::date = current_date",
-            (db.tenant_slug(),),
+            " where t.slug = %s and f.started_at::date = current_date and not (f.flow = any(%s))",
+            (db.tenant_slug(), own_money),
         ).fetchone()["n"]
         if spent >= budget["value"]:
             raise LLMError(
@@ -84,36 +102,69 @@ def generate(conn, purpose, variables, images=(), subject=None, meta=None, versi
                 "daily budget (threshold llm.daily_budget_inr)"
             )
 
+    try:
+        llm_budget.check(conn, db.tenant_slug(), purpose, stage, camps)
+    except llm_budget.Refused as e:
+        raise LLMBudgetError(str(e)) from e
     row = active_prompt(conn, purpose, subject, version)
     cfg = conn.execute("select value from config where key = 'llm.fallback_models'").fetchone()
     models = [row["model"]] + list(cfg["value"] if cfg else [])
+    held = conn.execute("select value from config where key = 'llm.structured'").fetchone()
+    structured = row.get("version") in ((held["value"] if held else None) or {}).get(purpose, [])
     run = conn.execute(
-        "insert into flow_run (tenant_id, flow, trigger) select id, %s, %s from tenant where slug = %s"
-        " returning id",
-        (purpose, "engine", db.tenant_slug()),
+        "insert into flow_run (tenant_id, flow, trigger, request) select id, %s, %s, %s from tenant"
+        " where slug = %s returning id",
+        (
+            purpose,
+            llm_budget.trigger_for(stage),
+            Json(
+                {
+                    "purpose": purpose,
+                    "version": row.get("version"),
+                    "prompt_id": str(row["id"]),
+                    **({"about": about} if about else {}),
+                }
+            ),
+            db.tenant_slug(),
+        ),
     ).fetchone()["id"]
 
     text = _fill(row["text"], variables)
+    answered = (
+        None  # (model, tokens, tokens in, tokens out) once a model has answered: a paid call, right or not
+    )
+    out = None  # what it said, kept on the row whether it is accepted or refused (a paid reply is never lost)
     try:
         out, model, tokens, tokens_in, tokens_out = _dispatch(
-            models, text, images, row["json_schema"], row.get("effort")
+            models, text, images, row["json_schema"], row.get("effort"), structured
         )
+        answered = (model, tokens, tokens_in, tokens_out)
         try:
             jsonschema.validate(out, row["json_schema"])
         except jsonschema.ValidationError as e:
             raise LLMSchemaError(f"{purpose} output failed its schema: {e.message}") from e
     except LLMError as e:
+        paid = (
+            (*answered, _cost_inr(conn, answered[0], answered[2], answered[3])) if answered else (None,) * 5
+        )
         conn.execute(
-            "update flow_run set finished_at = clock_timestamp(), status = %s, error = %s where id = %s",
-            ("error", str(e), run),
+            "update flow_run set finished_at = clock_timestamp(), status = %s, error = %s, model = %s,"
+            " tokens = %s, tokens_in = %s, tokens_out = %s, cost_inr = %s, result = %s where id = %s",
+            (
+                "error",
+                str(e),
+                *paid,
+                Json({"reply": out, "outcome": "refused", "reason": str(e)} if answered else {}),
+                run,
+            ),
         )
         raise
     cost = _cost_inr(conn, model, tokens_in, tokens_out)
     # clock_timestamp(), not now(): now() is the transaction's start, which would make every run 0 s
     conn.execute(
         "update flow_run set finished_at = clock_timestamp(), status = %s, model = %s,"
-        " tokens = %s, tokens_in = %s, tokens_out = %s, cost_inr = %s where id = %s",
-        ("ok", model, tokens, tokens_in, tokens_out, cost, run),
+        " tokens = %s, tokens_in = %s, tokens_out = %s, cost_inr = %s, result = %s where id = %s",
+        ("ok", model, tokens, tokens_in, tokens_out, cost, Json({"reply": out, "outcome": "accepted"}), run),
     )
     if meta is not None:
         meta.update(prompt_id=row["id"], model=model, flow_run_id=run, cost_inr=cost)
@@ -129,7 +180,7 @@ def _cost_inr(conn, model, tokens_in, tokens_out):
     return round((tokens_in * rate.get("in", 0) + tokens_out * rate.get("out", 0)) / 1_000_000, 4)
 
 
-def _dispatch(models, text, images, schema, effort=None):
+def _dispatch(models, text, images, schema, effort=None, structured=False):
     """Walk the model list in order, each vendor by its own transport. A model that cannot serve
     — quota gone, no key, no credit, transient errors exhausted — hands on to the next, and the
     final error names every model's reason, so a malformed request still reads as one. Returns
@@ -138,15 +189,22 @@ def _dispatch(models, text, images, schema, effort=None):
     errors = []
     # Both vendors see the schema in the prompt: asked only for "JSON", a model may return a bare
     # list where an object was wanted, and the validation after this would refuse the whole page.
-    text = f"{text}\n\nThe JSON schema to match exactly:\n{json.dumps(schema)}"
+    with_schema = f"{text}\n\nThe JSON schema to match exactly:\n{json.dumps(schema)}"
     for model in models:
         try:
             if model.startswith("claude-"):
+                # Held by the vendor, the schema is not also pasted into the prompt: a model shown it in words copied
+                # its keywords into the reply as fields ('additionalProperties', 'confidence_note', 2026-11-04).
                 out, tin, tout = _call_anthropic(
-                    model, text, images, schema, effort if model == models[0] else None
+                    model,
+                    text if structured else with_schema,
+                    images,
+                    schema,
+                    effort if model == models[0] else None,
+                    structured,
                 )
                 return out, model, tin + tout, tin, tout
-            parts = [{"text": text}]
+            parts = [{"text": with_schema}]
             parts += [
                 {"inline_data": {"mime_type": "image/jpeg", "data": base64.b64encode(img).decode()}}
                 for img in images
@@ -169,9 +227,18 @@ def _dispatch(models, text, images, schema, effort=None):
     raise LLMError(f"all models unavailable: {', '.join(models)}; " + " | ".join(errors))
 
 
-def _call_anthropic(model, text, images, schema, effort: Effort | None = None):
+def _output_config(effort: Effort | None, schema: dict, structured: bool) -> OutputConfigParam:
+    out: OutputConfigParam = {"effort": effort} if effort else {}
+    if structured:
+        out["format"] = {"type": "json_schema", "schema": anthropic.transform_schema(schema)}
+    return out
+
+
+def _call_anthropic(model, text, images, schema, effort: Effort | None = None, structured=False):
     """One Messages call → (output, input tokens, output tokens). The reply is validated by the
-    caller; the SDK already retries 429s and 5xx. `effort` bounds how long the model thinks first: at its default,
+    caller; the SDK already retries 429s and 5xx. `structured` has the vendor hold the reply to the schema
+    (`output_config.format`, the SDK's own `transform_schema` taking out the keywords the vendor does not accept:
+    bounds and lengths; the caller's check still holds those). `effort` bounds how long the model thinks first: at its default,
     claude-sonnet-5 read 21 parent reports for over thirty minutes (2026-09-28)."""
     key = db.env("ANTHROPIC_API_KEY")
     client = anthropic.Anthropic(api_key=key, max_retries=3, timeout=TIMEOUT_S)
@@ -193,7 +260,7 @@ def _call_anthropic(model, text, images, schema, effort: Effort | None = None):
             model=model,
             max_tokens=MAX_TOKENS,
             messages=messages,
-            output_config={"effort": effort} if effort else anthropic.omit,
+            output_config=_output_config(effort, schema, structured) or anthropic.omit,
         )
     except anthropic.RateLimitError as e:
         raise LLMError(f"{model} rate limited: {e.message}") from e
@@ -236,11 +303,16 @@ def _quota(body):
 
 
 def _fill(text, variables):
-    for k, v in variables.items():
-        text = text.replace(
-            "{{" + k + "}}", v if isinstance(v, str) else json.dumps(v, ensure_ascii=False, indent=2)
-        )
-    return text
+    """Each {{name}} in the prompt's own text becomes its variable, in one pass: a value that itself contains
+    {{another}} is left as typed, never filled in a second time."""
+
+    def one(m):
+        v = variables.get(m.group(1))
+        if v is None:
+            return m.group(0)
+        return v if isinstance(v, str) else json.dumps(v, ensure_ascii=False, indent=2)
+
+    return re.sub(r"\{\{(\w+)\}\}", one, text)
 
 
 def _call(models, body, key):
