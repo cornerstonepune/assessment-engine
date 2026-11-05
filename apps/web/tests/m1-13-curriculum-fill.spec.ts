@@ -131,7 +131,7 @@ test("a person walks the drafted parts one by one: edit, keep, send back — fiv
   await gate(sql, "open"); // changing a part needs the educator switch itself: a preview only looks
   taps = 0;
   await page.goto("/curriculum/fill");
-  await tap(page.getByRole("link", { name: /Check the drafted parts/ }));
+  await tap(page.locator("[data-ux=action]").getByRole("link", { name: /Check the drafted parts/ })); // the page's main action (the menu has one too)
   await expect(page.locator("[data-walk]")).toContainText("1 of 3");
   await expect(page.locator('[data-card="steps"] li')).toHaveCount(STEPS.length); // a short list, not a wall
   await shoot(page, "walk-steps");
