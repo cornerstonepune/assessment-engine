@@ -261,6 +261,8 @@ def test_a_skipped_job_still_reports_the_names_the_gates_wait_on():
         last = job["steps"][-1]
         assert last["if"] == "always()" and "needs.plan.result" in last["run"], name
         assert "success" in last["run"]
+        # with the checkout skipped there is no packages/engine folder, so a step that runs there cannot even start (#412, 2026-11-05)
+        assert "working-directory" in last or "defaults" not in job, name
     assert {"engine-checks"} <= set(CI["jobs"]["engine"]["needs"])
     for job in ("engine-checks", "engine", "web", "browser"):
         assert job in CI["jobs"], f"the required check '{job}' must keep its name"

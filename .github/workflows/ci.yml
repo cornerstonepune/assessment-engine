@@ -237,6 +237,8 @@ jobs:
         run: uv run coverage combine --keep ../../shards/*/coverage.data && uv run coverage report --skip-covered
       - name: every engine job passed
         if: always()
+        # not packages/engine: with the checkout skipped that folder does not exist, and the step could not start
+        working-directory: ${{ github.workspace }}
         run: |
           echo 'plan: ${{ needs.plan.result }} (${{ needs.plan.outputs.reason }}), checks: ${{ needs.engine-checks.result }}, shards: ${{ needs.engine-shard.result }}'
           [ "${{ needs.plan.result }}" = success ] && [ "${{ needs.engine-checks.result }}" = success ] || exit 1
