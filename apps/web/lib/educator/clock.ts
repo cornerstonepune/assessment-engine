@@ -3,10 +3,8 @@ import { schoolToday } from "../voice-page";
 
 // The school's clock, not the server's (a page drawn at 03:54 in Pune is about that Pune day): the date and HH:MM.
 export const nowAtSchool = () => new Date().toLocaleTimeString("en-GB", { timeZone: SCHOOL_ZONE, hour: "2-digit", minute: "2-digit", hour12: false });
-export const whenIs = (day: string): "past" | "today" | "future" => {
-  const today = schoolToday();
-  return day < today ? "past" : day > today ? "future" : "today";
-};
+export type When = "past" | "today" | "future";
+export const whenIs = (day: string, today = schoolToday()): When => (day < today ? "past" : day > today ? "future" : "today");
 
 const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
 const at = (day: string) => Date.parse(`${day}T00:00:00Z`);

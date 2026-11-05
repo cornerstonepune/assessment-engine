@@ -11,13 +11,22 @@ export const CHIP: Record<Chip, { icon: IconName; fg: string; bg: string; bd: st
   late: { icon: "late", fg: "var(--chip-late-fg)", bg: "var(--chip-late-bg)", bd: "var(--chip-late-bd)" },
 };
 
-export function ChipTag({ chip }: { chip: Chip }) {
-  const c = CHIP[chip];
+/** The pill every chip, countdown and fortnight is drawn in: a state's colours, or the plain line. */
+export function Pill({ tone, fill = true, children, ...rest }: { tone?: Chip; fill?: boolean; children: React.ReactNode } & React.HTMLAttributes<HTMLSpanElement>) {
+  const c = tone ? CHIP[tone] : null;
   return (
-    <span data-chip={chip} className="inline-flex w-fit items-center gap-[var(--space-1)] rounded-[var(--radius-pill)] border px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--text-label)] leading-[var(--lh-label)] font-medium whitespace-nowrap" style={{ color: c.fg, background: c.bg, borderColor: c.bd }}>
-      <Icon name={c.icon} size={16} />
-      {E.chips[chip]}
+    <span {...rest} className="inline-flex w-fit items-center gap-[var(--space-1)] rounded-[var(--radius-pill)] border border-[var(--border)] px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--text-label)] leading-[var(--lh-label)] font-medium whitespace-nowrap" style={c ? { color: c.fg, background: fill ? c.bg : undefined, borderColor: c.bd } : undefined}>
+      {children}
     </span>
+  );
+}
+
+export function ChipTag({ chip }: { chip: Chip }) {
+  return (
+    <Pill tone={chip} data-chip={chip}>
+      <Icon name={CHIP[chip].icon} size={16} />
+      {E.chips[chip]}
+    </Pill>
   );
 }
 

@@ -1,7 +1,7 @@
 /**
  * M1-09 — the K2 educator's Today and This week as calendars (goals/m1-09c-educator-calendar.yaml, D-075, D-076), on
  * M1-06's /timetable routes with Fortnight 10 as the school wrote it, loaded by M1-06's own loader into the tests'
- * placeholder K2 class (packages/engine/tests/k2_timetable_rows.py). Every period a block with its time as time and the
+ * placeholder K2 class (M1-06's `engine timetable load`). Every period a block with its time as time and the
  * school's words, coloured by its state; every block opens its period. No child anywhere.
  */
 import path from "node:path";
@@ -17,7 +17,9 @@ let klass = "";
 
 test.beforeAll(async () => {
   ({ klass } = await k2Class(sql));
-  execFileSync("uv", ["run", "python", "tests/k2_timetable_rows.py", SECTION], { cwd: path.resolve(__dirname, "../../../packages/engine"), env: process.env, stdio: "pipe" });
+  const tab = (f: string) => path.resolve(__dirname, "../../../supabase/seed/k2_tabs_2026_11_04", f);
+  // M1-06's own command, as a person runs it: Fortnight 10 into the placeholder class. Safe to run twice.
+  execFileSync(path.resolve(__dirname, "../../../bin/engine"), ["timetable", "load", "--frame", tab("frame.csv"), "--planner", tab("planner.csv"), "--calendar", tab("calendar.csv"), "--spans", tab("frame_spans.json"), "--section", SECTION, "--grade", "K2", "--from", "10", "--to", "10", "--year", "2031-32", "--apply"], { env: process.env, stdio: "pipe" });
 });
 test.afterAll(async () => {
   await timetableSwitch(sql, false);

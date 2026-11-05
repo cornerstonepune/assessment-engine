@@ -38,9 +38,5 @@ export type Week = {
   frozen: boolean;
   days: { day: string; weekday: number; kind: DayKind; note: string | null; periods: Period[] }[];
 };
-import type { BodyOf } from "../engine";
-
-/** A part of an activity she may correct: the engine's own list (engine/api/routes/activity.py). */
-export type EditablePart = BodyOf<"/activity/edit">["field"];
 /** One period (M1-06's /timetable/period): the period, its day, and the planner's lines under the same heading. */
 export type OnePeriod = Period & { classes: ClassRef[]; class: ClassRef; frozen: boolean; day: string; note: string | null; week: "A" | "B" | null; fortnight: Fortnight | null; plan_lines: string[] };

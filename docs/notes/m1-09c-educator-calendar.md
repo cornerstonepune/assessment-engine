@@ -58,3 +58,14 @@ the site's look and font (orchestrator, 5 Nov; tested).
 - The planner list on a period shows each line twice for a subject planned in both blocks of the fortnight (M1-06's
   `_plan_lines`); reported to M1-06, not hidden here.
 - Fortnight and month views; the sidebar's Activities, Materials, Children and notes: with their screens.
+
+## Cleanup pass (/simplify)
+- Done: one placement helper in the week grid; `isLesson` / `isBlank` / `blankWords` said once; `DayHead` for the row of steps;
+  one `Pill` for chip, countdown and fortnight; each block's chip worked out once by its page; dead words and a dead type gone;
+  the browser test loads Fortnight 10 with M1-06's own `engine timetable load` (the Python helper is deleted).
+- Left, with reason:
+  - `StatusChip` is not reused: D-075 gives each state a fixed colour, so the site-wide chip would change on every other page.
+  - Dates stay "Monday 23 November" (D-075: time shown as time), not the site's `dateWords`.
+  - The bus's missing end is filled on the website (`withEnds`). The engine is the right place; that is M1-06's `k2_day`,
+    so it is proposed to the orchestrator rather than changed here. The same goes for the period's name (`nameOf`).
+  - The site's own CSS is still unlayered; layering it all touches every page, so it is out of this PR's scope.

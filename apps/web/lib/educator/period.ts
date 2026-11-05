@@ -1,4 +1,5 @@
-import type { Period } from "./types";
+import type { Day, Period } from "./types";
+import { E } from "./words";
 
 // What a period is called and when it is, said once for every screen (M1-09).
 
@@ -16,6 +17,13 @@ export function nameOf(p: Pick<Period, "kind" | "label" | "text" | "line">): str
   const cut = p.line ? p.text.lastIndexOf(": ") : -1;
   return cut > 0 ? p.text.slice(0, cut) : p.text || p.label;
 }
+
+/** A lesson: a period with work in it, not a break and not an empty slot. */
+export const isLesson = (p: Pick<Period, "kind">) => p.kind !== "fixed" && p.kind !== "empty";
+
+/** A day with nothing to draw, and what it says instead. */
+export const isBlank = (d: Pick<Day, "kind" | "periods">) => d.kind === "holiday" || d.kind === "none" || d.periods.length === 0;
+export const blankWords = (d: Pick<Day, "kind" | "note">) => (d.kind === "holiday" ? `${E.dayKind.holiday}${d.note ? `: ${d.note}` : ""}` : E.dayKind.none);
 
 /** A day in the address: YYYY-MM-DD and a real date, or nothing. */
 export const isDay = (s: string | undefined): s is string => !!s && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(`${s}T00:00:00Z`));

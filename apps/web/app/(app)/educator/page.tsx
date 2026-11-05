@@ -2,14 +2,14 @@ import { PageShell } from "@/components/page-shell";
 import { EmptyState } from "@/components/empty-state";
 import { PeriodBlock } from "@/components/educator/block";
 import { Crumbs } from "@/components/educator/crumbs";
-import { ClassPick, Steps, Where } from "@/components/educator/day-head";
+import { ClassPick, DayHead } from "@/components/educator/day-head";
 import { Summary } from "@/components/educator/summary";
-import { ChipTag, Legend } from "@/components/educator/tags";
+import { ChipTag, Legend, Pill } from "@/components/educator/tags";
 import { requireStaff } from "@/lib/auth";
 import { chipOf, countdown, nowAt } from "@/lib/educator/chip";
 import { longDate, nowAtSchool, schoolDay, whenIs } from "@/lib/educator/clock";
 import { dayOf } from "@/lib/educator/data";
-import { isDay, timeOf, withEnds } from "@/lib/educator/period";
+import { blankWords, isBlank, isDay, isLesson, timeOf, withEnds } from "@/lib/educator/period";
 import { notFound } from "next/navigation";
 import type { Day } from "@/lib/educator/types";
 import { E } from "@/lib/educator/words";
@@ -30,32 +30,26 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       stage={E.area}
       title={d.day === today ? E.today.title : longDate(d.day)}
       purpose={E.today.purpose}
-      action={
-        <div className="flex w-full flex-wrap items-center justify-between gap-[var(--space-2)]">
-          <Steps back={at(schoolDay(d.day, -1))} now={at(today)} on={at(schoolDay(d.day, 1))} words={{ previous: E.day.previous, next: E.day.next, now: E.day.today }} />
-          <Where fortnight={d.fortnight} week={d.week} frozen={d.frozen} />
-        </div>
-      }
+      action={<DayHead back={at(schoolDay(d.day, -1))} now={at(today)} on={at(schoolDay(d.day, 1))} words={E.day} where={d} />}
       next={{ href: `/educator/week?class=${d.class.id}&day=${d.day}`, label: E.week.title }}
     >
       <Crumbs trail={[{ label: E.area }, { label: E.today.title, href: at(today) }, { label: longDate(d.day) }]} />
       <ClassPick classes={d.classes} on={d.class.id} href={(id) => `/educator?class=${id}&day=${d.day}`} />
-      <DayCalendar d={d} classId={d.class.id} />
+      <DayCalendar d={d} />
     </PageShell>
   );
 }
 
-function DayCalendar({ d, classId }: { d: Day; classId: string }) {
-  if (d.kind === "none" || d.kind === "holiday" || d.periods.length === 0)
-    return <EmptyState>{d.kind === "holiday" ? `${E.dayKind.holiday}${d.note ? `: ${d.note}` : ""}` : E.dayKind.none}</EmptyState>;
+function DayCalendar({ d }: { d: Day }) {
+  if (isBlank(d)) return <EmptyState>{blankWords(d)}</EmptyState>;
   const when = whenIs(d.day);
   const now = nowAtSchool();
   const periods = withEnds(d.periods);
   const work = periods.map((p) => ({ p, chip: chipOf(p, { now, day: when }) }));
-  const lessons = d.periods.filter((p) => p.kind !== "fixed" && p.kind !== "empty");
-  const next = work.find((w) => w.chip === "doNow") ?? (when === "past" ? undefined : work.find((w) => w.p.kind !== "fixed" && w.p.kind !== "empty" && (when === "future" || w.p.starts_at > now)));
+  const lessons = d.periods.filter(isLesson);
+  const next = work.find((w) => w.chip === "doNow") ?? (when === "past" ? undefined : work.find((w) => isLesson(w.p) && (when === "future" || w.p.starts_at > now)));
   const line = when === "today" ? nowAt(periods, now) : null;
-  const href = (id: string) => `/educator/period/${id}?class=${classId}&day=${d.day}`;
+  const href = (id: string) => `/educator/period/${id}?class=${d.class.id}&day=${d.day}`;
   const first = (ps: typeof d.periods) => (ps[0] ? `#p-${ps[0].period_id}` : undefined);
   const breaks = d.periods.filter((p) => p.kind === "fixed");
   const acts = d.periods.filter((p) => p.activity);
@@ -73,10 +67,10 @@ function DayCalendar({ d, classId }: { d: Day; classId: string }) {
       </div>
       <ol data-day={d.day} data-day-kind={d.kind} aria-label={longDate(d.day)} className="col-span-12 grid gap-[var(--space-2)] lg:col-span-8">
         {d.note?.startsWith("undecided:") ? <li className="text-[length:var(--text-label)] text-[var(--text-muted)]">{E.dayKind.undecided}</li> : null}
-        {periods.map((p, i) => (
+        {work.map(({ p, chip }, i) => (
           <li key={p.period_id} className="grid gap-[var(--space-2)]">
             {line === i ? <NowLine now={now} /> : null}
-            <PeriodBlock p={p} href={href(p.period_id)} day={when} now={now} />
+            <PeriodBlock p={p} href={href(p.period_id)} chip={chip} />
           </li>
         ))}
         {line === periods.length ? (
@@ -93,7 +87,9 @@ function DayCalendar({ d, classId }: { d: Day; classId: string }) {
               <span className="text-[length:var(--text-label)] text-[var(--text-muted)] tabular-nums">{timeOf(next.p)}</span>
               <span className="font-medium">{next.p.activity?.name ?? next.p.line ?? next.p.label}</span>
               {next.chip ? <ChipTag chip={next.chip} /> : null}
-              {next.chip !== "doNow" && when === "today" ? <span data-countdown className="w-fit rounded-[var(--radius-pill)] border px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--text-label)] font-medium" style={{ color: "var(--chip-soon-fg)", borderColor: "var(--chip-soon-bd)" }}>{countdown(now, next.p.starts_at)}</span> : null}
+              {next.chip !== "doNow" && when === "today" ? <Pill tone="comingUp" fill={false} data-countdown>
+                  {countdown(now, next.p.starts_at)}
+                </Pill> : null}
             </>
           ) : (
             <p className="text-[var(--text-muted)]">{when === "past" ? E.dayOver : E.nothingLeft}</p>
