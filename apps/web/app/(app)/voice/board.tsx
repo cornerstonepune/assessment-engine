@@ -73,7 +73,7 @@ export function Board({
           <div className="flex items-center gap-2" role="group" aria-label={W.level.label}>
             <span className="text-[13px] text-basalt/70">{W.level.label}</span>
             {W.level.values.map((n) => (
-              <button key={n} type="button" aria-pressed={w.level === n} onClick={() => setW({ ...w, level: n })} className={`chip min-w-11 justify-center ${w.level === n ? "on" : ""}`}>
+              <button key={n} type="button" aria-pressed={w.level === n} onClick={() => setW({ ...w, level: n })} className={`chip min-h-11 min-w-11 justify-center ${w.level === n ? "on" : ""}`}>
                 {n}
               </button>
             ))}

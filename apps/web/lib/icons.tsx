@@ -2,9 +2,15 @@ import {
   ArrowBigDown,
   ArrowBigUp,
   ArrowRight,
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Coffee,
+  Lock,
   AudioLines,
   Bandage,
   Blocks,
+  CalendarClock,
   CalendarDays,
   CalendarRange,
   CalendarX,
@@ -100,6 +106,13 @@ export const ICONS = {
   week: CalendarDays,
   fortnight: CalendarRange,
   checklist: ListChecks,
+  // the K2 educator's timetable (M1-09)
+  "school-words": BookOpen,
+  previous: ChevronLeft,
+  following: ChevronRight,
+  break: Coffee,
+  frozen: Lock,
+  time: CalendarClock,
 } satisfies Record<string, LucideIcon>;
 export type IconName = keyof typeof ICONS;
 

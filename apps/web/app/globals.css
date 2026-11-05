@@ -1,3 +1,7 @@
+/* The school's design tokens (D-073, design-system/tokens.css), the lowest layer: a name the site also sets
+   (--font-body) keeps the site's value; the K2 educator's screens point it at Jost in their own layout. */
+@layer tokens, theme, base, components, utilities;
+@import "../design-system/tokens.css" layer(tokens);
 @import "tailwindcss";
 
 /* The material library — Cornerstone Brand Book, Edition 02 (design-system/PRINCIPLES.md).
@@ -44,17 +48,20 @@ body {
   background: var(--lime);
   color: var(--basalt);
   font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.55;
+  font-size: var(--text-body);
+  line-height: var(--lh-body);
 }
 
-/* Headings: the same serif, a weight heavier; never all-caps. */
-h1,
-h2,
-h3 {
-  font-family: var(--font-heading);
-  font-weight: 600;
-  margin: 0;
+/* Headings: the same serif, a weight heavier; never all-caps. In the base layer, so a heading's own utility (a smaller
+   heading set in the body face, D-073 R3) wins. */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    margin: 0;
+  }
 }
 
 /* In the base layer, so a link's own utility colours win: unlayered, this `a:hover` beat the
@@ -68,13 +75,28 @@ h3 {
   }
 }
 
+/* A phone's floor for any other action, a toggle or a select: 24 px (WCAG 2.2 AA, 2.5.8). In the base layer, so a
+   control's own size (the educator's 44 px taps) wins: unlayered, this floor beat every utility and shrank them. */
+@layer base {
+  @media (max-width: 767px) {
+    main summary,
+    main button,
+    main select,
+    main input:not([type="hidden"]),
+    main label:has(> input[type="checkbox"]),
+    main label:has(> input[type="radio"]) {
+      min-height: 24px;
+    }
+  }
+}
+
 /* Labels: small letter-spaced capitals. Facts — ids, counts, dates — in figures that line up. */
 .label {
-  font-size: 11px;
+  font-size: var(--text-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink-55);
-  font-weight: 600;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 .fact {
   font-size: 13px;
@@ -229,7 +251,9 @@ table.grid.steady tr.under td {
 }
 
 .chip {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
   padding: 7px 13px;
   border: 1px solid var(--ink-30);
   font-size: 13px;
@@ -251,6 +275,7 @@ table.grid.steady tr.under td {
 .btn {
   display: inline-flex;
   align-items: center;
+  min-height: var(--tap);
   gap: 8px;
   padding: 10px 18px;
   background: var(--terracotta);
@@ -289,14 +314,6 @@ table.grid.steady tr.under td {
   .chip {
     display: inline-flex;
     align-items: center;
-  }
-  main summary,
-  main button,
-  main select,
-  main input:not([type="hidden"]),
-  main label:has(> input[type="checkbox"]),
-  main label:has(> input[type="radio"]) {
-    min-height: 24px;
   }
   main td > a:only-child {
     display: inline-block;

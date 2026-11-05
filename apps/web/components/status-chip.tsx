@@ -58,10 +58,12 @@ export const STATES = {
 export type State = keyof typeof STATES;
 export type Tone = (typeof STATES)[State]["tone"];
 
-const GREEN = "text-neem bg-neem/12 border-neem/30";
-const AMBER = "text-mud bg-bamboo/22 border-bamboo/45";
-const RED = "text-terracotta bg-terracotta/12 border-terracotta/35";
-const GREY = "text-monsoon bg-monsoon/12 border-monsoon/30";
+// The tones' colours are the school's chip pairs (design-system/tokens.css, D-073), each text at 4.5:1 or more on its
+// fill; the old 12% fills were 3.15 to 4.24 (docs/design-audit-k2.md).
+const GREEN = "text-[var(--chip-done-fg)] bg-[var(--chip-done-bg)] border-[var(--chip-done-bd)]";
+const AMBER = "text-[var(--chip-confirm-fg)] bg-[var(--chip-confirm-bg)] border-[var(--chip-confirm-bd)]";
+const RED = "text-[var(--chip-late-fg)] bg-[var(--chip-late-bg)] border-[var(--chip-late-bd)]";
+const GREY = "text-[var(--chip-soon-fg)] bg-[var(--chip-soon-bg)] border-[var(--chip-soon-bd)]";
 export const TONE_CLASS: Record<Tone, string> = { ok: GREEN, wait: AMBER, act: RED, quiet: GREY };
 
 // A different shape for each tone, so a chip reads without its colour: a tick, a clock, a triangle with a mark, a ring.

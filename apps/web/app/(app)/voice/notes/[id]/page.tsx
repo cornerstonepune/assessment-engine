@@ -47,7 +47,7 @@ export default async function ConfirmNote({ params }: { params: Promise<{ id: st
         <span className="font-medium">{klass}</span>
         <span className="text-basalt/70">{heard}</span>
         <Late draft={draft} />
-        {my.recording ? <audio controls preload="none" src={`/api/voice/${id}`} aria-label={W.confirm.play} className="h-9 max-w-full" /> : null}
+        {my.recording ? <audio controls preload="none" src={`/api/voice/${id}`} aria-label={W.confirm.play} className="h-11 max-w-full" /> : null}
       </div>
       <Body draft={draft} klass={klass} grade={c?.grade} form={form} />
     </PageShell>
