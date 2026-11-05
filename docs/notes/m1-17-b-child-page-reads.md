@@ -9,7 +9,7 @@ No migration, no model call. Design: `docs/notes/m1-17-design.md` (#402).
     individual, confirmed, current (not superseded) observations only; "the rest did as expected" and "not willing" add nothing.
   - `ready_next`: per skill `{skill, because:[{before, strength}]}` from `skill_link_confirmed` only; only `secure` is done.
 - Config row `k2.child_page` (`supabase/seed/config.json`, loaded by `engine load --settings`, no migration):
-  `growth_min_months` 2, `done_states` ["secure"]. A missing row falls back to the same values.
+  `growth_min_months` 2, `done_states` ["secure"]. No default in code (a repo test forbids naming a state there): a missing row stops the page with a message naming the fix.
 - Queries per page: skill names now ride the cells query (and the class picture's too), the config rides the class query;
   growth and links are one query each. Net +1 over before, still a fixed number whatever the class size.
 
