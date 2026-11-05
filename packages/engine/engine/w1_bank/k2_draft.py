@@ -293,10 +293,16 @@ def _material_proposal(key: str, good: list, bad: list) -> Proposal:
 
 
 def _run(
-    command: Callable[..., Report], stage: str, limit: int | None, dev: bool, dry_run: bool, by: str
+    command: Callable[..., Report],
+    stage: str,
+    limit: int | None,
+    dev: bool,
+    dry_run: bool,
+    by: str,
+    tranche: bool = False,
 ) -> None:
-    if dev and limit is not None:
-        raise typer.BadParameter("give either --dev or --limit, not both")
+    if sum([dev, tranche, limit is not None]) > 1:
+        raise typer.BadParameter("give one of --dev, --tranche or --limit, not more")
     if not dry_run and not by.strip():  # before anything is read or asked: every row keeps who ran it
         raise typer.BadParameter(
             "--by is required for a real run: every row keeps who ran it (--dry-run needs none)"
@@ -305,7 +311,7 @@ def _run(
     with db.connect() as conn:
         tenant = db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
         staff = None if dry_run else staff_of(conn, by)
-        limit = int(_settings(conn)["dev_pages"]) if dev else limit
+        limit = int(_settings(conn)["dev_pages" if dev else "tranche_pages"]) if dev or tranche else limit
         command(conn, tenant, staff, cfg["band"], stage, live_ask(conn, stage), limit, not dry_run, dry_run)
 
 
@@ -317,12 +323,24 @@ DEV = typer.Option(
 DRY = typer.Option(False, "--dry-run", help="Print the forecast and make no call")
 
 
+TRANCHE = typer.Option(
+    False,
+    "--tranche",
+    help="Only the next pages not yet drafted: as many as the row k2.drafting names (tranche_pages)",
+)
+
+
 @curriculum_app.command("draft")
 def draft_cmd(
-    stage: str = STAGE, limit: int | None = LIMIT, dev: bool = DEV, dry_run: bool = DRY, by: str = BY
+    stage: str = STAGE,
+    limit: int | None = LIMIT,
+    dev: bool = DEV,
+    dry_run: bool = DRY,
+    by: str = BY,
+    tranche: bool = TRANCHE,
 ) -> None:
     """Draft the empty text parts of K2 pages, check them, record them in the ledger (apply them with `apply`)."""
-    _run(draft, stage, limit, dev, dry_run, by)
+    _run(draft, stage, limit, dev, dry_run, by, tranche)
 
 
 @curriculum_app.command("materials")
