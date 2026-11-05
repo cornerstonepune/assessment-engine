@@ -8,25 +8,29 @@ import { EngineDown, engineSend } from "@/lib/engine";
 // The engine refuses the school's own words; the page is drawn again from what it then says.
 const part = (f: FormData) => ({ code: String(f.get("code") ?? ""), part: String(f.get("part") ?? "") });
 
-async function answer(path: "/curriculum/page/confirm" | "/curriculum/page/revert" | "/curriculum/page/edit", body: Record<string, unknown>, code: string) {
-  const me = await requireStaff();
+type Me = Awaited<ReturnType<typeof requireStaff>>;
+
+async function answer(me: Me, path: "/curriculum/page/confirm" | "/curriculum/page/revert" | "/curriculum/page/edit", body: Record<string, unknown>, code: string) {
   const res = await engineSend(path, { actor: me.email, ...body } as never);
   if (!res.ok && res.status !== 409) throw new EngineDown(`The engine refused that (${res.status}).`);
   revalidatePath(`/educator/activity/${code}`);
 }
 
 export async function keep(f: FormData): Promise<void> {
+  const me = await requireStaff();
   const p = part(f);
-  await answer("/curriculum/page/confirm", p, p.code);
+  await answer(me, "/curriculum/page/confirm", p, p.code);
 }
 
 export async function sendBack(f: FormData): Promise<void> {
+  const me = await requireStaff();
   const p = part(f);
-  await answer("/curriculum/page/revert", p, p.code);
+  await answer(me, "/curriculum/page/revert", p, p.code);
 }
 
 /** Her own words: the steps one a line; how to think as an idea line and slips, each "keyword: how to see it". */
 export async function edit(f: FormData): Promise<void> {
+  const me = await requireStaff();
   const p = part(f);
   const lines = (k: string) => String(f.get(k) ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
   const kind = String(f.get("kind") ?? "text");
@@ -42,5 +46,5 @@ export async function edit(f: FormData): Promise<void> {
             }),
           }
         : { text: String(f.get("text") ?? "").trim() };
-  await answer("/curriculum/page/edit", { ...p, ...words }, p.code);
+  await answer(me, "/curriculum/page/edit", { ...p, ...words }, p.code);
 }
