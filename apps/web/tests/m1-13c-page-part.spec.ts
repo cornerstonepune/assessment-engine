@@ -42,7 +42,7 @@ test.describe("drawn on a real page", () => {
   const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
   test.beforeAll(async () => {
     await curriculumRows(sql);
-    await gate(sql, "preview");
+    await gate(sql, "reviewer");
   });
   test.afterAll(async () => {
     await gate(sql, "closed");

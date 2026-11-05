@@ -9,7 +9,7 @@ import { PartCard } from "../../parts";
 // One activity with every part, who wrote it, and Keep / Edit / Send back on the drafted ones.
 export default async function ActivityFill({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
-  const { previewing } = await mustBeOn(me.email);
+  const { reviews } = await mustBeOn(me.email);
   const { code } = await params;
   const q = await searchParams;
   const page = await readPage(me, decodeURIComponent(code));
@@ -26,7 +26,7 @@ export default async function ActivityFill({ params, searchParams }: { params: P
       <Chrome here="/curriculum/browse" crumb={page.code}>
       <div className="cs-stack">
         {page.parts.map((p) => (
-          <PartCard key={p.part} part={p} code={page.code} back={back} editing={q.edit === p.part} editHref={`${back}?edit=${p.part}`} readOnly={previewing} />
+          <PartCard key={p.part} part={p} code={page.code} back={back} editing={q.edit === p.part} editHref={`${back}?edit=${p.part}`} readOnly={!reviews} />
         ))}
       </div>
       </Chrome>

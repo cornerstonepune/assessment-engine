@@ -87,17 +87,28 @@ def tenant_now() -> str:
         return get_tenant_id(conn)
 
 
+REVIEW = "curriculum.review_roles"
+
+
+def curriculum_reviews(conn, staff) -> bool:
+    """Whether `staff` may review the curriculum (keep, edit, send back a draft, answer an offered skill): the educator
+    switch is on, or they hold a role `curriculum.review_roles` names (head, coordinator). The review fills the content
+    before educators see anything, so it cannot wait for their switch."""
+    return educator_gate.switched_on(conn) or educator_gate.holds(conn, staff, REVIEW)
+
+
 def curriculum_staff(conn, actor: str, *, writes: bool = False):
-    """The member of staff behind `actor`, once the educator gate lets them through (D-076, educator_gate): the switch
-    on, or a role `educator.preview_roles` names. A preview only looks, so a route that changes something (`writes`)
-    needs the switch itself. The one check every route of the curriculum screens makes first, before any field is read,
-    so a refused call learns nothing."""
+    """The member of staff behind `actor`, once the gate lets them through: the educator gate (D-076: the switch on, or
+    a role `educator.preview_roles` names, who only look) or the review's roles. A route that changes something
+    (`writes`) needs the review. The one check every route of the curriculum screens makes first, before any field is
+    read, so a refused call learns nothing."""
     sid = db.one(conn, "select public.staff_of_email(%s) as id", (actor,))["id"]
     if sid is None:
         raise HTTPException(status_code=403, detail="This sign-in is not on the staff list.")
-    if not educator_gate.open_to(conn, sid):
+    reviews = curriculum_reviews(conn, sid)
+    if not (reviews or educator_gate.open_to(conn, sid)):
         raise HTTPException(status_code=403, detail="The curriculum screens are not switched on.")
-    if writes and not educator_gate.switched_on(conn):
+    if writes and not reviews:
         raise HTTPException(
             status_code=403, detail="The preview only looks: the curriculum screens are not switched on."
         )

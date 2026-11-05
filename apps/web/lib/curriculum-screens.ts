@@ -1,8 +1,8 @@
 import { cache } from "react";
+import { notFound } from "next/navigation";
 import type { Session } from "./auth";
 import { sql } from "./db";
 import { engineSend } from "./engine";
-import { openTo } from "./educator/data";
 import { PART_KEYS, PART_WORDS, type PagePart, type PartKey } from "./page-part";
 
 // The curriculum screens (task M1-13): the browser, the fill view and its walk-through, the offered-skills queue. Reads
@@ -22,10 +22,15 @@ export const stateOf = cache(async (): Promise<(share: number) => State> => {
   return (share) => (share >= green ? "green" : share >= amber ? "amber" : "red");
 });
 
-/** Whether the curriculum screens are open to this sign-in: the educator gate (the switch on, or the staff preview), once
- *  per request, through the same call the educator's screens make. Not open, or not on the staff list, is not found.
- *  `previewing`: the switch is off and this person is the staff preview, who looks and changes nothing (D-076). */
-export const mustBeOn = cache(async (email: string): Promise<{ previewing: boolean }> => openTo({ email }));
+/** Whether the curriculum screens are open to this sign-in, once per request: the engine's gate (the educator switch on,
+ *  the staff preview, or a role the review names). Not open, or not on the staff list, is not found. `reviews`: they may
+ *  keep, edit, send back and answer offers; without it the staff preview looks and changes nothing (D-076). */
+export const mustBeOn = cache(async (email: string): Promise<{ reviews: boolean }> => {
+  const res = await engineSend("/curriculum/page/gate", { actor: email });
+  if (res.status === 403 || res.status === 404) notFound();
+  if (!res.ok) throw new Error(`The engine refused that (${res.status}).`);
+  return (await res.json()) as { reviews: boolean };
+});
 
 /** The grade these screens list: the config row `curriculum.screens_grade` (the code of a row of `grade`). */
 const grade = cache(async () => {

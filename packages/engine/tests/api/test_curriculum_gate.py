@@ -1,7 +1,8 @@
 """The curriculum screens answer to the educator gate (goals/m1-13b-curriculum-on-the-shell.yaml; D-076, w2_print/educator_gate.py):
 the page and offers routes answer when `educator.timetable_enabled` is on or the member of staff holds a role
-`educator.preview_roles` names, and are refused otherwise, before anything is read or changed. A preview only looks
-(D-076): the routes that change something need the switch itself."""
+`educator.preview_roles` names, and are refused otherwise, before anything is read or changed. A preview only
+looks (D-076); the routes that change something (review: keep, edit, send back, answer an offer) need the switch, or a
+role `curriculum.review_roles` names (head, coordinator): the review fills the content before educators see anything."""
 
 import os
 
@@ -40,6 +41,16 @@ def _switch(conn, on: bool):
         "update config set value = %s::jsonb where key = 'educator.timetable_enabled'",
         ("true" if on else "false",),
     )
+
+
+def _roles(conn, key: str, roles):
+    """The config row `key` as `roles` (a list), or no row at all when `roles` is None."""
+    conn.execute("delete from config where key = %s", (key,))
+    if roles is not None:
+        conn.execute(
+            "insert into config (tenant_id, key, value, description) values (%s, %s, %s::jsonb, 't')",
+            (conn.t, key, __import__("json").dumps(roles)),
+        )
 
 
 def _grant(conn, role: str):
@@ -86,15 +97,53 @@ def test_switched_off_a_role_the_preview_names_may_look(client, conn):
     assert client.post("/curriculum/offers/list", json=WHO, headers=H).status_code == 200
 
 
-def test_switched_off_a_preview_changes_nothing(client, conn):
+def test_switched_off_a_role_the_review_names_may_change_things(client, conn):
     drafted_page(conn)
     _switch(conn, False)
+    _roles(conn, "curriculum.review_roles", ["head", "coordinator"])
     _grant(conn, "head")
+    assert client.post("/curriculum/page/gate", json=WHO, headers=H).json() == {"reviews": True}
+    kept = client.post("/curriculum/page/confirm", json=calls()["page/confirm"], headers=H)
+    assert kept.status_code == 200, kept.text
+    # an offer that is not waiting is answered with the old 409, not a refusal: the gate let it through
+    assert (
+        client.post("/curriculum/offers/answer", json=calls()["offers/answer"], headers=H).status_code == 409
+    )
+
+
+def test_switched_off_a_preview_the_review_does_not_name_changes_nothing(client, conn):
+    drafted_page(conn)
+    _switch(conn, False)
+    _roles(conn, "curriculum.review_roles", ["ops"])
+    _grant(conn, "head")  # a preview role, not a review role
+    assert client.post("/curriculum/page/gate", json=WHO, headers=H).json() == {"reviews": False}
     before = conn.execute("select steps from activity where code = 'KX-1'").fetchone()["steps"]
     for path in WRITES:
         got = client.post(f"/curriculum/{path}", json=calls()[path], headers=H)
         assert (got.status_code, got.json()["detail"]) == (403, LOOK), path
     assert conn.execute("select steps from activity where code = 'KX-1'").fetchone()["steps"] == before
+
+
+def test_without_the_review_row_nobody_reviews_while_the_switch_is_off(client, conn):
+    drafted_page(conn)
+    _switch(conn, False)
+    _roles(conn, "curriculum.review_roles", None)
+    _grant(conn, "head")
+    assert client.post("/curriculum/page/read", json={**WHO, "code": "KX-1"}, headers=H).status_code == 200
+    assert client.post("/curriculum/page/confirm", json=calls()["page/confirm"], headers=H).status_code == 403
+
+
+def test_a_review_role_alone_does_not_open_the_reading_to_others_and_the_switch_opens_all(client, conn):
+    drafted_page(conn)
+    _switch(conn, False)
+    _roles(conn, "curriculum.review_roles", ["head", "coordinator"])
+    _grant(conn, "ops")  # neither a review nor a preview role: an ordinary member of staff
+    for path in ("page/gate", "page/confirm"):
+        assert (
+            client.post(f"/curriculum/{path}", json=calls().get(path, WHO), headers=H).status_code == 403
+        ), path
+    _switch(conn, True)
+    assert client.post("/curriculum/page/gate", json=WHO, headers=H).json() == {"reviews": True}
 
 
 def test_a_role_the_preview_does_not_name_gets_nothing(client, conn):

@@ -8,7 +8,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from engine.api.deps import curriculum_staff, get_conn, get_tenant_id, require_engine_key
+from engine.api.deps import curriculum_reviews, curriculum_staff, get_conn, get_tenant_id, require_engine_key
 from engine.w1_bank import k2_page, k2_review
 
 router = APIRouter(prefix="/curriculum/page", dependencies=[Depends(require_engine_key)])
@@ -98,6 +98,17 @@ def _answer(conn, tenant_id: str, body: PartRef, act) -> dict:
         taken = "not a drafted part" in str(e)
         raise HTTPException(status_code=409 if taken else 422, detail=str(e)) from None
     return _page(conn, tenant_id, body.code)
+
+
+class Gate(BaseModel):
+    reviews: bool  # may keep, edit, send back and answer offers; false: the staff preview, who looks only
+
+
+@router.post("/gate", response_model=Gate)
+def gate(body: Who, conn=Depends(get_conn, scope="function")):
+    """Whether this sign-in may review (the site asks before it shows the buttons); refused when the screens are not open
+    to them at all."""
+    return Gate(reviews=curriculum_reviews(conn, _staff(conn, body)))
 
 
 @router.post("/read", response_model=Page)

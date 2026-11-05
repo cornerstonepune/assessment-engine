@@ -92,14 +92,17 @@ export async function clearOffers(sql: Sql): Promise<void> {
       and not exists (select 1 from curriculum_proposal f where f.about = p.id)`;
 }
 
-/** Who the educator gate lets in (D-076): "closed" (switch off, tester holds no preview role), "preview" (switch off,
- *  tester holds head, a role `educator.preview_roles` names), "open" (switch on). Put back with `gate(sql, "closed")`. */
-export async function gate(sql: Sql, mode: "closed" | "preview" | "open") {
+/** Who the curriculum gate lets in (D-076, and the review rule): "closed" (the educator switch off, the tester holds no
+ *  role), "reviewer" (switch off, the tester holds head, a role `curriculum.review_roles` names: looks and changes things),
+ *  "look" (switch off, head, but review_roles names another role: the staff preview, who only looks), "open" (switch on).
+ *  Put back with `gate(sql, "closed")`, which also puts the review roles back as seeded. */
+export async function gate(sql: Sql, mode: "closed" | "reviewer" | "look" | "open") {
   await sql`update config set value = ${mode === "open" ? sql`'true'::jsonb` : sql`'false'::jsonb`} where key = 'educator.timetable_enabled'`;
+  await sql`update config set value = ${sql.json(mode === "look" ? ["ops"] : ["head", "coordinator"])} where key = 'curriculum.review_roles'`;
   const [{ staff_id: staff, tenant_id: t }] = await sql<{ staff_id: string; tenant_id: string }[]>`select staff_id, tenant_id from pii.staff where email = ${TEST_STAFF.email}`;
   // a grant is never deleted and an ended one is never reopened (the table refuses both): "closed" ends this test's grants
-  // by their date, and "preview" gives the tester a new one unless one is open
-  if (mode !== "preview") {
+  // by their date, and the others give the tester a new one unless one is open
+  if (mode === "closed" || mode === "open") {
     await sql`update staff_role_grant set valid_to = valid_from where staff_id = ${staff} and granted_by = 'm1-13b test' and valid_to is null`;
     return;
   }

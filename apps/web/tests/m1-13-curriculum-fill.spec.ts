@@ -40,7 +40,7 @@ test.afterAll(async () => {
   await sql.end();
 });
 test.beforeEach(async ({ page }) => {
-  await gate(sql, "preview");
+  await gate(sql, "reviewer");
   await page.setViewportSize(DESKTOP);
 });
 
@@ -54,8 +54,8 @@ test("closed to staff with no preview role while the switch is off: every addres
   }
 });
 
-test("open to the staff preview with the switch off, and to staff once it is on", async ({ page }) => {
-  for (const mode of ["preview", "open"] as const) {
+test("open to head with the switch off (to look, or to review), and to staff once it is on", async ({ page }) => {
+  for (const mode of ["look", "reviewer", "open"] as const) {
     await gate(sql, mode);
     for (const url of ADDRESSES) {
       await page.goto(url);
@@ -128,7 +128,7 @@ test("the fill view counts each part by who wrote it, and the four add up to eve
 });
 
 test("a person walks the drafted parts one by one: edit, keep, send back — five taps", async ({ page }) => {
-  await gate(sql, "open"); // changing a part needs the educator switch itself: a preview only looks
+  // the review needs no educator switch: head holds a review role (curriculum.review_roles), the switch is off
   taps = 0;
   await page.goto("/curriculum/fill");
   await tap(page.locator("[data-ux=action]").getByRole("link", { name: /Check the drafted parts/ })); // the page's main action (the menu has one too)
@@ -156,7 +156,6 @@ test("a person walks the drafted parts one by one: edit, keep, send back — fiv
 });
 
 test("the offered-skills queue shows the activity, skills, what was linked, the reason; yes links, no closes", async ({ page }) => {
-  await gate(sql, "open");
   await offers(sql, skills);
   await page.goto("/curriculum/offers");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Skills offered, waiting for you");
@@ -183,7 +182,7 @@ test("the offered-skills queue shows the activity, skills, what was linked, the 
 
 test("the staff preview looks and changes nothing: the drafts and offers show, with no Keep, Edit, Send back, Yes or No", async ({ page }) => {
   await curriculumRows(sql); // the walk-through above answered the drafts: they are written again
-  await gate(sql, "preview");
+  await gate(sql, "look");
   await offers(sql, skills);
   await page.goto("/curriculum/fill/walk");
   await expect(page.locator("[data-preview]")).toContainText("Preview");

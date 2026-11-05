@@ -710,6 +710,12 @@
       "seed_once": true
     },
     {
+      "key": "curriculum.review_roles",
+      "description": "The roles whose holders may review the curriculum (keep, edit or send back a drafted part, answer an offered skill) even while the educator switch is off: the review fills the content before educators see anything. A list of role codes; a missing row names nobody. Anyone else needs `educator.timetable_enabled` on.",
+      "value": ["head", "coordinator"],
+      "seed_once": true
+    },
+    {
       "key": "curriculum.fill_green",
       "description": "The share of a section's page parts and skills that must be filled for the curriculum browser to show it green (1 = every one).",
       "value": 1,

@@ -7,14 +7,13 @@
 
 ## What changed
 - Layout: `app/(app)/curriculum/layout.tsx` wraps the area in `SchoolShell` with `lib/curriculum-menu.ts` (Curriculum, What is filled with "Check the drafted parts" under it, Skills offered). `Chrome` now draws the shell's `Crumbs` and `Summary` and no title, tabs or tokens of its own.
-- Gate (replaces the config row `curriculum.screens_enabled`, removed from the seed): the engine's page and offers routes refuse with 403 "The curriculum screens are not switched on." unless `educator_gate.open_to` (switch on, or a role `educator.preview_roles` names), through `curriculum_staff` in `engine/api/deps.py` (the two routes' copies of the staff check are gone). The pages ask the educator screens' own `openTo` (`POST /timetable/open`) before reading a row of their own (`mustBeOn` in `lib/curriculum-screens.ts`); not open is not found.
-- A preview only looks (D-076, as the timetable and materials routes): the routes that change something (confirm, revert, edit, answer an offer) need the switch itself, "The preview only looks: …"; the screens show a previewer the drafts and the offers with no button to press, and say so.
+- Gate (replaces the config row `curriculum.screens_enabled`, removed from the seed): the engine's page and offers routes refuse with 403 "The curriculum screens are not switched on." unless `educator_gate.open_to` (switch on, or a role `educator.preview_roles` names), through `curriculum_staff` in `engine/api/deps.py` (the two routes' copies of the staff check are gone). The pages ask `POST /curriculum/page/gate` before reading a row of their own (`mustBeOn` in `lib/curriculum-screens.ts`); not open is not found.
+- A preview only looks (D-076, as the timetable and materials routes), but the review does not wait for the educators' switch (the orchestrator's decision, 5 Nov): a member of staff whose open grant is in a role named by the new config row `curriculum.review_roles` (seeded `["head", "coordinator"]`, seed_once; a missing row names nobody) may keep, edit, send back and answer offers with the educator switch off; everyone else needs the switch on, else the engine says "The preview only looks: …" and the screens show the drafts and offers with nothing to press, and say so. `POST /curriculum/page/gate` → `{reviews}` tells the pages which. `educator_gate.holds(conn, staff, key)` is the one grant query (`previews` now calls it).
 - Each page and action still calls `requireStaff()` itself (`tests/test_web_gate.py`), then `mustBeOn`.
 
 ## Readings taken (simplest)
 - The tabs are the menu's sub-items now; the strip of counts is the shell's `Summary`; with the offers read failing its count is left out, not shown as 0.
-- Because writes need the switch, curriculum work (Keep, Edit, Send back, offers) opens to all staff only when the educator switch is on. If it should open to staff earlier, a separate switch is the answer, not a weaker preview.
 
 ## Handoff
-- Nimish needs the role `head` on live for the screens to show with the switch off.
+- Nimish and Akanksha need the role `head` (or `coordinator`) on live for the screens and the review to work with the educator switch off. `curriculum.review_roles` is a setting: change the list to change who reviews.
 - Config row `curriculum.screens_enabled` stays on live (seed_once, unused); nothing reads it.

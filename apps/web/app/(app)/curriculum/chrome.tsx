@@ -23,13 +23,13 @@ function trail(here: keyof typeof AREA, crumb?: string) {
 
 export async function Chrome({ here, crumb, children }: { here: keyof typeof AREA; crumb?: string; children: React.ReactNode }) {
   const me = await requireStaff();
-  const { previewing } = await mustBeOn(me.email);
+  const { reviews } = await mustBeOn(me.email);
   const [drafted, gaps, offered] = await Promise.all([waiting(), gap(), readOffers(me.email).catch(() => null)]);
   const empty = gaps.reduce((n, g) => n + g.empty, 0);
   return (
     <>
       <Crumbs trail={trail(here, crumb)} />
-      {previewing ? <p data-preview className="mb-[var(--space-3)] text-[length:var(--text-label)] text-[var(--text-muted)]">Preview: you can look, and change nothing, until the educator screens are switched on.</p> : null}
+      {!reviews ? <p data-preview className="mb-[var(--space-3)] text-[length:var(--text-label)] text-[var(--text-muted)]">Preview: you can look, and change nothing, until the educator screens are switched on.</p> : null}
       <Summary
         items={[
           { label: ["drafted part to check", "drafted parts to check"], n: drafted.length, href: "/curriculum/fill/walk" },
