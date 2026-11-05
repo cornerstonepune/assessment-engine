@@ -3,10 +3,12 @@
 // and an icon. Colour is never the only sign (D-075): every state is an icon and a word. A child's state is never red:
 // terracotta is for late or missing work, and `act` is not a tone a child can have (the test below the table holds it).
 import type { IconName } from "./icons";
+import { dateWords } from "./week";
 
 export type ChildTone = "ok" | "wait" | "quiet";
 
-// The words are the school's (K2 team). `emerging` is the engine's "under half right", a written-paper phrase that means
+// Not read from `child_state` through lib/states.ts: this table also holds the K2 tone and icon, and its words differ where the
+// written-paper ones do not fit (below). The words are the school's (K2 team). `emerging` is the engine's "under half right", a written-paper phrase that means
 // nothing for an observed skill, so it is "just starting" here. Unverified with the school.
 export const CHILD_STATES: Record<string, { words: string; tone: ChildTone; icon: IconName }> = {
   secure: { words: "secure", tone: "ok", icon: "secure" },
@@ -40,12 +42,12 @@ export type ClassPicture = { class: string; skills: SkillRef[]; children: { roll
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 /** "2026-10" → "Oct 2026". */
 export const monthWords = (m: string) => `${MONTHS[Number(m.slice(5, 7)) - 1] ?? m.slice(5, 7)} ${m.slice(0, 4)}`;
-/** "2026-10-19" → "19 Oct". */
-export const dayWords = (d: string) => `${Number(d.slice(8, 10))} ${MONTHS[Number(d.slice(5, 7)) - 1] ?? ""}`;
+/** A day as every page of the site says it: "19-Oct-2026". */
+export const dayWords = dateWords;
 /** A level the educator gave, 0 to 3. A named observation with no level (a group line) says nothing. */
 export const levelWords = (l: number | null) => (l === null ? "no level named" : `level ${l} of 3`);
 
-/** A class's skills in the order the picture shows them, with how many children were seen on each. */
+/** How many children were seen on each skill of the class picture, by skill code. */
 export function seenCounts(p: ClassPicture): Record<string, number> {
   const n: Record<string, number> = {};
   for (const c of p.children) for (const code of Object.keys(c.cells)) n[code] = (n[code] ?? 0) + 1;

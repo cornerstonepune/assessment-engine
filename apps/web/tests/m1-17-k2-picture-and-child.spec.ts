@@ -83,6 +83,9 @@ test("the class picture and a child's page, from the same rows, with taps counte
     await observe("4", "ACT-K2-M104-904", null, 5, "group_as_expected");
   }
   let taps = 0;
+  const font = () => page.evaluate(() => getComputedStyle(document.body).fontFamily);
+  await page.goto("/today");
+  const appFont = await font(); // the app's font before any K2 page loads the tokens
   await page.goto(`/k2/${klass}`);
   const grid = page.locator("[data-k2=grid]");
   await expect(grid).toBeVisible();
@@ -96,6 +99,8 @@ test("the class picture and a child's page, from the same rows, with taps counte
   // no terracotta on a child: no chip of the late/missing tone anywhere on the page
   await expect(page.locator("[data-tone=act]")).toHaveCount(0);
   await expect(page.locator("[data-k2=strip] [data-child-state]").first()).toBeVisible();
+  // the ground is white; and nothing about these pages changes the app's own font on any page after them
+  expect(await page.locator("[data-ground=surface]").evaluate((e) => getComputedStyle(e).backgroundColor)).toBe("rgb(255, 255, 255)");
   await shoot(page, "class-picture");
   // the page does not scroll sideways at phone width; the grid scrolls inside its own box
   await page.setViewportSize(PHONE);
@@ -119,6 +124,10 @@ test("the class picture and a child's page, from the same rows, with taps counte
   await page.getByRole("link", { name: "Class picture" }).first().click();
   await expect(page).toHaveURL(new RegExp(`/k2/${klass}$`));
   expect(taps).toBe(2);
+  // leave the K2 pages by a link inside the app: the next page still has the app's font, so the tokens did not leak
+  await page.getByRole("link", { name: "Back to what needs doing" }).click();
+  await expect(page).toHaveURL(/\/today/);
+  expect(await font()).toBe(appFont);
 });
 
 test("a child with nothing ready next is told why, and no skill is called not ready", async ({ page }) => {

@@ -2,6 +2,7 @@ import Link from "@/components/link";
 import { ChildStateChip } from "@/components/child-state-chip";
 import { DataTable } from "@/components/data-table";
 import { PageShell } from "@/components/page-shell";
+import { Notice } from "../notice";
 import { requireStaff } from "@/lib/auth";
 import { Icon } from "@/lib/icons";
 import { childState, seenCounts, type ClassPicture } from "@/lib/k2-child";
@@ -23,14 +24,14 @@ export default async function TheClassPicture({ params, searchParams }: { params
       action={<Link href={`/voice/form?class=${classId}`} className="btn secondary inline-flex items-center gap-1.5"><Icon name="form" />Fill the form</Link>}
       next={{ href: "/today", label: "Back to what needs doing" }}
     >
-      {got.ok ? <Picture p={got.value} classId={classId} page={page} /> : <p role="status" data-ux="empty" className="border border-monsoon/30 bg-monsoon/10 p-3 text-[13.5px]">{got.message}</p>}
+      {got.ok ? <Picture p={got.value} classId={classId} page={page} /> : <Notice flush>{got.message}</Notice>}
     </PageShell>
   );
 }
 
 function Picture({ p, classId, page }: { p: ClassPicture; classId: string; page: number }) {
   if (p.skills.length === 0) {
-    return <p role="status" data-ux="empty" className="border border-monsoon/30 bg-monsoon/10 p-3 text-[13.5px]">No child in this class has been seen on a skill yet. Confirmed notes and forms appear here.</p>;
+    return <Notice flush>No child in this class has been seen on a skill yet. Confirmed notes and forms appear here.</Notice>;
   }
   const states = new Map<string, number>();
   for (const c of p.children) for (const cell of Object.values(c.cells)) states.set(cell.state, (states.get(cell.state) ?? 0) + 1);
@@ -60,7 +61,7 @@ type Row = ClassPicture["children"][number];
 // and a dash where not: "not seen yet", which is not "not secure". Links are basalt: terracotta is never on a child.
 function columns(p: ClassPicture, classId: string): Column<Row>[] {
   const seen = seenCounts(p);
-  const to = (r: Row) => `/k2/${classId}/${r.roll_no}`;
+  const to = (r: Row) => `/k2/${classId}/${encodeURIComponent(r.roll_no)}`;
   return [
     { key: "roll", label: "Sr. No.", keep: true, value: (r) => r.roll_no, cell: (r) => <Link href={to(r)} className="text-basalt underline">{r.roll_no}</Link> },
     ...p.skills.map((s): Column<Row> => ({

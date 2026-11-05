@@ -1,4 +1,4 @@
-import { engineSend } from "./engine";
+import { ENGINE_RESTARTING, EngineDown, engineSend } from "./engine";
 import type { ChildPage, ClassPicture } from "./k2-child";
 
 // The two K2 reads, as a page asks for them (task M1-17). A refusal is an answer, not a crash: the engine says no while
@@ -7,7 +7,13 @@ import type { ChildPage, ClassPicture } from "./k2-child";
 export type Read<T> = { ok: true; value: T } | { ok: false; status: number; message: string };
 
 async function read<T>(path: "/k2/picture" | "/k2/child", body: Record<string, string>): Promise<Read<T>> {
-  const res = await engineSend(path, body as never);
+  let res: Response;
+  try {
+    res = await engineSend(path, body as never);
+  } catch (e) {
+    if (e instanceof EngineDown) return { ok: false, status: 503, message: ENGINE_RESTARTING };
+    throw e;
+  }
   const json = (await res.json().catch(() => ({}))) as { detail?: string } & Record<string, unknown>;
   if (res.ok) return { ok: true, value: json as T };
   return { ok: false, status: res.status, message: typeof json.detail === "string" ? json.detail : "This is not available." };
