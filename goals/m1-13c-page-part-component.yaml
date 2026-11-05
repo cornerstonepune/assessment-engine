@@ -1,0 +1,26 @@
+name: m1-13c-page-part-component
+goal: >
+  One part of an activity page (its words and whose they are) is drawn by one shared component, taking what a person may
+  do with it as props, so the curriculum screens and the educator's activity page show a part the same way, each with
+  its own actions and its own gate; the curriculum screens behave as they did.
+# Written 2026-11-05 (task M1-13c). W1, gate N1, screens only. The words are the orchestrator's brief of 2026-11-05
+# relaying Nimish's rule that a drafted step is a short list and a slip a highlighted keyword with how to spot it; the
+# original is not in this repository.
+says:
+  - words: "lift the page-part rendering into one shared component under components/, taking its actions and any gate as props"
+    proved_by: "apps/web/tests/m1-13c-page-part.spec.ts::the component draws a part's words and origin and carries no gate, engine call or action of its own"
+  - words: "styled with the D-075 tokens"
+    proved_by: "apps/web/tests/m1-13c-page-part.spec.ts::the component and its styles use tokens only, and its icons come from the one Lucide lookup"
+  - words: "so both /curriculum/* and 4b's /educator/activity/[code] use it with their own actions"
+    proved_by: "apps/web/tests/m1-13c-page-part.spec.ts::/curriculum draws its parts with the component and keeps no copy of it"
+  - words: "Keep /curriculum behaviour unchanged"
+    proved_by: "apps/web/tests/m1-13-curriculum-fill.spec.ts::a person walks the drafted parts one by one: edit, keep, send back — five taps"
+manual:
+  - "The educator's activity page (4b's) is not built here: it will import `PartView` from components/page-part/part.tsx. Nothing but /curriculum uses the component yet."
+criteria:
+  - name: the component, and /curriculum as it was
+    run: cd apps/web && npx playwright test tests/m1-13c-page-part.spec.ts tests/m1-13-curriculum-fill.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

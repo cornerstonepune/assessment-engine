@@ -36,12 +36,6 @@
 .cs-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-3); }
 .cs-page input[type="search"], .cs-page input[type="text"], .cs-page textarea { min-height: var(--tap); border: 1px solid var(--border-control); border-radius: var(--radius-m); padding: var(--space-1) var(--space-2); font: inherit; width: 100%; background: var(--surface); }
 .cs-page label { display: block; font-size: var(--text-label); font-weight: 500; margin: var(--space-2) 0 var(--space-1); }
-.cs-steps { list-style: disc; padding-left: var(--space-4); display: grid; gap: var(--space-1); }
-.cs-page mark { background: var(--state-soon-bg); color: var(--state-soon-fg); font-weight: 600; padding: 0 var(--space-1); border-radius: var(--space-1); }
-.cs-slip { margin-top: var(--space-2); }
-.cs-slip small { display: block; color: var(--text-muted); font-size: var(--text-label); }
-.cs-origin { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--text-label); font-weight: 500; color: var(--brand-bamboo-deep); }
-.cs-origin[data-source="school"] { color: var(--brand-bamboo); }
 .cs-empty { border: 1px dashed var(--border); border-radius: var(--radius-m); padding: var(--space-4); text-align: center; color: var(--text-muted); }
 .cs-pager { display: flex; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-3); font-size: var(--text-label); }
 .cs-pager a { color: var(--link); min-height: var(--tap); display: inline-flex; align-items: center; }

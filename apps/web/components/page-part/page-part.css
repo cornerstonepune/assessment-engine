@@ -1,0 +1,12 @@
+/* One part of an activity page (components/page-part/part.tsx): the school's tokens only (design-system/tokens.css),
+   spacing in steps of 8, one type scale. Loaded wherever the component is. */
+.pp-card { border: 1px solid var(--border); border-radius: var(--radius-m); padding: var(--space-3); background: var(--surface); color: var(--text); }
+.pp-card header { display: flex; justify-content: space-between; gap: var(--space-2); align-items: flex-start; margin-bottom: var(--space-2); }
+.pp-card h2 { font-size: var(--text-lead); line-height: var(--lh-lead); font-weight: 600; }
+.pp-note { color: var(--text-muted); font-size: var(--text-label); }
+.pp-steps { list-style: disc; padding-left: var(--space-4); display: grid; gap: var(--space-1); }
+.pp-card mark { background: var(--state-soon-bg); color: var(--state-soon-fg); font-weight: 600; padding: 0 var(--space-1); border-radius: var(--space-1); }
+.pp-slip { margin-top: var(--space-2); }
+.pp-slip small { display: block; color: var(--text-muted); font-size: var(--text-label); }
+.pp-origin { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--text-label); font-weight: 500; color: var(--brand-bamboo-deep); }
+.pp-origin[data-source="school"] { color: var(--brand-bamboo); }
