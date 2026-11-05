@@ -17,7 +17,7 @@ export default async function Fill() {
             <Icon name="checklist" size={16} /> Check the drafted parts ({queue.length})
           </Link>
         ) : (
-          <Empty>Nothing is waiting for a check.</Empty>
+          <Empty next={{ href: "/curriculum/offers", label: "See the skills offered" }}>Nothing is waiting for a check.</Empty>
         )}
       </div>
       <table className="cs-table">

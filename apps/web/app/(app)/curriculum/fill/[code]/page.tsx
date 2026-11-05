@@ -13,11 +13,9 @@ export default async function ActivityFill({ params, searchParams }: { params: P
   const back = `/curriculum/fill/${page.code}`;
   return (
     <Chrome here="/curriculum/browse" crumb={page.code} title={page.name} lead={`${page.code} · ${page.section}`}>
-      <div className="cs-grid">
+      <div className="cs-stack">
         {page.parts.map((p) => (
-          <div key={p.part} className="cs-col-8" style={{ gridColumn: "span 12" }}>
-            <PartCard part={p} code={page.code} back={back} editing={q.edit === p.part} editHref={`${back}?edit=${p.part}`} />
-          </div>
+          <PartCard key={p.part} part={p} code={page.code} back={back} editing={q.edit === p.part} editHref={`${back}?edit=${p.part}`} />
         ))}
       </div>
     </Chrome>

@@ -1,8 +1,7 @@
 import { gate, linked, PAGE_SIZE, readOffers } from "@/lib/curriculum-screens";
 import { Icon } from "@/lib/icons";
-import Link from "@/components/link";
 import { answerOffer } from "../actions";
-import { Chrome, Empty } from "../chrome";
+import { Chrome, Empty, Pager } from "../chrome";
 
 // Skills the machine offers for an activity that the examples did not show: the activity, the skills, what the school
 // had already linked, and why it waits. Yes adds the link; No closes the offer.
@@ -17,11 +16,11 @@ export default async function Offers({ searchParams }: { searchParams: Promise<R
   return (
     <Chrome here="/curriculum/offers" title="Skills offered, waiting for you" lead={`${all.length} offered. Yes adds the skill to the activity; No closes the offer and adds nothing.`}>
       {shown.length === 0 ? (
-        <Empty>No skills are waiting for you.</Empty>
+        <Empty next={{ href: "/curriculum/browse", label: "Back to the curriculum browser" }}>No skills are waiting for you.</Empty>
       ) : (
-        <div className="cs-grid">
+        <div className="cs-stack">
           {shown.map((o) => (
-            <section key={o.id} className="cs-card cs-col-8" style={{ gridColumn: "span 12" }} data-offer={o.id}>
+            <section key={o.id} className="cs-card" data-offer={o.id}>
               <header>
                 <h2>{o.activity.name}</h2>
                 <span className="cs-note">{o.activity.code} · {o.activity.section}</span>
@@ -42,13 +41,7 @@ export default async function Offers({ searchParams }: { searchParams: Promise<R
           ))}
         </div>
       )}
-      {last > 1 ? (
-        <div className="cs-pager">
-          {page > 1 ? <Link href={`/curriculum/offers?page=${page - 1}`}>Previous page</Link> : <span />}
-          <span className="cs-note">Page {page} of {last}</span>
-          {page < last ? <Link href={`/curriculum/offers?page=${page + 1}`}>Next page</Link> : <span />}
-        </div>
-      ) : null}
+      <Pager page={page} last={last} href={(p) => `/curriculum/offers?page=${p}`} />
     </Chrome>
   );
 }

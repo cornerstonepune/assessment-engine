@@ -11,6 +11,7 @@
 .cs-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-3); }
 .cs-col-4 { grid-column: span 12; }
 .cs-col-8 { grid-column: span 12; }
+.cs-stack { display: grid; gap: var(--space-3); }
 @media (min-width: 768px) { .cs-col-4 { grid-column: span 4; } .cs-col-8 { grid-column: span 8; } .cs-page { padding: var(--space-4); } }
 .cs-card { border: 1px solid var(--border); border-radius: var(--radius-m); padding: var(--space-3); background: var(--surface); }
 .cs-card header { display: flex; justify-content: space-between; gap: var(--space-2); align-items: flex-start; margin-bottom: var(--space-2); }
@@ -18,7 +19,6 @@
 .cs-chip[data-tone="done"] { color: var(--state-done-fg); background: var(--state-done-bg); }
 .cs-chip[data-tone="soon"] { color: var(--state-soon-fg); background: var(--state-soon-bg); }
 .cs-chip[data-tone="late"] { color: var(--state-late-fg); background: var(--state-late-bg); }
-.cs-chip[data-tone="coming"] { color: var(--state-coming-fg); background: var(--state-coming-bg); }
 .cs-bar { height: var(--space-2); border-radius: var(--radius-pill); background: var(--sunken); overflow: hidden; margin: var(--space-2) 0; }
 .cs-bar > span { display: block; height: 100%; }
 .cs-bar[data-tone="done"] > span { background: var(--state-done-fg); }

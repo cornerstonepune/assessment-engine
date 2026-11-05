@@ -9,7 +9,7 @@ export default async function Walk({ searchParams }: { searchParams: Promise<Rec
   const me = await gate();
   const q = await searchParams;
   const part = q.part ?? "";
-  const line = await waiting(part || undefined);
+  const line = (await waiting()).filter((w) => !part || w.part === part);
   const skip = Math.min(Math.max(0, Number.parseInt(q.skip ?? "0", 10) || 0), Math.max(0, line.length - 1));
   const here = new URLSearchParams({ ...(part ? { part } : {}), ...(skip ? { skip: String(skip) } : {}) });
   const back = `/curriculum/fill/walk${here.size ? `?${here}` : ""}`;
@@ -19,10 +19,7 @@ export default async function Walk({ searchParams }: { searchParams: Promise<Rec
   return (
     <Chrome here="/curriculum/fill" crumb="Check the drafted parts" title="Check the drafted parts" lead="Read each draft. Keep it, change it, or send it back to be empty again.">
       {!item || !page || !card ? (
-        <Empty>
-          <p>Nothing is waiting for a check.</p>
-          <p><Link href="/curriculum/fill">Back to what is filled</Link></p>
-        </Empty>
+        <Empty next={{ href: "/curriculum/fill", label: "Back to what is filled" }}>Nothing is waiting for a check.</Empty>
       ) : (
         <div data-walk>
           <p className="cs-note">

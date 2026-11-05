@@ -10,29 +10,34 @@ import { enginePost } from "@/lib/engine";
 const own = (back: FormDataEntryValue | null) => (typeof back === "string" && /^\/curriculum\/[\w/?=&.%-]*$/.test(back) ? back : "/curriculum/fill");
 const field = (f: FormData, k: string) => String(f.get(k) ?? "");
 
-/** Keep a drafted part as written, or send it back (the part is emptied). */
-export async function answerPart(form: FormData): Promise<void> {
+async function target(form: FormData) {
   const me = await gate();
   const [code, part, back] = [field(form, "code"), field(form, "part"), own(form.get("back"))];
   if (!(PARTS as readonly string[]).includes(part)) throw new Error("not a part of a page");
-  await enginePost(form.get("do") === "keep" ? "/curriculum/page/confirm" : "/curriculum/page/revert", { actor: me.email, code, part });
+  return { me, code, part, back };
+}
+function done(back: string): never {
   revalidatePath("/curriculum", "layout");
   redirect(back);
 }
 
+/** Keep a drafted part as written, or send it back (the part is emptied). */
+export async function answerPart(form: FormData): Promise<void> {
+  const { me, code, part, back } = await target(form);
+  await enginePost(form.get("do") === "keep" ? "/curriculum/page/confirm" : "/curriculum/page/revert", { actor: me.email, code, part });
+  done(back);
+}
+
 /** A person's own words in place of the draft: lines for the steps, an idea and slips for the thinking, else text. */
 export async function editPart(form: FormData): Promise<void> {
-  const me = await gate();
-  const [code, part, back] = [field(form, "code"), field(form, "part"), own(form.get("back"))];
-  if (!(PARTS as readonly string[]).includes(part)) throw new Error("not a part of a page");
+  const { me, code, part, back } = await target(form);
   const lines = field(form, "words").split("\n").map((l) => l.trim()).filter(Boolean);
   const slips = Array.from({ length: await slipsMax() }, (_, i) => i).map((i) => ({ keyword: field(form, `keyword${i}`).trim(), spot: field(form, `spot${i}`).trim() })).filter((s) => s.keyword && s.spot);
   const base = { actor: me.email, code, part };
   if (part === "steps") await enginePost("/curriculum/page/edit", { ...base, items: lines });
   else if (part === "thinking") await enginePost("/curriculum/page/edit", { ...base, idea: field(form, "idea").trim(), slips });
   else await enginePost("/curriculum/page/edit", { ...base, text: field(form, "words").trim() });
-  revalidatePath("/curriculum", "layout");
-  redirect(back);
+  done(back);
 }
 
 /** Yes adds the offered skills as links; no closes the offer. */

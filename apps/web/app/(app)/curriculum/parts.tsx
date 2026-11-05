@@ -97,23 +97,16 @@ export async function PartCard({ part, code, back, editHref, editing }: { part: 
       </header>
       {drafted && editing ? <EditForm part={part} code={code} back={back} /> : <Words part={part} />}
       {drafted && !editing ? (
-        <div className="cs-actions">
-          <form action={answerPart}>
+        <>
+          <form action={answerPart} className="cs-actions">
             <input type="hidden" name="code" value={code} />
             <input type="hidden" name="part" value={part.part} />
             <input type="hidden" name="back" value={back} />
-            <input type="hidden" name="do" value="keep" />
-            <button className="cs-btn" data-main type="submit"><Icon name="confirm" size={16} /> Keep</button>
+            <button className="cs-btn" data-main type="submit" name="do" value="keep"><Icon name="confirm" size={16} /> Keep</button>
+            <Link href={editHref} className="cs-btn"><Icon name="correct" size={16} /> Edit</Link>
+            <button className="cs-btn" type="submit" name="do" value="send-back"><Icon name="send-back" size={16} /> Send back</button>
           </form>
-          <Link href={editHref} className="cs-btn"><Icon name="correct" size={16} /> Edit</Link>
-          <form action={answerPart}>
-            <input type="hidden" name="code" value={code} />
-            <input type="hidden" name="part" value={part.part} />
-            <input type="hidden" name="back" value={back} />
-            <input type="hidden" name="do" value="send-back" />
-            <button className="cs-btn" type="submit"><Icon name="send-back" size={16} /> Send back</button>
-          </form>
-        </div>
+        </>
       ) : null}
     </section>
   );

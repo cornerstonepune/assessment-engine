@@ -46,7 +46,7 @@ export async function Chrome({ here, crumb, title, lead, children }: { here: (ty
   );
 }
 
-export const TONE: Record<State, "done" | "soon" | "late"> = { green: "done", amber: "soon", red: "late" };
+const TONE: Record<State, "done" | "soon" | "late"> = { green: "done", amber: "soon", red: "late" };
 const STATE_WORDS: Record<State, [IconName, string]> = { green: ["done", "Filled"], amber: ["to-confirm", "Part filled"], red: ["fix-this", "Mostly empty"] };
 
 /** A state is an icon, a word and a colour — never the colour alone. */
@@ -68,10 +68,28 @@ export function Progress({ share, state, label }: { share: number; state: State;
   );
 }
 
-export function Empty({ children }: { children: React.ReactNode }) {
+/** Nothing to show, said once, with where to go next (no dead ends). */
+export function Empty({ children, next }: { children: React.ReactNode; next?: { href: string; label: string } }) {
   return (
     <div className="cs-empty" role="status">
-      {children}
+      <p>{children}</p>
+      {next ? (
+        <p>
+          <Link href={next.href}>{next.label}</Link>
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/** Previous page, where we are, next page. `href(n)` is the address of page n. */
+export function Pager({ page, last, href }: { page: number; last: number; href: (page: number) => string }) {
+  if (last <= 1) return null;
+  return (
+    <div className="cs-pager">
+      {page > 1 ? <Link href={href(page - 1)}>Previous page</Link> : <span />}
+      <span className="cs-note">Page {page} of {last}</span>
+      {page < last ? <Link href={href(page + 1)}>Next page</Link> : <span />}
     </div>
   );
 }
