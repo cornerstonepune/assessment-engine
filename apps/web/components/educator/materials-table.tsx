@@ -13,7 +13,8 @@ export const FIELD = "min-h-[var(--tap)] rounded-[var(--radius-m)] border border
 
 const kept = (l: MaterialLine) => (!l.tracked || !l.home ? "none" : l.home);
 
-export function MaterialsTable({ label, lines }: { label: string; lines: MaterialLine[] }) {
+/** `look` (the staff preview): the lines only, nothing to change. */
+export function MaterialsTable({ label, lines, look = false }: { label: string; lines: MaterialLine[]; look?: boolean }) {
   return (
     <section data-group={label} aria-label={label} className="grid gap-[var(--space-2)]">
       <h2 className="text-[length:var(--text-h3)] font-semibold">{label}</h2>
@@ -21,7 +22,7 @@ export function MaterialsTable({ label, lines }: { label: string; lines: Materia
         <table className="w-full border-collapse text-[length:var(--text-body)]">
           <thead className="text-[length:var(--text-label)] text-[var(--text-muted)]">
             <tr>
-              {[W.cols.item, W.cols.activity, W.cols.quantity, W.cols.home, W.cols.change].map((c) => (
+              {[W.cols.item, W.cols.activity, W.cols.quantity, W.cols.home, ...(look ? [] : [W.cols.change])].map((c) => (
                 <th key={c} scope="col" className={`${CELL} font-medium`}>
                   {c}
                 </th>
@@ -37,7 +38,10 @@ export function MaterialsTable({ label, lines }: { label: string; lines: Materia
                 <td className={CELL}>
                   {l.activity?.name ?? null}
                 </td>
-                <td className={CELL}>
+                <td className={`${CELL} tabular-nums`}>
+                  {look ? (
+                    <span>{l.quantity === null ? W.noQty : `${l.quantity} ${l.unit}`}</span>
+                  ) : (
                   <form action={setQuantity} className="flex items-center gap-[var(--space-1)]">
                     <input type="hidden" name="line" value={l.line_id} />
                     <input name="quantity" type="number" min={0} step="any" defaultValue={l.quantity ?? ""} placeholder={W.noQty} aria-label={`${W.cols.quantity}: ${l.item}`} className={`${FIELD} w-[var(--space-7)] tabular-nums`} />
@@ -46,10 +50,12 @@ export function MaterialsTable({ label, lines }: { label: string; lines: Materia
                       {W.save}
                     </button>
                   </form>
+                  )}
                 </td>
                 <td className={CELL} data-home={kept(l)}>
                   {W.home[kept(l)]}
                 </td>
+                {look ? null : (
                 <td className={CELL}>
                   <form action={removeLine}>
                     <input type="hidden" name="line" value={l.line_id} />
@@ -59,6 +65,7 @@ export function MaterialsTable({ label, lines }: { label: string; lines: Materia
                     </button>
                   </form>
                 </td>
+                )}
               </tr>
             ))}
           </tbody>

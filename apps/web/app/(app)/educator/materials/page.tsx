@@ -7,7 +7,7 @@ import { BTN, FIELD, MaterialsTable } from "@/components/educator/materials-tabl
 import { Summary } from "@/components/educator/summary";
 import { addLine } from "./actions";
 import { requireStaff } from "@/lib/auth";
-import { catalogueOf, dayOf, materialsOf, type Span } from "@/lib/educator/data";
+import { catalogueOf, dayOf, materialsOf, openTo, type Span } from "@/lib/educator/data";
 import { isDay } from "@/lib/educator/period";
 import { notFound } from "next/navigation";
 import { E } from "@/lib/educator/words";
@@ -26,7 +26,7 @@ export default async function MaterialsPage({ searchParams }: { searchParams: Pr
   const day = q.day ?? schoolToday();
   const span: Span = SPANS.includes(q.span as Span) ? (q.span as Span) : "week";
   const d = await dayOf(me, { class_id: q.class, day }); // not found when her screens are closed to her
-  const [list, catalogue] = await Promise.all([materialsOf(me, d.class.id, day, span), catalogueOf(me)]);
+  const [list, catalogue, { previewing }] = await Promise.all([materialsOf(me, d.class.id, day, span), catalogueOf(me), openTo(me)]);
   const here = (s: Span) => `/educator/materials?class=${d.class.id}&day=${day}&span=${s}`;
   const lines = list?.groups.flatMap((g) => g.lines) ?? [];
   const on = new Set(lines.map((l) => l.material_code));
@@ -49,7 +49,7 @@ export default async function MaterialsPage({ searchParams }: { searchParams: Pr
       <Crumbs trail={[{ label: E.area }, { label: W.nav, href: here(span) }, { label: W.classList }]} />
       <ClassPick classes={d.classes} on={d.class.id} href={(id) => `/educator/materials?class=${id}&day=${day}&span=${span}`} />
       {list === null ? (
-        <EmptyState>{W.preview}</EmptyState>
+        <EmptyState>{W.notHers}</EmptyState>
       ) : (
         <>
           <Summary
@@ -62,8 +62,9 @@ export default async function MaterialsPage({ searchParams }: { searchParams: Pr
           <div id="lines" className="grid gap-[var(--space-4)]">
             {list.groups.length === 0 ? <EmptyState>{W.none}</EmptyState> : null}
             {list.groups.map((g) => (
-              <MaterialsTable key={g.label} label={g.label} lines={g.lines} />
+              <MaterialsTable key={g.label} label={g.label} lines={g.lines} look={previewing} />
             ))}
+            {previewing ? null : (
             <form action={addLine} className="flex flex-wrap items-center gap-[var(--space-2)]" data-add>
               <input type="hidden" name="list" value={list.list_id} />
               <input type="hidden" name="day" value={day} />
@@ -81,6 +82,7 @@ export default async function MaterialsPage({ searchParams }: { searchParams: Pr
                 {W.addButton}
               </button>
             </form>
+            )}
           </div>
         </>
       )}

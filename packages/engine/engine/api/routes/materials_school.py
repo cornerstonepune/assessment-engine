@@ -12,7 +12,8 @@ from pydantic import Field
 
 from engine.adapters import llm
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
-from engine.api.routes.materials import Who, holds, list_class, staff_of
+from engine.api.routes.materials import Who, holds, list_class, staff_of, unsaved
+from engine.w2_print import educator_gate
 from engine.w2_print import materials_consolidate as mc
 from engine.w2_print import materials_intake as mi
 from engine.w2_print import materials_inventory as inv
@@ -77,12 +78,19 @@ def _mine(conn, body: Who, tenant_id: str, consolidated_id: UUID | None = None, 
 
 @keyed.post("/school/build")
 def build(body: Build, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
-    _mine(conn, body, tenant_id)
-    try:
-        got = mm.build_month(conn, UUID(str(tenant_id)), body.from_, body.to)
-    except ValueError as no:
-        raise HTTPException(status_code=422, detail=str(no)) from no
-    return mc.read(conn, got["consolidated_id"]) | {k: v for k, v in got.items() if k != "consolidated_id"}
+    """Build the school's list for the range and answer it; the staff preview is answered it worked out, not kept."""
+    staff = _mine(conn, body, tenant_id, reads=True)
+
+    def work():
+        try:
+            got = mm.build_month(conn, UUID(str(tenant_id)), body.from_, body.to)
+        except ValueError as no:
+            raise HTTPException(status_code=422, detail=str(no)) from no
+        return mc.read(conn, got["consolidated_id"]) | {
+            k: v for k, v in got.items() if k != "consolidated_id"
+        }
+
+    return unsaved(conn, educator_gate.previewing(conn, staff), work)
 
 
 @keyed.post("/school/read")

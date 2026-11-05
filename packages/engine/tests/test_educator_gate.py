@@ -111,3 +111,70 @@ def test_the_site_can_ask_whether_the_educators_screens_are_open_to_this_person(
     assert call(world, "open", actor="nobody@example.test").status_code == 403
     _switch(world, True)
     assert call(world, "open").json() == {"previewing": False}
+
+
+def _materials_rows(c) -> dict[str, int]:
+    """How many rows each materials table holds: a preview must leave every one as it was."""
+    names = [
+        r["table_name"]
+        for r in c.execute(
+            "select table_name from information_schema.tables where table_schema = 'public'"
+            " and table_name like 'materials%%' and table_type = 'BASE TABLE' order by 1"
+        ).fetchall()
+    ]
+    return {n: c.execute(f"select count(*) as n from {n}").fetchone()["n"] for n in names}  # noqa: S608
+
+
+def _a_material(w):
+    """A catalogue item of the test's own for an activity Fortnight 10 plans (the dustbin, week B)."""
+    w["conn"].execute(
+        "insert into material_item (tenant_id, code, name, unit) values (%s, 'MAT-PV-1', 'Placeholder dustbin', 'piece')"
+        " on conflict do nothing",
+        (w["k"]["tenant"],),
+    )
+    w["conn"].execute(
+        "insert into activity_material (tenant_id, activity_code, material_code, quantity, ord)"
+        " select %s, a.code, 'MAT-PV-1', 1, 1 from activity a join plan_entry pe on pe.activity_id = a.id"
+        " where pe.school_class_id = %s limit 1 on conflict do nothing",
+        (w["k"]["tenant"], w["k"]["class"]),
+    )
+
+
+def test_a_previewer_sees_a_class_and_the_schools_list_worked_out_and_nothing_is_saved(world):
+    """While switched off, the preview is shown real lists: worked out as they would be built, then not kept."""
+    _switch(world, False)
+    _a_material(world)
+    head, conn = _head(world), world["conn"]
+    before = _materials_rows(conn)
+    span = {"from": "2026-11-23", "to": "2026-12-06"}
+    got = world["client"].post(
+        "/materials/build",
+        json={
+            "actor": head,
+            "class_id": str(world["k"]["class"]),
+            "period": "fortnight",
+            "group_by": "day",
+            **span,
+        },
+    )
+    assert got.status_code == 200, got.text
+    assert any(ln["item"] == "Placeholder dustbin" for g in got.json()["groups"] for ln in g["lines"])
+    school = world["client"].post("/materials/school/build", json={"actor": head, **span})
+    assert school.status_code == 200, school.text
+    assert any(ln["item"] == "Placeholder dustbin" for ln in school.json()["lines"])
+    assert _materials_rows(conn) == before  # nothing kept: no list, no line, no reminder, no school list
+
+
+def test_the_educator_still_cannot_build_a_list_while_the_switch_is_off(world):
+    _switch(world, False)
+    r = world["client"].post(
+        "/materials/build",
+        json={
+            "actor": world["k"]["email"],
+            "class_id": str(world["k"]["class"]),
+            "period": "day",
+            "from": "2026-11-23",
+            "to": "2026-11-23",
+        },
+    )
+    assert (r.status_code, r.json()["detail"]) == (403, "The timetable is not switched on.")

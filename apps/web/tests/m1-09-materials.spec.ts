@@ -104,3 +104,23 @@ test("the school's list and the notes to read are the coordinator's: anyone else
   await note.getByRole("button", { name: "Set aside" }).click();
   await expect(page.locator("tr[data-note]").filter({ hasText: "lolly sticks" })).toHaveCount(0);
 });
+
+test("while switched off a previewer sees her class's real list and the school's, to look at only, and nothing is kept", async ({ page }) => {
+  await timetableSwitch(sql, false);
+  // her own role made a previewing one, and one the school's list is for (both config rows, put back after): a grant
+  // is never deleted, so the test changes the rows, not her grants
+  const rows = await sql<{ key: string; value: unknown }[]>`select key, value from config where key in ('educator.preview_roles', 'materials.consolidate_roles')`;
+  await sql`update config set value = value || '["class_teacher"]'::jsonb where key in ('educator.preview_roles', 'materials.consolidate_roles')`;
+  try {
+    const kept = async () => (await sql<{ n: number }[]>`select (select count(*) from materials_list) + (select count(*) from materials_line) + (select count(*) from materials_consolidated) as n`)[0].n;
+    const before = await kept();
+    await open(page);
+    await expect(line(page, "Craft paper")).toContainText("2 sheet");
+    await expect(page.getByRole("button", { name: /Save|Remove|Add/ })).toHaveCount(0); // a preview changes nothing
+    await page.goto("/educator/materials/school?month=2026-12");
+    await expect(page.locator("[data-school-list] tr[data-line]").first()).toBeVisible();
+    expect(await kept()).toBe(before);
+  } finally {
+    for (const r of rows) await sql`update config set value = ${sql.json(r.value as never)} where key = ${r.key}`;
+  }
+});
