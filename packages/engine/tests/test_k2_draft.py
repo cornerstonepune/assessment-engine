@@ -221,6 +221,8 @@ def test_a_page_still_bad_after_the_last_round_is_reported_with_why_and_nothing_
         and rep.proposals == 0
         and not map_ledger.standing(conn, conn.t)
     )
+    assert rep.calls == 2, "the same rule broken twice: a third ask would buy the same failure"
+    assert any(ln == "rules broken: steps_empty 2; 1 pages not asked a third time" for ln in rep.lines)
 
 
 def test_when_the_money_runs_out_the_run_stops_keeps_the_good_pages_and_says_so(conn):

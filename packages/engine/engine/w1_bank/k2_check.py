@@ -8,6 +8,7 @@ keeps the checker's reasons for a person. Nothing here knows a model or a databa
 `batch.Stop`.
 """
 
+from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
@@ -41,6 +42,8 @@ class Result:
     )  # other checkers → page → what they said
     left: dict[str, str] = field(default_factory=dict)  # page → why it has no draft
     stopped: str = ""
+    faults: Counter[str] = field(default_factory=Counter)  # rule broken → times, over every ask of the maker
+    stuck: int = 0  # pages not asked a third time: the same rule twice
 
 
 def judge_checks(got: object, keys: list[str]) -> tuple[dict[str, Verdict], dict[str, str]]:
@@ -114,6 +117,7 @@ def run(
     res = Result()
     done = batch.run(want, lambda keys: ask_maker(keys, None), size, rounds, judge=judge)
     res.left, res.stopped, res.parts = dict(done.bad), done.stopped, dict(done.good)
+    res.faults, res.stuck = done.faults, len(done.stuck)
     if res.stopped:
         return res
     try:
