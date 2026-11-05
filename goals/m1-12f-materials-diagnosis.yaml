@@ -1,0 +1,25 @@
+name: m1-12f-materials-diagnosis
+goal: >
+  The draft replay says, for the two rules that refuse a draft for naming a thing the page's materials do not list, which
+  words repeat and how each stands to the page's own materials text, so the cause (the model inventing props or the
+  matcher being too literal) is read from counts and not guessed. No page text is printed.
+# Written 2026-11-05 (task M1-12f). W1, gate N1. The words are the orchestrator's brief of 2026-11-05 relaying the replay's
+# counts (run 17: 36 + 22 of 59 pages refused by the materials check). Nothing here has made a model call.
+says:
+  - words: "a frequency list of the distinct unlisted words with counts"
+    proved_by: "packages/engine/tests/test_k2_replay.py::test_a_step_naming_a_prop_the_page_does_not_list_is_counted_as_the_word_and_how_it_relates_to_the_list"
+  - words: "plurals/inflections ... counted as props -> the matcher is too literal; or the model invents props"
+    proved_by: "packages/engine/tests/test_k2_replay.py::test_a_use_that_adds_words_to_a_listed_thing_or_misspells_it_is_told_from_one_that_is_not_listed_at_all"
+  - words: "no school text"
+    proved_by: "packages/engine/tests/test_k2_replay.py::test_a_word_seen_once_is_not_printed_so_the_log_holds_only_what_repeats"
+  - words: "a page with no materials list"
+    proved_by: "packages/engine/tests/test_k2_replay.py::test_a_page_whose_materials_text_is_empty_is_counted_apart_because_no_prop_can_be_listed_for_it"
+manual:
+  - "Not run live. One free dispatch of `draft_replay` after merge gives the counts; the fix (prompt or matcher) follows from them. The locked rule stays: a page must not name a material the school's list lacks."
+criteria:
+  - name: the replay and its counts
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_replay.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
