@@ -8,8 +8,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from engine.api.deps import get_conn, get_tenant_id, require_engine_key
-from engine.core import db
+from engine.api.deps import curriculum_staff, get_conn, get_tenant_id, require_engine_key
 from engine.w1_bank import skill_offers
 
 router = APIRouter(prefix="/curriculum/offers", dependencies=[Depends(require_engine_key)])
@@ -50,11 +49,8 @@ class Offers(BaseModel):
     offers: list[Offer]
 
 
-def _staff(conn, who: Who) -> UUID:
-    sid = db.one(conn, "select public.staff_of_email(%s) as id", (who.actor,))["id"]
-    if sid is None:
-        raise HTTPException(status_code=403, detail="This sign-in is not on the staff list.")
-    return sid
+def _staff(conn, who: Who, writes: bool = False) -> UUID:
+    return curriculum_staff(conn, who.actor, writes=writes)
 
 
 @router.post("/list", response_model=Offers)
@@ -66,7 +62,7 @@ def waiting(body: Who, conn=Depends(get_conn, scope="function"), tenant_id: str 
 @router.post("/answer", response_model=Offers)
 def answer(body: Answer, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
     """Yes adds the skills; no closes the proposal. The list that is left comes back."""
-    staff, tenant = _staff(conn, body), UUID(str(tenant_id))
+    staff, tenant = _staff(conn, body, writes=True), UUID(str(tenant_id))
     try:
         skill_offers.answer(conn, tenant, staff, str(body.id), body.yes, body.why)
     except ValueError as e:

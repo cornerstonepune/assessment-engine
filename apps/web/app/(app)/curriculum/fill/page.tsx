@@ -27,8 +27,8 @@ const COLUMNS: Column<Gap>[] = [
 // Per part of the page: how many K2 activities hold the school's words, a draft waiting for a check, a person's
 // words, or nothing. A person can walk the drafted ones one by one.
 export default async function Fill({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireStaff();
-  await mustBeOn();
+  const me = await requireStaff();
+  await mustBeOn(me.email);
   const q = await searchParams;
   const [all, queue] = await Promise.all([gap(), waiting()]);
   const part = (PART_KEYS as readonly string[]).includes(q.part ?? "") ? q.part! : "";

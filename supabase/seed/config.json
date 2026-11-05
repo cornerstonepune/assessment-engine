@@ -704,15 +704,15 @@
       }
     },
     {
-      "key": "curriculum.screens_enabled",
-      "description": "Whether staff see the curriculum browser, the fill view with its walk-through and the offered-skills queue (M1-13). Off until Nimish turns it on; while it is off every address of these screens is not found.",
-      "value": false,
-      "seed_once": true
-    },
-    {
       "key": "curriculum.screens_grade",
       "description": "The grade whose activities the curriculum screens (browser, fill view, offered skills) list: the code of a row of `grade`. K2 first.",
       "value": "K2",
+      "seed_once": true
+    },
+    {
+      "key": "curriculum.review_roles",
+      "description": "The roles whose holders may review the curriculum (keep, edit or send back a drafted part, answer an offered skill) even while the educator switch is off: the review fills the content before educators see anything. A list of role codes; a missing row names nobody. Anyone else needs `educator.timetable_enabled` on.",
+      "value": ["head", "coordinator"],
       "seed_once": true
     },
     {

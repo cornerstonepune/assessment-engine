@@ -1,0 +1,51 @@
+name: m1-13b-curriculum-on-the-shell
+goal: >
+  The curriculum screens (browser, what is filled with its walk-through, skills offered) sit in the school's shell
+  (left menu, breadcrumb, strip of counts, tab bar on a phone), and answer to the educator gate instead of a switch of
+  their own: open when the educator switch is on or to the staff preview (head, coordinator), and not found otherwise;
+  every page and every action still checks who is asking.
+# Written 2026-11-05 (task M1-13b). W1, gate N1, screens only. The words are the orchestrator's go of 2026-11-05 (relayed
+# from the decision that the educator's screens show to the staff preview, D-076); the original is not in this repository.
+says:
+  - words: "Re-point /curriculum/* onto the shell, replace Chrome's breadcrumb/tabs"
+    proved_by: "apps/web/tests/m1-13-curriculum-fill.spec.ts::the pages sit in the school's shell: its menu, a breadcrumb, a strip of counts, a tab bar on a phone"
+  - words: "drop curriculum.screens_enabled in favour of the educator preview gate (educator.preview_roles / educator_gate.open_to)"
+    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_switched_off_every_route_is_refused_to_staff_with_no_preview_role_and_nothing_changes"
+  - words: "the educator preview gate: open to the staff preview while the switch is off (to look)"
+    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_switched_off_a_role_the_preview_names_may_look"
+  - words: "the educator preview gate: a preview only looks, it changes and sends nothing (D-076)"
+    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_switched_off_a_preview_the_review_does_not_name_changes_nothing"
+  - words: "a member of staff whose open grant is in a role named in curriculum.review_roles (head, coordinator) may use the review actions even with the educator switch off"
+    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_switched_off_a_role_the_review_names_may_change_things"
+  - words: "everyone else still needs the educator switch on"
+    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_a_review_role_alone_does_not_open_the_reading_to_others_and_the_switch_opens_all"
+  - words: "the row missing means nobody can"
+    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_without_the_review_row_nobody_reviews_while_the_switch_is_off"
+  - words: "head with the educator switch off can walk the drafted parts and answer offers"
+    proved_by: "apps/web/tests/m1-13-curriculum-fill.spec.ts::a person walks the drafted parts one by one: edit, keep, send back — five taps"
+  - words: "the preview shows the drafts and the offers with nothing to press"
+    proved_by: "apps/web/tests/m1-13-curriculum-fill.spec.ts::the staff preview looks and changes nothing: the drafts and offers show, with no Keep, Edit, Send back, Yes or No"
+  - words: "the educator preview gate: a role the preview does not name gets nothing"
+    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_a_role_the_preview_does_not_name_gets_nothing"
+  - words: "the educator preview gate: with the switch on, staff get through"
+    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_switched_on_staff_may_look_and_change_and_a_stranger_is_refused"
+  - words: "every address is not found while the screens are closed to a person"
+    proved_by: "apps/web/tests/m1-13-curriculum-fill.spec.ts::closed to staff with no preview role while the switch is off: every address is not found"
+  - words: "open to the staff preview with the switch off, and to staff once it is on"
+    proved_by: "apps/web/tests/m1-13-curriculum-fill.spec.ts::open to head with the switch off (to look, or to review), and to staff once it is on"
+  - words: "keep every page and action checking who is asking"
+    proved_by: "packages/engine/tests/test_web_gate.py::test_every_page_checks_who_is_asking"
+  - words: "keep every page and action checking who is asking (the server actions)"
+    proved_by: "packages/engine/tests/test_web_gate.py::test_every_server_action_checks_who_is_asking"
+manual:
+  - "Not run live. Nimish is to hold the role 'head' on live (the orchestrator grants it) before the screens show to him with the educator switch off. In that preview he sees every screen and changes nothing (D-076); Keep, Edit, Send back and the offers' Yes and No work for the roles in `curriculum.review_roles` (head, coordinator) even then, and for every member of staff once the educator switch is on."
+criteria:
+  - name: the gate on the engine's curriculum routes, and the routes as they were
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/api/test_curriculum_gate.py tests/api/test_k2_page_routes.py tests/api/test_offers_routes.py tests/test_educator_gate.py
+    expect: "passed"
+  - name: the curriculum screens in the shell, the component, the site's rules and the educator's calendar
+    run: cd apps/web && npx playwright test tests/m1-13-curriculum-fill.spec.ts tests/m1-13c-page-part.spec.ts tests/u51-ux-rules.spec.ts tests/u53-the-menu.spec.ts tests/m1-09-calendar.spec.ts tests/m1-09-tokens.spec.ts --reporter=line --workers=1
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

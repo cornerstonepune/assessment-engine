@@ -14,6 +14,7 @@ from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
 from engine.core import db
+from engine.w2_print import educator_gate
 
 _pool: ConnectionPool | None = None
 
@@ -84,3 +85,31 @@ def tenant_now() -> str:
     0092) must not hold one of the pool's eight connections while a phone sends a class's scan."""
     with db.connect() as conn:
         return get_tenant_id(conn)
+
+
+REVIEW = "curriculum.review_roles"
+
+
+def curriculum_reviews(conn, staff) -> bool:
+    """Whether `staff` may review the curriculum (keep, edit, send back a draft, answer an offered skill): the educator
+    switch is on, or they hold a role `curriculum.review_roles` names (head, coordinator). The review fills the content
+    before educators see anything, so it cannot wait for their switch."""
+    return educator_gate.switched_on(conn) or educator_gate.holds(conn, staff, REVIEW)
+
+
+def curriculum_staff(conn, actor: str, *, writes: bool = False):
+    """The member of staff behind `actor`, once the gate lets them through: the educator gate (D-076: the switch on, or
+    a role `educator.preview_roles` names, who only look) or the review's roles. A route that changes something
+    (`writes`) needs the review. The one check every route of the curriculum screens makes first, before any field is
+    read, so a refused call learns nothing."""
+    sid = db.one(conn, "select public.staff_of_email(%s) as id", (actor,))["id"]
+    if sid is None:
+        raise HTTPException(status_code=403, detail="This sign-in is not on the staff list.")
+    reviews = curriculum_reviews(conn, sid)
+    if not (reviews or educator_gate.open_to(conn, sid)):
+        raise HTTPException(status_code=403, detail="The curriculum screens are not switched on.")
+    if writes and not reviews:
+        raise HTTPException(
+            status_code=403, detail="The preview only looks: the curriculum screens are not switched on."
+        )
+    return sid

@@ -1,12 +1,13 @@
 /**
  * M1-13 — the curriculum screens: the browser, the fill view with its walk-through, and the offered-skills queue.
- * Placeholder rows only (tests/m1-13-rows.ts). The switch `curriculum.screens_enabled` is on only inside a test.
+ * Placeholder rows only (tests/m1-13-rows.ts). The screens answer to the educator gate (D-076): the switch, or the staff
+ * preview; every test but the gate's own runs as the staff preview (the switch off).
  */
 import { mkdirSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import postgres from "postgres";
-import { AMBER, clearOffers, code, curriculumRows, FILLED, GREEN, offers, RED, screensSwitch, STEPS, TOTAL } from "./m1-13-rows";
+import { AMBER, clearOffers, code, curriculumRows, FILLED, GREEN, offers, RED, gate, STEPS, TOTAL } from "./m1-13-rows";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const SHOTS = path.resolve(__dirname, "../../../docs/screens/m1-13");
@@ -32,23 +33,49 @@ test.beforeAll(async () => {
   ({ skills } = await curriculumRows(sql));
 });
 test.afterAll(async () => {
-  await screensSwitch(sql, false);
+  await gate(sql, "closed");
   await clearOffers(sql);
   await sql`delete from activity_skill where activity_code like 'ACT-K2-M113-%'`;
   await sql`delete from activity where code like 'ACT-K2-M113-%'`;
   await sql.end();
 });
 test.beforeEach(async ({ page }) => {
-  await screensSwitch(sql, true);
+  await gate(sql, "reviewer");
   await page.setViewportSize(DESKTOP);
 });
 
-test("switched off, every address is not found", async ({ page }) => {
-  await screensSwitch(sql, false);
-  for (const url of ["/curriculum/browse", "/curriculum/fill", "/curriculum/fill/walk", `/curriculum/fill/${code(2)}`, "/curriculum/offers"]) {
+const ADDRESSES = ["/curriculum/browse", "/curriculum/fill", "/curriculum/fill/walk", `/curriculum/fill/${code(2)}`, "/curriculum/offers"];
+
+test("closed to staff with no preview role while the switch is off: every address is not found", async ({ page }) => {
+  await gate(sql, "closed");
+  for (const url of ADDRESSES) {
     await page.goto(url);
     await expect(page.getByText("This page could not be found."), url).toBeVisible();
   }
+});
+
+test("open to head with the switch off (to look, or to review), and to staff once it is on", async ({ page }) => {
+  for (const mode of ["look", "reviewer", "open"] as const) {
+    await gate(sql, mode);
+    for (const url of ADDRESSES) {
+      await page.goto(url);
+      await expect(page.getByRole("heading", { level: 1 }), `${mode} ${url}`).toBeVisible();
+      await expect(page.getByText("This page could not be found.")).toHaveCount(0);
+    }
+  }
+});
+
+test("the pages sit in the school's shell: its menu, a breadcrumb, a strip of counts, a tab bar on a phone", async ({ page }) => {
+  await page.goto("/curriculum/fill");
+  const side = page.locator('[data-educator-nav="side"]');
+  await expect(side.locator("[data-nav=browse], [data-nav=fill], [data-nav=offers]")).toHaveCount(3);
+  await expect(side.locator('[data-nav="fill-walk"]')).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Where you are" })).toContainText("What is filled");
+  await expect(page.locator("[data-summary] a").first()).toBeVisible();
+  await page.setViewportSize(PHONE);
+  await expect(page.locator('[data-educator-nav="tabs"] [data-tab]')).toHaveCount(3);
+  await expect(side).toBeHidden();
+  await page.setViewportSize(DESKTOP);
 });
 
 test("the browser counts what is filled per section, with a bar and a state", async ({ page }) => {
@@ -101,9 +128,10 @@ test("the fill view counts each part by who wrote it, and the four add up to eve
 });
 
 test("a person walks the drafted parts one by one: edit, keep, send back — five taps", async ({ page }) => {
+  // the review needs no educator switch: head holds a review role (curriculum.review_roles), the switch is off
   taps = 0;
   await page.goto("/curriculum/fill");
-  await tap(page.getByRole("link", { name: /Check the drafted parts/ }));
+  await tap(page.locator("[data-ux=action]").getByRole("link", { name: /Check the drafted parts/ })); // the page's main action (the menu has one too)
   await expect(page.locator("[data-walk]")).toContainText("1 of 3");
   await expect(page.locator('[data-card="steps"] li')).toHaveCount(STEPS.length); // a short list, not a wall
   await shoot(page, "walk-steps");
@@ -149,6 +177,23 @@ test("the offered-skills queue shows the activity, skills, what was linked, the 
   const after = await sql<{ skill_code: string }[]>`select skill_code from activity_skill where activity_code = ${code(3)}`;
   expect(after.map((r) => r.skill_code)).not.toContain(skills[2]);
   await shoot(page, "offers-empty");
+  await clearOffers(sql);
+});
+
+test("the staff preview looks and changes nothing: the drafts and offers show, with no Keep, Edit, Send back, Yes or No", async ({ page }) => {
+  await curriculumRows(sql); // the walk-through above answered the drafts: they are written again
+  await gate(sql, "look");
+  await offers(sql, skills);
+  await page.goto("/curriculum/fill/walk");
+  await expect(page.locator("[data-preview]")).toContainText("Preview");
+  await expect(page.locator("[data-card=steps] li")).toHaveCount(STEPS.length);
+  await expect(page.getByRole("button", { name: /Keep|Send back/ })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Edit" })).toHaveCount(0);
+  await page.goto("/curriculum/offers");
+  await expect(page.locator("[data-offer]")).toHaveCount(2);
+  await expect(page.getByRole("button", { name: /Yes|No/ })).toHaveCount(0);
+  const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from activity_part_source where activity_code = ${code(2)} and source = 'drafted'`;
+  expect(n).toBe(3); // nothing was kept or sent back
   await clearOffers(sql);
 });
 

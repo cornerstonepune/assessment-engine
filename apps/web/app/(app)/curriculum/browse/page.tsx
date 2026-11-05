@@ -17,8 +17,8 @@ const COLUMNS: Column<Row>[] = [
 
 // The K2 curriculum by section: how much of each is filled, a section opened, its activities searched.
 export default async function Browse({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireStaff();
-  await mustBeOn();
+  const me = await requireStaff();
+  await mustBeOn(me.email);
   const q = await searchParams;
   const all = await sections();
   const section = all.some((s) => s.section === q.section) ? q.section! : "";

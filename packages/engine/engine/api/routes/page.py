@@ -8,8 +8,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from engine.api.deps import get_conn, get_tenant_id, require_engine_key
-from engine.core import db
+from engine.api.deps import curriculum_reviews, curriculum_staff, get_conn, get_tenant_id, require_engine_key
 from engine.w1_bank import k2_page, k2_review
 
 router = APIRouter(prefix="/curriculum/page", dependencies=[Depends(require_engine_key)])
@@ -81,11 +80,8 @@ class Page(BaseModel):
     draft: Draft | None
 
 
-def _staff(conn, who: Who) -> UUID:
-    sid = db.one(conn, "select public.staff_of_email(%s) as id", (who.actor,))["id"]
-    if sid is None:
-        raise HTTPException(status_code=403, detail="This sign-in is not on the staff list.")
-    return sid
+def _staff(conn, who: Who, writes: bool = False) -> UUID:
+    return curriculum_staff(conn, who.actor, writes=writes)
 
 
 def _page(conn, tenant_id: str, code: str) -> dict:
@@ -97,11 +93,22 @@ def _page(conn, tenant_id: str, code: str) -> dict:
 
 def _answer(conn, tenant_id: str, body: PartRef, act) -> dict:
     try:
-        act(conn, UUID(str(tenant_id)), _staff(conn, body), body.code, body.part)
+        act(conn, UUID(str(tenant_id)), _staff(conn, body, writes=True), body.code, body.part)
     except ValueError as e:
         taken = "not a drafted part" in str(e)
         raise HTTPException(status_code=409 if taken else 422, detail=str(e)) from None
     return _page(conn, tenant_id, body.code)
+
+
+class Gate(BaseModel):
+    reviews: bool  # may keep, edit, send back and answer offers; false: the staff preview, who looks only
+
+
+@router.post("/gate", response_model=Gate)
+def gate(body: Who, conn=Depends(get_conn, scope="function")):
+    """Whether this sign-in may review (the site asks before it shows the buttons); refused when the screens are not open
+    to them at all."""
+    return Gate(reviews=curriculum_reviews(conn, _staff(conn, body)))
 
 
 @router.post("/read", response_model=Page)
@@ -130,7 +137,7 @@ def edit(body: Edit, conn=Depends(get_conn, scope="function"), tenant_id: str = 
         value = body.items
     elif body.idea is not None or body.slips is not None:
         value = {"idea": body.idea, "slips": [s.model_dump() for s in body.slips or []]}
-    staff = _staff(conn, body)
+    staff = _staff(conn, body, writes=True)
     try:
         k2_review.change(conn, UUID(str(tenant_id)), staff, body.code, body.part, value)
     except ValueError as e:

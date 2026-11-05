@@ -10,7 +10,7 @@ import { Chrome, Empty, Pager } from "../chrome";
 // had already linked, and why it waits. Yes adds the link; No closes the offer.
 export default async function Offers({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
-  await mustBeOn();
+  const { reviews } = await mustBeOn(me.email);
   const q = await searchParams;
   const all = await readOffers(me.email);
   const last = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
@@ -43,11 +43,13 @@ export default async function Offers({ searchParams }: { searchParams: Promise<R
                 <b>Already linked:</b> {(had.get(o.activity.code) ?? []).map((s) => `${s.code} ${s.name}`).join(", ") || "none"}
               </p>
               <p className="cs-note">{o.reason}</p>
+              {reviews ? (
               <form action={answerOffer} className="cs-actions">
                 <input type="hidden" name="id" value={o.id} />
                 <button className="cs-btn" data-main type="submit" name="do" value="yes"><Icon name="confirm" size={16} /> Yes, add it</button>
                 <button className="cs-btn" type="submit" name="do" value="no"><Icon name="no" size={16} /> No</button>
               </form>
+              ) : null}
             </section>
           ))}
         </div>

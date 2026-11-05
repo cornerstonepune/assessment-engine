@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import postgres from "postgres";
-import { code, curriculumRows, screensSwitch } from "./m1-13-rows";
+import { code, curriculumRows, gate } from "./m1-13-rows";
 
 const root = path.resolve(__dirname, "..");
 const read = (f: string) => readFileSync(path.join(root, f), "utf8");
@@ -42,10 +42,10 @@ test.describe("drawn on a real page", () => {
   const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
   test.beforeAll(async () => {
     await curriculumRows(sql);
-    await screensSwitch(sql, true);
+    await gate(sql, "reviewer");
   });
   test.afterAll(async () => {
-    await screensSwitch(sql, false);
+    await gate(sql, "closed");
     await sql`delete from activity_skill where activity_code like 'ACT-K2-M113-%'`;
     await sql`delete from activity where code like 'ACT-K2-M113-%'`;
     await sql.end();

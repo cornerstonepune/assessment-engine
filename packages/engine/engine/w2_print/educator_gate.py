@@ -22,9 +22,10 @@ def school_today(conn: db.Conn) -> dt.date:
     return db.one(conn, "select (now() at time zone %s)::date as d", (zone,))["d"]
 
 
-def previews(conn: db.Conn, staff: Any) -> bool:
-    """Whether `staff` is the staff preview today, by the school's clock."""
-    roles = list(settings.config(conn, PREVIEW, []))
+def holds(conn: db.Conn, staff: Any, key: str) -> bool:
+    """Whether `staff` holds an open grant today, by the school's clock, in a role the config row `key` names (a list; a
+    missing row names nobody)."""
+    roles = list(settings.config(conn, key, []))
     today = school_today(conn)
     return bool(roles) and bool(
         conn.execute(
@@ -33,6 +34,11 @@ def previews(conn: db.Conn, staff: Any) -> bool:
             (staff, roles, today, today),
         ).fetchone()
     )
+
+
+def previews(conn: db.Conn, staff: Any) -> bool:
+    """Whether `staff` is the staff preview today, by the school's clock."""
+    return holds(conn, staff, PREVIEW)
 
 
 def open_to(conn: db.Conn, staff: Any) -> bool:

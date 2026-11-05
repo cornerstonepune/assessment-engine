@@ -92,8 +92,20 @@ export async function clearOffers(sql: Sql): Promise<void> {
       and not exists (select 1 from curriculum_proposal f where f.about = p.id)`;
 }
 
-export async function screensSwitch(sql: Sql, on: boolean) {
-  await sql`delete from config where key = 'curriculum.screens_enabled'`;
-  await sql`insert into config (tenant_id, key, value, description)
-    select id, 'curriculum.screens_enabled', ${on ? sql`'true'::jsonb` : sql`'false'::jsonb`}, 'm1-13 test' from tenant`;
+/** Who the curriculum gate lets in (D-076, and the review rule): "closed" (the educator switch off, the tester holds no
+ *  role), "reviewer" (switch off, the tester holds head, a role `curriculum.review_roles` names: looks and changes things),
+ *  "look" (switch off, head, but review_roles names another role: the staff preview, who only looks), "open" (switch on).
+ *  Put back with `gate(sql, "closed")`, which also puts the review roles back as seeded. */
+export async function gate(sql: Sql, mode: "closed" | "reviewer" | "look" | "open") {
+  await sql`update config set value = ${mode === "open" ? sql`'true'::jsonb` : sql`'false'::jsonb`} where key = 'educator.timetable_enabled'`;
+  await sql`update config set value = ${sql.json(mode === "look" ? ["ops"] : ["head", "coordinator"])} where key = 'curriculum.review_roles'`;
+  const [{ staff_id: staff, tenant_id: t }] = await sql<{ staff_id: string; tenant_id: string }[]>`select staff_id, tenant_id from pii.staff where email = ${TEST_STAFF.email}`;
+  // a grant is never deleted and an ended one is never reopened (the table refuses both): "closed" ends this test's grants
+  // by their date, and the others give the tester a new one unless one is open
+  if (mode === "closed" || mode === "open") {
+    await sql`update staff_role_grant set valid_to = valid_from where staff_id = ${staff} and granted_by = 'm1-13b test' and valid_to is null`;
+    return;
+  }
+  const [open] = await sql`select 1 from staff_role_grant where staff_id = ${staff} and granted_by = 'm1-13b test' and valid_to is null`;
+  if (!open) await sql`insert into staff_role_grant (tenant_id, staff_id, role_code, valid_from, granted_by) values (${t}, ${staff}, 'head', current_date - 1, 'm1-13b test')`;
 }
