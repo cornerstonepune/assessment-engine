@@ -31,6 +31,9 @@ LEVELS = {
 def conn():
     with db.connect() as c:
         c.t = tenant(c)  # type: ignore[attr-defined]
+        c.execute(
+            "update config set value = '{\"shadow\": []}'::jsonb where key = 'k2.checkers'"
+        )  # one checker
         c.staff = _staff(c, c.t)  # type: ignore[attr-defined]
         c.execute(
             "insert into grade (tenant_id, code, name, ord) values (%s, %s, 'Test band', 99)", (c.t, BAND)
@@ -72,6 +75,7 @@ def _act(conn, code, name, strand="Block Room", materials="", **parts):
 
 
 FULL = {"objective": "o", "steps": "s", "thinking": "t", **LEVELS}
+THOUGHT = "t\n\u2022 counts twice: Finger goes back."  # the idea and the slips, as the column holds them
 
 
 class Scripted:
@@ -91,17 +95,25 @@ class Scripted:
             replies = self.script.get((purpose, k), [])
             if n < len(replies) and replies[n] is not None:
                 out.append({"key": k, **replies[n]})
-        field = {"k2_page_draft": "pages", "k2_page_validate": "verdicts", "k2_materials_split": "lists"}[
-            purpose
-        ]
+        field = {
+            "k2_page_draft": "pages",
+            "k2_page_check": "verdicts",
+            "k2_page_check_b": "verdicts",
+            "k2_materials_split": "lists",
+        }[purpose]
         return {field: out}
 
 
-def drafted(**parts):
-    return {"flags": [], "confidence": 0.9, "reason": "r", **parts}
+def drafted(**over):
+    """A reply in the shape of draft v4: lists for the steps and the slips, and `uses` (what the steps use)."""
+    return {
+        "flags": [], "confidence": 0.9, "reason": "r", "objective": "o", "steps": ["s"], "uses": [],
+        "idea": "t", "slips": [{"keyword": "counts twice", "spot": "Finger goes back."}], **LEVELS, **over,
+    }  # fmt: skip
 
 
-AGREE = {"verdict": "agree", "why": "describes the activity"}
+AGREE = {"verdict": "agree", "faults": []}
+FAULT = {"verdict": "disagree", "faults": [{"part": "steps", "reason": "describes another activity"}]}
 LINES = []
 
 
@@ -160,25 +172,28 @@ def test_a_run_drafts_checks_and_records_each_page_where_it_belongs_and_prints_t
         _act(conn, c, f"Activity {c}")
     ask = Scripted(
         {
-            ("k2_page_draft", "KX-1"): [drafted(**FULL)],
+            ("k2_page_draft", "KX-1"): [drafted()],
             ("k2_page_draft", "KX-2"): [
-                drafted(**{**FULL, "steps": ""}),
-                drafted(**FULL),
+                drafted(steps=[]),
+                drafted(),
             ],  # empty the first time
-            ("k2_page_draft", "KX-3"): [drafted(**FULL)],
-            ("k2_page_validate", "KX-1"): [AGREE],
-            ("k2_page_validate", "KX-2"): [AGREE],
-            ("k2_page_validate", "KX-3"): [{"verdict": "disagree", "why": "describes another activity"}],
+            ("k2_page_draft", "KX-3"): [drafted()],
+            ("k2_page_check", "KX-1"): [AGREE],
+            ("k2_page_check", "KX-2"): [AGREE],
+            ("k2_page_check", "KX-3"): [FAULT],
         }
     )
     rep = run(conn, ask)
     assert [a for a in ask.asked if a[0] == "k2_page_draft"] == [
         ("k2_page_draft", ["KX-1", "KX-2", "KX-3"]),
         ("k2_page_draft", ["KX-2"]),
-    ], "KX-2 alone goes round again; the good pages are not asked twice"
+        ("k2_page_draft", ["KX-3"]),
+    ], (
+        "KX-2 alone goes round again; the good pages are not asked twice; KX-3, which the checker faulted, is revised once"
+    )
     now = {r["subject_code"]: r["status"] for r in map_ledger.standing(conn, conn.t)}
     assert now == {"KX-1": "auto_passed", "KX-2": "auto_passed", "KX-3": "needs_person"}
-    assert rep.calls == 3 and rep.proposals == 3 and rep.left == {}
+    assert rep.calls == 4 and rep.proposals == 3 and rep.left == {}
     spend_lines = [ln for ln in rep.lines if ln.startswith("batch")]
     assert len(spend_lines) == rep.calls and all(
         "spent $" in ln and "stage dev_eval" in ln for ln in spend_lines
@@ -189,10 +204,8 @@ def test_a_page_the_agent_flagged_or_was_unsure_of_goes_to_a_person_even_when_th
     _act(conn, "KX-1", "Number names 11-20", objective="numbers from 6-10")
     ask = Scripted(
         {
-            ("k2_page_draft", "KX-1"): [
-                drafted(**{**FULL, "flags": ["name says 11-20, objective says 6-10"]})
-            ],
-            ("k2_page_validate", "KX-1"): [AGREE],
+            ("k2_page_draft", "KX-1"): [drafted(flags=["name says 11-20, objective says 6-10"])],
+            ("k2_page_check", "KX-1"): [AGREE],
         }
     )
     run(conn, ask)
@@ -202,7 +215,7 @@ def test_a_page_the_agent_flagged_or_was_unsure_of_goes_to_a_person_even_when_th
 
 def test_a_page_still_bad_after_the_last_round_is_reported_with_why_and_nothing_is_recorded_for_it(conn):
     _act(conn, "KX-1", "A")
-    rep = run(conn, Scripted({("k2_page_draft", "KX-1"): [drafted(**{**FULL, "steps": " "})] * 3}))
+    rep = run(conn, Scripted({("k2_page_draft", "KX-1"): [drafted(steps=[" "])] * 3}))
     assert (
         rep.left == {"KX-1": "steps is empty"}
         and rep.proposals == 0
@@ -214,8 +227,8 @@ def test_when_the_money_runs_out_the_run_stops_keeps_the_good_pages_and_says_so(
     for i in range(1, 7):
         _act(conn, f"KX-{i}", f"A{i}")
     inner = Scripted(
-        {("k2_page_draft", f"KX-{i}"): [drafted(**FULL)] for i in range(1, 7)}
-        | {("k2_page_validate", f"KX-{i}"): [AGREE] for i in range(1, 7)}
+        {("k2_page_draft", f"KX-{i}"): [drafted()] for i in range(1, 7)}
+        | {("k2_page_check", f"KX-{i}"): [AGREE] for i in range(1, 7)}
     )
     calls = {"n": 0}
 
@@ -245,8 +258,8 @@ def test_applying_writes_the_drafted_parts_where_they_are_still_empty_marks_them
     _act(conn, "KX-1", "A", objective="the school's own words")
     ask = Scripted(
         {
-            ("k2_page_draft", "KX-1"): [drafted(**{**FULL, "objective": "ignored"})],
-            ("k2_page_validate", "KX-1"): [AGREE],
+            ("k2_page_draft", "KX-1"): [drafted(objective="ignored")],
+            ("k2_page_check", "KX-1"): [AGREE],
         }
     )
     run(conn, ask)
@@ -257,7 +270,7 @@ def test_applying_writes_the_drafted_parts_where_they_are_still_empty_marks_them
     ).fetchone()
     assert a["objective"] == "the school's own words", "the school's text is never written over"
     assert a["steps"] == "an educator wrote this meanwhile", "nor a person's"
-    assert (a["thinking"], a["level_2"]) == ("t", "does it as shown")
+    assert (a["thinking"], a["level_2"]) == (THOUGHT, "does it as shown")
     src = {
         r["part"]: r["source"]
         for r in conn.execute("select part, source from activity_part_source where activity_code = 'KX-1'")
@@ -272,7 +285,7 @@ def test_applying_writes_the_drafted_parts_where_they_are_still_empty_marks_them
 
 def test_reverting_empties_only_what_is_still_the_drafts_and_takes_its_mark_away(conn):
     _act(conn, "KX-1", "A")
-    run(conn, Scripted({("k2_page_draft", "KX-1"): [drafted(**FULL)], ("k2_page_validate", "KX-1"): [AGREE]}))
+    run(conn, Scripted({("k2_page_draft", "KX-1"): [drafted()], ("k2_page_check", "KX-1"): [AGREE]}))
     map_ledger.apply(conn, conn.t, conn.staff, True)
     conn.execute("update activity set level_1 = 'changed by an educator' where code = 'KX-1'")
     (p,) = map_ledger.standing(conn, conn.t, "applied")
@@ -287,7 +300,7 @@ def test_reverting_empties_only_what_is_still_the_drafts_and_takes_its_mark_away
 
 def test_a_page_already_proposed_is_not_drafted_again_so_a_second_run_costs_nothing(conn):
     _act(conn, "KX-1", "A")
-    run(conn, Scripted({("k2_page_draft", "KX-1"): [drafted(**FULL)], ("k2_page_validate", "KX-1"): [AGREE]}))
+    run(conn, Scripted({("k2_page_draft", "KX-1"): [drafted()], ("k2_page_check", "KX-1"): [AGREE]}))
     again = Scripted({})
     rep = draft.draft(conn, conn.t, conn.staff, BAND, "draft", again, write=True, say=lambda s: None)
     assert again.asked == [] and rep.calls == 0
@@ -422,14 +435,14 @@ def test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_every_one_
         _act(conn, c, f"Activity {c}")
     ask = Scripted(
         {
-            ("k2_page_draft", "KX-1"): [drafted(**FULL)],
-            ("k2_page_draft", "KX-2"): [drafted(**FULL)],
-            ("k2_page_draft", "KX-3"): [drafted(**{**FULL, "flags": ["name and objective disagree"]})],
-            ("k2_page_draft", "KX-4"): [drafted(**{**FULL, "confidence": 0.5})],
-            ("k2_page_validate", "KX-1"): [AGREE],
-            ("k2_page_validate", "KX-2"): [{"verdict": "disagree", "why": "describes another activity"}],
-            ("k2_page_validate", "KX-3"): [AGREE],
-            ("k2_page_validate", "KX-4"): [AGREE],
+            ("k2_page_draft", "KX-1"): [drafted()],
+            ("k2_page_draft", "KX-2"): [drafted()],
+            ("k2_page_draft", "KX-3"): [drafted(flags=["name and objective disagree"])],
+            ("k2_page_draft", "KX-4"): [drafted(confidence=0.5)],
+            ("k2_page_check", "KX-1"): [AGREE],
+            ("k2_page_check", "KX-2"): [FAULT],
+            ("k2_page_check", "KX-3"): [AGREE],
+            ("k2_page_check", "KX-4"): [AGREE],
         }
     )
     run(conn, ask)
@@ -453,8 +466,8 @@ def test_nothing_the_school_wrote_is_touched_by_a_doubtful_draft_and_it_reverts_
         conn,
         Scripted(
             {
-                ("k2_page_draft", "KX-1"): [drafted(**FULL)],
-                ("k2_page_validate", "KX-1"): [{"verdict": "disagree", "why": "w"}],
+                ("k2_page_draft", "KX-1"): [drafted()],
+                ("k2_page_check", "KX-1"): [FAULT],
             }
         ),
     )
@@ -463,7 +476,7 @@ def test_nothing_the_school_wrote_is_touched_by_a_doubtful_draft_and_it_reverts_
     assert (a["objective"], a["level_1"], a["thinking"]) == (
         "the school's own words",
         "the school's level one",
-        "t",
+        THOUGHT,
     )
     assert "objective" not in _marks(conn, "KX-1") and "level_1" not in _marks(conn, "KX-1")
     (p,) = map_ledger.standing(conn, conn.t, "applied")
@@ -481,11 +494,11 @@ def test_the_review_list_holds_every_unreviewed_draft_whatever_the_machine_said_
     for c in ("KX-1", "KX-2", "KX-3"):
         _act(conn, c, f"Activity {c}")
     ask = Scripted(
-        {("k2_page_draft", c): [drafted(**FULL)] for c in ("KX-1", "KX-2", "KX-3")}
+        {("k2_page_draft", c): [drafted()] for c in ("KX-1", "KX-2", "KX-3")}
         | {
-            ("k2_page_validate", "KX-1"): [AGREE],
-            ("k2_page_validate", "KX-2"): [AGREE],
-            ("k2_page_validate", "KX-3"): [{"verdict": "disagree", "why": "w"}],
+            ("k2_page_check", "KX-1"): [AGREE],
+            ("k2_page_check", "KX-2"): [AGREE],
+            ("k2_page_check", "KX-3"): [FAULT],
         }
     )
     run(conn, ask)
@@ -505,9 +518,9 @@ def test_the_review_list_is_check_me_first_then_the_audit_share_of_the_rest_draw
     for c in ("KX-1", "KX-2", "KX-3"):
         _act(conn, c, f"Activity {c}")
     ask = Scripted(
-        {("k2_page_draft", c): [drafted(**FULL)] for c in ("KX-2", "KX-3")}
-        | {("k2_page_draft", "KX-1"): [drafted(**{**FULL, "confidence": 0.5})]}  # waits for a person
-        | {("k2_page_validate", c): [AGREE] for c in ("KX-1", "KX-2", "KX-3")}
+        {("k2_page_draft", c): [drafted()] for c in ("KX-2", "KX-3")}
+        | {("k2_page_draft", "KX-1"): [drafted(confidence=0.5)]}  # waits for a person
+        | {("k2_page_check", c): [AGREE] for c in ("KX-1", "KX-2", "KX-3")}
     )
     run(conn, ask)
     (first,) = [p for p in map_ledger.standing(conn, conn.t) if p["subject_code"] == "KX-1"]
@@ -537,8 +550,8 @@ def test_a_stop_during_the_check_says_which_pages_were_not_checked_and_keeps_the
     for i in (1, 2, 3, 4, 5):
         _act(conn, f"KX-{i}", f"A{i}")
     inner = Scripted(
-        {("k2_page_draft", f"KX-{i}"): [drafted(**FULL)] for i in range(1, 6)}
-        | {("k2_page_validate", f"KX-{i}"): [AGREE] for i in range(1, 6)}
+        {("k2_page_draft", f"KX-{i}"): [drafted()] for i in range(1, 6)}
+        | {("k2_page_check", f"KX-{i}"): [AGREE] for i in range(1, 6)}
     )
     calls = {"n": 0}
 
@@ -565,7 +578,10 @@ def test_the_forecast_says_the_most_it_could_cost_if_every_page_went_round_every
     assert "up to $" in text and "every page" in text.replace("\n", " ")
     cheap = float(re.search(r"about \$([0-9.]+)", text).group(1))
     worst = float(re.search(r"up to \$([0-9.]+)", text).group(1))
-    assert worst == pytest.approx(cheap * 3, rel=0.05), "rounds = 2 more passes: three times the one pass"
+    share = draft._settings(conn)["est_revise_share"]
+    assert worst == pytest.approx(cheap * 4 / (1 + share), rel=0.05), (
+        "a page written and read, again in each of the 2 rounds, and once more for the checker's revision"
+    )
 
 
 def test_replies_that_keep_breaking_their_schema_stop_the_run_instead_of_paying_for_the_same_failure(conn):
@@ -586,8 +602,8 @@ def test_a_good_reply_between_the_bad_ones_starts_the_count_again(conn):
     for i in range(1, 9):
         _act(conn, f"KX-{i}", f"A{i}")
     inner = Scripted(
-        {("k2_page_draft", f"KX-{i}"): [drafted(**FULL)] * 3 for i in range(1, 9)}
-        | {("k2_page_validate", f"KX-{i}"): [AGREE] * 3 for i in range(1, 9)}
+        {("k2_page_draft", f"KX-{i}"): [drafted()] * 3 for i in range(1, 9)}
+        | {("k2_page_check", f"KX-{i}"): [AGREE] * 3 for i in range(1, 9)}
     )
     n = {"i": 0}
 
@@ -640,12 +656,132 @@ def test_reverting_a_materials_proposal_takes_away_the_catalogue_items_it_made_a
 def test_dev_reads_the_number_of_pages_the_config_row_names_and_not_both_dev_and_a_limit():
     """The dev stage's size is `dev_pages` in the k2.drafting config row, not a number typed in a workflow."""
     ok = CliRunner().invoke(cli.app, ["curriculum", "draft", "--stage", "dev_eval", "--dev", "--dry-run"])
-    assert ok.exit_code == 0 and "100 pages" in ok.output, ok.output
+    assert ok.exit_code == 0 and "60 pages" in ok.output, ok.output
     two = CliRunner().invoke(
         cli.app, ["curriculum", "draft", "--stage", "dev_eval", "--dev", "--limit", "5", "--dry-run"]
     )
-    assert two.exit_code != 0 and "either" in re.sub(r"\x1b\[[0-9;]*m", "", two.output)
+    assert two.exit_code != 0 and "not more" in re.sub(r"\x1b\[[0-9;]*m", "", two.output)
 
 
 def test_the_dev_pages_are_a_number_in_the_config_row(conn):
-    assert draft._settings(conn)["dev_pages"] == 100
+    assert draft._settings(conn)["dev_pages"] == 60
+
+
+def _old_draft(conn, code, proposer):
+    from engine.w1_bank.map_agents import Proposal
+
+    map_ledger.record(
+        conn,
+        conn.t,
+        [Proposal("page_part", code, {"parts": {"steps": "old"}, "flags": []}, 0.9, proposer, "", [], "agree", "needs_person", "r")],
+        conn.staff,
+    )  # fmt: skip
+
+
+def test_a_part_a_machine_drafted_earlier_is_not_the_schools_words_and_is_drafted_again(conn):
+    _act(conn, "KX-1", "A", objective="the school's own", steps="an older machine draft")
+    conn.execute(
+        "insert into activity_part_source (tenant_id, activity_code, part, source, check_me)"
+        " values (%s, 'KX-1', 'steps', 'drafted', true)",
+        (conn.t,),
+    )
+    _old_draft(conn, "KX-1", "k2_page_draft v3")
+    want, rows = draft.wanted(conn, conn.t, BAND)
+    assert "steps" in want["KX-1"] and "objective" not in want["KX-1"]
+    assert rows["KX-1"]["steps"] == "", "the checker and the maker are shown only what the school wrote"
+    assert rows["KX-1"]["objective"] == "the school's own"
+
+
+def test_a_page_this_makers_draft_is_on_the_ledger_for_is_not_asked_again_but_an_older_makers_is(conn):
+    _act(conn, "KX-1", "A")
+    _act(conn, "KX-2", "B")
+    _old_draft(conn, "KX-1", "k2_page_draft v3")
+    _old_draft(conn, "KX-2", f"k2_page_draft v{draft.VERSIONS['k2_page_draft']}")
+    want, _ = draft.wanted(conn, conn.t, BAND)
+    assert set(want) == {"KX-1"}
+
+
+def test_the_checker_is_shown_the_schools_words_and_the_draft_and_the_maker_the_checkers_reasons(conn):
+    _act(conn, "KX-1", "A", objective="the school's own", materials="Beads")
+    seen = []
+
+    def ask(purpose, variables):
+        seen.append((purpose, variables["pages"]))
+        return Scripted({("k2_page_draft", "KX-1"): [drafted()], ("k2_page_check", "KX-1"): [FAULT]})(
+            purpose, variables
+        )
+
+    run(conn, ask)
+    check = next(t for p, t in seen if p == "k2_page_check")
+    assert "objective: the school's own" in check and "materials: Beads" in check and "steps:\n  • s" in check
+    assert "confidence" not in check and "the checker found" not in check
+    revision = [t for p, t in seen if p == "k2_page_draft"][1]
+    assert "the checker found:" in revision and "steps: describes another activity" in revision
+    assert "draft: steps" in revision, "only the part at fault is asked for again"
+
+
+def _two_checkers(conn):
+    conn.execute(
+        "update config set value = '{\"shadow\": [\"k2_page_check_b\"]}'::jsonb where key = 'k2.checkers'"
+    )
+
+
+def test_with_a_second_checker_on_both_read_the_same_drafts_and_the_ledger_keeps_each_verdict_by_model(conn):
+    _two_checkers(conn)
+    _act(conn, "KX-1", "A")
+    _act(conn, "KX-2", "B")
+    ask = Scripted(
+        {
+            ("k2_page_draft", "KX-1"): [drafted()],
+            ("k2_page_draft", "KX-2"): [drafted()],
+            ("k2_page_check", "KX-1"): [AGREE],
+            ("k2_page_check", "KX-2"): [AGREE],
+            ("k2_page_check_b", "KX-1"): [AGREE],
+            ("k2_page_check_b", "KX-2"): [FAULT],
+        }
+    )
+    run(conn, ask)
+    assert [p for p, _ in ask.asked].count("k2_page_check_b") == 1
+    by_page = {p["subject_code"]: p["proposal"]["checks"] for p in map_ledger.standing(conn, conn.t)}
+    assert [(c["checker"], c["model"], c["verdict"]) for c in by_page["KX-2"]] == [
+        ("k2_page_check v1", "claude-opus-5-5", "agree"),
+        ("k2_page_check_b v1", "claude-sonnet-5-5", "disagree"),
+    ]
+    assert by_page["KX-2"][1]["faults"][0]["reason"] == "describes another activity"
+    assert [p for p, _ in ask.asked].count("k2_page_draft") == 1, "the second checker's fault revised nothing"
+    status = {p["subject_code"]: p["status"] for p in map_ledger.standing(conn, conn.t)}
+    assert status == {"KX-1": "auto_passed", "KX-2": "auto_passed"}, "only the checker that drives decides"
+
+
+def test_the_forecast_prices_the_second_checker_when_it_is_on(conn):
+    one = draft.forecast(conn, "dev_eval", 60)
+    _two_checkers(conn)
+    two = draft.forecast(conn, "dev_eval", 60)
+    cost = lambda t: float(re.search(r"about \$([0-9.]+)", t).group(1))  # noqa: E731
+    assert cost(two) > cost(one)
+
+
+def test_a_tranche_is_the_next_pages_not_yet_drafted_as_many_as_the_row_names(conn):
+    for i in range(1, 6):
+        _act(conn, f"KX-{i}", f"A{i}")
+    conn.execute(
+        "update config set value = jsonb_set(value, '{tranche_pages}', '2') where key = 'k2.drafting'"
+    )
+    n = int(draft._settings(conn)["tranche_pages"])
+    run(conn, Scripted({("k2_page_draft", f"KX-{i}"): [drafted()] for i in (1, 2)}), limit=n)
+    again, _ = draft.wanted(conn, conn.t, BAND, n)
+    assert n == 2 and list(again) == ["KX-3", "KX-4"], "the next two, the first two being drafted"
+
+
+def test_the_tranche_cannot_be_combined_with_the_dev_size_or_a_limit():
+    for extra in (["--dev"], ["--limit", "5"]):
+        got = CliRunner().invoke(
+            cli.app, ["curriculum", "draft", "--stage", "draft", "--tranche", *extra, "--dry-run"]
+        )
+        assert got.exit_code != 0 and "not more" in re.sub(r"\x1b\[[0-9;]*m", "", got.output)
+    ok = CliRunner().invoke(cli.app, ["curriculum", "draft", "--stage", "draft", "--tranche", "--dry-run"])
+    assert ok.exit_code == 0 and "forecast" in ok.output, ok.output
+
+
+def test_the_tranche_size_is_a_number_in_the_config_row(conn):
+    assert draft._settings(conn)["tranche_pages"] == 250
