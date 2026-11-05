@@ -55,7 +55,7 @@ def _drafted(conn):
     )
     run(
         conn,
-        Scripted({("k2_page_draft", "KX-1"): [drafted(**FULL)], ("k2_page_validate", "KX-1"): [AGREE]}),
+        Scripted({("k2_page_draft", "KX-1"): [drafted()], ("k2_page_check", "KX-1"): [AGREE]}),
     )
 
 
