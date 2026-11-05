@@ -92,3 +92,26 @@ def test_what_the_machine_said_of_a_draft_is_not_in_what_is_sent(client, conn):
 def test_how_many_pages_is_bounded(client, conn):
     assert client.get(URL, params={"by": "x@school.invalid", "pages": 0}, headers=H).status_code == 422
     assert client.get(URL, params={"by": "x@school.invalid", "pages": 101}, headers=H).status_code == 422
+
+
+def test_the_two_checkers_csv_is_staff_only_and_never_cached(client, conn):
+    base._two_checkers(conn)
+    _act(conn, "KX-1", "Activity KX-1", objective="the school's own", materials="two boxes")
+    run(
+        conn,
+        Scripted(
+            {
+                ("k2_page_draft", "KX-1"): [drafted()],
+                ("k2_page_check", "KX-1"): [AGREE],
+                ("k2_page_check_b", "KX-1"): [base.FAULT],
+            }
+        ),
+    )
+    url = "/curriculum/checkers.csv"
+    assert client.get(url, params={"by": "x@school.invalid"}).status_code == 401
+    got = client.get(url, params={"by": "stranger@elsewhere.invalid"}, headers=H)
+    assert got.status_code == 403 and "two boxes" not in got.text
+    got = client.get(url, params={"by": "x@school.invalid"}, headers=H)
+    assert got.status_code == 200 and got.headers["cache-control"] == "no-store"
+    (row,) = csv.DictReader(io.StringIO(got.text))
+    assert row["school_materials"] == "two boxes" and row["second_verdict"] == "disagree"

@@ -14,7 +14,7 @@ on:
       run:
         description: "key (is the model key on the server), forecast (what a run would cost, no call), map_probe (one call, about INR 1), map_dev, draft_dev, map_held_out, draft_all, materials_all (each spends), review (what waits for a person)"
         type: choice
-        options: [key, forecast, map_probe, map_dev, map_replay, draft_dev, map_held_out, draft_all, materials_all, review]
+        options: [key, forecast, map_probe, map_dev, map_replay, checkers, draft_dev, map_held_out, draft_all, materials_all, review]
 
 permissions:
   contents: read

@@ -263,6 +263,7 @@ def test_the_k2_prompts_are_rows_with_a_schema_and_none_is_active_before_its_eva
         "k2_page_draft",
         "k2_page_validate",
         "k2_page_check",
+        "k2_page_check_b",
         "k2_materials_split",
     }
     assert all(p["active"] is False and p["json_schema"] for p in rows.values()), (

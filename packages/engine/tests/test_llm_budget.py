@@ -204,6 +204,7 @@ def test_the_seeded_campaign_is_twenty_five_dollars_less_a_margin_over_exactly_t
         DRAFT,
         "k2_page_validate",
         "k2_page_check",
+        "k2_page_check_b",
         "k2_materials_split",
     }, "the mapping evals spend from the same 25 dollars"
     assert seeded["inr_per_usd"] == RATE

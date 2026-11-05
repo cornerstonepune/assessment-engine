@@ -37,13 +37,26 @@ says:
     proved_by: "packages/engine/tests/test_k2_draft.py::test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_every_one_is_check_me_until_a_person_reviews"
   - words: "re-draft all 871 under the new format (the 99 old drafts are superseded, kept in the ledger)"
     proved_by: "packages/engine/tests/test_k2_draft.py::test_a_page_this_makers_draft_is_on_the_ledger_for_is_not_asked_again_but_an_older_makers_is"
+  - words: "BOTH checkers (Opus 5.5 and Sonnet 5.5, same input, same prompt shape) check the SAME drafts. Store both verdicts per page in the ledger, labelled by model. Only the Opus verdict drives the revision round"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_with_a_second_checker_on_both_read_the_same_drafts_and_the_ledger_keeps_each_verdict_by_model"
+  - words: "Only the Opus verdict drives the revision round for now"
+    proved_by: "packages/engine/tests/test_k2_check.py::test_a_second_checker_reads_the_same_first_drafts_and_its_verdict_never_drives_the_revision"
+  - words: "Report: per-page agreement, every page where they disagree (page, faults each found ...), and measured cost per page for each checker"
+    proved_by: "packages/engine/tests/test_k2_checkers.py::test_the_csv_has_one_row_a_page_with_each_checkers_faults_and_the_schools_words_beside_the_draft"
+  - words: "measured cost per page for each checker ... the 2-cent-a-page stop remain"
+    proved_by: "packages/engine/tests/test_k2_checkers.py::test_cost_per_page_is_each_checkers_own_spend_over_the_pages_and_the_stop_rule_is_read_from_it"
+  - words: "Report: per-page agreement, every page where they disagree"
+    proved_by: "packages/engine/tests/test_k2_checkers.py::test_the_summary_counts_agreement_and_what_the_second_checker_missed_and_holds_no_words_of_the_school"
+  - words: "Report ... (the school's text stays out of the public log)"
+    proved_by: "packages/engine/tests/api/test_gold_sheet_route.py::test_the_two_checkers_csv_is_staff_only_and_never_cached"
 manual:
+  - "The dev run (`draft_dev`, 60 pages) asks both checkers about the same first drafts. Then dispatch `checkers` (counts and money, no school text) for the summary and use the staff download /curriculum/checkers.csv (via the site's route, signed in) for the faults beside the school's words. The decision of which checker reads the rest is the orchestrator's; set the config row k2.checkers to {\"shadow\": []} to ask only the driver afterwards."
   - "Nothing has been dispatched. The new prompt rows (k2_page_draft v4, k2_page_check v1) are inactive until the dev re-draft of 60 pages is scored; the dispatch (draft_dev) is the orchestrator's, and Nimish's go covers it inside the existing $25 campaign cap."
   - "The orchestrator's rule: if the measured cost is above $0.02 a page, stop and say so before anything else."
   - "No bar can be scored until people mark the pages. The first run reports the checker's verdicts next to each page, nothing more."
 criteria:
   - name: the format, the maker-checker and the drafting run
-    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_format.py tests/test_k2_check.py tests/test_k2_draft.py tests/test_k2_gold.py tests/test_k2_review.py tests/test_k2_rules.py tests/test_k2_batch.py
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_format.py tests/test_k2_check.py tests/test_k2_draft.py tests/test_k2_gold.py tests/test_k2_review.py tests/test_k2_rules.py tests/test_k2_batch.py tests/test_k2_checkers.py tests/api/test_gold_sheet_route.py
     expect: "passed"
   - name: the code sits where the map says; every promise has its command; lint
     run: bin/check

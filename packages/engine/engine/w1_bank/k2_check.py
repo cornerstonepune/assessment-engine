@@ -16,8 +16,13 @@ from engine.w1_bank.k2_format import Judge
 from engine.w1_bank.k2_gaps import PAGE_PARTS
 from engine.w1_bank.map_agents import Proposal
 
-DRAFT, CHECK = "k2_page_draft", "k2_page_check"
-DRAFT_VERSION, CHECK_VERSION = 4, 1  # the prompt rows a run asks for (k2_draft.VERSIONS names the same)
+DRAFT, CHECK, CHECK_B, SPLIT = "k2_page_draft", "k2_page_check", "k2_page_check_b", "k2_materials_split"
+VERSIONS = {
+    DRAFT: 4,
+    CHECK: 1,
+    CHECK_B: 1,
+    SPLIT: 3,
+}  # the prompt rows a run asks for; draft v4 is lists and slips (M1-12a)
 Fault = dict[str, str]
 Verdict = tuple[str, list[Fault]]
 AskMaker = Callable[[list[str], dict[str, tuple[dict, list[Fault]]] | None], object]
@@ -31,6 +36,9 @@ class Result:
         default_factory=dict
     )  # page → the checker's last verdict and its faults
     history: dict[str, list[dict]] = field(default_factory=dict)  # page → each round: who said what
+    shadow: dict[str, dict[str, Verdict]] = field(
+        default_factory=dict
+    )  # other checkers → page → what they said
     left: dict[str, str] = field(default_factory=dict)  # page → why it has no draft
     stopped: str = ""
 
@@ -99,7 +107,10 @@ def run(
     judge: Judge,
     size: int,
     rounds: int,
+    shadows: dict[str, AskChecker] | None = None,
 ) -> Result:
+    """`shadows` are other checkers shown the same first drafts: what they say is kept and compared, and never decides
+    whether a page is revised (only the checker that drives does)."""
     res = Result()
     done = batch.run(want, lambda keys: ask_maker(keys, None), size, rounds, judge=judge)
     res.left, res.stopped, res.parts = dict(done.bad), done.stopped, dict(done.good)
@@ -110,6 +121,12 @@ def run(
     except batch.Stop as e:
         res.stopped = str(e)
     res.history = {k: [{"round": 1, "verdict": v, "faults": f}] for k, (v, f) in res.verdicts.items()}
+    for name, ask_shadow in (shadows or {}).items() if not res.stopped else []:
+        res.shadow[name] = {}
+        try:
+            _check(list(res.parts), res.parts, ask_shadow, size, rounds, res.shadow[name])
+        except batch.Stop as e:
+            res.stopped = str(e)
     if res.stopped:
         return res
     faulty = {k: f for k, (v, f) in res.verdicts.items() if v != "agree"}
@@ -173,6 +190,8 @@ def proposal(
     history: list[dict],
     least: float,
     stopped: bool,
+    checks: list[dict] | None = None,
+    stage: str = "",
 ) -> Proposal:
     conf = raw.get("confidence")
     confidence = (
@@ -194,7 +213,30 @@ def proposal(
     else:
         reason = "the checker found no fault"
     return Proposal(
-        kind="page_part", subject_code=key, proposal={"parts": parts, "flags": flags, "history": history},
-        confidence=confidence, proposer=f"{DRAFT} v{DRAFT_VERSION}", validator=f"{CHECK} v{CHECK_VERSION}",
+        kind="page_part", subject_code=key, proposal={"parts": parts, "flags": flags, "history": history, "checks": checks or [], "stage": stage},
+        confidence=confidence, proposer=f"{DRAFT} v{VERSIONS[DRAFT]}", validator=f"{CHECK} v{VERSIONS[CHECK]}",
         problems=[], verdict=said, status="auto_passed" if passed else "needs_person", reason=reason,
     )  # fmt: skip
+
+
+def said(res: Result, models: dict[str, str], key: str) -> list[dict]:
+    """What each checker said of the page, labelled by its prompt and model: the one that drives, then the others."""
+    got = ((CHECK, res.verdicts.get(key)), *((p, v.get(key)) for p, v in res.shadow.items()))
+    return [
+        {"checker": f"{p} v{VERSIONS[p]}", "model": models[p], "verdict": v[0], "faults": v[1]}
+        for p, v in got
+        if v
+    ]
+
+
+def proposals(
+    res: Result, raw: dict[str, dict], models: dict[str, str], least: float, stopped: bool, stage: str
+) -> list[Proposal]:
+    """The ledger's proposal for each page the run drafted."""
+    return [
+        proposal(
+            key, parts, raw.get(key, {}), res.verdicts.get(key), res.history.get(key, []), least, stopped,
+            said(res, models, key), stage,
+        )
+        for key, parts in res.parts.items()
+    ]  # fmt: skip
