@@ -1,49 +1,9 @@
 import Link from "@/components/link";
-import { Icon, type IconName } from "@/lib/icons";
-import { SLOT_WORDS, slipsMax, type PagePart } from "@/lib/curriculum-screens";
+import { PartView } from "@/components/page-part/part";
+import { Icon } from "@/lib/icons";
+import { slipsMax } from "@/lib/curriculum-screens";
+import type { PagePart } from "@/lib/page-part";
 import { answerPart, editPart } from "./actions";
-
-const ORIGIN: Record<string, [IconName, string]> = {
-  school: ["from-school", "The school's words"],
-  drafted: ["from-draft", "Drafted, check me"],
-  person: ["from-person", "Kept by a person"],
-};
-
-/** Where a part's words came from: an icon and a word, never colour alone. */
-export function Origin({ part }: { part: PagePart }) {
-  const [icon, words] = ORIGIN[part.source] ?? ORIGIN.school;
-  return (
-    <span className="cs-origin" data-source={part.source}>
-      <Icon name={icon} size={16} /> {words}
-    </span>
-  );
-}
-
-/** The words of a part: steps as a short list, thinking as the idea and each slip's keyword with how to spot it. */
-export function Words({ part }: { part: PagePart }) {
-  if (!part.text) return <p className="cs-note">Nothing written yet.</p>;
-  if (part.kind === "bullets")
-    return (
-      <ul className="cs-steps">
-        {part.items.map((x, i) => (
-          <li key={i}>{x}</li>
-        ))}
-      </ul>
-    );
-  if (part.kind === "thinking" && part.idea !== null)
-    return (
-      <>
-        <p>{part.idea}</p>
-        {part.slips.map((s, i) => (
-          <div className="cs-slip" key={i}>
-            <mark>{s.keyword}</mark>
-            <small>How to spot it: {s.spot}</small>
-          </div>
-        ))}
-      </>
-    );
-  return <p>{part.text}</p>;
-}
 
 async function EditForm({ part, code, back }: { part: PagePart; code: string; back: string }) {
   const room = Math.max(await slipsMax(), part.slips.length);
@@ -87,27 +47,22 @@ async function EditForm({ part, code, back }: { part: PagePart; code: string; ba
 }
 
 /** One part of a page. A drafted part carries Keep, Edit and Send back; `editing` swaps the words for the editor. */
-export async function PartCard({ part, code, back, editHref, editing }: { part: PagePart; code: string; back: string; editHref: string; editing: boolean }) {
-  const drafted = part.source === "drafted";
+export function PartCard({ part, code, back, editHref, editing }: { part: PagePart; code: string; back: string; editHref: string; editing: boolean }) {
+  if (part.source !== "drafted") return <PartView part={part} />;
+  if (editing) return <PartView part={part} editor={<EditForm part={part} code={code} back={back} />} />;
   return (
-    <section className="cs-card" data-card={part.part} data-source={part.source || "empty"}>
-      <header>
-        <h2>{SLOT_WORDS[part.part]}</h2>
-        {part.source ? <Origin part={part} /> : <span className="cs-note">Empty</span>}
-      </header>
-      {drafted && editing ? <EditForm part={part} code={code} back={back} /> : <Words part={part} />}
-      {drafted && !editing ? (
-        <>
-          <form action={answerPart} className="cs-actions">
-            <input type="hidden" name="code" value={code} />
-            <input type="hidden" name="part" value={part.part} />
-            <input type="hidden" name="back" value={back} />
-            <button className="cs-btn" data-main type="submit" name="do" value="keep"><Icon name="confirm" size={16} /> Keep</button>
-            <Link href={editHref} className="cs-btn"><Icon name="correct" size={16} /> Edit</Link>
-            <button className="cs-btn" type="submit" name="do" value="send-back"><Icon name="send-back" size={16} /> Send back</button>
-          </form>
-        </>
-      ) : null}
-    </section>
+    <PartView
+      part={part}
+      actions={
+        <form action={answerPart} className="cs-actions">
+          <input type="hidden" name="code" value={code} />
+          <input type="hidden" name="part" value={part.part} />
+          <input type="hidden" name="back" value={back} />
+          <button className="cs-btn" data-main type="submit" name="do" value="keep"><Icon name="confirm" size={16} /> Keep</button>
+          <Link href={editHref} className="cs-btn"><Icon name="correct" size={16} /> Edit</Link>
+          <button className="cs-btn" type="submit" name="do" value="send-back"><Icon name="send-back" size={16} /> Send back</button>
+        </form>
+      }
+    />
   );
 }

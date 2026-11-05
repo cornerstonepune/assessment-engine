@@ -3,7 +3,8 @@ import { DataTable } from "@/components/data-table";
 import { FilterBar } from "@/components/filter-bar";
 import { PageShell } from "@/components/page-shell";
 import { requireStaff } from "@/lib/auth";
-import { type Gap, gap, mustBeOn, PARTS, SLOT_WORDS, waiting } from "@/lib/curriculum-screens";
+import { type Gap, gap, mustBeOn, SLOT_WORDS, waiting } from "@/lib/curriculum-screens";
+import { PART_KEYS } from "@/lib/page-part";
 import type { Column } from "@/lib/ux-rules";
 import { Chrome, Empty } from "../chrome";
 
@@ -30,7 +31,7 @@ export default async function Fill({ searchParams }: { searchParams: Promise<Rec
   await mustBeOn();
   const q = await searchParams;
   const [all, queue] = await Promise.all([gap(), waiting()]);
-  const part = (PARTS as readonly string[]).includes(q.part ?? "") ? q.part! : "";
+  const part = (PART_KEYS as readonly string[]).includes(q.part ?? "") ? q.part! : "";
   const rows = all.filter((r) => !part || r.part === part);
   const total = all[0] ? all[0].school + all[0].drafted + all[0].person + all[0].empty : 0;
   return (
@@ -43,7 +44,7 @@ export default async function Fill({ searchParams }: { searchParams: Promise<Rec
     >
       <Chrome here="/curriculum/fill">
         {queue.length === 0 ? <Empty next={{ href: "/curriculum/offers", label: "See the skills offered" }}>Nothing is waiting for a check.</Empty> : null}
-        <FilterBar action="/curriculum/fill" filters={[{ name: "part", label: "Part", value: part, all: "Every part", options: PARTS.map((p) => [p, SLOT_WORDS[p]] as const) }]} />
+        <FilterBar action="/curriculum/fill" filters={[{ name: "part", label: "Part", value: part, all: "Every part", options: PART_KEYS.map((p) => [p, SLOT_WORDS[p]] as const) }]} />
         <DataTable label="Parts of a page" columns={COLUMNS} rows={rows} rowKey={(r) => r.part} more={{ page: 1, href: () => "/curriculum/fill" }} extras={{ attrs: (r) => ({ "data-part": r.part }) }} />
       </Chrome>
     </PageShell>
