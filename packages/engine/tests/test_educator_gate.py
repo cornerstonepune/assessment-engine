@@ -89,8 +89,8 @@ def test_once_switched_on_a_head_sees_only_classes_they_hold_and_a_preview_adds_
     r = world["client"].post("/materials/catalogue/propose", json={"actor": head, "name": "Placeholder glue"})
     assert (r.status_code, r.json()["detail"]) == (
         403,
-        "The preview only looks: switch the timetable on to change it.",
-    )
+        "The timetable is not switched on.",
+    )  # a preview changes nothing
 
 
 def test_a_preview_offers_only_classes_whose_timetable_is_in_force_on_the_day_asked(world):

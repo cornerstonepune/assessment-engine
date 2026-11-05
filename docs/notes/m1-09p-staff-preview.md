@@ -10,7 +10,10 @@ screen. No migration.
   open grant in a role `educator.preview_roles` names (config, seed_once, `["head", "coordinator"]`).
 - The timetable routes (`/timetable/day|week|period`) check it first, before any field, as before; a previewer who holds
   no class gets every class that has a timetable as her classes (`k2_day.my_classes`), since a timetable carries no child.
-- The materials routes check it on every call. Which classes she may change is still the materials rule (a class she
+- The materials routes check it on every call, and a preview passes only a route that reads (a list, the catalogue,
+  the reminders, the school's list, the review list); every other route counts as a write and answers "not switched
+  on", as before. M1-16's `test_every_route_refuses_while_the_screens_are_off` caught this: a coordinator is a preview
+  role, and the school's build writes. Which classes she may change is still the materials rule (a class she
   holds); reminders still wait for the switch alone (`materials_list.enabled`), so a preview sends nothing.
 
 ## From the code review (each fixed test first)
