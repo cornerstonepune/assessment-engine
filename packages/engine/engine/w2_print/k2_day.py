@@ -6,8 +6,9 @@ import datetime as dt
 from typing import Any
 
 from engine.core import db, settings
+from engine.w2_print import educator_gate as gate
 
-SWITCH = "educator.timetable_enabled"
+SWITCH = gate.SWITCH
 
 
 class Refused(Exception):
@@ -17,18 +18,23 @@ class Refused(Exception):
 
 
 def enabled(conn: db.Conn) -> bool:
-    return settings.config(conn, SWITCH, False) is True
+    return gate.switched_on(conn)
 
 
 def my_classes(conn: db.Conn, staff_id: Any, day: dt.date) -> list[dict]:
+    """The classes she holds that day; with every class that has a timetable when she is the staff preview (D-076)."""
     roles = list(settings.config(conn, "educator.timetable_roles", []))
-    return conn.execute(
+    held = conn.execute(
         "select distinct c.id::text as id, c.grade_code as grade, c.section, c.academic_year_id, c.campus_id"
         " from staff_role_grant g join school_class c on c.id = g.school_class_id"
         " where g.staff_id = %s and g.role_code = any(%s) and g.valid_from <= %s"
         " and (g.valid_to is null or g.valid_to >= %s) order by c.grade_code, c.section",
         (staff_id, roles, day, day),
     ).fetchall()
+    if not gate.previews(conn, staff_id):
+        return held
+    ids = {c["id"] for c in held}
+    return held + [c for c in gate.timetabled_classes(conn) if c["id"] not in ids]
 
 
 def chosen(classes: list[dict], class_id: str | None) -> dict:

@@ -706,6 +706,12 @@
       "seed_once": true
     },
     {
+      "key": "educator.preview_roles",
+      "description": "The staff preview of the K2 educator's screens (D-076): a member of staff whose open grant is in one of these roles sees the timetable and materials screens while educator.timetable_enabled is still off; with no class of their own they see every class that has a timetable. Reminders still wait for the switch.",
+      "value": ["head", "coordinator"],
+      "seed_once": true
+    },
+    {
       "key": "educator.timetable_roles",
       "description": "The roles whose open grant on a class lets a person see that class's generated timetable. A campus-wide role is not here: the timetable answers for a class she holds.",
       "value": [

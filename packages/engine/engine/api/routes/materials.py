@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.core import db
+from engine.w2_print import educator_gate
 from engine.w2_print import materials_list as ml
 from engine.w2_print import materials_remind as rem
 from engine.w2_print import materials_send as send
@@ -73,9 +74,10 @@ class Inbox(Who):
 
 
 def staff_of(conn, body: Who) -> UUID:
-    if not ml.enabled(conn):
-        raise HTTPException(status_code=403, detail="The timetable is not switched on.")
     sid = db.one(conn, "select public.staff_of_email(%s) as id", (body.actor,))["id"]
+    # switched off: only the staff preview (D-076, w2_print/educator_gate.py) gets past
+    if not educator_gate.switched_on(conn) and (sid is None or not educator_gate.previews(conn, sid)):
+        raise HTTPException(status_code=403, detail="The timetable is not switched on.")
     if sid is None:
         raise HTTPException(status_code=403, detail="This sign-in is not on the staff list.")
     return sid
