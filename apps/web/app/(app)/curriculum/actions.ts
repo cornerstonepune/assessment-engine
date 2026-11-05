@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireStaff } from "@/lib/auth";
-import { mustBeOn, PARTS, slipsMax } from "@/lib/curriculum-screens";
+import { mustBeOn, slipsMax } from "@/lib/curriculum-screens";
+import { PART_KEYS } from "@/lib/page-part";
 import { enginePost } from "@/lib/engine";
 
 // Every answer is the engine's, made as the signed-in member of staff; the page then goes where `back` says. `back` is
@@ -13,7 +14,7 @@ const field = (f: FormData, k: string) => String(f.get(k) ?? "");
 
 function target(form: FormData) {
   const [code, part, back] = [field(form, "code"), field(form, "part"), own(form.get("back"))];
-  if (!(PARTS as readonly string[]).includes(part)) throw new Error("not a part of a page");
+  if (!(PART_KEYS as readonly string[]).includes(part)) throw new Error("not a part of a page");
   return { code, part, back };
 }
 function done(back: string): never {

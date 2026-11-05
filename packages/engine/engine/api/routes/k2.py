@@ -4,6 +4,8 @@ it is worked out is `w3_read/k2_reads.py`. The site calls with the engine's key 
 models, so their schema (in /openapi.json) shows every field a screen can be given: no name, no "not willing", no
 internal label."""
 
+from typing import Literal
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
@@ -108,7 +110,7 @@ class Growth(BaseModel):
     first_seen: str
     last_seen: str
     by_month: list[Month]
-    trend: str  # up, steady, down or too_few: a trend, never a score
+    trend: Literal["up", "steady", "down", "too_few"]  # a trend, never a score
 
 
 class Because(BaseModel):

@@ -61,6 +61,9 @@
   --origin-school-fg: var(--brand-olive-deep); --origin-school-bg: var(--brand-olive-tint); /* icon: book-open */
   --origin-drafted-fg: var(--brand-bamboo-deep); --origin-drafted-bg: var(--brand-bamboo-lt); /* icon: sparkles */
   --origin-edited-fg: var(--brand-monsoon-deep); --origin-edited-bg: var(--brand-monsoon-wash); /* icon: pencil (Lucide pencil) */
+  /* D-075's fixed meanings on an activity's page: bamboo is the school's words, amber (haldi) a part that needs her */
+  --words-school-fg: var(--brand-bamboo-deep); --words-school-bg: var(--brand-bamboo-lt); --words-school-bd: var(--brand-bamboo); /* icon: book-open */
+  --needs-you-fg: var(--brand-basalt); --needs-you-bg: var(--brand-paper); --needs-you-bd: var(--brand-haldi); /* icon: clock */
 
   /* ---- Space (px). 4 is for inside a control only. ---- */
   --space-1: 4px;

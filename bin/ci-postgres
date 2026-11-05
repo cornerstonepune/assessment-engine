@@ -10,12 +10,27 @@
 set -euo pipefail
 [ "${GITHUB_ACTIONS:-}" = true ] || { echo "bin/ci-postgres starts CI's database; it runs on a CI runner only" >&2; exit 1; }
 
+# Every download is tried again, because one dropped connection used to end the job about 90 seconds in ("curl: (56)
+# Failure when receiving data from the peer", five CI runs of 2026-11-04, each cured by a re-run costing 10 to 20 minutes).
+# curl: --retry-all-errors, since a transfer error is not retried by default. apt: its own Acquire::Retries for a file,
+# and `retry` for a whole command. After the last attempt the step fails, naming the command (tests/test_ci_postgres.py).
+CURL_RETRY=(--retry 6 --retry-all-errors --retry-connrefused --retry-delay 5 --connect-timeout 20 --max-time 120)
+retry() {
+  local n=0
+  until "$@"; do
+    n=$((n + 1))
+    [ "$n" -lt 5 ] || { echo "ci-postgres: '$*' failed $n times, giving up" >&2; return 1; }
+    echo "ci-postgres: '$*' failed (attempt $n of 5), trying again in 10 s" >&2
+    sleep 10
+  done
+}
+
 sudo install -d /usr/share/postgresql-common/pgdg
-sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc "${CURL_RETRY[@]}" https://www.postgresql.org/media/keys/ACCC4CF8.asc
 echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" |
   sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
-sudo apt-get update -qq
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq postgresql-17 >/dev/null
+retry sudo apt-get -o Acquire::Retries=5 update -qq
+retry sudo DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y -qq postgresql-17 >/dev/null
 sudo locale-gen en_US.UTF-8 >/dev/null
 
 # The package starts a cluster of its own, and the runner may carry an older Postgres: neither is the one used here,

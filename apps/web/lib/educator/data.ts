@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Session } from "../auth";
 import { type BodyOf, EngineDown, type PostPath, engineSend } from "../engine";
-import type { Day, OnePeriod, Week } from "./types";
+import type { CatalogueItem, Day, MaterialsList, OnePeriod, SchoolList, WaitingNote, Week } from "./types";
 
 // What the K2 educator's screens read, all from the engine with her email as `actor` (M1-09): the engine finds her staff
 // id and her classes. Behind `educator.timetable_enabled` (config, off): the engine refuses while it is off, and every
@@ -22,3 +22,43 @@ export const weekOf = (me: Pick<Session, "email">, q: { class_id?: string; week_
 /** One period of one day, with the planner's lines for its subject this fortnight (M1-06's /timetable/period). */
 export const periodOf = (me: Pick<Session, "email">, q: { class_id?: string; day: string; period_id: string }) =>
   read<OnePeriod, "/timetable/period">("/timetable/period", { actor: me.email, ...q });
+
+/** Whether her screens are open to her (the switch on, or the staff preview): a screen that reads no timetable asks
+ * first, so it is not found exactly when the timetable is not. */
+export const openTo = (me: Pick<Session, "email">) => read<{ previewing: boolean }, "/timetable/open">("/timetable/open", { actor: me.email });
+
+export type Span = "day" | "week" | "fortnight";
+const DAYS: Record<Span, number> = { day: 0, week: 6, fortnight: 13 };
+const until = (from: string, days: number) => new Date(Date.parse(`${from}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+
+/** Her class's list from `from` for a day, a week or a fortnight (M1-10's /materials/build: the list for that range,
+ * refreshed from the plan, never a second one), each day its own group. Building writes, so the staff preview, which
+ * changes nothing, is refused it: then there is no list to show (null), and the page says why. */
+export async function materialsOf(me: Pick<Session, "email">, class_id: string, from: string, span: Span): Promise<MaterialsList | null> {
+  const res = await engineSend("/materials/build", { actor: me.email, class_id, period: span, from, to: until(from, DAYS[span]) });
+  if (res.status === 403) return null;
+  if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}).`);
+  const { list_id } = (await res.json()) as { list_id: string };
+  return read<MaterialsList, "/materials/read">("/materials/read", { actor: me.email, list_id, group_by: "day" });
+}
+
+/** The catalogue she adds from: a line is always a catalogue item, never free text (D-071). */
+export const catalogueOf = async (me: Pick<Session, "email">) =>
+  (await read<{ items: CatalogueItem[] }, "/materials/catalogue/list">("/materials/catalogue/list", { actor: me.email })).items;
+
+/** The school's list for a month (M1-16's /materials/school/build then /read), for the coordinator; null when the
+ * person may not build it (not the coordinator, or the preview), and the page says so. */
+export async function schoolListOf(me: Pick<Session, "email">, from: string, to: string): Promise<SchoolList | null> {
+  const res = await engineSend("/materials/school/build", { actor: me.email, from, to });
+  if (res.status === 403) return null;
+  if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}).`);
+  return (await res.json()) as SchoolList;
+}
+
+/** The notes waiting for a person, oldest first (M1-16's /materials/review/list); null when not hers to read. */
+export async function waitingNotes(me: Pick<Session, "email">): Promise<WaitingNote[] | null> {
+  const res = await engineSend("/materials/review/list", { actor: me.email });
+  if (res.status === 403) return null;
+  if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}).`);
+  return ((await res.json()) as { notes: WaitingNote[] }).notes;
+}

@@ -1,5 +1,6 @@
 // What the K2 educator's screen specs share (task M1-09): the timetable's switch, the screenshots every screen is shot
 // at (1280 and 390 px, and 1280 at 200% zoom), and the rule that every tap is at least 44 px each way at both widths.
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { mkdirSync } from "node:fs";
 import { expect, type Page } from "@playwright/test";
@@ -46,4 +47,29 @@ export async function displayFaceOnlyLarge(page: Page) {
       .filter(([, f, px]) => /Cormorant/.test(f) && px < 24),
   );
   expect(small).toEqual([]);
+}
+
+/** Fortnight 10 as the school wrote it, into the tests' placeholder K2 class, by M1-06's own command as a person runs
+ * it (`engine timetable load`). Safe to run twice. */
+export function loadFortnight10(section: string) {
+  const tab = (f: string) => path.resolve(__dirname, "../../../supabase/seed/k2_tabs_2026_11_04", f);
+  execFileSync(path.resolve(__dirname, "../../../bin/engine"), ["timetable", "load", "--frame", tab("frame.csv"), "--planner", tab("planner.csv"), "--calendar", tab("calendar.csv"), "--spans", tab("frame_spans.json"), "--section", section, "--grade", "K2", "--from", "10", "--to", "10", "--year", "2031-32", "--apply"], { env: process.env, stdio: "pipe" });
+}
+
+/** A few catalogue items of the tests' own, tied to Fortnight 10's real activities (tulips, the dustbin, beads), so a
+ * list built from the plan has lines: one the school keeps, one the class keeps, one not tracked with no quantity. */
+export async function materialsFor(sql: Sql) {
+  const [{ id: t }] = await sql<{ id: string }[]>`select id from tenant order by created_at limit 1`;
+  const items = [
+    ["MAT-M109-1", "Craft paper", "sheet", "school", 5, "ACT-K2-0133", 2],
+    ["MAT-M109-2", "Dustbin", "piece", "class", 300, "ACT-K2-0287", 1],
+    ["MAT-M109-3", "Beads", "packet", null, null, "ACT-K2-0246", null],
+  ] as const;
+  for (const [code, name, unit, home, value, activity, qty] of items) {
+    await sql`insert into material_item (tenant_id, code, name, unit, home, unit_value) values (${t}, ${code}, ${name}, ${unit}, ${home}, ${value})
+      on conflict (tenant_id, code) do nothing`;
+    await sql`insert into activity_material (tenant_id, activity_code, material_code, quantity, ord) values (${t}, ${activity}, ${code}, ${qty}, 1)
+      on conflict do nothing`;
+  }
+  await sql`insert into material_item (tenant_id, code, name, unit) values (${t}, 'MAT-M109-4', 'Glue stick', 'piece') on conflict (tenant_id, code) do nothing`;
 }
