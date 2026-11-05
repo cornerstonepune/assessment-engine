@@ -180,12 +180,15 @@
         "batch_rounds": 2,
         "stop_after_bad_replies": 3,
         "dev_pages": 60,
+        "tranche_pages": 250,
         "est_draft_in": 450,
         "est_draft_out": 800,
         "est_check_in": 700,
         "est_check_out": 120,
         "est_revise_share": 0.25,
         "report_usd_per_page_limit": 0.02,
+        "measured_min_calls": 5,
+        "measured_min_pages": 20,
         "est_split_in": 400,
         "est_split_out": 300
       }
@@ -705,6 +708,12 @@
       "key": "educator.timetable_enabled",
       "description": "Whether the K2 educator sees her generated timetable (her day, her week, a period). Off until the coordinator has marked the first fortnight; Nimish turns it on. While it is off the three timetable calls refuse.",
       "value": false,
+      "seed_once": true
+    },
+    {
+      "key": "educator.preview_roles",
+      "description": "The staff preview of the K2 educator's screens (D-076): a member of staff whose open grant is in one of these roles sees the timetable and materials screens while educator.timetable_enabled is still off; with no class of their own they see every class that has a timetable. Reminders still wait for the switch.",
+      "value": ["head", "coordinator"],
       "seed_once": true
     },
     {

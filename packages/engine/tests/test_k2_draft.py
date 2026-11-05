@@ -660,7 +660,7 @@ def test_dev_reads_the_number_of_pages_the_config_row_names_and_not_both_dev_and
     two = CliRunner().invoke(
         cli.app, ["curriculum", "draft", "--stage", "dev_eval", "--dev", "--limit", "5", "--dry-run"]
     )
-    assert two.exit_code != 0 and "either" in re.sub(r"\x1b\[[0-9;]*m", "", two.output)
+    assert two.exit_code != 0 and "not more" in re.sub(r"\x1b\[[0-9;]*m", "", two.output)
 
 
 def test_the_dev_pages_are_a_number_in_the_config_row(conn):
@@ -759,3 +759,29 @@ def test_the_forecast_prices_the_second_checker_when_it_is_on(conn):
     two = draft.forecast(conn, "dev_eval", 60)
     cost = lambda t: float(re.search(r"about \$([0-9.]+)", t).group(1))  # noqa: E731
     assert cost(two) > cost(one)
+
+
+def test_a_tranche_is_the_next_pages_not_yet_drafted_as_many_as_the_row_names(conn):
+    for i in range(1, 6):
+        _act(conn, f"KX-{i}", f"A{i}")
+    conn.execute(
+        "update config set value = jsonb_set(value, '{tranche_pages}', '2') where key = 'k2.drafting'"
+    )
+    n = int(draft._settings(conn)["tranche_pages"])
+    run(conn, Scripted({("k2_page_draft", f"KX-{i}"): [drafted()] for i in (1, 2)}), limit=n)
+    again, _ = draft.wanted(conn, conn.t, BAND, n)
+    assert n == 2 and list(again) == ["KX-3", "KX-4"], "the next two, the first two being drafted"
+
+
+def test_the_tranche_cannot_be_combined_with_the_dev_size_or_a_limit():
+    for extra in (["--dev"], ["--limit", "5"]):
+        got = CliRunner().invoke(
+            cli.app, ["curriculum", "draft", "--stage", "draft", "--tranche", *extra, "--dry-run"]
+        )
+        assert got.exit_code != 0 and "not more" in re.sub(r"\x1b\[[0-9;]*m", "", got.output)
+    ok = CliRunner().invoke(cli.app, ["curriculum", "draft", "--stage", "draft", "--tranche", "--dry-run"])
+    assert ok.exit_code == 0 and "forecast" in ok.output, ok.output
+
+
+def test_the_tranche_size_is_a_number_in_the_config_row(conn):
+    assert draft._settings(conn)["tranche_pages"] == 250

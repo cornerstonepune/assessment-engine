@@ -18,6 +18,7 @@ BY = "{by}"  # where the dispatcher's email goes; the only substitution
 CHECK_KEY = "import os; print(bool(os.getenv('ANTHROPIC_API_KEY')))"  # True or False: never the key
 RUNS = {
     "key": {"spends": False, "commands": [["python", "-c", CHECK_KEY]]},
+    "load_settings": {"spends": False, "commands": [["engine", "load", "--settings"]]},
     "forecast": {
         "spends": False,
         "commands": [
@@ -45,6 +46,10 @@ RUNS = {
     "map_held_out": {
         "spends": True,
         "commands": [["engine", "eval", "curriculum_map", "--version", "3", "--validate-version", "2"]],
+    },
+    "draft_tranche": {
+        "spends": True,
+        "commands": [["engine", "curriculum", "draft", "--stage", "draft", "--tranche", "--by", BY]],
     },
     "draft_all": {
         "spends": True,
