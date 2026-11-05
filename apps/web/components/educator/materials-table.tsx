@@ -1,76 +1,62 @@
 import { removeLine, setQuantity } from "@/app/(app)/educator/materials/actions";
 import { Icon } from "@/lib/icons";
+import type { Column } from "@/lib/ux-rules";
 import type { MaterialLine } from "@/lib/educator/types";
 import { E } from "@/lib/educator/words";
 
-// One day's lines of her list as a table (D-075: rows of one kind): the item, the activity it is for (a link to its page
-// comes with the activity page, M1-09a), how many (a dash when the plan gives none, never guessed; she sets it in
-// place), where it is kept, remove.
+// The columns of her list, for the site's one table (DataTable, D-075: rows of one kind): the item, the activity it is
+// for (a link to its page comes with the activity page, M1-09a), how many (a dash when the plan gives none, never
+// guessed; she sets it in place), where it is kept, remove. `look` (the staff preview): the lines only, nothing to change.
 const W = E.materials;
-export const CELL = "border-b border-[var(--border)] px-[var(--space-2)] py-[var(--space-2)] text-left align-middle";
 export const BTN = "inline-flex min-h-[var(--tap)] min-w-[var(--tap)] items-center justify-center gap-[var(--space-1)] rounded-[var(--radius-m)] border border-[var(--border-control)] bg-[var(--surface)] px-[var(--space-2)] text-[length:var(--text-label)] font-medium text-[var(--text)]";
 export const FIELD = "min-h-[var(--tap)] rounded-[var(--radius-m)] border border-[var(--border-control)] bg-[var(--surface)] px-[var(--space-2)]";
 
+export type DayLine = MaterialLine & { day: string };
 const kept = (l: MaterialLine) => (!l.tracked || !l.home ? "none" : l.home);
+const qty = (l: MaterialLine) => (l.quantity === null ? W.noQty : `${l.quantity} ${l.unit}`);
 
-/** `look` (the staff preview): the lines only, nothing to change. */
-export function MaterialsTable({ label, lines, look = false }: { label: string; lines: MaterialLine[]; look?: boolean }) {
-  return (
-    <section data-group={label} aria-label={label} className="grid gap-[var(--space-2)]">
-      <h2 className="text-[length:var(--text-h3)] font-semibold">{label}</h2>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-[length:var(--text-body)]">
-          <thead className="text-[length:var(--text-label)] text-[var(--text-muted)]">
-            <tr>
-              {[W.cols.item, W.cols.activity, W.cols.quantity, W.cols.home, ...(look ? [] : [W.cols.change])].map((c) => (
-                <th key={c} scope="col" className={`${CELL} font-medium`}>
-                  {c}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {lines.map((l) => (
-              <tr key={l.line_id} data-line={l.line_id}>
-                <th scope="row" className={`${CELL} font-medium`}>
-                  {l.item}
-                </th>
-                <td className={CELL}>
-                  {l.activity?.name ?? null}
-                </td>
-                <td className={`${CELL} tabular-nums`}>
-                  {look ? (
-                    <span>{l.quantity === null ? W.noQty : `${l.quantity} ${l.unit}`}</span>
-                  ) : (
-                  <form action={setQuantity} className="flex items-center gap-[var(--space-1)]">
-                    <input type="hidden" name="line" value={l.line_id} />
-                    <input name="quantity" type="number" min={0} step="any" defaultValue={l.quantity ?? ""} placeholder={W.noQty} aria-label={`${W.cols.quantity}: ${l.item}`} className={`${FIELD} w-[var(--space-7)] tabular-nums`} />
-                    <span className="text-[length:var(--text-label)] text-[var(--text-muted)]">{l.unit}</span>
-                    <button type="submit" className={BTN}>
-                      {W.save}
-                    </button>
-                  </form>
-                  )}
-                </td>
-                <td className={CELL} data-home={kept(l)}>
-                  {W.home[kept(l)]}
-                </td>
-                {look ? null : (
-                <td className={CELL}>
-                  <form action={removeLine}>
-                    <input type="hidden" name="line" value={l.line_id} />
-                    <button type="submit" className={BTN} aria-label={`${W.remove}: ${l.item}`}>
-                      <Icon name="clear" size={16} />
-                      {W.remove}
-                    </button>
-                  </form>
-                </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
+export function materialColumns(look: boolean): Column<DayLine>[] {
+  const cols: Column<DayLine>[] = [
+    { key: "item", label: W.cols.item, value: (l) => l.item },
+    { key: "activity", label: W.cols.activity, value: (l) => l.activity?.name },
+    {
+      key: "quantity",
+      label: W.cols.quantity,
+      value: (l) => qty(l),
+      keep: true,
+      cell: (l) =>
+        look ? (
+          <span className="tabular-nums">{qty(l)}</span>
+        ) : (
+          <form action={setQuantity} className="flex items-center gap-[var(--space-1)]">
+            <input type="hidden" name="line" value={l.line_id} />
+            <input name="quantity" type="number" min={0} step="any" defaultValue={l.quantity ?? ""} placeholder={W.noQty} aria-label={`${W.cols.quantity}: ${l.item}`} className={`${FIELD} w-[var(--space-7)] tabular-nums`} />
+            <span className="text-[length:var(--text-label)] text-[var(--text-muted)]">{l.unit}</span>
+            <button type="submit" className={BTN}>
+              {W.save}
+            </button>
+          </form>
+        ),
+    },
+    { key: "home", label: W.cols.home, value: (l) => W.home[kept(l)], cell: (l) => <span data-home={kept(l)}>{W.home[kept(l)]}</span> },
+  ];
+  if (look) return cols;
+  return [
+    ...cols,
+    {
+      key: "change",
+      label: W.cols.change,
+      value: () => W.remove,
+      keep: true,
+      cell: (l) => (
+        <form action={removeLine}>
+          <input type="hidden" name="line" value={l.line_id} />
+          <button type="submit" className={BTN} aria-label={`${W.remove}: ${l.item}`}>
+            <Icon name="clear" size={16} />
+            {W.remove}
+          </button>
+        </form>
+      ),
+    },
+  ];
 }

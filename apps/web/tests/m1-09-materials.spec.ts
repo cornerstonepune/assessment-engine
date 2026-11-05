@@ -49,7 +49,7 @@ test("the class list is a table a day, each line tied to its activity, its quant
   await timetableSwitch(sql, true);
   await open(page);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Materials");
-  await expect(page.locator("[data-group]")).toHaveCount(3);
+  await expect(page.locator("#lines h3")).toHaveCount(3); // a table a day
   await expect(line(page, "Craft paper").locator('input[name="quantity"]')).toHaveValue("2");
   await expect(line(page, "Craft paper").locator("[data-home]")).toHaveAttribute("data-home", "school");
   await expect(line(page, "Dustbin").locator("[data-home]")).toHaveAttribute("data-home", "class");
