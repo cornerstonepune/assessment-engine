@@ -25,11 +25,14 @@ from engine.api.routes import (
     maker,
     materials,
     materials_school,
+    offers,
+    page,
     paper_edit,
     parent,
     runs,
     samples,
     timetable,
+    timetable_rules,
     upload,
     voice,
     week,
@@ -66,8 +69,11 @@ app.include_router(parent.router)
 app.include_router(upload.router)
 app.include_router(samples.router)
 app.include_router(timetable.keyed)
+app.include_router(timetable_rules.keyed)
 app.include_router(k2.router)
 app.include_router(gold.router)
+app.include_router(offers.router)
+app.include_router(page.router)
 app.include_router(voice.router)
 app.include_router(voice.keyed)
 app.include_router(materials.keyed)

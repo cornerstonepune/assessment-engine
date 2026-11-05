@@ -289,6 +289,12 @@ def test_a_recorded_gold_run_is_held_to_the_bars_before_anything_applies(conn, t
     conn.execute(
         "update threshold set value = 2 where key = 'map.dev_count'"
     )  # 2 of the 4 for tuning, 2 held out
+    conn.execute(
+        "update threshold set value = 0 where key = 'map.require_examples'"
+    )  # the rules as first written:
+    conn.execute(
+        "update threshold set value = 1 where key = 'map.use_checker'"
+    )  # the validator's verdict decides
     b = read_band(conn, t, BAND)
     gold = {c: s for c, s in b.person_skills.items() if b.objectives.get(c)}
     monkeypatch.setattr(cli_map, "_tenant", lambda c: t)

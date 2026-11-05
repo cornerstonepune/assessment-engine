@@ -1,0 +1,32 @@
+name: m1-14a-timetable-rules
+goal: >
+  A person can set up the K2 timetable's rules on a screen, as rows: when each period starts and ends, which days and
+  periods are blocked, which slots are fixed, and the fewest and most periods of a subject in a week or a fortnight. Every
+  change is checked before it is written, a rule that cannot be right is refused with its reason and writes nothing, and
+  every change is kept with who made it and what it was before. Nothing yet places a lesson: the generator is part b.
+# Written 2026-11-05, before the code. Task M1-14 part (a), widened by Nimish on 2026-11-05; W2 step N4, files only. The
+# migration (20270109090000) merges alone, by the orchestrator. The staff setup screens do not wait on the educator switch
+# (educator.timetable_enabled), which stays off. The words below are the acceptance line of the brief as relayed.
+says:
+  - words: "the K2 educator blocks a day, changes a subject's weekly limit"
+    proved_by: "packages/engine/tests/test_tt_rules.py::test_a_day_is_blocked_with_its_reason_and_who_made_it_is_kept"
+  - words: "the K2 educator blocks a day, changes a subject's weekly limit"
+    proved_by: "packages/engine/tests/test_tt_rules.py::test_a_subjects_limit_is_set_changed_and_each_change_keeps_what_it_was"
+  - words: "Rules as rows a person edits on a screen: period timings, blocked days and periods, fixed slots, the most and fewest periods of a subject per week or fortnight."
+    proved_by: "packages/engine/tests/test_tt_rules.py::test_a_period_is_given_new_times_and_a_clash_with_its_neighbour_is_refused"
+  - words: "Rules as rows a person edits on a screen: period timings, blocked days and periods, fixed slots, the most and fewest periods of a subject per week or fortnight."
+    proved_by: "packages/engine/tests/test_tt_rules.py::test_a_fixed_slot_is_pinned_then_released_and_the_slot_it_replaced_is_in_the_history"
+  - words: "each change kept with who made it"
+    proved_by: "packages/engine/tests/test_tt_rules.py::test_the_history_cannot_be_rewritten"
+manual:
+  - "Not part a: the generator (b), the month and quarter calendar with placing and moving (c), clashes (d), approval and the freeze."
+  - "A blocked day moves lessons and nothing lands on it is part b's proof; part a only holds the block."
+  - "The migration is merged alone, by the orchestrator, before part b starts."
+scenarios: []
+criteria:
+  - name: the rules, their refusals and their history
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_tt_rules.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

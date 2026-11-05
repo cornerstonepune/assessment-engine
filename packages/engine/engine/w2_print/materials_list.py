@@ -11,7 +11,7 @@ from typing import Any
 from uuid import UUID
 
 from engine.core import db, settings
-from engine.w2_print import materials_send, materials_text
+from engine.w2_print import educator_gate, materials_send, materials_text
 
 
 class NotInCatalogue(Exception):
@@ -309,7 +309,7 @@ def propose_item(conn: db.Conn, tenant: UUID, name: str, unit: str, who: UUID) -
 def enabled(conn: db.Conn) -> bool:
     """Whether the K2 educator's timetable and materials list are switched on for her: off until Nimish shows her both
     together (D-070). A missing row is off."""
-    return settings.config(conn, "educator.timetable_enabled", False) is True
+    return educator_gate.switched_on(conn)
 
 
 def held_classes(conn: db.Conn, staff: UUID, today: dt.date) -> list[UUID]:

@@ -11,6 +11,7 @@ Any problem rejects the proposal outright. Pure: no database, no model.
 from dataclasses import dataclass
 
 LEVELS = ("level_0", "level_1", "level_2", "level_3")
+Reply = dict[str, object]
 # The kinds whose words a person must read: nothing exists to score new words against (the gold set holds codes).
 NEW_WORDS = frozenset({"levels"})
 
@@ -118,19 +119,59 @@ def decide(
     new_words: bool = False,
     none: bool = False,
     kind_stopped: bool = False,
+    checker: bool = True,
 ) -> str:
     """Where a checked proposal goes. Code's problems reject it; new words, a validator that disagrees, a confidence
-    under the bar, a "none", the audit sample and a kind whose audit failed all go to a person; the rest pass on their own."""
+    under the bar (a validator that is switched off is not asked), a "none", the audit sample and a kind whose audit failed all go to a person; the rest pass on their own."""
     if found:
         return "rejected"
     if (
         kind in NEW_WORDS
         or new_words
         or none
-        or verdict != "agree"
+        or (checker and verdict != "agree")
         or confidence < min_confidence
         or sampled
         or kind_stopped
     ):
         return "needs_person"
     return "auto_passed"
+
+
+@dataclass(frozen=True)
+class Proposal:
+    """One proposal for one gap, as decided: what it says, what code found, the validator's verdict, where it goes."""
+
+    kind: str
+    subject_code: str
+    proposal: Reply
+    confidence: float
+    proposer: str
+    validator: str
+    problems: list[str]
+    verdict: str
+    status: str
+    reason: str
+
+
+@dataclass(frozen=True)
+class Rules:
+    """The numbers the decision reads, every one a threshold row (`map.*`), and the kinds whose audit failed."""
+
+    min_confidence: float
+    audit_share: float
+    examples: int
+    stopped: frozenset[str] = frozenset()
+    skill_confidence: float | None = (
+        None  # `map.skill_min_confidence`: the bar for a skill once it must come from the examples
+    )
+    from_examples: bool = (
+        False  # `map.require_examples`: a skill passes only if an example showed it; the rest are offered
+    )
+    use_checker: bool = True  # `map.use_checker`: the second model's verdict is asked for and must agree
+
+    def bar(self, kind: str) -> float:
+        """The confidence a proposal of this kind must reach to pass on its own."""
+        if kind == "skill" and self.from_examples and self.skill_confidence is not None:
+            return self.skill_confidence
+        return self.min_confidence

@@ -1,0 +1,26 @@
+name: m1-06d-plan-lines-own-week
+goal: >
+  A period's page shows the planner lines of its own week only. A fortnight the Monthly Planner lists under two month
+  headings has a row in each: week A is planned by the first row, week B by the second (the loader's rule), and each
+  line now keeps its week (plan_entry.week_code). On Fortnight 10, General Awareness shows "Insects" and "lifecycle of
+  a butterfly" once each, in both weeks; Music shows November's line in week A and December's in week B. A fortnight
+  listed once shows all its lines, as before. Rows loaded before the change get their week from the migration itself.
+# Written 2026-11-05: the orchestrator found the duplicate lines on M1-06's /timetable/period and approved one additive
+# migration with its own backfill (20270108090000).
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_day.py::test_a_fortnight_under_two_months_shows_a_period_only_its_own_weeks_lines"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_day.py::test_a_fortnight_with_a_single_row_still_shows_all_its_lines"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_day.py::test_the_migration_gives_rows_loaded_before_it_the_week_the_loader_now_writes"
+manual:
+  - "On live, the migration's backfill tags the rows already loaded; it stops with an error, before changing anything, if a fortnight under two headings cannot be told apart. The rehearsal on a copy of live shows which."
+scenarios: []
+criteria:
+  - name: the period's lines, the loader and its SQL
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_day.py tests/test_k2_timetable_load.py tests/test_k2_timetable.py tests/test_timetable_run_command.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

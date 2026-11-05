@@ -555,6 +555,24 @@
    "description": "A mapping proposal below this confidence goes to a person, whatever the validator says (goals/m1-05-mapping-agents.yaml)"
   },
   {
+   "key": "map.skill_min_confidence",
+   "value": 0.7,
+   "unit": "proportion",
+   "description": "The confidence a skill proposal must reach to pass on its own once every skill in it came from the nearest examples (map.require_examples). Chosen on the dev run of 2026-11-04 (33 passed, 30 right) before the held-out run, and not to be changed after it (M1-12c)"
+  },
+  {
+   "key": "map.require_examples",
+   "value": 1,
+   "unit": "flag",
+   "description": "1: a skill passes on its own only if an example the proposer was shown carried it; every other skill is offered to a person to add. 0: as before (M1-12c)"
+  },
+  {
+   "key": "map.use_checker",
+   "value": 0,
+   "unit": "flag",
+   "description": "1: the second model reads each mapping proposal and must agree. 0: it is not asked. It was off from 2026-11-05: on the dev run it added no signal (agree 46 of 88 right, disagree 5 of 9)"
+  },
+  {
    "key": "map.audit_share",
    "value": 0.1,
    "unit": "proportion",

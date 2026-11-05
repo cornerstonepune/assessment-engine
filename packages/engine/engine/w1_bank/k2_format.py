@@ -11,11 +11,13 @@ checker (a stronger model, shown only the school's words) is the judge of that. 
 
 import re
 from collections.abc import Callable, Iterable
+from typing import LiteralString
 
 from engine.w1_bank import k2_batch as batch
 
 Judge = Callable[[object, dict[str, list[str]]], tuple[dict[str, dict], dict[str, str]]]
 BULLET = "•"
+LISTS: dict[str, LiteralString] = {"steps": "steps_list", "thinking": "thinking_doc"}  # a part's list column
 
 
 def _head_nouns(materials: str) -> set[str]:
@@ -163,3 +165,37 @@ def judger(rows: dict, vocab: frozenset[str], fmt: dict, rules: dict | None) -> 
         return good, bad | faults
 
     return judge
+
+
+def lines_of(text: str) -> list[str]:
+    """The lines of a text as bullets read them: one to a line, the bullet or number in front taken off."""
+    out = (re.sub(r"^\s*(?:\d+[.)]|[-*\u2022])\s*", "", ln).strip() for ln in (text or "").splitlines())
+    return [x for x in out if x]
+
+
+def edited(part: str, value: object) -> object:
+    """A person's own words for a part, as the site sends them: text for any part; for the steps a list of lines; for the
+    thinking an idea and a list of slips. Refused if it is not that, so nothing malformed reaches a page. The AI-format
+    limits (how many, how long) are for drafts: a person may write what they like."""
+    if isinstance(value, str):
+        if not value.strip():
+            raise ValueError("a part changed to nothing is a rejected draft: use reject")
+        return value.strip()
+    if part == "steps" and isinstance(value, list):
+        lines = [x.strip() for x in value if isinstance(x, str) and x.strip()]
+        if not lines or len(lines) != len(value):
+            raise ValueError("steps must be a list of lines, none empty")
+        return lines
+    if part == "thinking" and isinstance(value, dict):
+        idea, slips = value.get("idea"), value.get("slips")
+        if not isinstance(idea, str) or not idea.strip() or not isinstance(slips, list):
+            raise ValueError("thinking must be an idea and a list of slips")
+        kept = []
+        for s in slips:
+            if not isinstance(s, dict) or not all(
+                isinstance(s.get(k), str) and s[k].strip() for k in ("keyword", "spot")
+            ):
+                raise ValueError("each slip must be a keyword and how to spot it")
+            kept.append({"keyword": s["keyword"].strip(), "spot": s["spot"].strip()})
+        return {"idea": idea.strip(), "slips": kept}
+    raise ValueError(f"{part} cannot be changed to that")

@@ -704,6 +704,30 @@
       }
     },
     {
+      "key": "curriculum.screens_enabled",
+      "description": "Whether staff see the curriculum browser, the fill view with its walk-through and the offered-skills queue (M1-13). Off until Nimish turns it on; while it is off every address of these screens is not found.",
+      "value": false,
+      "seed_once": true
+    },
+    {
+      "key": "curriculum.screens_grade",
+      "description": "The grade whose activities the curriculum screens (browser, fill view, offered skills) list: the code of a row of `grade`. K2 first.",
+      "value": "K2",
+      "seed_once": true
+    },
+    {
+      "key": "curriculum.fill_green",
+      "description": "The share of a section's page parts and skills that must be filled for the curriculum browser to show it green (1 = every one).",
+      "value": 1,
+      "seed_once": true
+    },
+    {
+      "key": "curriculum.fill_amber",
+      "description": "The share filled from which the curriculum browser shows a section amber rather than red.",
+      "value": 0.5,
+      "seed_once": true
+    },
+    {
       "key": "voice.recording_enabled",
       "description": "Whether the K2 educator may record a spoken note (and hear it back), on top of voice.screens_enabled. Off until Sarvam confirms 'No retention' in writing (D-065); with it off she uses the form, and no recording is kept or sent anywhere. A missing row is off.",
       "value": false,
@@ -713,6 +737,12 @@
       "key": "educator.timetable_enabled",
       "description": "Whether the K2 educator sees her generated timetable (her day, her week, a period). Off until the coordinator has marked the first fortnight; Nimish turns it on. While it is off the three timetable calls refuse.",
       "value": false,
+      "seed_once": true
+    },
+    {
+      "key": "educator.preview_roles",
+      "description": "The staff preview of the K2 educator's screens (D-076): a member of staff whose open grant is in one of these roles sees the timetable and materials screens while educator.timetable_enabled is still off; with no class of their own they see every class that has a timetable. Reminders still wait for the switch.",
+      "value": ["head", "coordinator"],
       "seed_once": true
     },
     {
