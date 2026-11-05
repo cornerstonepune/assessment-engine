@@ -20,6 +20,7 @@ import approveSkills from "@/guide/pages/skills-to-approve.json";
 import bank from "@/guide/pages/question-bank.json";
 import staff from "@/guide/pages/staff.json";
 import school from "@/guide/pages/school.json";
+import timetableRules from "@/guide/pages/timetable-rules.json";
 
 // The Guide (goals/guide_for_educators.yaml). Nimish, 27 Oct 2026: "a guide page where everything is well explained ...
 // so that people don't come to me". Its words are files in apps/web/guide/, held by packages/engine/tests/test_guide.py:
@@ -36,7 +37,7 @@ export type MenuGuide = { menu: string; forWhat: Para[]; layout: Area[]; jobs: J
 export type StepGuide = { name: string; who: string[]; sees: Para };
 export type Want = { label: string; href: string };
 
-const PAGES = [today, assessments, approvePapers, upload, check, results, reports, across, curriculum, approveSkills, bank, staff, school] as MenuGuide[];
+const PAGES = [today, assessments, approvePapers, upload, check, results, reports, across, curriculum, approveSkills, bank, staff, school, timetableRules] as MenuGuide[];
 
 export const START = start as { purpose: string; forWhat: Para[]; wants: Want[] };
 export const ARTICLES = { "worked-out": workedOut, words, "report-a-problem": problem } as Record<string, Article>;
