@@ -53,7 +53,8 @@ def tally(kept: list[Kept], want: dict[str, list[str]], judge) -> dict:
         if outcome == "refused" or not keys:
             refused += 1
             continue
-        good, bad = judge(reply, {k: want[k] for k in keys})
+        pages = batch.items(reply, "pages")  # the list inside the reply, as the run judged it
+        good, bad = judge(pages, {k: want[k] for k in keys})
         for k in keys:
             seen[k] += 1
             row = asks.setdefault(seen[k], {"attempt": seen[k], "asked": 0, "good": 0, "faults": Counter()})
