@@ -131,7 +131,7 @@ def test_the_checker_is_shown_the_schools_objective_and_materials_beside_the_dra
         "objective": "The child will match a count to a numeral.", "steps": "", "thinking": "",
         "level_0": "", "level_1": "", "level_2": "", "level_3": "",
     }  # fmt: skip
-    text = draft._block(row, [], None, {"steps": "• Count the spindles into each compartment."})
+    text = draft._block(row, [], None, {"steps": ["Count the spindles into each compartment."]})
     assert "materials: Two boxes, 0 to 9 in each." in text
     assert "objective: The child will match a count to a numeral." in text
     assert "• Count the spindles" in text

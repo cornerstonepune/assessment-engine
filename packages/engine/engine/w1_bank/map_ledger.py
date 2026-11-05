@@ -14,6 +14,7 @@ import uuid
 from psycopg.rows import DictRow
 
 from engine.core import db
+from engine.w1_bank.k2_format import render
 from engine.w1_bank.k2_gaps import column
 from engine.w1_bank.map_agents import Proposal
 from engine.w1_bank.map_check import LEVELS
@@ -163,8 +164,8 @@ def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
     # a draft is unreviewed until a person has approved it, whatever the machine's verdict: its status stays in the data
     # for the calibration table, but nothing counts as passed on a model's word alone (Nimish's staff, 2026-11-04)
     code, wrote, doubt = p["subject_code"], [], p["now"] != "approved"
-    for part, text in sorted(p["proposal"]["parts"].items()):
-        col = column(part)  # a column name never comes from a reply
+    for part, value in sorted(p["proposal"]["parts"].items()):
+        col, text = column(part), render(part, value)  # a column name never comes from a reply
         hit = conn.execute(
             f"update activity set {col} = %s where tenant_id = %s and code = %s and btrim({col}) = ''"  # noqa: S608
             " returning code",
@@ -270,8 +271,8 @@ def revert(conn: db.Conn, tenant: db.Id, about: db.Id, staff: db.Id | None, why:
             (tenant, p["id"]),
         )
     if p["kind"] == "page_part":
-        for part, text in sorted(p["proposal"]["parts"].items()):
-            col = column(part)
+        for part, value in sorted(p["proposal"]["parts"].items()):
+            col, text = column(part), render(part, value)
             conn.execute(
                 f"update activity set {col} = '' where tenant_id = %s and code = %s and {col} = %s"  # noqa: S608
                 " and exists (select 1 from activity_part_source s where s.tenant_id = %s and s.activity_code = %s"

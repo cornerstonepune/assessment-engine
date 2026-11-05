@@ -1,7 +1,8 @@
 """`engine curriculum draft | materials`: the run commands for K2 version 1 (goals/m1-11-k2-complete-v1.yaml).
 
-The gaps of a K2 page are drafted in batches by one model and checked by another (v2 prompt rows), every reply judged
-page by page (`k2_batch`); what passes is recorded in the M1-05 ledger as `page_part` and `material` proposals, and the
+The gaps of a K2 page are drafted in batches by a maker, judged page by page by code (`k2_batch`, `k2_format`), read by
+a stronger checker that sees only the school's words, and revised once on the checker's reasons (`k2_check`); what is
+drafted is recorded in the M1-05 ledger as `page_part` and `material` proposals, and the
 existing `engine curriculum apply` writes them, marked drafted, into parts that are still empty. Money: every call goes
 through `llm.generate(stage=...)`, so the campaign's hard stop holds; every batch prints the spend so far and the
 stage's limit; `--dry-run` prints a forecast and makes no call. A real run needs `--by`: every row keeps who ran it.
@@ -16,15 +17,19 @@ import typer
 from engine.adapters import llm, llm_budget
 from engine.core import db, settings
 from engine.w1_bank import k2_batch as batch
-from engine.w1_bank import map_ledger
+from engine.w1_bank import k2_check, k2_format, map_ledger
 from engine.w1_bank.cli_map import BY, staff_of
 from engine.w1_bank.k2_gaps import PAGE_PARTS, empty_parts
 from engine.w1_bank.k2_upload import config, curriculum_app
 from engine.w1_bank.map_agents import Proposal
 
 Ask = Callable[[str, dict], object]
-DRAFT, CHECK, SPLIT = "k2_page_draft", "k2_page_validate", "k2_materials_split"
-VERSION = 3  # the batched rows, judged item by item; v1 is one page a call, v2 failed a whole reply for one stray field
+DRAFT, CHECK, SPLIT = k2_check.DRAFT, k2_check.CHECK, "k2_materials_split"
+VERSIONS = {
+    DRAFT: k2_check.DRAFT_VERSION,
+    CHECK: k2_check.CHECK_VERSION,
+    SPLIT: 3,
+}  # draft v4: lists and slips (M1-12a); the checker is a new prompt, its own v1
 
 
 @dataclass
@@ -45,7 +50,7 @@ def live_ask(conn: db.Conn, stage: str) -> Ask:
 
     def ask(purpose: str, variables: dict) -> object:
         try:
-            return llm.generate(conn, purpose, variables, version=VERSION, stage=stage)
+            return llm.generate(conn, purpose, variables, version=VERSIONS[purpose], stage=stage)
         finally:
             conn.commit()
 
@@ -63,8 +68,8 @@ def _settings(conn: db.Conn) -> dict[str, float]:
 def wanted(
     conn: db.Conn, tenant: db.Id, band: str, limit: int | None = None
 ) -> tuple[dict[str, list[str]], dict]:
-    """→ each K2 page with an empty text part and which parts, and every page's row. A page that already has a proposal
-    is not asked for again."""
+    """→ each K2 page with an empty text part and which parts, and every page's row, holding only the school's own words
+    (a part a machine drafted earlier counts as empty). A page this maker has already drafted is not asked for again."""
     rows = {
         r["code"]: r
         for r in conn.execute(
@@ -73,31 +78,55 @@ def wanted(
             (tenant, band),
         ).fetchall()
     }
-    done = _proposed(conn, tenant, "page_part")
+    for r in conn.execute(
+        "select activity_code, part from activity_part_source where tenant_id = %s and source = 'drafted'",
+        (tenant,),
+    ).fetchall():
+        if r["activity_code"] in rows:
+            rows[r["activity_code"]][r["part"]] = (
+                ""  # a machine's earlier words are not the school's: drafted again
+            )
+    done = _proposed(conn, tenant, "page_part", f"{DRAFT} v{VERSIONS[DRAFT]}")
     want = {c: empty_parts(r) for c, r in rows.items() if c not in done}
     want = {c: parts for c, parts in want.items() if parts}
     return (dict(list(want.items())[:limit]) if limit else want), rows
 
 
-def _proposed(conn: db.Conn, tenant: db.Id, kind: str) -> set[str]:
+def _proposed(conn: db.Conn, tenant: db.Id, kind: str, proposer: str | None = None) -> set[str]:
     rows = conn.execute(
-        "select subject_code from curriculum_proposal where tenant_id = %s and kind = %s and about is null",
-        (tenant, kind),
+        "select subject_code from curriculum_proposal where tenant_id = %s and kind = %s and about is null"
+        " and (%s::text is null or proposer = %s)",
+        (tenant, kind, proposer, proposer),
     ).fetchall()
     return {r["subject_code"] for r in rows}
 
 
-def _block(row: dict, parts: list[str], example: dict | None, with_draft: dict | None = None) -> str:
+def _block(
+    row: dict,
+    parts: list[str],
+    example: dict | None,
+    with_draft: dict | None = None,
+    revise: tuple[dict, list[dict]] | None = None,
+) -> str:
     wrote = [f"  {p}: {row[p].strip()}" for p in PAGE_PARTS if (row[p] or "").strip()]
     out = [f"key: {row['code']}", f"activity: {row['name']} (section: {row['strand']})"]
     out += ["the school wrote:", *wrote] if wrote else ["the school wrote nothing else for it"]
     if row["materials"].strip():
         out.append(f"materials: {row['materials'].strip()}")
     if with_draft is not None:
-        out += ["the draft:", *[f"  {p}: {t}" for p, t in with_draft.items()]]
+        out += ["the draft:", k2_format.shown_draft(with_draft)]
     else:
         out.append("draft: " + ", ".join(parts))
-        if example:
+        if revise:
+            earlier, faults = revise
+            out += [
+                "the checker found:",
+                "your earlier draft:",
+                k2_format.shown_draft(earlier),
+                "its faults:",
+            ]
+            out += [f"  {f['part']}: {f['reason']}" for f in faults]
+        elif example:
             out.append(
                 f"a page the school wrote for a similar activity: {example['name']}; steps: {example['steps'][:400]}"
             )
@@ -120,26 +149,28 @@ def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
     prices = (conn.execute("select value from config where key = 'llm.prices'").fetchone() or {"value": {}})[
         "value"
     ]
-    models = {
-        r["purpose"]: r["model"]
-        for r in conn.execute(
-            "select purpose, model from prompt where version = %s and purpose = any(%s)",
-            (VERSION, [DRAFT, CHECK, SPLIT]),
-        ).fetchall()
-    }
+    models = {}
+    for purpose, version in VERSIONS.items():
+        row = conn.execute(
+            "select model from prompt where purpose = %s and version = %s", (purpose, version)
+        ).fetchone()
+        models[purpose] = row["model"] if row else ""
 
     def inr(purpose: str, n: int, tin: str, tout: str) -> float:
         rate = prices.get(models.get(purpose, ""), {})
         return n * (t[tin] * rate.get("in", 0) + t[tout] * rate.get("out", 0)) / 1_000_000
 
-    cost = inr(DRAFT, pages, "est_draft_in", "est_draft_out") + inr(
+    page = inr(DRAFT, pages, "est_draft_in", "est_draft_out") + inr(
         CHECK, pages, "est_check_in", "est_check_out"
     )
-    cost += inr(SPLIT, texts, "est_split_in", "est_split_out")
+    share = t["est_revise_share"]  # the pages the checker finds a fault in: written and read once more
+    cost = page * (1 + share) + inr(SPLIT, texts, "est_split_in", "est_split_out")
     status = llm_budget.status(conn, db.tenant_slug(), DRAFT, stage)
     rate = next(iter((llm_budget.campaigns(conn) or {"-": {"inr_per_usd": 88}}).values()))["inr_per_usd"]
-    calls = 2 * math.ceil(pages / size) + math.ceil(texts / int(t["batch_materials"]))
-    worst = cost * (int(t["batch_rounds"]) + 1)  # every page asked for again in every round
+    revised = math.ceil(pages * share / size)
+    calls = 2 * math.ceil(pages / size) + 2 * revised + math.ceil(texts / int(t["batch_materials"]))
+    worst = page * (int(t["batch_rounds"]) + 2) + inr(SPLIT, texts, "est_split_in", "est_split_out")
+    # every page asked for again in every round, and every page revised
     return (
         f"forecast (token counts assumed, not measured): {pages} pages and {texts} materials texts"
         f" → about {calls} calls, about ${cost / rate:.2f}, up to ${worst / rate:.2f} if every page went round every time;"
@@ -200,78 +231,43 @@ def draft(
     rep.bad_limit = int(t["stop_after_bad_replies"])
     raw: dict[str, dict] = {}
     examples = _examples(rows)
+    judge = k2_format.judger(
+        rows,
+        k2_format.vocabulary(r["materials"] for r in rows.values()),
+        settings.config(conn, "k2.format"),
+        settings.config(conn, "k2.draft_rules"),
+    )
 
-    def call(keys: list[str]) -> list:
-        text = "\n\n".join(_block(rows[k], want[k], examples.get(rows[k]["strand"])) for k in keys)
+    def ask_maker(keys: list[str], revise: dict | None) -> list:
+        parts = {k: k2_check.parts_at_fault(revise[k][1], want[k]) if revise else want[k] for k in keys}
+        text = "\n\n".join(
+            _block(rows[k], parts[k], examples.get(rows[k]["strand"]), revise=revise[k] if revise else None)
+            for k in keys
+        )
         got = batch.items(_ask(conn, ask, stage, DRAFT, {"pages": text}, len(keys), say, rep), "pages")
-        raw.update({it["key"]: it for it in got if isinstance(it, dict) and isinstance(it.get("key"), str)})
+        for it in got:
+            if isinstance(it, dict) and isinstance(it.get("key"), str):
+                k2_check.remember(raw, it, bool(revise))
         return got
 
-    done = batch.run(want, call, size, rounds, settings.config(conn, "k2.draft_rules"))
-    rep.left, rep.stopped = dict(done.bad), done.stopped
-    verdicts: dict[str, tuple[str, str]] = {}
-    if not done.stopped:
-        verdicts = _check(conn, stage, ask, done.good, rows, size, rounds, say, rep)
+    def ask_checker(keys: list[str], drafts: dict) -> object:
+        text = "\n\n".join(_block(rows[k], [], None, drafts[k]) for k in keys)
+        return _ask(conn, ask, stage, CHECK, {"pages": text}, len(keys), say, rep)
+
+    res = k2_check.run(want, ask_maker, ask_checker, judge, size, rounds)
+    rep.left, rep.stopped = dict(res.left), res.stopped
     least = map_ledger.rules(conn)["min_confidence"]
     made = [
-        _proposal(k, parts, raw.get(k, {}), verdicts.get(k), least, bool(rep.stopped))
-        for k, parts in done.good.items()
+        k2_check.proposal(
+            k, parts, raw.get(k, {}), res.verdicts.get(k), res.history.get(k, []), least, bool(rep.stopped)
+        )
+        for k, parts in res.parts.items()
     ]
     rep.proposals = len(made)
     if write and made:
         map_ledger.record(conn, tenant, made, staff)
     say(f"{rep.proposals} pages recorded, {len(rep.left)} left for a person; {rep.stopped or 'run complete'}")
     return rep
-
-
-def _check(
-    conn, stage, ask, good: dict[str, dict], rows: dict, size: int, rounds: int, say, rep: Report
-) -> dict:
-    verdicts: dict[str, tuple[str, str]] = {}
-    pending = list(good)
-    for _ in range(rounds + 1):
-        for i in range(0, len(pending), size):
-            keys = pending[i : i + size]
-            text = "\n\n".join(_block(rows[k], [], None, good[k]) for k in keys)
-            try:
-                reply = _ask(conn, ask, stage, CHECK, {"pages": text}, len(keys), say, rep)
-            except batch.Stop as e:
-                rep.stopped = str(e)
-                return verdicts
-            got, _bad = batch.judge_verdicts(batch.items(reply, "verdicts"), keys)
-            verdicts |= got
-        pending = [k for k in pending if k not in verdicts]
-        if not pending:
-            break
-    return verdicts
-
-
-def _proposal(
-    key: str, parts: dict, raw: dict, verdict: tuple[str, str] | None, least: float, stopped: bool
-) -> Proposal:
-    conf = raw.get("confidence")
-    confidence = (
-        min(max(float(conf), 0.0), 1.0)
-        if isinstance(conf, int | float) and not isinstance(conf, bool)
-        else 0.0
-    )
-    flags = [f for f in raw.get("flags") or [] if isinstance(f, str) and f.strip()]
-    passed = bool(verdict) and verdict[0] == "agree" and confidence >= least and not flags
-    if flags:
-        reason = "flagged by the drafter: " + "; ".join(flags)
-    elif not verdict:
-        reason = "not checked: the run stopped" if stopped else "no verdict came back for it"
-    elif verdict[0] != "agree":
-        reason = verdict[1]
-    elif confidence < least:
-        reason = f"confidence {confidence:.2f} is below {least:.2f}"
-    else:
-        reason = verdict[1]
-    return Proposal(
-        kind="page_part", subject_code=key, proposal={"parts": parts, "flags": flags}, confidence=confidence,
-        proposer=f"{DRAFT} v{VERSION}", validator=f"{CHECK} v{VERSION}", problems=[], verdict=verdict[0] if verdict else "",
-        status="auto_passed" if passed else "needs_person", reason=reason,
-    )  # fmt: skip
 
 
 def materials(
@@ -337,7 +333,7 @@ def _material_proposal(key: str, good: list, bad: list) -> Proposal:
     ok = bool(good) and not bad
     return Proposal(
         kind="material", subject_code=key, proposal={"items": good}, confidence=1.0,
-        proposer=f"{SPLIT} v{VERSION}", validator="code: the school's own text", problems=bad, verdict="",
+        proposer=f"{SPLIT} v{VERSIONS[SPLIT]}", validator="code: the school's own text", problems=bad, verdict="",
         status="auto_passed" if ok else "needs_person",
         reason="every line is in the school's text (checked by code; the model gave no confidence)" if ok
         else ("no line came back" if not good and not bad else "a line is not in the school's text, or lacks a unit"),
