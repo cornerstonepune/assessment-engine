@@ -7,7 +7,6 @@ import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { loadFortnight10, materialsFor, shoot, tapsAreBig, timetableSwitch } from "./educator-screens";
 import { SECTION, k2Class } from "./k2-rows";
-import { TEST_STAFF } from "./global-setup";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
 const TUESDAY = "2026-12-01"; // Fortnight 10, week B: tulips today, the dustbin tomorrow, beads on Thursday
