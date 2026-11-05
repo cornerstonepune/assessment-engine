@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${serif.variable} h-full`}>
+    <html lang="en" data-scheme="light" className={`${serif.variable} h-full`}>
       <body className="min-h-full">{children}</body>
     </html>
   );

@@ -696,6 +696,24 @@
       }
     },
     {
+      "key": "curriculum.screens_enabled",
+      "description": "Whether staff see the curriculum browser, the fill view with its walk-through and the offered-skills queue (M1-13). Off until Nimish turns it on; while it is off every address of these screens is not found.",
+      "value": false,
+      "seed_once": true
+    },
+    {
+      "key": "curriculum.fill_green",
+      "description": "The share of a section's page parts and skills that must be filled for the curriculum browser to show it green (1 = every one).",
+      "value": 1,
+      "seed_once": true
+    },
+    {
+      "key": "curriculum.fill_amber",
+      "description": "The share filled from which the curriculum browser shows a section amber rather than red.",
+      "value": 0.5,
+      "seed_once": true
+    },
+    {
       "key": "voice.recording_enabled",
       "description": "Whether the K2 educator may record a spoken note (and hear it back), on top of voice.screens_enabled. Off until Sarvam confirms 'No retention' in writing (D-065); with it off she uses the form, and no recording is kept or sent anywhere. A missing row is off.",
       "value": false,

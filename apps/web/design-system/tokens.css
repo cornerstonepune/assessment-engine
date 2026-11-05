@@ -51,6 +51,12 @@
   --chip-done-fg: var(--brand-olive-deep); --chip-done-bg: var(--brand-olive-tint); --chip-done-bd: var(--brand-olive); /* icon: tick in circle */
   --chip-late-fg: var(--brand-clay-700); --chip-late-bg: var(--brand-clay-100); --chip-late-bd: var(--brand-clay-500); /* icon: hourglass; work only, never a child */
 
+  /* ---- D-075 states: text on fill. done / needs you soon / late (work only, never a child) / coming up ---- */
+  --state-done-fg: var(--brand-olive); --state-done-bg: var(--brand-olive-tint);
+  --state-soon-fg: var(--brand-bamboo-deep); --state-soon-bg: #f6e7c8;
+  --state-late-fg: var(--brand-clay-700); --state-late-bg: var(--brand-clay-100);
+  --state-coming-fg: var(--brand-monsoon-deep); --state-coming-bg: #e8eef1;
+
   /* ---- Where a piece of text came from (round 24 px badge, icon only, word in the legend) ---- */
   --origin-school-fg: var(--brand-olive-deep); --origin-school-bg: var(--brand-olive-tint); /* icon: book-open */
   --origin-drafted-fg: var(--brand-bamboo-deep); --origin-drafted-bg: var(--brand-bamboo-lt); /* icon: sparkles */

@@ -1,0 +1,84 @@
+// Placeholder rows for the curriculum screens (task M1-13): three sections of the test's own, each activity numbered by
+// the test, and the fill each one has. No name of a child or of staff; the signed-in tester is the only member of staff.
+// Written as the owner; a second run clears what the first wrote and writes it again.
+import type { Sql } from "postgres";
+
+export const RED = "M113 Red";
+export const AMBER = "M113 Amber";
+export const GREEN = "M113 Green";
+export const code = (n: number) => `ACT-K2-M113-${String(n).padStart(2, "0")}`;
+export const STEPS = ["Sort the cards by colour", "Count the red cards"];
+const STEPS_TEXT = STEPS.map((s) => `• ${s}`).join("\n");
+export const SLIPS = [{ keyword: "Counts twice", spot: "points at the same card two times" }];
+const THINKING_TEXT = ["Counting is touching each thing once", ...SLIPS.map((s) => `• ${s.keyword}: ${s.spot}`)].join("\n");
+
+const FULL = {
+  objective: "Counts up to ten", materials: "Cards", steps: STEPS_TEXT, thinking: THINKING_TEXT,
+  level_0: "Needs help", level_1: "Counts some", level_2: "Counts to ten", level_3: "Counts to twenty",
+};
+
+async function activity(sql: Sql, t: string, n: number, strand: string, parts: Partial<typeof FULL>, skills: string[]) {
+  const c = code(n);
+  await sql`
+    insert into activity (tenant_id, code, band, strand, name, sheet_no, objective, materials, steps, thinking, level_0, level_1, level_2, level_3)
+    values (${t}, ${c}, 'K2', ${strand}, ${`Placeholder activity ${n}`}, '', ${parts.objective ?? ""}, ${parts.materials ?? ""}, ${parts.steps ?? ""},
+            ${parts.thinking ?? ""}, ${parts.level_0 ?? ""}, ${parts.level_1 ?? ""}, ${parts.level_2 ?? ""}, ${parts.level_3 ?? ""})`;
+  for (const s of skills) await sql`insert into activity_skill (tenant_id, activity_code, skill_code) values (${t}, ${c}, ${s}) on conflict do nothing`;
+  return c;
+}
+
+const mark = (sql: Sql, t: string, c: string, part: string, source: string, check: boolean) =>
+  sql`insert into activity_part_source (tenant_id, activity_code, part, source, check_me) values (${t}, ${c}, ${part}, ${source}, ${check})`;
+
+/** What the fixtures hold, for the specs to compare the screens with. */
+export const FILLED = { [RED]: 20, [AMBER]: 9, [GREEN]: 18 } as const;
+export const TOTAL = { [RED]: 13, [AMBER]: 2, [GREEN]: 2 } as const;
+
+export async function curriculumRows(sql: Sql): Promise<{ skills: string[] }> {
+  const [{ id: t }] = await sql<{ id: string }[]>`select id from tenant order by created_at limit 1`;
+  const skills = (await sql<{ code: string }[]>`select code from registry_skill where tenant_id = ${t} order by code limit 4`).map((r) => r.code);
+  await sql`delete from curriculum_proposal where subject_code like 'ACT-K2-M113-%' and machine = 'm1-13 test'`.catch(() => undefined);
+  await sql`delete from activity where tenant_id = ${t} and code like 'ACT-K2-M113-%'`;
+  // red: 13 activities, 20 of 117 slots filled — the first full with a skill, the second drafted in three parts, the third a person's objective, the fifth materials only
+  await activity(sql, t, 1, RED, FULL, [skills[0]]);
+  const a2 = await activity(sql, t, 2, RED, FULL, [skills[0]]);
+  await activity(sql, t, 3, RED, { objective: "Counts to five" }, []);
+  await activity(sql, t, 4, RED, {}, []);
+  await activity(sql, t, 5, RED, { materials: "Beads" }, []);
+  for (let n = 6; n <= 13; n++) await activity(sql, t, n, RED, {}, []);
+  await sql`update activity set steps_list = ${sql.json(STEPS)}, thinking_doc = ${sql.json({ idea: "Counting is touching each thing once", slips: SLIPS })} where tenant_id = ${t} and code = ${a2}`;
+  await mark(sql, t, a2, "steps", "drafted", true);
+  await mark(sql, t, a2, "thinking", "drafted", true);
+  await mark(sql, t, a2, "level_1", "drafted", false);
+  await mark(sql, t, a2, "objective", "school", false);
+  await mark(sql, t, code(3), "objective", "person", false);
+  // amber: one full, one empty — half. green: two full.
+  await activity(sql, t, 14, AMBER, FULL, [skills[0]]);
+  await activity(sql, t, 15, AMBER, {}, []);
+  await activity(sql, t, 16, GREEN, FULL, [skills[0]]);
+  await activity(sql, t, 17, GREEN, FULL, [skills[1]]);
+  return { skills };
+}
+
+/** Two skills offered for activity 3, which already has one skill linked by the school. */
+export async function offers(sql: Sql, skills: string[]): Promise<void> {
+  const [{ id: t }] = await sql<{ id: string }[]>`select id from tenant order by created_at limit 1`;
+  await sql`delete from activity_skill where tenant_id = ${t} and activity_code = ${code(3)}`;
+  await sql`insert into activity_skill (tenant_id, activity_code, skill_code, source) values (${t}, ${code(3)}, ${skills[0]}, 'person')`;
+  const run = crypto.randomUUID();
+  for (const [skill, also, reason] of [[skills[1], skills[0], "The nearest examples did not carry it."], [skills[2], "", "Counting objects needs it too."]]) {
+    await sql`
+      insert into curriculum_proposal (tenant_id, run_id, kind, subject_code, proposal, confidence, status, reason, machine)
+      values (${t}, ${run}, 'skill_offer', ${code(3)}, ${sql.json({ skills: [skill], with: also ? [also] : [] })}, 0.8, 'needs_person', ${reason}, 'm1-13 test')`;
+  }
+}
+
+export async function clearOffers(sql: Sql): Promise<void> {
+  await sql`delete from curriculum_proposal where subject_code like 'ACT-K2-M113-%'`.catch(() => undefined);
+}
+
+export async function screensSwitch(sql: Sql, on: boolean) {
+  await sql`delete from config where key = 'curriculum.screens_enabled'`;
+  await sql`insert into config (tenant_id, key, value, description)
+    select id, 'curriculum.screens_enabled', ${on ? sql`'true'::jsonb` : sql`'false'::jsonb`}, 'm1-13 test' from tenant`;
+}
