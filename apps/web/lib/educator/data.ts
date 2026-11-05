@@ -32,22 +32,21 @@ const DAYS: Record<Span, number> = { day: 0, week: 6, fortnight: 13 };
 const until = (from: string, days: number) => new Date(Date.parse(`${from}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 
 /** Her class's list from `from` for a day, a week or a fortnight (M1-10's /materials/build: the list for that range,
- * refreshed from the plan, never a second one), each day its own group. Building writes, so the staff preview, which
- * changes nothing, is refused it: then there is no list to show (null), and the page says why. */
+ * refreshed from the plan, never a second one), each day its own group. The staff preview is answered the list worked
+ * out and not kept (D-076), so its answer is used as it comes, never read back by id. Null when the list is not hers. */
 export async function materialsOf(me: Pick<Session, "email">, class_id: string, from: string, span: Span): Promise<MaterialsList | null> {
-  const res = await engineSend("/materials/build", { actor: me.email, class_id, period: span, from, to: until(from, DAYS[span]) });
+  const res = await engineSend("/materials/build", { actor: me.email, class_id, period: span, from, to: until(from, DAYS[span]), group_by: "day" });
   if (res.status === 403) return null;
   if (!res.ok) throw new EngineDown(`The engine refused that (${res.status}).`);
-  const { list_id } = (await res.json()) as { list_id: string };
-  return read<MaterialsList, "/materials/read">("/materials/read", { actor: me.email, list_id, group_by: "day" });
+  return (await res.json()) as MaterialsList;
 }
 
 /** The catalogue she adds from: a line is always a catalogue item, never free text (D-071). */
 export const catalogueOf = async (me: Pick<Session, "email">) =>
   (await read<{ items: CatalogueItem[] }, "/materials/catalogue/list">("/materials/catalogue/list", { actor: me.email })).items;
 
-/** The school's list for a month (M1-16's /materials/school/build then /read), for the coordinator; null when the
- * person may not build it (not the coordinator, or the preview), and the page says so. */
+/** The school's list for a month (M1-16's /materials/school/build), for the coordinator, and for the staff preview
+ * worked out and not kept; null when the person may not see it, and the page says so. */
 export async function schoolListOf(me: Pick<Session, "email">, from: string, to: string): Promise<SchoolList | null> {
   const res = await engineSend("/materials/school/build", { actor: me.email, from, to });
   if (res.status === 403) return null;

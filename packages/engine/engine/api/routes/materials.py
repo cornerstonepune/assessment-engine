@@ -2,12 +2,14 @@
 reminding are `w2_print/materials_*`. The site calls with the engine's key and her email as `actor`, whose staff id the
 engine finds (`public.staff_of_email`); she may touch only a class she holds (`educator.timetable_roles`). Every route
 refuses while `educator.timetable_enabled` is off, except to the staff preview (`w2_print/educator_gate.py`, D-076),
-which may look and change nothing: a list she holds a class for is still hers alone, and no catalogue item is proposed."""
+which may look and change nothing: it is shown a class's list worked out and not kept, a list she holds a class for is
+still hers alone to change, and no catalogue item is proposed."""
 
 import datetime as dt
 from typing import Literal
 from uuid import UUID
 
+import psycopg
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
@@ -32,6 +34,7 @@ class Build(Who):
     period: GroupBy
     from_: dt.date = Field(alias="from")
     to: dt.date
+    group_by: GroupBy | None = None
 
 
 class Read(Who):
@@ -86,6 +89,17 @@ def staff_of(conn, body: Who, reads: bool = False) -> UUID:
     return sid
 
 
+def unsaved(conn, preview: bool, work):
+    """`work()`'s answer. For the staff preview, which changes nothing, the work is done inside a savepoint that is then
+    rolled back: the list is worked out exactly as it would be built, and nothing of it is kept."""
+    if not preview:
+        return work()
+    with conn.transaction():
+        out = work()
+        raise psycopg.Rollback()
+    return out
+
+
 def holds(conn, staff: UUID, class_id: UUID) -> None:
     if not ml.may_edit(conn, staff, class_id, rem.school_today(conn)):
         raise HTTPException(status_code=403, detail="You do not hold this class.")
@@ -118,14 +132,25 @@ def _mine_line(conn, body: Who, line_id: UUID) -> tuple[UUID, UUID]:
 
 @keyed.post("/build")
 def build(body: Build, conn=Depends(get_conn, scope="function")):
-    staff = staff_of(conn, body)
-    holds(conn, staff, body.class_id)
-    try:
-        lid = ml.build(conn, body.class_id, body.period, body.from_, body.to)
-    except ValueError as no:
-        raise HTTPException(status_code=422, detail=str(no)) from no
-    rem.sync(conn, lid, rem.school_today(conn))
-    return ml.read(conn, lid)
+    """Make or refresh the class's list and answer it. The staff preview may ask for any class with a timetable in
+    force on the first day asked: it is answered the list as it would be built, and nothing is kept."""
+    staff = staff_of(conn, body, reads=True)
+    preview = educator_gate.previewing(conn, staff)
+    today = rem.school_today(conn)
+    if not preview:
+        holds(conn, staff, body.class_id)
+    elif str(body.class_id) not in {c["id"] for c in educator_gate.timetabled_classes(conn, body.from_)}:
+        raise HTTPException(status_code=403, detail="You do not hold this class.")
+
+    def work():
+        try:
+            lid = ml.build(conn, body.class_id, body.period, body.from_, body.to)
+        except ValueError as no:
+            raise HTTPException(status_code=422, detail=str(no)) from no
+        rem.sync(conn, lid, today)
+        return ml.read(conn, lid, body.group_by)
+
+    return unsaved(conn, preview, work)
 
 
 @keyed.post("/read")

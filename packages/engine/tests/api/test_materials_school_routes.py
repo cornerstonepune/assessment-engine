@@ -77,6 +77,9 @@ def _jpeg() -> bytes:
 def test_every_route_refuses_while_the_screens_are_off(engine):
     client, conn, s = engine
     conn.execute("update config set value = 'false' where key = 'educator.timetable_enabled'")
+    # with no staff preview (D-076): a previewing coordinator is answered the list worked out and not kept, which
+    # tests/test_educator_gate.py holds; here the switch alone decides
+    conn.execute("update config set value = '[]' where key = 'educator.preview_roles'")
     body = {"actor": _coordinator(conn, s), "from": str(LO), "to": str(HI)}
     refused = client.post("/materials/school/build", headers=H, json=body)
     assert (refused.status_code, refused.json()["detail"]) == (403, "The timetable is not switched on.")

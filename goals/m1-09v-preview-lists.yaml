@@ -1,0 +1,24 @@
+name: m1-09v-preview-lists
+goal: >
+  While the educator switch is off, the staff preview is shown real materials lists: a previewer asking for a class's
+  list (any class with a timetable in force on the first day asked) or the school's list for a month is answered it
+  worked out exactly as it would be built, and nothing is kept: no list, no line, no reminder, no school list. The
+  class list is then shown to look at only (no quantity, remove or add). Anyone else is refused as before.
+# Written 2026-11-05: Nimish wants a detailed walkthrough in the preview, and an empty screen showed nothing
+# (orchestrator, D-076). No migration.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_educator_gate.py::test_a_previewer_sees_a_class_and_the_schools_list_worked_out_and_nothing_is_saved"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_educator_gate.py::test_the_educator_still_cannot_build_a_list_while_the_switch_is_off"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-materials.spec.ts::while switched off a previewer sees her class's real list and the school's, to look at only, and nothing is kept"
+manual: []
+scenarios: []
+criteria:
+  - name: the gate and the materials routes
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_educator_gate.py tests/api/test_materials_routes.py tests/api/test_materials_school_routes.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
