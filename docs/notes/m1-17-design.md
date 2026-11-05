@@ -39,9 +39,10 @@ Gaps, none needing a table:
   engine stores `reached_level` (`voice.outcome_moves_level`). Nimish's model has her give the rubric level itself. Simplest
   reading, recorded: **`reached_level` is the rubric level**; nothing else changes. If the form should take the level
   directly, that is a form change writing `reached_level` itself, not a schema change. *Unverified* against D-0xx.
-- **`activity_skill` points at `skill` (maths micro-steps) in its FK, while evidence names `registry_skill`** (the
-  244 broad skills, per `20261201090000_the_rung_folded_into_the_skill.sql`). I have not confirmed that K2 activities'
-  rows resolve to registry codes on live. First task of the build: a test and a count on a copy of live.
+- **`activity_skill` resolves to the broad skills, as evidence does.** Its `skill_code` has a foreign key to `registry_skill
+  (tenant_id, skill_code)`, not to the maths micro-steps. Checked on live by the orchestrator, 5 Nov: 953 rows for 590 K2
+  activities and 153 distinct skills, all `source = person` (the school's own links), none machine-made. So every K2 link
+  resolves to a registry skill by the key itself. My first reading of the migrations was wrong; no count is needed.
 
 ## 2. Storage of progress: qualitative and quantitative together, K2 → later grades
 
@@ -106,12 +107,12 @@ Colour rules that bite here:
 regeneration (`bin/engine contract`). 3. Child page. 4. Class picture. Each with a goal file (`engine goal`), the browser
 test, taps counted, shots at 1280 and 390 px, token check. No model call anywhere in this task.
 
-## Open questions for the orchestrator (one message)
+## Open questions for the orchestrator (answered 5 Nov: 1 secure only; 2 the screens map states to D-075 chips, the seed is left alone; 3 not needed, see section 1; 4 build as listed)
 
 1. Does `secure_to_recheck` count as "done" for ready-next? (proposed: no)
 2. Should the form take the rubric level directly? (proposed: yes later; not in this task)
 3. The seeded red on child states: who changes it?
-4. K2 `activity_skill` rows resolve to registry codes on live? (a count on a copy of live)
+4. (answered 5 Nov: yes; see section 1)
 
 ## Verified
 
