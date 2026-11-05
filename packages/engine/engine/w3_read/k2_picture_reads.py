@@ -39,10 +39,11 @@ where e.class_id = %(class)s and e.from_date <= %(day)s and (e.to_date is null o
 
 
 GROWTH_SQL = """
-select v.skill_code, (o.observed_at at time zone %(zone)s)::date as day, o.reached_level
+select v.skill_code, rs.name as skill_name, (o.observed_at at time zone %(zone)s)::date as day, o.reached_level
 from enrolment e
 join evidence_event v on v.child_id = e.child_id and v.kind = 'observed' and v.confirmed_by is not null
 join activity_observation o on o.id = v.observation_id and o.entry_mode = 'individual' and o.reached_level is not null
+join registry_skill rs on rs.tenant_id = v.tenant_id and rs.code = v.skill_code
 where e.class_id = %(class)s and e.roll_no = %(roll)s and e.from_date <= %(day)s
   and (e.to_date is null or e.to_date >= %(day)s)
   and not exists (select 1 from activity_observation c where c.supersedes = o.id)
@@ -164,6 +165,8 @@ def child_page(conn: db.Conn, email: str, class_id: str, roll_no: str) -> dict:
     }
     cells.sort(key=lambda c: (c["last_seen"], c["skill_code"]), reverse=True)
     said = {i: _sentence(n) for i, n in notes.items()}
+    # before the name check: if that check's read fails it leaves the transaction aborted, and these reads would fail with it
+    moved = _growth_and_next(conn, where, roll_no, cells, names_by_code)
     names: set[str] | None = None
     if any(said.values()):
         try:
@@ -186,7 +189,7 @@ def child_page(conn: db.Conn, email: str, class_id: str, roll_no: str) -> dict:
         })  # fmt: skip
     return {
         "class": f"{where['grade_code']} {where['section']}", "roll_no": roll_no, "skills": skills,
-        **_growth_and_next(conn, where, roll_no, cells, names_by_code),
+        **moved,
     }  # fmt: skip
 
 
@@ -198,11 +201,15 @@ def _growth_and_next(
     if rule is None:  # the seed row is loaded on every deploy; no state or number is kept in code (rule 1)
         raise RuntimeError("config k2.child_page is missing: run `engine load --settings`")
     day = _today(where)
+    names = dict(names)  # the caller's cell names, plus the names of growth and link skills
     by_skill: dict[str, list] = {}
     for r in conn.execute(
         GROWTH_SQL, {"zone": where["zone"], "class": where["class"], "roll": roll_no, "day": day}
     ):
         by_skill.setdefault(r["skill_code"], []).append((r["day"], r["reached_level"]))
+        names[r["skill_code"]] = r[
+            "skill_name"
+        ]  # growth carries across grades: a skill may have no cell here
     links = conn.execute(
         "select l.skill_code as skill, l.before_code as before, l.strength, a.name as skill_name, b.name as before_name"
         " from skill_link_confirmed l join school_class c on c.tenant_id = l.tenant_id"
@@ -211,7 +218,7 @@ def _growth_and_next(
         (where["class"],),
     ).fetchall()
     for link in links:
-        names = {**names, link["skill"]: link["skill_name"], link["before"]: link["before_name"]}
+        names[link["skill"]], names[link["before"]] = link["skill_name"], link["before_name"]
 
     def skill(code: str) -> dict:
         return {"code": code, "name": names.get(code, code)}
