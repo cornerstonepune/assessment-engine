@@ -41,6 +41,12 @@ test("no session: the sheet of drafted pages, which holds the school's lesson te
   expect(await res.text()).not.toContain("objective");
 });
 
+test("no session: the two checkers' sheet, which holds the school's lesson text, is turned away", async ({ request }) => {
+  const res = await request.get("/api/checkers-sheet", { maxRedirects: 0 });
+  expect(res.status()).toBe(401);
+  expect(await res.text()).not.toContain("objective");
+});
+
 test("a wrong password is refused and you stay on the sign-in page", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel("School email").fill(`nobody-${randomUUID().slice(0, 8)}@example.com`);

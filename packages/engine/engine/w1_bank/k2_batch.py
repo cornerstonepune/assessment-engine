@@ -170,8 +170,10 @@ def run(
     size: int,
     rounds: int,
     rules: dict | None = None,
+    judge: Callable[[object, dict[str, list[str]]], tuple[dict[str, dict], dict[str, str]]] | None = None,
 ) -> Done:
-    """Ask for every page in batches of `size`; then up to `rounds` more times for only the pages still bad or missing."""
+    """Ask for every page in batches of `size`; then up to `rounds` more times for only the pages still bad or missing.
+    `judge` reads a reply (default: the parts as text, with `rules`); the drafted pages' own judge reads lists."""
     done = Done()
     pending = list(want)
     for attempt in range(rounds + 1):
@@ -188,7 +190,7 @@ def run(
                         done.bad.setdefault(k, "not asked: the run stopped")
                 return done
             done.calls += 1
-            good, bad = judge_pages(reply, {k: want[k] for k in keys}, rules)
+            good, bad = (judge or (lambda r, w: judge_pages(r, w, rules)))(reply, {k: want[k] for k in keys})
             done.good |= good
             done.bad = {k: v for k, v in done.bad.items() if k not in good} | bad
         pending = [k for k in pending if k not in done.good]

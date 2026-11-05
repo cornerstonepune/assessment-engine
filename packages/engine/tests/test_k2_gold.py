@@ -44,11 +44,8 @@ def pages(conn):
     run(
         conn,
         Scripted(
-            {
-                ("k2_page_draft", c): [drafted(**{**FULL, "objective": "x"})]
-                for c in ("KX-1", "KX-2", "KX-3", "KX-4")
-            }
-            | {("k2_page_validate", c): [AGREE] for c in ("KX-1", "KX-2", "KX-3", "KX-4")}
+            {("k2_page_draft", c): [drafted(objective="x")] for c in ("KX-1", "KX-2", "KX-3", "KX-4")}
+            | {("k2_page_check", c): [AGREE] for c in ("KX-1", "KX-2", "KX-3", "KX-4")}
         ),
     )
     map_ledger.apply(conn, conn.t, conn.staff, True)
@@ -101,8 +98,8 @@ def test_a_draft_nobody_has_applied_yet_is_on_the_sheet_with_the_schools_words_b
         conn,
         Scripted(
             {
-                ("k2_page_draft", "KX-1"): [drafted(**{**FULL, "objective": "x"})],
-                ("k2_page_validate", "KX-1"): [AGREE],
+                ("k2_page_draft", "KX-1"): [drafted(objective="x")],
+                ("k2_page_check", "KX-1"): [AGREE],
             }
         ),
     )
@@ -117,7 +114,7 @@ def test_a_draft_that_was_turned_down_is_not_on_the_sheet(conn):
     _act(conn, "KX-1", "A", strand="Block Room", materials="m")
     run(
         conn,
-        Scripted({("k2_page_draft", "KX-1"): [drafted(**FULL)], ("k2_page_validate", "KX-1"): [AGREE]}),
+        Scripted({("k2_page_draft", "KX-1"): [drafted()], ("k2_page_check", "KX-1"): [AGREE]}),
     )
     assert gold.sheet(conn, conn.t, base.BAND, 5)
     (p,) = map_ledger.standing(conn, conn.t)
@@ -136,7 +133,7 @@ def test_the_command_writes_to_the_file_it_is_told_and_prints_no_text_of_the_she
     from engine.cli import app
 
     _act(conn, "KX-1", "A", strand="Block Room", materials="two secret boxes")
-    run(conn, Scripted({("k2_page_draft", "KX-1"): [drafted(**FULL)], ("k2_page_validate", "KX-1"): [AGREE]}))
+    run(conn, Scripted({("k2_page_draft", "KX-1"): [drafted()], ("k2_page_check", "KX-1"): [AGREE]}))
     monkeypatch.setattr(gold, "config", lambda: {"band": base.BAND})
 
     class Shared:

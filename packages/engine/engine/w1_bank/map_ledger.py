@@ -12,8 +12,10 @@ import json
 import uuid
 
 from psycopg.rows import DictRow
+from psycopg.types.json import Jsonb
 
 from engine.core import db
+from engine.w1_bank.k2_format import LISTS, render
 from engine.w1_bank.k2_gaps import column
 from engine.w1_bank.map_agents import Proposal
 from engine.w1_bank.map_check import LEVELS
@@ -69,10 +71,26 @@ def standing(conn: db.Conn, tenant: db.Id, status: str | None = None) -> list[Di
 def proposed(conn: db.Conn, tenant: db.Id) -> set[tuple[str, str, str]]:
     """{(kind, code, skill or '')} of every proposal not turned down: a second run does not propose them again."""
     return {
-        (r["kind"], r["subject_code"], r["proposal"]["skills"][0] if r["kind"] == "lo_skill" else "")
+        (
+            r["kind"],
+            r["subject_code"],
+            r["proposal"]["skills"][0] if r["kind"] in ("lo_skill", "skill_offer") else "",
+        )
         for r in standing(conn, tenant)
         if r["now"] != "rejected"
     }
+
+
+def asked(conn: db.Conn, tenant: db.Id) -> frozenset[tuple[str, str]]:
+    """The (activity, skill) pairs a person has been asked about or has refused: every skill ever offered (whatever became of
+    the offer) and every skill of a skill proposal a person turned down. A second run does not propose them again."""
+    rows = conn.execute(
+        "select p.subject_code, p.proposal from curriculum_proposal p where p.tenant_id = %s and p.about is null"
+        " and (p.kind = 'skill_offer' or (p.kind = 'skill' and exists (select 1 from curriculum_proposal d"
+        " where d.about = p.id and d.status = 'rejected')))",
+        (tenant,),
+    ).fetchall()
+    return frozenset((r["subject_code"], str(s)) for r in rows for s in r["proposal"].get("skills") or [])
 
 
 def stopped(conn: db.Conn, tenant: db.Id, at_most: float, least: float) -> frozenset[str]:
@@ -117,10 +135,10 @@ def changed_by(conn: db.Conn, who: str) -> None:
     conn.execute("select set_config('app.changed_by', %s, true)", (who,))
 
 
-def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
+def _link(conn: db.Conn, tenant: db.Id, p: DictRow, only: set[str] | None = None) -> str:
     """The one change a proposal makes, made; what it was, in words."""
     body, code = p["proposal"], p["subject_code"]
-    if p["kind"] == "skill":
+    if p["kind"] in ("skill", "skill_offer"):
         for sk in body["skills"]:
             conn.execute(
                 "insert into activity_skill (tenant_id, activity_code, skill_code, source, proposal_id)"
@@ -145,7 +163,7 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
         )
         return f"{code} → {lo}"
     if p["kind"] == "page_part":
-        return _page_part(conn, tenant, p)
+        return _page_part(conn, tenant, p, only)
     if p["kind"] == "material":
         return _material(conn, tenant, p)
     for f, text in sorted(body["levels"].items()):
@@ -158,17 +176,28 @@ def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
     return f"{code} levels {', '.join(sorted(body['levels']))}"
 
 
-def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
-    """A drafted page's parts written where they are still empty, each marked drafted and naming the proposal."""
+def _page_part(conn: db.Conn, tenant: db.Id, p: DictRow, only: set[str] | None = None) -> str:
+    """A drafted page's parts written where they are still empty, or where a machine drafted them earlier (never the
+    school's words, never a person's): each marked drafted and naming the proposal. A steps or thinking part is written
+    as its list too."""
     # a draft is unreviewed until a person has approved it, whatever the machine's verdict: its status stays in the data
     # for the calibration table, but nothing counts as passed on a model's word alone (Nimish's staff, 2026-11-04)
     code, wrote, doubt = p["subject_code"], [], p["now"] != "approved"
-    for part, text in sorted(p["proposal"]["parts"].items()):
-        col = column(part)  # a column name never comes from a reply
+    for part, value in sorted(p["proposal"]["parts"].items()):
+        if only is not None and part not in only:
+            continue
+        col, text, listed = column(part), render(part, value), LISTS.get(part)
         hit = conn.execute(
-            f"update activity set {col} = %s where tenant_id = %s and code = %s and btrim({col}) = ''"  # noqa: S608
-            " returning code",
-            (text, tenant, code),
+            f"update activity a set {col} = %s{f', {listed} = %s' if listed else ''} where a.tenant_id = %s and a.code = %s"  # noqa: S608
+            f" and (btrim(a.{col}) = '' or exists (select 1 from activity_part_source s where s.tenant_id = a.tenant_id"
+            " and s.activity_code = a.code and s.part = %s and s.source = 'drafted')) returning a.code",
+            (
+                text,
+                *((Jsonb(value) if not isinstance(value, str) else None,) if listed else ()),
+                tenant,
+                code,
+                part,
+            ),
         ).fetchone()
         if hit:
             conn.execute(
@@ -230,7 +259,32 @@ def _new_objective(conn: db.Conn, tenant: db.Id, activity: str, title: str) -> s
     return lo
 
 
-def apply(conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool) -> list[str]:
+WHY_SET_ASIDE = "every part of it is covered by a newer draft of this page, or by a part a person approved"
+
+
+def _winners(rows: list[DictRow]) -> dict[tuple[str, str], uuid.UUID]:
+    """For each part of each page, the draft that is written: the newest still waiting to be applied (one a person turned
+    down, or that is already applied or taken back, is not newer), unless a person has approved one, and then the newest
+    of those. A newer draft that covers fewer parts takes only the parts it covers."""
+    waiting = [
+        p
+        for p in rows
+        if p["kind"] == "page_part" and p["now"] in ("auto_passed", "needs_person", "approved")
+    ]
+    win: dict[tuple[str, str], uuid.UUID] = {}
+    for tier in (
+        ("auto_passed", "needs_person"),
+        ("approved",),
+    ):  # the second overrides the first; oldest first in each
+        for p in waiting:
+            if p["now"] in tier:
+                win |= {(p["subject_code"], part): p["id"] for part in p["proposal"]["parts"]}
+    return win
+
+
+def apply(
+    conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool, only: uuid.UUID | str | None = None
+) -> list[str]:
     """Every proposal that passed on its own or that a person approved, each made, its link naming the proposal,
     each change in the edit history as the machine's, run by that member of staff (ids, never a name); written only
     when `write`."""
@@ -240,12 +294,20 @@ def apply(conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool) -> list[str]:
     done: list[str] = []
     # a drafted page part waiting for a person is written too, tagged check_me: K2 has no empty part (D-071)
     doubtful = [p for p in standing(conn, tenant, "needs_person") if p["kind"] == "page_part"]
+    win = _winners(standing(conn, tenant))
     for p in [*standing(conn, tenant, "auto_passed"), *standing(conn, tenant, "approved"), *doubtful]:
+        if only is not None and str(p["id"]) != str(only):
+            continue
+        keep = {n for n in p["proposal"].get("parts", {}) if win.get((p["subject_code"], n)) == p["id"]}
+        if p["kind"] == "page_part" and not keep:
+            if write:  # every part of it is covered by a newer draft, or one a person approved: set aside, never written
+                _follow(conn, tenant, p["id"], "rejected", staff, WHY_SET_ASIDE, "apply")
+            continue
         if not write:
             done.append(f"{p['kind']}: {p['subject_code']} {json.dumps(p['proposal'], ensure_ascii=False)}")
             continue
         changed_by(conn, f"machine:{p['id']} staff:{staff}")
-        done.append(_link(conn, tenant, p))
+        done.append(_link(conn, tenant, p, keep if p["kind"] == "page_part" else None))
         _follow(conn, tenant, p["id"], "applied", staff, "", "apply", version["n"] if version else None)
     return done
 
@@ -270,10 +332,11 @@ def revert(conn: db.Conn, tenant: db.Id, about: db.Id, staff: db.Id | None, why:
             (tenant, p["id"]),
         )
     if p["kind"] == "page_part":
-        for part, text in sorted(p["proposal"]["parts"].items()):
-            col = column(part)
+        for part, value in sorted(p["proposal"]["parts"].items()):
+            col, text, listed = column(part), render(part, value), LISTS.get(part)
             conn.execute(
-                f"update activity set {col} = '' where tenant_id = %s and code = %s and {col} = %s"  # noqa: S608
+                f"update activity set {col} = ''{f', {listed} = null' if listed else ''}"  # noqa: S608
+                f" where tenant_id = %s and code = %s and {col} = %s"
                 " and exists (select 1 from activity_part_source s where s.tenant_id = %s and s.activity_code = %s"
                 " and s.part = %s and s.proposal_id = %s and s.source = 'drafted')",  # a person's kept words stay
                 (tenant, p["subject_code"], text, tenant, p["subject_code"], part, p["id"]),

@@ -6,8 +6,9 @@ import datetime as dt
 from typing import Any
 
 from engine.core import db, settings
+from engine.w2_print import educator_gate as gate
 
-SWITCH = "educator.timetable_enabled"
+SWITCH = gate.SWITCH
 
 
 class Refused(Exception):
@@ -17,18 +18,24 @@ class Refused(Exception):
 
 
 def enabled(conn: db.Conn) -> bool:
-    return settings.config(conn, SWITCH, False) is True
+    return gate.switched_on(conn)
 
 
 def my_classes(conn: db.Conn, staff_id: Any, day: dt.date) -> list[dict]:
+    """The classes she holds that day; while switched off, the staff preview (D-076) also gets every class whose
+    timetable is in force that day."""
     roles = list(settings.config(conn, "educator.timetable_roles", []))
-    return conn.execute(
+    held = conn.execute(
         "select distinct c.id::text as id, c.grade_code as grade, c.section, c.academic_year_id, c.campus_id"
         " from staff_role_grant g join school_class c on c.id = g.school_class_id"
         " where g.staff_id = %s and g.role_code = any(%s) and g.valid_from <= %s"
         " and (g.valid_to is null or g.valid_to >= %s) order by c.grade_code, c.section",
         (staff_id, roles, day, day),
     ).fetchall()
+    if not gate.previewing(conn, staff_id):
+        return held
+    ids = {c["id"] for c in held}
+    return held + [c for c in gate.timetabled_classes(conn, day) if c["id"] not in ids]
 
 
 def chosen(classes: list[dict], class_id: str | None) -> dict:
@@ -50,7 +57,7 @@ _ROWS = """
 select d.on_date, d.kind as day_kind, d.note, f.number, f.starts_on, f.ends_on,
   w.week,
   p.id::text as period_id, p.starts_at, p.ends_at, p.label, p.fixed, ts.kind, ts.subject_code,
-  coalesce(s.text, ts.text) as text, s.state, pe.text as line, pe.id::text as entry_id, a.id::text as activity_id, a.code, a.name
+  coalesce(s.text, ts.text) as text, ts.text as slot_text, s.state, pe.text as line, pe.id::text as entry_id, a.id::text as activity_id, a.code, a.name
 from school_day d
 left join fortnight f on f.academic_year_id = %(year)s and d.on_date between f.starts_on and f.ends_on
 left join lateral (select case when f.id is null then null when d.on_date - f.starts_on < 7 then 'A' else 'B' end as week) w on true
@@ -76,6 +83,7 @@ def _period(r: dict) -> dict:
     return {
         "period_id": r["period_id"], "starts_at": _hm(r["starts_at"]), "ends_at": _hm(r["ends_at"]),
         "label": r["label"], "fixed": r["fixed"], "kind": r["kind"], "subject": r["subject_code"],
+        "name": r["label"] if r["fixed"] else (r["slot_text"] or r["label"]),
         "text": r["text"] or "", "line": r["line"], "plan_entry_id": r["entry_id"], "state": r["state"] or "planned", "activity": act,
     }  # fmt: skip
 
@@ -105,7 +113,16 @@ def days(conn: db.Conn, klass: dict, dates: list[dt.date]) -> list[dict]:
             }  # fmt: skip
         if r["period_id"]:
             got[r["on_date"]]["periods"].append(_period(r))
+    for d in got.values():
+        _ends(d["periods"])
     return [got.get(d) or _empty_day(d) for d in dates]
+
+
+def _ends(periods: list[dict]) -> None:
+    """A period the frame gives no end (the bus) lasts until the next one starts; the day's last keeps none."""
+    for p, after in zip(periods, periods[1:]):
+        if p["ends_at"] is None:
+            p["ends_at"] = after["starts_at"]
 
 
 def _who(klass: dict, classes: list[dict]) -> dict:
@@ -127,14 +144,16 @@ def week(conn: db.Conn, klass: dict, classes: list[dict], any_day: dt.date) -> d
 
 
 def _plan_lines(conn: db.Conn, entry_id: str | None) -> list[str]:
-    """The planner lines under the same heading and fortnight as this period's line, in the planner's order."""
+    """The planner lines under the same heading and fortnight as this period's line, in the planner's order: of its own
+    week when the fortnight is listed under two months (`plan_entry.week_code`), else all of them."""
     if not entry_id:
         return []
     return [
         r["text"]
         for r in conn.execute(
             "select sib.text from plan_entry pe join plan_entry sib on sib.school_class_id = pe.school_class_id"
-            " and sib.fortnight_id = pe.fortnight_id and sib.plan_key = pe.plan_key where pe.id = %s order by sib.ord",
+            " and sib.fortnight_id = pe.fortnight_id and sib.plan_key = pe.plan_key"
+            " and sib.week_code is not distinct from pe.week_code where pe.id = %s order by sib.ord",
             (entry_id,),
         ).fetchall()
     ]

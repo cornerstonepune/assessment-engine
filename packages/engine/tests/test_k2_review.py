@@ -35,8 +35,8 @@ def page(conn):
         conn,
         Scripted(
             {
-                ("k2_page_draft", "KX-1"): [drafted(**FULL)],
-                ("k2_page_validate", "KX-1"): [{"verdict": "disagree", "why": "w"}],
+                ("k2_page_draft", "KX-1"): [drafted()],
+                ("k2_page_check", "KX-1"): [base.FAULT],
             }
         ),
     )

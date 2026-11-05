@@ -152,7 +152,7 @@
       "description": "A piece of work with its own money (M1-11, Nimish 4 Nov: up to 25 US dollars for the whole drafting run, Sonnet-class models, Haiku for simple steps). The adapter adds up what these purposes have cost (flow_run.cost_inr) and refuses a call before making it once the total reaches cap less margin; the margin covers calls in flight. inr_per_usd is the rate llm.prices was written at. The stages go in the order of `order`: one may not start until the one before it has made a call. A stage (dev_eval 4, held_out 7 dollars; draft has only the campaign's cap) is tagged on each call as flow_run.trigger 'engine:<stage>'. A call left 'running' longer than stale_minutes counts its spend as unknown and stops the campaign. Raise a cap here, by a pull request, never in code.",
       "value": {
         "m1-11": {
-          "purposes": ["curriculum_map_propose", "curriculum_map_validate", "k2_page_draft", "k2_page_validate", "k2_materials_split"],
+          "purposes": ["curriculum_map_propose", "curriculum_map_validate", "k2_page_draft", "k2_page_validate", "k2_page_check", "k2_page_check_b", "k2_materials_split"],
           "cap_usd": 25,
           "margin_usd": 2,
           "stages": {"dev_eval": 4, "held_out": 7, "draft": null},
@@ -179,11 +179,16 @@
         "batch_materials": 10,
         "batch_rounds": 2,
         "stop_after_bad_replies": 3,
-        "dev_pages": 100,
-        "est_draft_in": 1000,
-        "est_draft_out": 700,
-        "est_check_in": 1200,
-        "est_check_out": 250,
+        "dev_pages": 60,
+        "tranche_pages": 250,
+        "est_draft_in": 450,
+        "est_draft_out": 800,
+        "est_check_in": 700,
+        "est_check_out": 120,
+        "est_revise_share": 0.25,
+        "report_usd_per_page_limit": 0.02,
+        "measured_min_calls": 5,
+        "measured_min_pages": 20,
         "est_split_in": 400,
         "est_split_out": 300
       }
@@ -706,6 +711,12 @@
       "seed_once": true
     },
     {
+      "key": "educator.preview_roles",
+      "description": "The staff preview of the K2 educator's screens (D-076): a member of staff whose open grant is in one of these roles sees the timetable and materials screens while educator.timetable_enabled is still off; with no class of their own they see every class that has a timetable. Reminders still wait for the switch.",
+      "value": ["head", "coordinator"],
+      "seed_once": true
+    },
+    {
       "key": "educator.timetable_roles",
       "description": "The roles whose open grant on a class lets a person see that class's generated timetable. A campus-wide role is not here: the timetable answers for a class she holds.",
       "value": [
@@ -742,6 +753,20 @@
       "description": "The longest side, in pixels, a photographed materials note is made before a model reads it (M1-16). The picture is a plain JPEG read in memory and never stored.",
       "value": 1600,
       "seed_once": true
+    },
+    {
+      "key": "k2.checkers",
+      "description": "Other checkers shown the same first drafts as the one that drives the revision (M1-12a): each is a prompt purpose, its verdict kept in the ledger beside the driver's and labelled by its model, and never deciding whether a page is revised. Empty: only the driver checks. Used to compare a cheaper checker with the stronger one before choosing.",
+      "value": {"shadow": ["k2_page_check_b"]}
+    },
+    {
+      "key": "k2.format",
+      "description": "The shape a drafted page must have (M1-12a): at most this many steps, each at most this many words; 1 to 4 slips, each a keyword of 2 to 4 words and one short sentence on how to spot it; and the words a step may use without any materials list naming them. Read by code, which refuses a draft that breaks it before the checker is paid for.",
+      "value": {
+        "steps_max": 8, "step_words": 14, "slips_min": 1, "slips_max": 4, "keyword_words_min": 2, "keyword_words_max": 4,
+        "spot_words": 20, "idea_words": 25,
+        "always_there": ["child", "children", "educator", "educators", "floor", "room", "class", "classroom", "hand", "hands", "table", "tables", "chair", "chairs", "wall", "board", "circle", "line", "space", "mat", "mats", "group", "groups", "partner", "partners"]
+      }
     },
     {
       "key": "materials.photo_max_bytes",

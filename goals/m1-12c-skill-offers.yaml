@@ -1,0 +1,40 @@
+name: m1-12c-skill-offers
+goal: >
+  A skill mapping passes on its own only when every skill in it was shown to the proposer in an example and its
+  confidence reaches a bar of its own; every skill that was not shown is offered to a person, who adds it or not; the
+  second model that read each mapping proposal is switched off by a setting. Staff can list what waits and answer it.
+# Written 2026-11-05 (task M1-12c). W1, gate N1. The words are the orchestrator's briefs of 2026-11-04 and 2026-11-05,
+# relaying Nimish and the replay's numbers; the originals are not in this repository. Nothing here has made a model call.
+says:
+  - words: "Reading A: yes. One proposal for the shown skills, one skill_offer per not-shown skill"
+    proved_by: "packages/engine/tests/test_map_offers.py::test_a_skill_not_shown_is_offered_on_its_own_and_the_shown_ones_stay_one_proposal"
+  - words: "one skill_offer per not-shown skill"
+    proved_by: "packages/engine/tests/test_map_offers.py::test_each_skill_not_shown_is_its_own_offer_in_the_order_proposed"
+  - words: "auto-pass only if every skill came from the examples and confidence is at least X; anything else offered as add-this-skill"
+    proved_by: "packages/engine/tests/test_map_offers.py::test_a_run_offers_what_the_examples_did_not_show_and_never_asks_the_checker_when_it_is_off"
+  - words: "X is a settings row"
+    proved_by: "packages/engine/tests/test_map_offers.py::test_the_confidence_bar_for_a_skill_is_its_own_row_when_the_rule_is_on"
+  - words: "the rule can be turned off (a switch row)"
+    proved_by: "packages/engine/tests/test_map_offers.py::test_with_the_rule_off_a_run_is_as_it_was_one_proposal_decided_by_the_checker"
+  - words: "Drop the Haiku map-checker from the mapping stage (no signal in the replay). Keep it in code as a setting, off."
+    proved_by: "packages/engine/tests/test_map_offers.py::test_the_validator_decides_only_while_it_is_on"
+  - words: "the 'offer' proposals queue for a person"
+    proved_by: "packages/engine/tests/test_skill_offers.py::test_the_offers_waiting_name_the_activity_the_skill_and_what_was_proposed_with_it"
+  - words: "a 'no' is not asked again; a yes adds the link"
+    proved_by: "packages/engine/tests/test_skill_offers.py::test_saying_yes_adds_that_one_skill_as_the_machines_link_naming_the_offer_and_nothing_else"
+  - words: "a 'no' is not asked again"
+    proved_by: "packages/engine/tests/test_skill_offers.py::test_saying_no_adds_nothing_and_the_offer_is_closed_with_the_persons_id"
+  - words: "send me the exact data shape each screen reads (the offered-skills screen)"
+    proved_by: "packages/engine/tests/api/test_offers_routes.py::test_the_list_is_what_the_screen_reads"
+  - words: "staff can answer the offers"
+    proved_by: "packages/engine/tests/api/test_offers_routes.py::test_yes_adds_the_skill_and_the_list_that_is_left_comes_back"
+manual:
+  - "Not run live. Before the held-out mapping (`map_held_out`), the migration (adds the kind skill_offer) must be applied and the settings loaded. The bar X = 0.70 was chosen on the dev run of 2026-11-04 and is not to be changed after the held-out run."
+  - "The held-out run's pass bar, written before the run: precision of the passed skills at least 0.90 with the lower end of its interval at least 0.80 (docs/notes/m1-11i-skill-rule-design.md). The share passed will be near a quarter to a third, not the 0.60 bar of eval.curriculum_map.auto_passed, which stays as an unmet target."
+criteria:
+  - name: the rule, the offers, their list and answer, and the routes
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_offers.py tests/test_skill_offers.py tests/api/test_offers_routes.py tests/test_map_ledger.py tests/test_map_check.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

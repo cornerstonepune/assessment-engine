@@ -4,7 +4,7 @@
 # and their order are the engine's (config row llm.campaigns): a stage cannot start until the one before it has made an
 # answered call (whether it met its bars is a person's reading). Dispatch ONE run at a time and wait for it: GitHub keeps
 # one waiting run, so a third dispatch cancels the second. The person is whoever dispatched or re-ran it. Dispatching a run that spends IS the go for that spend;
-# `key`, `forecast` and `review` spend nothing. Order: key, forecast, map_dev, draft_dev, map_held_out, draft_all,
+# `key`, `forecast` and `review` spend nothing. Order: key, forecast, map_dev, draft_dev, map_held_out, draft_tranche, draft_all,
 # materials_all. Needs the secrets LIGHTSAIL_SSH_KEY and LIGHTSAIL_HOST (the ones engine eval uses).
 name: curriculum run
 
@@ -12,9 +12,9 @@ on:
   workflow_dispatch:
     inputs:
       run:
-        description: "key (is the model key on the server), forecast (what a run would cost, no call), map_probe (one call, about INR 1), map_dev, draft_dev, map_held_out, draft_all, materials_all (each spends), review (what waits for a person)"
+        description: "key (is the model key on the server), load_settings (load the reviewed settings, prompts and thresholds from the deployed repo), forecast (what a run would cost, no call), map_probe (one call, about INR 1), map_dev, draft_dev, map_held_out, draft_all, materials_all (each spends), review (what waits for a person)"
         type: choice
-        options: [key, forecast, map_probe, map_dev, map_replay, draft_dev, map_held_out, draft_all, materials_all, review]
+        options: [key, load_settings, forecast, map_probe, map_dev, map_replay, checkers, draft_dev, map_held_out, draft_tranche, draft_all, materials_all, review]
 
 permissions:
   contents: read
