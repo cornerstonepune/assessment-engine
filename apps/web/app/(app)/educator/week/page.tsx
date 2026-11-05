@@ -9,7 +9,7 @@ import { requireStaff } from "@/lib/auth";
 import { mondayOf, nowAtSchool, shortDate, whenIs } from "@/lib/educator/clock";
 import { weekOf } from "@/lib/educator/data";
 import { chipOf } from "@/lib/educator/chip";
-import { blankWords, isBlank, isDay, isLesson, withEnds } from "@/lib/educator/period";
+import { blankWords, isBlank, isDay, isLesson } from "@/lib/educator/period";
 import { notFound } from "next/navigation";
 import type { Week } from "@/lib/educator/types";
 import { E } from "@/lib/educator/words";
@@ -87,7 +87,7 @@ function WeekGrid({ w }: { w: Week }) {
               {blankWords(d)}
             </div>
           ) : (
-            withEnds(d.periods).map((p) => (
+            d.periods.map((p) => (
               <div key={`${d.day}-${p.period_id}`} data-day={d.day} style={cell(row(p.starts_at))} className={`min-w-0 ${PLACE}`}>
                 <PeriodBlock p={p} href={`/educator/period/${p.period_id}?class=${w.class.id}&day=${d.day}`} chip={chipOf(p, { now, day: when })} compact />
               </div>

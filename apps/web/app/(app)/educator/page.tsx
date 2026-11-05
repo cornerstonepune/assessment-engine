@@ -9,7 +9,7 @@ import { requireStaff } from "@/lib/auth";
 import { chipOf, countdown, nowAt } from "@/lib/educator/chip";
 import { longDate, nowAtSchool, schoolDay, whenIs } from "@/lib/educator/clock";
 import { dayOf } from "@/lib/educator/data";
-import { blankWords, isBlank, isDay, isLesson, timeOf, withEnds } from "@/lib/educator/period";
+import { blankWords, isBlank, isDay, isLesson, timeOf } from "@/lib/educator/period";
 import { notFound } from "next/navigation";
 import type { Day } from "@/lib/educator/types";
 import { E } from "@/lib/educator/words";
@@ -44,7 +44,7 @@ function DayCalendar({ d }: { d: Day }) {
   if (isBlank(d)) return <EmptyState>{blankWords(d)}</EmptyState>;
   const when = whenIs(d.day);
   const now = nowAtSchool();
-  const periods = withEnds(d.periods);
+  const periods = d.periods;
   const work = periods.map((p) => ({ p, chip: chipOf(p, { now, day: when }) }));
   const lessons = d.periods.filter(isLesson);
   const next = work.find((w) => w.chip === "doNow") ?? (when === "past" ? undefined : work.find((w) => isLesson(w.p) && (when === "future" || w.p.starts_at > now)));

@@ -66,6 +66,6 @@ the site's look and font (orchestrator, 5 Nov; tested).
 - Left, with reason:
   - `StatusChip` is not reused: D-075 gives each state a fixed colour, so the site-wide chip would change on every other page.
   - Dates stay "Monday 23 November" (D-075: time shown as time), not the site's `dateWords`.
-  - The bus's missing end is filled on the website (`withEnds`). The engine is the right place; that is M1-06's `k2_day`,
-    so it is proposed to the orchestrator rather than changed here. The same goes for the period's name (`nameOf`).
+  - The bus's missing end and the period's name were worked out on the website (`withEnds`, `nameOf`). They now come from
+    the engine (M1-06e, #409) and the website's copies are deleted: this branch needs #409 merged first.
   - The site's own CSS is still unlayered; layering it all touches every page, so it is out of this PR's scope.

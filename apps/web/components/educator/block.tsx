@@ -1,7 +1,7 @@
 import Link from "@/components/link";
 import { Icon } from "@/lib/icons";
 import type { Chip } from "@/lib/educator/chip";
-import { nameOf, timeOf } from "@/lib/educator/period";
+import { timeOf } from "@/lib/educator/period";
 import type { Period } from "@/lib/educator/types";
 import { E } from "@/lib/educator/words";
 import { CHIP, ChipTag } from "./tags";
@@ -19,7 +19,7 @@ export function PeriodBlock({ p, href, chip, compact = false }: { p: Period; hre
       </div>
     );
   const fixed = p.kind === "fixed";
-  const title = nameOf(p);
+  const title = p.name;
   const what = p.activity?.name ?? (fixed ? null : p.line);
   return (
     <Link

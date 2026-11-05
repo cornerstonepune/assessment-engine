@@ -7,7 +7,7 @@ import { requireStaff } from "@/lib/auth";
 import { chipOf } from "@/lib/educator/chip";
 import { longDate, nowAtSchool, whenIs } from "@/lib/educator/clock";
 import { periodOf } from "@/lib/educator/data";
-import { isDay, nameOf, timeOf } from "@/lib/educator/period";
+import { isDay, timeOf } from "@/lib/educator/period";
 import { notFound } from "next/navigation";
 import { Icon } from "@/lib/icons";
 import { E } from "@/lib/educator/words";
@@ -26,7 +26,7 @@ export default async function PeriodPage({ params, searchParams }: { params: Pro
   const chip = chipOf(p, { now: nowAtSchool(), day: whenIs(p.day) });
   const time = timeOf(p);
   const today = `/educator?class=${p.class.id}&day=${p.day}`;
-  const name = nameOf(p);
+  const name = p.name;
   return (
     <PageShell
       stage={E.area}

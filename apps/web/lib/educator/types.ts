@@ -7,6 +7,8 @@ export type Period = {
   starts_at: string;
   ends_at: string | null;
   label: string;
+  /** What it is called (M1-06e): a break by its own words, a lesson by the frame's ("Academic 2 General Awareness"). */
+  name: string;
   fixed: boolean;
   kind: PeriodKind;
   subject: string | null;

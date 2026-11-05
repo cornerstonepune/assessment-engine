@@ -7,7 +7,7 @@ import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { TEXT_PAIRS, contrast, readTokens } from "./tokens-file";
 import { chipOf, nowAt } from "../lib/educator/chip";
-import { isDay, withEnds } from "../lib/educator/period";
+import { isDay } from "../lib/educator/period";
 
 const T = readTokens(); // apps/web/design-system/tokens.css, the school's one tokens file (D-073)
 const px = (v: string) => (v.endsWith("rem") ? parseFloat(v) * 16 : parseFloat(v));
@@ -71,9 +71,6 @@ test("a chip is one thing everywhere: Do now in the period, none on a period sti
   expect(chipOf({ ...p, kind: "fixed" }, { now: "11:35", day: "today" })).toBe(null);
   expect(chipOf({ ...p, kind: "empty" }, { now: "11:35", day: "today" })).toBe(null);
   expect(chipOf({ ...p, ends_at: null }, { now: "11:35", day: "today" })).toBe("doNow"); // the day's last: to its end
-  // the bus has no end: it lasts until the next period starts, so the two are never Do now together
-  const [bus, after] = withEnds([{ ...p, starts_at: "10:00", ends_at: null }, { ...p, starts_at: "10:20", ends_at: "10:40" }]);
-  expect([chipOf(bus, { now: "10:30", day: "today" }), chipOf(after, { now: "10:30", day: "today" })]).toEqual([null, "doNow"]);
 });
 
 test("the Now line falls before the first period still to come, after the one running, and nowhere before or after the day", () => {

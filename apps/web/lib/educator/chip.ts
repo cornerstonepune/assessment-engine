@@ -6,7 +6,7 @@ import type { Period } from "./types";
 // the engine says a part waits for her; nothing does yet.
 export type Chip = "doNow" | "comingUp" | "done" | "late";
 
-/** `p` with its end filled (lib/educator/period.ts `withEnds`): a period with none runs to the end of the day. */
+/** A period with no end is the day's last (the engine fills every other end, M1-06e): it runs to the end of the day. */
 export function chipOf(p: Pick<Period, "starts_at" | "ends_at" | "kind" | "state">, at: { now: string; day: "past" | "today" | "future" }): Chip | null {
   if (p.kind === "fixed" || p.kind === "empty") return null;
   if (p.state === "done") return "done";
