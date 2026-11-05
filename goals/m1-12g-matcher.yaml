@@ -1,0 +1,34 @@
+name: m1-12g-matcher
+goal: >
+  A draft that names only materials the page's own list names is no longer refused for ordinary words or for the digits
+  of a quantity; the locked rule (no material the school's list lacks) is unchanged; and the replay never prints a phrase
+  of the school's own text.
+# Written 2026-11-05 (task M1-12g). W1, gate N1. The words are the orchestrator's brief of 2026-11-05 relaying the
+# replay of run 18 (the step check refused 'the', 'place', 'draw', 'open'; 38 of 45 refused uses had every word listed).
+# Nothing here has made a model call.
+says:
+  - words: "the step check refuses ordinary words ('the', 'place', 'draw', 'open') ... its vocabulary is built from the last word of each listed piece"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_word_of_the_language_that_ends_a_list_piece_is_not_a_prop"
+  - words: "the step check refuses ordinary words ('the', 'place', 'draw', 'open')"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_the_verb_a_step_starts_with_is_not_a_prop_whatever_the_lists_of_other_pages_end_in"
+  - words: "for uses, in 38 of 45 every word IS listed yet the entry is refused (order or piece rule), so the matcher is too literal"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_use_copied_from_the_list_with_its_quantity_is_found_though_the_quantity_has_digits"
+  - words: "Our locked rule stays: a page must not name a material the school's list lacks"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_prop_named_later_in_a_step_that_the_page_does_not_list_is_still_refused"
+  - words: "Our locked rule stays: a page must not name a material the school's list lacks"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_use_that_is_not_beside_its_words_in_one_piece_of_the_list_is_still_refused"
+  - words: "print only single-token words (letters only, at most 12 characters, seen twice or more), never phrases, and for uses only counts by kind"
+    proved_by: "packages/engine/tests/test_k2_replay.py::test_only_plain_words_of_at_most_twelve_letters_are_ever_printed"
+  - words: "a test that no printed key contains a space"
+    proved_by: "packages/engine/tests/test_k2_replay.py::test_no_printed_key_holds_a_space_so_no_phrase_of_the_schools_ever_reaches_the_log"
+  - words: "the function words are a settings row"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_the_words_of_the_language_that_trail_a_material_are_a_config_row_the_judge_reads"
+manual:
+  - "Not run live. After merge: `load_settings` (the new row k2.format.function_words), then one free `draft_replay`: pages_good is how many of the 59 kept replies pass under the fixed judge. No paid call before that number is read."
+criteria:
+  - name: the matcher, the replay and the draft run
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_format.py tests/test_k2_replay.py tests/test_k2_draft.py tests/test_k2_batch.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

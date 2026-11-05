@@ -58,15 +58,26 @@ def kind_of(named: str, materials: str) -> str:
     return "not_related"
 
 
+def _printable(word: str) -> bool:
+    """A word the log may show: letters only, at most 12 of them, so never a phrase of the school's own text."""
+    return word.isascii() and word.isalpha() and len(word) <= 12
+
+
 def _unlisted(seen: dict[str, dict]) -> dict:
-    """Per rule: the words that repeat (a word seen once is not printed: the log is public) and how each stands to the
-    page's materials."""
+    """Per rule: the plain words that repeat (a word seen once is not printed, and a use is a phrase of the school's own
+    text, so for a use only the kind is counted: the log is public) and how each stands to the page's materials."""
     out = {}
     for rule, got in seen.items():
-        words = Counter({w: n for w, n in got["words"].items() if n >= 2})
+        shown = Counter(
+            {
+                w: n
+                for w, n in got["words"].items()
+                if n >= 2 and _printable(w) and rule == "step_word_unlisted"
+            }
+        )
         out[rule] = {
-            "words": dict(words.most_common(SHOWN)),
-            "once": sum(1 for n in got["words"].values() if n < 2),
+            "words": dict(shown.most_common(SHOWN)),
+            "once": sum(got["words"].values()) - sum(shown.values()),
             "kinds": dict(got["kinds"].most_common()),
         }
     return out

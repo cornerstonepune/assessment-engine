@@ -787,3 +787,14 @@ def test_the_tranche_cannot_be_combined_with_the_dev_size_or_a_limit():
 
 def test_the_tranche_size_is_a_number_in_the_config_row(conn):
     assert draft._settings(conn)["tranche_pages"] == 250
+
+
+def test_the_words_of_the_language_that_trail_a_material_are_a_config_row_the_judge_reads(conn):
+    row = draft.settings.config(conn, "k2.format")
+    assert {"the", "needed", "per"} <= set(row["function_words"])
+    _act(conn, "KX-1", "A", materials="Beads, Markers as needed")
+    _act(conn, "KX-2", "B", materials="Beads")
+    want, rows = draft.wanted(conn, conn.t, BAND)
+    reply = [drafted(key="KX-2", steps=["Hand out the beads as needed."], uses=["Beads"])]
+    good, bad = draft._judge(conn, rows)(reply, {"KX-2": want["KX-2"]})
+    assert bad == {} and "KX-2" in good, "'needed' ends a piece on another page: it is no prop"
