@@ -2,6 +2,7 @@
 // the test, and the fill each one has. No name of a child or of staff; the signed-in tester is the only member of staff.
 // Written as the owner; a second run clears what the first wrote and writes it again.
 import type { Sql } from "postgres";
+import { TEST_STAFF } from "./global-setup";
 
 export const RED = "M113 Red";
 export const AMBER = "M113 Amber";
@@ -37,6 +38,13 @@ export const TOTAL = { [RED]: 13, [AMBER]: 2, [GREEN]: 2 } as const;
 export async function curriculumRows(sql: Sql): Promise<{ skills: string[] }> {
   const [{ id: t }] = await sql<{ id: string }[]>`select id from tenant order by created_at limit 1`;
   const skills = (await sql<{ code: string }[]>`select code from registry_skill where tenant_id = ${t} order by code limit 4`).map((r) => r.code);
+  // the engine knows a member of staff by a row of pii.staff: the signed-in tester gets one, as the voice specs do
+  const [had] = await sql<{ staff_id: string }[]>`select staff_id from pii.staff where email = ${TEST_STAFF.email}`;
+  if (!had) {
+    const [{ id: campus }] = await sql<{ id: string }[]>`select id from campus where tenant_id = ${t} limit 1`;
+    const [{ id: staff }] = await sql<{ id: string }[]>`insert into staff (tenant_id, campus_id) values (${t}, ${campus}) returning id`;
+    await sql`insert into pii.staff (tenant_id, staff_id, name, email) values (${t}, ${staff}, 'Placeholder Educator', ${TEST_STAFF.email})`;
+  }
   await sql`delete from curriculum_proposal where subject_code like 'ACT-K2-M113-%' and machine = 'm1-13 test'`.catch(() => undefined);
   await sql`delete from activity where tenant_id = ${t} and code like 'ACT-K2-M113-%'`;
   // red: 13 activities, 20 of 117 slots filled — the first full with a skill, the second drafted in three parts, the third a person's objective, the fifth materials only
