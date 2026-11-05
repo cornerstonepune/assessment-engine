@@ -1,0 +1,29 @@
+name: ci-fast-paths
+goal: >
+  A pull request starts only the CI jobs its change can break, so a docs-only change no longer waits two hours behind
+  other pull requests' engine shards. A draft runs the checks that need no database; the full suite runs once when the
+  pull request is marked ready, and on every push after. Documents alone, or the website alone, skip the engine's
+  shards (the website alone still runs the engine tests that read it, on one runner). Main and the nightly run always
+  run everything; a merge is never skipped. A change the decision script cannot place runs everything. The names the
+  gates wait on (engine, web, browser, engine-checks) are unchanged, and a job left out reports success.
+  Measured first (docs/notes/ci-fast-paths.md): 19 jobs per pull request, GitHub running 20 at once.
+# Written 2026-11-05, before the change. Nimish approved the scope in chat the same day ("agreed"); his words below are the
+# complaint it answers, recorded in goals/ci1-main-runs-only-its-newest.yaml on 2026-10-21.
+says:
+  - words: "we have become quite slow."
+    proved_by: "packages/engine/tests/test_ci_plan.py::test_1_a_pull_request_marked_ready_runs_the_full_suite_and_so_does_each_push_after"
+  - words: "we have become quite slow."
+    proved_by: "packages/engine/tests/test_ci_plan.py::test_each_job_starts_on_exactly_its_own_output"
+  - words: "we have become quite slow."
+    proved_by: "packages/engine/tests/test_ci_plan.py::test_a_skipped_job_still_reports_the_names_the_gates_wait_on"
+manual:
+  - "On a docs-only draft pull request: the run's ci plan summary says documents alone, only plan, engine-checks, engine and browser start, and the last two end in seconds."
+  - "Mark that pull request ready: a second run starts, its plan says the same for documents alone, and a pull request that touches the engine starts all 12 engine shards and 3 browser shards."
+scenarios: []
+criteria:
+  - name: the decision and the workflow that obeys it
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider -o addopts= tests/test_ci_plan.py tests/test_gates.py tests/test_deploy.py::test_a_newer_merge_cancels_mains_older_ci_run
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

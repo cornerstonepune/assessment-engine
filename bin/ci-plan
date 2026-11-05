@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+"""Which of CI's jobs a change needs. The standard library only; .github/workflows/ci.yml's `plan` job calls it
+(goals/ci-fast-paths.yaml, docs/notes/ci-fast-paths.md):
+
+  git diff --name-only --no-renames A...B | bin/ci-plan decide --event pull_request --draft false
+      prints engine=, web=, browser=, web_reads= (each true or false) and reason=, for $GITHUB_OUTPUT
+  bin/ci-plan web-tests packages/engine/tests
+      the engine's test files that read the website, one per line, as `tests/…` from packages/engine
+
+Every pull request used to start 19 jobs, GitHub runs 20 at once, and 13 open pull requests queued behind each other.
+Now a change starts what it can break and no more:
+
+  main, the nightly run, a run by hand      everything. A merge is never skipped.
+  a draft                                   the checks that need no database, and the website's types and lint unless only
+                                            documents changed. The full suite runs once when it is marked ready, and on every
+                                            push after. (Every one of the 10 drafts open on 2026-11-05 touched the engine, so a
+                                            draft that ran everything for that would have saved nothing.)
+  a ready pull request with a path under SENSITIVE (the engine, the schema, the seed, the map, the gates, this file)
+                                            everything.
+  files from DOCS_* alone                   the checks that need no database.
+  files from DOCS_* and apps/web alone      the website's job and the browser tests, and one runner for the engine's tests
+                                            that read the website (they need the database; see web_tests).
+  anything else, or anything this cannot read  everything. The default is the full suite, never the quick one.
+"""
+
+import argparse
+import posixpath
+import re
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent
+
+# A change to any of these runs everything once the pull request is ready (and on main): the engine and its tests, the
+# schema and the seed, the map of the code, the gates themselves.
+SENSITIVE = ("packages/engine/", "supabase/migrations/", "supabase/seed/", "bin/", ".github/")
+SENSITIVE_FILES = ("workflows.json",)
+SENSITIVE_NAMES = ("rules.json",)  # wherever it sits
+
+# Documents no test reads (test_ci_plan.py checks that against the tests themselves, bar READ_BY_TESTS). Not listed, so they run everything:
+# BUILD-ORDER.md and DECISIONS-LOG.md, docs/design, docs/sources/*.md, docs/crosswalk, docs/spine, docs/ux-rules.md,
+# docs/md-taxonomy.md and the rest of docs/*.md, which tests read.
+DOCS_PREFIXES = (
+    "docs/notes/",
+    "docs/adr/",
+    "docs/athena/",
+    "docs/brainstorms/",
+    "docs/drafts/",
+    "docs/superpowers/",
+)
+DOCS_FILES = (
+    "HANDOFF.md",
+    "STATE.md",
+    "README.md",
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "SPEC.md",
+    "docs/sources/cornerstone-blueprint-v2.html",
+)
+# Inside the folders above, the files a test reads anyway. test_ci_plan.py fails on any other such file, and names it.
+READ_BY_TESTS = (
+    "docs/notes/nav3-what-needs-doing.md",  # apps/web/tests/u65-what-needs-doing-walk.spec.ts
+    "docs/notes/m1-10-materials-list.md",  # tests/test_cli_materials.py
+    "docs/notes/m1-01-voice-intake.md",  # tests/test_cli_voice.py
+)
+# Code that reads a listed folder but is run by bin/check, which every pull request runs: docs/adr, by `engine promises`
+# (tests/test_promises.py). test_ci_plan.py checks bin/check still runs that test.
+READ_IN_BIN_CHECK = ("packages/engine/engine/checks/promises.py",)
+WEB_PREFIX = "apps/web/"
+
+FULL = dict(engine=True, web=True, browser=True, web_reads=False)
+FAST = dict(engine=False, web=False, browser=False, web_reads=False)
+
+
+def clean(path):
+    """A repo-relative path as git prints it, or None when it is anything else: git quotes a name with odd bytes, and a path
+    with `..` or `.` in it could name a place other than the one it starts with."""
+    p = path.strip()
+    if not p or p.startswith(('"', "/")) or "\\" in p:
+        return None
+    return p if posixpath.normpath(p) == p and not p.startswith("..") else None
+
+
+def forces_full(path):
+    return (
+        path.startswith(SENSITIVE)
+        or path in SENSITIVE_FILES
+        or posixpath.basename(path) in SENSITIVE_NAMES
+    )
+
+
+def is_docs(path):
+    return path not in READ_BY_TESTS and (path.startswith(DOCS_PREFIXES) or path in DOCS_FILES)
+
+
+def decide(event, draft, files):
+    """The jobs to start, as {engine, web, browser, web_reads, reason}. `files` are the change's paths, as git prints them."""
+    if event != "pull_request":
+        return {**FULL, "reason": f"a {event} run: everything"}
+    paths = [clean(f) for f in files if f.strip()]
+    if not paths or None in paths:
+        return {**FULL, "reason": "changed files unknown or unreadable: everything"}
+    docs = all(is_docs(p) for p in paths)
+    if draft:
+        # the website's types and lint are quick and need no database
+        return {**FAST, "web": not docs, "reason": "a draft: the checks that need no database; the full suite when it is marked ready"}
+    hit = next((p for p in paths if forces_full(p)), None)
+    if hit:
+        return {**FULL, "reason": f"{hit} is engine, schema, seed, map or gate: everything"}
+    if docs:
+        return {**FAST, "reason": "documents alone: the checks that need no database"}
+    if all(is_docs(p) or p.startswith(WEB_PREFIX) for p in paths):
+        return dict(engine=False, web=True, browser=True, web_reads=True, reason="the website alone: its job, the browser tests, and the engine tests that read it")
+    other = next(p for p in paths if not (is_docs(p) or p.startswith(WEB_PREFIX)))
+    return {**FULL, "reason": f"{other} is on no quick list: everything"}
+
+
+def render(plan):
+    keys = ("engine", "web", "browser", "web_reads")
+    return "".join(f"{k}={'true' if plan[k] else 'false'}\n" for k in keys) + f"reason={plan['reason']}\n"
+
+
+# --- the engine's tests that read the website ---------------------------------------------------------------------------
+
+READS_THE_WEBSITE = re.compile(r"\bapps\b|\bWEB\b")
+
+
+def web_tests(tests_dir):
+    """The test files that name the website: its path, or the constant the tests give it. They check the school's words, the UX
+    rules and the sign-in gate against the website's own files, so a website change must still meet them."""
+    tests_dir = Path(tests_dir).resolve()
+    base = tests_dir.parent
+    found = [p for p in tests_dir.rglob("test_*.py") if READS_THE_WEBSITE.search(p.read_text(encoding="utf-8"))]
+    return sorted(p.relative_to(base).as_posix() for p in found)
+
+
+# --- what the quick lists may hold --------------------------------------------------------------------------------------
+
+SCANNED = (
+    "packages/engine/tests",
+    "packages/engine/engine",
+    "apps/web/tests",
+    "apps/web/app",
+    "apps/web/lib",
+    "apps/web/components",
+)
+READISH = re.compile(r"read_text|read_bytes|open\(|Path\(|\bROOT\b|REPO_ROOT|glob|readFile|\bjoin\(|/ *[\"']|[\"'] */")
+SELF = ("test_ci_plan.py",)
+
+
+def _forms(entry):
+    """How code may spell a path: whole, or a folder's parts split ("docs" / "notes"), or a root file's bare name."""
+    parts = entry.rstrip("/").split("/")
+    if len(parts) == 1:
+        return [re.escape(parts[0])]
+    return [re.escape("/".join(parts)), r"[\"'][ ,/]*[\"']".join(re.escape(x) for x in parts)]
+
+
+def reads_of(entries):
+    """Lines in the engine's code and tests, or the browser tests, that read a file on a quick list. Comments and docstrings that
+    only mention one are not reads, so a line counts when it also builds a path or opens a file."""
+    hits = []
+    for folder in SCANNED:
+        for path in (REPO / folder).rglob("*"):
+            if path.suffix not in {".py", ".ts", ".tsx"} or path.name in SELF or "node_modules" in path.parts:
+                continue
+            if path.relative_to(REPO).as_posix() in READ_IN_BIN_CHECK:
+                continue
+            for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                if line.lstrip().startswith(("#", "//", "*")) or not READISH.search(line):
+                    continue
+                if any(posixpath.basename(f) in line for f in READ_BY_TESTS):
+                    continue
+                for entry in entries:
+                    if any(re.search(f, line) for f in _forms(entry)):
+                        hits.append(f"{path.relative_to(REPO)}:{n} reads {entry}")
+    return hits
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    d = sub.add_parser("decide")
+    d.add_argument("--event", required=True)
+    d.add_argument("--draft", required=True, choices=["true", "false"])
+    w = sub.add_parser("web-tests")
+    w.add_argument("tests_dir")
+    args = ap.parse_args(argv)
+    if args.cmd == "web-tests":
+        print("\n".join(web_tests(args.tests_dir)))
+        return 0
+    sys.stdout.write(render(decide(args.event, args.draft == "true", sys.stdin.read().splitlines())))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
