@@ -42,3 +42,36 @@ export type Week = {
 };
 /** One period (M1-06's /timetable/period): the period, its day, and the planner's lines under the same heading. */
 export type OnePeriod = Period & { classes: ClassRef[]; class: ClassRef; frozen: boolean; day: string; note: string | null; week: "A" | "B" | null; fortnight: Fortnight | null; plan_lines: string[] };
+
+/** Where an item is kept: the class's own, the school's store, or not tracked (M1-10). */
+export type Home = "class" | "school" | null;
+export type MaterialLine = {
+  line_id: string;
+  item: string;
+  material_code: string;
+  quantity: number | null;
+  unit: string;
+  needed_on: string;
+  activity: { id: string; code: string; name: string } | null;
+  source: "school" | "educator";
+  home: Home;
+  tracked: boolean;
+};
+/** A class's materials list (M1-10's /materials/read), each day its own group. */
+export type MaterialsList = {
+  list_id: string;
+  from: string;
+  to: string;
+  state: "draft" | "sent";
+  groups: { label: string; lines: MaterialLine[] }[];
+};
+export type CatalogueItem = { code: string; name: string; unit: string; home: Home; tracked: boolean };
+/** The school's list for a range (M1-16's /materials/school/read): each item once, with the classes it comes from. */
+export type SchoolList = {
+  id: string;
+  from: string;
+  to: string;
+  lines: { material_code: string; item: string; quantity: number | null; unit: string; to_confirm: boolean; from: { class_id: string; class: string; quantity: number | null; activity_codes: string[] }[] }[];
+};
+/** A note the system could not read for sure, waiting for a person (M1-16's /materials/review/list). */
+export type WaitingNote = { id: string; list_id: string; text: string; reason: string; at: string };

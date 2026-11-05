@@ -56,6 +56,13 @@ def _mine(conn, body: Ask, on: dt.date, staff=None) -> tuple[dict, list[dict]]:
         raise _refused(no) from no
 
 
+@keyed.post("/timetable/open")
+def open_to(body: Ask, conn=Depends(get_conn, scope="function")):
+    """Whether her screens are open to her, for a screen that reads no timetable (the activity page): refused as every
+    other call is, else whether she sees them as the staff preview."""
+    return {"previewing": educator_gate.previewing(conn, _gate(conn, body))}
+
+
 @keyed.post("/timetable/day")
 def day(body: Ask, conn=Depends(get_conn, scope="function")):
     on = body.day or _today(conn)
