@@ -128,6 +128,7 @@ test("the fill view counts each part by who wrote it, and the four add up to eve
 });
 
 test("a person walks the drafted parts one by one: edit, keep, send back — five taps", async ({ page }) => {
+  await gate(sql, "open"); // changing a part needs the educator switch itself: a preview only looks
   taps = 0;
   await page.goto("/curriculum/fill");
   await tap(page.getByRole("link", { name: /Check the drafted parts/ }));
@@ -155,6 +156,7 @@ test("a person walks the drafted parts one by one: edit, keep, send back — fiv
 });
 
 test("the offered-skills queue shows the activity, skills, what was linked, the reason; yes links, no closes", async ({ page }) => {
+  await gate(sql, "open");
   await offers(sql, skills);
   await page.goto("/curriculum/offers");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Skills offered, waiting for you");
@@ -176,6 +178,22 @@ test("the offered-skills queue shows the activity, skills, what was linked, the 
   const after = await sql<{ skill_code: string }[]>`select skill_code from activity_skill where activity_code = ${code(3)}`;
   expect(after.map((r) => r.skill_code)).not.toContain(skills[2]);
   await shoot(page, "offers-empty");
+  await clearOffers(sql);
+});
+
+test("the staff preview looks and changes nothing: the drafts and offers show, with no Keep, Edit, Send back, Yes or No", async ({ page }) => {
+  await gate(sql, "preview");
+  await offers(sql, skills);
+  await page.goto("/curriculum/fill/walk");
+  await expect(page.locator("[data-preview]")).toContainText("Preview");
+  await expect(page.locator("[data-card=steps] li")).toHaveCount(STEPS.length);
+  await expect(page.getByRole("button", { name: /Keep|Send back/ })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Edit" })).toHaveCount(0);
+  await page.goto("/curriculum/offers");
+  await expect(page.locator("[data-offer]")).toHaveCount(2);
+  await expect(page.getByRole("button", { name: /Yes|No/ })).toHaveCount(0);
+  const [{ n }] = await sql<{ n: number }[]>`select count(*)::int as n from activity_part_source where activity_code = ${code(2)} and source = 'drafted'`;
+  expect(n).toBe(3); // nothing was kept or sent back
   await clearOffers(sql);
 });
 

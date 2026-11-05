@@ -1,6 +1,7 @@
-"""The curriculum screens answer to the educator gate (goals/m1-14-curriculum-on-the-shell.yaml; D-076, w2_print/educator_gate.py):
+"""The curriculum screens answer to the educator gate (goals/m1-13b-curriculum-on-the-shell.yaml; D-076, w2_print/educator_gate.py):
 the page and offers routes answer when `educator.timetable_enabled` is on or the member of staff holds a role
-`educator.preview_roles` names, and are refused otherwise, before anything is read or changed."""
+`educator.preview_roles` names, and are refused otherwise, before anything is read or changed. A preview only looks
+(D-076): the routes that change something need the switch itself."""
 
 import os
 
@@ -18,6 +19,8 @@ KEY = "test-engine-key"
 H = {"X-Engine-Key": KEY}
 WHO = {"actor": "x@school.invalid"}
 OFF = "The curriculum screens are not switched on."
+LOOK = "The preview only looks: the curriculum screens are not switched on."
+WRITES = ("page/confirm", "page/revert", "page/edit", "offers/answer")
 
 
 @pytest.fixture
@@ -47,10 +50,9 @@ def _grant(conn, role: str):
     )
 
 
-def calls(client):
+def calls():
     part = {**WHO, "code": "KX-1", "part": "steps"}
     return {
-        "page/gate": WHO,
         "page/read": {**WHO, "code": "KX-1"},
         "page/confirm": part,
         "page/revert": part,
@@ -64,7 +66,7 @@ def test_switched_off_every_route_is_refused_to_staff_with_no_preview_role_and_n
     drafted_page(conn)
     _switch(conn, False)
     before = conn.execute("select steps from activity where code = 'KX-1'").fetchone()["steps"]
-    for path, body in calls(client).items():
+    for path, body in calls().items():
         got = client.post(f"/curriculum/{path}", json=body, headers=H)
         assert (got.status_code, got.json()["detail"]) == (403, OFF), path
     assert conn.execute("select steps from activity where code = 'KX-1'").fetchone()["steps"] == before
@@ -76,35 +78,41 @@ def test_switched_off_every_route_is_refused_to_staff_with_no_preview_role_and_n
     )
 
 
-def test_switched_off_a_role_the_preview_names_gets_through(client, conn):
+def test_switched_off_a_role_the_preview_names_may_look(client, conn):
     drafted_page(conn)
     _switch(conn, False)
     _grant(conn, "head")
-    assert client.post("/curriculum/page/gate", json=WHO, headers=H).json() == {
-        "open": True,
-        "previewing": True,
-    }
     assert client.post("/curriculum/page/read", json={**WHO, "code": "KX-1"}, headers=H).status_code == 200
     assert client.post("/curriculum/offers/list", json=WHO, headers=H).status_code == 200
 
 
+def test_switched_off_a_preview_changes_nothing(client, conn):
+    drafted_page(conn)
+    _switch(conn, False)
+    _grant(conn, "head")
+    before = conn.execute("select steps from activity where code = 'KX-1'").fetchone()["steps"]
+    for path in WRITES:
+        got = client.post(f"/curriculum/{path}", json=calls()[path], headers=H)
+        assert (got.status_code, got.json()["detail"]) == (403, LOOK), path
+    assert conn.execute("select steps from activity where code = 'KX-1'").fetchone()["steps"] == before
+
+
 def test_a_role_the_preview_does_not_name_gets_nothing(client, conn):
+    drafted_page(conn)
     _switch(conn, False)
     _grant(conn, "ops")
-    assert client.post("/curriculum/page/gate", json=WHO, headers=H).status_code == 403
+    assert client.post("/curriculum/page/read", json={**WHO, "code": "KX-1"}, headers=H).status_code == 403
 
 
-def test_switched_on_anyone_on_the_staff_list_gets_through_and_nobody_else(client, conn):
+def test_switched_on_staff_may_look_and_change_and_a_stranger_is_refused(client, conn):
     drafted_page(conn)
     _switch(conn, True)
-    assert client.post("/curriculum/page/gate", json=WHO, headers=H).json() == {
-        "open": True,
-        "previewing": False,
-    }
-    stranger = {"actor": "stranger@elsewhere.invalid"}
-    got = client.post("/curriculum/page/gate", json=stranger, headers=H)
-    assert got.status_code == 403 and got.json()["detail"] != OFF  # not on the staff list: the old refusal
-
-
-def test_the_gate_needs_the_engines_key(client):
-    assert client.post("/curriculum/page/gate", json=WHO).status_code == 401
+    assert client.post("/curriculum/page/read", json={**WHO, "code": "KX-1"}, headers=H).status_code == 200
+    kept = client.post("/curriculum/page/confirm", json=calls()["page/confirm"], headers=H)
+    assert kept.status_code == 200, kept.text
+    stranger = {"actor": "stranger@elsewhere.invalid", "code": "KX-1"}
+    got = client.post("/curriculum/page/read", json=stranger, headers=H)
+    assert got.status_code == 403 and got.json()["detail"] not in (
+        OFF,
+        LOOK,
+    )  # not on the staff list: the old refusal

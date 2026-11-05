@@ -49,8 +49,8 @@ class Offers(BaseModel):
     offers: list[Offer]
 
 
-def _staff(conn, who: Who) -> UUID:
-    return curriculum_staff(conn, who.actor)
+def _staff(conn, who: Who, writes: bool = False) -> UUID:
+    return curriculum_staff(conn, who.actor, writes=writes)
 
 
 @router.post("/list", response_model=Offers)
@@ -62,7 +62,7 @@ def waiting(body: Who, conn=Depends(get_conn, scope="function"), tenant_id: str 
 @router.post("/answer", response_model=Offers)
 def answer(body: Answer, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
     """Yes adds the skills; no closes the proposal. The list that is left comes back."""
-    staff, tenant = _staff(conn, body), UUID(str(tenant_id))
+    staff, tenant = _staff(conn, body, writes=True), UUID(str(tenant_id))
     try:
         skill_offers.answer(conn, tenant, staff, str(body.id), body.yes, body.why)
     except ValueError as e:

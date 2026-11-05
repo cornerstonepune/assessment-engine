@@ -47,8 +47,8 @@ async function EditForm({ part, code, back }: { part: PagePart; code: string; ba
 }
 
 /** One part of a page. A drafted part carries Keep, Edit and Send back; `editing` swaps the words for the editor. */
-export function PartCard({ part, code, back, editHref, editing }: { part: PagePart; code: string; back: string; editHref: string; editing: boolean }) {
-  if (part.source !== "drafted") return <PartView part={part} />;
+export function PartCard({ part, code, back, editHref, editing, readOnly }: { part: PagePart; code: string; back: string; editHref: string; editing: boolean; readOnly?: boolean }) {
+  if (part.source !== "drafted" || readOnly) return <PartView part={part} />;
   if (editing) return <PartView part={part} editor={<EditForm part={part} code={code} back={back} />} />;
   return (
     <PartView

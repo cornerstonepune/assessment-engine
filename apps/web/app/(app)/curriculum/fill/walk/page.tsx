@@ -9,7 +9,7 @@ import { PartCard } from "../../parts";
 // one is always the first; "Skip" moves along it without answering.
 export default async function Walk({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
-  await mustBeOn(me.email);
+  const { previewing } = await mustBeOn(me.email);
   const q = await searchParams;
   const part = q.part ?? "";
   const line = (await waiting()).filter((w) => !part || w.part === part);
@@ -35,7 +35,7 @@ export default async function Walk({ searchParams }: { searchParams: Promise<Rec
             <p className="cs-note">
               {skip + 1} of {line.length} waiting for a check · {page.section} · <Link href={`/curriculum/fill/${page.code}`}>{page.code}</Link> {page.name}
             </p>
-            <PartCard part={card} code={page.code} back={back} editing={q.edit === "1"} editHref={`${back}${here.size ? "&" : "?"}edit=1`} />
+            <PartCard part={card} code={page.code} back={back} editing={q.edit === "1"} editHref={`${back}${here.size ? "&" : "?"}edit=1`} readOnly={previewing} />
             {line.length > 1 ? (
               <div className="cs-pager">
                 <span />

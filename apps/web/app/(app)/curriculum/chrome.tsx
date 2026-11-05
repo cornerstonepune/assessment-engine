@@ -13,18 +13,27 @@ const AREA = {
   "/curriculum/offers": "Skills offered",
 } as const;
 
+/** Curriculum › where she is › the page: the browser is the area's own page, so it is named once. */
+function trail(here: keyof typeof AREA, crumb?: string) {
+  const area = { label: AREA[here], href: crumb ? here : undefined };
+  const top = { label: "Curriculum", href: here === "/curriculum/browse" && !crumb ? undefined : "/curriculum/browse" };
+  if (here === "/curriculum/browse") return crumb ? [top, { label: crumb }] : [{ label: "Curriculum" }];
+  return [top, area, ...(crumb ? [{ label: crumb }] : [])];
+}
+
 export async function Chrome({ here, crumb, children }: { here: keyof typeof AREA; crumb?: string; children: React.ReactNode }) {
   const me = await requireStaff();
-  await mustBeOn(me.email);
+  const { previewing } = await mustBeOn(me.email);
   const [drafted, gaps, offered] = await Promise.all([waiting(), gap(), readOffers(me.email).catch(() => null)]);
   const empty = gaps.reduce((n, g) => n + g.empty, 0);
   return (
     <>
-      <Crumbs trail={[{ label: "Curriculum", href: "/curriculum/browse" }, ...(here === "/curriculum/browse" && !crumb ? [] : [{ label: AREA[here], href: crumb ? here : undefined }]), ...(crumb ? [{ label: crumb }] : [])]} />
+      <Crumbs trail={trail(here, crumb)} />
+      {previewing ? <p data-preview className="mb-[var(--space-3)] text-[length:var(--text-label)] text-[var(--text-muted)]">Preview: you can look, and change nothing, until the educator screens are switched on.</p> : null}
       <Summary
         items={[
           { label: ["drafted part to check", "drafted parts to check"], n: drafted.length, href: "/curriculum/fill/walk" },
-          { label: ["skill offered", "skills offered"], n: offered?.length ?? 0, href: "/curriculum/offers" },
+          ...(offered ? [{ label: ["skill offered", "skills offered"] as const, n: offered.length, href: "/curriculum/offers" }] : []),
           { label: ["part still empty", "parts still empty"], n: empty, href: "/curriculum/fill" },
         ]}
       />

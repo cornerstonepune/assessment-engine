@@ -87,13 +87,18 @@ def tenant_now() -> str:
         return get_tenant_id(conn)
 
 
-def curriculum_staff(conn, actor: str):
+def curriculum_staff(conn, actor: str, *, writes: bool = False):
     """The member of staff behind `actor`, once the educator gate lets them through (D-076, educator_gate): the switch
-    on, or a role `educator.preview_roles` names. The one check every route of the curriculum screens makes first, before
-    any field is read, so a refused call learns nothing."""
+    on, or a role `educator.preview_roles` names. A preview only looks, so a route that changes something (`writes`)
+    needs the switch itself. The one check every route of the curriculum screens makes first, before any field is read,
+    so a refused call learns nothing."""
     sid = db.one(conn, "select public.staff_of_email(%s) as id", (actor,))["id"]
     if sid is None:
         raise HTTPException(status_code=403, detail="This sign-in is not on the staff list.")
     if not educator_gate.open_to(conn, sid):
         raise HTTPException(status_code=403, detail="The curriculum screens are not switched on.")
+    if writes and not educator_gate.switched_on(conn):
+        raise HTTPException(
+            status_code=403, detail="The preview only looks: the curriculum screens are not switched on."
+        )
     return sid

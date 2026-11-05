@@ -55,7 +55,6 @@ export type EngineRoutes = {
   "POST /curriculum/offers/list": { actor: string };
   "POST /curriculum/page/confirm": { actor: string; code: string; part: string };
   "POST /curriculum/page/edit": { actor: string; code: string; part: string; text?: string | null; items?: string[] | null; idea?: string | null; slips?: { keyword: string; spot: string }[] | null };
-  "POST /curriculum/page/gate": { actor: string };
   "POST /curriculum/page/read": { actor: string; code: string };
   "POST /curriculum/page/revert": { actor: string; code: string; part: string };
   "POST /graph/rebuild": { child_id?: string | null };

@@ -10,7 +10,6 @@ from pydantic import BaseModel
 
 from engine.api.deps import curriculum_staff, get_conn, get_tenant_id, require_engine_key
 from engine.w1_bank import k2_page, k2_review
-from engine.w2_print import educator_gate
 
 router = APIRouter(prefix="/curriculum/page", dependencies=[Depends(require_engine_key)])
 
@@ -81,8 +80,8 @@ class Page(BaseModel):
     draft: Draft | None
 
 
-def _staff(conn, who: Who) -> UUID:
-    return curriculum_staff(conn, who.actor)
+def _staff(conn, who: Who, writes: bool = False) -> UUID:
+    return curriculum_staff(conn, who.actor, writes=writes)
 
 
 def _page(conn, tenant_id: str, code: str) -> dict:
@@ -94,23 +93,11 @@ def _page(conn, tenant_id: str, code: str) -> dict:
 
 def _answer(conn, tenant_id: str, body: PartRef, act) -> dict:
     try:
-        act(conn, UUID(str(tenant_id)), _staff(conn, body), body.code, body.part)
+        act(conn, UUID(str(tenant_id)), _staff(conn, body, writes=True), body.code, body.part)
     except ValueError as e:
         taken = "not a drafted part" in str(e)
         raise HTTPException(status_code=409 if taken else 422, detail=str(e)) from None
     return _page(conn, tenant_id, body.code)
-
-
-class Gate(BaseModel):
-    open: bool
-    previewing: bool  # switched off, and this person is the staff preview
-
-
-@router.post("/gate", response_model=Gate)
-def gate(body: Who, conn=Depends(get_conn, scope="function")):
-    """Whether the curriculum screens are open to this sign-in (the site asks before it reads a row of its own)."""
-    sid = _staff(conn, body)
-    return Gate(open=True, previewing=educator_gate.previewing(conn, sid))
 
 
 @router.post("/read", response_model=Page)
@@ -139,7 +126,7 @@ def edit(body: Edit, conn=Depends(get_conn, scope="function"), tenant_id: str = 
         value = body.items
     elif body.idea is not None or body.slips is not None:
         value = {"idea": body.idea, "slips": [s.model_dump() for s in body.slips or []]}
-    staff = _staff(conn, body)
+    staff = _staff(conn, body, writes=True)
     try:
         k2_review.change(conn, UUID(str(tenant_id)), staff, body.code, body.part, value)
     except ValueError as e:

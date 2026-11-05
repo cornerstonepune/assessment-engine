@@ -11,12 +11,16 @@ says:
     proved_by: "apps/web/tests/m1-13-curriculum-fill.spec.ts::the pages sit in the school's shell: its menu, a breadcrumb, a strip of counts, a tab bar on a phone"
   - words: "drop curriculum.screens_enabled in favour of the educator preview gate (educator.preview_roles / educator_gate.open_to)"
     proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_switched_off_every_route_is_refused_to_staff_with_no_preview_role_and_nothing_changes"
-  - words: "the educator preview gate: open to the staff preview while the switch is off"
-    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_switched_off_a_role_the_preview_names_gets_through"
+  - words: "the educator preview gate: open to the staff preview while the switch is off (to look)"
+    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_switched_off_a_role_the_preview_names_may_look"
+  - words: "the educator preview gate: a preview only looks, it changes and sends nothing (D-076)"
+    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_switched_off_a_preview_changes_nothing"
+  - words: "the preview shows the drafts and the offers with nothing to press"
+    proved_by: "apps/web/tests/m1-13-curriculum-fill.spec.ts::the staff preview looks and changes nothing: the drafts and offers show, with no Keep, Edit, Send back, Yes or No"
   - words: "the educator preview gate: a role the preview does not name gets nothing"
     proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_a_role_the_preview_does_not_name_gets_nothing"
   - words: "the educator preview gate: with the switch on, staff get through"
-    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_switched_on_anyone_on_the_staff_list_gets_through_and_nobody_else"
+    proved_by: "packages/engine/tests/api/test_curriculum_gate.py::test_switched_on_staff_may_look_and_change_and_a_stranger_is_refused"
   - words: "every address is not found while the screens are closed to a person"
     proved_by: "apps/web/tests/m1-13-curriculum-fill.spec.ts::closed to staff with no preview role while the switch is off: every address is not found"
   - words: "open to the staff preview with the switch off, and to staff once it is on"
@@ -26,8 +30,7 @@ says:
   - words: "keep every page and action checking who is asking (the server actions)"
     proved_by: "packages/engine/tests/test_web_gate.py::test_every_server_action_checks_who_is_asking"
 manual:
-  - "Not run live. Nimish is to hold the role 'head' on live (the orchestrator grants it) before the screens show to him with the educator switch off."
-  - "A previewer may Keep, Edit, Send back and answer an offer (curriculum work is the staff's own); the educator gate's rule for the timetable and materials, that a preview only looks, is not applied here. Said in the pull request."
+  - "Not run live. Nimish is to hold the role 'head' on live (the orchestrator grants it) before the screens show to him with the educator switch off. In that preview he sees every screen and changes nothing (D-076); Keep, Edit, Send back and the offers' Yes and No work once the educator switch is on."
 criteria:
   - name: the gate on the engine's curriculum routes, and the routes as they were
     run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/api/test_curriculum_gate.py tests/api/test_k2_page_routes.py tests/api/test_offers_routes.py tests/test_educator_gate.py
