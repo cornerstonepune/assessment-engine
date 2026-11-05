@@ -127,14 +127,16 @@ def week(conn: db.Conn, klass: dict, classes: list[dict], any_day: dt.date) -> d
 
 
 def _plan_lines(conn: db.Conn, entry_id: str | None) -> list[str]:
-    """The planner lines under the same heading and fortnight as this period's line, in the planner's order."""
+    """The planner lines under the same heading and fortnight as this period's line, in the planner's order: of its own
+    week when the fortnight is listed under two months (`plan_entry.week_code`), else all of them."""
     if not entry_id:
         return []
     return [
         r["text"]
         for r in conn.execute(
             "select sib.text from plan_entry pe join plan_entry sib on sib.school_class_id = pe.school_class_id"
-            " and sib.fortnight_id = pe.fortnight_id and sib.plan_key = pe.plan_key where pe.id = %s order by sib.ord",
+            " and sib.fortnight_id = pe.fortnight_id and sib.plan_key = pe.plan_key"
+            " and sib.week_code is not distinct from pe.week_code where pe.id = %s order by sib.ord",
             (entry_id,),
         ).fetchall()
     ]

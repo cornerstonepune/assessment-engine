@@ -567,6 +567,7 @@
  "plan_entry.plan_entry_source_check": "CHECK ((btrim(source) <> ''::text))",
  "plan_entry.plan_entry_tenant_id_fkey": "FOREIGN KEY (tenant_id) REFERENCES tenant(id) ON DELETE CASCADE",
  "plan_entry.plan_entry_text_check": "CHECK ((btrim(text) <> ''::text))",
+ "plan_entry.plan_entry_week_code_check": "CHECK ((week_code = ANY (ARRAY['A'::text, 'B'::text])))",
  "prescription.prescription_child_id_fkey": "FOREIGN KEY (child_id) REFERENCES child(id) ON DELETE CASCADE",
  "prescription.prescription_kind_check": "CHECK ((kind = ANY (ARRAY['practice'::text, 'assessment'::text])))",
  "prescription.prescription_level_check": "CHECK (((level IS NULL) OR (level = ANY (ARRAY['Lm'::text, 'L0'::text, 'Lp'::text]))))",
