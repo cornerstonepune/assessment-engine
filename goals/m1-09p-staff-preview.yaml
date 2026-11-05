@@ -1,0 +1,35 @@
+name: m1-09p-staff-preview
+goal: >
+  While educator.timetable_enabled is off, a member of staff whose open grant is in a role educator.preview_roles names
+  (a config row, head and coordinator) sees the K2 educator's timetable and materials as an educator would, and a
+  previewer who holds no class sees every class that has a timetable; every other person is refused as before, and the
+  switch alone still decides what is sent out. A preview only looks: once the switch is on it ends, and while it lasts
+  it changes nothing a class does not own (no catalogue item). Its grant is judged by the school's clock. One rule, w2_print/educator_gate.py, for the timetable and materials routes.
+# Written 2026-11-05 (D-076: screens built in the real app, behind the staff preview, educator switches off; the
+# orchestrator approved this rule that day). No migration: a config row.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_educator_gate.py::test_with_the_switch_off_the_educator_is_refused_and_a_head_previews_her_classes_timetable"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_educator_gate.py::test_a_role_not_named_previews_nothing_and_the_roles_are_a_config_row"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_educator_gate.py::test_with_the_switch_on_the_educator_sees_her_own_class_as_before"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_educator_gate.py::test_the_materials_routes_open_to_a_previewer_and_stay_shut_to_the_educator_while_the_switch_is_off"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_day.py::test_while_the_switch_is_off_a_period_call_without_its_fields_is_refused_the_same_way"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_educator_gate.py::test_once_switched_on_a_head_sees_only_classes_they_hold_and_a_preview_adds_no_catalogue_item"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_educator_gate.py::test_a_preview_offers_only_classes_whose_timetable_is_in_force_on_the_day_asked"
+manual:
+  - "On live, the orchestrator grants Nimish the 'head' role (his sign-in holds no role today); until then the preview opens to nobody on live."
+  - "A previewer may change a materials list only for a class they hold (the materials routes' own rule): the preview opens the door, not the class."
+scenarios: []
+criteria:
+  - name: the gate, the timetable and the materials routes
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_educator_gate.py tests/test_k2_day.py tests/test_materials_list.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

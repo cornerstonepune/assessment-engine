@@ -1,7 +1,8 @@
 """The K2 educator's materials list (task M1-10): the routes her pages reach. Only wiring: building, editing, sending and
 reminding are `w2_print/materials_*`. The site calls with the engine's key and her email as `actor`, whose staff id the
 engine finds (`public.staff_of_email`); she may touch only a class she holds (`educator.timetable_roles`). Every route
-refuses while `educator.timetable_enabled` is off."""
+refuses while `educator.timetable_enabled` is off, except to the staff preview (`w2_print/educator_gate.py`, D-076),
+which may look and change nothing: a list she holds a class for is still hers alone, and no catalogue item is proposed."""
 
 import datetime as dt
 from typing import Literal
@@ -12,6 +13,7 @@ from pydantic import BaseModel, Field
 
 from engine.api.deps import get_conn, get_tenant_id, require_engine_key
 from engine.core import db
+from engine.w2_print import educator_gate
 from engine.w2_print import materials_list as ml
 from engine.w2_print import materials_remind as rem
 from engine.w2_print import materials_send as send
@@ -72,10 +74,13 @@ class Inbox(Who):
     class_id: UUID | None = None
 
 
-def staff_of(conn, body: Who) -> UUID:
-    if not ml.enabled(conn):
-        raise HTTPException(status_code=403, detail="The timetable is not switched on.")
+def staff_of(conn, body: Who, reads: bool = False) -> UUID:
+    """Her staff id. Switched off, only the staff preview (D-076, w2_print/educator_gate.py) gets past, and only to a
+    route that `reads`: a preview changes nothing. Every route writes unless it says otherwise."""
     sid = db.one(conn, "select public.staff_of_email(%s) as id", (body.actor,))["id"]
+    preview = reads and sid is not None and educator_gate.previews(conn, sid)
+    if not educator_gate.switched_on(conn) and not preview:
+        raise HTTPException(status_code=403, detail="The timetable is not switched on.")
     if sid is None:
         raise HTTPException(status_code=403, detail="This sign-in is not on the staff list.")
     return sid
@@ -93,8 +98,8 @@ def list_class(conn, list_id: UUID) -> UUID:
     return row["school_class_id"]
 
 
-def _mine_list(conn, body: Who, list_id: UUID) -> UUID:
-    staff = staff_of(conn, body)
+def _mine_list(conn, body: Who, list_id: UUID, reads: bool = False) -> UUID:
+    staff = staff_of(conn, body, reads)
     holds(conn, staff, list_class(conn, list_id))
     return staff
 
@@ -125,7 +130,7 @@ def build(body: Build, conn=Depends(get_conn, scope="function")):
 
 @keyed.post("/read")
 def read(body: Read, conn=Depends(get_conn, scope="function")):
-    _mine_list(conn, body, body.list_id)
+    _mine_list(conn, body, body.list_id, reads=True)
     return ml.read(conn, body.list_id, body.group_by)
 
 
@@ -170,7 +175,7 @@ def add(body: AddLine, conn=Depends(get_conn, scope="function")):
 
 @keyed.post("/catalogue/list")
 def catalogue(body: Who, conn=Depends(get_conn, scope="function"), tenant_id: str = Depends(get_tenant_id)):
-    staff_of(conn, body)
+    staff_of(conn, body, reads=True)
     return {
         "items": [
             {
@@ -220,7 +225,7 @@ def ack(body: Ack, conn=Depends(get_conn, scope="function")):
 
 @keyed.post("/reminders")
 def reminders(body: Inbox, conn=Depends(get_conn, scope="function")):
-    staff = staff_of(conn, body)
+    staff = staff_of(conn, body, reads=True)
     if body.class_id is not None:
         holds(conn, staff, body.class_id)
     return {"reminders": rem.inbox(conn, rem.school_today(conn), body.class_id, staff)}
