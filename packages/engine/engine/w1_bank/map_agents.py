@@ -23,12 +23,22 @@ from typing import cast
 
 from engine.adapters import llm
 from engine.core import db, settings
-from engine.w1_bank.map_check import LEVELS, Gap, Known, asked_levels, decide, problems
+from engine.w1_bank import map_offers as offers
+from engine.w1_bank.map_check import (  # noqa: F401 — Proposal and Rules are read from here too
+    LEVELS,
+    Gap,
+    Known,
+    Proposal,
+    Reply,
+    Rules,
+    asked_levels,
+    decide,
+    problems,
+)
 from engine.w1_bank.map_eval import lo_skill_pairs
 
 PROPOSE = "curriculum_map_propose"
 VALIDATE = "curriculum_map_validate"
-Reply = dict[str, object]
 Ask = Callable[
     [str, str, dict[str, object]], Reply
 ]  # (purpose, the activity or objective asked about, variables)
@@ -50,22 +60,6 @@ class Band:
     pool: frozenset[str] | None = (
         None  # the activities the proposer may see as examples (the dev set); None: all
     )
-
-
-@dataclass(frozen=True)
-class Proposal:
-    """One proposal for one gap, as decided: what it says, what code found, the validator's verdict, where it goes."""
-
-    kind: str
-    subject_code: str
-    proposal: Reply
-    confidence: float
-    proposer: str
-    validator: str
-    problems: list[str]
-    verdict: str
-    status: str
-    reason: str
 
 
 def _bad_replies_allowed(conn: db.Conn) -> int:
@@ -236,16 +230,6 @@ def sampled(kind: str, code: str, share: float) -> bool:
     return int(hashlib.sha256(f"{kind}:{code}".encode()).hexdigest()[:8], 16) / 0xFFFFFFFF < share
 
 
-@dataclass(frozen=True)
-class Rules:
-    """The numbers the decision reads, every one a threshold row (`map.*`), and the kinds whose audit failed."""
-
-    min_confidence: float
-    audit_share: float
-    examples: int
-    stopped: frozenset[str] = frozenset()
-
-
 def _context(band: Band, code: str, gaps: list[str], n: int) -> dict[str, object]:
     gap = band.gaps[code]
     fit = band.known.families.get(gap.strand, frozenset())
@@ -290,7 +274,7 @@ def _checked(
 ) -> Proposal:
     found = problems(kind, part, gap, band.known)
     verdict, why = "", ""
-    if not found:
+    if not found and rules.use_checker:
         listed = cast(list[str], part.get("skills") or [])
         try:
             v = ask(
@@ -312,8 +296,9 @@ def _checked(
         found,
         verdict,
         confidence,
-        min_confidence=rules.min_confidence,
+        min_confidence=rules.bar(kind),
         sampled=audit,
+        checker=rules.use_checker,
         new_words=bool(part.get("objective_text")),
         none=kind in ("skill", "lo_skill") and not part.get("skills"),
         kind_stopped=kind in rules.stopped,
@@ -341,7 +326,13 @@ def _broken(kind: str, code: str) -> Proposal:
     )
 
 
-def propose(band: Band, codes: list[str], ask: Ask, rules: Rules) -> list[Proposal]:
+def propose(
+    band: Band,
+    codes: list[str],
+    ask: Ask,
+    rules: Rules,
+    asked: frozenset[tuple[str, str]] = frozenset(),
+) -> list[Proposal]:
     """A decided proposal for each gap of each activity named: the proposer asked once per activity, each part
     checked by code, the validator asked where code found nothing wrong."""
     out: list[Proposal] = []
@@ -349,8 +340,9 @@ def propose(band: Band, codes: list[str], ask: Ask, rules: Rules) -> list[Propos
         gaps = kinds_missing(band.gaps[code])
         if not gaps:
             continue
+        context = _context(band, code, gaps, rules.examples)
         try:
-            reply = ask(PROPOSE, code, _context(band, code, gaps, rules.examples))
+            reply = ask(PROPOSE, code, context)
         except llm.LLMSchemaError:
             out += [
                 _broken(kind, code) for kind in gaps
@@ -358,7 +350,7 @@ def propose(band: Band, codes: list[str], ask: Ask, rules: Rules) -> list[Propos
             continue
         confidence = float(cast(float, reply.get("confidence", 0.0)))
         for kind in gaps:
-            out.append(
+            out += offers.split(
                 _checked(
                     band,
                     kind,
@@ -369,7 +361,10 @@ def propose(band: Band, codes: list[str], ask: Ask, rules: Rules) -> list[Propos
                     ask,
                     PROPOSE,
                     band.gaps[code],
-                )
+                ),
+                offers.shown_in(context),
+                rules,
+                asked,
             )
     return out
 

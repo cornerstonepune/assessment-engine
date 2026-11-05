@@ -51,6 +51,8 @@ export type EngineRoutes = {
   "POST /child/{child_id}/parent-report/{note_id}/edit": { by: string; draft: Record<string, unknown> };
   "POST /children/find": { section: string; first_name: string; actor: string };
   "POST /commit": { child_id: string; by: string };
+  "POST /curriculum/offers/answer": { actor: string; id: string; yes: boolean; why?: string };
+  "POST /curriculum/offers/list": { actor: string };
   "POST /curriculum/page/confirm": { actor: string; code: string; part: string };
   "POST /curriculum/page/edit": { actor: string; code: string; part: string; text?: string | null; items?: string[] | null; idea?: string | null; slips?: { keyword: string; spot: string }[] | null };
   "POST /curriculum/page/read": { actor: string; code: string };

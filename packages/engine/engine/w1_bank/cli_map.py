@@ -55,6 +55,9 @@ def _rules(conn: db.Conn, tenant: db.Id) -> Rules:
         min_confidence=r["min_confidence"],
         audit_share=r["audit_share"],
         examples=int(r["examples"]),
+        skill_confidence=r.get("skill_min_confidence"),
+        from_examples=bool(r.get("require_examples", 0)),
+        use_checker=bool(r.get("use_checker", 1)),
         stopped=map_ledger.stopped(conn, tenant, r["audit_rejected_at_most"], r["audit_min_decided"]),
     )
 
@@ -111,7 +114,10 @@ def propose_(
         ask = _ask(conn, recorded)
         pairs = frozenset((c, s) for k, c, s in done if k == "lo_skill")
         try:
-            made = [*propose(b, todo, ask, rules), *propose_lo_skills(b, ask, rules, pairs)]
+            made = [
+                *propose(b, todo, ask, rules, map_ledger.asked(conn, tenant)),
+                *propose_lo_skills(b, ask, rules, pairs),
+            ]
         except (
             LLMError
         ) as e:  # no active prompt (none is, until its eval meets the bars), no key, no recorded reply

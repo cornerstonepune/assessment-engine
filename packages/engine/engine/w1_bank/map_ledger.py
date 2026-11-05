@@ -71,10 +71,26 @@ def standing(conn: db.Conn, tenant: db.Id, status: str | None = None) -> list[Di
 def proposed(conn: db.Conn, tenant: db.Id) -> set[tuple[str, str, str]]:
     """{(kind, code, skill or '')} of every proposal not turned down: a second run does not propose them again."""
     return {
-        (r["kind"], r["subject_code"], r["proposal"]["skills"][0] if r["kind"] == "lo_skill" else "")
+        (
+            r["kind"],
+            r["subject_code"],
+            r["proposal"]["skills"][0] if r["kind"] in ("lo_skill", "skill_offer") else "",
+        )
         for r in standing(conn, tenant)
         if r["now"] != "rejected"
     }
+
+
+def asked(conn: db.Conn, tenant: db.Id) -> frozenset[tuple[str, str]]:
+    """The (activity, skill) pairs a person has been asked about or has refused: every skill ever offered (whatever became of
+    the offer) and every skill of a skill proposal a person turned down. A second run does not propose them again."""
+    rows = conn.execute(
+        "select p.subject_code, p.proposal from curriculum_proposal p where p.tenant_id = %s and p.about is null"
+        " and (p.kind = 'skill_offer' or (p.kind = 'skill' and exists (select 1 from curriculum_proposal d"
+        " where d.about = p.id and d.status = 'rejected')))",
+        (tenant,),
+    ).fetchall()
+    return frozenset((r["subject_code"], str(s)) for r in rows for s in r["proposal"].get("skills") or [])
 
 
 def stopped(conn: db.Conn, tenant: db.Id, at_most: float, least: float) -> frozenset[str]:
@@ -122,7 +138,7 @@ def changed_by(conn: db.Conn, who: str) -> None:
 def _link(conn: db.Conn, tenant: db.Id, p: DictRow, only: set[str] | None = None) -> str:
     """The one change a proposal makes, made; what it was, in words."""
     body, code = p["proposal"], p["subject_code"]
-    if p["kind"] == "skill":
+    if p["kind"] in ("skill", "skill_offer"):
         for sk in body["skills"]:
             conn.execute(
                 "insert into activity_skill (tenant_id, activity_code, skill_code, source, proposal_id)"
@@ -266,7 +282,9 @@ def _winners(rows: list[DictRow]) -> dict[tuple[str, str], uuid.UUID]:
     return win
 
 
-def apply(conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool) -> list[str]:
+def apply(
+    conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool, only: uuid.UUID | str | None = None
+) -> list[str]:
     """Every proposal that passed on its own or that a person approved, each made, its link naming the proposal,
     each change in the edit history as the machine's, run by that member of staff (ids, never a name); written only
     when `write`."""
@@ -278,6 +296,8 @@ def apply(conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool) -> list[str]:
     doubtful = [p for p in standing(conn, tenant, "needs_person") if p["kind"] == "page_part"]
     win = _winners(standing(conn, tenant))
     for p in [*standing(conn, tenant, "auto_passed"), *standing(conn, tenant, "approved"), *doubtful]:
+        if only is not None and str(p["id"]) != str(only):
+            continue
         keep = {n for n in p["proposal"].get("parts", {}) if win.get((p["subject_code"], n)) == p["id"]}
         if p["kind"] == "page_part" and not keep:
             if write:  # every part of it is covered by a newer draft, or one a person approved: set aside, never written
