@@ -14,3 +14,6 @@
 ## Handoff
 - After merge: `load_settings`, then the free `draft_replay`; read pages_good, the step words still refused, and the all-listed kinds.
 - Not known: how many school pages have steps (the ordinary-word list is only as big as that evidence) and whether the 29 are the bracket case.
+
+## Superseded
+- The ordinary-words list (derived from the school's own steps) could not work: the school wrote no steps. See `m1-12i-props.md`.

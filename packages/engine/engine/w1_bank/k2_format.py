@@ -26,38 +26,32 @@ def _words(text: str) -> list[str]:
     return [t for t in batch._tokens(text) if t.isalpha()]
 
 
-def ordinary_words(rows: Iterable[dict], min_pages: int) -> frozenset[str]:
-    """Words the school's own steps use, on at least `min_pages` pages, where that page's materials text does not list
-    them: ordinary words ("point", "small"), not props. The school writes its steps freely; a word it uses so, again and
-    again, is not a thing a draft may not say."""
-    seen: Counter[str] = Counter()
-    for r in rows:
-        steps = (r.get("steps") or "").strip()
-        if not steps:
-            continue
-        mine = {t for p in batch.pieces_of(r.get("materials") or "") for t in _words(p)}
-        seen.update(set(_words(steps)) - mine)
-    return frozenset(w for w, n in seen.items() if n >= min_pages)
-
-
-def _head_nouns(materials: str, function_words: frozenset[str]) -> set[str]:
-    """The last word of each thing a materials text lists ("Number cards 1-10" → card), the noun a step would name. The
-    words of the language that trail a piece ("as needed", "for the") are not part of what is listed."""
+def _head_nouns(materials: str, function_words: frozenset[str], not_props: frozenset[str]) -> set[str]:
+    """The noun each thing a materials text lists is named by: the last word of a short name ("Number cards 1-10" →
+    card). The words of the language that trail a name ("as needed", "for the") are not part of it; a piece with such a
+    word inside is a clause ("cards to point at", "place the blocks"), not the name of a thing, and names none."""
     out: set[str] = set()
     listed = (re.sub(r"\([^)]*\)", " ", p) for p in batch.pieces_of(materials))
     for piece in (q for p in listed for q in re.split(r"\band\b", p, flags=re.I)):
-        toks = batch._tokens(re.sub(r"[^A-Za-z ]", " ", piece))
-        while toks and toks[-1] in function_words:
+        toks = _words(piece)
+        while toks and toks[-1] in function_words | not_props:
             toks.pop()
-        if toks and len(toks[-1]) >= 3:
+        if toks and len(toks[-1]) >= 3 and not any(t in function_words for t in toks):
             out.add(toks[-1])
     return out
 
 
-def vocabulary(texts: Iterable[str], function_words: Iterable[str] = ()) -> frozenset[str]:
-    """The nouns that name a material anywhere in the band's materials texts."""
-    skip = frozenset(batch._tokens(" ".join(function_words)))
-    return frozenset().union(*(_head_nouns(t, skip) for t in texts))
+def vocabulary(
+    texts: Iterable[str],
+    function_words: Iterable[str] = (),
+    min_pages: int = 1,
+    not_props: Iterable[str] = (),
+) -> frozenset[str]:
+    """The nouns that name a material on at least `min_pages` pages of the band (`texts` holds one page's list each): a
+    thing that is listed again and again is a prop; a word that ends a clause of one list is not."""
+    skip, generic = (frozenset(batch._tokens(" ".join(words))) for words in (function_words, not_props))
+    pages = Counter(w for t in texts for w in _head_nouns(t, skip, generic))
+    return frozenset(w for w, n in pages.items() if n >= min_pages)
 
 
 def _count(text: str) -> int:
@@ -112,17 +106,38 @@ def _thinking(it: dict, fmt: dict) -> tuple[dict, str]:
     return ({"idea": idea.strip(), "slips": slips}, "") if not why else ({}, why)
 
 
+def _covered(phrase: list[str], pieces: list[list[str]]) -> bool:
+    """Every word of a use stands in the list, each run of words inside one piece of it, in that order."""
+    i = 0
+    while i < len(phrase):
+        k = next(
+            (k for k in range(len(phrase) - i, 0, -1) if batch._segment_with(pieces, phrase[i : i + k])), 0
+        )
+        if not k:
+            return False
+        i += k
+    return True
+
+
+def _use_unlisted(uses: object, pieces: list[list[str]], function_words: frozenset[str]) -> str:
+    for name in uses if isinstance(uses, list) else []:
+        phrase = [t for t in _words(str(name)) if t not in function_words]
+        if phrase and not _covered(phrase, pieces):
+            return f"uses '{name}': not in the school's materials"
+    return ""
+
+
 def _unlisted(steps: list[str], uses: object, materials: str, vocab: frozenset[str], fmt: dict) -> str:
-    """A thing a step or the page's own `uses` names that the school's materials text does not."""
+    """A thing a step or the page's own `uses` names that the school's materials text does not. A page the school gave
+    no list is judged by its `uses` alone (it must be empty); its steps are read by the checker."""
     # words only, on both sides: "Beads (10 per child)" is listed as bead, per, child whichever way the digits were kept
     pieces = [_words(p) for p in batch.pieces_of(materials)]
-    for name in uses if isinstance(uses, list) else []:
-        phrase = batch._tokens(re.sub(r"[^A-Za-z ]", " ", str(name)))
-        if phrase and batch._segment_with(pieces, phrase) is None:
-            return f"uses '{name}': not in the school's materials"
+    skip = frozenset(batch._tokens(" ".join(fmt.get("function_words", []))))
+    if why := _use_unlisted(uses, pieces, skip):
+        return why
     mine = {t for toks in pieces for t in toks}
     free = {batch._stem(w.casefold()) for w in fmt["always_there"]}
-    for i, step in enumerate(steps, 1):
+    for i, step in enumerate(steps if mine else [], 1):
         for word in re.findall(r"[a-z]+", step.casefold())[
             1:
         ]:  # the first word is the verb the prompt asks for

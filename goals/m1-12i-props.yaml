@@ -1,0 +1,33 @@
+name: m1-12i-props
+goal: >
+  The step check refuses a prop only when it is plainly one: a noun that names a material on several pages of the band and
+  that the page's own list lacks. A use may run over several pieces of the list. A page the school gave no list is judged by its
+  declared uses alone; its steps are read by the checker. The locked rule (a page names no material the school's list lacks)
+  is unchanged.
+# Written 2026-11-05 (task M1-12i). W1, gate N1. The words are the orchestrator's brief of 2026-11-05 relaying the live check
+# that the school wrote no steps (0 of 2497 pages), so the vocabulary M1-12h derived from them was empty, and its proposal.
+# Nothing here has made a model call.
+says:
+  - words: "the step vocabulary should be words that NAME a material, not any word that ends a piece"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_only_a_short_name_is_a_prop_a_clause_of_the_list_is_not"
+  - words: "head noun of the piece, not the last word of a clause"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_name_ending_in_a_generic_word_keeps_the_word_before_it"
+  - words: "a step may not contain a word that is the HEAD noun of a listed piece on ANOTHER page and absent from this page's list"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_prop_is_a_noun_that_names_a_material_on_enough_pages_of_the_band"
+  - words: "allow a use to span pieces (each run of words must match a listed piece, in order inside that piece)"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_use_may_run_over_several_pieces_of_the_list_each_run_inside_one_piece"
+  - words: "Our locked rule stays: a page must not name a material the school's list lacks"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_use_with_a_word_the_list_does_not_have_is_still_refused_naming_the_use"
+  - words: "activities with NO materials list: a step may still name no prop; leave that to the checker too"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_page_that_has_no_list_is_not_judged_by_the_word_check_the_checker_reads_its_steps"
+  - words: "(a use) the structured `uses` field stays a CODE check against the activity's list"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_what_is_always_in_the_room_needs_no_list_and_a_page_with_no_list_may_use_nothing_else"
+manual:
+  - "Not run live. After merge: `load_settings` (rows k2.format.prop_min_pages, function_words, not_props), then one free `draft_replay`; its pages_good is how many of the 59 kept replies pass. The checker's prompt (k2_page_check v1) already lists 'a step uses a thing the school's materials text does not name' as its first fault, so no new checker prompt is made; whether it catches what the code no longer refuses is measured only on the first paid run with the checkers report."
+criteria:
+  - name: the matcher, the replay and the draft run
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_format.py tests/test_k2_batch.py tests/test_k2_replay.py tests/test_k2_draft.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
