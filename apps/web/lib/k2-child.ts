@@ -1,26 +1,22 @@
-// What a K2 child's page and the class picture say, in the school's words (task M1-17). Pure: no database, no engine.
-// The engine answers in codes and numbers (`POST /k2/child`, `POST /k2/picture`); this file turns them into words, a tone
-// and an icon. Colour is never the only sign (D-075): every state is an icon and a word. A child's state is never red:
-// terracotta is for late or missing work, and `act` is not a tone a child can have (the test below the table holds it).
+// What a K2 child's page and the class picture say (task M1-17). Pure: no database, no engine. The engine answers with the
+// school's words and colours (`POST /k2/child`, `POST /k2/picture`); this file turns a colour into a tone and an icon, and a
+// trend and a date into words. Colour is never the only sign (D-075): every state is an icon and a word.
 import type { IconName } from "./icons";
 import { dateWords } from "./week";
 
 export type ChildTone = "ok" | "wait" | "quiet";
 
-// Not read from `child_state` through lib/states.ts: this table also holds the K2 tone and icon, and its words differ where the
-// written-paper ones do not fit (below). The words are the school's (K2 team). `emerging` is the engine's "under half right", a written-paper phrase that means
-// nothing for an observed skill, so it is "just starting" here. Unverified with the school.
-export const CHILD_STATES: Record<string, { words: string; tone: ChildTone; icon: IconName }> = {
-  secure: { words: "secure", tone: "ok", icon: "secure" },
-  stretch_ready: { words: "ready to move up", tone: "ok", icon: "secure" },
-  secure_to_recheck: { words: "secure, to re-check", tone: "wait", icon: "re-check" },
-  practising: { words: "practising", tone: "wait", icon: "practising" },
-  patterned_error: { words: "repeating a mistake", tone: "wait", icon: "practising" },
-  emerging: { words: "just starting", tone: "quiet", icon: "emerging" },
-  not_enough_yet: { words: "not enough yet", tone: "quiet", icon: "not-enough" },
+// A state's words and colour are the school's `child_state` rows: the engine sends them with every cell, and no code names a
+// state (tests/test_states_and_subject.py). All this file adds is how a colour looks on a child: a tone and an icon, never
+// colour alone. A child is never red (D-075): the rows' red reads as quiet, because terracotta is for late or missing work.
+// Open point for the school: the row for the lowest state says "under half right", a written-paper phrase.
+export const CHILD_LOOK: Record<string, { tone: ChildTone; icon: IconName }> = {
+  green: { tone: "ok", icon: "done" },
+  amber: { tone: "wait", icon: "to-confirm" },
+  red: { tone: "quiet", icon: "to-do" },
+  grey: { tone: "quiet", icon: "not-enough" },
 };
-const UNKNOWN = { words: "seen", tone: "quiet", icon: "not-enough" } as const;
-export const childState = (code: string) => CHILD_STATES[code] ?? UNKNOWN;
+export const lookOf = (colour: string) => CHILD_LOOK[colour] ?? CHILD_LOOK.grey;
 
 export type Trend = "up" | "steady" | "down" | "too_few";
 // A trend, never a score. "Down" is said gently and is not red: a child can have a month with less.
@@ -32,11 +28,11 @@ export const TRENDS: Record<Trend, { words: string; icon: IconName }> = {
 };
 
 export type SkillRef = { code: string; name: string };
-export type PlanSkill = SkillRef & { state: string; words: string; level: number | null; last_seen: string; sentence: string | null; sentence_note: string | null };
+export type PlanSkill = SkillRef & { state: string; words: string; colour: string; level: number | null; last_seen: string; sentence: string | null; sentence_note: string | null };
 export type Growth = { skill: SkillRef; first_seen: string; last_seen: string; by_month: { month: string; level: number; days: number }[]; trend: Trend };
 export type ReadyNext = { skill: SkillRef; because: { before: SkillRef; strength: string }[] };
 export type ChildPage = { class: string; roll_no: string; skills: PlanSkill[]; growth: Growth[]; ready_next: ReadyNext[] };
-export type Cell = { state: string; words: string; level: number | null; last_seen: string };
+export type Cell = { state: string; words: string; colour: string; level: number | null; last_seen: string };
 export type ClassPicture = { class: string; skills: SkillRef[]; children: { roll_no: string; cells: Record<string, Cell> }[] };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

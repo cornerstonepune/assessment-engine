@@ -5,7 +5,7 @@ import { PageShell } from "@/components/page-shell";
 import { Notice } from "../notice";
 import { requireStaff } from "@/lib/auth";
 import { Icon } from "@/lib/icons";
-import { childState, seenCounts, type ClassPicture } from "@/lib/k2-child";
+import { seenCounts, type Cell, type ClassPicture } from "@/lib/k2-child";
 import type { Column } from "@/lib/ux-rules";
 import { classPicture } from "@/lib/k2-reads";
 
@@ -33,13 +33,13 @@ function Picture({ p, classId, page }: { p: ClassPicture; classId: string; page:
   if (p.skills.length === 0) {
     return <Notice flush>No child in this class has been seen on a skill yet. Confirmed notes and forms appear here.</Notice>;
   }
-  const states = new Map<string, number>();
-  for (const c of p.children) for (const cell of Object.values(c.cells)) states.set(cell.state, (states.get(cell.state) ?? 0) + 1);
+  const states = new Map<string, { cell: Cell; n: number }>();
+  for (const c of p.children) for (const cell of Object.values(c.cells)) states.set(cell.state, { cell, n: (states.get(cell.state)?.n ?? 0) + 1 });
   return (
     <>
       <ul className="mb-4 flex flex-wrap gap-2" aria-label="Skills by state, all children" data-k2="strip">
-        {[...states].sort().map(([code, n]) => (
-          <li key={code}><ChildStateChip state={code} />{" "}<span className="text-[13px]">{n}</span></li>
+        {[...states].sort().map(([code, { cell, n }]) => (
+          <li key={code}><ChildStateChip state={code} words={cell.words} colour={cell.colour} />{" "}<span className="text-[13px]">{n}</span></li>
         ))}
       </ul>
       <div data-k2="grid">
@@ -72,8 +72,8 @@ function columns(p: ClassPicture, classId: string): Column<Row>[] {
       cell: (r) => {
         const c = r.cells[s.code];
         return c ? (
-          <Link href={to(r)} className="text-basalt" aria-label={`Sr. No. ${r.roll_no}, ${s.name}: ${childState(c.state).words}${c.level === null ? "" : `, level ${c.level}`}`}>
-            <ChildStateChip state={c.state} level={c.level} compact />
+          <Link href={to(r)} className="text-basalt" aria-label={`Sr. No. ${r.roll_no}, ${s.name}: ${c.words}${c.level === null ? "" : `, level ${c.level}`}`}>
+            <ChildStateChip state={c.state} words={c.words} colour={c.colour} level={c.level} compact />
           </Link>
         ) : (
           <span data-seen="no" aria-label={`Sr. No. ${r.roll_no}, ${s.name}: not seen yet`}>–</span>

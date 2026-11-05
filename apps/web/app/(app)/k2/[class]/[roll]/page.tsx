@@ -35,7 +35,7 @@ function Child({ p }: { p: ChildPage }) {
           <ul className="divide-y divide-line border-y border-line">
             {p.skills.map((s) => (
               <li key={s.code} className="flex flex-col gap-1 py-3">
-                <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{s.name}</span><ChildStateChip state={s.state} level={s.level} /></div>
+                <div className="flex flex-wrap items-center gap-2"><span className="font-medium">{s.name}</span><ChildStateChip state={s.state} words={s.words} colour={s.colour} level={s.level} /></div>
                 <div className="text-[13px]">last seen {dayWords(s.last_seen)}{s.level === null ? "" : ` · ${levelWords(s.level)}`}</div>
                 {s.sentence ? <p className="text-[14px]" data-k2="words">“{s.sentence}”</p> : s.sentence_note ? <p className="text-[13px]">{s.sentence_note}</p> : null}
               </li>

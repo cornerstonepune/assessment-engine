@@ -165,6 +165,6 @@ test("token check: the new screens name no raw colour and no terracotta, and a c
     expect(text, f).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     expect(text, f).not.toMatch(/terracotta|clay|text-red|bg-red|border-red/);
   }
-  const { CHILD_STATES } = await import("../lib/k2-child");
-  expect(Object.values(CHILD_STATES).map((s) => s.tone as string)).not.toContain("act");
+  const { CHILD_LOOK } = await import("../lib/k2-child");
+  expect(Object.values(CHILD_LOOK).map((s) => s.tone as string)).not.toContain("act");
 });

@@ -13,10 +13,12 @@ call. Design: `docs/notes/m1-17-design.md` (#402).
   merged, so it is not wired and there is no menu entry**; the pages are reached by address. I wrote no gate of my own.
 
 ## Decisions made without an answer
-- **Chip table** (`lib/k2-child.ts`), no terracotta on a child: secure, ready to move up → olive; secure to re-check,
-  practising, repeating a mistake → amber; just starting, not enough yet → monsoon. Each with an icon and a word. The seed's
-  `child_state.colour` (red for emerging) is not read. "Emerging" is worded "just starting" (the engine's "under half right"
-  is a written-paper phrase); *unverified with the school*.
+- **Chip** (`lib/k2-child.ts`, `components/child-state-chip.tsx`), no terracotta on a child: the words and colour are the `child_state`
+  rows, as the engine sends them with every cell; web code names no state (CI's `test_no_file_names_a_state_or_a_subject` caught my
+  first version, a TS table of states). Only the colour's look is here: green is olive with a tick, amber is amber with a clock, red
+  and grey are monsoon (a child is never red; the rows' red reads as quiet) with a ring or a dashed square. Each with its word.
+  **Consequence:** the lowest state reads "under half right", the row's words for written papers; it does not fit an observed skill.
+  An earlier version said "just starting"; that wording is now an open point for the school and a seed-row edit if wanted.
 - Growth's trend "down" reads "lower this month", in amber-free plain text with an icon, not a chip.
 - The links in the grid are basalt (the site's default link colour is terracotta).
 - **The ground is white** (`app/(app)/k2/layout.tsx`, the app's own `bg-white`), not `--surface` from `tokens.css`. The orchestrator asked
@@ -38,12 +40,11 @@ call. Design: `docs/notes/m1-17-design.md` (#402).
   only the two `LayoutProps` errors that exist on main (generated types).
 - A real defect found by the browser and fixed on #404: the route's response model dropped `growth` and `ready_next`
   (the function tests had passed). Test added first, seen failing.
-- **`/code-review` (medium) and `/simplify` run; fixed:** the growth and link reads now run before the name check (its failed read
+- **`/code-review` (medium) and `/simplify` run; fixed:** the state table moved to the rows (see Chip); the growth and link reads now run before the name check (its failed read
   would abort the transaction); growth names come with the growth rows (a skill from another grade); `/k2/child`'s trend is a
   closed set in the route model; the web read turns an engine restart into the usual words instead of an error page; links are
   encoded; one `Notice` for the six hand-written empty states; dates through the site's `dateWords` ("19-Oct-2026");
-  `names` copied once, not per row. **Skipped, on purpose:** the TS state table instead of the `child_state` rows (the engine's
-  "under half right" is wrong for K2; a comment says why); `ready_next` also listing a skill already practising (where the
+  `names` copied once, not per row. **Skipped, on purpose:** `ready_next` also listing a skill already practising (where the
   educator pushes next; the plan section above it is a different view); the name check covering only this class's children
   (M1-03's documented limit); the chip's copied class string (minor); paging the class on the engine side.
 - **Not run:** the sharded whole suites; the whole browser suite (CI).
