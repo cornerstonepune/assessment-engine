@@ -55,6 +55,7 @@ class PlanEntry:
     ord: int
     text: str
     block: str = ""  # the month heading the line sits under, when its fortnight is listed under two
+    week: str | None = None  # then the week its row plans: "A" from the first row, "B" from the second
 
 
 @dataclass(frozen=True)
@@ -221,20 +222,24 @@ def _parts(planner: Planner, n: int, window: list[date], start: date, load: Load
     if n in planner.halves:
         (b1, p1), (b2, p2) = planner.halves[n]
         load.split.append((n, f"week A from the {b1} block's row, week B from the {b2} block's"))
-        return [(b1, p1, lambda d: (d - start).days < 7), (b2, p2, lambda d: (d - start).days >= 7)]
+        return [(b1, p1, "A", lambda d: (d - start).days < 7), (b2, p2, "B", lambda d: (d - start).days >= 7)]
     plan = planner.plans.get(n)
-    return [("", plan, lambda d: True)] if plan else None
+    return [("", plan, None, lambda d: True)] if plan else None
 
 
 def _place(
-    load: Load, vocab: tt.Vocabulary, n: int, part: tuple[str, tt.Plan, tt.Draft], after: dict[str, int]
+    load: Load,
+    vocab: tt.Vocabulary,
+    n: int,
+    part: tuple[str, tt.Plan, str | None, tt.Draft],
+    after: dict[str, int],
 ) -> None:
     """One row's lines and the sessions drawn from them. `after` counts the lines an earlier row of the same fortnight
     already holds under each heading, so a second row's lines continue the numbering."""
-    block, plan, draft = part
+    block, plan, week, draft = part
     for key, lines in plan.lines.items():
         load.plan_entries.extend(
-            PlanEntry(n, key, after.get(key, 0) + i, text, block) for i, text in enumerate(lines, 1)
+            PlanEntry(n, key, after.get(key, 0) + i, text, block, week) for i, text in enumerate(lines, 1)
         )
     for c in draft.cells:
         if c.kind in ("header", "empty"):
@@ -281,10 +286,10 @@ def build(
             load.missing_plan.append((n, "no row for this fortnight in the Monthly Planner"))
             continue
         after: dict[str, int] = {}
-        for block, plan, week in parts:
-            days = [d for d in window if cal.days.get(d, TEACHING).kind == "teaching" and week(d)]
+        for block, plan, week, plans_day in parts:
+            days = [d for d in window if cal.days.get(d, TEACHING).kind == "teaching" and plans_day(d)]
             draft = tt.generate(frame, plan, days, vocab, {d: w for d, w in held.items() if d in days}, start)
-            _place(load, vocab, n, (block, plan, draft), after)
+            _place(load, vocab, n, (block, plan, week, draft), after)
     return load
 
 
