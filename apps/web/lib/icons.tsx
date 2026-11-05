@@ -9,7 +9,6 @@ import {
   Lock,
   AudioLines,
   Bandage,
-  BookOpen,
   Blocks,
   CalendarClock,
   CalendarDays,
