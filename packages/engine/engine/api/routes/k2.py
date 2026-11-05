@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from engine.api.deps import get_conn, require_engine_key
+from engine.w2_print import educator_gate
 from engine.w3_read import k2_picture_reads, k2_reads, voice_intake, voice_store
 
 router = APIRouter(dependencies=[Depends(require_engine_key)])
@@ -136,6 +137,19 @@ def _on(conn) -> None:
         raise HTTPException(status_code=403, detail="Voice notes are not switched on.")
 
 
+def _on_or_preview(conn, actor: str) -> None:
+    """The picture and a child's page answer the staff preview while the switch is off (D-076, `educator_gate`): a member of
+    staff whose open grant is in a role `educator.preview_roles` names. A preview only looks, and both calls only read."""
+    if voice_intake.enabled(conn):
+        return
+    try:
+        staff = voice_intake.staff_of(conn, actor)
+    except voice_store.Refused:
+        staff = None
+    if staff is None or not educator_gate.previews(conn, staff):
+        raise HTTPException(status_code=403, detail="Voice notes are not switched on.")
+
+
 def _refused(no: voice_store.Refused) -> HTTPException:
     return HTTPException(status_code=no.status, detail=str(no))
 
@@ -160,7 +174,7 @@ def coordinator(body: Who, conn=Depends(get_conn, scope="function")):
 
 @router.post("/k2/picture", response_model=Picture)
 def picture(body: Class, conn=Depends(get_conn, scope="function")):
-    _on(conn)
+    _on_or_preview(conn, body.actor)
     try:
         return k2_picture_reads.class_picture(conn, body.actor, body.class_id)
     except voice_store.Refused as no:
@@ -169,7 +183,7 @@ def picture(body: Class, conn=Depends(get_conn, scope="function")):
 
 @router.post("/k2/child", response_model=Page)
 def child(body: Child, conn=Depends(get_conn, scope="function")):
-    _on(conn)
+    _on_or_preview(conn, body.actor)
     try:
         return k2_picture_reads.child_page(conn, body.actor, body.class_id, body.roll_no)
     except voice_store.Refused as no:

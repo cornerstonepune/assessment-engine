@@ -111,7 +111,10 @@ test("the class picture and a child's page, from the same rows, with taps counte
   await expect(page.locator("[data-tone=act]")).toHaveCount(0);
   await expect(page.locator("[data-k2=strip] [data-child-state]").first()).toBeVisible();
   // the ground is white; and nothing about these pages changes the app's own font on any page after them
-  expect(await page.locator("[data-ground=surface]").evaluate((e) => getComputedStyle(e).backgroundColor)).toBe("rgb(255, 255, 255)");
+  expect(await page.locator("[data-educator]").evaluate((e) => getComputedStyle(e).backgroundColor)).toBe("rgb(255, 255, 255)");
+  // in the school's shell: its sidebar marks Children, and a breadcrumb says where this page is
+  await expect(page.locator("[data-educator-nav=side] [data-nav=children]")).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("navigation", { name: "Where you are" })).toContainText("Children");
   await shoot(page, "class-picture");
   // the page does not scroll sideways at phone width; the grid scrolls inside its own box
   await page.setViewportSize(PHONE);
@@ -139,6 +142,19 @@ test("the class picture and a child's page, from the same rows, with taps counte
   await page.getByRole("link", { name: "Back to what needs doing" }).click();
   await expect(page).toHaveURL(/\/today/);
   expect(await font()).toBe(appFont);
+});
+
+test("Children opens from the menu: her classes, one tap to a class's picture, the shell around it", async ({ page }) => {
+  await voiceSwitch(sql, true);
+  await page.goto("/k2");
+  const mine = page.getByRole("list", { name: "Your classes" }).getByRole("link");
+  await expect(mine.first()).toBeVisible();
+  await page.getByRole("list", { name: "Your classes" }).getByRole("link", { name: /M117$/ }).click();
+  await expect(page).toHaveURL(new RegExp(`/k2/${klass}$`));
+  await expect(page.locator("[data-educator-nav=side]")).toBeVisible();
+  await page.setViewportSize(PHONE); // a phone: the tab bar at the foot, no sidebar
+  await expect(page.locator("[data-educator-nav=tabs]")).toBeVisible();
+  await page.setViewportSize(DESKTOP);
 });
 
 test("a child with nothing ready next is told why, and no skill is called not ready", async ({ page }) => {
@@ -169,7 +185,7 @@ test("a confirmed link makes a skill ready next; a proposed one does not", async
 
 test("token check: the new screens name no raw colour and no terracotta, and a child's chip has no late tone", async () => {
   const { readFileSync } = await import("node:fs");
-  for (const f of ["lib/k2-child.ts", "components/child-state-chip.tsx", "app/(app)/k2/[class]/page.tsx", "app/(app)/k2/[class]/[roll]/page.tsx"]) {
+  for (const f of ["lib/k2-child.ts", "lib/k2-menu.ts", "components/child-state-chip.tsx", "app/(app)/k2/layout.tsx", "app/(app)/k2/notice.tsx", "app/(app)/k2/page.tsx", "app/(app)/k2/[class]/page.tsx", "app/(app)/k2/[class]/[roll]/page.tsx"]) {
     const text = readFileSync(path.resolve(__dirname, "..", f), "utf8").replace(/^\s*\/\/.*$/gm, ""); // code, not its comments
     expect(text, f).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     expect(text, f).not.toMatch(/terracotta|clay|text-red|bg-red|border-red/);

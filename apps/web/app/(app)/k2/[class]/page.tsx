@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { ChildStateChip } from "@/components/child-state-chip";
 import { DataTable } from "@/components/data-table";
+import { Crumbs } from "@/components/educator/crumbs";
 import { PageShell } from "@/components/page-shell";
 import { Notice } from "../notice";
 import { requireStaff } from "@/lib/auth";
@@ -24,6 +25,7 @@ export default async function TheClassPicture({ params, searchParams }: { params
       action={<Link href={`/voice/form?class=${classId}`} className="btn secondary inline-flex items-center gap-1.5"><Icon name="form" />Fill the form</Link>}
       next={{ href: "/today", label: "Back to what needs doing" }}
     >
+      <Crumbs trail={[{ label: "Children", href: "/k2" }, { label: got.ok ? got.value.class : "Class picture" }]} />
       {got.ok ? <Picture p={got.value} classId={classId} page={page} /> : <Notice flush>{got.message}</Notice>}
     </PageShell>
   );
@@ -63,7 +65,7 @@ function columns(p: ClassPicture, classId: string): Column<Row>[] {
   const seen = seenCounts(p);
   const to = (r: Row) => `/k2/${classId}/${encodeURIComponent(r.roll_no)}`;
   return [
-    { key: "roll", label: "Sr. No.", keep: true, value: (r) => r.roll_no, cell: (r) => <Link href={to(r)} className="text-basalt underline">{r.roll_no}</Link> },
+    { key: "roll", label: "Sr. No.", keep: true, value: (r) => r.roll_no, cell: (r) => <Link href={to(r)} className="text-[var(--text)] underline">{r.roll_no}</Link> },
     ...p.skills.map((s): Column<Row> => ({
       key: s.code,
       label: `${s.name} · ${seen[s.code]} seen`,
@@ -72,7 +74,7 @@ function columns(p: ClassPicture, classId: string): Column<Row>[] {
       cell: (r) => {
         const c = r.cells[s.code];
         return c ? (
-          <Link href={to(r)} className="text-basalt" aria-label={`Sr. No. ${r.roll_no}, ${s.name}: ${c.words}${c.level === null ? "" : `, level ${c.level}`}`}>
+          <Link href={to(r)} className="text-[var(--text)]" aria-label={`Sr. No. ${r.roll_no}, ${s.name}: ${c.words}${c.level === null ? "" : `, level ${c.level}`}`}>
             <ChildStateChip state={c.state} words={c.words} colour={c.colour} level={c.level} compact />
           </Link>
         ) : (
