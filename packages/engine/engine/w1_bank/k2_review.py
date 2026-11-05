@@ -7,8 +7,11 @@ kept by id (D-046), on the part's mark and in the curriculum's edit history.
 
 from typing import LiteralString
 
+from psycopg.types.json import Jsonb
+
 from engine.core import db
 from engine.w1_bank import map_ledger
+from engine.w1_bank.k2_format import LISTS, edited, render
 from engine.w1_bank.k2_gaps import column
 from engine.w1_bank.map_agents import sampled
 from engine.w1_bank.map_ledger import changed_by
@@ -43,15 +46,17 @@ def keep(conn: db.Conn, tenant: db.Id, staff: db.Id, code: str, part: str) -> No
     _made_theirs(conn, tenant, staff, code, part)
 
 
-def change(conn: db.Conn, tenant: db.Id, staff: db.Id, code: str, part: str, text: str) -> None:
-    """The person's own words in place of the draft's."""
+def change(conn: db.Conn, tenant: db.Id, staff: db.Id, code: str, part: str, value: object) -> None:
+    """The person's own words in place of the draft's: text, or for the steps a list and for the thinking an idea with
+    its slips (the text beside is written from the list, so the site reads either)."""
     col = _column(conn, tenant, code, part)
-    if not text.strip():
-        raise ValueError("a part changed to nothing is a rejected draft: use reject")
+    made = edited(part, value)
     changed_by(conn, f"staff:{staff}")
+    listed = LISTS.get(part)
+    structured = made if not isinstance(made, str) else None
     conn.execute(
-        f"update activity set {col} = %s where tenant_id = %s and code = %s",  # noqa: S608
-        (text.strip(), tenant, code),
+        f"update activity set {col} = %s{f', {listed} = %s' if listed else ''} where tenant_id = %s and code = %s",  # noqa: S608
+        (render(part, made), *((Jsonb(structured) if structured else None,) if listed else ()), tenant, code),
     )
     _made_theirs(conn, tenant, staff, code, part)
 
@@ -60,7 +65,11 @@ def reject(conn: db.Conn, tenant: db.Id, staff: db.Id, code: str, part: str) -> 
     """The draft goes: the part is empty again and carries no mark."""
     col = _column(conn, tenant, code, part)
     changed_by(conn, f"staff:{staff}")
-    conn.execute(f"update activity set {col} = '' where tenant_id = %s and code = %s", (tenant, code))  # noqa: S608
+    listed = LISTS.get(part)
+    conn.execute(
+        f"update activity set {col} = ''{f', {listed} = null' if listed else ''} where tenant_id = %s and code = %s",  # noqa: S608
+        (tenant, code),
+    )
     conn.execute(
         "delete from activity_part_source where tenant_id = %s and activity_code = %s and part = %s",
         (tenant, code, part),
