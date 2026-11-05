@@ -186,6 +186,8 @@
         "est_check_out": 120,
         "est_revise_share": 0.25,
         "report_usd_per_page_limit": 0.02,
+        "measured_min_calls": 5,
+        "measured_min_pages": 20,
         "est_split_in": 400,
         "est_split_out": 300
       }
