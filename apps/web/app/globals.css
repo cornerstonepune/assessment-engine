@@ -51,16 +51,13 @@ body {
   line-height: 1.55;
 }
 
-/* Headings: the same serif, a weight heavier; never all-caps. In the base layer, so a heading's own utility (a smaller
-   heading set in the body face, D-073 R3) wins. */
-@layer base {
-  h1,
-  h2,
-  h3 {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    margin: 0;
-  }
+/* Headings: the same serif, a weight heavier; never all-caps. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  margin: 0;
 }
 
 /* In the base layer, so a link's own utility colours win: unlayered, this `a:hover` beat the

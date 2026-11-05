@@ -8,6 +8,8 @@ import { Legend } from "@/components/educator/tags";
 import { requireStaff } from "@/lib/auth";
 import { mondayOf, nowAtSchool, shortDate, whenIs } from "@/lib/educator/clock";
 import { weekOf } from "@/lib/educator/data";
+import { isDay, withEnds } from "@/lib/educator/period";
+import { notFound } from "next/navigation";
 import type { Week } from "@/lib/educator/types";
 import { E } from "@/lib/educator/words";
 import { schoolToday } from "@/lib/voice-page";
@@ -18,6 +20,7 @@ export default async function WeekPage({ searchParams }: { searchParams: Promise
   const me = await requireStaff();
   const q = await searchParams;
   const today = schoolToday();
+  if (q.day !== undefined && !isDay(q.day)) notFound();
   const monday = mondayOf(q.day ?? today, q.go === "next" ? 1 : 0);
   const w = await weekOf(me, { class_id: q.class, week_of: monday });
   const at = (day: string) => `/educator/week?class=${w.class.id}&day=${day}`;
@@ -85,7 +88,7 @@ function WeekGrid({ w }: { w: Week }) {
               {d.kind === "holiday" ? `${E.dayKind.holiday}${d.note ? `: ${d.note}` : ""}` : E.dayKind.none}
             </div>
           ) : (
-            d.periods.map((p) => (
+            withEnds(d.periods).map((p) => (
               <div key={`${d.day}-${p.period_id}`} data-day={d.day} style={{ ...col, "--r": row(p.starts_at) } as React.CSSProperties} className="min-w-0 md:[grid-column:var(--c)] md:[grid-row:var(--r)]">
                 <PeriodBlock p={p} href={`/educator/period/${p.period_id}?class=${w.class.id}&day=${d.day}`} day={when} now={now} compact />
               </div>

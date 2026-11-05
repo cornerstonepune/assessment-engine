@@ -32,7 +32,12 @@ says:
     proved_by: "apps/web/tests/m1-09-tokens.spec.ts::the educator's screens write no colour, size or font of their own: only the tokens"
   - words: "All parts should just function like a well-oiled machine, right?"
     proved_by: "apps/web/tests/m1-09-calendar.spec.ts::the school's tokens load inside the shell only: a page outside it keeps the site's own look"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-calendar.spec.ts::a day in the address that is not a date is not found, never an error"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-tokens.spec.ts::a day in the address is a real date or nothing"
 manual:
+  - "After the shell has been opened, a link elsewhere keeps its tokens loaded (Next.js keeps a route's CSS): they are the lowest layer, so the site's own values win wherever both name a thing; scoping them fully would mean changing tokens.css (the design worker's) from :root to the shell."
   - "Fortnight and month calendar views (D-075 rule 5) and the sidebar's Activities, Materials and Children and notes items come with their screens; this PR draws Today, the day and the week."
   - "The month's lock (Frozen) is drawn when the engine says so; M1-06 says false until M1-12."
   - "The site keeps its own font (Source Serif 4): D-075 names no face, and the D-073 faces (Jost, Cormorant) went with the look Nimish rejected."

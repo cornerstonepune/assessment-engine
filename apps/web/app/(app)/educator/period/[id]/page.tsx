@@ -7,6 +7,8 @@ import { requireStaff } from "@/lib/auth";
 import { chipOf } from "@/lib/educator/chip";
 import { longDate, nowAtSchool, whenIs } from "@/lib/educator/clock";
 import { periodOf } from "@/lib/educator/data";
+import { isDay, nameOf, timeOf } from "@/lib/educator/period";
+import { notFound } from "next/navigation";
 import { Icon } from "@/lib/icons";
 import { E } from "@/lib/educator/words";
 import { schoolToday } from "@/lib/voice-page";
@@ -19,12 +21,12 @@ const HEAD = "flex items-center gap-[var(--space-2)] text-[length:var(--text-h3)
 export default async function PeriodPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ class?: string; day?: string }> }) {
   const me = await requireStaff();
   const [{ id }, q] = await Promise.all([params, searchParams]);
+  if (q.day !== undefined && !isDay(q.day)) notFound();
   const p = await periodOf(me, { class_id: q.class, day: q.day ?? schoolToday(), period_id: id });
   const chip = chipOf(p, { now: nowAtSchool(), day: whenIs(p.day) });
-  const time = `${p.starts_at}${p.ends_at ? `–${p.ends_at}` : ""}`;
+  const time = timeOf(p);
   const today = `/educator?class=${p.class.id}&day=${p.day}`;
-  const cut = p.line ? p.text.lastIndexOf(": ") : -1;
-  const name = p.kind === "fixed" ? p.label : cut > 0 ? p.text.slice(0, cut) : p.text || p.label;
+  const name = nameOf(p);
   return (
     <PageShell
       stage={E.area}

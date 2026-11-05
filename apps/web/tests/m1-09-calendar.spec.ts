@@ -26,6 +26,14 @@ test.afterAll(async () => {
 
 const white = (page: Page) => page.locator("[data-educator]").evaluate((e) => getComputedStyle(e).backgroundColor);
 
+test("a day in the address that is not a date is not found, never an error", async ({ page }) => {
+  await timetableSwitch(sql, true);
+  for (const href of ["/educator?day=foo", "/educator?day=foo&go=tomorrow", "/educator/week?day=foo"]) {
+    await page.goto(`${href}&class=${klass}`);
+    await expect(page.getByText("This page could not be found.")).toBeVisible();
+  }
+});
+
 test("while the timetable is switched off Today, This week and a period are not found", async ({ page }) => {
   await timetableSwitch(sql, false);
   for (const href of ["/educator", "/educator/week", "/educator/period/00000000-0000-0000-0000-000000000000"]) {
@@ -47,7 +55,8 @@ test("Today is the day as a calendar: every period a block in time order, its ti
   expect([...times].sort()).toEqual(times);
   await expect(page.locator('[data-kind="fixed"]').first()).toContainText("Settling + Outdoor free play");
   await expect(page.locator('[data-kind="fixed"] [data-chip]')).toHaveCount(0);
-  await expect(page.locator(`[data-day="${MONDAY}"] [data-chip]`)).toHaveCount(0); // a day ahead: no chip on any cell (D-075)
+  // no chip but Do now on any cell (D-075: a future cell has none, and nothing is recorded); Do now only while it runs
+  await expect(page.locator(`[data-day="${MONDAY}"] [data-chip]:not([data-chip="doNow"])`)).toHaveCount(0);
   const fills = await page.locator("[data-educator] *").evaluateAll((els) =>
     els.map((e) => getComputedStyle(e).backgroundColor).filter((c) => ["rgb(243, 241, 232)", "rgb(251, 250, 247)", "rgb(237, 227, 211)"].includes(c)),
   );
@@ -56,8 +65,9 @@ test("Today is the day as a calendar: every period a block in time order, its ti
   await expect(strip).toContainText("15 periods");
   await expect(strip.locator("a").first()).toBeVisible(); // every count opens what it counts
   await expect(page.locator("[data-period]").filter({ hasText: "general_awareness" })).toHaveCount(0);
-  await expect(page.locator("[data-next]")).toContainText("09:40");
-  await expect(page.getByLabel("What the colours mean").locator("[data-chip]")).toHaveCount(5);
+  const ahead = MONDAY > (await page.evaluate(() => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" })));
+  await expect(page.locator("[data-next]")).toContainText(ahead ? "09:40" : "This day is over."); // on and after the day itself, the aside says so
+  await expect(page.getByLabel("What the colours mean").locator("[data-chip]")).toHaveCount(4); // Do now, Coming up, Done, Late
   await expect(page.locator("[data-now]")).toHaveCount(0); // not today: no Now line
   await tapsAreBig(page);
   await displayFaceOnlyLarge(page);

@@ -42,6 +42,17 @@ the site's look and font (orchestrator, 5 Nov; tested).
   span, then each D-075 rule) before each fix.
 - Screenshots: `docs/screens/m1-09-built/1-today-*`, `2-week-*`, `3-period-*` (1280, 390, 1280 at 200%).
 
+## From the code review (each fixed, the code-level ones test first)
+
+- The site's heading rule stays as it was (moving it to the base layer changed heading spacing on old pages); only the
+  phone's 24 px floor moves, so a control's own 44 px wins.
+- A period with no end (the bus) lasts until the next starts (`lib/educator/period.ts` `withEnds`), so the chip and the
+  Now line agree; a period's name and time are said by one helper.
+- A day in the address that is not a date is not found, not a crash. A past day says "This day is over."
+- The colour key shows only what the timetable can show (Do now, Coming up as the countdown's colour, Done, Late); the
+  unused "To confirm" branch is gone until the engine says a part waits for her.
+- The tests no longer assume 23 Nov is ahead.
+
 ## Open
 
 - The planner list on a period shows each line twice for a subject planned in both blocks of the fortnight (M1-06's

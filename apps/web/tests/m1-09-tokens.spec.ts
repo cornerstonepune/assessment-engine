@@ -7,6 +7,7 @@ import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { TEXT_PAIRS, contrast, readTokens } from "./tokens-file";
 import { chipOf, nowAt } from "../lib/educator/chip";
+import { isDay, withEnds } from "../lib/educator/period";
 
 const T = readTokens(); // apps/web/design-system/tokens.css, the school's one tokens file (D-073)
 const px = (v: string) => (v.endsWith("rem") ? parseFloat(v) * 16 : parseFloat(v));
@@ -69,8 +70,10 @@ test("a chip is one thing everywhere: Do now in the period, none on a period sti
   expect(chipOf({ ...p, state: "not_done" }, { now: "12:00", day: "today" })).toBe("late");
   expect(chipOf({ ...p, kind: "fixed" }, { now: "11:35", day: "today" })).toBe(null);
   expect(chipOf({ ...p, kind: "empty" }, { now: "11:35", day: "today" })).toBe(null);
-  expect(chipOf(p, { now: "11:00", day: "today", toConfirm: true })).toBe("toConfirm");
-  expect(chipOf({ ...p, ends_at: null }, { now: "11:35", day: "today" })).toBe("doNow"); // no end: until the next period
+  expect(chipOf({ ...p, ends_at: null }, { now: "11:35", day: "today" })).toBe("doNow"); // the day's last: to its end
+  // the bus has no end: it lasts until the next period starts, so the two are never Do now together
+  const [bus, after] = withEnds([{ ...p, starts_at: "10:00", ends_at: null }, { ...p, starts_at: "10:20", ends_at: "10:40" }]);
+  expect([chipOf(bus, { now: "10:30", day: "today" }), chipOf(after, { now: "10:30", day: "today" })]).toEqual([null, "doNow"]);
 });
 
 test("the Now line falls before the first period still to come, after the one running, and nowhere before or after the day", () => {
@@ -83,4 +86,12 @@ test("the Now line falls before the first period still to come, after the one ru
   expect(nowAt(ps, "09:00")).toBe(1);
   expect(nowAt(ps, "08:00")).toBe(null); // before the day
   expect(nowAt(ps, "11:00")).toBe(null); // after it
+  expect(nowAt([...ps, { starts_at: "13:25", ends_at: null }], "13:40")).toBe(4); // the last has no end: still running
+});
+
+test("a day in the address is a real date or nothing", () => {
+  expect(isDay("2026-11-23")).toBe(true);
+  expect(isDay("foo")).toBe(false);
+  expect(isDay("2026-13-40")).toBe(false);
+  expect(isDay(undefined)).toBe(false);
 });

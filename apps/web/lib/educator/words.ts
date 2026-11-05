@@ -1,7 +1,7 @@
 // Every word the K2 educator's timetable screens show (M1-09): one file, the school's words, few in each place.
 export const E = {
   area: "Educator",
-  chips: { doNow: "Do now", toConfirm: "To confirm", comingUp: "Coming up", done: "Done", late: "Late" },
+  chips: { doNow: "Do now", comingUp: "Coming up", done: "Done", late: "Late" },
   nav: { label: "Your timetable", today: "Today", timetable: "Timetable", day: "Tomorrow", week: "This week", nextWeek: "Next week" },
   today: { title: "Today", purpose: "Your class's day, period by period; tap a period to open it." },
   week: { title: "This week", purpose: "Your class's week as a calendar; tap any period to open it." },
@@ -23,6 +23,7 @@ export const E = {
   glance: "This day at a glance",
   nextUp: "Next",
   nothingLeft: "Nothing more today.",
+  dayOver: "This day is over.",
   legend: "What the colours mean",
   schoolWords: "The school's words",
   planner: "The planner for this subject, this fortnight",

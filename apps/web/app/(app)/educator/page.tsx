@@ -9,6 +9,8 @@ import { requireStaff } from "@/lib/auth";
 import { chipOf, countdown, nowAt } from "@/lib/educator/chip";
 import { longDate, nowAtSchool, schoolDay, whenIs } from "@/lib/educator/clock";
 import { dayOf } from "@/lib/educator/data";
+import { isDay, timeOf, withEnds } from "@/lib/educator/period";
+import { notFound } from "next/navigation";
 import type { Day } from "@/lib/educator/types";
 import { E } from "@/lib/educator/words";
 import { schoolToday } from "@/lib/voice-page";
@@ -19,6 +21,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const me = await requireStaff();
   const q = await searchParams;
   const today = schoolToday();
+  if (q.day !== undefined && !isDay(q.day)) notFound();
   const asked = q.go === "tomorrow" ? schoolDay(q.day ?? today, 1) : (q.day ?? today);
   const d = await dayOf(me, { class_id: q.class, day: asked });
   const at = (day: string) => `/educator?class=${d.class.id}&day=${day}`;
@@ -47,10 +50,11 @@ function DayCalendar({ d, classId }: { d: Day; classId: string }) {
     return <EmptyState>{d.kind === "holiday" ? `${E.dayKind.holiday}${d.note ? `: ${d.note}` : ""}` : E.dayKind.none}</EmptyState>;
   const when = whenIs(d.day);
   const now = nowAtSchool();
-  const work = d.periods.map((p) => ({ p, chip: chipOf(p, { now, day: when }) }));
+  const periods = withEnds(d.periods);
+  const work = periods.map((p) => ({ p, chip: chipOf(p, { now, day: when }) }));
   const lessons = d.periods.filter((p) => p.kind !== "fixed" && p.kind !== "empty");
   const next = work.find((w) => w.chip === "doNow") ?? (when === "past" ? undefined : work.find((w) => w.p.kind !== "fixed" && w.p.kind !== "empty" && (when === "future" || w.p.starts_at > now)));
-  const line = when === "today" ? nowAt(d.periods, now) : null;
+  const line = when === "today" ? nowAt(periods, now) : null;
   const href = (id: string) => `/educator/period/${id}?class=${classId}&day=${d.day}`;
   const first = (ps: typeof d.periods) => (ps[0] ? `#p-${ps[0].period_id}` : undefined);
   const breaks = d.periods.filter((p) => p.kind === "fixed");
@@ -69,29 +73,30 @@ function DayCalendar({ d, classId }: { d: Day; classId: string }) {
       </div>
       <ol data-day={d.day} data-day-kind={d.kind} aria-label={longDate(d.day)} className="col-span-12 grid gap-[var(--space-2)] lg:col-span-8">
         {d.note?.startsWith("undecided:") ? <li className="text-[length:var(--text-label)] text-[var(--text-muted)]">{E.dayKind.undecided}</li> : null}
-        {d.periods.map((p, i) => (
+        {periods.map((p, i) => (
           <li key={p.period_id} className="grid gap-[var(--space-2)]">
             {line === i ? <NowLine now={now} /> : null}
             <PeriodBlock p={p} href={href(p.period_id)} day={when} now={now} />
           </li>
         ))}
-        {line === d.periods.length ? <NowLine now={now} /> : null}
+        {line === periods.length ? (
+          <li>
+            <NowLine now={now} />
+          </li>
+        ) : null}
       </ol>
       <aside aria-label={E.glance} className="col-span-12 grid content-start gap-[var(--space-3)] max-lg:order-[-1] lg:col-span-4">
         <section className="grid gap-[var(--space-2)] rounded-[var(--radius-m)] border border-[var(--border)] p-[var(--space-3)]" data-next>
           <h2 className="text-[length:var(--text-h3)] font-semibold">{E.nextUp}</h2>
           {next ? (
             <>
-              <span className="text-[length:var(--text-label)] text-[var(--text-muted)] tabular-nums">
-                {next.p.starts_at}
-                {next.p.ends_at ? `–${next.p.ends_at}` : ""}
-              </span>
+              <span className="text-[length:var(--text-label)] text-[var(--text-muted)] tabular-nums">{timeOf(next.p)}</span>
               <span className="font-medium">{next.p.activity?.name ?? next.p.line ?? next.p.label}</span>
               {next.chip ? <ChipTag chip={next.chip} /> : null}
               {next.chip !== "doNow" && when === "today" ? <span data-countdown className="w-fit rounded-[var(--radius-pill)] border px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--text-label)] font-medium" style={{ color: "var(--chip-soon-fg)", borderColor: "var(--chip-soon-bd)" }}>{countdown(now, next.p.starts_at)}</span> : null}
             </>
           ) : (
-            <p className="text-[var(--text-muted)]">{E.nothingLeft}</p>
+            <p className="text-[var(--text-muted)]">{when === "past" ? E.dayOver : E.nothingLeft}</p>
           )}
         </section>
         <section className="grid gap-[var(--space-2)]">

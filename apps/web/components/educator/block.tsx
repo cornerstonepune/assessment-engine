@@ -1,6 +1,7 @@
 import Link from "@/components/link";
 import { Icon } from "@/lib/icons";
 import { chipOf } from "@/lib/educator/chip";
+import { nameOf, timeOf } from "@/lib/educator/period";
 import type { Period } from "@/lib/educator/types";
 import { E } from "@/lib/educator/words";
 import { CHIP, ChipTag } from "./tags";
@@ -10,7 +11,7 @@ import { CHIP, ChipTag } from "./tags";
 // period. `compact` is the week grid's cell.
 export function PeriodBlock({ p, href, day, now, compact = false }: { p: Period; href: string; day: "past" | "today" | "future"; now: string; compact?: boolean }) {
   const chip = chipOf(p, { now, day });
-  const time = `${p.starts_at}${p.ends_at ? `–${p.ends_at}` : ""}`;
+  const time = timeOf(p);
   if (p.kind === "empty")
     return (
       <div id={`p-${p.period_id}`} data-period={p.period_id} data-kind="empty" className="grid min-h-[var(--tap)] content-center rounded-[var(--radius-m)] border border-dashed border-[var(--border)] px-[var(--space-2)] text-[length:var(--text-label)] text-[var(--text-muted)]">
@@ -19,8 +20,7 @@ export function PeriodBlock({ p, href, day, now, compact = false }: { p: Period;
       </div>
     );
   const fixed = p.kind === "fixed";
-  const cut = p.line ? p.text.lastIndexOf(": ") : -1;
-  const title = fixed ? p.label : cut > 0 ? p.text.slice(0, cut) : p.text || p.label;
+  const title = nameOf(p);
   const what = p.activity?.name ?? (fixed ? null : p.line);
   return (
     <Link

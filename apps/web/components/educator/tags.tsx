@@ -6,7 +6,6 @@ import { E } from "@/lib/educator/words";
 // done, amber needs you soon, terracotta late and work only, monsoon coming up, basalt do now). Colours are tokens only.
 export const CHIP: Record<Chip, { icon: IconName; fg: string; bg: string; bd: string }> = {
   doNow: { icon: "play", fg: "var(--chip-donow-fg)", bg: "var(--chip-donow-bg)", bd: "var(--chip-donow-bd)" },
-  toConfirm: { icon: "to-confirm", fg: "var(--chip-confirm-fg)", bg: "var(--chip-confirm-bg)", bd: "var(--chip-confirm-bd)" },
   comingUp: { icon: "to-do", fg: "var(--chip-soon-fg)", bg: "var(--chip-soon-bg)", bd: "var(--chip-soon-bd)" },
   done: { icon: "done", fg: "var(--chip-done-fg)", bg: "var(--chip-done-bg)", bd: "var(--chip-done-bd)" },
   late: { icon: "late", fg: "var(--chip-late-fg)", bg: "var(--chip-late-bg)", bd: "var(--chip-late-bd)" },
@@ -22,7 +21,8 @@ export function ChipTag({ chip }: { chip: Chip }) {
   );
 }
 
-/** The colour key, once per page: every state the page can show, in its colour and word. */
+/** The colour key, once per page: every state the timetable can show, in its colour and word (Coming up is the
+ * countdown's colour). */
 export function Legend() {
   return (
     <div aria-label={E.legend} className="flex flex-wrap gap-[var(--space-2)]">
