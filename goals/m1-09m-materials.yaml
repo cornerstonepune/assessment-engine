@@ -1,0 +1,32 @@
+name: m1-09m-materials
+goal: >
+  The educator's materials pages show her class's list, built by the engine from the activities in the plan for a day,
+  a week or a fortnight, as a table a day: each line tied to its activity, its quantity never guessed, where it is kept.
+  She sets a quantity, removes a line and adds from the catalogue; there is no send screen. The school's list for the
+  month and the notes waiting for a person are the coordinator's: the coordinator sees them and can set a note aside or
+  put what it asks for on its list; anyone else is told whose they are. Every page is not found unless her screens are
+  open to her, and the staff preview, which changes nothing, is told that no list is built yet.
+# Written 2026-11-05 (D-076, screen 3). No migration. One engine route, /timetable/open: the gate a page that reads no
+# timetable asks (the school's list, the notes); the activity page will use it too.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-materials.spec.ts::the class list is a table a day, each line tied to its activity, its quantity never guessed and where it is kept"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-materials.spec.ts::a quantity she sets is kept, a line removed is gone, an item added from the catalogue is on the list"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-materials.spec.ts::the school's list and the notes to read are the coordinator's: anyone else is told so, the coordinator sees them"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "apps/web/tests/m1-09-materials.spec.ts::while the timetable is switched off the class list is not found"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_educator_gate.py::test_the_site_can_ask_whether_the_educators_screens_are_open_to_this_person"
+manual:
+  - "The staff preview's empty state (no list is built in preview) is checked by the engine's gate tests (a previewer's build is refused); no browser sign-in as a previewer yet."
+  - "M1-16 adds a note and a photograph below the class list's tables."
+scenarios: []
+criteria:
+  - name: the gate
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_educator_gate.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

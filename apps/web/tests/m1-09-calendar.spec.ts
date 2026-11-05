@@ -4,11 +4,9 @@
  * placeholder K2 class (M1-06's `engine timetable load`). Every period a block with its time as time and the
  * school's words, coloured by its state; every block opens its period. No child anywhere.
  */
-import path from "node:path";
-import { execFileSync } from "node:child_process";
 import { expect, test, type Page } from "@playwright/test";
 import postgres from "postgres";
-import { displayFaceOnlyLarge, shoot, tapsAreBig, timetableSwitch } from "./educator-screens";
+import { displayFaceOnlyLarge, loadFortnight10, shoot, tapsAreBig, timetableSwitch } from "./educator-screens";
 import { SECTION, k2Class } from "./k2-rows";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 2 });
@@ -17,9 +15,7 @@ let klass = "";
 
 test.beforeAll(async () => {
   ({ klass } = await k2Class(sql));
-  const tab = (f: string) => path.resolve(__dirname, "../../../supabase/seed/k2_tabs_2026_11_04", f);
-  // M1-06's own command, as a person runs it: Fortnight 10 into the placeholder class. Safe to run twice.
-  execFileSync(path.resolve(__dirname, "../../../bin/engine"), ["timetable", "load", "--frame", tab("frame.csv"), "--planner", tab("planner.csv"), "--calendar", tab("calendar.csv"), "--spans", tab("frame_spans.json"), "--section", SECTION, "--grade", "K2", "--from", "10", "--to", "10", "--year", "2031-32", "--apply"], { env: process.env, stdio: "pipe" });
+  loadFortnight10(SECTION);
 });
 test.afterAll(async () => {
   await timetableSwitch(sql, false);

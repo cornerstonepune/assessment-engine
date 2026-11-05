@@ -101,3 +101,13 @@ def test_a_preview_offers_only_classes_whose_timetable_is_in_force_on_the_day_as
     )
     r = call(world, "day", actor=head, day="2026-11-25")  # after every slot ended
     assert r.status_code == 403 or all(c["id"] != world["k"]["class"] for c in r.json()["classes"])
+
+
+def test_the_site_can_ask_whether_the_educators_screens_are_open_to_this_person(world):
+    """One question for a screen that reads no timetable (the activity page): open or not, and whether as a preview."""
+    _switch(world, False)
+    assert call(world, "open").status_code == 403
+    assert call(world, "open", actor=_head(world)).json() == {"previewing": True}
+    assert call(world, "open", actor="nobody@example.test").status_code == 403
+    _switch(world, True)
+    assert call(world, "open").json() == {"previewing": False}
