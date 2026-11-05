@@ -97,10 +97,36 @@ class PageSkill(Skill, Cell):
     sentence_note: str | None  # why there is none, when there is one to withhold
 
 
+class Month(BaseModel):
+    month: str
+    level: int
+    days: int
+
+
+class Growth(BaseModel):
+    skill: Skill
+    first_seen: str
+    last_seen: str
+    by_month: list[Month]
+    trend: str  # up, steady, down or too_few: a trend, never a score
+
+
+class Because(BaseModel):
+    before: Skill
+    strength: str
+
+
+class ReadyNext(BaseModel):
+    skill: Skill
+    because: list[Because]
+
+
 class Page(BaseModel):
     class_: str = Field(alias="class")
     roll_no: str
     skills: list[PageSkill]
+    growth: list[Growth]
+    ready_next: list[ReadyNext]
 
 
 def _on(conn) -> None:

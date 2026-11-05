@@ -113,6 +113,7 @@ def test_the_picture_and_a_childs_page_reach_only_staff_of_that_class(engine):
     assert _post(client, "/k2/picture", {"actor": other["email"], "class_id": k["class"]}).status_code == 403
     one = _post(client, "/k2/child", {"actor": k["email"], "class_id": k["class"], "roll_no": "3"})
     assert (one.status_code, one.json()["roll_no"], one.json()["skills"]) == (200, "3", [])
+    assert (one.json()["growth"], one.json()["ready_next"]) == ([], []), "the route carries M1-17's two lists"
     assert (
         _post(client, "/k2/child", {"actor": k["email"], "class_id": k["class"], "roll_no": "99"}).status_code
         == 404
