@@ -126,7 +126,7 @@ def _judge(conn: db.Conn, rows: dict) -> k2_format.Judge:
     format_row = settings.config(conn, "k2.format")
     vocab = k2_format.vocabulary(
         (r["materials"] for r in rows.values()), format_row.get("function_words", [])
-    )
+    ) - k2_format.ordinary_words(rows.values(), int(format_row.get("ordinary_min_pages", 3)))
     return k2_format.judger(rows, vocab, format_row, settings.config(conn, "k2.draft_rules"))
 
 

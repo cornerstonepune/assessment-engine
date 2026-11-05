@@ -43,14 +43,18 @@ def stored(conn: db.Conn, stage: str, gap_minutes: float) -> list[Kept]:
 
 
 def kind_of(named: str, materials: str) -> str:
-    """How a thing a draft names stands to the page's own materials text: no list at all, every word of it listed (so the
-    matcher's own order or piece rule refused it), some words listed, a near spelling of a listed word, or unrelated."""
-    mine = {t for t in batch._tokens(materials)}
-    toks = batch._tokens(re.sub(r"[^A-Za-z ]", " ", named))
+    """How a thing a draft names stands to the page's own materials text: no list at all; every word of it listed, either
+    all in one piece but not side by side in that order, or spread over several pieces; some words listed; a near
+    spelling of a listed word; or unrelated."""
+    pieces = [set(t for t in batch._tokens(p) if t.isalpha()) for p in batch.pieces_of(materials)]
+    mine = set().union(*pieces)
+    toks = [t for t in batch._tokens(re.sub(r"[^A-Za-z ]", " ", named)) if t.isalpha()]
     if not mine:
         return "page_has_no_materials"
     if toks and all(t in mine for t in toks):
-        return "all_words_listed"
+        return (
+            "one_piece_not_contiguous" if any(all(t in p for t in toks) for p in pieces) else "spans_pieces"
+        )
     if any(t in mine for t in toks):
         return "some_words_listed"
     if any(len(t) >= 4 and any(m[:4] == t[:4] for m in mine) for t in toks):

@@ -1,0 +1,32 @@
+name: m1-12h-vocabulary
+goal: >
+  The step check's list of props is built from what names a material and not from any word that ends a piece of any page's
+  list; a word the school's own steps use freely is no prop; a plural or British spelling is the same word; a materials
+  list is split where the school separates things and not inside brackets. The locked rule is unchanged.
+# Written 2026-11-05 (task M1-12h). W1, gate N1. The words are the orchestrator's brief of 2026-11-05 relaying the replay of
+# run 20 (12 of 59 pass; step words still refused: point, place, small, feel, big, them, things, ends; 29 uses with every
+# word listed still refused). Nothing here has made a model call.
+says:
+  - words: "the step vocabulary should be words that NAME a material, not any word that ends a piece"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_word_the_schools_own_steps_use_freely_where_the_list_does_not_name_it_is_no_prop"
+  - words: "a config row of ordinary words never counted as props"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_word_used_in_fewer_school_pages_than_the_row_says_stays_a_prop"
+  - words: "plural/British-American variants (colours/colors) treated as the same word"
+    proved_by: "packages/engine/tests/test_k2_batch.py::test_a_word_is_one_word_whether_plural_or_british_and_a_word_ending_in_ss_is_not_a_plural"
+  - words: "29 uses entries have every word listed yet are refused ... fix if it is order-dependent"
+    proved_by: "packages/engine/tests/test_k2_batch.py::test_a_materials_text_is_split_where_the_school_separates_things_and_not_inside_brackets"
+  - words: "29 uses entries have every word listed yet are refused"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_use_that_copies_a_listed_thing_with_commas_inside_its_brackets_is_found"
+  - words: "print how the piece rule decides that (kinds only)"
+    proved_by: "packages/engine/tests/test_k2_replay.py::test_a_use_whose_words_are_all_listed_is_told_apart_by_where_the_list_has_them"
+  - words: "keeping the locked rule for real props"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_prop_named_later_in_a_step_that_the_page_does_not_list_is_still_refused"
+manual:
+  - "Not run live. After merge: `load_settings` (new row k2.format.ordinary_min_pages), then one free `draft_replay`; its pages_good is how many of the 59 kept replies pass now."
+criteria:
+  - name: the matcher, the replay and the draft run
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_format.py tests/test_k2_batch.py tests/test_k2_replay.py tests/test_k2_draft.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

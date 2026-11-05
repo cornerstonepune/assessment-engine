@@ -164,3 +164,31 @@ def test_a_prop_named_later_in_a_step_that_the_page_does_not_list_is_still_refus
     judge = fmt.judger(rows, fmt.vocabulary(["Beads", "Chalk"]), FMT, RULES)
     why = judge([page(steps=["Show the child some chalk."], uses=[])], {"A": WANT["A"]})[1]["A"]
     assert "chalk" in why and "materials" in why
+
+
+def test_a_use_that_copies_a_listed_thing_with_commas_inside_its_brackets_is_found():
+    good, bad = _judge_with(
+        "Crayons (red, blue, green), Paper", steps=["Count the crayons."], uses=["Crayons (red, blue, green)"]
+    )
+    assert bad == {} and "A" in good
+
+
+def test_a_word_the_schools_own_steps_use_freely_where_the_list_does_not_name_it_is_no_prop():
+    # three school pages use "point" in their steps without listing it; one more page's list happens to end in it
+    school = [{"materials": "Beads", "steps": "• Point to the bead."} for _ in range(3)]
+    rows = {
+        "A": {"materials": "Beads"},
+        "L": {"materials": "Arrows to point", "steps": ""},
+        "R": {"materials": "Rope"},
+    }
+    free = fmt.ordinary_words([*school, *rows.values()], min_pages=3)
+    assert "point" in free and "rope" not in free and "bead" not in free, free
+    vocab = fmt.vocabulary([r["materials"] for r in rows.values()])
+    assert "point" in vocab and "rope" in vocab
+    assert "point" not in vocab - free and "rope" in vocab - free
+
+
+def test_a_word_used_in_fewer_school_pages_than_the_row_says_stays_a_prop():
+    school = [{"materials": "Beads", "steps": "• Hand out the rope."} for _ in range(2)]
+    assert fmt.ordinary_words(school, min_pages=3) == frozenset()
+    assert "rope" in fmt.ordinary_words(school, min_pages=2)
