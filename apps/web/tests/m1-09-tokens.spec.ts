@@ -6,7 +6,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { TEXT_PAIRS, contrast, readTokens } from "./tokens-file";
-import { chipOf } from "../lib/educator/chip";
+import { chipOf, nowAt } from "../lib/educator/chip";
 
 const T = readTokens(); // apps/web/design-system/tokens.css, the school's one tokens file (D-073)
 const px = (v: string) => (v.endsWith("rem") ? parseFloat(v) * 16 : parseFloat(v));
@@ -58,12 +58,12 @@ test("the educator's screens write no colour, size or font of their own: only th
   }
 });
 
-test("a chip is one thing everywhere: Do now in the period, Coming up later, Done and Late only from a record, none for a fixed or empty period", () => {
+test("a chip is one thing everywhere: Do now in the period, none on a period still to come, Done and Late only from a record, none for a fixed or empty period", () => {
   const p = { starts_at: "11:20", ends_at: "11:40", kind: "subject" as const, state: "planned" as const };
   const at = (now: string, day: "past" | "today" | "future" = "today") => chipOf(p, { now, day });
   expect(at("11:35")).toBe("doNow");
-  expect(at("11:00")).toBe("comingUp");
-  expect(at("09:00", "future")).toBe("comingUp");
+  expect(at("11:00")).toBe(null); // D-075: a future cell has no chip; the countdown says when
+  expect(at("09:00", "future")).toBe(null);
   expect(at("12:00")).toBe(null); // over, nothing recorded yet: no chip, never a guess
   expect(chipOf({ ...p, state: "done" }, { now: "12:00", day: "today" })).toBe("done");
   expect(chipOf({ ...p, state: "not_done" }, { now: "12:00", day: "today" })).toBe("late");
@@ -71,4 +71,16 @@ test("a chip is one thing everywhere: Do now in the period, Coming up later, Don
   expect(chipOf({ ...p, kind: "empty" }, { now: "11:35", day: "today" })).toBe(null);
   expect(chipOf(p, { now: "11:00", day: "today", toConfirm: true })).toBe("toConfirm");
   expect(chipOf({ ...p, ends_at: null }, { now: "11:35", day: "today" })).toBe("doNow"); // no end: until the next period
+});
+
+test("the Now line falls before the first period still to come, after the one running, and nowhere before or after the day", () => {
+  const ps = [
+    { starts_at: "08:30", ends_at: "08:45" },
+    { starts_at: "09:40", ends_at: "10:00" },
+    { starts_at: "10:00", ends_at: "10:20" },
+  ];
+  expect(nowAt(ps, "09:50")).toBe(2); // running 09:40: the line sits under it
+  expect(nowAt(ps, "09:00")).toBe(1);
+  expect(nowAt(ps, "08:00")).toBe(null); // before the day
+  expect(nowAt(ps, "11:00")).toBe(null); // after it
 });

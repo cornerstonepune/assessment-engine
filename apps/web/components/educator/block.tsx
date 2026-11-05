@@ -13,7 +13,7 @@ export function PeriodBlock({ p, href, day, now, compact = false }: { p: Period;
   const time = `${p.starts_at}${p.ends_at ? `–${p.ends_at}` : ""}`;
   if (p.kind === "empty")
     return (
-      <div data-period={p.period_id} data-kind="empty" className="grid min-h-[var(--tap)] content-center rounded-[var(--radius-m)] border border-dashed border-[var(--border)] px-[var(--space-2)] text-[length:var(--text-label)] text-[var(--text-muted)]">
+      <div id={`p-${p.period_id}`} data-period={p.period_id} data-kind="empty" className="grid min-h-[var(--tap)] content-center rounded-[var(--radius-m)] border border-dashed border-[var(--border)] px-[var(--space-2)] text-[length:var(--text-label)] text-[var(--text-muted)]">
         <span className="tabular-nums">{time}</span>
         <span>{E.free}</span>
       </div>
@@ -25,10 +25,11 @@ export function PeriodBlock({ p, href, day, now, compact = false }: { p: Period;
   return (
     <Link
       href={href}
+      id={`p-${p.period_id}`}
       data-period={p.period_id}
       data-kind={p.kind}
       data-state={chip ?? "none"}
-      className={`group grid min-h-[var(--tap)] gap-[var(--space-1)] rounded-[var(--radius-m)] border border-[var(--border)] border-l-[length:var(--space-1)] px-[var(--space-2)] py-[var(--space-2)] text-[var(--text)] no-underline hover:border-[var(--border-control)] ${fixed ? "bg-[var(--sunken)]" : "bg-[var(--surface)]"}`}
+      className={`group grid min-h-[var(--tap)] gap-[var(--space-1)] rounded-[var(--radius-m)] border border-[var(--border)] border-l-[length:var(--space-1)] px-[var(--space-2)] py-[var(--space-2)] text-[var(--text)] no-underline hover:border-[var(--border-control)] bg-[var(--surface)]`}
       style={{ borderLeftColor: chip ? CHIP[chip].bd : "var(--border)" }}
     >
       <span className="flex flex-wrap items-center justify-between gap-[var(--space-2)]">

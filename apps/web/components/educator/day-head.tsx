@@ -25,7 +25,7 @@ export function Steps({ back, now, on, words }: { back: string; now: string; on:
 export function Where({ fortnight, week, frozen }: { fortnight: Fortnight | null; week: "A" | "B" | null; frozen: boolean }) {
   return (
     <div className="flex flex-wrap items-center gap-[var(--space-2)] text-[length:var(--text-label)] text-[var(--text-muted)]">
-      {fortnight ? <span className="rounded-[var(--radius-pill)] bg-[var(--sunken)] px-[var(--space-2)] py-[var(--space-1)]">{E.fortnight(fortnight.number, week)}</span> : null}
+      {fortnight ? <span className="rounded-[var(--radius-pill)] border border-[var(--border)] px-[var(--space-2)] py-[var(--space-1)]">{E.fortnight(fortnight.number, week)}</span> : null}
       {frozen ? (
         <span data-frozen title={E.frozenNote} className="inline-flex items-center gap-[var(--space-1)]">
           <Icon name="frozen" size={16} />

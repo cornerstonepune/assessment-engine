@@ -3,6 +3,7 @@ import { PageShell } from "@/components/page-shell";
 import { PeriodBlock } from "@/components/educator/block";
 import { Crumbs } from "@/components/educator/crumbs";
 import { ClassPick, Steps, Where } from "@/components/educator/day-head";
+import { Summary } from "@/components/educator/summary";
 import { Legend } from "@/components/educator/tags";
 import { requireStaff } from "@/lib/auth";
 import { mondayOf, nowAtSchool, shortDate, whenIs } from "@/lib/educator/clock";
@@ -35,6 +36,14 @@ export default async function WeekPage({ searchParams }: { searchParams: Promise
     >
       <Crumbs trail={[{ label: E.area }, { label: E.week.title, href: at(today) }, { label: `Week of ${shortDate(w.week_of)}` }]} />
       <ClassPick classes={w.classes} on={w.class.id} href={(id) => `/educator/week?class=${id}&day=${w.week_of}`} />
+      <Summary
+        items={[
+          { label: E.counts.days, n: w.days.filter((d) => d.kind === "teaching" && d.periods.length).length, href: firstDay(w, (d) => d.kind === "teaching") },
+          { label: E.counts.holidays, n: w.days.filter((d) => d.kind === "holiday").length, href: firstDay(w, (d) => d.kind === "holiday") },
+          { label: E.counts.lessons, n: w.days.flatMap((d) => d.periods).filter((p) => p.kind !== "fixed" && p.kind !== "empty").length },
+          { label: E.counts.activities, n: w.days.flatMap((d) => d.periods).filter((p) => p.activity).length },
+        ]}
+      />
       <WeekGrid w={w} />
       <div className="mt-[var(--space-4)]">
         <Legend />
@@ -42,6 +51,11 @@ export default async function WeekPage({ searchParams }: { searchParams: Promise
     </PageShell>
   );
 }
+
+const firstDay = (w: Week, is: (d: Week["days"][number]) => boolean) => {
+  const d = w.days.find(is);
+  return d ? `#day-${d.day}` : undefined;
+};
 
 function WeekGrid({ w }: { w: Week }) {
   const starts = [...new Set(w.days.flatMap((d) => d.periods.map((p) => p.starts_at)))].sort();
@@ -53,12 +67,16 @@ function WeekGrid({ w }: { w: Week }) {
         const col = { "--c": i + 1 } as React.CSSProperties;
         const when = whenIs(d.day);
         return [
+          when === "today" ? (
+            <div key={`${d.day}-today`} data-today-column aria-hidden style={{ ...col, "--r": `1 / span ${starts.length + 1}` } as React.CSSProperties} className="rounded-[var(--radius-m)] bg-[var(--border)]/45 max-md:hidden md:[grid-column:var(--c)] md:[grid-row:var(--r)]" />
+          ) : null,
           <Link
             key={`${d.day}-head`}
+            id={`day-${d.day}`}
             href={`/educator?class=${w.class.id}&day=${d.day}`}
             data-day-head={d.day}
             style={{ ...col, "--r": 1 } as React.CSSProperties}
-            className={`flex min-h-[var(--tap)] items-center justify-between rounded-[var(--radius-m)] px-[var(--space-2)] font-semibold no-underline max-md:mt-[var(--space-3)] md:[grid-column:var(--c)] md:[grid-row:var(--r)] ${when === "today" ? "bg-[var(--chip-donow-bg)] text-[var(--chip-donow-fg)]" : "bg-[var(--sunken)] text-[var(--text)]"}`}
+            className="flex min-h-[var(--tap)] items-center justify-between border-b border-[var(--border)] px-[var(--space-2)] font-semibold text-[var(--text)] no-underline max-md:mt-[var(--space-3)] md:[grid-column:var(--c)] md:[grid-row:var(--r)]"
           >
             {shortDate(d.day)}
           </Link>,

@@ -47,10 +47,18 @@ test("Today is the day as a calendar: every period a block in time order, its ti
   expect([...times].sort()).toEqual(times);
   await expect(page.locator('[data-kind="fixed"]').first()).toContainText("Settling + Outdoor free play");
   await expect(page.locator('[data-kind="fixed"] [data-chip]')).toHaveCount(0);
-  await expect(page.locator('[data-kind="subject"][data-state="comingUp"]').first()).toBeVisible();
+  await expect(page.locator(`[data-day="${MONDAY}"] [data-chip]`)).toHaveCount(0); // a day ahead: no chip on any cell (D-075)
+  const fills = await page.locator("[data-educator] *").evaluateAll((els) =>
+    els.map((e) => getComputedStyle(e).backgroundColor).filter((c) => ["rgb(243, 241, 232)", "rgb(251, 250, 247)", "rgb(237, 227, 211)"].includes(c)),
+  );
+  expect(fills, "no sand, ivory or cream fill").toEqual([]);
+  const strip = page.locator("[data-summary]");
+  await expect(strip).toContainText("15 periods");
+  await expect(strip.locator("a").first()).toBeVisible(); // every count opens what it counts
   await expect(page.locator("[data-period]").filter({ hasText: "general_awareness" })).toHaveCount(0);
-  await expect(page.locator("[data-next]")).toContainText("Coming up");
+  await expect(page.locator("[data-next]")).toContainText("09:40");
   await expect(page.getByLabel("What the colours mean").locator("[data-chip]")).toHaveCount(5);
+  await expect(page.locator("[data-now]")).toHaveCount(0); // not today: no Now line
   await tapsAreBig(page);
   await displayFaceOnlyLarge(page);
   await shoot(page, "1-today");
@@ -74,6 +82,7 @@ test("This week is a grid: a column a day, a row a period, a holiday one cell; o
   expect(Math.round(await y(MONDAY, "09:40"))).toBe(Math.round(await y("2026-11-25", "09:40"))); // one row, one time
   await tapsAreBig(page);
   await displayFaceOnlyLarge(page);
+  await expect(page.locator("[data-summary]")).toContainText("1 holiday");
   await shoot(page, "2-week");
   await page.setViewportSize({ width: 390, height: 900 });
   const mondayLast = (await page.locator(`[data-day="${MONDAY}"] [data-period]`).last().boundingBox())!;
@@ -93,6 +102,7 @@ test("any block opens its period: the time, the school's words, the planner's li
   await expect(page.locator('[data-part="school-words"]')).toContainText("Insects");
   await expect(page.locator('[data-part="activity"]')).toContainText("Insects");
   await expect(page.locator('[data-part="planner"] li').first()).toBeVisible();
+  await expect(page.locator("[data-summary]")).toContainText("1 activity");
   await tapsAreBig(page);
   await displayFaceOnlyLarge(page);
   await shoot(page, "3-period");
@@ -116,4 +126,20 @@ test("her menu is a sidebar on a desktop and tabs at the foot of a phone, each w
   await expect(tabs.locator('[data-tab="today"]')).toHaveAttribute("aria-current", "page");
   await tabs.locator('[data-tab="week"]').click();
   await expect(page).toHaveURL(/\/educator\/week/);
+});
+
+test("in the week grid today's column is grey and no future cell carries a chip", async ({ page }) => {
+  await timetableSwitch(sql, true);
+  await page.goto(`/educator/week?class=${klass}&day=${MONDAY}`);
+  await expect(page.locator("[data-week] [data-chip]")).toHaveCount(0);
+  await expect(page.locator("[data-today-column]")).toHaveCount(0); // a week not this one: no column is today's
+  await page.goto(`/educator/week?class=${klass}`); // this week: today's column is grey
+  const today = page.locator("[data-today-column]");
+  if (await page.locator('[data-day-head]').count()) {
+    const weekday = await page.evaluate(() => new Date().toLocaleDateString("en-GB", { weekday: "short", timeZone: "Asia/Kolkata" }));
+    if (!["Sat", "Sun"].includes(weekday)) {
+      await expect(today).toHaveCount(1);
+      expect(await today.evaluate((e) => getComputedStyle(e).backgroundColor)).not.toBe("rgba(0, 0, 0, 0)");
+    }
+  }
 });

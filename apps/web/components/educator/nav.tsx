@@ -7,27 +7,21 @@ import { E } from "@/lib/educator/words";
 
 // Her timetable's menu (D-075): a left sidebar with submenus on a desktop, a bar of tabs at the foot of a phone. The
 // class she picked and the day she is on go with every link.
-type Item = {
-  key: string;
-  label: string;
-  icon: IconName;
-  path: string;
-  sub?: { label: string; extra: string }[];
-};
+type Sub = { key: string; label: string; path: string; extra?: string };
+type Item = { key: string; label: string; icon: IconName; path: string; sub?: Sub[] };
+// D-075's order: Today, then the timetable (day, week; fortnight and month come with their screens)
 const ITEMS: Item[] = [
-  {
-    key: "today",
-    label: E.nav.today,
-    icon: "today",
-    path: "/educator",
-    sub: [{ label: E.nav.tomorrow, extra: "tomorrow" }],
-  },
+  { key: "today", label: E.nav.today, icon: "today", path: "/educator" },
   {
     key: "week",
-    label: E.nav.week,
+    label: E.nav.timetable,
     icon: "week",
     path: "/educator/week",
-    sub: [{ label: E.nav.nextWeek, extra: "next" }],
+    sub: [
+      { key: "day", label: E.nav.day, path: "/educator", extra: "tomorrow" },
+      { key: "week", label: E.nav.week, path: "/educator/week" },
+      { key: "next", label: E.nav.nextWeek, path: "/educator/week", extra: "next" },
+    ],
   },
 ];
 
@@ -56,7 +50,7 @@ export function EducatorNav({ as }: { as: "side" | "tabs" }) {
                 href={`${i.path}${keep()}`}
                 aria-current={on(i) ? "page" : undefined}
                 data-nav={i.key}
-                className={`flex min-h-[var(--tap)] items-center gap-[var(--space-2)] rounded-[var(--radius-m)] px-[var(--space-2)] font-medium no-underline ${on(i) ? "bg-[var(--chip-donow-bg)] text-[var(--chip-donow-fg)]" : "text-[var(--text)] hover:bg-[var(--sunken)]"}`}
+                className={`flex min-h-[var(--tap)] items-center gap-[var(--space-2)] rounded-[var(--radius-m)] px-[var(--space-2)] font-medium no-underline ${on(i) ? "bg-[var(--chip-donow-bg)] text-[var(--chip-donow-fg)]" : "text-[var(--text)] hover:bg-[var(--border)]/45"}`}
               >
                 <Icon name={i.icon} />
                 {i.label}
@@ -64,10 +58,10 @@ export function EducatorNav({ as }: { as: "side" | "tabs" }) {
               {i.sub ? (
                 <ul className="mt-[var(--space-1)] grid gap-[var(--space-1)] pl-[var(--space-5)]">
                   {i.sub.map((s) => (
-                    <li key={s.extra}>
+                    <li key={s.key}>
                       <Link
-                        href={`${i.path}${keep(s.extra)}`}
-                        data-nav={`${i.key}-${s.extra}`}
+                        href={`${s.path}${keep(s.extra)}`}
+                        data-nav={`${i.key}-${s.key}`}
                         className="flex min-h-[var(--tap)] items-center text-[length:var(--text-label)] text-[var(--text-muted)] no-underline hover:text-[var(--text)]"
                       >
                         {s.label}

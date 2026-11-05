@@ -1,6 +1,7 @@
 import { PageShell } from "@/components/page-shell";
 import { Crumbs } from "@/components/educator/crumbs";
 import { Where } from "@/components/educator/day-head";
+import { Summary } from "@/components/educator/summary";
 import { ChipTag } from "@/components/educator/tags";
 import { requireStaff } from "@/lib/auth";
 import { chipOf } from "@/lib/educator/chip";
@@ -42,6 +43,12 @@ export default async function PeriodPage({ params, searchParams }: { params: Pro
       next={{ href: today, label: E.today.title }}
     >
       <Crumbs trail={[{ label: E.area }, { label: E.today.title, href: today }, { label: `${time} ${name}` }]} />
+      <Summary
+        items={[
+          { label: E.counts.lines, n: p.plan_lines.length, href: "#planner" },
+          { label: E.counts.activities, n: p.activity ? 1 : 0, href: "#activity" },
+        ]}
+      />
       <div className="grid grid-cols-12 gap-[var(--space-3)]">
         <section className={`${CARD} col-span-12 lg:col-span-6`} data-part="school-words">
           <h2 className={HEAD}>
@@ -51,7 +58,7 @@ export default async function PeriodPage({ params, searchParams }: { params: Pro
           <p>{p.text || p.label}</p>
           {p.line ? <p className="text-[var(--text-muted)]">{p.line}</p> : null}
         </section>
-        <section className={`${CARD} col-span-12 lg:col-span-6`} data-part="activity">
+        <section className={`${CARD} col-span-12 lg:col-span-6`} id="activity" data-part="activity">
           <h2 className={HEAD}>
             <Icon name="activity" />
             {E.activity}
@@ -65,7 +72,7 @@ export default async function PeriodPage({ params, searchParams }: { params: Pro
             <p className="text-[var(--text-muted)]">{E.noActivity}</p>
           )}
         </section>
-        <section className={`${CARD} col-span-12`} data-part="planner">
+        <section className={`${CARD} col-span-12`} id="planner" data-part="planner">
           <h2 className={HEAD}>
             <Icon name="checklist" />
             {E.planner}
