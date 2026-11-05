@@ -37,6 +37,7 @@ RUNS = {
         ],
     },
     "map_replay": {"spends": False, "commands": [["engine", "curriculum", "map-replay"]]},
+    "checkers": {"spends": False, "commands": [["engine", "curriculum", "checkers", "--stage", "dev_eval"]]},
     "draft_dev": {
         "spends": True,
         "commands": [["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--by", BY]],
