@@ -71,7 +71,11 @@ def standing(conn: db.Conn, tenant: db.Id, status: str | None = None) -> list[Di
 def proposed(conn: db.Conn, tenant: db.Id) -> set[tuple[str, str, str]]:
     """{(kind, code, skill or '')} of every proposal not turned down: a second run does not propose them again."""
     return {
-        (r["kind"], r["subject_code"], r["proposal"]["skills"][0] if r["kind"] == "lo_skill" else "")
+        (
+            r["kind"],
+            r["subject_code"],
+            r["proposal"]["skills"][0] if r["kind"] in ("lo_skill", "skill_offer") else "",
+        )
         for r in standing(conn, tenant)
         if r["now"] != "rejected"
     }
@@ -122,7 +126,7 @@ def changed_by(conn: db.Conn, who: str) -> None:
 def _link(conn: db.Conn, tenant: db.Id, p: DictRow) -> str:
     """The one change a proposal makes, made; what it was, in words."""
     body, code = p["proposal"], p["subject_code"]
-    if p["kind"] == "skill":
+    if p["kind"] in ("skill", "skill_offer"):
         for sk in body["skills"]:
             conn.execute(
                 "insert into activity_skill (tenant_id, activity_code, skill_code, source, proposal_id)"
@@ -241,7 +245,9 @@ def _new_objective(conn: db.Conn, tenant: db.Id, activity: str, title: str) -> s
     return lo
 
 
-def apply(conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool) -> list[str]:
+def apply(
+    conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool, only: uuid.UUID | str | None = None
+) -> list[str]:
     """Every proposal that passed on its own or that a person approved, each made, its link naming the proposal,
     each change in the edit history as the machine's, run by that member of staff (ids, never a name); written only
     when `write`."""
@@ -255,6 +261,8 @@ def apply(conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool) -> list[str]:
         p["subject_code"]: p["id"] for p in standing(conn, tenant) if p["kind"] == "page_part"
     }  # oldest first
     for p in [*standing(conn, tenant, "auto_passed"), *standing(conn, tenant, "approved"), *doubtful]:
+        if only is not None and str(p["id"]) != str(only):
+            continue
         if p["kind"] == "page_part" and newest[p["subject_code"]] != p["id"]:
             if (
                 write
