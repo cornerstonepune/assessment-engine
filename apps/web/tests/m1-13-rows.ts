@@ -97,7 +97,12 @@ export async function clearOffers(sql: Sql): Promise<void> {
 export async function gate(sql: Sql, mode: "closed" | "preview" | "open") {
   await sql`update config set value = ${mode === "open" ? sql`'true'::jsonb` : sql`'false'::jsonb`} where key = 'educator.timetable_enabled'`;
   const [{ staff_id: staff, tenant_id: t }] = await sql<{ staff_id: string; tenant_id: string }[]>`select staff_id, tenant_id from pii.staff where email = ${TEST_STAFF.email}`;
-  await sql`delete from staff_role_grant where staff_id = ${staff} and granted_by = 'm1-13b test'`;
-  if (mode === "preview")
-    await sql`insert into staff_role_grant (tenant_id, staff_id, role_code, valid_from, granted_by) values (${t}, ${staff}, 'head', current_date - 1, 'm1-13b test')`;
+  // a grant is never deleted and an ended one is never reopened (the table refuses both): "closed" ends this test's grants
+  // by their date, and "preview" gives the tester a new one unless one is open
+  if (mode !== "preview") {
+    await sql`update staff_role_grant set valid_to = valid_from where staff_id = ${staff} and granted_by = 'm1-13b test' and valid_to is null`;
+    return;
+  }
+  const [open] = await sql`select 1 from staff_role_grant where staff_id = ${staff} and granted_by = 'm1-13b test' and valid_to is null`;
+  if (!open) await sql`insert into staff_role_grant (tenant_id, staff_id, role_code, valid_from, granted_by) values (${t}, ${staff}, 'head', current_date - 1, 'm1-13b test')`;
 }
