@@ -10,7 +10,8 @@
 - One engine route, `/timetable/open`: whether her screens are open to her (the timetable's own gate), for a page that
   reads no timetable. Built for the activity page (M1-09a), moved here because this PR lands first.
 - An activity's name is plain text in the list until the activity page is on main; then it becomes the link.
-- Tables for rows of one kind (D-075): a table a day on the class list; one table for the school's list and the notes.
+- Tables for rows of one kind (D-075), each the site's own `DataTable` (rule 2, `tests/test_ux_rules.py`): the class list
+  grouped a table a day; the school's list and the notes paged.
 - No send screen (D-076). Quantity, remove and add are plain forms (server actions), no client code.
 - The staff preview changes nothing, and building a list writes: a previewer is told no list is built yet.
 - The school's list and the notes are the coordinator's (`materials.consolidate_roles`); anyone else sees whose they are.

@@ -3,7 +3,8 @@ import { PageShell } from "@/components/page-shell";
 import { EmptyState } from "@/components/empty-state";
 import { Crumbs } from "@/components/educator/crumbs";
 import { ClassPick } from "@/components/educator/day-head";
-import { BTN, FIELD, MaterialsTable } from "@/components/educator/materials-table";
+import { DataTable } from "@/components/data-table";
+import { BTN, FIELD, materialColumns, type DayLine } from "@/components/educator/materials-table";
 import { Summary } from "@/components/educator/summary";
 import { addLine } from "./actions";
 import { requireStaff } from "@/lib/auth";
@@ -61,9 +62,16 @@ export default async function MaterialsPage({ searchParams }: { searchParams: Pr
           />
           <div id="lines" className="grid gap-[var(--space-4)]">
             {list.groups.length === 0 ? <EmptyState>{W.none}</EmptyState> : null}
-            {list.groups.map((g) => (
-              <MaterialsTable key={g.label} label={g.label} lines={g.lines} />
-            ))}
+            {list.groups.length ? (
+              <DataTable
+                label={W.title}
+                columns={materialColumns(false)}
+                rows={list.groups.flatMap((g) => g.lines.map((l): DayLine => ({ ...l, day: g.label })))}
+                rowKey={(l) => l.line_id}
+                more={{ by: (l) => l.day }}
+                extras={{ attrs: (l) => ({ "data-line": l.line_id }) }}
+              />
+            ) : null}
             <form action={addLine} className="flex flex-wrap items-center gap-[var(--space-2)]" data-add>
               <input type="hidden" name="list" value={list.list_id} />
               <input type="hidden" name="day" value={day} />
