@@ -123,3 +123,44 @@ def test_a_part_is_written_as_text_for_the_columns_the_site_already_reads():
 def test_the_checker_is_shown_a_page_as_the_school_wrote_it_and_the_draft_as_bullets():
     shown = fmt.shown_draft(judged()[0]["A"])
     assert "steps:\n  • Show ten beads" in shown and "slip: counts a bead twice" in shown
+
+
+def _judge_with(materials, steps=None, uses=None, function_words=()):
+    rows = {"A": {"materials": materials}, "Z": {"materials": "Pictures to draw, Cut out and place, Beads"}}
+    vocab = fmt.vocabulary((r["materials"] for r in rows.values()), function_words)
+    fmt_row = FMT | {"function_words": list(function_words)}
+    one = page(steps=steps or ["Count the beads."], uses=uses if uses is not None else [])
+    return fmt.judger(rows, vocab, fmt_row, RULES)([one], {"A": WANT["A"]})
+
+
+def test_a_use_copied_from_the_list_with_its_quantity_is_found_though_the_quantity_has_digits():
+    # the school writes "Beads (10 per child)"; the draft's `uses` drops the digits, the text kept them between the words
+    good, bad = _judge_with("Beads (10 per child), Chalk", uses=["Beads (10 per child)"])
+    assert bad == {} and "A" in good
+    good, bad = _judge_with("Number cards 1-10, Beads", uses=["Number cards 1-10"])
+    assert bad == {}
+
+
+def test_a_use_that_is_not_beside_its_words_in_one_piece_of_the_list_is_still_refused():
+    assert "uses" in _judge_with("Beads, Number cards 1-10", uses=["Beads cards"])[1]["A"]
+
+
+def test_the_verb_a_step_starts_with_is_not_a_prop_whatever_the_lists_of_other_pages_end_in():
+    # another page's list ends in "draw"/"place": a step "Draw ..." / "Place ..." names no prop
+    assert _judge_with("Beads", steps=["Draw a circle.", "Place the beads in it."])[1] == {}
+
+
+def test_a_word_of_the_language_that_ends_a_list_piece_is_not_a_prop():
+    assert fmt.vocabulary(["Cards for the, Pictures to cut out"], ["for", "the", "out", "to"]) == {
+        "card",
+        "cut",
+    }
+    toks = fmt.vocabulary(["Chart paper, markers as needed"], ["as", "needed"])
+    assert toks == {"paper", "marker"}
+
+
+def test_a_prop_named_later_in_a_step_that_the_page_does_not_list_is_still_refused():
+    rows = {"A": {"materials": "Beads"}, "B": {"materials": "Chalk"}}
+    judge = fmt.judger(rows, fmt.vocabulary(["Beads", "Chalk"]), FMT, RULES)
+    why = judge([page(steps=["Show the child some chalk."], uses=[])], {"A": WANT["A"]})[1]["A"]
+    assert "chalk" in why and "materials" in why

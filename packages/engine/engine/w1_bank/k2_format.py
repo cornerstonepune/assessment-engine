@@ -20,19 +20,23 @@ BULLET = "•"
 LISTS: dict[str, LiteralString] = {"steps": "steps_list", "thinking": "thinking_doc"}  # a part's list column
 
 
-def _head_nouns(materials: str) -> set[str]:
-    """The last word of each thing a materials text lists ("Number cards 1-10" → card), the noun a step would name."""
+def _head_nouns(materials: str, function_words: frozenset[str]) -> set[str]:
+    """The last word of each thing a materials text lists ("Number cards 1-10" → card), the noun a step would name. The
+    words of the language that trail a piece ("as needed", "for the") are not part of what is listed."""
     out: set[str] = set()
     for piece in re.split(r"[,;\n]+|\band\b", re.sub(r"\([^)]*\)", " ", materials or ""), flags=re.I):
         toks = batch._tokens(re.sub(r"[^A-Za-z ]", " ", piece))
+        while toks and toks[-1] in function_words:
+            toks.pop()
         if toks and len(toks[-1]) >= 3:
             out.add(toks[-1])
     return out
 
 
-def vocabulary(texts: Iterable[str]) -> frozenset[str]:
+def vocabulary(texts: Iterable[str], function_words: Iterable[str] = ()) -> frozenset[str]:
     """The nouns that name a material anywhere in the band's materials texts."""
-    return frozenset().union(*(_head_nouns(t) for t in texts))
+    skip = frozenset(batch._tokens(" ".join(function_words)))
+    return frozenset().union(*(_head_nouns(t, skip) for t in texts))
 
 
 def _count(text: str) -> int:
@@ -89,7 +93,8 @@ def _thinking(it: dict, fmt: dict) -> tuple[dict, str]:
 
 def _unlisted(steps: list[str], uses: object, materials: str, vocab: frozenset[str], fmt: dict) -> str:
     """A thing a step or the page's own `uses` names that the school's materials text does not."""
-    pieces = [batch._tokens(p) for p in re.split(r"[,;\n]+", materials)]
+    # words only, on both sides: "Beads (10 per child)" is listed as bead, per, child whichever way the digits were kept
+    pieces = [[t for t in batch._tokens(p) if t.isalpha()] for p in re.split(r"[,;\n]+", materials)]
     for name in uses if isinstance(uses, list) else []:
         phrase = batch._tokens(re.sub(r"[^A-Za-z ]", " ", str(name)))
         if phrase and batch._segment_with(pieces, phrase) is None:
@@ -97,7 +102,9 @@ def _unlisted(steps: list[str], uses: object, materials: str, vocab: frozenset[s
     mine = {t for toks in pieces for t in toks}
     free = {batch._stem(w.casefold()) for w in fmt["always_there"]}
     for i, step in enumerate(steps, 1):
-        for word in re.findall(r"[a-z]+", step.casefold()):
+        for word in re.findall(r"[a-z]+", step.casefold())[
+            1:
+        ]:  # the first word is the verb the prompt asks for
             stem = batch._stem(word)
             if stem in vocab and stem not in mine and stem not in free:
                 return f"steps line {i} uses '{word}', which the school's materials do not name"

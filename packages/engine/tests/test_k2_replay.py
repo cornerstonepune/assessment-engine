@@ -5,6 +5,7 @@ page broke on each ask, with no model call and no page text: counts and rule nam
 
 import json
 import os
+from collections import Counter
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -84,6 +85,35 @@ def test_a_use_that_adds_words_to_a_listed_thing_or_misspells_it_is_told_from_on
 def test_a_page_whose_materials_text_is_empty_is_counted_apart_because_no_prop_can_be_listed_for_it():
     got = unlisted([page(key="C", uses=["Rope"])], want=WANT_C)["uses_unlisted"]
     assert got["kinds"] == {"page_has_no_materials": 1}
+
+
+def test_no_printed_key_holds_a_space_so_no_phrase_of_the_schools_ever_reaches_the_log():
+    reply = [page(uses=["number cards 1 to 10"])]
+    got = unlisted(reply, reply, [page(steps=["Hand out the chalk."])], [page(steps=["Hand out the chalk."])])
+    assert got["uses_unlisted"]["words"] == {}, (
+        "a use is a phrase of the school's own text: only its kind is counted"
+    )
+    assert got["uses_unlisted"]["kinds"] == {"some_words_listed": 2}
+    assert got["step_word_unlisted"]["words"] == {"chalk": 2}
+
+    def keys(x):
+        return [k for k, v in x.items()] + [k for v in x.values() if isinstance(v, dict) for k in keys(v)]
+
+    assert not [k for k in keys(got) if " " in k]
+
+
+def test_only_plain_words_of_at_most_twelve_letters_are_ever_printed():
+    shown = rp._unlisted(
+        {
+            "step_word_unlisted": {
+                "words": Counter({"chalk": 3, "a b": 4, "x" * 13: 5, "ok-1": 6, "rope": 2, "once": 1}),
+                "kinds": Counter(),
+            },
+            "uses_unlisted": {"words": Counter({"beads": 9}), "kinds": Counter()},
+        }
+    )
+    assert shown["step_word_unlisted"]["words"] == {"chalk": 3, "rope": 2}
+    assert shown["uses_unlisted"]["words"] == {}
 
 
 def test_a_word_seen_once_is_not_printed_so_the_log_holds_only_what_repeats():
