@@ -3,16 +3,16 @@ import Link from "@/components/link";
 import { Crumbs } from "@/components/educator/crumbs";
 import { PageShell } from "@/components/page-shell";
 import { requireStaff } from "@/lib/auth";
-import { myVoice } from "@/lib/voice";
+import { k2Classes } from "@/lib/k2-reads";
 import { classWords } from "@/lib/voice-types";
 import { Notice } from "./notice";
 
-// The children's pictures start from her class (M1-17): one class opens at once; several are a list. A member of staff who
-// holds no class (the staff preview) opens a class by its address.
+// The children's pictures start from her class (M1-17): one class opens at once; several are a list. The staff preview, who
+// holds no class, is offered every class whose timetable is in force today (the engine's rule, as the timetable's).
 export default async function Children() {
   const me = await requireStaff();
-  const my = await myVoice(me);
-  const classes = my?.classes ?? [];
+  const got = await k2Classes(me.email);
+  const classes = got.ok ? got.value.classes : [];
   if (classes.length === 1) redirect(`/k2/${classes[0].id}`);
   return (
     <PageShell
@@ -23,8 +23,10 @@ export default async function Children() {
       next={{ href: "/educator", label: "Today" }}
     >
       <Crumbs trail={[{ label: "Children" }]} />
-      {classes.length === 0 ? (
-        <Notice>You hold no K2 class here. A class opens from its own address.</Notice>
+      {!got.ok ? (
+        <Notice>{got.message}</Notice>
+      ) : classes.length === 0 ? (
+        <Notice>No K2 class is yours, and none has a timetable in force today.</Notice>
       ) : (
         <ul className="flex flex-wrap gap-[var(--space-2)]" aria-label="Your classes">
           {classes.map((c) => (

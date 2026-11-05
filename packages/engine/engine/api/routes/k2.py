@@ -89,6 +89,16 @@ class PictureRow(BaseModel):
     cells: dict[str, Cell]  # by skill code; no cell where the child was not seen
 
 
+class ClassRef(BaseModel):
+    id: str
+    grade: str
+    section: str
+
+
+class Classes(BaseModel):
+    classes: list[ClassRef]
+
+
 class Picture(BaseModel):
     class_: str = Field(alias="class")
     skills: list[Skill]
@@ -170,6 +180,22 @@ def coordinator(body: Who, conn=Depends(get_conn, scope="function")):
         return k2_reads.coordinator(conn, body.actor)
     except voice_store.Refused as no:
         raise _refused(no) from no
+
+
+@router.post("/k2/classes", response_model=Classes)
+def classes(body: Who, conn=Depends(get_conn, scope="function")):
+    """Her classes; the staff preview, who holds none, is offered every class whose timetable is in force today."""
+    _on_or_preview(conn, body.actor)
+    try:
+        staff = voice_intake.staff_of(conn, body.actor)
+    except voice_store.Refused as no:
+        raise _refused(no) from no
+    every = (
+        educator_gate.timetabled_classes(conn, educator_gate.school_today(conn))
+        if educator_gate.previews(conn, staff)
+        else []
+    )
+    return {"classes": k2_picture_reads.classes(conn, staff, every)}
 
 
 @router.post("/k2/picture", response_model=Picture)

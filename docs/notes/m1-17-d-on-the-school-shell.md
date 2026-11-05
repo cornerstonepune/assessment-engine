@@ -14,15 +14,20 @@ W3, gate N10 (reading side). After #406 and #414 (the shell). No migration, no m
 ## Decided without an answer
 - The preview rule is read through `educator_gate.previews` (the timetable's), on `voice.screens_enabled` (the K2 notes' switch), because
   the picture comes from the voice notes. If the K2 screens should follow `educator.timetable_enabled`, it is one line in the route.
-- A previewer who holds no class reaches a class by its address: `/k2` lists the classes she holds, and a coordinator holds none. A list
-  of every class for the preview needs an engine call that does not exist; not built.
+- **The previewer's class list (orchestrator, 5 Nov: Nimish and Akanksha hold no class and will walk the screens):** `POST /k2/classes`
+  gives her own classes (open grants, the grades `k2.reads` names), and, for a previewer, every class whose timetable is in force
+  today (`educator_gate.timetabled_classes`, the timetable preview's own rule), each once. Reads only; the same gate as the picture.
+  A non-previewer is offered only her own classes (a test holds it against a class that has a timetable and is not hers). `/k2` lists
+  them, and one class opens at once. The door looks the preview up and the workflow takes the extra classes as an argument, because a
+  W3 file may not import W2 (`test_layout.py`).
 - The shell's breadcrumb links are the shell's link colour (terracotta, `--link`). They are links to a class, never on a child's state.
 
 ## Verified (a local database from `bin/testdb fresh`; never live)
+- New: `tests/api/test_k2_classes.py` (5; all failed before the route existed): the previewer is offered every class with a timetable in force today, an educator only her own, the switch off still refuses her and an unknown sign-in, a previewer who holds a class gets it once, an ended timetable is not offered.
 - Tests first: `tests/api/test_k2_routes.py::test_the_staff_preview_sees_the_picture_and_a_child_while_the_switch_is_off_and_nobody_else_does`
   failed (403) before the gate change and passes; two more hold that the to-do and the coordinator list still refuse a previewer and that a
   role the preview does not name is not the preview.
-- Engine: 238 passed across the source-scanning, gate, state-naming, UX-rules, layout, types, contract and K2 suites; ruff clean; `bin/check` 34.
+- Engine: 267 passed across the source-scanning, gate, state-naming, UX-rules, layout, types, contract and K2 suites; ruff clean; `bin/check` 34.
 - Browser (voice notes, the calendar and its tokens, mine, UX rules): 42 passed. Mine now checks the shell: the sidebar marks Children,
   the breadcrumb names it, the ground is white, the app's font is unchanged on the next page, `/k2` opens a class in one tap, the tab
   bar shows on a phone. Screenshots at 1280 and 390 px in `docs/screens/m1-17/` are retaken.
