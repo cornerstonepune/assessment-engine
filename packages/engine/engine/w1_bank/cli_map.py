@@ -114,7 +114,10 @@ def propose_(
         ask = _ask(conn, recorded)
         pairs = frozenset((c, s) for k, c, s in done if k == "lo_skill")
         try:
-            made = [*propose(b, todo, ask, rules), *propose_lo_skills(b, ask, rules, pairs)]
+            made = [
+                *propose(b, todo, ask, rules, map_ledger.asked(conn, tenant)),
+                *propose_lo_skills(b, ask, rules, pairs),
+            ]
         except (
             LLMError
         ) as e:  # no active prompt (none is, until its eval meets the bars), no key, no recorded reply

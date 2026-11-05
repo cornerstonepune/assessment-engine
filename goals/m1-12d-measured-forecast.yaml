@@ -1,0 +1,26 @@
+name: m1-12d-measured-forecast
+goal: >
+  The forecast of a drafting run reads what the calls cost once some have been paid for, and the share of pages a checker
+  sent back, and says how many calls and pages it learned them from; until then it says the token counts are assumed.
+# Written 2026-11-05 (task M1-12d). W1, gate N1. The words are the orchestrator's brief of that day; the originals are not in
+# this repository. Free: reads flow_run and the ledger, makes no call.
+says:
+  - words: "the next forecast replaces my assumptions (a measured forecast command that reads flow_run)"
+    proved_by: "packages/engine/tests/test_k2_forecast.py::test_the_cost_of_a_call_is_read_from_the_calls_made_once_there_are_enough_of_them"
+  - words: "the next forecast replaces my assumptions"
+    proved_by: "packages/engine/tests/test_k2_forecast.py::test_the_share_of_pages_sent_back_is_read_from_the_ledger_once_there_are_enough"
+  - words: "do not guess: say what is assumed"
+    proved_by: "packages/engine/tests/test_k2_forecast.py::test_with_nothing_paid_for_yet_everything_is_assumed_and_the_forecast_says_so"
+  - words: "the old maker's calls and failed calls are not the new maker's cost"
+    proved_by: "packages/engine/tests/test_k2_forecast.py::test_only_answered_calls_of_the_version_that_will_be_asked_are_counted"
+  - words: "too few calls are not enough to go on"
+    proved_by: "packages/engine/tests/test_k2_forecast.py::test_too_few_calls_are_not_enough_to_go_on"
+manual:
+  - "Dispatch `forecast` (no spend) after the dev run: it prints, for each of the three runs, how much of the forecast is measured and how much is assumed."
+criteria:
+  - name: the forecast
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_forecast.py tests/test_k2_draft.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

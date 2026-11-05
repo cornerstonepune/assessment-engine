@@ -1,0 +1,22 @@
+name: m1-06e-period-ends-and-names
+goal: >
+  The engine says once, for every screen, when each period ends and what it is called. A period the frame gives no end
+  lasts until the next one starts (the day's last keeps none), on the day, the week and the period alike. Each period
+  carries its own name: a lesson the frame's ("Academic 2 General Awareness"), a break its own words; the planner's
+  line stays apart in `line`, so no screen cuts a name out of joined text.
+# Written 2026-11-05: the /simplify review of M1-09's calendar found both patched on the website; the orchestrator
+# asked for them at the cause, in k2_day. No migration.
+says:
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_day.py::test_a_period_with_no_end_lasts_until_the_next_one_starts_and_the_days_last_keeps_none"
+  - words: "All parts should just function like a well-oiled machine, right?"
+    proved_by: "packages/engine/tests/test_k2_day.py::test_each_period_carries_its_own_name_apart_from_its_planner_line"
+manual: []
+scenarios: []
+criteria:
+  - name: the day, the week and the period
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_day.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

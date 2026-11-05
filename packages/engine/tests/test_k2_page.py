@@ -155,3 +155,54 @@ def test_reverting_a_proposal_empties_the_lists_it_wrote(conn):
     (p,) = map_ledger.standing(conn, conn.t, "applied")
     map_ledger.revert(conn, conn.t, p["id"], conn.staff, "test")
     assert row(conn, "steps") == "" and row(conn, "steps_list") is None and row(conn, "thinking_doc") is None
+
+
+def _prop(conn, code, parts, status="needs_person"):
+    map_ledger.record(
+        conn, conn.t,
+        [Proposal("page_part", code, {"parts": parts, "flags": []}, 0.9, "k2_page_draft v4", "", [], "agree", status, "r")],
+        conn.staff,
+    )  # fmt: skip
+    return [p for p in map_ledger.standing(conn, conn.t) if p["subject_code"] == code][-1]["id"]
+
+
+def _now(conn, pid):
+    return next(p["now"] for p in map_ledger.standing(conn, conn.t) if p["id"] == pid)
+
+
+def test_a_newer_partial_draft_never_buries_the_parts_an_older_draft_has_that_it_lacks(conn):
+    _act(conn, "KX-1", "A")
+    old = _prop(conn, "KX-1", {"objective": "OLD OBJ", "steps": ["old step"]})
+    new = _prop(conn, "KX-1", {"steps": ["new step"]})
+    map_ledger.apply(conn, conn.t, conn.staff, True)
+    assert row(conn, "objective") == "OLD OBJ", "the older draft's objective is still the page's"
+    assert row(conn, "steps_list") == ["new step"], "and the newer draft wins the part it covers"
+    assert (_now(conn, old), _now(conn, new)) == ("applied", "applied")
+
+
+def test_a_newer_draft_a_person_turned_down_is_not_newer_at_all(conn):
+    _act(conn, "KX-1", "A")
+    _prop(conn, "KX-1", {"objective": "OLD OBJ", "steps": ["old step"]})
+    new = _prop(conn, "KX-1", {"steps": ["new step"]})
+    map_ledger.settle(conn, conn.t, new, False, conn.staff, "no")
+    map_ledger.apply(conn, conn.t, conn.staff, True)
+    assert row(conn, "steps_list") == ["old step"] and row(conn, "objective") == "OLD OBJ"
+
+
+def test_a_part_a_person_approved_is_not_buried_by_a_newer_draft_nobody_has_read(conn):
+    _act(conn, "KX-1", "A")
+    old = _prop(conn, "KX-1", {"steps": ["approved step"]})
+    map_ledger.settle(conn, conn.t, old, True, conn.staff, "good")
+    new = _prop(conn, "KX-1", {"steps": ["unread step"], "objective": "new objective"})
+    map_ledger.apply(conn, conn.t, conn.staff, True)
+    assert row(conn, "steps_list") == ["approved step"], "the person's yes holds"
+    assert row(conn, "objective") == "new objective", "the newer draft still writes the parts nobody approved"
+    assert _now(conn, new) == "applied"
+
+
+def test_a_draft_whose_every_part_a_newer_one_covers_is_set_aside_with_the_reason(conn):
+    _act(conn, "KX-1", "A")
+    old = _prop(conn, "KX-1", {"steps": ["old step"]})
+    _prop(conn, "KX-1", {"steps": ["new step"], "objective": "o"})
+    map_ledger.apply(conn, conn.t, conn.staff, True)
+    assert _now(conn, old) == "rejected" and row(conn, "steps_list") == ["new step"]

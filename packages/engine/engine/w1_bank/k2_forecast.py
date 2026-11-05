@@ -33,22 +33,54 @@ def _shadows(conn: db.Conn) -> list[str]:
     return [p for p in named if p in VERSIONS and p != CHECK]
 
 
+def _per_call(conn: db.Conn, purpose: str, floor: int) -> tuple[float, int]:
+    """The mean cost in rupees of one answered call of the prompt row a run asks for, and how many calls it is over; none
+    (zero calls) while fewer than `floor` have been paid for."""
+    got = conn.execute(
+        "select avg(cost_inr) as mean, count(*) as n from (select cost_inr from flow_run where flow = %s"
+        " and request ->> 'version' = %s and status = 'ok' and cost_inr is not null order by started_at desc limit 200) x",
+        (purpose, str(VERSIONS[purpose])),
+    ).fetchone()
+    n = int(got["n"]) if got else 0
+    return (float(got["mean"]), n) if got and n >= floor else (0.0, 0)
+
+
+def _sent_back(conn: db.Conn, floor: int) -> tuple[float, int]:
+    """The share of pages this maker drafted that a checker sent back (a second round on the ledger), and how many pages."""
+    got = conn.execute(
+        "select count(*) as n, count(*) filter (where jsonb_array_length(coalesce(proposal -> 'history', '[]')) > 1) as back"
+        " from curriculum_proposal where kind = 'page_part' and about is null and proposer = %s",
+        (f"{DRAFT} v{VERSIONS[DRAFT]}",),
+    ).fetchone()
+    n = int(got["n"]) if got else 0
+    return (int(got["back"]) / n, n) if got and n >= floor else (0.0, 0)
+
+
 def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
     t = drafting_settings(conn)
-    size = int(t["batch_pages"])
+    size, floor = int(t["batch_pages"]), int(t.get("measured_min_calls", 5))
     prices = (conn.execute("select value from config where key = 'llm.prices'").fetchone() or {"value": {}})[
         "value"
     ]
-    models = _models(conn)
+    models, how = _models(conn), []
 
     def inr(purpose: str, n: int, tin: str, tout: str) -> float:
+        """What `n` pages (or texts) cost at this purpose: from the calls made if there are enough, else assumed tokens."""
+        mean, calls = _per_call(conn, purpose, floor)
+        how.append(f"{purpose} measured over {calls} calls" if calls else f"{purpose} assumed")
+        if calls:
+            return mean * math.ceil(n / size)
         rate = prices.get(models.get(purpose, ""), {})
         return n * (t[tin] * rate.get("in", 0) + t[tout] * rate.get("out", 0)) / 1_000_000
 
     page = inr(DRAFT, pages, "est_draft_in", "est_draft_out") + inr(
         CHECK, pages, "est_check_in", "est_check_out"
     )
-    share = t["est_revise_share"]  # the pages the checker finds a fault in: written and read once more
+    share, seen = _sent_back(conn, int(t.get("measured_min_pages", 20)))
+    how.append(f"pages sent back measured over {seen} pages" if seen else "pages sent back assumed")
+    share = (
+        share if seen else t["est_revise_share"]
+    )  # the pages the checker finds a fault in: written and read once more
     cost = page * (1 + share) + inr(SPLIT, texts, "est_split_in", "est_split_out")
     cost += sum(
         inr(p, pages, "est_check_in", "est_check_out") for p in _shadows(conn)
@@ -59,8 +91,13 @@ def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
     calls = 2 * math.ceil(pages / size) + 2 * revised + math.ceil(texts / int(t["batch_materials"]))
     worst = page * (int(t["batch_rounds"]) + 2) + inr(SPLIT, texts, "est_split_in", "est_split_out")
     # every page asked for again in every round, and every page revised
+    basis = (
+        "token counts assumed, not measured"
+        if all("assumed" in h for h in how)
+        else "; ".join(dict.fromkeys(how))
+    )
     return (
-        f"forecast (token counts assumed, not measured): {pages} pages and {texts} materials texts"
+        f"forecast ({basis}): {pages} pages and {texts} materials texts"
         f" → about {calls} calls, about ${cost / rate:.2f}, up to ${worst / rate:.2f} if every page went round every time;"
         f" now {llm_budget.line(status)}; nothing was called"
     )

@@ -26,6 +26,12 @@
 ```
 Answers: `confirm {actor, code, part}` and `revert {actor, code, part}` return the same page; `edit {actor, code, part, text | items | idea+slips}` too. 409 "not a drafted part" (the school's or a person's words), 422 a malformed edit, 403 not on the staff list, 404 no such activity.
 
+## Apply, per part (orchestrator, 2026-11-05)
+- `apply` decides what is newer for each PART of each page, not for the page. A draft that is not the newest for any of its parts is set aside (a `rejected` row: "every part of it is covered by a newer draft of this page, or by a part a person approved"); one that is newest for some writes only those parts. A draft a person turned down, or that is applied or taken back, is not newer. A draft a person approved is not buried by a newer one nobody has read: the approved part is written, and the newer draft writes the parts it alone covers.
+
+## Switches
+- The page routes do not look at the educator or voice switches. Acceptable for now: they are behind the engine key and a signed-in staff check. They go behind the shared `educator.preview_roles` helper when the 4b session lands it.
+
 ## Handoff
 - Not mine: the bullets-with-highlights screen and the offered-skills review screen (the orchestrator asked for the data shape only).
 - Next: a measured forecast command; skill links with offered skills; then the dispatches are the orchestrator's.
