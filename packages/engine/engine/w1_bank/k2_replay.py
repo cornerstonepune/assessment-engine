@@ -7,6 +7,7 @@ names and nothing of the school's: the job log is public.
 """
 
 import json
+import re
 from collections import Counter
 
 import typer
@@ -19,6 +20,12 @@ from engine.w1_bank.k2_draft import DRAFT, _judge, wanted
 from engine.w1_bank.k2_upload import config, curriculum_app
 
 Kept = tuple[str, object]  # (outcome, reply)
+UNLISTED = (
+    "uses_unlisted",
+    "step_word_unlisted",
+)  # the two rules that name a thing the page's materials do not
+NAMED = (r"^uses '(.*)': not in the school's materials", r"^steps line \d+ uses '([^']*)', which")
+SHOWN = 25  # the most distinct words one rule prints
 
 
 def stored(conn: db.Conn, stage: str, gap_minutes: float) -> list[Kept]:
@@ -35,13 +42,46 @@ def stored(conn: db.Conn, stage: str, gap_minutes: float) -> list[Kept]:
     return [(c[3], c[4]) for c in map_replay.last_run(calls, gap_minutes)]
 
 
-def tally(kept: list[Kept], want: dict[str, list[str]], judge) -> dict:
+def kind_of(named: str, materials: str) -> str:
+    """How a thing a draft names stands to the page's own materials text: no list at all, every word of it listed (so the
+    matcher's own order or piece rule refused it), some words listed, a near spelling of a listed word, or unrelated."""
+    mine = {t for t in batch._tokens(materials)}
+    toks = batch._tokens(re.sub(r"[^A-Za-z ]", " ", named))
+    if not mine:
+        return "page_has_no_materials"
+    if toks and all(t in mine for t in toks):
+        return "all_words_listed"
+    if any(t in mine for t in toks):
+        return "some_words_listed"
+    if any(len(t) >= 4 and any(m[:4] == t[:4] for m in mine) for t in toks):
+        return "near_spelling"
+    return "not_related"
+
+
+def _unlisted(seen: dict[str, dict]) -> dict:
+    """Per rule: the words that repeat (a word seen once is not printed: the log is public) and how each stands to the
+    page's materials."""
+    out = {}
+    for rule, got in seen.items():
+        words = Counter({w: n for w, n in got["words"].items() if n >= 2})
+        out[rule] = {
+            "words": dict(words.most_common(SHOWN)),
+            "once": sum(1 for n in got["words"].values() if n < 2),
+            "kinds": dict(got["kinds"].most_common()),
+        }
+    return out
+
+
+def tally(
+    kept: list[Kept], want: dict[str, list[str]], judge, materials: dict[str, str] | None = None
+) -> dict:
     """Each kept reply judged again: for the nth time a page was answered, how many pages, how many good, and the rules
     the others broke. A refused reply is one the run took as nothing."""
     seen: Counter[str] = Counter()
     ever_good: set[str] = set()
     asks: dict[int, dict] = {}
     refused = 0
+    named: dict[str, dict] = {r: {"words": Counter(), "kinds": Counter()} for r in UNLISTED}
     for outcome, reply in kept:
         keys = [
             k
@@ -63,19 +103,25 @@ def tally(kept: list[Kept], want: dict[str, list[str]], judge) -> dict:
                 row["good"] += 1
                 ever_good.add(k)
             else:
-                row["faults"][batch.rule_of(bad.get(k, ""))] += 1
+                rule = batch.rule_of(bad.get(k, ""))
+                row["faults"][rule] += 1
+                what = next((m.group(1) for p in NAMED if (m := re.search(p, bad.get(k, "")))), None)
+                if rule in named and what is not None:
+                    named[rule]["words"][what.casefold()[:40]] += 1
+                    named[rule]["kinds"][kind_of(what, (materials or {}).get(k, ""))] += 1
     return {
         "replies": len(kept),
         "refused": refused,
         "pages_good": len(ever_good),
         "pages_never_good": len(set(seen) - ever_good),
+        "unlisted": _unlisted(named),
         "attempts": [{**a, "faults": dict(a["faults"].most_common())} for _, a in sorted(asks.items())],
     }
 
 
 def lines(got: dict) -> list[str]:
     head = {k: got[k] for k in ("replies", "refused", "pages_good", "pages_never_good")}
-    return [json.dumps(x) for x in (head, *got["attempts"])]
+    return [json.dumps(x) for x in (head, *got["attempts"], {"unlisted": got["unlisted"]})]
 
 
 @curriculum_app.command("draft-replay")
@@ -95,6 +141,6 @@ def draft_replay(
             typer.echo("no kept draft reply in this stage", err=True)
             raise typer.Exit(1)
         want, rows = wanted(conn, tenant, config()["band"], None)
-        out = tally(kept, want, _judge(conn, rows))
+        out = tally(kept, want, _judge(conn, rows), {k: r["materials"] or "" for k, r in rows.items()})
     for line in lines(out):
         typer.echo(line)
