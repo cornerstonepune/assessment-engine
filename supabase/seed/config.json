@@ -487,6 +487,11 @@
       "value": {"coordinator_roles": ["coordinator", "deputy_coordinator", "head"], "grades": ["K2"], "row_days": 14, "week_starts_on": 0}
     },
     {
+      "key": "k2.child_page",
+      "description": "What a K2 child's page takes from the school: how many months a skill must have been seen in before its growth shows a trend (fewer reads 'too few'), and which skill states count as done when working out what is ready next. Only 'secure' is done; 'secure, to re-check' is not (orchestrator, 5 Nov).",
+      "value": {"growth_min_months": 2, "done_states": ["secure"]}
+    },
+    {
       "key": "voice.audio_retention_days",
       "description": "How many days a voice note's audio is kept. Not decided (O-14): null keeps it. Nothing deletes audio until this is a number and a deletion is built.",
       "value": null,

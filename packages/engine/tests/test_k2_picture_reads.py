@@ -186,7 +186,7 @@ def test_a_childs_page_lists_her_skills_newest_first_with_the_sentence_she_said(
     _observe(conn, k, child, k["skills"][5], 15, "above", note=note["id"])
     graph.rebuild(conn, child)
     page = reads.child_page(conn, k["email"], k["class"], "9")
-    assert page["roll_no"] == "9" and set(page) == {"class", "roll_no", "skills"}
+    assert page["roll_no"] == "9" and set(page) == {"class", "roll_no", "skills", "growth", "ready_next"}
     assert [s["code"] for s in page["skills"]][0] == k["skills"][5], (
         "newest first: the day-15 note comes first"
     )
@@ -358,7 +358,7 @@ def test_the_names_are_read_through_the_logged_read_in_one_query_for_the_class(c
     c = Counting(conn)
     page = reads.child_page(c, k["email"], k["class"], "9")
     assert page["skills"][0]["sentence"]
-    assert c.n <= 8, c.n
+    assert c.n <= 9, c.n  # was 8: M1-17 adds two reads (growth, links) and drops one (names ride the cells)
     logged = conn.execute(
         "select count(*) n from access_log where action = 'read_pii_child' and actor = %s",
         (reads.NAME_CHECK,),
