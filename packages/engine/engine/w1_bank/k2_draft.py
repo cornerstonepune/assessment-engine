@@ -8,7 +8,6 @@ through `llm.generate(stage=...)`, so the campaign's hard stop holds; every batc
 stage's limit; `--dry-run` prints a forecast and makes no call. A real run needs `--by`: every row keeps who ran it.
 """
 
-import math
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
@@ -19,17 +18,14 @@ from engine.core import db, settings
 from engine.w1_bank import k2_batch as batch
 from engine.w1_bank import k2_check, k2_format, map_ledger
 from engine.w1_bank.cli_map import BY, staff_of
+from engine.w1_bank.k2_forecast import _models, _shadows, drafting_settings, forecast  # noqa: F401
 from engine.w1_bank.k2_gaps import PAGE_PARTS, empty_parts
 from engine.w1_bank.k2_upload import config, curriculum_app
 from engine.w1_bank.map_agents import Proposal
 
 Ask = Callable[[str, dict], object]
-DRAFT, CHECK, SPLIT = k2_check.DRAFT, k2_check.CHECK, "k2_materials_split"
-VERSIONS = {
-    DRAFT: k2_check.DRAFT_VERSION,
-    CHECK: k2_check.CHECK_VERSION,
-    SPLIT: 3,
-}  # draft v4: lists and slips (M1-12a); the checker is a new prompt, its own v1
+DRAFT, CHECK, SPLIT, VERSIONS = k2_check.DRAFT, k2_check.CHECK, k2_check.SPLIT, k2_check.VERSIONS
+_settings = drafting_settings
 
 
 @dataclass
@@ -55,14 +51,6 @@ def live_ask(conn: db.Conn, stage: str) -> Ask:
             conn.commit()
 
     return ask
-
-
-def _settings(conn: db.Conn) -> dict[str, float]:
-    """The drafting run's operational numbers (config row k2.drafting)."""
-    row = db.one(
-        conn, "select value from config where key = 'k2.drafting'"
-    )  # a missing row is a failed deploy
-    return {k: float(v) for k, v in row["value"].items()}
 
 
 def wanted(
@@ -143,41 +131,6 @@ def _examples(rows: dict) -> dict[str, dict]:
     return out
 
 
-def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
-    t = _settings(conn)
-    size = int(t["batch_pages"])
-    prices = (conn.execute("select value from config where key = 'llm.prices'").fetchone() or {"value": {}})[
-        "value"
-    ]
-    models = {}
-    for purpose, version in VERSIONS.items():
-        row = conn.execute(
-            "select model from prompt where purpose = %s and version = %s", (purpose, version)
-        ).fetchone()
-        models[purpose] = row["model"] if row else ""
-
-    def inr(purpose: str, n: int, tin: str, tout: str) -> float:
-        rate = prices.get(models.get(purpose, ""), {})
-        return n * (t[tin] * rate.get("in", 0) + t[tout] * rate.get("out", 0)) / 1_000_000
-
-    page = inr(DRAFT, pages, "est_draft_in", "est_draft_out") + inr(
-        CHECK, pages, "est_check_in", "est_check_out"
-    )
-    share = t["est_revise_share"]  # the pages the checker finds a fault in: written and read once more
-    cost = page * (1 + share) + inr(SPLIT, texts, "est_split_in", "est_split_out")
-    status = llm_budget.status(conn, db.tenant_slug(), DRAFT, stage)
-    rate = next(iter((llm_budget.campaigns(conn) or {"-": {"inr_per_usd": 88}}).values()))["inr_per_usd"]
-    revised = math.ceil(pages * share / size)
-    calls = 2 * math.ceil(pages / size) + 2 * revised + math.ceil(texts / int(t["batch_materials"]))
-    worst = page * (int(t["batch_rounds"]) + 2) + inr(SPLIT, texts, "est_split_in", "est_split_out")
-    # every page asked for again in every round, and every page revised
-    return (
-        f"forecast (token counts assumed, not measured): {pages} pages and {texts} materials texts"
-        f" → about {calls} calls, about ${cost / rate:.2f}, up to ${worst / rate:.2f} if every page went round every time;"
-        f" now {llm_budget.line(status)}; nothing was called"
-    )
-
-
 def _say_call(
     conn: db.Conn, stage: str, purpose: str, size: int, say: Callable[[str], None], rep: Report
 ) -> None:
@@ -250,19 +203,18 @@ def draft(
                 k2_check.remember(raw, it, bool(revise))
         return got
 
-    def ask_checker(keys: list[str], drafts: dict) -> object:
-        text = "\n\n".join(_block(rows[k], [], None, drafts[k]) for k in keys)
-        return _ask(conn, ask, stage, CHECK, {"pages": text}, len(keys), say, rep)
+    def checker(purpose: str) -> k2_check.AskChecker:
+        def ask_checker(keys: list[str], drafts: dict) -> object:
+            text = "\n\n".join(_block(rows[k], [], None, drafts[k]) for k in keys)
+            return _ask(conn, ask, stage, purpose, {"pages": text}, len(keys), say, rep)
 
-    res = k2_check.run(want, ask_maker, ask_checker, judge, size, rounds)
+        return ask_checker
+
+    shadows = {p: checker(p) for p in _shadows(conn)}
+    res = k2_check.run(want, ask_maker, checker(CHECK), judge, size, rounds, shadows)
     rep.left, rep.stopped = dict(res.left), res.stopped
     least = map_ledger.rules(conn)["min_confidence"]
-    made = [
-        k2_check.proposal(
-            k, parts, raw.get(k, {}), res.verdicts.get(k), res.history.get(k, []), least, bool(rep.stopped)
-        )
-        for k, parts in res.parts.items()
-    ]
+    made = k2_check.proposals(res, raw, _models(conn), least, bool(rep.stopped), stage)
     rep.proposals = len(made)
     if write and made:
         map_ledger.record(conn, tenant, made, staff)

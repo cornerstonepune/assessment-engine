@@ -153,3 +153,34 @@ def test_a_checker_reply_missing_a_key_is_asked_for_again():
     m = Models([[made("A")]], [[], [verdict("A")]])
     res = go(m, {"A": PARTS})
     assert res.verdicts["A"][0] == "agree" and len(m.checker_asked) == 2
+
+
+def test_a_second_checker_reads_the_same_first_drafts_and_its_verdict_never_drives_the_revision():
+    seen = []
+
+    def shadow(keys, drafts):
+        seen.append({k: drafts[k] for k in keys})
+        return {"verdicts": [verdict("A"), verdict("B", ("steps", "the second checker's own fault"))]}
+
+    m = Models(
+        [[made("A"), made("B")], [made("A", steps=("Show the rope.",))]],
+        [[verdict("A", ("steps", "one")), verdict("B")], [verdict("A")]],
+    )
+    res = chk.run(WANT, m.maker, m.checker, JUDGE, size=4, rounds=1, shadows={"b": shadow})
+    assert len(seen) == 1 and seen[0]["A"]["steps"] == ["Show the beads."], (
+        "the first drafts, before any revision"
+    )
+    assert res.shadow["b"]["A"][0] == "agree" and res.shadow["b"]["B"][0] == "disagree"
+    assert m.maker_asked[1][0] == ["A"], "only the first checker's fault sends a page back"
+    assert res.verdicts["B"][0] == "agree" and res.verdicts["A"][0] == "agree"
+
+
+def test_the_money_stopping_during_the_second_checker_keeps_the_first_checkers_verdicts():
+    def shadow(keys, drafts):
+        raise batch.Stop("the campaign has no money left")
+
+    m = Models([[made("A")]], [[verdict("A", ("steps", "x"))]])
+    res = chk.run({"A": PARTS}, m.maker, m.checker, JUDGE, size=4, rounds=1, shadows={"b": shadow})
+    assert res.stopped and res.verdicts["A"][0] == "disagree" and len(m.maker_asked) == 1, (
+        "no revision after a stop"
+    )

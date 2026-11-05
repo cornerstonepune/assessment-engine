@@ -31,6 +31,9 @@ LEVELS = {
 def conn():
     with db.connect() as c:
         c.t = tenant(c)  # type: ignore[attr-defined]
+        c.execute(
+            "update config set value = '{\"shadow\": []}'::jsonb where key = 'k2.checkers'"
+        )  # one checker
         c.staff = _staff(c, c.t)  # type: ignore[attr-defined]
         c.execute(
             "insert into grade (tenant_id, code, name, ord) values (%s, %s, 'Test band', 99)", (c.t, BAND)
@@ -92,9 +95,12 @@ class Scripted:
             replies = self.script.get((purpose, k), [])
             if n < len(replies) and replies[n] is not None:
                 out.append({"key": k, **replies[n]})
-        field = {"k2_page_draft": "pages", "k2_page_check": "verdicts", "k2_materials_split": "lists"}[
-            purpose
-        ]
+        field = {
+            "k2_page_draft": "pages",
+            "k2_page_check": "verdicts",
+            "k2_page_check_b": "verdicts",
+            "k2_materials_split": "lists",
+        }[purpose]
         return {field: out}
 
 
@@ -712,3 +718,44 @@ def test_the_checker_is_shown_the_schools_words_and_the_draft_and_the_maker_the_
     revision = [t for p, t in seen if p == "k2_page_draft"][1]
     assert "the checker found:" in revision and "steps: describes another activity" in revision
     assert "draft: steps" in revision, "only the part at fault is asked for again"
+
+
+def _two_checkers(conn):
+    conn.execute(
+        "update config set value = '{\"shadow\": [\"k2_page_check_b\"]}'::jsonb where key = 'k2.checkers'"
+    )
+
+
+def test_with_a_second_checker_on_both_read_the_same_drafts_and_the_ledger_keeps_each_verdict_by_model(conn):
+    _two_checkers(conn)
+    _act(conn, "KX-1", "A")
+    _act(conn, "KX-2", "B")
+    ask = Scripted(
+        {
+            ("k2_page_draft", "KX-1"): [drafted()],
+            ("k2_page_draft", "KX-2"): [drafted()],
+            ("k2_page_check", "KX-1"): [AGREE],
+            ("k2_page_check", "KX-2"): [AGREE],
+            ("k2_page_check_b", "KX-1"): [AGREE],
+            ("k2_page_check_b", "KX-2"): [FAULT],
+        }
+    )
+    run(conn, ask)
+    assert [p for p, _ in ask.asked].count("k2_page_check_b") == 1
+    by_page = {p["subject_code"]: p["proposal"]["checks"] for p in map_ledger.standing(conn, conn.t)}
+    assert [(c["checker"], c["model"], c["verdict"]) for c in by_page["KX-2"]] == [
+        ("k2_page_check v1", "claude-opus-5-5", "agree"),
+        ("k2_page_check_b v1", "claude-sonnet-5-5", "disagree"),
+    ]
+    assert by_page["KX-2"][1]["faults"][0]["reason"] == "describes another activity"
+    assert [p for p, _ in ask.asked].count("k2_page_draft") == 1, "the second checker's fault revised nothing"
+    status = {p["subject_code"]: p["status"] for p in map_ledger.standing(conn, conn.t)}
+    assert status == {"KX-1": "auto_passed", "KX-2": "auto_passed"}, "only the checker that drives decides"
+
+
+def test_the_forecast_prices_the_second_checker_when_it_is_on(conn):
+    one = draft.forecast(conn, "dev_eval", 60)
+    _two_checkers(conn)
+    two = draft.forecast(conn, "dev_eval", 60)
+    cost = lambda t: float(re.search(r"about \$([0-9.]+)", t).group(1))  # noqa: E731
+    assert cost(two) > cost(one)

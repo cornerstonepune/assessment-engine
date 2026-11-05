@@ -3772,6 +3772,42 @@
           }
         }
       }
+    },
+    {
+      "purpose": "k2_page_check_b",
+      "version": 1,
+      "model": "claude-sonnet-5-5",
+      "active": false,
+      "text_file": "prompts/k2_page_check.v1.txt",
+      "json_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verdicts"
+        ],
+        "properties": {
+          "verdicts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "verdict": {
+                  "description": "agree or disagree"
+                },
+                "faults": {
+                  "description": "a list of objects {part, reason}; empty for an agree"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }
