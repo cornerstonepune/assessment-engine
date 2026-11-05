@@ -48,9 +48,9 @@ def _staff(conn, email: str):
 
 @keyed.post("/timetable/rules/read")
 def read(body: Ask, conn=Depends(get_conn, scope="function")):
-    _staff(conn, body.actor)
+    staff = _staff(conn, body.actor)
     try:
-        return tt_rules.read(conn, body.class_id)
+        return tt_rules.read(conn, body.class_id, staff)
     except tt_rules.Refused as no:
         raise HTTPException(status_code=no.status, detail=str(no)) from no
 

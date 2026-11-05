@@ -63,7 +63,7 @@ def test_a_day_is_blocked_with_its_reason_and_who_made_it_is_kept(rules):
     ]
     edit = got["history"][0]
     assert edit["rule"] == "block" and edit["action"] == "set" and edit["after"]["on_date"] == "2026-11-25"
-    assert edit["who"] and edit["before"] is None
+    assert edit["who"] == "You" and edit["before"] is None  # a name is never read: it stays in pii
 
 
 def test_one_period_of_a_weekday_in_one_week_can_be_blocked_and_the_same_block_twice_is_refused(rules):

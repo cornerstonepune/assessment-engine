@@ -99,7 +99,7 @@ test("a period is given new times, and the change is kept with who made it", asy
   await row.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("Saved.")).toBeVisible();
   await expect(page.getByText(/changed period/).first()).toBeVisible();
-  await expect(page.getByText(/Placeholder Educator|Someone on the staff/).first()).toBeVisible();
+  await expect(page.getByText(/^You changed period/).first()).toBeVisible();
   await row.getByLabel("Starts").fill("08:30"); // put it back: the school's own time
   await row.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("Saved.")).toBeVisible();

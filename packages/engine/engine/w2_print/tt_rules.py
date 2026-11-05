@@ -137,26 +137,27 @@ def _limits(conn: db.Conn, class_id: str) -> list[dict]:
     ]
 
 
-def _history(conn: db.Conn, class_id: str, limit: int = 30) -> list[dict]:
+def _history(conn: db.Conn, class_id: str, me: Any, limit: int = 30) -> list[dict]:
+    """The last changes. Who made one is the staff row kept with it; a name is never read (it stays in pii), so the
+    page says "You" for the asker's own and "A colleague" for anyone else's."""
     return [
-        {"id": r["id"], "rule": r["rule"], "action": r["action"], "who": r["who"], "at": r["at"].isoformat(), "before": r["before"], "after": r["after"]}
+        {"id": r["id"], "rule": r["rule"], "action": r["action"], "who": "You" if r["who"] == me else "A colleague", "at": r["at"].isoformat(), "before": r["before"], "after": r["after"]}
         for r in conn.execute(
-            "select e.id::text as id, e.rule, e.action, coalesce(p.name, 'Someone on the staff') as who, e.at, e.before, e.after"
-            " from timetable_rule_edit e left join pii.staff p on p.staff_id = e.who where e.school_class_id = %s"
-            " order by e.at desc, e.id limit %s",
+            "select id::text as id, rule, action, who, at, before, after from timetable_rule_edit"
+            " where school_class_id = %s order by at desc, id limit %s",
             (class_id, limit),
         ).fetchall()
     ]  # fmt: skip
 
 
-def read(conn: db.Conn, class_id: str | None) -> dict:
+def read(conn: db.Conn, class_id: str | None, me: Any = None) -> dict:
     every = classes(conn)
     k = klass(conn, class_id, every)
     subjects, placed = _subjects(conn, k["id"])
     return {
         "classes": every, "class": k, "periods": _periods(conn, k["grade"]), "fixed": _fixed(conn, k["id"]),
         "blocks": _blocks(conn, k["id"]), "limits": _limits(conn, k["id"]), "subjects": subjects, "placed": placed,
-        "history": _history(conn, k["id"]),
+        "history": _history(conn, k["id"], me),
     }  # fmt: skip
 
 
@@ -353,4 +354,4 @@ def change(conn: db.Conn, staff: Any, class_id: str | None, c: Change, today: dt
         # a period is the grade's, so every class of the grade it changes for keeps the change in its own history
         for each in [x for x in classes(conn) if x["grade"] == k["grade"]] if c.rule == "period" else [k]:
             _kept(conn, each, staff, c.rule, c.action, before, after)
-    return read(conn, k["id"])
+    return read(conn, k["id"], staff)
