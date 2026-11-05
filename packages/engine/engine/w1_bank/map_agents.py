@@ -326,7 +326,13 @@ def _broken(kind: str, code: str) -> Proposal:
     )
 
 
-def propose(band: Band, codes: list[str], ask: Ask, rules: Rules) -> list[Proposal]:
+def propose(
+    band: Band,
+    codes: list[str],
+    ask: Ask,
+    rules: Rules,
+    asked: frozenset[tuple[str, str]] = frozenset(),
+) -> list[Proposal]:
     """A decided proposal for each gap of each activity named: the proposer asked once per activity, each part
     checked by code, the validator asked where code found nothing wrong."""
     out: list[Proposal] = []
@@ -358,6 +364,7 @@ def propose(band: Band, codes: list[str], ask: Ask, rules: Rules) -> list[Propos
                 ),
                 offers.shown_in(context),
                 rules,
+                asked,
             )
     return out
 

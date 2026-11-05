@@ -80,6 +80,18 @@ def proposed(conn: db.Conn, tenant: db.Id) -> set[tuple[str, str, str]]:
     }
 
 
+def asked(conn: db.Conn, tenant: db.Id) -> frozenset[tuple[str, str]]:
+    """The (activity, skill) pairs a person has been asked about or has refused: every skill ever offered (whatever became of
+    the offer) and every skill of a skill proposal a person turned down. A second run does not propose them again."""
+    rows = conn.execute(
+        "select p.subject_code, p.proposal from curriculum_proposal p where p.tenant_id = %s and p.about is null"
+        " and (p.kind = 'skill_offer' or (p.kind = 'skill' and exists (select 1 from curriculum_proposal d"
+        " where d.about = p.id and d.status = 'rejected')))",
+        (tenant,),
+    ).fetchall()
+    return frozenset((r["subject_code"], str(s)) for r in rows for s in r["proposal"].get("skills") or [])
+
+
 def stopped(conn: db.Conn, tenant: db.Id, at_most: float, least: float) -> frozenset[str]:
     """The kinds whose audit sample people turned down too often (more than `at_most` of at least `least`
     decided): they stop passing on their own."""

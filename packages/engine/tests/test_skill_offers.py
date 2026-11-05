@@ -16,10 +16,8 @@ conn = base.conn
 CODE = "ACT-KX-0101"
 
 
-def made(conn, skills=("NUM.CNT.01", "NUM.CNT.02"), confidence=0.9):
-    """Run the proposer on the gap activity with one example shown (the nearest), and record what it proposes."""
-    t = _band(conn)
-    staff = _staff(conn, t)
+def proposals(conn, t, skills=("NUM.CNT.01", "NUM.CNT.02"), confidence=0.9, asked=frozenset()):
+    """Run the proposer on the gap activity with one example shown (the nearest)."""
     band = read_band(conn, t, BAND, frozenset({CODE}))
     rules = Rules(0.8, 0.0, 1, skill_confidence=0.7, from_examples=True, use_checker=False)
 
@@ -32,8 +30,14 @@ def made(conn, skills=("NUM.CNT.01", "NUM.CNT.02"), confidence=0.9):
             "confidence": confidence,
         }
 
-    props = [p for p in propose(band, [CODE], ask, rules) if p.kind.startswith("skill")]
-    map_ledger.record(conn, t, props, staff)
+    return [p for p in propose(band, [CODE], ask, rules, asked) if p.kind.startswith("skill")]
+
+
+def made(conn, skills=("NUM.CNT.01", "NUM.CNT.02"), confidence=0.9):
+    """Record what the proposer proposes for the gap activity."""
+    t = _band(conn)
+    staff = _staff(conn, t)
+    map_ledger.record(conn, t, proposals(conn, t, skills, confidence), staff)
     return t, staff
 
 
@@ -111,3 +115,32 @@ def test_saying_yes_to_an_offer_does_not_apply_anything_else_that_is_waiting_to_
         ).fetchone()["n"]
         == 0
     ), "the shown skill passed on its own but is applied by `engine curriculum apply`, not by this answer"
+
+
+def test_a_rerun_never_offers_a_skill_that_is_still_waiting_or_was_refused(conn):
+    t, staff = made(conn, confidence=0.6)  # the shown skill under the bar waits, and so does the offer
+    assert [p.kind for p in proposals(conn, t, confidence=0.6, asked=map_ledger.asked(conn, t))] == [
+        "skill"
+    ], "a waiting offer is not offered twice (the shown skill is the activity's own proposal, still waiting)"
+    for w in so.waiting(conn, t):
+        so.answer(conn, t, staff, w["id"], False, "no")
+    asked = map_ledger.asked(conn, t)
+    assert (CODE, "NUM.CNT.02") in asked and (CODE, "NUM.CNT.01") in asked, "both were refused"
+    assert proposals(conn, t, confidence=0.6, asked=asked) == [], "a no is never asked again"
+
+
+def test_a_skill_the_person_added_is_not_offered_again_either(conn):
+    t, staff = made(conn)
+    (offer,) = so.waiting(conn, t)
+    so.answer(conn, t, staff, offer["id"], True, "")
+    again = proposals(conn, t, asked=map_ledger.asked(conn, t))
+    assert [p.proposal["skills"] for p in again] == [["NUM.CNT.01"]], (
+        "only the skill the examples showed comes back"
+    )
+
+
+def test_the_asked_pairs_are_what_was_offered_whatever_became_of_it_and_what_a_person_refused(conn):
+    t, staff = made(conn)
+    assert map_ledger.asked(conn, t) == {(CODE, "NUM.CNT.02")}, (
+        "an offer waiting is asked; a passed proposal is not"
+    )
