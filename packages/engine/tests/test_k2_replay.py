@@ -22,6 +22,15 @@ def tally(*replies, want=None):
     return rp.tally([("accepted", r) for r in replies], want or WANT, JUDGE)
 
 
+MATERIALS = {k: v["materials"] for k, v in ROWS.items()}
+WANT_C = {"C": WANT["A"]}
+
+
+def unlisted(*replies, want=None):
+    kept = [("accepted", r) for r in replies]
+    return rp.tally(kept, want or WANT, JUDGE, MATERIALS)["unlisted"]
+
+
 def test_each_ask_of_a_page_is_counted_with_the_rule_it_broke():
     got = tally([page(steps=LONG)], [page(steps=LONG)], [page()])
     assert got["replies"] == 3 and got["refused"] == 0
@@ -57,6 +66,30 @@ def test_the_rules_are_named_in_the_report_most_often_broken_first():
     lines = rp.lines(tally([page(steps=LONG)], [page(steps=LONG)]))
     assert json.loads(lines[0]) == {"replies": 2, "refused": 0, "pages_good": 0, "pages_never_good": 1}
     assert json.loads(lines[1])["faults"] == {"step_too_long": 1}
+
+
+def test_a_step_naming_a_prop_the_page_does_not_list_is_counted_as_the_word_and_how_it_relates_to_the_list():
+    got = unlisted([page(steps=["Hand out the chalk."])], [page(steps=["Hand out the chalk."])])
+    assert got["step_word_unlisted"]["words"] == {"chalk": 2}
+    assert got["step_word_unlisted"]["kinds"] == {"not_related": 2}
+
+
+def test_a_use_that_adds_words_to_a_listed_thing_or_misspells_it_is_told_from_one_that_is_not_listed_at_all():
+    got = unlisted([page(uses=["number cards 1 to 10"])], [page(uses=["Beadz"])], [page(uses=["Rope"])])[
+        "uses_unlisted"
+    ]
+    assert got["kinds"] == {"some_words_listed": 1, "near_spelling": 1, "not_related": 1}
+
+
+def test_a_page_whose_materials_text_is_empty_is_counted_apart_because_no_prop_can_be_listed_for_it():
+    got = unlisted([page(key="C", uses=["Rope"])], want=WANT_C)["uses_unlisted"]
+    assert got["kinds"] == {"page_has_no_materials": 1}
+
+
+def test_a_word_seen_once_is_not_printed_so_the_log_holds_only_what_repeats():
+    got = unlisted([page(steps=["Hand out the chalk."])], [page(steps=["Use the rope."])])
+    words = got["step_word_unlisted"]["words"]
+    assert words == {} and got["step_word_unlisted"]["once"] == 2
 
 
 pytestmark_db = pytest.mark.skipif(
