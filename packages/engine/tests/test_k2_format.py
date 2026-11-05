@@ -88,9 +88,8 @@ def test_what_is_always_in_the_room_needs_no_list_and_a_page_with_no_list_may_us
     ok = fmt.judger(ROWS, VOCAB, FMT, RULES)
     steps = ["The educator sits with the child on the floor."]
     assert ok([page(key="C", steps=steps, uses=[])], {"C": WANT["A"]})[1] == {}
-    assert (
-        "rope" in ok([page(key="C", steps=["Lay a rope on the floor."], uses=[])], {"C": WANT["A"]})[1]["C"]
-    )
+    # its steps are the checker's to read; what it declares it uses must be empty, as it has no list
+    assert "uses" in ok([page(key="C", steps=steps, uses=["Rope"])], {"C": WANT["A"]})[1]["C"]
 
 
 def test_a_material_the_page_says_it_uses_must_be_one_the_school_names():
@@ -125,7 +124,7 @@ def test_the_checker_is_shown_a_page_as_the_school_wrote_it_and_the_draft_as_bul
     assert "steps:\n  • Show ten beads" in shown and "slip: counts a bead twice" in shown
 
 
-def _judge_with(materials, steps=None, uses=None, function_words=()):
+def _judge_with(materials, steps=None, uses=None, function_words=("and",)):
     rows = {"A": {"materials": materials}, "Z": {"materials": "Pictures to draw, Cut out and place, Beads"}}
     vocab = fmt.vocabulary((r["materials"] for r in rows.values()), function_words)
     fmt_row = FMT | {"function_words": list(function_words)}
@@ -141,8 +140,14 @@ def test_a_use_copied_from_the_list_with_its_quantity_is_found_though_the_quanti
     assert bad == {}
 
 
-def test_a_use_that_is_not_beside_its_words_in_one_piece_of_the_list_is_still_refused():
-    assert "uses" in _judge_with("Beads, Number cards 1-10", uses=["Beads cards"])[1]["A"]
+def test_a_use_may_run_over_several_pieces_of_the_list_each_run_inside_one_piece():
+    assert _judge_with("Beads, Number cards 1-10", uses=["Beads and number cards"])[1] == {}
+    assert _judge_with("Beads, Number cards 1-10", uses=["Beads cards"])[1] == {}
+
+
+def test_a_use_with_a_word_the_list_does_not_have_is_still_refused_naming_the_use():
+    assert "uses 'Beads and rope'" in _judge_with("Beads, Number cards 1-10", uses=["Beads and rope"])[1]["A"]
+    assert "uses" in _judge_with("Beads", uses=["Rope"])[1]["A"]
 
 
 def test_the_verb_a_step_starts_with_is_not_a_prop_whatever_the_lists_of_other_pages_end_in():
@@ -151,10 +156,8 @@ def test_the_verb_a_step_starts_with_is_not_a_prop_whatever_the_lists_of_other_p
 
 
 def test_a_word_of_the_language_that_ends_a_list_piece_is_not_a_prop():
-    assert fmt.vocabulary(["Cards for the, Pictures to cut out"], ["for", "the", "out", "to"]) == {
-        "card",
-        "cut",
-    }
+    # "Pictures to cut out" is a clause of the list, not the name of a thing
+    assert fmt.vocabulary(["Cards for the, Pictures to cut out"], ["for", "the", "out", "to"]) == {"card"}
     toks = fmt.vocabulary(["Chart paper, markers as needed"], ["as", "needed"])
     assert toks == {"paper", "marker"}
 
@@ -173,22 +176,38 @@ def test_a_use_that_copies_a_listed_thing_with_commas_inside_its_brackets_is_fou
     assert bad == {} and "A" in good
 
 
-def test_a_word_the_schools_own_steps_use_freely_where_the_list_does_not_name_it_is_no_prop():
-    # three school pages use "point" in their steps without listing it; one more page's list happens to end in it
-    school = [{"materials": "Beads", "steps": "• Point to the bead."} for _ in range(3)]
-    rows = {
-        "A": {"materials": "Beads"},
-        "L": {"materials": "Arrows to point", "steps": ""},
-        "R": {"materials": "Rope"},
+FW = ["the", "to", "at", "in", "a", "for", "as", "needed", "of", "and"]
+
+
+def test_only_a_short_name_is_a_prop_a_clause_of_the_list_is_not():
+    texts = ["Cards to point at, Things to feel, Place the blocks, Big box, Beads (10 per child)"]
+    assert fmt.vocabulary(texts, FW, not_props=["thing", "big"]) == {"box", "bead"}
+    assert fmt.vocabulary(["Markers as needed, Cards for the"], FW) == {"marker", "card"}
+
+
+def test_a_name_ending_in_a_generic_word_keeps_the_word_before_it():
+    assert fmt.vocabulary(["Puzzle pieces, Sorting items"], not_props=["piece", "item"]) == {
+        "puzzle",
+        "sorting",
     }
-    free = fmt.ordinary_words([*school, *rows.values()], min_pages=3)
-    assert "point" in free and "rope" not in free and "bead" not in free, free
-    vocab = fmt.vocabulary([r["materials"] for r in rows.values()])
-    assert "point" in vocab and "rope" in vocab
-    assert "point" not in vocab - free and "rope" in vocab - free
 
 
-def test_a_word_used_in_fewer_school_pages_than_the_row_says_stays_a_prop():
-    school = [{"materials": "Beads", "steps": "• Hand out the rope."} for _ in range(2)]
-    assert fmt.ordinary_words(school, min_pages=3) == frozenset()
-    assert "rope" in fmt.ordinary_words(school, min_pages=2)
+def test_a_prop_is_a_noun_that_names_a_material_on_enough_pages_of_the_band():
+    texts = ["Rope", "Rope, Beads", "Rope, Chalk", "Beads"]
+    assert fmt.vocabulary(texts, FW, min_pages=3) == {"rope"}
+    assert fmt.vocabulary(texts, FW, min_pages=1) == {"rope", "bead", "chalk"}
+
+
+def test_a_page_that_has_no_list_is_not_judged_by_the_word_check_the_checker_reads_its_steps():
+    rows = {
+        "A": {"materials": ""},
+        "B": {"materials": "Chalk"},
+        "C": {"materials": "Chalk"},
+        "D": {"materials": "Chalk"},
+    }
+    rows["E"] = {"materials": "Beads"}
+    vocab = fmt.vocabulary((r["materials"] for r in rows.values()), FW, min_pages=3)
+    judge = fmt.judger(rows, vocab, FMT | {"function_words": FW}, RULES)
+    step = ["Hand out the chalk."]
+    assert judge([page(steps=step, uses=[])], {"A": WANT["A"]})[1] == {}
+    assert "chalk" in judge([page(key="E", steps=step, uses=[])], {"E": WANT["A"]})[1]["E"]

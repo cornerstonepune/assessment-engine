@@ -16,7 +16,7 @@ says:
   - words: "Our locked rule stays: a page must not name a material the school's list lacks"
     proved_by: "packages/engine/tests/test_k2_format.py::test_a_prop_named_later_in_a_step_that_the_page_does_not_list_is_still_refused"
   - words: "Our locked rule stays: a page must not name a material the school's list lacks"
-    proved_by: "packages/engine/tests/test_k2_format.py::test_a_use_that_is_not_beside_its_words_in_one_piece_of_the_list_is_still_refused"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_use_with_a_word_the_list_does_not_have_is_still_refused_naming_the_use"
   - words: "print only single-token words (letters only, at most 12 characters, seen twice or more), never phrases, and for uses only counts by kind"
     proved_by: "packages/engine/tests/test_k2_replay.py::test_only_plain_words_of_at_most_twelve_letters_are_ever_printed"
   - words: "a test that no printed key contains a space"

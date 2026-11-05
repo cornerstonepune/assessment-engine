@@ -99,8 +99,7 @@ def _block(
     wrote = [f"  {p}: {row[p].strip()}" for p in PAGE_PARTS if (row[p] or "").strip()]
     out = [f"key: {row['code']}", f"activity: {row['name']} (section: {row['strand']})"]
     out += ["the school wrote:", *wrote] if wrote else ["the school wrote nothing else for it"]
-    if row["materials"].strip():
-        out.append(f"materials: {row['materials'].strip()}")
+    out.append(f"materials: {row['materials'].strip() or 'the school wrote none'}")
     if with_draft is not None:
         out += ["the draft:", k2_format.shown_draft(with_draft)]
     else:
@@ -125,8 +124,11 @@ def _judge(conn: db.Conn, rows: dict) -> k2_format.Judge:
     """The code that reads a drafted page: the school's format and house rules are config rows."""
     format_row = settings.config(conn, "k2.format")
     vocab = k2_format.vocabulary(
-        (r["materials"] for r in rows.values()), format_row.get("function_words", [])
-    ) - k2_format.ordinary_words(rows.values(), int(format_row.get("ordinary_min_pages", 3)))
+        (r["materials"] for r in rows.values()),
+        format_row.get("function_words", []),
+        int(format_row.get("prop_min_pages", 3)),
+        format_row.get("not_props", []),
+    )
     return k2_format.judger(rows, vocab, format_row, settings.config(conn, "k2.draft_rules"))
 
 
