@@ -9,7 +9,7 @@ import { PartCard } from "../../parts";
 // One activity with every part, who wrote it, and Keep / Edit / Send back on the drafted ones.
 export default async function ActivityFill({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
-  await mustBeOn();
+  await mustBeOn(me.email);
   const { code } = await params;
   const q = await searchParams;
   const page = await readPage(me, decodeURIComponent(code));

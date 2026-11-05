@@ -6,7 +6,7 @@ import { engineSend } from "./engine";
 
 // The curriculum screens (task M1-13): the browser, the fill view and its walk-through, the offered-skills queue. Reads
 // are rows the site reads for itself; every answer is the engine's (POST /curriculum/page/* and /curriculum/offers/*),
-// made as the signed-in member of staff. All of it behind `curriculum.screens_enabled` (config, false).
+// made as the signed-in member of staff. All of it behind the educator gate (D-076): the educator switch, or the staff preview.
 
 /** The eight parts of a page, in the order a person reads them, with the school's words. */
 export const PARTS = ["objective", "materials", "steps", "thinking", "level_0", "level_1", "level_2", "level_3"] as const;
@@ -26,16 +26,14 @@ export const stateOf = cache(async (): Promise<(share: number) => State> => {
   return (share) => (share >= green ? "green" : share >= amber ? "amber" : "red");
 });
 
-export const screensOn = cache(async (): Promise<boolean> => {
-  const [row] = await sql<{ on: boolean }[]>`select coalesce((select value = 'true'::jsonb from config where key = 'curriculum.screens_enabled'), false) as on`;
-  return row?.on ?? false;
+/** Whether the curriculum screens are open to this sign-in: the engine's educator gate (switch on, or the staff preview),
+ *  once per request. Not open, or not on the staff list, is not found, as the educator's screens are. */
+export const mustBeOn = cache(async (email: string): Promise<{ previewing: boolean }> => {
+  const res = await engineSend("/curriculum/page/gate", { actor: email });
+  if (res.status === 403 || res.status === 404) notFound();
+  if (!res.ok) throw new Error(`The engine refused that (${res.status}).`);
+  return (await res.json()) as { previewing: boolean };
 });
-
-/** While the screens are switched off every address is not found. Called after `requireStaff()`, which each page and
- *  action makes itself (tests/test_web_gate.py reads for it). */
-export async function mustBeOn(): Promise<void> {
-  if (!(await screensOn())) notFound();
-}
 
 /** The grade these screens list: the config row `curriculum.screens_grade` (the code of a row of `grade`). */
 const grade = cache(async () => {

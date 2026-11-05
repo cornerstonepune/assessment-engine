@@ -10,7 +10,7 @@ import { Chrome, Empty, Pager } from "../chrome";
 // had already linked, and why it waits. Yes adds the link; No closes the offer.
 export default async function Offers({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
-  await mustBeOn();
+  await mustBeOn(me.email);
   const q = await searchParams;
   const all = await readOffers(me.email);
   const last = Math.max(1, Math.ceil(all.length / PAGE_SIZE));

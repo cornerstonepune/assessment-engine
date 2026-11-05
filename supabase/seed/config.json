@@ -704,12 +704,6 @@
       }
     },
     {
-      "key": "curriculum.screens_enabled",
-      "description": "Whether staff see the curriculum browser, the fill view with its walk-through and the offered-skills queue (M1-13). Off until Nimish turns it on; while it is off every address of these screens is not found.",
-      "value": false,
-      "seed_once": true
-    },
-    {
       "key": "curriculum.screens_grade",
       "description": "The grade whose activities the curriculum screens (browser, fill view, offered skills) list: the code of a row of `grade`. K2 first.",
       "value": "K2",

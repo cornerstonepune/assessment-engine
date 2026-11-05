@@ -9,7 +9,7 @@ import { PartCard } from "../../parts";
 // one is always the first; "Skip" moves along it without answering.
 export default async function Walk({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const me = await requireStaff();
-  await mustBeOn();
+  await mustBeOn(me.email);
   const q = await searchParams;
   const part = q.part ?? "";
   const line = (await waiting()).filter((w) => !part || w.part === part);

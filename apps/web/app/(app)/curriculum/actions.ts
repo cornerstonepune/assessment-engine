@@ -24,7 +24,7 @@ function done(back: string): never {
 /** Keep a drafted part as written, or send it back (the part is emptied). */
 export async function answerPart(form: FormData): Promise<void> {
   const me = await requireStaff();
-  await mustBeOn();
+  await mustBeOn(me.email);
   const { code, part, back } = target(form);
   await enginePost(form.get("do") === "keep" ? "/curriculum/page/confirm" : "/curriculum/page/revert", { actor: me.email, code, part });
   done(back);
@@ -33,7 +33,7 @@ export async function answerPart(form: FormData): Promise<void> {
 /** A person's own words in place of the draft: lines for the steps, an idea and slips for the thinking, else text. */
 export async function editPart(form: FormData): Promise<void> {
   const me = await requireStaff();
-  await mustBeOn();
+  await mustBeOn(me.email);
   const { code, part, back } = target(form);
   const lines = field(form, "words").split("\n").map((l) => l.trim()).filter(Boolean);
   const slips = Array.from({ length: await slipsMax() }, (_, i) => i).map((i) => ({ keyword: field(form, `keyword${i}`).trim(), spot: field(form, `spot${i}`).trim() })).filter((s) => s.keyword && s.spot);
@@ -47,7 +47,7 @@ export async function editPart(form: FormData): Promise<void> {
 /** Yes adds the offered skills as links; no closes the offer. */
 export async function answerOffer(form: FormData): Promise<void> {
   const me = await requireStaff();
-  await mustBeOn();
+  await mustBeOn(me.email);
   await enginePost("/curriculum/offers/answer", { actor: me.email, id: field(form, "id"), yes: form.get("do") === "yes" });
   revalidatePath("/curriculum/offers");
   redirect("/curriculum/offers");

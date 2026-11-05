@@ -1,17 +1,11 @@
 /* The curriculum screens: tokens only (design-system/tokens.css), spacing in steps of 8, one type scale. */
-.cs-page { background: var(--surface); color: var(--text); font-size: var(--text-body); line-height: var(--lh-body); padding: var(--space-4) var(--space-3); max-width: 1280px; margin: 0 auto; }
+.cs-page { min-width: 0; }
 .cs-page h2 { font-size: var(--text-lead); line-height: var(--lh-lead); font-weight: 600; }
-.cs-lead { color: var(--text-muted); max-width: 640px; margin-bottom: var(--space-4); }
-.cs-crumbs { font-size: var(--text-label); color: var(--text-muted); display: flex; gap: var(--space-2); flex-wrap: wrap; }
-.cs-crumbs a { color: var(--link); }
-.cs-tabs { display: flex; gap: var(--space-2); margin: var(--space-3) 0 var(--space-4); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-.cs-tabs a { min-height: var(--tap); display: inline-flex; align-items: center; padding: 0 var(--space-3); font-size: var(--text-label); font-weight: 500; color: var(--text-muted); border-bottom: 3px solid transparent; }
-.cs-tabs a[aria-current="page"] { color: var(--text); border-bottom-color: var(--brand-basalt); }
 .cs-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--space-3); }
 .cs-col-4 { grid-column: span 12; }
 .cs-col-8 { grid-column: span 12; }
 .cs-stack { display: grid; gap: var(--space-3); }
-@media (min-width: 768px) { .cs-col-4 { grid-column: span 4; } .cs-col-8 { grid-column: span 8; } .cs-page { padding: var(--space-4); } }
+@media (min-width: 768px) { .cs-col-4 { grid-column: span 4; } .cs-col-8 { grid-column: span 8; } }
 .cs-card { border: 1px solid var(--border); border-radius: var(--radius-m); padding: var(--space-3); background: var(--surface); }
 .cs-card header { display: flex; justify-content: space-between; gap: var(--space-2); align-items: flex-start; margin-bottom: var(--space-2); }
 .cs-chip { display: inline-flex; align-items: center; gap: var(--space-1); border-radius: var(--radius-pill); padding: var(--space-1) var(--space-2); font-size: var(--text-label); font-weight: 500; white-space: nowrap; }
@@ -51,7 +45,4 @@
 .cs-skill b { font-weight: 600; }
 .cs-note { color: var(--text-muted); font-size: var(--text-label); }
 @media (max-width: 767px) { .cs-table thead { display: none; } .cs-table tr { display: block; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); } .cs-table td { display: block; border: 0; padding: var(--space-1) 0; } .cs-table td.n { text-align: left; } }
-.cs-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin: var(--space-3) 0; }
-.cs-strip a { min-height: var(--tap); display: flex; align-items: center; gap: var(--space-2); border: 1px solid var(--border); border-radius: var(--radius-m); padding: var(--space-1) var(--space-3); font-size: var(--text-label); color: var(--text); }
-.cs-strip b { font-size: var(--text-h3); line-height: var(--lh-h3); font-weight: 600; }
-@media (max-width: 767px) { .cs-strip { grid-template-columns: 1fr; } }
+@media (max-width: 767px) { 

@@ -8,9 +8,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from engine.api.deps import get_conn, get_tenant_id, require_engine_key
-from engine.core import db
+from engine.api.deps import curriculum_staff, get_conn, get_tenant_id, require_engine_key
 from engine.w1_bank import k2_page, k2_review
+from engine.w2_print import educator_gate
 
 router = APIRouter(prefix="/curriculum/page", dependencies=[Depends(require_engine_key)])
 
@@ -82,10 +82,7 @@ class Page(BaseModel):
 
 
 def _staff(conn, who: Who) -> UUID:
-    sid = db.one(conn, "select public.staff_of_email(%s) as id", (who.actor,))["id"]
-    if sid is None:
-        raise HTTPException(status_code=403, detail="This sign-in is not on the staff list.")
-    return sid
+    return curriculum_staff(conn, who.actor)
 
 
 def _page(conn, tenant_id: str, code: str) -> dict:
@@ -102,6 +99,18 @@ def _answer(conn, tenant_id: str, body: PartRef, act) -> dict:
         taken = "not a drafted part" in str(e)
         raise HTTPException(status_code=409 if taken else 422, detail=str(e)) from None
     return _page(conn, tenant_id, body.code)
+
+
+class Gate(BaseModel):
+    open: bool
+    previewing: bool  # switched off, and this person is the staff preview
+
+
+@router.post("/gate", response_model=Gate)
+def gate(body: Who, conn=Depends(get_conn, scope="function")):
+    """Whether the curriculum screens are open to this sign-in (the site asks before it reads a row of its own)."""
+    sid = _staff(conn, body)
+    return Gate(open=True, previewing=educator_gate.previewing(conn, sid))
 
 
 @router.post("/read", response_model=Page)

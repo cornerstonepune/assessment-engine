@@ -92,8 +92,12 @@ export async function clearOffers(sql: Sql): Promise<void> {
       and not exists (select 1 from curriculum_proposal f where f.about = p.id)`;
 }
 
-export async function screensSwitch(sql: Sql, on: boolean) {
-  await sql`delete from config where key = 'curriculum.screens_enabled'`;
-  await sql`insert into config (tenant_id, key, value, description)
-    select id, 'curriculum.screens_enabled', ${on ? sql`'true'::jsonb` : sql`'false'::jsonb`}, 'm1-13 test' from tenant`;
+/** Who the educator gate lets in (D-076): "closed" (switch off, tester holds no preview role), "preview" (switch off,
+ *  tester holds head, a role `educator.preview_roles` names), "open" (switch on). Put back with `gate(sql, "closed")`. */
+export async function gate(sql: Sql, mode: "closed" | "preview" | "open") {
+  await sql`update config set value = ${mode === "open" ? sql`'true'::jsonb` : sql`'false'::jsonb`} where key = 'educator.timetable_enabled'`;
+  const [{ staff_id: staff, tenant_id: t }] = await sql<{ staff_id: string; tenant_id: string }[]>`select staff_id, tenant_id from pii.staff where email = ${TEST_STAFF.email}`;
+  await sql`delete from staff_role_grant where staff_id = ${staff} and granted_by = 'm1-13b test'`;
+  if (mode === "preview")
+    await sql`insert into staff_role_grant (tenant_id, staff_id, role_code, valid_from, granted_by) values (${t}, ${staff}, 'head', current_date - 1, 'm1-13b test')`;
 }

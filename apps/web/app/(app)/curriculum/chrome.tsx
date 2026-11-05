@@ -1,46 +1,33 @@
 import Link from "@/components/link";
+import { Crumbs } from "@/components/educator/crumbs";
+import { Summary } from "@/components/educator/summary";
 import { Icon, type IconName } from "@/lib/icons";
 import { requireStaff } from "@/lib/auth";
 import { gap, mustBeOn, readOffers, waiting, type State } from "@/lib/curriculum-screens";
 
-// The breadcrumb, the strip of counts and the three tabs every curriculum screen shares, inside the page's PageShell.
-const TABS = [
-  { href: "/curriculum/browse", label: "Browser" },
-  { href: "/curriculum/fill", label: "What is filled" },
-  { href: "/curriculum/offers", label: "Skills offered" },
-] as const;
+// The breadcrumb and the strip of counts every curriculum screen carries (D-075), inside the page's PageShell; the menu
+// down the left is the layout's (lib/curriculum-menu.ts).
+const AREA = {
+  "/curriculum/browse": "Curriculum",
+  "/curriculum/fill": "What is filled",
+  "/curriculum/offers": "Skills offered",
+} as const;
 
-export async function Chrome({ here, crumb, children }: { here: (typeof TABS)[number]["href"]; crumb?: string; children: React.ReactNode }) {
-  const tab = TABS.find((t) => t.href === here)!;
+export async function Chrome({ here, crumb, children }: { here: keyof typeof AREA; crumb?: string; children: React.ReactNode }) {
   const me = await requireStaff();
-  await mustBeOn();
+  await mustBeOn(me.email);
   const [drafted, gaps, offered] = await Promise.all([waiting(), gap(), readOffers(me.email).catch(() => null)]);
   const empty = gaps.reduce((n, g) => n + g.empty, 0);
   return (
     <>
-      <nav aria-label="Breadcrumb" className="cs-crumbs">
-        <span>Curriculum</span>
-        <span aria-hidden>›</span>
-        {crumb ? <Link href={tab.href}>{tab.label}</Link> : <span aria-current="page">{tab.label}</span>}
-        {crumb ? (
-          <>
-            <span aria-hidden>›</span>
-            <span aria-current="page">{crumb}</span>
-          </>
-        ) : null}
-      </nav>
-      <nav aria-label="Counts" className="cs-strip">
-        <Link href="/curriculum/fill/walk" data-count="waiting"><b>{drafted.length}</b> drafted parts to check</Link>
-        <Link href="/curriculum/offers" data-count="offers"><b>{offered === null ? "–" : offered.length}</b> skills offered</Link>
-        <Link href="/curriculum/fill" data-count="empty"><b>{empty}</b> parts still empty</Link>
-      </nav>
-      <nav aria-label="Curriculum screens" className="cs-tabs">
-        {TABS.map((t) => (
-          <Link key={t.href} href={t.href} aria-current={t.href === here ? "page" : undefined}>
-            {t.label}
-          </Link>
-        ))}
-      </nav>
+      <Crumbs trail={[{ label: "Curriculum", href: "/curriculum/browse" }, ...(here === "/curriculum/browse" && !crumb ? [] : [{ label: AREA[here], href: crumb ? here : undefined }]), ...(crumb ? [{ label: crumb }] : [])]} />
+      <Summary
+        items={[
+          { label: ["drafted part to check", "drafted parts to check"], n: drafted.length, href: "/curriculum/fill/walk" },
+          { label: ["skill offered", "skills offered"], n: offered?.length ?? 0, href: "/curriculum/offers" },
+          { label: ["part still empty", "parts still empty"], n: empty, href: "/curriculum/fill" },
+        ]}
+      />
       {children}
     </>
   );

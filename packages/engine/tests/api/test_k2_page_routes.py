@@ -20,6 +20,9 @@ WHO = {"actor": "x@school.invalid"}
 @pytest.fixture
 def client(conn, monkeypatch):
     monkeypatch.setenv("ENGINE_KEY", KEY)
+    conn.execute(
+        "update config set value = 'true'::jsonb where key = 'educator.timetable_enabled'"
+    )  # the gate: open
     app.dependency_overrides[deps.get_conn] = lambda: conn
     app.dependency_overrides[deps.get_tenant_id] = lambda: str(conn.t)
     try:

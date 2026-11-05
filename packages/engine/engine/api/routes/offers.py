@@ -8,8 +8,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from engine.api.deps import get_conn, get_tenant_id, require_engine_key
-from engine.core import db
+from engine.api.deps import curriculum_staff, get_conn, get_tenant_id, require_engine_key
 from engine.w1_bank import skill_offers
 
 router = APIRouter(prefix="/curriculum/offers", dependencies=[Depends(require_engine_key)])
@@ -51,10 +50,7 @@ class Offers(BaseModel):
 
 
 def _staff(conn, who: Who) -> UUID:
-    sid = db.one(conn, "select public.staff_of_email(%s) as id", (who.actor,))["id"]
-    if sid is None:
-        raise HTTPException(status_code=403, detail="This sign-in is not on the staff list.")
-    return sid
+    return curriculum_staff(conn, who.actor)
 
 
 @router.post("/list", response_model=Offers)
