@@ -47,10 +47,6 @@ where e.class_id = %(class)s and e.roll_no = %(roll)s and e.from_date <= %(day)s
   and (e.to_date is null or e.to_date >= %(day)s)
   and not exists (select 1 from activity_observation c where c.supersedes = o.id)
 """
-CHILD_PAGE_DEFAULT = {
-    "growth_min_months": 2,
-    "done_states": ["secure"],
-}  # used only if the config row is missing
 
 NAME_CHECK = "k2 child page: sentence name check"  # who is logged as asking for each name
 HELD = "sentence held back: it may name a child"
@@ -198,7 +194,9 @@ def _growth_and_next(
     conn: db.Conn, where: dict, roll_no: str, cells: list[dict], names: dict[str, str]
 ) -> dict:
     """How the child has moved on each skill, and what is ready next from confirmed links alone (task M1-17)."""
-    rule = {**CHILD_PAGE_DEFAULT, **(where["child_page"] or {})}
+    rule = where["child_page"]
+    if rule is None:  # the seed row is loaded on every deploy; no state or number is kept in code (rule 1)
+        raise RuntimeError("config k2.child_page is missing: run `engine load --settings`")
     day = _today(where)
     by_skill: dict[str, list] = {}
     for r in conn.execute(
