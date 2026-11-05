@@ -1,0 +1,63 @@
+name: m1-12a-page-format
+goal: >
+  A drafted K2 page is a list of short steps and a list of slips (a keyword and how to spot it), never a wall of text, and
+  it passes through a maker and a stronger checker: the maker drafts, code refuses a draft that breaks the format or uses
+  a material the school's text does not name, the checker (shown only the school's own words and the draft) names each
+  fault with a reason, the maker revises once on those reasons, and a second fault leaves the page for a person with the
+  checker's reasons. Everything stays "check me" until a person marks it.
+# Written 2026-11-05 (task M1-12a). W1, gate N1. The words are the orchestrator's brief of that day, relaying Nimish;
+# the originals are not in this repository. Nothing here has made a model call: the prompts are inactive rows until the
+# dev re-draft is scored (rule 7), and no bar can be scored until people mark the pages.
+says:
+  - words: "steps: a list of SHORT bullets, one action each, about 12 words or fewer, at most 8 ... Stored as a list, not one string."
+    proved_by: "packages/engine/tests/test_k2_format.py::test_too_many_steps_or_a_long_one_is_refused_with_the_number"
+  - words: "steps: a list of SHORT bullets ... Stored as a list, not one string."
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_page_in_the_new_shape_is_kept_with_its_lists_as_lists"
+  - words: "thinking: one line 'the idea', plus a list of slips; each slip = a keyword (2 to 4 words ...) + one short 'how to spot it'. Stored as a list of {keyword, spot}."
+    proved_by: "packages/engine/tests/test_k2_format.py::test_the_slips_are_one_to_four_each_with_a_keyword_of_two_to_four_words_and_a_spot"
+  - words: "Keep: 'the child', no gendered words, no comparing children (rules in code, config row k2.draft_rules)."
+    proved_by: "packages/engine/tests/test_k2_format.py::test_the_house_rules_still_reach_a_slip_and_the_levels_must_still_differ"
+  - words: "Code checks first (rules, bullet counts and lengths, every material named in a step must be in the school's materials list)"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_step_that_uses_a_thing_the_materials_do_not_name_is_refused_naming_the_thing"
+  - words: "Code checks first (rules, bullet counts and lengths, every material named in a step must be in the school's materials list)"
+    proved_by: "packages/engine/tests/test_k2_format.py::test_a_material_the_page_says_it_uses_must_be_one_the_school_names"
+  - words: "Checker = a stronger model than the maker, a DIFFERENT prompt, shown ONLY the school's own text (objective, materials, levels) plus the draft"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_the_checker_is_shown_the_schools_words_and_the_draft_and_the_maker_the_checkers_reasons"
+  - words: "shown ONLY the school's own text ... plus the draft"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_a_part_a_machine_drafted_earlier_is_not_the_schools_words_and_is_drafted_again"
+  - words: "it returns a reason per fault"
+    proved_by: "packages/engine/tests/test_k2_check.py::test_what_the_checker_says_is_read_item_by_item"
+  - words: "Faults go back to the maker for ONE revision with the checker's reasons"
+    proved_by: "packages/engine/tests/test_k2_check.py::test_a_fault_goes_back_to_the_maker_once_with_the_reason_and_the_page_is_checked_again"
+  - words: "a second fail leaves the part 'check me' with the reason"
+    proved_by: "packages/engine/tests/test_k2_check.py::test_a_second_fault_is_not_sent_back_again_the_page_stays_with_the_reason"
+  - words: "the ledger keeps maker, checker, versions, verdicts"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_a_run_drafts_checks_and_records_each_page_where_it_belongs_and_prints_the_spend_every_batch"
+  - words: "Everything stays 'check me' until a person marks it"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_every_one_is_check_me_until_a_person_reviews"
+  - words: "re-draft all 871 under the new format (the 99 old drafts are superseded, kept in the ledger)"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_a_page_this_makers_draft_is_on_the_ledger_for_is_not_asked_again_but_an_older_makers_is"
+  - words: "BOTH checkers (Opus 5.5 and Sonnet 5.5, same input, same prompt shape) check the SAME drafts. Store both verdicts per page in the ledger, labelled by model. Only the Opus verdict drives the revision round"
+    proved_by: "packages/engine/tests/test_k2_draft.py::test_with_a_second_checker_on_both_read_the_same_drafts_and_the_ledger_keeps_each_verdict_by_model"
+  - words: "Only the Opus verdict drives the revision round for now"
+    proved_by: "packages/engine/tests/test_k2_check.py::test_a_second_checker_reads_the_same_first_drafts_and_its_verdict_never_drives_the_revision"
+  - words: "Report: per-page agreement, every page where they disagree (page, faults each found ...), and measured cost per page for each checker"
+    proved_by: "packages/engine/tests/test_k2_checkers.py::test_the_csv_has_one_row_a_page_with_each_checkers_faults_and_the_schools_words_beside_the_draft"
+  - words: "measured cost per page for each checker ... the 2-cent-a-page stop remain"
+    proved_by: "packages/engine/tests/test_k2_checkers.py::test_cost_per_page_is_each_checkers_own_spend_over_the_pages_and_the_stop_rule_is_read_from_it"
+  - words: "Report: per-page agreement, every page where they disagree"
+    proved_by: "packages/engine/tests/test_k2_checkers.py::test_the_summary_counts_agreement_and_what_the_second_checker_missed_and_holds_no_words_of_the_school"
+  - words: "Report ... (the school's text stays out of the public log)"
+    proved_by: "packages/engine/tests/api/test_gold_sheet_route.py::test_the_two_checkers_csv_is_staff_only_and_never_cached"
+manual:
+  - "The dev run (`draft_dev`, 60 pages) asks both checkers about the same first drafts. Then dispatch `checkers` (counts and money, no school text) for the summary and use the staff download /curriculum/checkers.csv (via the site's route, signed in) for the faults beside the school's words. The decision of which checker reads the rest is the orchestrator's; set the config row k2.checkers to {\"shadow\": []} to ask only the driver afterwards."
+  - "Nothing has been dispatched. The new prompt rows (k2_page_draft v4, k2_page_check v1) are inactive until the dev re-draft of 60 pages is scored; the dispatch (draft_dev) is the orchestrator's, and Nimish's go covers it inside the existing $25 campaign cap."
+  - "The orchestrator's rule: if the measured cost is above $0.02 a page, stop and say so before anything else."
+  - "No bar can be scored until people mark the pages. The first run reports the checker's verdicts next to each page, nothing more."
+criteria:
+  - name: the format, the maker-checker and the drafting run
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_format.py tests/test_k2_check.py tests/test_k2_draft.py tests/test_k2_gold.py tests/test_k2_review.py tests/test_k2_rules.py tests/test_k2_batch.py tests/test_k2_checkers.py tests/api/test_gold_sheet_route.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

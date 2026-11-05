@@ -259,13 +259,24 @@ def test_the_k2_prompts_are_rows_with_a_schema_and_none_is_active_before_its_eva
         for p in json.loads((SEED / "prompts.json").read_text())["prompts"]
         if p["purpose"].startswith("k2_")
     }
-    assert {k[0] for k in rows} == {"k2_page_draft", "k2_page_validate", "k2_materials_split"}
+    assert {k[0] for k in rows} == {
+        "k2_page_draft",
+        "k2_page_validate",
+        "k2_page_check",
+        "k2_page_check_b",
+        "k2_materials_split",
+    }
     assert all(p["active"] is False and p["json_schema"] for p in rows.values()), (
         "rule 7: not active before an eval"
     )
     for version in (1, 2, 3):
         draft, check = rows["k2_page_draft", version], rows["k2_page_validate", version]
         assert draft["model"] != check["model"], "the validator is another model"
+    for version in (4,):
+        assert rows["k2_page_draft", version]["model"] != rows["k2_page_check", 1]["model"]
+        assert rows["k2_page_check", 1]["model"] == "claude-opus-5-5", (
+            "the checker is the stronger model (M1-12a)"
+        )
     for p in rows.values():
         text = (SEED / p["text_file"]).read_text()
         assert "teacher" not in text.lower() and "borrow" not in text.lower(), "the school's words"
