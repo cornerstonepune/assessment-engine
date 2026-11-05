@@ -10,7 +10,7 @@
  * bar at the top, one choice, shows every class as the coordinator sees them, and that is what is compared.
  */
 import { scryptSync } from "node:crypto";
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Browser, type Locator, type Page } from "@playwright/test";
 import postgres from "postgres";
 import { TEST_STAFF } from "./global-setup";
 import { aClass, aWaitingSkill } from "./rows";
@@ -56,6 +56,18 @@ async function asEducator(browser: Browser): Promise<Page> {
   return page;
 }
 
+/** One folded toggle opened, and the page read only once it says so. A toggle may be a link that opens its row by loading
+ *  the page again (an assessment's row on /papers): a click returns before that page arrives, so reading straight after it
+ *  read one person's page open and the other's still folded, by however fast each load was (2026-11-05, CI browser shard
+ *  3). Its own state is the ready signal: the same toggle, by its words, now `aria-expanded=true`. */
+async function unfold(page: Page, toggle: Locator) {
+  // its marker (▸ folded, ▾ open) is the one part of its words that changes
+  const words = ((await toggle.textContent().catch(() => null)) ?? "").replace(/^\s*[▸▾]/, "").trim();
+  if (!(await toggle.click().then(() => true, () => false)) || !words) return;
+  await expect(page.locator("main [aria-expanded=true]").filter({ hasText: words }).first()).toBeVisible();
+  await page.waitForLoadState("networkidle");
+}
+
 /** Every action a page offers, open or folded: buttons, links (by where they go), fields and table columns. The
  *  account's own line (whose classes the menu says) is the person's, not an action. */
 async function offered(page: Page, at: string, name: string): Promise<{ refused: boolean; actions: string[] }> {
@@ -65,7 +77,7 @@ async function offered(page: Page, at: string, name: string): Promise<{ refused:
   for (let i = 0; i < 3; i++) {
     await page.evaluate(() => document.querySelectorAll("main details:not([open])").forEach((d) => d.setAttribute("open", "")));
     const closed = page.locator("main [aria-expanded=false]");
-    for (let n = await closed.count(); n > 0; n--) await closed.first().click().catch(() => undefined);
+    for (let n = await closed.count(); n > 0; n--) await unfold(page, closed.first());
   }
   return page.evaluate((name) => {
     // an action said in the person's own name ("as U49 Educator") is the same action for each of them
