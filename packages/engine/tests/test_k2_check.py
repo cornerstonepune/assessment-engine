@@ -184,3 +184,12 @@ def test_the_money_stopping_during_the_second_checker_keeps_the_first_checkers_v
     assert res.stopped and res.verdicts["A"][0] == "disagree" and len(m.maker_asked) == 1, (
         "no revision after a stop"
     )
+
+
+def test_kept_first_drafts_are_taken_once_and_the_pages_without_one_are_left_to_ask():
+    reuse = {"A": made("A"), "C": made("C")}
+    items, missing = chk.take_kept(reuse, ["A", "B"])
+    assert [i["key"] for i in items] == ["A"] and missing == ["B"]
+    assert list(reuse) == ["C"], (
+        "a kept draft is used once: a page that fails the format is asked, not fed the same draft"
+    )

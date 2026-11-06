@@ -173,6 +173,12 @@ def _revise(
         res.history[key].append({"round": 2, "verdict": verdict, "faults": faults})
 
 
+def take_kept(reuse: dict[str, dict], keys: list[str]) -> tuple[list[dict], list[str]]:
+    """The kept first drafts for these pages, each taken once, and the pages that have none."""
+    taken = [reuse.pop(k) for k in keys if k in reuse]
+    return taken, [k for k in keys if k not in {i["key"] for i in taken}]
+
+
 def remember(raw: dict[str, dict], it: dict, revised: bool) -> None:
     """What the maker said of itself: the first draft's words, and after a revision the doubts of both (the least
     confidence, every flag)."""
