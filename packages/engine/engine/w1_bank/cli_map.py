@@ -16,6 +16,7 @@ from typing import cast
 
 import typer
 
+from engine.adapters import llm_budget
 from engine.adapters.llm import LLMError
 from engine.core import db
 from engine.w1_bank import map_ledger
@@ -23,6 +24,7 @@ from engine.w1_bank import map_probe as map_probe_mod
 from engine.w1_bank import map_replay as map_replay_mod
 from engine.w1_bank.k2_upload import config, curriculum_app
 from engine.w1_bank.map_agents import (
+    PROPOSE,
     Ask,
     Band,
     Proposal,
@@ -45,8 +47,36 @@ def _tenant(conn: db.Conn) -> db.Id:
     return db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
 
 
-def _ask(conn: db.Conn, recorded: Path | None) -> Ask:
-    return recorded_ask(recorded) if recorded else model_ask(conn)
+def _ask(
+    conn: db.Conn,
+    recorded: Path | None,
+    propose_version: int | None = None,
+    stage: str | None = None,
+    validate_version: int | None = None,
+) -> Ask:
+    return recorded_ask(recorded) if recorded else model_ask(conn, propose_version, validate_version, stage)
+
+
+def estimate(conn: db.Conn, gaps: int) -> tuple[int, float | None, int]:
+    """(gaps, dollars a proposer call has cost on average, calls that average is taken from). Reads only."""
+    camp = llm_budget.campaign_for(conn, PROPOSE)
+    got = db.one(
+        conn,
+        "select count(*) as calls, avg(cost_inr) as inr from flow_run where flow = %s and cost_inr is not null",
+        (PROPOSE,),
+    )
+    if not got["calls"] or camp is None:
+        return gaps, None, 0
+    return gaps, float(got["inr"]) / camp["inr_per_usd"], got["calls"]
+
+
+def estimate_line(gaps: int, per_call: float | None, calls: int) -> str:
+    if per_call is None:
+        return f"{gaps} gaps to propose for; the cost of a call is not measured (none was paid for yet)"
+    return (
+        f"{gaps} gaps to propose for; about ${per_call:.4f} a proposer call over {calls} paid calls, "
+        f"so about ${per_call * gaps:.2f} before any validator call"
+    )
 
 
 def _rules(conn: db.Conn, tenant: db.Id) -> Rules:
@@ -99,6 +129,10 @@ def propose_(
     recorded: Path | None = RECORDED,
     write: bool = APPLY,
     by: str = BY,
+    stage: str = typer.Option("", "--stage", help="The campaign stage that pays for the calls"),
+    version: int = typer.Option(0, "--version", help="The proposer's prompt version (0: the active one)"),
+    validate_version: int = typer.Option(0, "--validate-version", help="The validator's (0: the active one)"),
+    estimate_only: bool = typer.Option(False, "--estimate", help="Count the gaps and price them; no call"),
 ) -> None:
     """Propose for every gap of the band not already proposed, and record where each went."""
     _needs_by(write, by)
@@ -111,7 +145,10 @@ def propose_(
         todo = [
             c for c in sorted(b.gaps) if not any((k, c, "") in done for k in ("skill", "objective", "levels"))
         ]
-        ask = _ask(conn, recorded)
+        if estimate_only:
+            typer.echo(estimate_line(*estimate(conn, len(todo))))
+            return
+        ask = _ask(conn, recorded, version or None, stage or None, validate_version or None)
         pairs = frozenset((c, s) for k, c, s in done if k == "lo_skill")
         try:
             made = [
@@ -242,11 +279,15 @@ def replay_dev(conn: db.Conn, ask: Ask) -> tuple[list[Proposal], dict[str, froze
     return made, {c: whole.person_skills[c] for c in tune}, _rules(conn, tenant)
 
 
-def replay_report(conn: db.Conn, gap_minutes: float) -> list[str]:
-    """The latest stored dev-set run, read back: its score as rebuilt, the counts by cause, each activity."""
-    calls = map_replay_mod.last_run(map_replay_mod.stored(conn), gap_minutes)
+def replay_report(conn: db.Conn, gap_minutes: float, stage: str = "dev_eval") -> list[str]:
+    """The latest stored run of a stage, read back. The dev run: its score as rebuilt, the counts by cause, each activity.
+    The held-out run (which may have been cut short by its stage's cap): one line of counts for the activities it
+    reached, with the precision of those that passed on their own and its interval."""
+    calls = map_replay_mod.last_run(map_replay_mod.stored(conn, stage), gap_minutes)
     if not calls:
-        raise ValueError("no stored dev-set run: no reply was kept (it needs a run after M1-11c)")
+        raise ValueError(f"no stored run in {stage}: no reply was kept (it needs a run after M1-11c)")
+    if stage == "held_out":
+        return [json.dumps(_held_out_counts(conn, calls))]
     shown: dict[str, frozenset[str]] = {}
     ask, left = map_replay_mod.replaying(calls, shown)
     made, gold, rules = replay_dev(conn, ask)
@@ -261,18 +302,37 @@ def replay_report(conn: db.Conn, gap_minutes: float) -> list[str]:
     return [json.dumps(x, ensure_ascii=False, default=str) for x in (head, summary, *got["rows"])]
 
 
+def _held_out_counts(conn: db.Conn, calls: list) -> dict:
+    """The held-out run rebuilt for the activities that were answered (the run goes in code order and a cap may end it)."""
+    band, tenant = config()["band"], _tenant(conn)
+    whole = read_band(conn, tenant, band)
+    tune, held = gold_split(conn, whole)
+    reached = held & {c[2] for c in calls if c[2]}
+    ask, left = map_replay_mod.replaying(calls)
+    made = _made(conn, ask, band, reached, tune)
+    gold = {c: whole.person_skills[c] for c in reached}
+    rules = _rules(conn, tenant)
+    scores = score([Scored(p.subject_code, frozenset(skills(p)), p.status) for p in made], gold)
+    return {
+        **map_replay_mod.partial(made, gold, rules.min_confidence, len(held)),
+        "score": scores,
+        "left_unread": {k: len(v) for k, v in left.items()},
+    }
+
+
 @curriculum_app.command("map-replay")
 def map_replay(
     gap_minutes: float = typer.Option(
         10.0, "--gap-minutes", help="A pause this long between calls ends a run"
     ),
+    stage: str = typer.Option("dev_eval", "--stage", help="dev_eval (scored) or held_out (counts only)"),
 ) -> None:
     """Read back the latest dev-set run of the mapping agents from the replies flow_run kept: each activity's
     proposal against what people linked, why it did not pass on its own, the counts by cause. No model, no write."""
     with db.connect() as conn:
         conn.read_only = True
         try:
-            lines = replay_report(conn, gap_minutes)
+            lines = replay_report(conn, gap_minutes, stage)
         except ValueError as e:
             typer.echo(str(e), err=True)
             raise typer.Exit(1) from e

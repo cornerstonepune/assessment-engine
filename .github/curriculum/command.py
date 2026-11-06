@@ -26,6 +26,7 @@ RUNS = {
             ["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--use-kept", "--dry-run"],
             ["engine", "curriculum", "draft", "--stage", "draft", "--dry-run"],
             ["engine", "curriculum", "materials", "--stage", "draft", "--dry-run"],
+            ["engine", "curriculum", "propose", "--version", "3", "--validate-version", "2", "--estimate"],
         ],
     },
     "map_probe": {
@@ -39,8 +40,15 @@ RUNS = {
         ],
     },
     "map_replay": {"spends": False, "commands": [["engine", "curriculum", "map-replay"]]},
+    "map_replay_held_out": {
+        "spends": False,
+        "commands": [["engine", "curriculum", "map-replay", "--stage", "held_out"]],
+    },
     "checkers": {"spends": False, "commands": [["engine", "curriculum", "checkers", "--stage", "dev_eval"]]},
-    "draft_replay": {"spends": False, "commands": [["engine", "curriculum", "draft-replay", "--stage", "dev_eval"]]},
+    "draft_replay": {
+        "spends": False,
+        "commands": [["engine", "curriculum", "draft-replay", "--stage", "dev_eval"]],
+    },
     "draft_dev": {
         "spends": True,
         "commands": [["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--by", BY]],
@@ -54,6 +62,25 @@ RUNS = {
     "map_held_out": {
         "spends": True,
         "commands": [["engine", "eval", "curriculum_map", "--version", "3", "--validate-version", "2"]],
+    },
+    "map_propose": {
+        "spends": True,
+        "commands": [
+            [
+                "engine",
+                "curriculum",
+                "propose",
+                "--stage",
+                "draft",
+                "--version",
+                "3",
+                "--validate-version",
+                "2",
+                "--apply",
+                "--by",
+                BY,
+            ]
+        ],
     },
     "draft_tranche": {
         "spends": True,
