@@ -29,7 +29,9 @@ def lines(run, actor="someone", staff=STAFF):
 
 def test_the_forecast_makes_no_call_and_needs_nobody_to_have_run_it():
     got = lines("forecast", actor="", staff="")
-    assert got and all("--dry-run" in c for c in got)
+    assert got and all("--dry-run" in c or "--estimate" in c for c in got), (
+        "each is a count or a price, never a call"
+    )
     assert all("--by" not in c for c in got), "a forecast is a read; it keeps no row"
     assert cmd.RUNS["forecast"]["spends"] is False
 
@@ -59,6 +61,30 @@ def test_the_map_evals_are_the_two_stages_of_the_mapping_agents():
     assert lines("map_dev")[0].startswith("engine eval curriculum_map --dev --version 3 --validate-version 2")
     assert lines("map_held_out")[0].startswith("engine eval curriculum_map --version 3 --validate-version 2")
     assert "--dev" not in lines("map_held_out")[0]
+
+
+def test_the_held_out_replay_reads_the_kept_replies_free_and_the_proposing_run_is_priced_before_it_is_paid():
+    assert cmd.RUNS["map_replay_held_out"] == {
+        "spends": False,
+        "commands": [["engine", "curriculum", "map-replay", "--stage", "held_out"]],
+    }
+    (paid,) = lines("map_propose")
+    assert paid == (
+        "engine curriculum propose --stage draft --version 3 --validate-version 2 --apply --by someone@school.invalid"
+    ), (
+        "proposed for the gaps from the draft stage, at the versions the held-out eval scored, recorded by the dispatcher"
+    )
+    assert cmd.RUNS["map_propose"]["spends"] is True
+    assert [
+        "engine",
+        "curriculum",
+        "propose",
+        "--version",
+        "3",
+        "--validate-version",
+        "2",
+        "--estimate",
+    ] in cmd.RUNS["forecast"]["commands"], "the forecast prices the proposing run without making a call"
 
 
 def test_the_page_runs_are_the_dev_stage_with_a_limit_and_the_draft_stage_without():
@@ -122,6 +148,8 @@ def test_no_run_can_carry_a_flag_that_changes_a_limit_only_the_known_ones_with_t
         "--tranche",
         "--settings",
         "--use-kept",  # reads a draft already paid for; it raises no limit
+        "--estimate",  # counts and prices; it calls nothing
+        "--apply",  # records the proposals (only with --by); it raises no limit
     }  # no --limit: the size is a row
     for run in cmd.RUNS:
         for c in lines(run, staff=STAFF):

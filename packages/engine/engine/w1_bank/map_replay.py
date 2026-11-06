@@ -7,6 +7,7 @@ this adds is the question the score alone cannot answer: for each activity, what
 linked, and why a proposal did not pass on its own.
 """
 
+import math
 from collections import Counter, deque
 from collections.abc import Sequence
 from datetime import datetime, timedelta
@@ -125,19 +126,55 @@ def explain(made: Sequence[Proposal], gold: dict[str, frozenset[str]], min_confi
     return {"rows": rows, "passed_wrong": +passed_wrong, "held_back": dict(held)}
 
 
-def stored(conn: db.Conn) -> list[Call]:
-    """Every kept dev-stage reply of the two mapping prompts, with what it was for when the row says. A probe's call
+def stored(conn: db.Conn, stage: str = "dev_eval") -> list[Call]:
+    """Every kept reply of the two mapping prompts in a stage, with what it was for when the row says. A probe's call
     (map_probe) is not part of any run and is left out."""
     rows = conn.execute(
         "select started_at, flow, coalesce(request->>'about', '') as about, result->>'outcome' as outcome,"
         " result->'reply' as reply, coalesce(result->>'reason', '') as reason from flow_run"
         " where flow = any(%s) and trigger = %s and result ? 'outcome' and coalesce(request->>'about', '') not like %s"
         " order by started_at",
-        ([PROPOSE, VALIDATE], llm_budget.trigger_for("dev_eval"), PROBE + "%"),
+        ([PROPOSE, VALIDATE], llm_budget.trigger_for(stage), PROBE + "%"),
     ).fetchall()
     return [
         (r["started_at"], r["flow"], r["about"], r["outcome"], r["reply"] or {}, r["reason"]) for r in rows
     ]
+
+
+def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    """The Wilson interval (95% by default) of k out of n: how far a share can be trusted, a small n widening it."""
+    if not n:
+        return 0.0, 0.0
+    p, d = k / n, 1 + z * z / n
+    centre, spread = p + z * z / (2 * n), z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n))
+    return (centre - spread) / d, min(1.0, (centre + spread) / d)
+
+
+def partial(
+    made: Sequence[Proposal], gold: dict[str, frozenset[str]], min_confidence: float, held_total: int
+) -> dict:
+    """A run that may be cut short, in counts only (the log is public): how many of the held-out activities it reached,
+    how the proposals went, the precision of those that passed on their own and the share that did, each with its
+    interval, and the causes. No activity is named."""
+    got = explain(made, gold, min_confidence)
+    passed = [r for r in got["rows"] if r["status"] == "auto_passed"]
+    right = sum(1 for r in passed if r["proposed"] and set(r["proposed"]) <= set(r["gold"]))
+    n = len(got["rows"])
+    return {
+        "held_total": held_total,
+        "answered": n,
+        "unanswered": held_total - n,
+        "passed": len(passed),
+        "passed_right": right,
+        "held_to_a_person": sum(1 for r in got["rows"] if r["status"] == "needs_person"),
+        "rejected": sum(1 for r in got["rows"] if r["status"] == "rejected"),
+        "precision_of_passed": round(right / len(passed), 3) if passed else 0.0,
+        "precision_interval": [round(x, 3) for x in wilson(right, len(passed))],
+        "share_passed": round(len(passed) / n, 3) if n else 0.0,
+        "share_interval": [round(x, 3) for x in wilson(len(passed), n)],
+        "passed_wrong": dict(got["passed_wrong"]),
+        "held_back": got["held_back"],
+    }
 
 
 def sweep(made: Sequence[Proposal], gold: dict[str, frozenset[str]]) -> dict:

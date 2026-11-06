@@ -1,0 +1,32 @@
+name: m1-12m-heldout-replay
+goal: >
+  The held-out score that stopped at the cap can be read free from the replies it kept: how many activities it reached,
+  how many of those the machine passed on its own, how many of the passed were right, each share with its interval, and
+  the causes, in counts only. The proposing run for the 281 unlinked activities is a run choice that is priced before it
+  is paid, records its proposals as a person's to approve, and never turns the prompt on.
+# Written 2026-11-06 (task M1-12m). W1, gate N1. The words are the orchestrator's: "Start (1) the free map-replay for
+# held_out (partial score, interval, counts by cause, no text) and (4) a map_propose run choice for the 281 (propose
+# --apply --by the dispatcher email, same ledger cap/forecast rules, apply as source=drafted, never auto-activate the
+# prompt)". Nothing here has made a model call.
+says:
+  - words: "the free map-replay for held_out (partial score, interval, counts by cause, no text)"
+    proved_by: "packages/engine/tests/test_map_replay.py::test_a_partial_run_is_summed_up_in_counts_with_the_interval_and_no_activity_named"
+  - words: "interval"
+    proved_by: "packages/engine/tests/test_map_replay.py::test_a_share_that_passed_is_given_with_its_wilson_interval_and_none_with_no_activities"
+  - words: "partial score"
+    proved_by: "packages/engine/tests/test_map_replay.py::test_the_held_out_run_is_read_back_for_the_activities_that_were_answered_and_the_rest_are_counted_unanswered"
+  - words: "a map_propose run choice for the 281 (propose --apply --by the dispatcher email"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_the_held_out_replay_reads_the_kept_replies_free_and_the_proposing_run_is_priced_before_it_is_paid"
+  - words: "same ledger cap/forecast rules"
+    proved_by: "packages/engine/tests/test_map_replay.py::test_the_estimate_prices_a_call_from_the_proposer_calls_already_paid_and_calls_nothing"
+  - words: "never auto-activate the prompt"
+    proved_by: "packages/engine/tests/test_map_replay.py::test_the_proposer_is_asked_in_the_stage_and_at_the_version_named_and_without_either_as_before"
+manual:
+  - "Links the ledger makes are marked `machine` with the proposal's id (not `drafted`): the existing apply step does that and can revert them by id. `propose --apply` records proposals; the existing `apply` makes the ones that passed."
+criteria:
+  - name: the replay, the estimate and the run choices
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_replay.py tests/test_curriculum_run_command.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
