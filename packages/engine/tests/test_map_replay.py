@@ -183,7 +183,12 @@ def test_a_run_rebuilt_from_its_stored_replies_scores_what_the_run_scored(monkey
     calls: list[tuple[str, str, dict]] = []
 
     def scripted(purpose, about, variables):
-        reply = {**said, "reason": "r"} if purpose == PROPOSE else {"verdict": "agree", "why": "w"}
+        near = sorted(mr._example_skills(variables))[:1]  # a skill the examples show, so it can pass
+        reply = (
+            {**said, "skills": near, "reason": "r"}
+            if purpose == PROPOSE
+            else {"verdict": "agree", "why": "w"}
+        )
         calls.append((purpose, about, reply))
         return reply
 
@@ -266,3 +271,122 @@ def test_a_proposal_split_into_the_skills_that_pass_and_the_ones_offered_to_a_pe
     assert got["0.9"]["offered_in_gold"] == 2, (
         "B's and C's right skills fall below the bar and wait for a person"
     )
+
+
+def test_a_share_that_passed_is_given_with_its_wilson_interval_and_none_with_no_activities():
+    lo, hi = mr.wilson(9, 10)
+    assert (round(lo, 3), round(hi, 3)) == (0.596, 0.982)
+    assert mr.wilson(0, 0) == (0.0, 0.0)
+    assert 0.72 < mr.wilson(10, 10)[0] < 0.73 and mr.wilson(10, 10)[1] == 1.0
+
+
+def test_a_partial_run_is_summed_up_in_counts_with_the_interval_and_no_activity_named():
+    gold = {f"ACT-{i}": frozenset({"NUM.CNT.01"}) for i in range(6)}
+    made = [
+        prop("ACT-0", ["NUM.CNT.01"], "auto_passed"),
+        prop("ACT-1", ["NUM.CNT.01"], "auto_passed"),
+        prop("ACT-2", ["NUM.CNT.09"], "auto_passed"),
+        prop("ACT-3", ["NUM.CNT.01"], "needs_person", confidence=0.5, reason="confidence under the bar"),
+        prop("ACT-4", [], "rejected", problems=["no skill"]),
+    ]
+    got = mr.partial(made, gold, 0.7, held_total=6)
+    assert got["held_total"] == 6 and got["answered"] == 5 and got["unanswered"] == 1
+    assert (
+        got["passed"] == 3
+        and got["passed_right"] == 2
+        and got["held_to_a_person"] == 1
+        and got["rejected"] == 1
+    )
+    assert got["precision_of_passed"] == pytest.approx(2 / 3, abs=0.001)
+    lo, hi = got["precision_interval"]
+    assert 0.2 < lo < 0.5 and 0.8 < hi < 0.95
+    assert got["share_passed"] == pytest.approx(3 / 5, abs=0.001)
+    assert "ACT-" not in json.dumps(got), "counts only: no activity is named"
+
+
+@needs_db
+def test_the_held_out_run_is_read_back_for_the_activities_that_were_answered_and_the_rest_are_counted_unanswered():
+    from engine.core import db
+    from engine.w1_bank import cli_map
+    from tests.test_map_ledger import _band
+
+    said = {
+        "skills": ["NUM.CNT.01"],
+        "objective_code": "",
+        "objective_text": "",
+        "levels": {},
+        "confidence": 0.9,
+    }
+    calls: list[tuple[str, str, dict]] = []
+
+    def scripted(purpose, about, variables):
+        near = sorted(mr._example_skills(variables))[:1]  # a skill the examples show, so it can pass
+        reply = (
+            {**said, "skills": near, "reason": "r"}
+            if purpose == PROPOSE
+            else {"verdict": "agree", "why": "w"}
+        )
+        calls.append((purpose, about, reply))
+        return reply
+
+    with db.connect() as conn:
+        _band(conn)
+        conn.execute("update threshold set value = 1 where key = 'map.dev_count'")
+        monkey = pytest.MonkeyPatch()
+        monkey.setattr(cli_map, "config", lambda: {"band": "KX"})
+        tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+        whole = cli_map.read_band(conn, tenant, "KX")
+        tune, held = cli_map.gold_split(conn, whole)
+        assert len(held) == 3, "three of the four mapped activities are held out"
+        cli_map._made(conn, scripted, "KX", held, tune)
+        first = sorted(held)[0]
+        for i, (purpose, about, reply) in enumerate(c for c in calls if c[1] == first):
+            conn.execute(
+                "insert into flow_run (tenant_id, flow, trigger, request, result, started_at)"
+                " values (%s, %s, 'engine:held_out', %s, %s, now() + %s * interval '1 second')",
+                (tenant, purpose, Json({"about": about}), Json({"reply": reply, "outcome": "accepted"}), i),
+            )
+        lines = cli_map.replay_report(conn, 10, stage="held_out")
+        conn.rollback()
+        monkey.undo()
+    got = json.loads(lines[0])
+    assert len(lines) == 1, "one line of counts, no row for an activity"
+    assert got["held_total"] == 3 and got["answered"] == 1 and got["unanswered"] == 2
+    assert "ACT-KX" not in lines[0]
+
+
+@needs_db
+def test_the_estimate_prices_a_call_from_the_proposer_calls_already_paid_and_calls_nothing():
+    from engine.core import db
+    from engine.w1_bank import cli_map
+
+    with db.connect() as conn:
+        tenant = conn.execute("select id from tenant where slug = %s", (db.tenant_slug(),)).fetchone()["id"]
+        conn.execute("delete from flow_run where flow = %s", (PROPOSE,))
+        assert cli_map.estimate(conn, 3) == (3, None, 0), "nothing paid for yet: three gaps, no price"
+        assert "not measured" in cli_map.estimate_line(3, None, 0)
+        for i in range(6):
+            conn.execute(
+                "insert into flow_run (tenant_id, flow, trigger, request, result, status, cost_inr)"
+                " values (%s, %s, 'engine:held_out', %s, %s, 'ok', 1.32)",
+                (tenant, PROPOSE, Json({"about": f"X{i}"}), Json({"outcome": "accepted"})),
+            )
+        n, per_call, calls = cli_map.estimate(conn, 3)
+        assert (n, calls) == (3, 6) and per_call is not None and per_call > 0
+        assert "about $" in cli_map.estimate_line(n, per_call, calls)
+        conn.rollback()
+
+
+def test_the_proposer_is_asked_in_the_stage_and_at_the_version_named_and_without_either_as_before(
+    monkeypatch,
+):
+    from engine.w1_bank import cli_map
+
+    seen = {}
+    monkeypatch.setattr(
+        cli_map, "model_ask", lambda conn, p=None, v=None, stage=None, say=None: seen.update(p=p, stage=stage)
+    )
+    cli_map._ask(None, None, 3, "draft")
+    assert seen == {"p": 3, "stage": "draft"}
+    cli_map._ask(None, None)
+    assert seen == {"p": None, "stage": None}
