@@ -47,8 +47,9 @@ says:
     proved_by: "packages/engine/tests/test_k2_gaps.py::test_the_mapping_validator_gets_a_new_version_on_haiku_and_version_one_is_left_as_it_was"
   - words: "Raise the held-out stage cap to 7 USD; the overall campaign cap stays 25 with the 2 USD margin (stop at 23)"
     proved_by: "packages/engine/tests/test_llm_budget.py::test_a_stage_stops_at_its_own_cap_less_its_margin_while_the_other_stages_go_on"
-  - words: "Raise the held-out stage cap to 7 USD; the overall campaign cap stays 25 with the 2 USD margin (stop at 23)"
-    proved_by: "packages/engine/tests/test_llm_budget.py::test_the_seeded_stages_are_four_dollars_for_the_dev_eval_and_seven_for_the_held_out_score"
+  # Superseded 2026-11-06 by Nimish's "okay to spend up to 25 dollars, go ahead and finish the thing" (goals/m1-12k-caps.yaml): the
+  # earlier sentence "Raise the held-out stage cap to 7 USD; the overall campaign cap stays 25 with the 2 USD margin (stop at 23)"
+  # no longer holds (held_out 4.8, margin 0.5, stop at 24.5).
   - words: "Write the run commands (the ones that call generate(stage=...)) now with tests ... They must print spend so far and stage limit on every batch"
     proved_by: "packages/engine/tests/test_k2_draft.py::test_a_run_drafts_checks_and_records_each_page_where_it_belongs_and_prints_the_spend_every_batch"
   - words: "`--dry-run` must print the forecast without any call"

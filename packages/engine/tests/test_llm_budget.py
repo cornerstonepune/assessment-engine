@@ -272,14 +272,14 @@ def test_a_stage_the_campaign_does_not_name_is_refused_so_a_typo_cannot_spend_un
         llm.generate(conn, DRAFT, VARS, version=1, stage="dev_evl")
 
 
-def test_the_seeded_stages_are_four_dollars_for_the_dev_eval_and_seven_for_the_held_out_score():
+def test_the_seeded_stages_are_the_dev_eval_and_the_held_out_score_with_the_drafting_keeping_the_rest():
     seeded = next(
         c
         for c in json.loads((db.REPO_ROOT / "supabase" / "seed" / "config.json").read_text())["config"]
         if c["key"] == "llm.campaigns"
     )["value"]["m1-11"]
-    assert seeded["stages"] == {"dev_eval": 4, "held_out": 7, "draft": None}
-    assert 4 + 7 + 2 < seeded["cap_usd"], "the drafting stage keeps the rest"
+    assert seeded["stages"] == {"dev_eval": 5.2, "held_out": 4.8, "draft": None}
+    assert 5.2 + 4.8 < seeded["cap_usd"] - seeded["margin_usd"], "the drafting stage keeps the rest"
 
 
 def test_a_refusal_for_money_is_its_own_error_so_a_run_can_end_cleanly_and_keep_what_is_good(
@@ -370,3 +370,25 @@ def test_the_seeded_campaign_names_the_order_of_its_stages():
     )["value"]["m1-11"]
     assert seeded["order"] == ["dev_eval", "held_out", "draft"]
     assert set(seeded["order"]) == set(seeded["stages"])
+
+
+def _seeded(key):
+    rows = json.loads((db.REPO_ROOT / "supabase" / "seed" / "config.json").read_text())["config"]
+    return next(c for c in rows if c["key"] == key)["value"]
+
+
+def test_the_stages_caps_add_up_under_the_campaigns_own_stop_which_is_just_under_the_25_nimish_approved():
+    """Nimish, 2026-11-06: "okay to spend up to 25 dollars". The campaign stops at cap less margin (24.5); each stage that
+    has a cap of its own stops at its cap less the stage margin; the drafting has none, the campaign's holds."""
+    c = _seeded("llm.campaigns")["m1-11"]
+    assert c["cap_usd"] == 25 and c["cap_usd"] - c["margin_usd"] == 24.5
+    assert c["stages"]["dev_eval"] == 5.2 and c["stages"]["draft"] is None
+    capped = [v for v in c["stages"].values() if v is not None]
+    assert sum(capped) < c["cap_usd"] - c["margin_usd"], (
+        "the stages that have a cap cannot add up past the stop"
+    )
+    assert c["order"] == ["dev_eval", "held_out", "draft"], "one stage at a time, in this order"
+
+
+def test_a_tranche_whose_pages_cost_more_than_three_cents_each_is_flagged_in_the_checkers_report():
+    assert _seeded("k2.drafting")["report_usd_per_page_limit"] == 0.03
