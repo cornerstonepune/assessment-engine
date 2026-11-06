@@ -14,12 +14,12 @@ from dataclasses import dataclass, field
 import typer
 
 from engine.adapters import llm, llm_budget
-from engine.core import db, settings
+from engine.core import db
 from engine.w1_bank import k2_batch as batch
-from engine.w1_bank import k2_check, k2_format, map_ledger
+from engine.w1_bank import k2_check, k2_shown, map_ledger
 from engine.w1_bank.cli_map import BY, staff_of
 from engine.w1_bank.k2_forecast import _models, _shadows, drafting_settings, forecast  # noqa: F401
-from engine.w1_bank.k2_gaps import PAGE_PARTS, empty_parts
+from engine.w1_bank.k2_gaps import empty_parts
 from engine.w1_bank.k2_upload import config, curriculum_app
 from engine.w1_bank.map_agents import Proposal
 
@@ -36,6 +36,7 @@ class Report:
     left: dict[str, str] = field(default_factory=dict)  # page → why it has no proposal
     stopped: str = ""
     lines: list[str] = field(default_factory=list)
+    reused: int = 0  # pages whose first draft was read from a kept reply, not asked for
     bad_in_a_row: int = 0  # replies in a row that broke their schema
     bad_limit: int = 3
 
@@ -89,57 +90,7 @@ def _proposed(conn: db.Conn, tenant: db.Id, kind: str, proposer: str | None = No
     return {r["subject_code"] for r in rows}
 
 
-def _block(
-    row: dict,
-    parts: list[str],
-    example: dict | None,
-    with_draft: dict | None = None,
-    revise: tuple[dict, list[dict]] | None = None,
-) -> str:
-    wrote = [f"  {p}: {row[p].strip()}" for p in PAGE_PARTS if (row[p] or "").strip()]
-    out = [f"key: {row['code']}", f"activity: {row['name']} (section: {row['strand']})"]
-    out += ["the school wrote:", *wrote] if wrote else ["the school wrote nothing else for it"]
-    out.append(f"materials: {row['materials'].strip() or 'the school wrote none'}")
-    if with_draft is not None:
-        out += ["the draft:", k2_format.shown_draft(with_draft)]
-    else:
-        out.append("draft: " + ", ".join(parts))
-        if revise:
-            earlier, faults = revise
-            out += [
-                "the checker found:",
-                "your earlier draft:",
-                k2_format.shown_draft(earlier),
-                "its faults:",
-            ]
-            out += [f"  {f['part']}: {f['reason']}" for f in faults]
-        elif example:
-            out.append(
-                f"a page the school wrote for a similar activity: {example['name']}; steps: {example['steps'][:400]}"
-            )
-    return "\n".join(out)
-
-
-def _judge(conn: db.Conn, rows: dict) -> k2_format.Judge:
-    """The code that reads a drafted page: the school's format and house rules are config rows."""
-    format_row = settings.config(conn, "k2.format")
-    vocab = k2_format.vocabulary(
-        (r["materials"] for r in rows.values()),
-        format_row.get("function_words", []),
-        int(format_row.get("prop_min_pages", 3)),
-        format_row.get("not_props", []),
-    )
-    return k2_format.judger(rows, vocab, format_row, settings.config(conn, "k2.draft_rules"))
-
-
-def _examples(rows: dict) -> dict[str, dict]:
-    """For each section, its first complete page: the style and length to match. A page being drafted has a gap, so
-    it is never its own example."""
-    out: dict[str, dict] = {}
-    for r in rows.values():
-        if not empty_parts(r):
-            out.setdefault(r["strand"], r)
-    return out
+_block, _judge = k2_shown.block, k2_shown.judge_for  # the names the tests and the other modules know them by
 
 
 def _say_call(
@@ -184,9 +135,14 @@ def draft(
     write: bool = False,
     dry_run: bool = False,
     say: Callable[[str], None] = typer.echo,
+    reuse: dict[str, dict] | None = None,
 ) -> Report:
+    """`reuse` holds first drafts the maker already wrote and was paid for (kept replies the judge accepts): they are
+    read as the maker's answer, once, and the checkers and the revision are asked as for any draft."""
     want, rows = wanted(conn, tenant, band, limit)
-    rep = Report(forecast=forecast(conn, stage, len(want)))
+    reuse = {k: v for k, v in (reuse or {}).items() if k in want}
+    shown = set(reuse)
+    rep = Report(forecast=forecast(conn, stage, len(want), reused=len(reuse)))
     if dry_run or not want:
         say(rep.forecast if want else "nothing to draft: every page has every text part, or has been drafted")
         return rep
@@ -194,16 +150,15 @@ def draft(
     size, rounds = int(t["batch_pages"]), int(t["batch_rounds"])
     rep.bad_limit = int(t["stop_after_bad_replies"])
     raw: dict[str, dict] = {}
-    examples = _examples(rows)
-    judge = _judge(conn, rows)
+    examples = k2_shown.examples_of(rows)
+    judge = k2_shown.judge_for(conn, rows)
 
     def ask_maker(keys: list[str], revise: dict | None) -> list:
-        parts = {k: k2_check.parts_at_fault(revise[k][1], want[k]) if revise else want[k] for k in keys}
-        text = "\n\n".join(
-            _block(rows[k], parts[k], examples.get(rows[k]["strand"]), revise=revise[k] if revise else None)
-            for k in keys
-        )
-        got = batch.items(_ask(conn, ask, stage, DRAFT, {"pages": text}, len(keys), say, rep), "pages")
+        kept, keys = ([], keys) if revise else k2_check.take_kept(reuse, keys)
+        got = list(kept)
+        if keys:
+            text = k2_shown.maker_text(rows, want, examples, keys, revise)
+            got += batch.items(_ask(conn, ask, stage, DRAFT, {"pages": text}, len(keys), say, rep), "pages")
         for it in got:
             if isinstance(it, dict) and isinstance(it.get("key"), str):
                 k2_check.remember(raw, it, bool(revise))
@@ -211,25 +166,33 @@ def draft(
 
     def checker(purpose: str) -> k2_check.AskChecker:
         def ask_checker(keys: list[str], drafts: dict) -> object:
-            text = "\n\n".join(_block(rows[k], [], None, drafts[k]) for k in keys)
+            text = "\n\n".join(k2_shown.block(rows[k], [], None, drafts[k]) for k in keys)
             return _ask(conn, ask, stage, purpose, {"pages": text}, len(keys), say, rep)
 
         return ask_checker
 
     shadows = {p: checker(p) for p in _shadows(conn)}
     res = k2_check.run(want, ask_maker, checker(CHECK), judge, size, rounds, shadows)
-    rep.left, rep.stopped = dict(res.left), res.stopped
+    _finish(conn, tenant, staff, write, stage, res, raw, shown - set(reuse), rep, say)
+    return rep
+
+
+def _finish(conn, tenant, staff, write, stage, res, raw, used, rep, say) -> None:
+    """Record what the run drafted and say, in counts and rule names only, how it went. `used` are the pages whose first
+    draft was read from a kept reply: marked on their ledger row."""
+    rep.left, rep.stopped, rep.reused = dict(res.left), res.stopped, len(used)
+    for key in used & set(res.history):
+        res.history[key][0]["reused"] = True
     least = map_ledger.rules(conn)["min_confidence"]
     made = k2_check.proposals(res, raw, _models(conn), least, bool(rep.stopped), stage)
     rep.proposals = len(made)
     if write and made:
         map_ledger.record(conn, tenant, made, staff)
-    if (
-        res.faults
-    ):  # which rule, so a run that loses its pages says why (counts and rule names: the log is public)
+    if res.faults:  # which rule, so a run that loses its pages says why (the log is public)
         say(f"rules broken: {batch.line_of(res.faults)}; {res.stuck} pages not asked a third time")
+    if rep.reused:
+        say(f"{rep.reused} first drafts read from kept replies (no maker call)")
     say(f"{rep.proposals} pages recorded, {len(rep.left)} left for a person; {rep.stopped or 'run complete'}")
-    return rep
 
 
 def materials(
@@ -310,6 +273,7 @@ def _run(
     dry_run: bool,
     by: str,
     tranche: bool = False,
+    use_kept: bool = False,
 ) -> None:
     if sum([dev, tranche, limit is not None]) > 1:
         raise typer.BadParameter("give one of --dev, --tranche or --limit, not more")
@@ -322,7 +286,23 @@ def _run(
         tenant = db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
         staff = None if dry_run else staff_of(conn, by)
         limit = int(_settings(conn)["dev_pages" if dev else "tranche_pages"]) if dev or tranche else limit
-        command(conn, tenant, staff, cfg["band"], stage, live_ask(conn, stage), limit, not dry_run, dry_run)
+        extra = {}
+        if use_kept:  # the first drafts the maker already wrote and was paid for in this stage
+            from engine.w1_bank import k2_replay  # here, not above: k2_replay reads this module's judge
+
+            extra["reuse"] = k2_replay.reusable(conn, tenant, cfg["band"], stage)
+        command(
+            conn,
+            tenant,
+            staff,
+            cfg["band"],
+            stage,
+            live_ask(conn, stage),
+            limit,
+            not dry_run,
+            dry_run,
+            **extra,
+        )
 
 
 STAGE = typer.Option(..., "--stage", help="The stage of the campaign this run spends from (llm.campaigns)")
@@ -340,6 +320,13 @@ TRANCHE = typer.Option(
 )
 
 
+USE_KEPT = typer.Option(
+    False,
+    "--use-kept",
+    help="Read a page's first draft from the kept replies of this stage when the judge accepts it: no maker call for it",
+)
+
+
 @curriculum_app.command("draft")
 def draft_cmd(
     stage: str = STAGE,
@@ -348,9 +335,10 @@ def draft_cmd(
     dry_run: bool = DRY,
     by: str = BY,
     tranche: bool = TRANCHE,
+    use_kept: bool = USE_KEPT,
 ) -> None:
     """Draft the empty text parts of K2 pages, check them, record them in the ledger (apply them with `apply`)."""
-    _run(draft, stage, limit, dev, dry_run, by, tranche)
+    _run(draft, stage, limit, dev, dry_run, by, tranche, use_kept)
 
 
 @curriculum_app.command("materials")

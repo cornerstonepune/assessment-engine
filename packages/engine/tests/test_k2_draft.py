@@ -12,9 +12,10 @@ from typer.testing import CliRunner
 
 from engine import cli
 from engine.adapters import llm
-from engine.core import db
+from engine.core import db, settings
 from engine.w1_bank import k2_draft as draft
 from engine.w1_bank import k2_review, map_ledger
+from engine.w1_bank.k2_gaps import PAGE_PARTS
 from tests.rows import tenant
 
 pytestmark = pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="needs DATABASE_URL (see .env.example)")
@@ -130,7 +131,7 @@ def test_only_pages_with_an_empty_part_are_wanted_and_each_says_which_parts(conn
     _act(conn, "KX-3", "Half", objective="o", steps="s", level_1="a", level_2="b")
     want, _ = draft.wanted(conn, conn.t, BAND)
     assert "KX-1" not in want
-    assert want["KX-2"] == list(draft.PAGE_PARTS)
+    assert want["KX-2"] == list(PAGE_PARTS)
     assert want["KX-3"] == ["thinking", "level_0", "level_3"]
 
 
@@ -457,9 +458,9 @@ def test_every_draft_is_written_to_its_empty_parts_marked_drafted_and_every_one_
     }, "what the machine said is kept in the data for the calibration table"
     map_ledger.apply(conn, conn.t, conn.staff, True)
     for code, check in (("KX-1", True), ("KX-2", True), ("KX-3", True), ("KX-4", True)):
-        assert _marks(conn, code) == {p: ("drafted", check) for p in draft.PAGE_PARTS}, code
+        assert _marks(conn, code) == {p: ("drafted", check) for p in PAGE_PARTS}, code
         page = conn.execute("select * from activity where code = %s", (code,)).fetchone()
-        assert all(page[p].strip() for p in draft.PAGE_PARTS), "no empty part"
+        assert all(page[p].strip() for p in PAGE_PARTS), "no empty part"
 
 
 def test_nothing_the_school_wrote_is_touched_by_a_doubtful_draft_and_it_reverts_like_any_other(conn):
@@ -790,7 +791,7 @@ def test_the_tranche_size_is_a_number_in_the_config_row(conn):
 
 
 def test_the_words_of_the_language_that_trail_a_material_are_a_config_row_the_judge_reads(conn):
-    row = draft.settings.config(conn, "k2.format")
+    row = settings.config(conn, "k2.format")
     assert {"the", "needed", "per"} <= set(row["function_words"])
     _act(conn, "KX-1", "A", materials="Beads, Markers as needed")
     _act(conn, "KX-2", "B", materials="Beads")
@@ -798,3 +799,33 @@ def test_the_words_of_the_language_that_trail_a_material_are_a_config_row_the_ju
     reply = [drafted(key="KX-2", steps=["Hand out the beads as needed."], uses=["Beads"])]
     good, bad = draft._judge(conn, rows)(reply, {"KX-2": want["KX-2"]})
     assert bad == {} and "KX-2" in good, "'needed' ends a piece on another page: it is no prop"
+
+
+def test_a_kept_first_draft_is_not_paid_for_again_the_checkers_read_it_and_the_ledger_row_is_the_same(conn):
+    for c in ("KX-1", "KX-2"):
+        _act(conn, c, f"Activity {c}")
+    ask = Scripted(
+        {
+            ("k2_page_draft", "KX-2"): [drafted()],
+            ("k2_page_check", "KX-1"): [AGREE],
+            ("k2_page_check", "KX-2"): [AGREE],
+        }
+    )
+    rep = run(conn, ask, reuse={"KX-1": {"key": "KX-1", **drafted()}})
+    asked = [a for a in ask.asked if a[0] == "k2_page_draft"]
+    assert asked == [("k2_page_draft", ["KX-2"])], "only the page without a kept draft goes to the maker"
+    assert [a for a in ask.asked if a[0] == "k2_page_check"] == [("k2_page_check", ["KX-1", "KX-2"])]
+    rows = {r["subject_code"]: r for r in map_ledger.standing(conn, conn.t)}
+    assert set(rows) == {"KX-1", "KX-2"} and rep.proposals == 2 and rep.reused == 1
+    assert rows["KX-1"]["proposal"]["history"][0].get("reused") is True
+    assert "reused" not in rows["KX-2"]["proposal"]["history"][0]
+    assert any(ln == "1 first drafts read from kept replies (no maker call)" for ln in rep.lines)
+
+
+def test_the_forecast_leaves_the_maker_out_for_the_pages_whose_first_draft_is_kept(conn):
+    _act(conn, "KX-1", "A")
+    _act(conn, "KX-2", "B")
+    plain = draft.forecast(conn, "dev_eval", 2)
+    reused = draft.forecast(conn, "dev_eval", 2, reused=2)
+    cost = lambda t: float(re.search(r"about \$([0-9.]+)", t).group(1))  # noqa: E731
+    assert cost(reused) < cost(plain) and "2 first drafts kept" in reused

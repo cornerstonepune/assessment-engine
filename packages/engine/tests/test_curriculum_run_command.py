@@ -121,6 +121,7 @@ def test_no_run_can_carry_a_flag_that_changes_a_limit_only_the_known_ones_with_t
         "--validate-version",
         "--tranche",
         "--settings",
+        "--use-kept",  # reads a draft already paid for; it raises no limit
     }  # no --limit: the size is a row
     for run in cmd.RUNS:
         for c in lines(run, staff=STAFF):

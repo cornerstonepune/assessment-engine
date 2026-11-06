@@ -122,7 +122,7 @@ def tally(
                 row["faults"][rule] += 1
                 what = next((m.group(1) for p in NAMED if (m := re.search(p, bad.get(k, "")))), None)
                 if rule in named and what is not None:
-                    named[rule]["words"][what.casefold()[:40]] += 1
+                    named[rule]["words"][batch._stem(what.casefold())[:40]] += 1
                     named[rule]["kinds"][kind_of(what, (materials or {}).get(k, ""))] += 1
     return {
         "replies": len(kept),
@@ -132,6 +132,28 @@ def tally(
         "unlisted": _unlisted(named),
         "attempts": [{**a, "faults": dict(a["faults"].most_common())} for _, a in sorted(asks.items())],
     }
+
+
+def kept_drafts(kept: list[Kept], want: dict[str, list[str]], judge) -> dict[str, dict]:
+    """For each page, the first answer in the kept replies that the judge accepts (a refused reply is nothing): the first
+    draft the maker already wrote and was paid for. A page never answered well has none."""
+    out: dict[str, dict] = {}
+    for outcome, reply in kept:
+        if outcome == "refused":
+            continue
+        pages = batch.items(reply, "pages")
+        items = {it["key"]: it for it in pages if isinstance(it, dict) and it.get("key") in want}
+        good, _ = judge(pages, {k: want[k] for k in items})
+        out |= {k: it for k, it in items.items() if k in good and k not in out}
+    return out
+
+
+def reusable(
+    conn: db.Conn, tenant: db.Id, band: str, stage: str, gap_minutes: float = 10.0
+) -> dict[str, dict]:
+    """The first drafts the stage's latest run already paid for and the judge accepts now, for the pages still wanted."""
+    want, rows = wanted(conn, tenant, band, None)
+    return kept_drafts(stored(conn, stage, gap_minutes), want, _judge(conn, rows))
 
 
 def lines(got: dict) -> list[str]:

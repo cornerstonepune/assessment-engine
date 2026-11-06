@@ -150,3 +150,43 @@ def test_a_use_whose_words_are_all_listed_is_told_apart_by_where_the_list_has_th
     many = rp.kind_of("beads chalk", "Beads, Chalk")  # two pieces of the list
     assert one == "one_piece_not_contiguous" and many == "spans_pieces"
     assert rp.kind_of("rope", "") == "page_has_no_materials" and rp.kind_of("rope", "Beads") == "not_related"
+
+
+def test_a_word_is_counted_as_one_whatever_its_form_so_colour_and_colours_are_one_line():
+    reply = [page(steps=["Hand out the chalks."])]
+    got = unlisted(reply, [page(steps=["Hand out the chalk."])])
+    assert got["step_word_unlisted"]["words"] == {"chalk": 2}
+
+
+def test_the_first_draft_the_judge_accepts_is_kept_for_each_page_and_a_page_never_good_has_none():
+    good1, bad1 = page(), page(steps=LONG)
+    kept = [
+        ("accepted", [good1]),
+        ("accepted", [bad1]),  # a later, worse answer for the same page
+        ("refused", [page(key="C")]),
+    ]
+    got = rp.kept_drafts(kept, {"A": WANT["A"]}, JUDGE)
+    assert got == {"A": good1}
+    assert rp.kept_drafts([("accepted", [bad1])], {"A": WANT["A"]}, JUDGE) == {}
+
+
+def test_a_page_answered_badly_then_well_keeps_the_good_answer():
+    bad, good = page(steps=LONG), page()
+    assert rp.kept_drafts(
+        [("accepted", [bad]), ("accepted", {"pages": [good]})], {"A": WANT["A"]}, JUDGE
+    ) == {"A": good}
+
+
+@pytestmark_db
+def test_the_pages_still_wanted_get_the_first_draft_the_stage_already_paid_for(conn):
+    base._act(conn, "KX-1", "A page", materials="Beads")
+    base._act(conn, "KX-2", "Another page", materials="Beads")
+    good = {"key": "KX-1", **base.drafted(uses=["Beads"], steps=["Count the beads."])}
+    bad = {"key": "KX-2", **base.drafted(steps=[" "])}
+    conn.execute(
+        "insert into flow_run (tenant_id, flow, trigger, status, started_at, result)"
+        " values (%s, 'k2_page_draft', 'engine:dev_eval', 'ok', now(), %s)",
+        (conn.t, json.dumps({"outcome": "accepted", "reply": {"pages": [good, bad]}})),
+    )
+    got = rp.reusable(conn, conn.t, base.BAND, "dev_eval")
+    assert set(got) == {"KX-1"} and got["KX-1"]["key"] == "KX-1"

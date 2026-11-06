@@ -56,7 +56,7 @@ def _sent_back(conn: db.Conn, floor: int) -> tuple[float, int]:
     return (int(got["back"]) / n, n) if got and n >= floor else (0.0, 0)
 
 
-def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
+def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0, reused: int = 0) -> str:
     t = drafting_settings(conn)
     size, floor = int(t["batch_pages"]), int(t.get("measured_min_calls", 5))
     prices = (conn.execute("select value from config where key = 'llm.prices'").fetchone() or {"value": {}})[
@@ -73,7 +73,7 @@ def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
         rate = prices.get(models.get(purpose, ""), {})
         return n * (t[tin] * rate.get("in", 0) + t[tout] * rate.get("out", 0)) / 1_000_000
 
-    page = inr(DRAFT, pages, "est_draft_in", "est_draft_out") + inr(
+    page = inr(DRAFT, pages - reused, "est_draft_in", "est_draft_out") + inr(
         CHECK, pages, "est_check_in", "est_check_out"
     )
     share, seen = _sent_back(conn, int(t.get("measured_min_pages", 20)))
@@ -88,7 +88,12 @@ def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
     status = llm_budget.status(conn, db.tenant_slug(), DRAFT, stage)
     rate = next(iter((llm_budget.campaigns(conn) or {"-": {"inr_per_usd": 88}}).values()))["inr_per_usd"]
     revised = math.ceil(pages * share / size)
-    calls = 2 * math.ceil(pages / size) + 2 * revised + math.ceil(texts / int(t["batch_materials"]))
+    calls = (
+        math.ceil((pages - reused) / size)
+        + math.ceil(pages / size)
+        + 2 * revised
+        + math.ceil(texts / int(t["batch_materials"]))
+    )
     worst = page * (int(t["batch_rounds"]) + 2) + inr(SPLIT, texts, "est_split_in", "est_split_out")
     # every page asked for again in every round, and every page revised
     basis = (
@@ -97,7 +102,9 @@ def forecast(conn: db.Conn, stage: str, pages: int, texts: int = 0) -> str:
         else "; ".join(dict.fromkeys(how))
     )
     return (
-        f"forecast ({basis}): {pages} pages and {texts} materials texts"
+        f"forecast ({basis}): {pages} pages"
+        + (f" ({reused} first drafts kept: no maker call for them)" if reused else "")
+        + f" and {texts} materials texts"
         f" → about {calls} calls, about ${cost / rate:.2f}, up to ${worst / rate:.2f} if every page went round every time;"
         f" now {llm_budget.line(status)}; nothing was called"
     )

@@ -23,6 +23,7 @@ RUNS = {
         "spends": False,
         "commands": [
             ["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--dry-run"],
+            ["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--use-kept", "--dry-run"],
             ["engine", "curriculum", "draft", "--stage", "draft", "--dry-run"],
             ["engine", "curriculum", "materials", "--stage", "draft", "--dry-run"],
         ],
@@ -43,6 +44,12 @@ RUNS = {
     "draft_dev": {
         "spends": True,
         "commands": [["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--by", BY]],
+    },
+    "draft_dev_kept": {
+        "spends": True,
+        "commands": [
+            ["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--use-kept", "--by", BY]
+        ],
     },
     "map_held_out": {
         "spends": True,
