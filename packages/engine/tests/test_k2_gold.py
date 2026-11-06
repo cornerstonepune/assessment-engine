@@ -10,6 +10,7 @@ import pytest
 
 from engine.w1_bank import k2_gold as gold
 from engine.w1_bank import map_ledger
+from engine.w1_bank.k2_gaps import PAGE_PARTS
 from tests import test_k2_draft as base
 
 conn = base.conn
@@ -86,7 +87,7 @@ def test_a_page_with_no_draft_is_not_on_the_sheet(pages):
         "Wholly the school's",
         strand="Block Room",
         materials="m",
-        **{p: "x" for p in base.draft.PAGE_PARTS},
+        **{p: "x" for p in PAGE_PARTS},
     )
     assert "KX-9" not in {r["code"] for r in gold.sheet(pages, pages.t, base.BAND, 50)}
 
