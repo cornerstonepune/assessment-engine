@@ -785,8 +785,8 @@
     },
     {
       "key": "k2.checkers",
-      "description": "Other checkers shown the same first drafts as the one that drives the revision (M1-12a): each is a prompt purpose, its verdict kept in the ledger beside the driver's and labelled by its model, and never deciding whether a page is revised. Empty: only the driver checks. Used to compare a cheaper checker with the stronger one before choosing.",
-      "value": {"shadow": ["k2_page_check_b"]}
+      "description": "Other checkers shown the same first drafts as the one that drives the revision (M1-12a): each is a prompt purpose, its verdict kept in the ledger beside the driver's and labelled by its model, and never deciding whether a page is revised. Empty: only the driver checks. Used to compare a cheaper checker with the stronger one before choosing. 6 Nov: on 55 pages Sonnet (k2_page_check_b) missed 9 faults Opus found, so Opus keeps checking and the shadow is off ($0.0036 a page saved); to compare again, name k2_page_check_b here.",
+      "value": {"shadow": []}
     },
     {
       "key": "k2.format",

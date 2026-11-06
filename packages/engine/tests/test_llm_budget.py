@@ -392,3 +392,9 @@ def test_the_stages_caps_add_up_under_the_campaigns_own_stop_which_is_just_under
 
 def test_a_tranche_whose_pages_cost_more_than_three_cents_each_is_flagged_in_the_checkers_report():
     assert _seeded("k2.drafting")["report_usd_per_page_limit"] == 0.03
+
+
+def test_only_the_stronger_checker_reads_the_drafts_now_the_comparison_is_done():
+    """6 Nov: on 55 pages Sonnet missed 9 faults that Opus found, so Opus keeps checking; the shadow costs $0.0036 a page and
+    its comparison is made. Empty, only the driver checks; a person can turn it on again in this row."""
+    assert _seeded("k2.checkers") == {"shadow": []}
