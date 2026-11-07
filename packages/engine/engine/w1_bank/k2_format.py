@@ -127,6 +127,23 @@ def _use_unlisted(uses: object, pieces: list[list[str]], function_words: frozens
     return ""
 
 
+def unlisted_step_words(
+    steps: list[str], materials: str, vocab: frozenset[str], fmt: dict
+) -> list[tuple[int, str]]:
+    """Every (line, word) of the steps that names a prop of the band which the page's own materials text does not. A page
+    the school gave no list names none (its steps are read by the checker)."""
+    mine = {t for toks in (_words(p) for p in batch.pieces_of(materials)) for t in toks}
+    free = {batch._stem(w.casefold()) for w in fmt["always_there"]}
+    out: list[tuple[int, str]] = []
+    for i, step in enumerate(steps if mine else [], 1):
+        # the first word is the verb the prompt asks for
+        for word in re.findall(r"[a-z]+", step.casefold())[1:]:
+            stem = batch._stem(word)
+            if stem in vocab and stem not in mine and stem not in free:
+                out.append((i, word))
+    return out
+
+
 def _unlisted(steps: list[str], uses: object, materials: str, vocab: frozenset[str], fmt: dict) -> str:
     """A thing a step or the page's own `uses` names that the school's materials text does not. A page the school gave
     no list is judged by its `uses` alone (it must be empty); its steps are read by the checker."""
@@ -135,15 +152,9 @@ def _unlisted(steps: list[str], uses: object, materials: str, vocab: frozenset[s
     skip = frozenset(batch._tokens(" ".join(fmt.get("function_words", []))))
     if why := _use_unlisted(uses, pieces, skip):
         return why
-    mine = {t for toks in pieces for t in toks}
-    free = {batch._stem(w.casefold()) for w in fmt["always_there"]}
-    for i, step in enumerate(steps if mine else [], 1):
-        for word in re.findall(r"[a-z]+", step.casefold())[
-            1:
-        ]:  # the first word is the verb the prompt asks for
-            stem = batch._stem(word)
-            if stem in vocab and stem not in mine and stem not in free:
-                return f"steps line {i} uses '{word}', which the school's materials do not name"
+    if found := unlisted_step_words(steps, materials, vocab, fmt):
+        line, word = found[0]
+        return f"steps line {line} uses '{word}', which the school's materials do not name"
     return ""
 
 

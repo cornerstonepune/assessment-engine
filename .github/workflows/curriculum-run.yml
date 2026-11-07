@@ -14,7 +14,7 @@ on:
       run:
         description: "key (is the model key on the server), load_settings (load the reviewed settings, prompts and thresholds from the deployed repo), forecast (what a run would cost, no call), map_probe (one call, about INR 1), map_dev, draft_dev, map_held_out, draft_all, materials_all (each spends), review (what waits for a person)"
         type: choice
-        options: [key, load_settings, forecast, map_probe, map_dev, map_replay, map_replay_held_out, checkers, draft_replay, draft_dev, draft_dev_kept, map_held_out, map_propose, draft_tranche, draft_all, materials_all, review]
+        options: [key, load_settings, forecast, map_probe, map_dev, map_replay, map_replay_held_out, checkers, draft_replay, draft_why, draft_dev, draft_dev_kept, map_held_out, map_propose, draft_tranche, draft_all, materials_all, review]
 
 permissions:
   contents: read

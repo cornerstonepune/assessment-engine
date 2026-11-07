@@ -15,8 +15,10 @@ import typer
 from engine.adapters import llm_budget
 from engine.core import db
 from engine.w1_bank import k2_batch as batch
-from engine.w1_bank import map_replay
+from engine.w1_bank import k2_why, map_replay
 from engine.w1_bank.k2_draft import DRAFT, _judge, wanted
+from engine.w1_bank.k2_gaps import empty_parts
+from engine.w1_bank.k2_shown import format_for
 from engine.w1_bank.k2_upload import config, curriculum_app
 
 Kept = tuple[str, object]  # (outcome, reply)
@@ -156,6 +158,12 @@ def reusable(
     return kept_drafts(stored(conn, stage, gap_minutes), want, _judge(conn, rows))
 
 
+def asked(rows: dict) -> dict[str, list[str]]:
+    """Every page the maker may have been asked about: the pages with an empty part, whether or not a draft of them has
+    since been recorded (`wanted` leaves those out, as a run must; a replay must not)."""
+    return {c: parts for c, r in rows.items() if (parts := empty_parts(r))}
+
+
 def lines(got: dict) -> list[str]:
     head = {k: got[k] for k in ("replies", "refused", "pages_good", "pages_never_good")}
     return [json.dumps(x) for x in (head, *got["attempts"], {"unlisted": got["unlisted"]})]
@@ -177,7 +185,30 @@ def draft_replay(
         if not kept:
             typer.echo("no kept draft reply in this stage", err=True)
             raise typer.Exit(1)
-        want, rows = wanted(conn, tenant, config()["band"], None)
-        out = tally(kept, want, _judge(conn, rows), {k: r["materials"] or "" for k, r in rows.items()})
+        _, rows = wanted(conn, tenant, config()["band"], None)
+        out = tally(kept, asked(rows), _judge(conn, rows), {k: r["materials"] or "" for k, r in rows.items()})
     for line in lines(out):
         typer.echo(line)
+
+
+@curriculum_app.command("draft-why")
+def draft_why(
+    stage: str = typer.Option("draft", "--stage", help="The stage whose latest draft run is read back"),
+    gap_minutes: float = typer.Option(
+        10.0, "--gap-minutes", help="A pause this long between calls ends a run"
+    ),
+) -> None:
+    """For the latest draft of each page whose steps name a thing its materials do not: what kind of word each hit is
+    (named elsewhere on the school's page, a variant of a listed word, a prop most pages list, or named nowhere), and the
+    pages each kind would clear. Counts and plain repeated words only. No model, no write."""
+    with db.connect() as conn:
+        conn.read_only = True
+        tenant = db.one(conn, "select id from tenant where slug = %s", (db.tenant_slug(),))["id"]
+        kept = stored(conn, stage, gap_minutes)
+        if not kept:
+            typer.echo("no kept draft reply in this stage", err=True)
+            raise typer.Exit(1)
+        _, rows = wanted(conn, tenant, config()["band"], None)
+        vocab, format_row = format_for(conn, rows)
+        steps = k2_why.latest_steps(kept, set(asked(rows)))
+        typer.echo(json.dumps({"drafts": len(steps), **k2_why.why(steps, rows, vocab, format_row)}))

@@ -1,0 +1,31 @@
+name: m1-12o-draft-why
+goal: >
+  The pages held back for a step that names a thing the materials do not can be read for free, in counts: whether each
+  such word is named elsewhere on the school's own page, a variant of a word its list has, a prop most pages list, or named
+  nowhere, and how many pages each kind would clear, so the rule is changed only on a principle and tested on pages it was
+  not fitted to. The replay no longer leaves out the pages a run already recorded.
+# Written 2026-11-07 (task M1-12o). W1, gate N1. The words are the orchestrator's: "go on draft-why (free draft PR, counts
+# only, classes 1-4 ..., plus pages that would pass per class) ... read the draft_tranche pass-1 pages (trigger
+# engine:draft) not only dev, and print the repeated plain words with counts as the replay does". Nothing here made a model call.
+says:
+  - words: "classes 1-4"
+    proved_by: "packages/engine/tests/test_k2_why.py::test_each_hit_is_put_in_the_first_class_that_fits_it"
+  - words: "pages that would pass per class"
+    proved_by: "packages/engine/tests/test_k2_why.py::test_pages_that_would_clear_the_rule_if_the_first_classes_were_accepted_one_at_a_time"
+  - words: "print the repeated plain words with counts as the replay does"
+    proved_by: "packages/engine/tests/test_k2_why.py::test_a_plain_word_seen_twice_is_shown_under_its_class_and_one_seen_once_is_only_counted"
+  - words: "counts only"
+    proved_by: "packages/engine/tests/test_k2_why.py::test_the_summary_holds_no_phrase_of_the_schools"
+  - words: "read the draft_tranche pass-1 pages (trigger engine:draft) not only dev"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_the_reading_of_the_held_pages_steps_is_a_free_run_in_the_draft_stage"
+  - words: "free draft PR"
+    proved_by: "packages/engine/tests/test_k2_replay.py::test_a_replay_asks_about_every_page_with_an_empty_part_whether_or_not_a_draft_was_recorded_since"
+manual:
+  - "A page counts as held here when its latest kept draft names a prop its list does not; that is the set the code judge holds, not the exact 69 (a page can also have been held by a later rule). 'most pages' means a prop listed by more than half of the band's pages that list anything."
+criteria:
+  - name: the reading, the replay and the run choice
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_why.py tests/test_k2_replay.py tests/test_k2_format.py tests/test_curriculum_run_command.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

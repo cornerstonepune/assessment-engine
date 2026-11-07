@@ -190,3 +190,9 @@ def test_the_pages_still_wanted_get_the_first_draft_the_stage_already_paid_for(c
     )
     got = rp.reusable(conn, conn.t, base.BAND, "dev_eval")
     assert set(got) == {"KX-1"} and got["KX-1"]["key"] == "KX-1"
+
+
+def test_a_replay_asks_about_every_page_with_an_empty_part_whether_or_not_a_draft_was_recorded_since():
+    rows = {"A": {"objective": "", "steps": "x"}, "B": {"objective": "x", "steps": "x"}}
+    got = rp.asked({k: {**{p: "x" for p in rp.empty_parts({})}, **r} for k, r in rows.items()})
+    assert list(got) == ["A"] and got["A"] == ["objective"]

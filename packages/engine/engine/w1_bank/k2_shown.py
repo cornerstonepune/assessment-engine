@@ -40,8 +40,8 @@ def block(
     return "\n".join(out)
 
 
-def judge_for(conn: db.Conn, rows: dict) -> k2_format.Judge:
-    """The code that reads a drafted page: the school's format and house rules are config rows."""
+def format_for(conn: db.Conn, rows: dict) -> tuple[frozenset[str], dict]:
+    """The band's props and the school's format row: what the code judge reads a draft against."""
     format_row = settings.config(conn, "k2.format")
     vocab = k2_format.vocabulary(
         (r["materials"] for r in rows.values()),
@@ -49,6 +49,12 @@ def judge_for(conn: db.Conn, rows: dict) -> k2_format.Judge:
         int(format_row.get("prop_min_pages", 3)),
         format_row.get("not_props", []),
     )
+    return vocab, format_row
+
+
+def judge_for(conn: db.Conn, rows: dict) -> k2_format.Judge:
+    """The code that reads a drafted page: the school's format and house rules are config rows."""
+    vocab, format_row = format_for(conn, rows)
     return k2_format.judger(rows, vocab, format_row, settings.config(conn, "k2.draft_rules"))
 
 

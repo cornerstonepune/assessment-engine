@@ -49,6 +49,7 @@ RUNS = {
         "spends": False,
         "commands": [["engine", "curriculum", "draft-replay", "--stage", "dev_eval"]],
     },
+    "draft_why": {"spends": False, "commands": [["engine", "curriculum", "draft-why", "--stage", "draft"]]},
     "draft_dev": {
         "spends": True,
         "commands": [["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--by", BY]],
