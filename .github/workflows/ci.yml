@@ -139,6 +139,8 @@ jobs:
           ( ../../bin/testdb fresh "$DATABASE_URL" >"$RUNNER_TEMP/testdb.log" 2>&1; echo $? >"$RUNNER_TEMP/testdb.rc" ) &
       # A paper is printed through Chromium (assess/render.py); the test that scans printed papers needs it.
       - run: uv run playwright install --with-deps chromium
+      # The timetable generator (M1-14b): FET's command-line program, the package the engine image installs too.
+      - run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends fet && fet-cl --version | head -1
       # The digit reader's models (ADR 0035, ~135 MB): test_digits and test_boxes run the real reader.
       - uses: actions/cache@v4
         with:

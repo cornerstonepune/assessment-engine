@@ -18,7 +18,10 @@ FROM python:3.12-slim AS runtime
 
 # OpenCV links against libGL and glib at import time even without a display; the digit reader's PaddlePaddle
 # against the GNU OpenMP runtime (ADR 0035).
-RUN apt-get update && apt-get install -y --no-install-recommends libglib2.0-0 libgl1 libgomp1 \
+# The timetable generator is FET (M1-14, D-074): Debian's package `fet`, which holds the command-line program /usr/bin/fet-cl
+# (there is no `fet-cli` package). AGPL-3+, run unmodified as its own process, never linked or changed.
+RUN apt-get update && apt-get install -y --no-install-recommends libglib2.0-0 libgl1 libgomp1 fet \
+    && fet-cl --version | head -1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
