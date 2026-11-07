@@ -158,14 +158,107 @@ def _git(root, *args, inp=None, env=None):
     return subprocess.run(["git", *args], cwd=root, input=inp, capture_output=True, text=True, env=env, timeout=60)
 
 
-def session_record(root, transcript, sid, rtk_saved=0):
+# ---------------------------------------------------------------- firing evidence (ATH-16)
+# Claude Code records a hook in the transcript by a label ("command hook 1"), and a plugin's mod not at all, so the
+# plugins and Athena's own hooks are seen by what they leave behind in this session. One detector per plugin; each
+# names the file it reads. A plugin that leaves nothing when it lacks its key or CLI is "not observable", not silent.
+SLACK = timedelta(minutes=2)  # a SessionStart hook can run just before the transcript's first timestamp
+COMPACTION_LINE = ("fallback to built-in summary (", "messages, no summary (")  # fast-jev-compaction's own notice
+
+
+def _rows(paths, key, sid, since):
+    """True when a JSON line in one of the files (changed since `since`) has row[key] == sid."""
+    for f in paths:
+        try:
+            if datetime.fromtimestamp(f.stat().st_mtime, timezone.utc) < since:
+                continue
+            for line in f.read_text(errors="replace").splitlines():
+                if sid in line and json.loads(line).get(key) == sid:
+                    return True
+        except (OSError, ValueError, AttributeError):
+            continue
+    return False
+
+
+def _fresh(path, since):
+    try:
+        return datetime.fromtimestamp(Path(path).stat().st_mtime, timezone.utc) >= since
+    except OSError:
+        return False
+
+
+def _plugin_options(home, name):
+    s = read_json(Path(home) / ".claude" / "settings.json")
+    return ((s.get("pluginConfigs") or {}).get(name) or {}).get("options") or {}
+
+
+def evidence(root, home, sid, started, transcript_text=""):
+    """(fired, not_observable): plugin names with proof they ran in session `sid`, and those that cannot show it."""
+    import hashlib
+    import shutil
+    root, home, since = Path(root), Path(home), started - SLACK
+    data = home / ".claude" / "plugins" / "data"
+    winnow = Path(os.environ.get("WINNOW_HOME") or home / ".winnow")
+    fired, unseen = set(), set()
+    if _rows(sorted((home / ".athena" / "usage").glob("*.jsonl")), "session", sid, since):
+        fired.add("athena-mods")  # its ledger row for this session
+    if any((root / ".claude" / "autoharness" / f).exists() for f in (f"session-{sid}.lock", f"offset-{sid}")):
+        fired.add("autoharness")  # its per-session lock and transcript offset in the repository
+    if any(data.glob(f"jev*/sessions/{sid}.json")):
+        fired.add("jev")  # jevwire's per-session state
+    mode = home / ".claude" / "ponytail-modes" / hashlib.sha256(os.path.normpath(str(root)).encode()).hexdigest()
+    if _fresh(mode, since):
+        fired.add("ponytail")  # written by its SessionStart hook, per project
+    if (winnow / "notified" / sid).exists() or _rows([winnow / "decisions.jsonl"], "session_id", sid, since):
+        fired.add("winnow")  # the sidecar handled a hook of this session
+    if _rows([home / ".toolgate" / "audit.jsonl"], "session_id", sid, since):
+        fired.add("toolgate")  # the CLI's audit line for a tool call of this session
+    elif not (shutil.which("toolgate") or Path(str(_plugin_options(home, "toolgate").get("binary", ""))).is_file()):
+        unseen.add("toolgate")  # without its CLI the mod only shows a toast
+    if _rows(sorted(data.glob("spending-effort-with-jev*/decisions.jsonl")), "session", sid, since):
+        fired.add("spending-effort-with-jev")  # its decision log (log_decisions is on)
+    elif not _plugin_options(home, "spending-effort-with-jev").get("typesafe_api_key"):
+        unseen.add("spending-effort-with-jev")  # without its key the mod does not load
+    if any(m in line for line in transcript_text.splitlines() if '"type":"user"' not in line.replace(" ", "")
+           and '"type":"assistant"' not in line.replace(" ", "") for m in COMPACTION_LINE):
+        fired.add("fast-jev-compaction")  # its notice after a compaction
+    for f in (root / ".athena" / "fired" / sid).glob("*"):
+        fired.add(f"athena-hook-{f.name}")  # Athena's own hooks leave a marker when they run
+    return fired, unseen - fired
+
+
+def session_record(root, transcript, sid, rtk_saved=0, home=None):
     path = Path(transcript) if transcript else None
     evs = events_in([path]) if path and path.exists() else []
-    fired = sorted({c["name"] for c in register(root) if c["kind"] in MEASURED + ("task",)
-                    for e in evs if matches(c, e)})
+    names = {c["name"] for c in register(root) if c["kind"] in MEASURED + ("task",)}
+    fired = {c["name"] for c in register(root) if c["kind"] in MEASURED + ("task",)
+             for e in evs if matches(c, e)}
     started = min((e[3] for e in evs if e[3]), default=None) or now()
+    text = path.read_text(errors="replace") if path and path.exists() else ""
+    seen, unseen = evidence(root, home or Path.home(), sid, started, text)
+    prev = read_json(Path(root) / ".athena" / "sessions" / f"{sid}.json")  # Stop runs every turn: keep what earlier turns saw
+    fired |= (seen & names) | set(prev.get("fired", []))
     return {"id": sid, "kind": "session", "source": source(), "started_at": started.isoformat(),
-            "ended_at": now().isoformat(), "fired": fired, "tokens": sum(e[4] for e in evs), "rtk_saved": int(rtk_saved)}
+            "ended_at": now().isoformat(), "fired": sorted(fired), "not_observable": sorted((unseen & names) - fired),
+            "tokens": sum(e[4] for e in evs), "rtk_saved": int(rtk_saved)}
+
+
+def catch_up(root, home, skip, days=2):
+    """Evidence that lands after a session's last Stop (athena-mods writes its ledger row and autoharness its offset
+    when the turn completes): add it to this machine's recent session records. Called from the Stop hook."""
+    names = {c["name"] for c in register(root) if c["kind"] in MEASURED + ("task",)}
+    for f in (Path(root) / ".athena" / "sessions").glob("*.json"):
+        rec = read_json(f)
+        started = parse_ts(rec.get("started_at"))
+        if rec.get("id") in (None, skip) or rec.get("kind", "session") != "session" or not started \
+                or started < now() - timedelta(days=days):
+            continue
+        seen, _ = evidence(root, home, rec["id"], started)
+        new = (seen & names) - set(rec.get("fired", []))
+        if new:
+            rec["fired"] = sorted(set(rec.get("fired", [])) | new)
+            rec["not_observable"] = sorted(set(rec.get("not_observable", [])) - new)
+            save(root, rec)
 
 
 def save(root, rec, folder="sessions"):
@@ -222,7 +315,8 @@ def records(root):
 
 def scorecard_json(root, home):
     recs = records(root)
-    sessions = [{"id": r["id"], "source": r.get("source"), "started_at": r.get("started_at"), "fired": r.get("fired", [])}
+    sessions = [{"id": r["id"], "source": r.get("source"), "started_at": r.get("started_at"), "fired": r.get("fired", []),
+                 "not_observable": r.get("not_observable", [])}
                 for r in recs if r.get("kind", "session") == "session"]
     comps = []
     for name, r in sorted(collect(root, home).items()):
@@ -232,7 +326,8 @@ def scorecard_json(root, home):
             if t and (last is None or t > last):
                 last = t
         comps.append({"name": name, "kind": r["kind"], "idle_limit_days": r["idle_days"],
-                      "last_fired": last.isoformat() if last else None})
+                      "last_fired": last.isoformat() if last else None,
+                      "not_observable_sessions": sum(1 for s in sessions if name in s["not_observable"])})
     return {"components": comps, "sessions": sessions}
 
 
@@ -278,10 +373,16 @@ def tier_lines(path):
 
 def scorecard(root, home):
     rows = collect(root, home)
+    recs = [r for r in records(root) if r.get("kind", "session") == "session"]
     lines = [f"{'component':34} {'kind':7} {'fired':>5} {'sessions':>8} {'cost (tokens)':>14}  last fired"]
     for name, r in sorted(rows.items(), key=lambda kv: (kv[1]["kind"], kv[0])):
         if r["measured"] or r["kind"] == "task":
+            hit = [parse_ts(x.get("started_at")) for x in recs if name in x.get("fired", [])]  # session records' evidence
+            r["fired"], r["sessions"] = max(r["fired"], len(hit)), max(r["sessions"], len(hit))
+            r["last"] = max([t for t in hit + [r["last"]] if t], default=None)
             last = r["last"].date().isoformat() if r["last"] else "never"
+            if not r["last"] and any(name in x.get("not_observable", []) for x in recs):
+                last = "not observable (no key or CLI in those sessions)"
             lines.append(f"{name:34} {r['kind']:7} {r['fired']:>5} {r['sessions']:>8} {r['tokens']:>14}  {last}")
         else:
             lines.append(f"{name:34} {r['kind']:7} {'-':>5} {'-':>8} {'-':>14}  not measured here (runs in CI)")

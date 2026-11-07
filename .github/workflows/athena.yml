@@ -53,3 +53,15 @@ jobs:
         if: github.event_name != 'pull_request' && steps.specs.outputs.any == 'true'
         # On main a retirement was already approved by its merge, so retired specs are skipped here.
         run: python3 .claude/athena/bin/athena done --all --ci --labels '["spec-retired"]'
+      - name: Interface checks (component registry, Impeccable, journey tests, screenshot baselines; pass without a web app)
+        if: github.event_name == 'pull_request'
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          B="origin/${{ github.base_ref }}"
+          A=.claude/athena/bin/athena
+          printf '%s' "$BODY" > "$RUNNER_TEMP/pr-body.txt"
+          python3 "$A" ui-registry --base "$B"
+          python3 "$A" ui-slop --base "$B"
+          python3 "$A" journey-check --base "$B"
+          python3 "$A" baseline-check --base "$B" --body-file "$RUNNER_TEMP/pr-body.txt"

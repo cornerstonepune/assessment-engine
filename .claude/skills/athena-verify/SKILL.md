@@ -13,4 +13,4 @@ description: Use after a scoped change's proofs pass and before shipping. A diff
 5. **If the verdict is FAIL:**
    - Remove unasked work, or add what is missing, then run steps 1–4 once more.
    - If it still fails, or the disagreement is about what the scope means, run `athena block <ID> "<reason>"` and stop.
-6. **If the verdict is PASS,** run `python3 .claude/athena/bin/athena finish <ID>`.
+6. **If the verdict is PASS,** run `python3 .claude/athena/bin/athena finish <ID>`. `athena-ship` then merges the pull request itself if every merge condition holds; the PASS in `VERIFY.md` is one of them.

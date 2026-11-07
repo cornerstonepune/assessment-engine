@@ -24,6 +24,8 @@ line tools, a cloud session, GitHub Actions).
   athena tokens [--days N]          tokens saved by rtk and Ponytail over the last N days (default 7)
   athena rtk-install                install the pinned rtk release (session start does this when rtk is missing)
   athena measure-ponytail           weekly: the same task with and without Ponytail; records the output tokens saved
+  athena plugin-dirs                point ~/.claude/settings.json at this repo's .claude/plugins and install toolgate's CLI
+                                    if missing (the one setup line)
   athena health                     one PASS/FAIL line per check; exit 1 if any fails
   athena verify-hooks               fail if a hook is not on the installer's allowlist or a VS Code task runs on folder open
   athena scan-ioc                   fail on a known indicator from the August npm worm (counts and file names only)
@@ -35,12 +37,13 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 import time
 from pathlib import Path
 
-VERSION = "2.7.0"
+VERSION = "2.12.0"
 ID_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
 STRIKE_LIMIT = 3
 CHECK_TIMEOUT = int(os.environ.get("ATHENA_CHECK_TIMEOUT", "900"))
@@ -517,6 +520,11 @@ def cmd_finish(args):
     if not res["ok"]:
         print(describe(res))
         die(f"{spec_id} is not done; its proofs fail", 1)
+    if web_apps() and any(f.endswith(UI_FILES) for f in (_session_files() or [])):
+        write_status(spec_dir(spec_id), ui=True)  # the files decide whether a slice has an interface, not the model
+    missing = ui_missing(spec_id)
+    if missing:
+        die(f"{spec_id} is not ready to try; missing: " + "; ".join(missing), 1)
     write_status(spec_dir(spec_id), status="built", built_at=now_iso(), box_pending=res["box"])
     covers = _files_covered()
     if covers:
@@ -526,8 +534,8 @@ def cmd_finish(args):
     _strikes_reset(spec_id)
     tail = (f" {len(res['box'])} box-only proof(s) must still pass on the production box after deploy."
             if res["box"] else "")
-    print(f"{spec_id} built: every proof that can run here passes.{tail} It now waits for Nimish's review "
-          "of the pull request.")
+    print(f"{spec_id} built: every proof that can run here passes.{tail} Ship it: merge it under the merge "
+          "rule once every gate holds.")
     return 0
 
 
@@ -832,7 +840,7 @@ def _push_problem(cmd: str):
         if not refspecs or "HEAD" in targets:
             targets.append(_current_branch())
         if any(t in ("main", "master") for t in targets):
-            return "Never push to main or master. Push a feature branch and open a pull request; Nimish merges."
+            return "Never push to main or master. Push a feature branch and open a pull request; merge it under the merge rule once every gate holds."
     return None
 
 
@@ -972,13 +980,16 @@ def hook_rtk(payload):
     cmd = (payload.get("tool_input") or {}).get("command")
     if not exe or not cmd:
         return 0
-    out = subprocess.run([exe, "rewrite", cmd], capture_output=True, text=True, timeout=10)
+    env = {k: v for k, v in os.environ.items() if k != "RTK_REWRITE_HOST"}
+    out = subprocess.run([exe, "rewrite", cmd], capture_output=True, text=True, timeout=10, env=env)
     new = out.stdout.strip()
-    if out.returncode != 0 or not new or new == cmd:
+    # rtk's exit codes: 0 rewrite and allowed, 3 rewrite but Claude Code decides, 1 and 2 leave the command alone.
+    if out.returncode not in (0, 3) or not new or new == cmd:
         return 0
-    print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "allow",
-                                             "permissionDecisionReason": "rtk shortens this command's output",
-                                             "updatedInput": {**payload["tool_input"], "command": new}}}))
+    hso = {"hookEventName": "PreToolUse", "updatedInput": {**payload["tool_input"], "command": new}}
+    if out.returncode == 0:
+        hso.update(permissionDecision="allow", permissionDecisionReason="rtk shortens this command's output")
+    print(json.dumps({"hookSpecificOutput": hso}))
     return 0
 
 
@@ -993,6 +1004,7 @@ def _record_session(payload):
     start = int(base.read_text()) if base.exists() else 0
     rec = athena_measure.session_record(ROOT, payload.get("transcript_path"), sid, max(0, _rtk_saved() - start))
     athena_measure.save(ROOT, rec)
+    athena_measure.catch_up(ROOT, Path.home(), sid)
 
 
 PONYTAIL_SHA = "9b58c1ffb790c075ca32e70a89cf1d80588f4abf"  # the commit the athena marketplace pins
@@ -1130,6 +1142,10 @@ def hook_session_start(payload):
             (STATE / f"rtk0-{payload['session_id']}").write_text(str(_rtk_saved()))
     except Exception:
         pass
+    try:  # the plugin setting follows the repository opened last (the Mac); quiet, never fails the hook
+        plugin_dirs()
+    except Exception:
+        pass
     handoff = ROOT / "docs" / "HANDOFF.md"
     if read_config().get("proof_data") == "real":
         lines.append("Proof data: REAL. This repo forbids synthetic, mocked or placeholder data, even in tests. "
@@ -1172,9 +1188,17 @@ def cmd_hook(args):
     except Exception:
         payload = {}
     fn = {"guard": hook_guard, "stop": hook_stop, "prompt": hook_prompt,
-          "session-start": hook_session_start, "rtk": hook_rtk}.get(args[0])
+          "session-start": hook_session_start, "rtk": hook_rtk,
+          "ui-slop": hook_ui_slop}.get(args[0])
     if not fn:
         die(f"unknown hook {args[0]}")
+    try:  # a marker per session and hook: the scorecard's evidence that this hook ran (ATH-16)
+        if payload.get("session_id"):
+            mark = STATE / "fired" / str(payload["session_id"]).replace("/", "_")
+            mark.mkdir(parents=True, exist_ok=True)
+            (mark / args[0]).touch()
+    except OSError:
+        pass
     try:
         return fn(payload)
     except SystemExit:
@@ -1315,6 +1339,264 @@ def cmd_scan_ioc(args):
     return 1 if total else 0
 
 
+# ---- the plugins: shipped in .claude/plugins/, loaded by Claude Code from one user setting ------------------
+PLUGIN_DIRS = ".claude/plugins"
+PLUGIN_VAR = "CLAUDE_CODE_PLUGIN_DIRS"  # read from the process environment or ~/.claude/settings.json, never a project's
+TOOLGATE_CLI = "@riskaverse/toolgate@0.16.0"  # the toolgate plugin gates through this CLI; same pin as mac/setup.sh
+
+
+def _toolgate_cli():
+    """Install the pinned toolgate CLI when it is missing: globally, else into ~/.athena (then the plugin is told
+    its path). Quiet; never fails. Returns the path to set as the plugin's `binary` option, or None."""
+    import shutil
+    if shutil.which("toolgate") or not shutil.which("npm"):
+        return None
+    for extra in ([], ["--prefix", str(Path.home() / ".athena")]):
+        try:
+            subprocess.run(["npm", "install", "-g", "-s", *extra, TOOLGATE_CLI], capture_output=True, timeout=300)
+        except (OSError, subprocess.SubprocessError):
+            continue
+        if shutil.which("toolgate"):
+            return None
+        local = Path.home() / ".athena" / "bin" / "toolgate"
+        if extra and local.exists():
+            return str(local)
+    return None
+
+
+def _bootstrap() -> list:
+    """athena-bootstrap from the harness's own source (athena-ops), so a repository with no harness gets one (ATH-14).
+    The source is this repository, $ATHENA_OPS, or ~/.athena/ops (Mac setup and the cloud setup line put it there)."""
+    for ops in (ROOT, Path(os.environ.get("ATHENA_OPS") or ROOT), Path.home() / ".athena" / "ops"):
+        b = ops / "plugins" / "athena-bootstrap"
+        if (b / "hooks" / "hooks.json").exists():
+            return [b.resolve()]
+    return []
+
+
+def plugin_dirs(install=False) -> bool:
+    """Point ~/.claude/settings.json at this repository's plugin folders and write their reviewed options.
+    Every other setting is kept. A marketplace copy of the same plugin (`<name>@athena`) is switched off so
+    nothing loads twice. Returns True when the file changed."""
+    pdir = ROOT / PLUGIN_DIRS
+    names = list(json.loads((pdir / "plugins.lock.json").read_text())["plugins"])
+    value = os.pathsep.join([str(pdir / n) for n in names] + [str(b) for b in _bootstrap()])
+    path = Path.home() / ".claude" / "settings.json"
+    try:
+        s = json.loads(path.read_text())
+    except (OSError, ValueError):
+        s = {}
+    before = json.dumps(s, sort_keys=True)
+    s.setdefault("env", {})[PLUGIN_VAR] = value
+    opts = json.loads((pdir / "options.json").read_text())
+    for name, fields in opts.items():
+        if name.startswith("_"):
+            continue
+        given = {k: os.environ.get(v[1:]) or None if isinstance(v, str) and v.startswith("$") else v for k, v in fields.items()}
+        s.setdefault("pluginConfigs", {}).setdefault(name, {}).setdefault("options", {}).update(
+            {k: v for k, v in given.items() if v is not None})
+    binary = _toolgate_cli() if install else None
+    if binary:
+        s["pluginConfigs"]["toolgate"]["options"]["binary"] = binary
+    for key in s.get("enabledPlugins", {}):
+        if key.split("@")[0] in names and key.endswith("@athena"):
+            s["enabledPlugins"][key] = False
+    if json.dumps(s, sort_keys=True) == before:
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(s, indent=2) + "\n")
+    path.chmod(0o600)  # it may hold a key
+    return True
+
+
+def cmd_plugin_dirs(args):
+    changed = plugin_dirs(install=True)
+    print(f"{PLUGIN_VAR} in ~/.claude/settings.json {'now points' if changed else 'already points'} at {ROOT / PLUGIN_DIRS}")
+    return 0
+
+
+# ---- web interface checks (ATH-13): the component registry, Impeccable, journey tests, readiness ----------
+UI_FILES = (".tsx", ".jsx", ".css", ".html", ".vue", ".svelte")
+RAW_CONTROL = re.compile(r"<(button|dialog|table|input|select|textarea)\b")
+IMPECCABLE = "npx --yes impeccable@4.8.0 detect --fast --json"  # pinned; its telemetry is switched off below
+UI_BASELINE = HARNESS / "impeccable-baseline.json"
+
+
+def web_apps(root=None) -> list:
+    """Folders whose package.json depends on next or react (dependency folders and hidden folders skipped)."""
+    root, out = Path(root or ROOT), []
+    for d, dirs, files in os.walk(root):
+        dirs[:] = [x for x in dirs if x != "node_modules" and not x.startswith(".")]
+        if "package.json" in files:
+            try:
+                pkg = json.loads((Path(d) / "package.json").read_text())
+            except (OSError, ValueError):
+                continue
+            deps = {**pkg.get("dependencies", {}), **pkg.get("devDependencies", {})}
+            if "next" in deps or "react" in deps:
+                out.append(Path(d))
+    return out
+
+
+def _added_lines(base: str, globs: list) -> dict:
+    """{file: [(line number, text)]} for lines added since base...HEAD in files matching globs."""
+    diff = subprocess.run(["git", "diff", "-U0", f"{base}...HEAD", "--", *globs], cwd=str(ROOT),
+                          capture_output=True, text=True)
+    if diff.returncode != 0:
+        die(f"could not diff against {base}", 2)
+    out, cur, n = {}, None, 0
+    for line in diff.stdout.splitlines():
+        if line.startswith("+++ "):
+            cur = line[6:] if line.startswith("+++ b/") else None
+        elif line.startswith("@@"):
+            n = int(re.search(r"\+(\d+)", line).group(1))
+        elif cur and line.startswith("+"):
+            out.setdefault(cur, []).append((n, line[1:]))
+            n += 1
+    return out
+
+
+def cmd_ui_registry(args):
+    base = _opt(args, "--base") or die("usage: athena ui-registry --base REF")
+    bad = [(f, n, m.group(0)) for f, lines in _added_lines(base, ["*.tsx", "*.jsx"]).items()
+           if "components/ui/" not in f for n, t in lines for m in [RAW_CONTROL.search(t)] if m]
+    for f, n, tag in bad:
+        print(f"{f}:{n}: raw {tag}> outside the component registry; use the components/ui one (shadcn)")
+    return 1 if bad else 0
+
+
+def _findings(target: str) -> list:
+    """Impeccable's findings for target, as sorted (file, rule) pairs relative to the repository."""
+    cmd = f"{os.environ.get('ATHENA_IMPECCABLE_CMD') or IMPECCABLE} {shlex.quote(target)}"
+    env = dict(os.environ, IMPECCABLE_NO_TELEMETRY="1", DO_NOT_TRACK="1")
+    r = subprocess.run(cmd, shell=True, cwd=str(ROOT), capture_output=True, text=True, env=env, timeout=300)
+    try:
+        data = json.loads(r.stdout or "[]")
+    except ValueError:
+        raise RuntimeError(f"Impeccable gave no JSON (exit {r.returncode}): {r.stderr.strip()[:200]}")
+    items = data.get("findings", []) if isinstance(data, dict) else data
+    out = set()
+    for i in items:
+        f = str(i.get("file") or i.get("path") or i.get("filePath") or "")
+        rule = i.get("rule") or i.get("ruleId") or i.get("id") or ""
+        if Path(f).is_absolute():
+            try:
+                f = str(Path(f).resolve().relative_to(ROOT.resolve()))
+            except ValueError:
+                pass
+        out.add((f.removeprefix("./"), rule))
+    return sorted(out)
+
+
+def _baseline() -> set:
+    try:
+        return {(i["file"], i["rule"]) for i in json.loads(UI_BASELINE.read_text())}
+    except (OSError, ValueError, KeyError, TypeError):
+        return set()
+
+
+def cmd_ui_slop(args):
+    """Impeccable's detectors; any finding not in the repository's baseline fails. --write-baseline freezes today's."""
+    if not web_apps():
+        return 0
+    base = _opt(args, "--base")
+    if base and not any(f.endswith(UI_FILES) for f in (changed_files(base) or [])):
+        print("ui-slop: no interface file changed")
+        return 0
+    try:
+        found = _findings(_opt(args, "--file") or ".")
+    except (RuntimeError, subprocess.TimeoutExpired) as e:
+        die(f"ui-slop: {e}", 1)
+    if "--write-baseline" in args:
+        UI_BASELINE.write_text(json.dumps([{"file": f, "rule": r} for f, r in found], indent=2) + "\n")
+        print(f"ui-slop: {len(found)} finding(s) frozen in {UI_BASELINE.relative_to(ROOT)}")
+        return 0
+    new = [x for x in found if x not in _baseline()]
+    for f, r in new:
+        print(f"{f}: Impeccable {r}")
+    return 1 if new else 0
+
+
+def hook_ui_slop(payload):
+    """After an edit to an interface file: Impeccable's new findings go back to Claude (exit 2)."""
+    f = (payload.get("tool_input") or {}).get("file_path") or ""
+    if not f.endswith(UI_FILES) or not web_apps():
+        return 0
+    rel = str(Path(f).resolve().relative_to(ROOT.resolve())) if Path(f).is_absolute() else f
+    try:
+        new = [x for x in _findings(rel) if x not in _baseline() and x[0] in (rel, "")]
+    except (RuntimeError, subprocess.TimeoutExpired, ValueError) as e:
+        print(f"ui-slop hook skipped: {e}", file=sys.stderr)
+        return 0
+    if new:
+        print("Impeccable found new design problems in " + rel + ": " + ", ".join(r for _, r in new) +
+              ". Fix them before moving on.", file=sys.stderr)
+        return 2
+    return 0
+
+
+JOURNEY = re.compile(r"""from\s+["'][^"']*athena-journey["']""")
+
+
+def cmd_journey_check(args):
+    """Every journey test (*.spec.* under e2e/ or tests/) imports the athena-journey fixture. --base: changed ones."""
+    base = _opt(args, "--base")
+    if base:
+        files = [ROOT / f for f in (changed_files(base) or [])]
+    else:
+        files = []
+        for d, dirs, names in os.walk(ROOT):
+            dirs[:] = [x for x in dirs if x != "node_modules" and not x.startswith(".")]
+            files += [Path(d) / n for n in names]
+    bad = [f.relative_to(ROOT) for f in files if f.exists() and re.search(r"\.spec\.[jt]sx?$", f.name)
+           and {"e2e", "tests"} & set(f.relative_to(ROOT).parts[:-1]) and not JOURNEY.search(f.read_text())]
+    for f in bad:
+        print(f"{f}: does not import the athena-journey fixture (axe and phone, tablet and desktop screenshots)")
+    return 1 if bad else 0
+
+
+IMAGE_MD = r"(!\[[^\]]*\]\([^)]+\)|<img\s[^>]*src=)"
+
+
+def cmd_baseline_check(args):
+    """A changed screenshot baseline needs the before and after images in the pull request's description."""
+    base = _opt(args, "--base") or die("usage: athena baseline-check --base REF --body-file F")
+    snaps = [f for f in (changed_files(base) or []) if f.endswith(".png") and ("-snapshots" in f or "__screenshots__" in f)]
+    if not snaps:
+        return 0
+    body = Path(_opt(args, "--body-file") or "/dev/null").read_text()
+    if re.search(rf"(?is)\bbefore\b.*?{IMAGE_MD}.*?\bafter\b.*?{IMAGE_MD}", body):
+        return 0
+    print(f"{len(snaps)} screenshot baseline(s) changed ({', '.join(snaps[:5])}). Put 'Before' with the old image and "
+          "'After' with the new one in the pull request's description.")
+    return 1
+
+
+def ui_missing(spec_id: str) -> list:
+    """What a slice with an interface still lacks before it may be Ready to try (empty when ready or not a UI slice)."""
+    d = spec_dir(spec_id)
+    if not read_status(d).get("ui"):
+        return []
+    u, missing = d / "ui", []
+    for name in ("qa.md", "design-review.md"):
+        if not ((u / name).exists() and (u / name).read_text().strip()):
+            missing.append(f"ui/{name} (the gstack /{name[:-3]} report)")
+    if not any((u / f"mockup.{x}").exists() for x in ("png", "jpg", "jpeg", "webp")):
+        missing.append("ui/mockup.png (the approved mockup)")
+    if not any(p.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp") for p in (u / "screenshots").glob("*")):
+        missing.append("ui/screenshots/ (the built screens)")
+    return missing
+
+
+def cmd_ui_ready(args):
+    if not args:
+        die("usage: athena ui-ready ID")
+    missing = ui_missing(args[0])
+    for m in missing:
+        print(f"{args[0]} missing {m}")
+    return 1 if missing else 0
+
+
 def _opt(args, name, default=None):
     if name in args:
         i = args.index(name)
@@ -1331,7 +1613,9 @@ COMMANDS = {
     "verify-hooks": cmd_verify_hooks, "scan-ioc": cmd_scan_ioc,
     "tier": cmd_tier, "check-pr-scope": cmd_check_pr_scope, "retire": cmd_retire, "pr-times": cmd_pr_times,
     "backfill-files": cmd_backfill_files, "tokens": cmd_tokens, "rtk-install": cmd_rtk_install,
-    "measure-ponytail": cmd_measure_ponytail,
+    "measure-ponytail": cmd_measure_ponytail, "plugin-dirs": cmd_plugin_dirs,
+    "ui-registry": cmd_ui_registry, "ui-slop": cmd_ui_slop, "journey-check": cmd_journey_check,
+    "baseline-check": cmd_baseline_check, "ui-ready": cmd_ui_ready,
 }
 
 

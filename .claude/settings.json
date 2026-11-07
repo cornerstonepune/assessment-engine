@@ -108,6 +108,16 @@
     ],
     "PostToolUse": [
       {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/athena/bin/athena\" hook ui-slop",
+            "timeout": 120
+          }
+        ]
+      },
+      {
         "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash|PowerShell",
         "hooks": [
           {
@@ -138,24 +148,6 @@
       "mcp__github__merge_pull_request",
       "mcp__github__update_pull_request"
     ]
-  },
-  "extraKnownMarketplaces": {
-    "athena": {
-      "source": {
-        "source": "github",
-        "repo": "nimishshah1989/athena-ops"
-      }
-    }
-  },
-  "enabledPlugins": {
-    "athena-mods@athena": true,
-    "autoharness@athena": true,
-    "spending-effort-with-jev@athena": true,
-    "toolgate@athena": true,
-    "winnow@athena": true,
-    "fast-jev-compaction@athena": true,
-    "jev@athena": true,
-    "ponytail@athena": true
   },
   "env": {
     "AUTOHARNESS_DISABLE_GLOBAL": "1",

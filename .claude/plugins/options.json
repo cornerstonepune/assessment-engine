@@ -1,0 +1,8 @@
+{
+  "_what": "The reviewed options of the plugins in .claude/plugins/, written into ~/.claude/settings.json pluginConfigs by `athena plugin-dirs`. \"$NAME\" is read from that environment variable at that moment and left out when it is not set; a key is never written into a repository.",
+  "spending-effort-with-jev": {"typesafe_api_key": "$TYPESAFE_API_KEY", "ask_first": false, "subagents": false, "interview": false, "log_decisions": true},
+  "toolgate": {"typesafe_api_key": "$TYPESAFE_API_KEY", "mode": "shadow"},
+  "fast-jev-compaction": {"apiKey": "$TYPESAFE_API_KEY", "compactAtPercent": 95, "model": "jev-1.13.0"},
+  "jev": {"api_key": "$TYPESAFE_API_KEY", "gate": "advisory", "model": "jev-1.13.0"},
+  "athena-mods": {"week_warn_percent": 75, "week_stop_percent": 90}
+}

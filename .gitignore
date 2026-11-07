@@ -66,3 +66,4 @@ strix_runs/
 *.webm
 *.aac
 *.flac
+.claude/plugins/winnow/sidecar/.venv/

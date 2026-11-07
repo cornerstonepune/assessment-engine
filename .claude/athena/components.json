@@ -407,11 +407,35 @@
    "metric": "rtk tokens saved per session, in athena tokens"
   },
   {
+   "name": "athena-hook-ui-slop",
+   "kind": "hook",
+   "match": [
+    "hook ui-slop"
+   ],
+   "purpose": "runs Impeccable's design detectors on an edited interface file and hands new findings back to Claude (ATH-13)",
+   "trigger": "every Edit or Write of a .tsx, .jsx, .css, .html, .vue or .svelte file in a repository with a web app",
+   "metric": "new Impeccable findings caught at edit time per session"
+  },
+  {
    "name": "ponytail-measure",
    "kind": "task",
    "purpose": "measures Ponytail's saving weekly: the same task with and without its instructions (ATH-9)",
    "trigger": "scheduled task every Monday",
    "metric": "the weekly measure record on the athena-telemetry branch"
+  },
+  {
+   "name": "monthly-improvement",
+   "kind": "task",
+   "purpose": "takes the worst red number, replays a recent slice with 2 or 3 harness changes side by side, opens a pull request (ATH-11)",
+   "trigger": "scheduled routine, the 9th of every month",
+   "metric": "last_run and status in usage/review-status.json"
+  },
+  {
+   "name": "weekly-watchlist",
+   "kind": "task",
+   "purpose": "posts up to 3 new candidate repositories or skills, plus links Nimish shared, to the Linear inbox (ATH-11)",
+   "trigger": "scheduled routine every Saturday",
+   "metric": "last_run and status in usage/review-status.json"
   }
  ]
 }

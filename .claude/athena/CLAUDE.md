@@ -4,7 +4,7 @@ This file is managed by the Athena harness and is identical in every repository 
 
 ## Who you work for
 
-Nimish is a non-technical founder. He decides scope and merges pull requests. He does not read code. Everything you report to him is in plain English: what changed for a user, what was proven, what is still open. Never ask him to run a command he hasn't been given verbatim.
+Nimish is a non-technical founder. He decides scope; you merge your own pull requests under the merge rule below and tell him afterwards. He does not read code. Everything you report to him is in plain English: what changed for a user, what was proven, what is still open. Never ask him to run a command he hasn't been given verbatim.
 
 ## Four rules for every change
 
@@ -16,7 +16,7 @@ Nimish is a non-technical founder. He decides scope and merges pull requests. He
 ## The loop every change follows
 
 **Tiers.** `athena tier` sorts a change by the files it touches, using the repository's `.claude/athena/tiers.json` (folder prefix to tier; the default is tier 2). The highest tier wins, and `specs/`, `.github/`, `.claude/` and any `migrations/` folder are always tier 3, whatever the file says. A script decides the tier, never the model. Every tier runs the repository's fast checks (`.claude/athena/fast-checks.sh`, when it exists).
-- **Tier 0**, content only (copy, a speaker, a photo): no scope issue, no `scope-locked` label, no proof-writer, no second reviewer. The fast checks and the build must pass, and Nimish merges.
+- **Tier 0**, content only (copy, a speaker, a photo): no scope issue, no `scope-locked` label, no proof-writer, no second reviewer. The fast checks and the build must pass, then you merge under the merge rule.
 - **Tier 1**, one page or component: no label wait. The pull request description carries a short scope (one `What:` line and one or two `Done when:` lines); CI fails without it.
 - **Tier 2**, a new feature: the loop below, in full.
 - **Tier 3**, database, security, public interfaces, money, client data, production systems or the harness itself: the loop below, in full.
@@ -35,13 +35,15 @@ Nimish is a non-technical founder. He decides scope and merges pull requests. He
    - opens a pull request whose title starts with the spec ID and whose body says `Closes #<issue number>`, so merging closes the issue;
    - writes the plain-English summary for Nimish;
    - records lessons in `docs/athena/learnings.md`.
-7. **Done.** Only Nimish marks work done, by merging. CI runs the fast checks and the proofs of the specs the pull request touches (a spec lists its files in `status.json`; one that lists none always runs), and re-runs every finished spec every night on main. A finished spec that is no longer wanted is retired with `athena retire <ID>` and Nimish's `spec-retired` label on the pull request.
+   A slice that changed interface files in a repository with a web app is not ready to try until `specs/<ID>/ui/` holds the gstack `/qa` and `/design-review` reports, the approved mockup and screenshots of the built screens; `athena finish` refuses it until then (`athena ui-ready <ID>`). Screens use the shadcn/ui components in `components/ui/`, and journey tests import `e2e/athena-journey.ts`.
+7. **Done.** You mark work done by merging your own pull request when the merge rule's conditions hold, then tell Nimish afterwards. CI runs the fast checks and the proofs of the specs the pull request touches (a spec lists its files in `status.json`; one that lists none always runs), and re-runs every finished spec every night on main. A finished spec that is no longer wanted is retired with `athena retire <ID>` and Nimish's `spec-retired` label on the pull request.
 
 ## Hard rules (hooks enforce most of them)
 
 - Never edit `spec.md`, `checks.sh`, `proofs/` or `LOCK` in a locked spec. If a proof is wrong, block and say why. Nimish unlocks a spec by typing `UNLOCK <ID>`.
 - Never say "done", "fixed", "works" or "passes" without `athena done <ID>` output from this session to show (for a tier 0 or 1 change with no spec, the fast checks' output).
 - Never push to `main` or `master`. Never force-push. Never use `--no-verify`.
+- **Merge your own pull request, with no wait for Nimish, when all of these hold on its latest commit:** every CI check is green, `specs/<ID>/VERIFY.md` in the pull request says PASS from the independent verifier (tier 2 and 3), no red-circle review finding is open, and the pull request is mergeable. A pull request whose only changes are the installer's output (the repository's `install.py --check` is clean on its head) counts as verified when every athena-ops spec it ships has a `VERIFY.md` saying PASS on athena-ops `main`; every other condition of this rule still applies (Nimish, 7 Nov 2026). If any one fails, do not merge. Never merge with a red or missing check, and never turn off or loosen a check to get one. There are no exceptions: a pull request that changes a database migration, a deploy path, money handling or client data is merged under the same conditions as any other (Nimish, 7 Nov 2026). With several open pull requests in one repository, merge one at a time; after each merge bring the next up to date with main and merge it only when its checks are green again; a conflict stops only that pull request, which you report, and the others continue. After a merge, watch the checks on main: if main turns red, open a revert pull request in the same session and report it to Nimish.
 - Never put secrets or real personal data in code, tests, fixtures, screenshots or logs, in any repository. Use environment variables and fake data.
 - **Proof data follows `.claude/athena/config.json`.**
   - `"fake"` (the default): proofs use fake data only.
@@ -54,7 +56,8 @@ Nimish is a non-technical founder. He decides scope and merges pull requests. He
 
 ## The stack around the loop
 
-These run beside the loop as plugins from the `athena` marketplace (`nimishshah1989/athena-ops`), each pinned to a reviewed commit. They advise; the locked proofs still decide "done".
+These run beside the loop as plugins that live inside the repository, unchanged, in `.claude/plugins/`, each pinned to a reviewed commit (`.claude/plugins/plugins.lock.json`). They advise; the locked proofs still decide "done".
+Claude Code loads them from one setting, written by one setup line, `python3 .claude/athena/bin/athena plugin-dirs`: the Mac setup runs it once, and each cloud environment's setup script runs it before Claude Code starts. The setting is per machine, so on the Mac it points at the repository opened last (the session-start hook moves it); every repository carries the same pinned plugins, so that is harmless.
 
 - **Jev judges at five checkpoints:**
   - before a prompt, the effort advisor (`spending-effort-with-jev`);
@@ -75,7 +78,7 @@ These run beside the loop as plugins from the `athena` marketplace (`nimishshah1
 - Search before you read: `grep`, `graphify query` where the repo has it, then read the slice you need. Never read a large file whole.
 - Skills, MCP tools and subagents load on demand. Load every tool a step needs in one search; never "just in case".
 - Subagents only for three or more independent tasks. Use the cheapest model that can do the job: Haiku to search, Sonnet for routine work, Opus for design and hard debugging. The proof-writer and verifier keep their fixed models.
-- A plugin this repository doesn't need stays off in `.claude/settings.json`.
+- The eight harness plugins load in every session on the machine, whatever the repository (their setting is per machine); any other plugin this repository doesn't need stays off in `.claude/settings.json`.
 - Standards live in `.claude/athena/standards/`. Open only the one the task needs, before you start:
   - `ARCHITECTURE.md` for a new system, module, data model or integration;
   - `AI-AGENTS.md` for anything where a model reads, decides or acts;
@@ -112,6 +115,6 @@ End every working session by rewriting `docs/HANDOFF.md`, then report in at most
 - what changed, in user terms;
 - proof status (`athena done` result);
 - anything blocked, and the one decision you need from him;
-- the pull request link.
+- the pull request link, or, for each pull request you merged, one line each with its link and the checks that were green.
 
 No code, no jargon, no file paths unless he asked.
