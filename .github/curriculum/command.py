@@ -49,6 +49,17 @@ RUNS = {
         "spends": False,
         "commands": [["engine", "curriculum", "draft-replay", "--stage", "dev_eval"]],
     },
+    "draft_record": {
+        "spends": False,
+        "commands": [
+            ["engine", "curriculum", "draft-record", "--stage", "dev_eval", "--by", BY],
+            ["engine", "curriculum", "draft-record", "--stage", "draft", "--by", BY],
+        ],
+    },
+    "curriculum_apply": {
+        "spends": False,
+        "commands": [["engine", "curriculum", "apply", "--kind", "page_part", "--apply", "--by", BY]],
+    },
     "draft_dev": {
         "spends": True,
         "commands": [["engine", "curriculum", "draft", "--stage", "dev_eval", "--dev", "--by", BY]],
@@ -114,10 +125,12 @@ def person(actor: str, staff: str) -> str:
 
 
 def email(run: str, actor: str, staff: str) -> str:
-    """The dispatcher's staff email for a run that spends (nothing for one that does not); refuses an unknown run."""
+    """The dispatcher's staff email for a run whose commands carry it (every run that spends, and a free one that writes
+    rows, which keep who ran them); nothing for the others. Refuses an unknown run."""
     if run not in RUNS:
         sys.exit(f"no run called {run!r}: one of {', '.join(RUNS)}")
-    return person(actor, staff) if RUNS[run]["spends"] else ""
+    named = RUNS[run]["spends"] or any(BY in c for c in RUNS[run]["commands"])
+    return person(actor, staff) if named else ""
 
 
 def commands(run: str, actor: str, staff: str) -> list[str]:

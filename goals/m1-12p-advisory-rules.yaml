@@ -1,0 +1,43 @@
+name: m1-12p-advisory-rules
+goal: >
+  A drafted page that breaks only a style or format rule (a step that names a prop the list does not, a keyword or
+  a step too long, too many steps) is recorded with a note and shown as a check-me draft a teacher can edit or send back;
+  it is never held back, revised or asked a third time for that. The rules about a child, and an empty or malformed
+  page, still hold a page back. The pages already held back are recorded from the drafts already paid for, with no model
+  call, and the recorded drafts reach the educator's screens through one run.
+# Written 2026-11-07 (task M1-12p). W1, gate N1. Nimish's directive as relayed by the orchestrator, 7 Nov: "pages are
+# editable by teachers, so loosen the checks and stop spending on gatekeeping ... step_word_unlisted becomes ADVISORY, not
+# blocking: the page is recorded with the existing check-me flag and a note, never held, never sent for a revision or a
+# third ask. Same for keyword_length and any pure style/format rule. KEEP blocking only: gendered child, comparing
+# children, empty idea/steps, and the privacy rules ... Re-record the 69 held pass-1 pages (and the 5 dev pages) from
+# their kept drafts under the new rule, with no model call if possible ... if a run choice is needed to apply them, add
+# curriculum_apply". Nothing here made a model call.
+says:
+  - words: "step_word_unlisted becomes ADVISORY, not blocking"
+    proved_by: "packages/engine/tests/test_k2_advisory.py::test_a_step_that_names_a_prop_the_materials_do_not_is_kept_with_a_note"
+  - words: "Same for keyword_length and any pure style/format rule"
+    proved_by: "packages/engine/tests/test_k2_advisory.py::test_too_many_steps_a_long_keyword_and_a_long_idea_are_each_kept_with_a_note"
+  - words: "the page is recorded with the existing check-me flag and a note"
+    proved_by: "packages/engine/tests/test_k2_advisory.py::test_the_notes_ride_on_the_proposal_and_its_reason_and_change_neither_status_nor_confidence"
+  - words: "KEEP blocking only: gendered child, comparing children, empty idea/steps"
+    proved_by: "packages/engine/tests/test_k2_advisory.py::test_a_page_that_is_empty_or_malformed_is_still_held_back"
+  - words: "gendered child"
+    proved_by: "packages/engine/tests/test_k2_advisory.py::test_a_page_that_says_he_or_she_of_a_child_is_still_held_back"
+  - words: "Prompts unchanged: no new prompt version"
+    proved_by: "packages/engine/tests/test_k2_advisory.py::test_the_seed_names_the_style_rules_as_advisory_and_none_of_the_rules_that_must_hold"
+  - words: "Re-record the 69 held pass-1 pages (and the 5 dev pages) from their kept drafts under the new rule, with no model call"
+    proved_by: "packages/engine/tests/test_k2_record.py::test_a_page_held_for_a_long_step_is_recorded_from_its_kept_draft_with_a_note_and_no_checker"
+  - words: "if a run choice is needed to apply them, add curriculum_apply"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_recording_the_kept_drafts_and_applying_the_pages_are_runs_that_spend_nothing"
+  - words: "editable, revertible, check-me drafts"
+    proved_by: "packages/engine/tests/test_k2_record.py::test_apply_can_be_limited_to_the_pages_and_a_page_it_writes_is_a_check_me_draft_a_person_can_edit"
+manual:
+  - "After merge, in order: `load_settings` (the advisory list is a config row), `draft_record` (free: records the held pages from kept drafts), `curriculum_apply` (free: writes every recorded page, drafted pages only, to the screens as check-me drafts). The screens open to the head and the coordinator without the educator switch (`curriculum.review_roles`); the educator switch is a separate row."
+  - "The pages `draft_record` records are marked as not read by the checker; run `engine curriculum checkers`-style reading later if wanted. Pages that still break a blocking rule stay unrecorded."
+criteria:
+  - name: the advisory rules, the record from kept drafts, the apply
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_k2_advisory.py tests/test_k2_record.py tests/test_k2_format.py tests/test_curriculum_run_command.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"

@@ -21,6 +21,7 @@ from engine.w1_bank import (
     k2_checkers,  # noqa: F401 — registers `curriculum checkers`
     k2_draft,  # noqa: F401 — registers `curriculum draft` and `curriculum materials`
     k2_gold,  # noqa: F401 — registers `curriculum gold-sheet`
+    k2_record,  # noqa: F401 — registers `curriculum draft-record`
     k2_replay,  # noqa: F401 — registers `curriculum draft-replay`
     mistake_guess,
     review,

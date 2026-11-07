@@ -8,6 +8,7 @@ through `llm.generate(stage=...)`, so the campaign's hard stop holds; every batc
 stage's limit; `--dry-run` prints a forecast and makes no call. A real run needs `--by`: every row keeps who ran it.
 """
 
+from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
@@ -173,23 +174,27 @@ def draft(
 
     shadows = {p: checker(p) for p in _shadows(conn)}
     res = k2_check.run(want, ask_maker, checker(CHECK), judge, size, rounds, shadows)
-    _finish(conn, tenant, staff, write, stage, res, raw, shown - set(reuse), rep, say)
+    _finish(conn, tenant, staff, write, stage, res, raw, shown - set(reuse), rep, say, judge.notes)  # type: ignore[attr-defined]
     return rep
 
 
-def _finish(conn, tenant, staff, write, stage, res, raw, used, rep, say) -> None:
+def _finish(conn, tenant, staff, write, stage, res, raw, used, rep, say, notes=None) -> None:
     """Record what the run drafted and say, in counts and rule names only, how it went. `used` are the pages whose first
     draft was read from a kept reply: marked on their ledger row."""
     rep.left, rep.stopped, rep.reused = dict(res.left), res.stopped, len(used)
     for key in used & set(res.history):
         res.history[key][0]["reused"] = True
     least = map_ledger.rules(conn)["min_confidence"]
-    made = k2_check.proposals(res, raw, _models(conn), least, bool(rep.stopped), stage)
+    made = k2_check.proposals(res, raw, _models(conn), least, bool(rep.stopped), stage, notes)
     rep.proposals = len(made)
     if write and made:
         map_ledger.record(conn, tenant, made, staff)
     if res.faults:  # which rule, so a run that loses its pages says why (the log is public)
         say(f"rules broken: {batch.line_of(res.faults)}; {res.stuck} pages not asked a third time")
+    if notes := {k: v for k, v in (notes or {}).items() if k in res.parts}:  # advisory: the pages are kept
+        say(
+            f"notes on recorded pages (rules that do not hold a page back): {batch.line_of(Counter(batch.rule_of(n) for v in notes.values() for n in v))}"
+        )
     if rep.reused:
         say(f"{rep.reused} first drafts read from kept replies (no maker call)")
     say(f"{rep.proposals} pages recorded, {len(rep.left)} left for a person; {rep.stopped or 'run complete'}")

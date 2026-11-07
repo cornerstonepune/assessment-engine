@@ -283,11 +283,16 @@ def _winners(rows: list[DictRow]) -> dict[tuple[str, str], uuid.UUID]:
 
 
 def apply(
-    conn: db.Conn, tenant: db.Id, staff: db.Id, write: bool, only: uuid.UUID | str | None = None
+    conn: db.Conn,
+    tenant: db.Id,
+    staff: db.Id,
+    write: bool,
+    only: uuid.UUID | str | None = None,
+    kind: str | None = None,
 ) -> list[str]:
     """Every proposal that passed on its own or that a person approved, each made, its link naming the proposal,
     each change in the edit history as the machine's, run by that member of staff (ids, never a name); written only
-    when `write`."""
+    when `write`. `kind` limits it to one kind of proposal (page_part, material, skill, ...)."""
     version = conn.execute(
         "select max(number) as n from curriculum_version where tenant_id = %s", (tenant,)
     ).fetchone()
@@ -296,7 +301,7 @@ def apply(
     doubtful = [p for p in standing(conn, tenant, "needs_person") if p["kind"] == "page_part"]
     win = _winners(standing(conn, tenant))
     for p in [*standing(conn, tenant, "auto_passed"), *standing(conn, tenant, "approved"), *doubtful]:
-        if only is not None and str(p["id"]) != str(only):
+        if (only is not None and str(p["id"]) != str(only)) or (kind is not None and p["kind"] != kind):
             continue
         keep = {n for n in p["proposal"].get("parts", {}) if win.get((p["subject_code"], n)) == p["id"]}
         if p["kind"] == "page_part" and not keep:
