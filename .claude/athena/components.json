@@ -407,6 +407,16 @@
    "metric": "rtk tokens saved per session, in athena tokens"
   },
   {
+   "name": "athena-hook-ui-slop",
+   "kind": "hook",
+   "match": [
+    "hook ui-slop"
+   ],
+   "purpose": "runs Impeccable's design detectors on an edited interface file and hands new findings back to Claude (ATH-13)",
+   "trigger": "every Edit or Write of a .tsx, .jsx, .css, .html, .vue or .svelte file in a repository with a web app",
+   "metric": "new Impeccable findings caught at edit time per session"
+  },
+  {
    "name": "ponytail-measure",
    "kind": "task",
    "purpose": "measures Ponytail's saving weekly: the same task with and without its instructions (ATH-9)",
