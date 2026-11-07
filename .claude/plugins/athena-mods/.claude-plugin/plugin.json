@@ -1,0 +1,25 @@
+{
+  "name": "athena-mods",
+  "version": "3.0.0",
+  "description": "Athena's own mods: a band with the harness version, context, session cost and plan usage, and a token ledger with weekly budget warnings.",
+  "author": { "name": "Nimish Shah" },
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "week_warn_percent": {
+      "type": "number",
+      "title": "Weekly usage warning (%)",
+      "description": "When the plan's 7-day usage passes this, the band turns red and a toast warns once per session.",
+      "default": 75,
+      "min": 1,
+      "max": 100
+    },
+    "week_stop_percent": {
+      "type": "number",
+      "title": "Weekly usage stop line for automation (%)",
+      "description": "Past this, scheduled routines run only urgent work. Written to ~/.athena/usage/latest.json for them to read.",
+      "default": 90,
+      "min": 1,
+      "max": 100
+    }
+  }
+}

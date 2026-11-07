@@ -1,0 +1,36 @@
+{
+  "_what": "The plugins every harness repository ships under .claude/plugins/, each pinned to a reviewed commit. Written by harness/vendor_plugins.py from .claude-plugin/marketplace.json.",
+  "plugins": {
+    "athena-mods": {
+      "source": "nimishshah1989/athena-ops/plugins/athena-mods"
+    },
+    "autoharness": {
+      "source": "tigerless-labs/autoharness",
+      "sha": "9eec6232587ff2c4deeded00ac467de19532d763"
+    },
+    "spending-effort-with-jev": {
+      "source": "Yaxin9Luo/spending-effort-with-jev/plugins/spending-effort-with-jev",
+      "sha": "8aef59d72e932d362d5b404ed839290f04db3bb0"
+    },
+    "toolgate": {
+      "source": "RiskAverseTech/toolgate/plugin",
+      "sha": "31e8a2a72e4d05594be78d4588b170744020253d"
+    },
+    "winnow": {
+      "source": "GhalebDweikat/winnow",
+      "sha": "4547a81b88ac59a902bad7b0006137c7d4147aeb"
+    },
+    "fast-jev-compaction": {
+      "source": "tamaratran/fast-jev-compaction",
+      "sha": "e3f262a7f4d42bd8dd32ced30d26176f7cb545b0"
+    },
+    "jev": {
+      "source": "Brainwires/jevwire/plugin",
+      "sha": "757468d6743f55225b9635e1d5f24524da79c2bc"
+    },
+    "ponytail": {
+      "source": "DietrichGebert/ponytail",
+      "sha": "9b58c1ffb790c075ca32e70a89cf1d80588f4abf"
+    }
+  }
+}

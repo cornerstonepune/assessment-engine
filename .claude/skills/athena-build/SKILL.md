@@ -3,7 +3,7 @@ name: athena-build
 description: Use to build a scoped change end to end, for example "build UNC-12". Runs scope first if the spec isn't locked, then plans, builds test-first until every locked proof passes, verifies independently and ships a pull request. Works unattended in routines.
 ---
 
-# athena-build: from locked scope to a pull request Nimish can merge
+# athena-build: from locked scope to a merged pull request
 
 Announce: "Building <ID> under the Athena loop."
 
@@ -31,6 +31,6 @@ Announce: "Building <ID> under the Athena loop."
    - you need access, credentials or a decision.
    In a routine or unattended run, never ask a question: block instead.
 9. **Verify.** Run the `athena-verify` skill.
-10. **Ship.** Run the `athena-ship` skill.
+10. **Ship.** Run the `athena-ship` skill. It merges the pull request itself when every gate holds, then reports to Nimish.
 
 Never claim progress without fresh `athena done` output from this session.

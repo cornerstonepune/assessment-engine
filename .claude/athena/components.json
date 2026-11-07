@@ -412,6 +412,20 @@
    "purpose": "measures Ponytail's saving weekly: the same task with and without its instructions (ATH-9)",
    "trigger": "scheduled task every Monday",
    "metric": "the weekly measure record on the athena-telemetry branch"
+  },
+  {
+   "name": "monthly-improvement",
+   "kind": "task",
+   "purpose": "takes the worst red number, replays a recent slice with 2 or 3 harness changes side by side, opens a pull request (ATH-11)",
+   "trigger": "scheduled routine, the 9th of every month",
+   "metric": "last_run and status in usage/review-status.json"
+  },
+  {
+   "name": "weekly-watchlist",
+   "kind": "task",
+   "purpose": "posts up to 3 new candidate repositories or skills, plus links Nimish shared, to the Linear inbox (ATH-11)",
+   "trigger": "scheduled routine every Saturday",
+   "metric": "last_run and status in usage/review-status.json"
   }
  ]
 }
