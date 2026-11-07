@@ -58,52 +58,66 @@ def _count(text: str) -> int:
     return len(text.split())
 
 
-def _lines(value: object, fmt: dict) -> tuple[list[str], str]:
+def _lines(value: object, fmt: dict) -> tuple[list[str], list[str]]:
+    """(the lines, what is wrong with them in the order it is found). A list too long, or a line too long, still has its
+    lines; one that is not a list of text, or is empty, has none."""
     if not isinstance(value, list) or not all(isinstance(x, str) for x in value):
-        return [], "steps must be a list of lines"
+        return [], ["steps must be a list of lines"]
     lines = [re.sub(r"^\s*(?:\d+[.)]|[-*•])\s*", "", x).strip() for x in value]
     lines = [x for x in lines if x]
     if not lines:
-        return [], "steps is empty"
-    if len(lines) > fmt["steps_max"]:
-        return [], f"steps has {len(lines)} lines, at most {fmt['steps_max']}"
-    for i, line in enumerate(lines, 1):
-        if _count(line) > fmt["step_words"]:
-            return [], f"steps line {i} has {_count(line)} words, at most {fmt['step_words']}"
-    return lines, ""
+        return [], ["steps is empty"]
+    wrong = [f"steps has {len(lines)} lines, at most {fmt['steps_max']}"] * (len(lines) > fmt["steps_max"])
+    wrong += [
+        f"steps line {i} has {_count(line)} words, at most {fmt['step_words']}"
+        for i, line in enumerate(lines, 1)
+        if _count(line) > fmt["step_words"]
+    ][:1]
+    return lines, wrong
 
 
-def _slips(value: object, fmt: dict) -> tuple[list[dict[str, str]], str]:
+def _slip(i: int, s: object, fmt: dict) -> tuple[dict[str, str] | None, list[str]]:
+    if not isinstance(s, dict) or not isinstance(s.get("keyword"), str) or not isinstance(s.get("spot"), str):
+        return None, [f"slips item {i} is not a keyword and a spot"]
+    keyword, spot = s["keyword"].strip(), s["spot"].strip()
+    wrong = []
+    if not fmt["keyword_words_min"] <= _count(keyword) <= fmt["keyword_words_max"]:
+        wrong.append(
+            f"slips item {i} keyword must be {fmt['keyword_words_min']} to {fmt['keyword_words_max']} words"
+        )
+    if not spot or _count(spot) > fmt["spot_words"]:
+        wrong.append(f"slips item {i} spot must be one short sentence of at most {fmt['spot_words']} words")
+    return {"keyword": keyword, "spot": spot}, wrong
+
+
+def _slips(value: object, fmt: dict) -> tuple[list[dict[str, str]], list[str]]:
+    """(the slips, what is wrong with them). A keyword or a spot of the wrong length still has its slip; a wrong number
+    of slips, or one that is not a keyword and a spot, has none."""
     if not isinstance(value, list) or not fmt["slips_min"] <= len(value) <= fmt["slips_max"]:
         n = len(value) if isinstance(value, list) else 0
-        return [], f"slips: {fmt['slips_min']} to {fmt['slips_max']} wanted, got {n}"
+        return [], [f"slips: {fmt['slips_min']} to {fmt['slips_max']} wanted, got {n}"]
     out: list[dict[str, str]] = []
+    wrong: list[str] = []
     for i, s in enumerate(value, 1):
-        if (
-            not isinstance(s, dict)
-            or not isinstance(s.get("keyword"), str)
-            or not isinstance(s.get("spot"), str)
-        ):
-            return [], f"slips item {i} is not a keyword and a spot"
-        keyword, spot = s["keyword"].strip(), s["spot"].strip()
-        if not fmt["keyword_words_min"] <= _count(keyword) <= fmt["keyword_words_max"]:
-            return [], (
-                f"slips item {i} keyword must be {fmt['keyword_words_min']} to {fmt['keyword_words_max']} words"
-            )
-        if not spot or _count(spot) > fmt["spot_words"]:
-            return [], f"slips item {i} spot must be one short sentence of at most {fmt['spot_words']} words"
-        out.append({"keyword": keyword, "spot": spot})
-    return out, ""
+        one, why = _slip(i, s, fmt)
+        if one is None:
+            return [], why
+        out.append(one)
+        wrong += why
+    return out, wrong[:1]
 
 
-def _thinking(it: dict, fmt: dict) -> tuple[dict, str]:
+def _thinking(it: dict, fmt: dict) -> tuple[dict, list[str]]:
     idea = it.get("idea")
     if not isinstance(idea, str) or not idea.strip():
-        return {}, "idea is empty"
-    if _count(idea) > fmt["idea_words"]:
-        return {}, f"idea has {_count(idea)} words, at most {fmt['idea_words']}"
+        return {}, ["idea is empty"]
+    wrong = [f"idea has {_count(idea)} words, at most {fmt['idea_words']}"] * (
+        _count(idea) > fmt["idea_words"]
+    )
     slips, why = _slips(it.get("slips"), fmt)
-    return ({"idea": idea.strip(), "slips": slips}, "") if not why else ({}, why)
+    if not slips:
+        return {}, [*wrong, *why]
+    return {"idea": idea.strip(), "slips": slips}, [*wrong, *why]
 
 
 def _covered(phrase: list[str], pieces: list[list[str]]) -> bool:
@@ -173,31 +187,44 @@ def shown_draft(parts: dict) -> str:
     return "\n".join(out)
 
 
+def _whys(it: dict, parts: list[str], row: dict, vocab: frozenset[str], fmt: dict) -> tuple[dict, list[str]]:
+    """The parts of a page the code reads (steps, thinking) and everything wrong with them, in order."""
+    made: dict[str, object] = {}
+    whys: list[str] = []
+    if "steps" in parts:
+        made["steps"], wrong = _lines(it.get("steps"), fmt)
+        whys += wrong
+        if made["steps"]:
+            whys += [_unlisted(made["steps"], it.get("uses"), row["materials"] or "", vocab, fmt)]  # type: ignore[arg-type]
+    if "thinking" in parts:
+        made["thinking"], wrong = _thinking(it, fmt)
+        whys += wrong
+    return made, [w for w in whys if w]
+
+
 def judger(rows: dict, vocab: frozenset[str], fmt: dict, rules: dict | None) -> Judge:
     """→ `judge(got, want)`: the pages a reply gets right (their lists as lists) and why each other asked-for page is
-    not. `rows[key]["materials"]` is the school's own text for that page."""
+    not. `rows[key]["materials"]` is the school's own text for that page. A rule named in `fmt["advisory_rules"]` does not
+    hold a page back: the page is kept, and `judge.notes[key]` says what it broke (the notes of the latest draft of each
+    page the judge accepted). The others, and every house rule, still do."""
+    advisory = set(fmt.get("advisory_rules", []))
+    notes: dict[str, list[str]] = {}
 
     def judge(got: object, want: dict[str, list[str]]):
         seen, twice = batch._by_key(got, want)
         flat: list[dict] = []
         structured: dict[str, dict] = {}
         faults: dict[str, str] = {}
+        soft: dict[str, list[str]] = {}
         for key, parts in want.items():
             it = seen.get(key)
             if it is None or key in twice:
                 continue  # judge_pages words these two
-            made: dict[str, object] = {}
-            why = ""
-            if "steps" in parts:
-                made["steps"], why = _lines(it.get("steps"), fmt)
-                why = why or _unlisted(
-                    made["steps"], it.get("uses"), rows[key]["materials"] or "", vocab, fmt
-                )  # type: ignore[arg-type]
-            if "thinking" in parts and not why:
-                made["thinking"], why = _thinking(it, fmt)
-            if why:
-                faults[key] = why
+            made, whys = _whys(it, parts, rows[key], vocab, fmt)
+            if hard := next((w for w in whys if batch.rule_of(w) not in advisory), ""):
+                faults[key] = hard
                 continue
+            soft[key] = whys
             structured[key] = made
             flat.append(it | {p: render(p, v) for p, v in made.items()})
         asked = {k: v for k, v in want.items() if k not in faults}
@@ -205,8 +232,12 @@ def judger(rows: dict, vocab: frozenset[str], fmt: dict, rules: dict | None) -> 
         for key, parts in structured.items():
             if key in good:
                 good[key] |= parts
+                notes[key] = soft[key]
+                if not soft[key]:
+                    del notes[key]
         return good, bad | faults
 
+    judge.notes = notes  # type: ignore[attr-defined]
     return judge
 
 

@@ -91,6 +91,17 @@ def test_the_analysis_of_the_passes_is_a_free_run_that_makes_no_call():
     assert cmd.RUNS["map_why"] == {"spends": False, "commands": [["engine", "curriculum", "map-why"]]}
 
 
+def test_recording_the_kept_drafts_and_applying_the_pages_are_runs_that_spend_nothing():
+    assert cmd.RUNS["draft_record"]["spends"] is False and cmd.RUNS["curriculum_apply"]["spends"] is False
+    assert lines("draft_record") == [
+        "engine curriculum draft-record --stage dev_eval --by someone@school.invalid",
+        "engine curriculum draft-record --stage draft --by someone@school.invalid",
+    ]
+    assert lines("curriculum_apply") == [
+        "engine curriculum apply --kind page_part --apply --by someone@school.invalid"
+    ], "only the drafted pages are applied, never a proposal of another kind"
+
+
 def test_the_page_runs_are_the_dev_stage_with_a_limit_and_the_draft_stage_without():
     dev, full = lines("draft_dev")[0], lines("draft_all")[0]
     assert "--stage dev_eval" in dev and "--dev" in dev and "--limit" not in dev
@@ -153,6 +164,7 @@ def test_no_run_can_carry_a_flag_that_changes_a_limit_only_the_known_ones_with_t
         "--settings",
         "--use-kept",  # reads a draft already paid for; it raises no limit
         "--estimate",  # counts and prices; it calls nothing
+        "--kind",  # limits apply to one kind of proposal
         "--apply",  # records the proposals (only with --by); it raises no limit
     }  # no --limit: the size is a row
     for run in cmd.RUNS:

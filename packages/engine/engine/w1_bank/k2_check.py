@@ -202,7 +202,12 @@ def proposal(
     stopped: bool,
     checks: list[dict] | None = None,
     stage: str = "",
+    notes: list[str] | None = None,
+    unread: bool = False,
 ) -> Proposal:
+    """`notes` are what the page broke of the style rules that do not hold a page back: they ride on the proposal and its
+    reason, and change neither its status nor its confidence. `unread`: it was recorded from a kept draft the checker
+    has not read."""
     conf = raw.get("confidence")
     confidence = (
         min(max(float(conf), 0.0), 1.0)
@@ -216,14 +221,17 @@ def proposal(
         reason = "flagged by the drafter: " + "; ".join(flags)
     elif not verdict:
         reason = "not checked: the run stopped" if stopped else "no verdict came back for it"
+        reason = "recorded from a kept draft; the checker has not read it" if unread else reason
     elif said != "agree":
         reason = "; ".join(f"{f['part']}: {f['reason']}" for f in faults)
     elif confidence < least:
         reason = f"confidence {confidence:.2f} is below {least:.2f}"
     else:
         reason = "the checker found no fault"
+    if notes:
+        reason += " | notes: " + "; ".join(notes)
     return Proposal(
-        kind="page_part", subject_code=key, proposal={"parts": parts, "flags": flags, "history": history, "checks": checks or [], "stage": stage},
+        kind="page_part", subject_code=key, proposal={"parts": parts, "flags": flags, "history": history, "checks": checks or [], "stage": stage, "notes": notes or []},
         confidence=confidence, proposer=f"{DRAFT} v{VERSIONS[DRAFT]}", validator=f"{CHECK} v{VERSIONS[CHECK]}",
         problems=[], verdict=said, status="auto_passed" if passed else "needs_person", reason=reason,
     )  # fmt: skip
@@ -240,13 +248,19 @@ def said(res: Result, models: dict[str, str], key: str) -> list[dict]:
 
 
 def proposals(
-    res: Result, raw: dict[str, dict], models: dict[str, str], least: float, stopped: bool, stage: str
+    res: Result,
+    raw: dict[str, dict],
+    models: dict[str, str],
+    least: float,
+    stopped: bool,
+    stage: str,
+    notes: dict[str, list[str]] | None = None,
 ) -> list[Proposal]:
     """The ledger's proposal for each page the run drafted."""
     return [
         proposal(
             key, parts, raw.get(key, {}), res.verdicts.get(key), res.history.get(key, []), least, stopped,
-            said(res, models, key), stage,
+            said(res, models, key), stage, (notes or {}).get(key),
         )
         for key, parts in res.parts.items()
     ]  # fmt: skip

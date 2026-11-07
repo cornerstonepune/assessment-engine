@@ -201,12 +201,18 @@ def review_(
 
 
 @curriculum_app.command("apply")
-def apply_(write: bool = APPLY, by: str = BY) -> None:
+def apply_(
+    write: bool = APPLY,
+    by: str = BY,
+    kind: str = typer.Option(
+        "", "--kind", help="Only this kind of proposal (page_part, material, skill, ...)"
+    ),
+) -> None:
     """Make every proposal that passed on its own or that a person approved."""
     _needs_by(write, by)
     with db.connect() as conn:
         tenant = _tenant(conn)
-        done = map_ledger.apply(conn, tenant, staff_of(conn, by) if write else "", write)
+        done = map_ledger.apply(conn, tenant, staff_of(conn, by) if write else "", write, kind=kind or None)
         for d in done:
             typer.echo(f"  {d}")
         if write:
