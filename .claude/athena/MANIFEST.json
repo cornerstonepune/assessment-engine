@@ -249,8 +249,8 @@
     ".claude/skills/verification-before-completion/SKILL.md": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3",
     ".claude/skills/writing-plans/SKILL.md": "6d476f62d4c961a363e96ef25da05d3305405362e93e011cd37743e5eb8054a3",
     ".github/ISSUE_TEMPLATE/scope.yml": "f1bb5dd6e56f22d627cb308b43978532d29b8f365ebebfa65371b2ad275b5222",
-    ".github/workflows/athena-health.yml": "6b89fa94ab9df358df2513b9ac4fdc66f94b53101024aeba98b381b39a98da45",
-    ".github/workflows/athena.yml": "f36cf99d0e56a745e5cf44a7b9521dcaebe6a5433e09ec82a152aea51483d2e3"
+    ".github/workflows/athena-health.yml": "c1f1a0a080877562113896612d5b647ec0fad6f7310864a41473a2f69ecc8db9",
+    ".github/workflows/athena.yml": "46f8c80fff73c26edc915f4b9e6c71b75874c31ed6e930b3a6ef8abf33080cb5"
   },
   "settings": {
     "env": [
