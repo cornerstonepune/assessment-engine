@@ -1,0 +1,29 @@
+name: m1-12n-map-why
+goal: >
+  The proposals that passed on their own in the held-out run can be broken down for free, in counts only: by how many
+  skills they named, by confidence, and for those that added a skill people did not link, whether people linked that
+  skill to a like activity; and what the precision would be under each rule that code could apply.
+# Written 2026-11-07 (task M1-12n). W1, gate N1. The words are the orchestrator's: "go on the free read-only analysis
+# run choice (counts only, no text): skills per proposal on the 165 passes, wrong rate by that and by confidence band,
+# and the same-name/same-section proxy for the 19 adds. Also have it report why map.use_checker=0".
+# Nothing here has made a model call, and the run reads the kept replies only.
+says:
+  - words: "skills per proposal on the 165 passes, wrong rate by that and by confidence band"
+    proved_by: "packages/engine/tests/test_map_why.py::test_the_wrong_rate_is_given_by_how_many_skills_a_proposal_named"
+  - words: "wrong rate by confidence band"
+    proved_by: "packages/engine/tests/test_map_why.py::test_the_wrong_rate_is_given_by_confidence_band_from_the_data_not_from_fixed_edges"
+  - words: "the same-name/same-section proxy for the 19 adds"
+    proved_by: "packages/engine/tests/test_map_why.py::test_an_added_skill_is_looked_for_where_people_linked_it_to_a_like_activity"
+  - words: "counts only, no text"
+    proved_by: "packages/engine/tests/test_map_why.py::test_the_summary_names_no_activity_and_no_skill"
+  - words: "free read-only analysis run choice"
+    proved_by: "packages/engine/tests/test_curriculum_run_command.py::test_the_analysis_of_the_passes_is_a_free_run_that_makes_no_call"
+manual:
+  - "Why `map.use_checker` is 0 is in its threshold row: from 2026-11-05 it was off because on the dev run it added no signal (agree 46 of 88 right, disagree 5 of 9). The second model there is Haiku (docs/notes/m1-12c-skill-offers.md)."
+criteria:
+  - name: the analysis and the run choice
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_map_why.py tests/test_curriculum_run_command.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
