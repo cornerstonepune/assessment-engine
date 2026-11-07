@@ -87,6 +87,10 @@ def test_the_held_out_replay_reads_the_kept_replies_free_and_the_proposing_run_i
     ] in cmd.RUNS["forecast"]["commands"], "the forecast prices the proposing run without making a call"
 
 
+def test_the_analysis_of_the_passes_is_a_free_run_that_makes_no_call():
+    assert cmd.RUNS["map_why"] == {"spends": False, "commands": [["engine", "curriculum", "map-why"]]}
+
+
 def test_the_page_runs_are_the_dev_stage_with_a_limit_and_the_draft_stage_without():
     dev, full = lines("draft_dev")[0], lines("draft_all")[0]
     assert "--stage dev_eval" in dev and "--dev" in dev and "--limit" not in dev

@@ -63,6 +63,7 @@ RUNS = {
         "spends": True,
         "commands": [["engine", "eval", "curriculum_map", "--version", "3", "--validate-version", "2"]],
     },
+    "map_why": {"spends": False, "commands": [["engine", "curriculum", "map-why"]]},
     "map_propose": {
         "spends": True,
         "commands": [

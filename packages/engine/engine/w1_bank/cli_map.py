@@ -19,7 +19,7 @@ import typer
 from engine.adapters import llm_budget
 from engine.adapters.llm import LLMError
 from engine.core import db
-from engine.w1_bank import map_ledger
+from engine.w1_bank import map_ledger, map_why
 from engine.w1_bank import map_probe as map_probe_mod
 from engine.w1_bank import map_replay as map_replay_mod
 from engine.w1_bank.k2_upload import config, curriculum_app
@@ -302,22 +302,36 @@ def replay_report(conn: db.Conn, gap_minutes: float, stage: str = "dev_eval") ->
     return [json.dumps(x, ensure_ascii=False, default=str) for x in (head, summary, *got["rows"])]
 
 
-def _held_out_counts(conn: db.Conn, calls: list) -> dict:
-    """The held-out run rebuilt for the activities that were answered (the run goes in code order and a cap may end it)."""
+def _rebuilt(conn: db.Conn, calls: list) -> tuple[list[Proposal], Band, set[str], int, dict]:
+    """The held-out run rebuilt for the activities that were answered (the run goes in code order and a cap may end
+    it): (proposals, the band as people mapped it, the activities reached, how many were held out, replies unread)."""
     band, tenant = config()["band"], _tenant(conn)
     whole = read_band(conn, tenant, band)
     tune, held = gold_split(conn, whole)
     reached = held & {c[2] for c in calls if c[2]}
     ask, left = map_replay_mod.replaying(calls)
-    made = _made(conn, ask, band, reached, tune)
+    return _made(conn, ask, band, reached, tune), whole, reached, len(held), left
+
+
+def _held_out_counts(conn: db.Conn, calls: list) -> dict:
+    made, whole, reached, held_total, left = _rebuilt(conn, calls)
     gold = {c: whole.person_skills[c] for c in reached}
-    rules = _rules(conn, tenant)
     scores = score([Scored(p.subject_code, frozenset(skills(p)), p.status) for p in made], gold)
     return {
-        **map_replay_mod.partial(made, gold, rules.min_confidence, len(held)),
+        **map_replay_mod.partial(made, gold, _rules(conn, _tenant(conn)).min_confidence, held_total),
         "score": scores,
         "left_unread": {k: len(v) for k, v in left.items()},
     }
+
+
+def why_report(conn: db.Conn, gap_minutes: float) -> str:
+    """The latest held-out run's passes in counts: by skills named, by confidence, where an added skill was linked."""
+    calls = map_replay_mod.last_run(map_replay_mod.stored(conn, "held_out"), gap_minutes)
+    if not calls:
+        raise ValueError("no stored run in held_out: no reply was kept")
+    made, whole, _, _, _ = _rebuilt(conn, calls)
+    strand = {c: g.strand for c, g in whole.gaps.items()}
+    return json.dumps(map_why.why(made, whole.person_skills, whole.names, strand))
 
 
 @curriculum_app.command("map-replay")
@@ -338,6 +352,23 @@ def map_replay(
             raise typer.Exit(1) from e
     for line in lines:
         typer.echo(line)
+
+
+@curriculum_app.command("map-why")
+def map_why_(
+    gap_minutes: float = typer.Option(
+        10.0, "--gap-minutes", help="A pause this long between calls ends a run"
+    ),
+) -> None:
+    """What the proposals that passed on their own were like, from the held-out replies kept, in counts only.
+    No model, no write."""
+    with db.connect() as conn:
+        conn.read_only = True
+        try:
+            typer.echo(why_report(conn, gap_minutes))
+        except ValueError as e:
+            typer.echo(str(e), err=True)
+            raise typer.Exit(1) from e
 
 
 @curriculum_app.command("map-probe")
