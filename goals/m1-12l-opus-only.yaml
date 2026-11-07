@@ -1,0 +1,17 @@
+name: m1-12l-opus-only
+goal: >
+  After the 55-page comparison, only the stronger checker (Opus) reads the drafts; the Sonnet shadow checker is off.
+# Written 2026-11-06 (task M1-12l). W1, gate N1. The words are the orchestrator's decision of 2026-11-06 on the numbers of runs 28 and 29
+# (Sonnet missed a fault in 9 of 55 pages that Opus found). Config row only; nothing here has made a model call.
+says:
+  - words: "k2.checkers.shadow = [] (Opus only)"
+    proved_by: "packages/engine/tests/test_llm_budget.py::test_only_the_stronger_checker_reads_the_drafts_now_the_comparison_is_done"
+manual:
+  - "Run `load_settings` after merge: the row is read from the database."
+criteria:
+  - name: the row
+    run: cd packages/engine && uv run pytest -q -p no:cacheprovider tests/test_llm_budget.py tests/test_k2_draft.py tests/test_k2_checkers.py
+    expect: "passed"
+  - name: the code sits where the map says; every promise has its command; lint
+    run: bin/check
+    expect: "passed"
