@@ -2,14 +2,13 @@
 
 # cornerstone-platform — how this repository is built
 
-Read `BUILD-ORDER.md` first — it says which of the four workflows we are on, what "done" means
-for it, and forbids touching the next one before then. Say "W_, gate _" before doing anything.
-Then `ARCHITECTURE.md` — it settles what runs what, and where n8n is. Then `SPEC.md`.
-Both implement `docs/sources/assessment-workflow-v1.md`, the twelve-node workflow agreed with
-the school's staff. **When any of them disagree, the workflow wins** — its decisions were taken
-with the school and are not to be re-derived. Then `STATE.md` (what is verified true) and `HANDOFF.md` (what the last
-session left), both frozen on 2026-10-21, and the newest files in `docs/notes/`, which carry both since. This file is the constitution; `BUILD-ORDER.md` is the sequence; `SPEC.md` is the
-design; `docs/adr/` is why.
+Work here follows the common Athena loop above: a locked scope in `specs/<ID>/`, its proofs, `athena done`.
+The design is `ARCHITECTURE.md` (what runs what, and where n8n is) and `SPEC.md`. Both implement
+`docs/sources/assessment-workflow-v1.md`, the twelve-node workflow agreed with the school's staff. **When any of them
+disagree, the workflow wins**: its decisions were taken with the school and are not to be re-derived. `STATE.md` and
+`HANDOFF.md` were frozen on 2026-10-21; the newest files in `docs/notes/` carry both since. `docs/adr/` is why.
+The old goal loop (`goals/`, its build order and its done-report) was retired on 2026-11-07 (ATH-14): its files stay
+as read-only history, and goals not yet met became draft Athena scopes.
 
 ## The organism
 
@@ -43,10 +42,10 @@ packages/engine/engine/
   assess/                       the maths library — pure, no I/O, stands alone; W1–W3 use it
   core/                         the base: the one database connection, the seed loader, the class list
   adapters/                     the only files that call an outside service (text model, handwriting reader)
-  checks/                       the proofs: `engine audit`, `engine goal`, scenarios, the live site's health
+  checks/                       `engine audit`, scenarios, the live site's health, and the retired goal runner
   api/  cli.py                  the front doors — thin; each command or route hands straight to a workflow
 packages/engine/tests/          one test file per module; test_layout.py holds the code to the map
-goals/                          one yaml per goal: the sentence, its scenarios, its criteria
+goals/                          read-only history: the retired goal loop's goals (new work is scoped in specs/)
 bin/engine                      run the engine from any directory
 supabase/migrations/            numbered SQL; the only way the schema changes
 supabase/seed/                  json the loader reads: registry, rungs, levels, misconceptions, prompts, thresholds
@@ -80,8 +79,7 @@ files already over are frozen at their size in the map and may only shrink.
    enter git or a log. Prompts receive images, not names.
 7. **Every model output ships with an eval.** New prompt version → `engine eval <purpose>` →
    score recorded → only then active.
-8. **Every "works" is a command.** A branch's note in `docs/notes/` (before 2026-10-21, `STATE.md`) lists each
-   claim with the command that proves it and its last output. No claim without a check.
+8. *(Retired 2026-11-07, ATH-14: proving work is the Athena loop's job.)*
 9. **Migrations only.** Schema changes are numbered files in `supabase/migrations/`. No manual
    DDL, ever, on any environment.
 10. **Reuse before write.** The prototype's `assess/` is the engine. Extend it; do not rewrite it.
@@ -97,28 +95,13 @@ files already over are frozen at their size in the map and may only shrink.
     dressed up. Pre-existing debt in files this session does not touch stays frozen (baseline and
     ratchet) — it is named in `STATE.md`, never silently inherited.
 
-12. **A task starts with a goal and ends when the goal's own command is green.** A goal is a
-    sentence saying what the thing must *do*, plus the scenarios that prove it, written down before
-    the work: `goals/<name>.yaml`, run by `engine goal <name>`. A scenario states a real request in
-    the school's terms (this topic, this difficulty, this many questions) and the run checks the
-    result independently of the code that made it — answers recomputed, every question re-measured
-    against the band's own rule, every wrong answer mapped to a named mistake, no duplicates. **The
-    bar is 100%: 19 of 20 is a failure, and work continues until the command passes.** Hygiene
-    belongs in the same file as `criteria` (audit, coverage, recheck, load, suite), never instead of
-    scenarios. Nimish, 2026-09-20: "the system should keep on working towards it till 100% accuracy
-    is achieved."
+12. *(Retired 2026-11-07, ATH-14: a change starts with a locked Athena scope instead.)*
 13. **Read the graph before reading files, and hand over commands that run anywhere.** Exploration
     goes through `tokensave_context` / `tokensave_search` / `graft` first; `cat`, `grep` and `sed`
     are for editing and running, not for finding out how something works — a session that greps its
     way around the repository burns the context it needs later. Any command written for Nimish must
     work from whatever directory he is in: `bin/engine …` or an absolute path, never `cd x && y`.
-14. **A promise is a command, and done is a report the machine writes** (ADR 0033). A goal written from
-    2026-09-22 carries Nimish's own words, each with the test that proves it (`says:`), and nothing else a
-    command does not run — `engine promises` refuses the rest. `bin/check` (the code against
-    `workflows.json`, every promise against its command, lint) runs before every commit and before Claude
-    Code may end a turn; a failure is fixed at its cause, never by raising a limit or loosening a rule.
-    Work is reported done only with the output of `engine done <goal>` pasted — each of his sentences with
-    its test run now, what is still manual, what is not live — never with a summary written instead.
+14. *(Retired 2026-11-07, ATH-14: `bin/check` still runs as part of the fast checks; done is `athena done <ID>`.)*
 
 ## Language and naming
 
@@ -133,12 +116,9 @@ The school's words win elsewhere too: "exchange / regroup", never "borrow"; "edu
 
 ## Working rhythm
 
-- **One workflow at a time** (`BUILD-ORDER.md`). No code, prompt, migration, endpoint or screen for
-  the next workflow while any gate of the current one is unchecked. A session names the gate it
-  moved, or it did nothing.
 - Non-trivial change → plan first; a chunk starts only with 3–5 machine-checkable success criteria.
 - Tests before implementation for anything with a branch, a loop, a parser, or a money/safety path.
-- Commit boundary → update the branch's own note, `docs/notes/<goal name>.md` (`docs/notes/README.md`); never
+- Commit boundary → update the branch's own note, `docs/notes/<spec ID>.md` (`docs/notes/README.md`); never
   edit `STATE.md` or `HANDOFF.md` on a branch, since two branches writing one file conflict on every merge; a
   rejected alternative → an ADR.
 - Verification before any claim of done: run it, paste the output.
