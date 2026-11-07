@@ -1,0 +1,34 @@
+name: Scope
+description: Something to build. Claude turns it into proofs; adding the label scope-locked approves it.
+title: "<ID>: <short title>"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Write it in plain words. Claude can draft this for you; you only edit and approve.
+        **To approve it, add the label `scope-locked`.** Nothing is built before that label is on.
+        If you don't know the ID, leave `<ID>` in the title and Claude fills it in.
+  - type: textarea
+    id: what
+    attributes:
+      label: What
+      description: What should change, for whom.
+    validations:
+      required: true
+  - type: textarea
+    id: done-when
+    attributes:
+      label: Done when
+      description: Numbered outcomes a person or a test can see. One proof is written for each line.
+      placeholder: |
+        1. The fund page shows ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: What this change must not touch.
+    validations:
+      required: false

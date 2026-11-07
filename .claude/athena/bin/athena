@@ -18,13 +18,17 @@ line tools, a cloud session, GitHub Actions).
   athena check-pr-scope --base REF --body-file F   CI: a tier 1 pull request carries a short scope
   athena pr-times OUT.json          CI nightly: tier and CI minutes of the last merged pull requests
   athena retire ID                  retire a finished spec; CI skips it once the 'spec-retired' label is on
+  athena backfill-files             give each spec without a file list the folders its own commits changed
   athena done --all --ci [--base REF] [--labels JSON]   CI: touched specs only with --base, plus the fast checks
-  athena scorecard                  per component: times fired, sessions, cost, last fired
+  athena scorecard [--json]         per component: times fired, sessions, cost, last fired (cloud and Mac sessions)
+  athena tokens [--days N]          tokens saved by rtk and Ponytail over the last N days (default 7)
+  athena rtk-install                install the pinned rtk release (session start does this when rtk is missing)
+  athena measure-ponytail           weekly: the same task with and without Ponytail; records the output tokens saved
   athena health                     one PASS/FAIL line per check; exit 1 if any fails
   athena verify-hooks               fail if a hook is not on the installer's allowlist or a VS Code task runs on folder open
   athena scan-ioc                   fail on a known indicator from the August npm worm (counts and file names only)
   athena check-scope-changes --base REF [--labels JSON]   CI: no silent scope edits
-  athena hook {session-start|guard|stop|prompt}           called by Claude Code
+  athena hook {session-start|guard|stop|prompt|rtk}       called by Claude Code
 """
 import datetime as _dt
 import hashlib
@@ -36,7 +40,7 @@ import sys
 import time
 from pathlib import Path
 
-VERSION = "2.6.0"
+VERSION = "2.7.0"
 ID_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
 STRIKE_LIMIT = 3
 CHECK_TIMEOUT = int(os.environ.get("ATHENA_CHECK_TIMEOUT", "900"))
@@ -633,6 +637,32 @@ def cmd_status(args):
     return 0
 
 
+NOT_COVERAGE = ("specs/", "docs/HANDOFF.md", "docs/athena/", "HANDOFF.md", "STATE.md")
+
+
+def cmd_backfill_files(args):
+    """Give every spec without a file list the folders its own commits changed (the commit message names it).
+    A spec no commit names covers only its own folder. Existing lists are never changed."""
+    log = subprocess.run(["git", "log", "--name-only", "--format=%x00%B%x01"], cwd=ROOT,
+                         capture_output=True, text=True).stdout
+    commits = []
+    for chunk in log.split("\x00")[1:]:
+        msg, _, names = chunk.partition("\x01")
+        commits.append((msg, [n for n in names.split("\n") if n.strip()]))
+    filled = 0
+    for d in sorted(p for p in SPECS.iterdir() if p.is_dir()) if SPECS.exists() else []:
+        if read_status(d).get("files"):
+            continue
+        named = re.compile(rf"(?<![A-Za-z0-9-]){re.escape(d.name)}(?!\d)")
+        folders = {f.rsplit("/", 1)[0] + "/" if "/" in f else f
+                   for msg, names in commits if named.search(msg)
+                   for f in names if not f.startswith(NOT_COVERAGE)}
+        write_status(d, files=sorted(folders) or [f"specs/{d.name}/"])
+        filled += 1
+    print(f"file lists added to {filled} spec(s)")
+    return 0
+
+
 def cmd_retire(args):
     if not args:
         die("usage: athena retire ID")
@@ -705,6 +735,9 @@ def cmd_check_pr_scope(args):
 def cmd_scorecard(args):
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import athena_measure
+    if "--json" in args:
+        print(json.dumps(athena_measure.scorecard_json(ROOT, Path.home()), indent=1))
+        return 0
     print(athena_measure.scorecard(ROOT, Path.home()))
     return 0
 
@@ -883,7 +916,132 @@ def _fast_gate(sid, spec=True):
     return True
 
 
+# ---------------------------------------------------------------- sessions and rtk (ATH-9)
+RTK_VERSION = "1.1.0"
+RTK_SHA256 = {  # from the v1.1.0 release's checksums.txt, read 7 Nov 2026; a session installs only these exact files
+    ("Linux", "x86_64"): ("rtk-x86_64-unknown-linux-musl.tar.gz", "9454ad1b9489daa57ab0a9f4ebe2faaf4dc82b8a0f26c9e5135151abd7c9378d"),
+    ("Linux", "aarch64"): ("rtk-aarch64-unknown-linux-gnu.tar.gz", "a5c00c3ab0129884bcb757d348afc1a650efa0f4f0769da97c341f28f89719ed"),
+    ("Darwin", "arm64"): ("rtk-aarch64-apple-darwin.tar.gz", "8da773b0954cf90b115ec95c4e4eb420f04c39de233c5db102246a6caf073ba7"),
+    ("Darwin", "x86_64"): ("rtk-x86_64-apple-darwin.tar.gz", "1e23e8b9542b58428e6409c49b1c3fb92c4c0d5125da72e80f002a46086a6c20"),
+}
+RTK_HOME = Path.home() / ".athena" / "bin"
+
+
+def _rtk():
+    import shutil
+    return shutil.which("rtk") or (str(RTK_HOME / "rtk") if (RTK_HOME / "rtk").exists() else None)
+
+
+def cmd_rtk_install(args):
+    """Install the pinned rtk release into ~/.athena/bin after checking its SHA-256. Quiet when already there."""
+    import hashlib as _h, platform, tarfile, tempfile, urllib.request
+    if _rtk():
+        return 0
+    asset = RTK_SHA256.get((platform.system(), platform.machine()))
+    if not asset:
+        die(f"no pinned rtk for {platform.system()} {platform.machine()}", 1)
+    name, want = asset
+    data = urllib.request.urlopen(f"https://github.com/rtk-ai/rtk/releases/download/v{RTK_VERSION}/{name}", timeout=60).read()
+    if _h.sha256(data).hexdigest() != want:
+        die("rtk download does not match its pinned checksum; not installed", 1)
+    RTK_HOME.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory() as tmp:
+        tf = Path(tmp) / name
+        tf.write_bytes(data)
+        with tarfile.open(tf) as t:
+            member = next(m for m in t.getmembers() if Path(m.name).name == "rtk" and m.isfile())
+            (RTK_HOME / "rtk").write_bytes(t.extractfile(member).read())
+    (RTK_HOME / "rtk").chmod(0o755)
+    return 0
+
+
+def _rtk_saved():
+    exe = _rtk()
+    if not exe:
+        return 0
+    try:
+        out = subprocess.run([exe, "gain", "-p", "--format", "json"], cwd=ROOT, capture_output=True, text=True, timeout=20)
+        return int(json.loads(out.stdout).get("summary", {}).get("total_saved") or 0)
+    except Exception:
+        return 0
+
+
+def hook_rtk(payload):
+    """PreToolUse on Bash: let rtk shorten the command's output. No rtk on this machine: change nothing."""
+    exe = _rtk()
+    cmd = (payload.get("tool_input") or {}).get("command")
+    if not exe or not cmd:
+        return 0
+    out = subprocess.run([exe, "rewrite", cmd], capture_output=True, text=True, timeout=10)
+    new = out.stdout.strip()
+    if out.returncode != 0 or not new or new == cmd:
+        return 0
+    print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "allow",
+                                             "permissionDecisionReason": "rtk shortens this command's output",
+                                             "updatedInput": {**payload["tool_input"], "command": new}}}))
+    return 0
+
+
+def _record_session(payload):
+    """One record per session for the scorecard and the token report, saved locally and on origin. Best effort."""
+    sid = payload.get("session_id")
+    if not sid:
+        return
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import athena_measure
+    base = STATE / f"rtk0-{sid}"
+    start = int(base.read_text()) if base.exists() else 0
+    rec = athena_measure.session_record(ROOT, payload.get("transcript_path"), sid, max(0, _rtk_saved() - start))
+    athena_measure.save(ROOT, rec)
+
+
+PONYTAIL_SHA = "9b58c1ffb790c075ca32e70a89cf1d80588f4abf"  # the commit the athena marketplace pins
+PONYTAIL_TASK = ("In Python, write a function that parses a config string like 'host=a; port=80; debug=true' into a dict, "
+                 "with tests. Reply with the code only.")
+
+
+def cmd_measure_ponytail(args):
+    """Run one fixed task three times without and three times with Ponytail's instructions; record the median
+    difference in output tokens as a measurement record (saved locally and on the telemetry branch)."""
+    import statistics, tempfile, urllib.request
+    src = os.environ.get("ATHENA_PONYTAIL_SKILL")
+    skill = Path(src).read_text() if src else urllib.request.urlopen(
+        f"https://raw.githubusercontent.com/DietrichGebert/ponytail/{PONYTAIL_SHA}/skills/ponytail/SKILL.md", timeout=60).read().decode()
+
+    def run(extra):
+        cmd = ["claude", "-p", PONYTAIL_TASK, "--output-format", "json", "--max-turns", "1"]
+        cmd += ["--append-system-prompt", extra] if extra else []
+        with tempfile.TemporaryDirectory() as tmp:
+            out = subprocess.run(cmd, cwd=tmp, capture_output=True, text=True, timeout=900)
+        return int(json.loads(out.stdout)["usage"]["output_tokens"])
+
+    without, with_ = [run(None) for _ in range(3)], [run(skill) for _ in range(3)]
+    saved = int(statistics.median(without) - statistics.median(with_))
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import athena_measure
+    stamp = athena_measure.now()
+    athena_measure.save(ROOT, {"id": f"ponytail-{stamp:%Y%m%dT%H%M%S}", "kind": "measure", "component": "ponytail",
+                               "started_at": stamp.isoformat(), "saved_tokens": saved,
+                               "without": without, "with": with_}, folder="measures")
+    print(f"ponytail: {saved} tokens saved (median output tokens {statistics.median(without)} without, "
+          f"{statistics.median(with_)} with)")
+    return 0
+
+
+def cmd_tokens(args):
+    days = int(args[args.index("--days") + 1]) if "--days" in args else 7
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import athena_measure
+    for name, n in athena_measure.tokens(ROOT, days).items():
+        print(f"{name}: {n} tokens saved")
+    return 0
+
+
 def hook_stop(payload):
+    try:
+        _record_session(payload)
+    except Exception as e:  # measuring must never hold a session
+        print(f"athena: session record not saved: {e}", file=sys.stderr)
     sid = active_id()
     if not sid:
         # No spec: a tier 0 or 1 change still has to pass the repository's fast checks before the session ends.
@@ -963,11 +1121,16 @@ def _refresh_assurance():
 
 def hook_session_start(payload):
     lines = [f"Athena harness v{VERSION} is installed in this repo. Read .claude/athena/CLAUDE.md if you have not."]
-    own = read_config().get("own_loop") or {}
-    handoff = ROOT / own.get("handoff", "docs/HANDOFF.md")
-    if own:
-        lines.append(f"This repo runs its own loop: `{own.get('done', 'see its CLAUDE.md')}` decides done, "
-                     "not `athena done`. Its CLAUDE.md's loop replaces Athena's spec loop.")
+    try:
+        if not _rtk():  # fetch the pinned rtk in the background; the session does not wait for it
+            subprocess.Popen([sys.executable, str(Path(__file__).resolve()), "rtk-install"], cwd=ROOT,
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        elif payload.get("session_id"):
+            STATE.mkdir(exist_ok=True)
+            (STATE / f"rtk0-{payload['session_id']}").write_text(str(_rtk_saved()))
+    except Exception:
+        pass
+    handoff = ROOT / "docs" / "HANDOFF.md"
     if read_config().get("proof_data") == "real":
         lines.append("Proof data: REAL. This repo forbids synthetic, mocked or placeholder data, even in tests. "
                      "Proofs assert on real outputs; anything that needs the production database or the box "
@@ -1009,7 +1172,7 @@ def cmd_hook(args):
     except Exception:
         payload = {}
     fn = {"guard": hook_guard, "stop": hook_stop, "prompt": hook_prompt,
-          "session-start": hook_session_start}.get(args[0])
+          "session-start": hook_session_start, "rtk": hook_rtk}.get(args[0])
     if not fn:
         die(f"unknown hook {args[0]}")
     try:
@@ -1167,6 +1330,8 @@ COMMANDS = {
     "scorecard": cmd_scorecard, "health": cmd_health,
     "verify-hooks": cmd_verify_hooks, "scan-ioc": cmd_scan_ioc,
     "tier": cmd_tier, "check-pr-scope": cmd_check_pr_scope, "retire": cmd_retire, "pr-times": cmd_pr_times,
+    "backfill-files": cmd_backfill_files, "tokens": cmd_tokens, "rtk-install": cmd_rtk_install,
+    "measure-ponytail": cmd_measure_ponytail,
 }
 
 

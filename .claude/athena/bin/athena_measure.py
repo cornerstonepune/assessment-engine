@@ -4,14 +4,18 @@ Used by `athena scorecard`, `athena health` and the nightly health_issue.py. Sta
 Reads the component register (.claude/athena/components.json), the session transcripts under
 $HOME/.claude/projects, the plan-usage files under $HOME/.athena/usage and usage/review-status.json.
 """
+import io
 import json
 import os
 import statistics
+import subprocess
+import sys
+import tarfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 MEASURED = ("skill", "agent", "plugin", "hook")  # kinds whose firing shows up in session transcripts
-IDLE_DAYS = 14
+IDLE_DAYS = 3  # ATH-9: Nimish hears about a silent component within 3 days
 MAX_CLAUDE_MD, MAX_AGENTS_MD, MAX_HANDOFF, MAX_LESSONS = 200, 100, 50, 30
 STUCK_DAYS, LEDGER_DAYS = 7, 7
 STUCK_STATES = ("draft", "locked", "building", "blocked")
@@ -53,8 +57,12 @@ def transcript_files(home):
 
 def events(home):
     """One tuple per thing a session did: (kind, name, session, timestamp, tokens)."""
+    return events_in(transcript_files(home))
+
+
+def events_in(files):
     out, seen = [], set()
-    for f in transcript_files(home):
+    for f in files:
         for line in f.read_text(errors="replace").splitlines():
             try:
                 row = json.loads(line)
@@ -66,6 +74,11 @@ def events(home):
                 out.append(("hook", f"{att.get('hookName', '')} {att.get('command', '')}", sid, ts, 0))
                 continue
             msg = row.get("message")
+            if row.get("type") == "user" and isinstance(msg, dict):  # kept only to recognise a routine's run
+                text = msg.get("content")
+                text = text if isinstance(text, str) else " ".join(
+                    p.get("text", "") for p in text or [] if isinstance(p, dict))
+                out.append(("prompt", text[:4000], sid, ts, 0))
             if not isinstance(msg, dict) or not isinstance(msg.get("content"), list):
                 continue
             u = msg.get("usage") or {}
@@ -100,6 +113,8 @@ def matches(comp, ev):
                (ekind == "tool" and f"plugin_{name}" in ename) or (ekind == "hook" and name in ename)
     if kind == "hook":
         return ekind == "hook" and any(m in ename for m in comp.get("match", [name]))
+    if kind == "task":  # a scheduled routine's prompt names its instruction file
+        return ekind == "prompt" and f"routines/{name}.md" in ename
     return False
 
 
@@ -126,6 +141,114 @@ def collect(root, home):
 
 def has_records(home):
     return bool(transcript_files(home))
+
+
+# ---------------------------------------------------------------- sessions, cloud and Mac
+TELEMETRY = "athena-telemetry"  # a branch on origin with one small record per session: names and counts, never content
+REF = f"refs/remotes/origin/{TELEMETRY}"
+
+
+def source():
+    if sys.platform == "darwin":
+        return "mac"
+    return "cloud" if any(k.startswith("CCR_") for k in os.environ) else "other"
+
+
+def _git(root, *args, inp=None, env=None):
+    return subprocess.run(["git", *args], cwd=root, input=inp, capture_output=True, text=True, env=env, timeout=60)
+
+
+def session_record(root, transcript, sid, rtk_saved=0):
+    path = Path(transcript) if transcript else None
+    evs = events_in([path]) if path and path.exists() else []
+    fired = sorted({c["name"] for c in register(root) if c["kind"] in MEASURED + ("task",)
+                    for e in evs if matches(c, e)})
+    started = min((e[3] for e in evs if e[3]), default=None) or now()
+    return {"id": sid, "kind": "session", "source": source(), "started_at": started.isoformat(),
+            "ended_at": now().isoformat(), "fired": fired, "tokens": sum(e[4] for e in evs), "rtk_saved": int(rtk_saved)}
+
+
+def save(root, rec, folder="sessions"):
+    """Keep the record locally and add it to origin's telemetry branch. Never raises; False if it could not push."""
+    local = Path(root) / ".athena" / "sessions"
+    local.mkdir(parents=True, exist_ok=True)
+    (local / f"{rec['id']}.json").write_text(json.dumps(rec, sort_keys=True))
+    idx = Path(root) / ".athena" / "telemetry.index"
+    env = {**os.environ, "GIT_INDEX_FILE": str(idx), "GIT_AUTHOR_NAME": "athena", "GIT_AUTHOR_EMAIL": "athena@localhost",
+           "GIT_COMMITTER_NAME": "athena", "GIT_COMMITTER_EMAIL": "athena@localhost"}
+    try:
+        for _ in range(2):  # a second try when another session pushed first
+            _git(root, "fetch", "-q", "origin", f"+refs/heads/{TELEMETRY}:{REF}")
+            parent = _git(root, "rev-parse", "-q", "--verify", REF).stdout.strip()
+            idx.unlink(missing_ok=True)
+            if parent:
+                _git(root, "read-tree", parent, env=env)
+            blob = _git(root, "hash-object", "-w", "--stdin", inp=json.dumps(rec, sort_keys=True)).stdout.strip()
+            _git(root, "update-index", "--add", "--cacheinfo", f"100644,{blob},{folder}/{rec['id']}.json", env=env)
+            tree = _git(root, "write-tree", env=env).stdout.strip()
+            if parent and _git(root, "rev-parse", parent + "^{tree}").stdout.strip() == tree:
+                return True
+            commit = _git(root, "commit-tree", tree, *(["-p", parent] if parent else []), "-m",
+                          f"{folder[:-1]} {rec['id']}", env=env).stdout.strip()
+            if commit and _git(root, "push", "-q", "origin", f"{commit}:refs/heads/{TELEMETRY}").returncode == 0:
+                return True
+        return False
+    except Exception:
+        return False
+    finally:
+        idx.unlink(missing_ok=True)
+
+
+def records(root):
+    """Every record this repository knows: this machine's, plus everything on origin's telemetry branch."""
+    out = {}
+    for f in sorted((Path(root) / ".athena" / "sessions").glob("*.json")):
+        r = read_json(f)
+        if r.get("id"):
+            out[r["id"]] = r
+    try:
+        _git(root, "fetch", "-q", "origin", f"+refs/heads/{TELEMETRY}:{REF}")
+        tar = subprocess.run(["git", "archive", "--format=tar", REF], cwd=root, capture_output=True, timeout=60).stdout
+        with tarfile.open(fileobj=io.BytesIO(tar)) as t:
+            for m in t.getmembers():
+                if m.isfile() and m.name.endswith(".json"):
+                    r = json.loads(t.extractfile(m).read() or b"{}")
+                    if r.get("id"):
+                        out.setdefault(r["id"], r)
+    except Exception:
+        pass
+    return list(out.values())
+
+
+def scorecard_json(root, home):
+    recs = records(root)
+    sessions = [{"id": r["id"], "source": r.get("source"), "started_at": r.get("started_at"), "fired": r.get("fired", [])}
+                for r in recs if r.get("kind", "session") == "session"]
+    comps = []
+    for name, r in sorted(collect(root, home).items()):
+        last = r["last"]
+        for s in sessions:
+            t = parse_ts(s["started_at"]) if name in s["fired"] else None
+            if t and (last is None or t > last):
+                last = t
+        comps.append({"name": name, "kind": r["kind"], "idle_limit_days": r["idle_days"],
+                      "last_fired": last.isoformat() if last else None})
+    return {"components": comps, "sessions": sessions}
+
+
+def tokens(root, days):
+    """Tokens saved per tool over the last `days` days, from the session and measurement records."""
+    since = now() - timedelta(days=days)
+    saved = {"rtk": 0, "ponytail": 0}
+    for r in records(root):
+        t = parse_ts(r.get("started_at"))
+        if not t or t < since:
+            continue
+        if r.get("kind", "session") == "session":
+            saved["rtk"] += int(r.get("rtk_saved") or 0)
+        elif r.get("kind") == "measure" and r.get("component") in saved:
+            saved[r["component"]] += int(r.get("saved_tokens") or 0)
+    return saved
 
 
 # ---------------------------------------------------------------- scorecard
@@ -198,8 +321,7 @@ def health(root, home, version, env=None):
     ci = env.get("ATHENA_HEALTH_CI") == "1"  # set only by the nightly workflow; GitHub cannot see Mac sessions
     add = lambda ok, text: res.append(("PASS" if ok else "FAIL", text))
 
-    cfg = read_json(root / ".claude" / "athena" / "config.json")
-    handoff = (cfg.get("own_loop") or {}).get("handoff") or "docs/HANDOFF.md"  # a repo with its own loop keeps its own
+    handoff = "docs/HANDOFF.md"
     have = read_json(root / ".claude" / "athena" / "MANIFEST.json").get("athena")
     add(have == version, f"harness version {have or 'not installed'} (latest {version})")
     for rel, cap in (("CLAUDE.md", MAX_CLAUDE_MD), ("AGENTS.md", MAX_AGENTS_MD), (handoff, MAX_HANDOFF)):
@@ -238,13 +360,15 @@ def health(root, home, version, env=None):
         add(isinstance(wk, (int, float)) and not isinstance(wk, bool),
             "plan usage " + (f"recorded ({wk}% this week)" if isinstance(wk, (int, float)) else
                              "not recorded: " + str(latest.get("seven_day_reason") or "no reading")))
-    if not has_records(home):
-        res.append(("SKIP", "idle components: no session records on this machine"))
+    card = scorecard_json(root, home)
+    if not card["sessions"] and not has_records(home):
+        res.append(("SKIP", "idle components: no session records here or on the telemetry branch"))
     else:
         idle = []
-        for name, r in sorted(collect(root, home).items()):
-            if r["measured"] and (r["last"] is None or now() - r["last"] > timedelta(days=r["idle_days"])):
-                idle.append(f"{name} ({'never fired' if r['last'] is None else 'last ' + r['last'].date().isoformat()})")
+        for c in card["components"]:
+            last = parse_ts(c["last_fired"]) if c["last_fired"] else None
+            if c["kind"] in MEASURED and (last is None or now() - last > timedelta(days=c["idle_limit_days"])):
+                idle.append(f"{c['name']} ({'never fired' if last is None else 'last ' + last.date().isoformat()})")
         add(not idle, "components idle past their limit: " + (", ".join(idle) or "none"))
     return res
 
