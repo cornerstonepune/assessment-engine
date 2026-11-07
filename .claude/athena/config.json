@@ -1,6 +1,3 @@
 {
-  "own_loop": {
-    "done": "bin/engine done <goal>",
-    "handoff": "docs/notes/README.md"
-  }
+  "proof_data": "fake"
 }

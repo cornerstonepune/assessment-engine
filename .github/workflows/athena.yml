@@ -1,0 +1,55 @@
+# Managed by the Athena harness: reinstalling overwrites this file.
+# Merge gate on every pull request, and a nightly re-run of every finished spec on main.
+name: athena
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]   # a fixed description or a new label re-runs the checks
+  push:
+    branches: [main, master]
+  schedule:
+    - cron: "30 21 * * *"   # 03:00 IST
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  proofs:
+    runs-on: ubuntu-24.04  # ubuntu-latest became 26.04 (Nov 2026), which Playwright cannot install browsers on
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - name: Locks intact
+        run: python3 .claude/athena/bin/athena verify-locks
+      - name: No locked scope changed without Nimish's approval
+        if: github.event_name == 'pull_request'
+        env:
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: python3 .claude/athena/bin/athena check-scope-changes --base "origin/${{ github.base_ref }}" --labels "$LABELS"
+      - name: A small change carries its own short scope
+        if: github.event_name == 'pull_request'
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          printf '%s' "$BODY" > "$RUNNER_TEMP/pr-body.txt"
+          python3 .claude/athena/bin/athena check-pr-scope --base "origin/${{ github.base_ref }}" --body-file "$RUNNER_TEMP/pr-body.txt"
+      - name: Any locked specs?
+        id: specs
+        run: if ls specs/*/LOCK >/dev/null 2>&1; then echo "any=true" >> "$GITHUB_OUTPUT"; else echo "any=false" >> "$GITHUB_OUTPUT"; echo "No locked specs yet; nothing to prove."; fi
+      - name: Node version from .nvmrc
+        if: (steps.specs.outputs.any == 'true' || hashFiles('.claude/athena/fast-checks.sh') != '') && hashFiles('.nvmrc') != ''
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+      - name: Install this repo's dependencies
+        if: steps.specs.outputs.any == 'true' || hashFiles('.claude/athena/fast-checks.sh') != ''
+        run: if [ -f .claude/athena/setup.sh ]; then bash .claude/athena/setup.sh; fi
+      - name: Fast checks, and the proofs of the specs this pull request touches
+        if: github.event_name == 'pull_request'
+        env:
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: python3 .claude/athena/bin/athena done --all --ci --base "origin/${{ github.base_ref }}" --labels "$LABELS"
+      - name: Every acceptance proof passes
+        if: github.event_name != 'pull_request' && steps.specs.outputs.any == 'true'
+        # On main a retirement was already approved by its merge, so retired specs are skipped here.
+        run: python3 .claude/athena/bin/athena done --all --ci --labels '["spec-retired"]'

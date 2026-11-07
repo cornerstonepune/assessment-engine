@@ -1,21 +1,21 @@
 {
-  "athena": "2.6.0",
+  "athena": "2.7.0",
   "files": {
     ".claude/agents/appsec-engineer.md": "e0566869ce131ef35a3dd0615f152dba68bc1dcab09ee44254f59db2a69ea73d",
     ".claude/agents/athena-proof-writer.md": "bc8416750eb968dfb1c8ea5fc83d5c68dc1a8912849dbac434dd76c7e4fafe6a",
     ".claude/agents/athena-verifier.md": "5a0aaaf5fb3da314540c7f669e5415c3f241ee8a55c76b13e0b18abb373702c6",
     ".claude/agents/reality-checker.md": "fff862e76d3f628ed5f6d92589e3551701b098a6eb52eb50df2a642858209e84",
     ".claude/agents/software-architect.md": "00c406e887bde773db074650fd98a552fb31c5be5be018e49ac5d204bedf43fb",
-    ".claude/athena/CLAUDE.md": "7e0edda329a04818b476d0753b4c5bab7b63643d5170d0c40342ae2015a38b61",
+    ".claude/athena/CLAUDE.md": "819ed66574e57d9174fca127f1b3d12f3099747b093c37dc906f55b5bfc9c1d5",
     ".claude/athena/SUPERPOWERS-LICENSE": "a37e0e9697144819e1d965176ac4ae5bc3fa02d11e7812036bbcadf6dafe2400",
     ".claude/athena/SUPERPOWERS-NOTICE.md": "c9621c9cf7e7b7f8d000ed99d449db7c0712bbc4a922f5d337477e74dc5d7e75",
     ".claude/athena/THIRD-PARTY.md": "a27eac872b2ba3f1bd5adf245fa31a283bcffe2af6b0ce78eedfefb45b1cbbef",
     ".claude/athena/bin/assurance": "11ce729f7b9c750a4a63928749c302897f5b84e5bbdcc81f1dcc9d0db1ba3e13",
-    ".claude/athena/bin/athena": "c8ef6d4dbc02495cfb12d9de8b407cf551ad5c50cbcaacb1f0ed8f2c77b924ab",
-    ".claude/athena/bin/athena_measure.py": "ebb756775e99a53af58c79d761ad2964bfbe1223a032f3cf13c2a8435ce1673d",
+    ".claude/athena/bin/athena": "90b9f9468710020921796c52d3aa7b251cd24ea7852d534179c59b9995560f27",
+    ".claude/athena/bin/athena_measure.py": "0930c04c8df198eeb1891f4d80637d31a4fddebbd743d723c1904e00b4824476",
     ".claude/athena/bin/checklib.sh": "8783a4a4827d1304e512a9eea4e57684172b9795b2790306fe1030c1d11eff78",
     ".claude/athena/bin/health_issue.py": "75a3eceb02e18f40fed538e6c765f6564b83cc89597940040653f3c9e5ad7345",
-    ".claude/athena/components.json": "a0d5a70355f1a16260ab2e6fd6193bcbbd1247fd34cd4beae3eb45009df7ad6d",
+    ".claude/athena/components.json": "56184428157aacdb9a449e4629270a0d4c65678d0a5fd1965100126dbef8f3ce",
     ".claude/athena/licenses/agency-agents-MIT.txt": "9a45258434d5cedf0af73c9ad4771373701225038d246c49219026c33677f66f",
     ".claude/athena/licenses/agent-skills-MIT.txt": "6f202f8bd568cd730dbb2b0d1f8e243bc74c2fa1f64dbce9b2c7ea08bd5c9fd7",
     ".claude/athena/licenses/awesome-llm-apps-Apache-2.0.txt": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
@@ -248,7 +248,9 @@
     ".claude/skills/using-git-worktrees/SKILL.md": "8cfb86f121269e8f7f12361e6795c4f6738828340e28964c9229d365666c9edd",
     ".claude/skills/verification-before-completion/SKILL.md": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3",
     ".claude/skills/writing-plans/SKILL.md": "6d476f62d4c961a363e96ef25da05d3305405362e93e011cd37743e5eb8054a3",
-    ".github/workflows/athena-health.yml": "6b89fa94ab9df358df2513b9ac4fdc66f94b53101024aeba98b381b39a98da45"
+    ".github/ISSUE_TEMPLATE/scope.yml": "f1bb5dd6e56f22d627cb308b43978532d29b8f365ebebfa65371b2ad275b5222",
+    ".github/workflows/athena-health.yml": "c1f1a0a080877562113896612d5b647ec0fad6f7310864a41473a2f69ecc8db9",
+    ".github/workflows/athena.yml": "46f8c80fff73c26edc915f4b9e6c71b75874c31ed6e930b3a6ef8abf33080cb5"
   },
   "settings": {
     "env": [
